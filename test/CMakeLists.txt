@@ -19,6 +19,14 @@ target_link_libraries(
         Catch2::Catch2
 )
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(
+        ${TARGET}
+        PRIVATE
+            -Wall -Werror -pedantic
+    )
+endif()
+
 add_test(
     NAME ${TARGET}
     COMMAND ${TARGET}

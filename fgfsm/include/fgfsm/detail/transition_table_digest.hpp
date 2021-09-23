@@ -7,9 +7,9 @@
 #ifndef FGFSM_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 #define FGFSM_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 
-#include "tuple.hpp"
 #include "tlu.hpp"
 #include "../transition_table.hpp"
+#include <tuple>
 
 namespace fgfsm::detail
 {
@@ -75,9 +75,9 @@ template<class... Rows>
 struct transition_table_digest<transition_table<Rows...>>:
     transition_table_digest_detail::helper
     <
-        tuple<>,
-        tuple<>,
-        tuple<>,
+        std::tuple<>,
+        std::tuple<>,
+        std::tuple<>,
         Rows...
     >
 {

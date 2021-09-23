@@ -39,12 +39,12 @@ namespace
 
     using digest = fgfsm::detail::transition_table_digest<transition_table>;
 
-    using action_tuple = fgfsm::detail::tuple<fgfsm::none, action0, action1>;
-    using guard_tuple = fgfsm::detail::tuple<fgfsm::none, guard0, guard1>;
-    using state_tuple = fgfsm::detail::tuple<state0, state1, state2, state3>;
+    using action_tuple = std::tuple<fgfsm::none, action0, action1>;
+    using guard_tuple = std::tuple<fgfsm::none, guard0, guard1>;
+    using state_tuple = std::tuple<state0, state1, state2, state3>;
 }
 
-TEST_CASE("transition_table_digest")
+TEST_CASE("detail::transition_table_digest")
 {
     REQUIRE(std::is_same_v<digest::action_tuple, action_tuple>);
     REQUIRE(std::is_same_v<digest::guard_tuple, guard_tuple>);

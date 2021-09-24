@@ -7,6 +7,7 @@
 #ifndef FGFSM_FSM_HPP
 #define FGFSM_FSM_HPP
 
+#include "none.hpp"
 #include "detail/call_state_member.hpp"
 #include "detail/for_each.hpp"
 #include "detail/make_tuple.hpp"
@@ -58,9 +59,25 @@ class fsm
         }
 
     private:
-        //Try and trigger a transition
+        /*
+        Try and trigger a transition and potential subsequent anonymous
+        transitions, if any.
+        */
         template<class Event>
         bool process_event_in_transition_table(const Event& event)
+        {
+            const bool processed = process_event_in_transition_table_once(event);
+
+            //Anonymous transitions
+            if(processed)
+                while(process_event_in_transition_table_once(none{}));
+
+            return processed;
+        }
+
+        //Try and trigger one transition
+        template<class Event>
+        bool process_event_in_transition_table_once(const Event& event)
         {
             bool processed = false;
 

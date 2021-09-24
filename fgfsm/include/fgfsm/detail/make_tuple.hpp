@@ -8,6 +8,7 @@
 #define FGFSM_DETAIL_MAKE_TUPLE_HPP
 
 #include <tuple>
+#include <utility>
 
 namespace fgfsm::detail
 {
@@ -31,17 +32,20 @@ namespace make_tuple_detail
     struct helper<std::tuple<Ts...>>
     {
         template<class... Args>
-        static auto make(const Args&... args)
+        static auto make(Args&&... args)
         {
-            return std::tuple<Ts...>{Ts{args...}...};
+            return std::tuple<Ts...>
+            {
+                Ts{std::forward<Args>(args)...}...
+            };
         }
     };
 }
 
 template<class Tuple, class... Args>
-auto make_tuple(const Args&... args)
+auto make_tuple(Args&&... args)
 {
-    return make_tuple_detail::helper<Tuple>::make(args...);
+    return make_tuple_detail::helper<Tuple>::make(std::forward<Args>(args)...);
 }
 
 } //namespace

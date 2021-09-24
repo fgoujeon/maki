@@ -10,7 +10,25 @@
 namespace fgfsm
 {
 
-struct none{};
+/*
+Represents either:
+- a null event (for anonymous transitions);
+- a action that does nothing;
+- a guard that always returns true.
+*/
+struct none
+{
+    template<class... Args>
+    none(const Args&...)
+    {
+    }
+
+    template<class... Args>
+    bool operator()(const Args&...)
+    {
+        return true;
+    }
+};
 
 } //namespace
 

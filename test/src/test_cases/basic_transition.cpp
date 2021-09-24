@@ -10,49 +10,17 @@
 
 namespace
 {
-    struct context
-    {
-    };
+    struct context{};
 
     namespace states
     {
         struct on
         {
-            template<class Event>
-            void on_entry(const Event& event)
-            {
-            }
-
-            template<class Event>
-            void on_event(const Event& event)
-            {
-            }
-
-            template<class Event>
-            void on_exit(const Event& event)
-            {
-            }
-
             context& ctx;
         };
 
         struct off
         {
-            template<class Event>
-            void on_entry(const Event& event)
-            {
-            }
-
-            template<class Event>
-            void on_event(const Event& event)
-            {
-            }
-
-            template<class Event>
-            void on_exit(const Event& event)
-            {
-            }
-
             context& ctx;
         };
     }

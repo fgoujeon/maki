@@ -7,6 +7,7 @@
 #ifndef FGFSM_FSM_HPP
 #define FGFSM_FSM_HPP
 
+#include "detail/call_state_member.hpp"
 #include "detail/for_each.hpp"
 #include "detail/make_tuple.hpp"
 #include "detail/transition_table_digest.hpp"
@@ -99,7 +100,7 @@ class fsm
 
                         //Perform the transition
                         {
-                            start_state.on_exit(event);
+                            detail::call_on_exit(start_state, event);
 
                             current_state_index_ = detail::tlu::get_index
                             <
@@ -109,7 +110,7 @@ class fsm
 
                             action(start_state, event, target_state);
 
-                            target_state.on_entry(event);
+                            detail::call_on_entry(target_state, event);
                         }
 
                         processed = true;

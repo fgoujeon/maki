@@ -58,8 +58,23 @@ class fsm
         }
 
     private:
-        //Try and trigger a transition
+        /*
+        Try and trigger a transition and potential subsequent anonymous
+        transitions, if any.
+        */
         bool process_event_in_transition_table(const event& evt)
+        {
+            const bool processed = process_event_in_transition_table_once(evt);
+
+            //Anonymous transitions
+            if(processed)
+                while(process_event_in_transition_table_once(none{}));
+
+            return processed;
+        }
+
+        //Try and trigger a transition
+        bool process_event_in_transition_table_once(const event& evt)
         {
             bool processed = false;
 
@@ -125,18 +140,17 @@ class fsm
         /*
         Call current_state.on_event(event)
         */
-        template<class Event>
-        void process_event_in_current_state(const Event& event)
+        void process_event_in_current_state(const event& evt)
         {
             detail::for_each
             (
                 states_,
-                [this, &event](auto& s)
+                [this, &evt](auto& s)
                 {
                     using state = std::decay_t<decltype(s)>;
                     if(is_current_state<state>())
                     {
-                        detail::call_on_event(s, event);
+                        detail::call_on_event(s, evt);
                     }
                 }
             );

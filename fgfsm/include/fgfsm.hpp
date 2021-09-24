@@ -6,6 +6,7 @@
 
 #include "fgfsm/event.hpp"
 #include "fgfsm/fsm.hpp"
+#include "fgfsm/guard_operators.hpp"
 #include "fgfsm/none.hpp"
 #include "fgfsm/row.hpp"
 #include "fgfsm/transition_table.hpp"

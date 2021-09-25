@@ -12,6 +12,11 @@ file(GLOB_RECURSE SOURCE_FILES *)
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${SOURCE_FILES})
 add_executable(${TARGET} ${SOURCE_FILES})
 
+set_target_properties(
+    ${TARGET} PROPERTIES
+    CXX_STANDARD 17
+)
+
 target_link_libraries(
     ${TARGET}
     PRIVATE
@@ -24,6 +29,12 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         ${TARGET}
         PRIVATE
             -Wall -Werror -pedantic
+    )
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    target_compile_options(
+        ${TARGET}
+        PRIVATE
+            /W4 /WX /permissive-
     )
 endif()
 

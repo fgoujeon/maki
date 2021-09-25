@@ -119,17 +119,27 @@ class fsm
 
                         //Perform the transition
                         {
-                            detail::call_on_exit(start_state, event);
-
-                            current_state_index_ = detail::tlu::get_index
+                            constexpr auto internal_transition = std::is_same_v
                             <
-                                state_tuple,
+                                transition_start_state,
                                 transition_target_state
                             >;
 
+                            if constexpr(!internal_transition)
+                            {
+                                detail::call_on_exit(start_state, event);
+
+                                current_state_index_ = detail::tlu::get_index
+                                <
+                                    state_tuple,
+                                    transition_target_state
+                                >;
+                            }
+
                             action(start_state, event, target_state);
 
-                            detail::call_on_entry(target_state, event);
+                            if constexpr(!internal_transition)
+                                detail::call_on_entry(target_state, event);
                         }
 
                         processed = true;

@@ -12,6 +12,9 @@
 #include "detail/for_each.hpp"
 #include "detail/make_tuple.hpp"
 #include "detail/transition_table_digest.hpp"
+#include <functional>
+#include <queue>
+#include <cassert>
 
 namespace fgfsm
 {
@@ -53,12 +56,55 @@ class fsm
         template<class Event>
         void process_event(const Event& event)
         {
+            //Defer event processing in case of recursive call
+            if(processing_event_)
+            {
+                deferred_event_processings_.push
+                (
+                    [this, event]
+                    {
+                        process_event_once(event);
+                    }
+                );
+                return;
+            }
+
+            struct processing_event_guard
+            {
+                processing_event_guard(bool& b):
+                    b(b)
+                {
+                    b = true;
+                }
+
+                ~processing_event_guard()
+                {
+                    b = false;
+                }
+
+                bool& b;
+            };
+            auto processing_guard = processing_event_guard{processing_event_};
+
+            process_event_once(event);
+
+            //Process deferred event processings
+            while(!deferred_event_processings_.empty())
+            {
+                deferred_event_processings_.front()();
+                deferred_event_processings_.pop();
+            }
+        }
+
+    private:
+        template<class Event>
+        void process_event_once(const Event& event)
+        {
             const auto processed = process_event_in_transition_table(event);
             if(!processed)
                 process_event_in_current_state(event);
         }
 
-    private:
         /*
         Try and trigger a transition and potential subsequent anonymous
         transitions, if any.
@@ -175,6 +221,8 @@ class fsm
         action_tuple actions_;
         guard_tuple guards_;
         int current_state_index_ = 0;
+        bool processing_event_ = false;
+        std::queue<std::function<void()>> deferred_event_processings_;
 };
 
 } //namespace

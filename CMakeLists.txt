@@ -10,5 +10,11 @@ project(fgfsm)
 
 find_package(Catch2 2.13 REQUIRED)
 
+option(FGFSM_BUILD_TEST "Build test executable" OFF)
+option(FGFSM_ENABLE_BENCHMARKING "Enable benchmarking in test executable" OFF)
+
 add_subdirectory(fgfsm)
-add_subdirectory(test)
+
+if(FGFSM_BUILD_TEST)
+    add_subdirectory(test)
+endif()

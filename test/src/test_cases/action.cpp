@@ -65,10 +65,10 @@ TEST_CASE("action")
     auto sm = fsm{ctx};
 
     sm.process_event(events::button_press{});
-    REQUIRE(sm.is_current_state<states::on>());
+    REQUIRE(sm.is_active_state<states::on>());
     REQUIRE(ctx.i == 1);
 
     sm.process_event(events::button_press{});
-    REQUIRE(sm.is_current_state<states::off>());
+    REQUIRE(sm.is_active_state<states::off>());
     REQUIRE(ctx.i == 0);
 }

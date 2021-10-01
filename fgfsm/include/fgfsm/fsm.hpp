@@ -41,16 +41,16 @@ class fsm
         {
         }
 
-        //Check whether the given State is the current state type
+        //Check whether the given State is the active state type
         template<class State>
-        bool is_current_state() const
+        bool is_active_state() const
         {
             constexpr auto given_state_index = detail::tlu::get_index
             <
                 state_tuple,
                 State
             >;
-            return given_state_index == current_state_index_;
+            return given_state_index == active_state_index_;
         }
 
         template<class Event>
@@ -102,7 +102,7 @@ class fsm
         {
             const auto processed = process_event_in_transition_table(event);
             if(!processed)
-                process_event_in_current_state(event);
+                process_event_in_active_state(event);
         }
 
         /*
@@ -144,9 +144,9 @@ class fsm
                         if(processed)
                             return;
 
-                        //Make sure the transition start state is the current
+                        //Make sure the transition start state is the active
                         //state
-                        if(!is_current_state<transition_start_state>())
+                        if(!is_active_state<transition_start_state>())
                             return;
 
                         auto& start_state =
@@ -175,7 +175,7 @@ class fsm
                             {
                                 detail::call_on_exit(start_state, event);
 
-                                current_state_index_ = detail::tlu::get_index
+                                active_state_index_ = detail::tlu::get_index
                                 <
                                     state_tuple,
                                     transition_target_state
@@ -197,10 +197,10 @@ class fsm
         }
 
         /*
-        Call current_state.on_event(event)
+        Call active_state.on_event(event)
         */
         template<class Event>
-        void process_event_in_current_state(const Event& event)
+        void process_event_in_active_state(const Event& event)
         {
             detail::for_each
             (
@@ -208,7 +208,7 @@ class fsm
                 [this, &event](auto& s)
                 {
                     using state = std::decay_t<decltype(s)>;
-                    if(is_current_state<state>())
+                    if(is_active_state<state>())
                     {
                         detail::call_on_event(s, event);
                     }
@@ -220,7 +220,7 @@ class fsm
         state_tuple states_;
         action_tuple actions_;
         guard_tuple guards_;
-        int current_state_index_ = 0;
+        int active_state_index_ = 0;
         bool processing_event_ = false;
         std::queue<std::function<void()>> deferred_event_processings_;
 };

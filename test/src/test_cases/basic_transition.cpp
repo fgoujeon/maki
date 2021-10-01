@@ -43,11 +43,11 @@ TEST_CASE("basic transition")
     auto ctx = context{};
     auto sm = fsm{ctx};
 
-    REQUIRE(sm.is_current_state<states::off>());
+    REQUIRE(sm.is_active_state<states::off>());
 
     sm.process_event(events::button_press{});
-    REQUIRE(sm.is_current_state<states::on>());
+    REQUIRE(sm.is_active_state<states::on>());
 
     sm.process_event(events::button_press{});
-    REQUIRE(sm.is_current_state<states::off>());
+    REQUIRE(sm.is_active_state<states::off>());
 }

@@ -91,13 +91,13 @@ TEST_CASE("on_entry_event_exit")
     auto ctx = context{};
     auto sm = fsm{ctx};
 
-    REQUIRE(sm.is_current_state<states::idle>());
+    REQUIRE(sm.is_active_state<states::idle>());
     REQUIRE(ctx.hello == "");
     REQUIRE(ctx.dog == "");
     REQUIRE(ctx.goodbye == "");
 
     sm.process_event(events::next_language_request{});
-    REQUIRE(sm.is_current_state<states::english>());
+    REQUIRE(sm.is_active_state<states::english>());
     REQUIRE(ctx.hello == "hello");
     REQUIRE(ctx.dog == "");
     REQUIRE(ctx.goodbye == "");
@@ -108,7 +108,7 @@ TEST_CASE("on_entry_event_exit")
     REQUIRE(ctx.goodbye == "");
 
     sm.process_event(events::next_language_request{});
-    REQUIRE(sm.is_current_state<states::french>());
+    REQUIRE(sm.is_active_state<states::french>());
     REQUIRE(ctx.hello == "bonjour");
     REQUIRE(ctx.dog == "dog");
     REQUIRE(ctx.goodbye == "goodbye");
@@ -119,7 +119,7 @@ TEST_CASE("on_entry_event_exit")
     REQUIRE(ctx.goodbye == "goodbye");
 
     sm.process_event(events::next_language_request{});
-    REQUIRE(sm.is_current_state<states::idle>());
+    REQUIRE(sm.is_active_state<states::idle>());
     REQUIRE(ctx.hello == "bonjour");
     REQUIRE(ctx.dog == "chien");
     REQUIRE(ctx.goodbye == "au revoir");

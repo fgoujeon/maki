@@ -101,25 +101,25 @@ TEST_CASE("guard operators")
        ctx.can_access_state0_0 = false;
        ctx.can_access_state0_1 = false;
        sm.process_event(events::start{});
-       REQUIRE(sm.is_current_state<states::idle>());
+       REQUIRE(sm.is_active_state<states::idle>());
 
        sm.process_event(events::stop{});
        ctx.can_access_state0_0 = false;
        ctx.can_access_state0_1 = true;
        sm.process_event(events::start{});
-       REQUIRE(sm.is_current_state<states::idle>());
+       REQUIRE(sm.is_active_state<states::idle>());
 
        sm.process_event(events::stop{});
        ctx.can_access_state0_0 = true;
        ctx.can_access_state0_1 = false;
        sm.process_event(events::start{});
-       REQUIRE(sm.is_current_state<states::idle>());
+       REQUIRE(sm.is_active_state<states::idle>());
 
        sm.process_event(events::stop{});
        ctx.can_access_state0_0 = true;
        ctx.can_access_state0_1 = true;
        sm.process_event(events::start{});
-       REQUIRE(sm.is_current_state<states::state0>());
+       REQUIRE(sm.is_active_state<states::state0>());
     }
 
     SECTION("or")
@@ -128,25 +128,25 @@ TEST_CASE("guard operators")
        ctx.can_access_state1_0 = false;
        ctx.can_access_state1_1 = false;
        sm.process_event(events::start{});
-       REQUIRE(sm.is_current_state<states::idle>());
+       REQUIRE(sm.is_active_state<states::idle>());
 
        sm.process_event(events::stop{});
        ctx.can_access_state1_0 = false;
        ctx.can_access_state1_1 = true;
        sm.process_event(events::start{});
-       REQUIRE(sm.is_current_state<states::state1>());
+       REQUIRE(sm.is_active_state<states::state1>());
 
        sm.process_event(events::stop{});
        ctx.can_access_state1_0 = true;
        ctx.can_access_state1_1 = false;
        sm.process_event(events::start{});
-       REQUIRE(sm.is_current_state<states::state1>());
+       REQUIRE(sm.is_active_state<states::state1>());
 
        sm.process_event(events::stop{});
        ctx.can_access_state1_0 = true;
        ctx.can_access_state1_1 = true;
        sm.process_event(events::start{});
-       REQUIRE(sm.is_current_state<states::state1>());
+       REQUIRE(sm.is_active_state<states::state1>());
     }
 
     SECTION("xor")
@@ -155,25 +155,25 @@ TEST_CASE("guard operators")
        ctx.can_access_state2_0 = false;
        ctx.can_access_state2_1 = false;
        sm.process_event(events::start{});
-       REQUIRE(sm.is_current_state<states::idle>());
+       REQUIRE(sm.is_active_state<states::idle>());
 
        sm.process_event(events::stop{});
        ctx.can_access_state2_0 = false;
        ctx.can_access_state2_1 = true;
        sm.process_event(events::start{});
-       REQUIRE(sm.is_current_state<states::state2>());
+       REQUIRE(sm.is_active_state<states::state2>());
 
        sm.process_event(events::stop{});
        ctx.can_access_state2_0 = true;
        ctx.can_access_state2_1 = false;
        sm.process_event(events::start{});
-       REQUIRE(sm.is_current_state<states::state2>());
+       REQUIRE(sm.is_active_state<states::state2>());
 
        sm.process_event(events::stop{});
        ctx.can_access_state2_0 = true;
        ctx.can_access_state2_1 = true;
        sm.process_event(events::start{});
-       REQUIRE(sm.is_current_state<states::idle>());
+       REQUIRE(sm.is_active_state<states::idle>());
     }
 
     SECTION("not")
@@ -181,11 +181,11 @@ TEST_CASE("guard operators")
        sm.process_event(events::stop{});
        ctx.cant_access_state3 = true;
        sm.process_event(events::start{});
-       REQUIRE(sm.is_current_state<states::idle>());
+       REQUIRE(sm.is_active_state<states::idle>());
 
        sm.process_event(events::stop{});
        ctx.cant_access_state3 = false;
        sm.process_event(events::start{});
-       REQUIRE(sm.is_current_state<states::state3>());
+       REQUIRE(sm.is_active_state<states::state3>());
     }
 }

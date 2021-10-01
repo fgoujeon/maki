@@ -40,8 +40,8 @@ TEST_CASE("anonymous transition")
     auto sm = fsm{};
 
     sm.process_event(events::go_on{});
-    REQUIRE(sm.is_current_state<states::s2>());
+    REQUIRE(sm.is_active_state<states::s2>());
 
     sm.process_event(events::go_on{});
-    REQUIRE(sm.is_current_state<states::s0>());
+    REQUIRE(sm.is_active_state<states::s0>());
 }

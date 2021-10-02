@@ -23,7 +23,10 @@ template
 >
 class transition_policy_helper
 {
-    public:
+    private:
+        template<class TransitionTable, class TransitionPolicy>
+        friend class fsm;
+
         transition_policy_helper
         (
             StartState& start_state,
@@ -46,6 +49,7 @@ class transition_policy_helper
         {
         }
 
+    public:
         bool check_guard() const
         {
             const auto result =
@@ -84,7 +88,6 @@ class transition_policy_helper
             TargetState
         >;
 
-    private:
         StartState& start_state_;
         const event& evt_;
         TargetState& target_state_;

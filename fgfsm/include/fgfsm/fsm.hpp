@@ -7,6 +7,7 @@
 #ifndef FGFSM_FSM_HPP
 #define FGFSM_FSM_HPP
 
+#include "transition_policy.hpp"
 #include "none.hpp"
 #include "detail/call_state_member.hpp"
 #include "detail/for_each.hpp"
@@ -19,7 +20,7 @@
 namespace fgfsm
 {
 
-template<class TransitionTable>
+template<class TransitionTable, class TransitionPolicy = fast_transition_policy>
 class fsm
 {
     public:
@@ -37,7 +38,8 @@ class fsm
         fsm(Args&&... args):
             states_(detail::make_tuple<state_tuple>(args...)),
             actions_(detail::make_tuple<action_tuple>(args...)),
-            guards_(detail::make_tuple<guard_tuple>(args...))
+            guards_(detail::make_tuple<guard_tuple>(args...)),
+            transition_policy_(args...)
         {
         }
 
@@ -156,39 +158,35 @@ class fsm
                             std::get<transition_target_state>(states_)
                         ;
                         auto& guard = std::get<transition_guard>(guards_);
-
-                        //Make sure the guard authorizes the transition
-                        if(!guard(start_state, event, target_state))
-                            return;
-
                         auto& action = std::get<transition_action>(actions_);
 
-                        //Perform the transition
+                        const auto target_state_index = detail::tlu::get_index
+                        <
+                            state_tuple,
+                            transition_target_state
+                        >;
+
+                        auto helper = transition_policy_helper
+                        <
+                            transition_start_state,
+                            transition_event,
+                            transition_target_state,
+                            transition_action,
+                            transition_guard
+                        >
                         {
-                            constexpr auto internal_transition = std::is_same_v
-                            <
-                                transition_start_state,
-                                transition_target_state
-                            >;
+                            start_state,
+                            event,
+                            target_state,
+                            action,
+                            guard,
+                            active_state_index_,
+                            processed,
+                            target_state_index
+                        };
 
-                            if constexpr(!internal_transition)
-                            {
-                                detail::call_on_exit(start_state, event);
-
-                                active_state_index_ = detail::tlu::get_index
-                                <
-                                    state_tuple,
-                                    transition_target_state
-                                >;
-                            }
-
-                            action(start_state, event, target_state);
-
-                            if constexpr(!internal_transition)
-                                detail::call_on_entry(target_state, event);
-                        }
-
-                        processed = true;
+                        //Perform the transition
+                        transition_policy_(helper);
                     }
                 }
             );
@@ -220,6 +218,7 @@ class fsm
         state_tuple states_;
         action_tuple actions_;
         guard_tuple guards_;
+        TransitionPolicy transition_policy_;
         int active_state_index_ = 0;
         bool processing_event_ = false;
         std::queue<std::function<void()>> deferred_event_processings_;

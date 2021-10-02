@@ -8,6 +8,7 @@
 #define FGFSM_FSM_HPP
 
 #include "transition_policy.hpp"
+#include "on_event_invocation_policy.hpp"
 #include "none.hpp"
 #include "event_ref.hpp"
 #include "detail/call_state_member.hpp"
@@ -19,10 +20,15 @@
 namespace fgfsm
 {
 
-template<class TransitionTable, class TransitionPolicy = fast_transition_policy>
+template
+<
+    class TransitionTable,
+    class TransitionPolicy = fast_transition_policy,
+    class OnEventInvocationPolicy = fast_on_event_invocation_policy
+>
 class fsm
 {
-    public:
+    private:
         using transition_table = TransitionTable;
         using transition_table_digest =
             detail::transition_table_digest<transition_table>
@@ -38,7 +44,8 @@ class fsm
             states_(detail::make_tuple<state_tuple>(args...)),
             actions_(detail::make_tuple<action_tuple>(args...)),
             guards_(detail::make_tuple<guard_tuple>(args...)),
-            transition_policy_(args...)
+            transition_policy_(args...),
+            on_event_invocation_policy_(args...)
         {
         }
 
@@ -195,7 +202,11 @@ class fsm
                     using state = std::decay_t<decltype(s)>;
                     if(is_active_state<state>())
                     {
-                        detail::call_on_event(s, evt);
+                        auto helper = on_event_invocation_policy_helper
+                        <
+                            state
+                        >{s, evt};
+                        on_event_invocation_policy_(helper);
                     }
                 }
             );
@@ -206,6 +217,8 @@ class fsm
         action_tuple actions_;
         guard_tuple guards_;
         TransitionPolicy transition_policy_;
+        OnEventInvocationPolicy on_event_invocation_policy_;
+
         int active_state_index_ = 0;
         bool processing_event_ = false;
         std::queue<event_ref> deferred_events_;

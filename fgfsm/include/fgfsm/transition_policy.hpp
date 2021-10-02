@@ -24,7 +24,12 @@ template
 class transition_policy_helper
 {
     private:
-        template<class TransitionTable, class TransitionPolicy>
+        template
+        <
+            class TransitionTable,
+            class TransitionPolicy,
+            class OnEventInvocationPolicy
+        >
         friend class fsm;
 
         transition_policy_helper

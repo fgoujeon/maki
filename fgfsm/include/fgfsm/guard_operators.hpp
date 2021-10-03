@@ -39,21 +39,21 @@ namespace detail
         }
     };
 
-    template<class L, class R, class Operator>
+    template<class L, class R, class BooleanOperator>
     class binary_operator_guard
     {
         public:
-            template<class... Args>
-            binary_operator_guard(Args&&... args):
-                lhs_{args...},
-                rhs_{args...}
+            template<class Context>
+            binary_operator_guard(Context& context):
+                lhs_{context},
+                rhs_{context}
             {
             }
 
             template<class... Args>
             bool operator()(const Args&... args) const
             {
-                return Operator::test(lhs_(args...), rhs_(args...));
+                return BooleanOperator::test(lhs_(args...), rhs_(args...));
             }
 
         private:

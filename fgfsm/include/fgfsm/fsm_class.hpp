@@ -26,9 +26,9 @@
     class CLASS_NAME \
     { \
         public: \
-            template<class... _FGFSM(Args)> \
-            CLASS_NAME(_FGFSM(Args)&&... _FGFSM(args)): \
-                _FGFSM(impl_)(_FGFSM(args)...) \
+            template<class _FGFSM(Context)> \
+            CLASS_NAME(_FGFSM(Context)& _FGFSM(context)): \
+                _FGFSM(impl_)(_FGFSM(context)) \
             { \
             } \
  \

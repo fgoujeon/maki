@@ -9,6 +9,8 @@
 
 namespace
 {
+    struct context{};
+
     struct events
     {
         struct go_on{};
@@ -16,11 +18,11 @@ namespace
 
     struct states
     {
-        struct s0{};
-        struct s1{};
-        struct s2{};
-        struct s3{};
-        struct s4{};
+        struct s0{context& ctx;};
+        struct s1{context& ctx;};
+        struct s2{context& ctx;};
+        struct s3{context& ctx;};
+        struct s4{context& ctx;};
     };
 
     using transition_table = fgfsm::transition_table
@@ -37,7 +39,8 @@ namespace
 
 TEST_CASE("anonymous transition")
 {
-    auto sm = fsm{};
+    auto ctx = context{};
+    auto sm = fsm{ctx};
 
     sm.process_event(events::go_on{});
     REQUIRE(sm.is_active_state<states::s2>());

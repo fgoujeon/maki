@@ -14,13 +14,15 @@ namespace fgfsm::detail
 {
 
 /*
-make_tuple creates a std::tuple whose items are uniformly instanciated.
+make_tuple creates a std::tuple whose all elements are instanciated with the
+same given reference.
 
 In this example...:
+    int data = 42;
     using my_tuple = std::tuple<type0, type1>;
-    auto t = make_tuple<my_tuple>{0, 'a'};
+    auto t = make_tuple<my_tuple>(data);
 
-... the tuple elements are instanciated as type0{0, 'a'} and type1{0, 'a'}.
+... the tuple elements are instanciated as type0{data} and type1{data}.
 */
 
 namespace make_tuple_detail
@@ -31,21 +33,18 @@ namespace make_tuple_detail
     template<class... Ts>
     struct helper<std::tuple<Ts...>>
     {
-        template<class... Args>
-        static auto make(Args&&... args)
+        template<class Arg>
+        static auto make(Arg& arg)
         {
-            return std::tuple<Ts...>
-            {
-                Ts{std::forward<Args>(args)...}...
-            };
+            return std::tuple<Ts...>{Ts{arg}...};
         }
     };
 }
 
-template<class Tuple, class... Args>
-auto make_tuple(Args&&... args)
+template<class Tuple, class Arg>
+auto make_tuple(Arg& arg)
 {
-    return make_tuple_detail::helper<Tuple>::make(std::forward<Args>(args)...);
+    return make_tuple_detail::helper<Tuple>::make(arg);
 }
 
 } //namespace

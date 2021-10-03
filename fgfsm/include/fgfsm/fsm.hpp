@@ -40,13 +40,13 @@ class fsm
         using guard_tuple  = typename transition_table_digest::guard_tuple;
 
     public:
-        template<typename... Args>
-        fsm(Args&&... args):
-            states_(detail::make_tuple<state_tuple>(args...)),
-            actions_(detail::make_tuple<action_tuple>(args...)),
-            guards_(detail::make_tuple<guard_tuple>(args...)),
-            transition_policy_(args...),
-            on_event_invocation_policy_(args...)
+        template<class Context>
+        fsm(Context& context):
+            states_(detail::make_tuple<state_tuple>(context)),
+            actions_(detail::make_tuple<action_tuple>(context)),
+            guards_(detail::make_tuple<guard_tuple>(context)),
+            transition_policy_(context),
+            on_event_invocation_policy_(context)
         {
         }
 

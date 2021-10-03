@@ -40,10 +40,10 @@ namespace detail
     class binary_operator_guard
     {
         public:
-            template<class... Args>
-            binary_operator_guard(Args&&... args):
-                lhs_{args...},
-                rhs_{args...}
+            template<class Context>
+            binary_operator_guard(Context& context):
+                lhs_{context},
+                rhs_{context}
             {
             }
 

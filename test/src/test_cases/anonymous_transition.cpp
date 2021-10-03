@@ -18,11 +18,40 @@ namespace
 
     struct states
     {
-        struct s0{context& ctx;};
-        struct s1{context& ctx;};
-        struct s2{context& ctx;};
-        struct s3{context& ctx;};
-        struct s4{context& ctx;};
+        struct s0
+        {
+            void on_entry(){}
+            void on_exit(){}
+            context& ctx;
+        };
+
+        struct s1
+        {
+            void on_entry(){}
+            void on_exit(){}
+            context& ctx;
+        };
+
+        struct s2
+        {
+            void on_entry(){}
+            void on_exit(){}
+            context& ctx;
+        };
+
+        struct s3
+        {
+            void on_entry(){}
+            void on_exit(){}
+            context& ctx;
+        };
+
+        struct s4
+        {
+            void on_entry(){}
+            void on_exit(){}
+            context& ctx;
+        };
     };
 
     using transition_table = fgfsm::transition_table

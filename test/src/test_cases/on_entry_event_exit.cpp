@@ -27,6 +27,8 @@ namespace
     {
         struct idle
         {
+            void on_entry(){}
+            void on_exit(){}
             context& ctx;
         };
 
@@ -52,7 +54,7 @@ namespace
 
         struct french
         {
-            void on_entry()
+            void on_entry(const events::next_language_request&)
             {
                 ctx.hello = "bonjour";
             }
@@ -62,16 +64,11 @@ namespace
                 ctx.dog = "chien";
             }
 
-            void on_exit(const events::next_language_request&)
+            void on_exit()
             {
                 ctx.goodbye = "au revoir";
             }
 
-            context& ctx;
-        };
-
-        struct off
-        {
             context& ctx;
         };
     }
@@ -103,6 +100,7 @@ TEST_CASE("on_entry_event_exit")
     REQUIRE(ctx.goodbye == "");
 
     sm.process_event(events::say_dog{});
+    REQUIRE(sm.is_active_state<states::english>());
     REQUIRE(ctx.hello == "hello");
     REQUIRE(ctx.dog == "dog");
     REQUIRE(ctx.goodbye == "");
@@ -114,6 +112,7 @@ TEST_CASE("on_entry_event_exit")
     REQUIRE(ctx.goodbye == "goodbye");
 
     sm.process_event(events::say_dog{});
+    REQUIRE(sm.is_active_state<states::french>());
     REQUIRE(ctx.hello == "bonjour");
     REQUIRE(ctx.dog == "chien");
     REQUIRE(ctx.goodbye == "goodbye");

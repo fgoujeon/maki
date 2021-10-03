@@ -7,6 +7,8 @@
 #ifndef FGFSM_DETAIL_CALL_STATE_MEMBER_HPP
 #define FGFSM_DETAIL_CALL_STATE_MEMBER_HPP
 
+#include <utility>
+
 namespace fgfsm::detail
 {
 
@@ -17,45 +19,59 @@ call_on_xxx(state, event) calls either (in this order of priority):
 - nothing, if the above functions don't exist.
 */
 
-#define FGFSM_DETAIL_CALL_STATE_MEMBER(MEMBER) \
-    template<class State, class Event> \
-    auto call_##MEMBER##_with_event(State& state, const Event& event, int) -> decltype(state.MEMBER(event), bool()) \
+#define FGFSM_DETAIL_HAS_MEMBER_FUNCTION(MEMBER_NAME) \
+    template<class T, class... Args> \
+    constexpr auto has_##MEMBER_NAME##_impl(int) -> decltype(std::declval<T>().MEMBER_NAME(std::declval<Args>()...), bool()) \
     { \
-        state.MEMBER(event); \
         return true; \
     } \
  \
-    template<class State, class Event> \
-    bool call_##MEMBER##_with_event(State&, const Event&, long) \
+    template<class T, class... Args> \
+    constexpr bool has_##MEMBER_NAME##_impl(long) \
     { \
         return false; \
     } \
  \
-    template<class State> \
-    auto call_##MEMBER##_without_event(State& state, int) -> decltype(state.MEMBER(), bool()) \
+    template<class T, class... Args> \
+    constexpr bool has_##MEMBER_NAME() \
     { \
-        state.MEMBER(); \
-        return true; \
-    } \
- \
-    template<class State> \
-    bool call_##MEMBER##_without_event(State&, long) \
-    { \
-        return false; \
-    } \
- \
-    template<class State, class Event> \
-    void call_##MEMBER(State& state, Event&& event) \
-    { \
-        call_##MEMBER##_with_event(state, event, 0) || \
-        call_##MEMBER##_without_event(state, 0); \
+        return has_##MEMBER_NAME##_impl<T, Args...>(0); \
     }
 
-FGFSM_DETAIL_CALL_STATE_MEMBER(on_entry)
-FGFSM_DETAIL_CALL_STATE_MEMBER(on_event)
-FGFSM_DETAIL_CALL_STATE_MEMBER(on_exit)
+FGFSM_DETAIL_HAS_MEMBER_FUNCTION(on_entry)
+FGFSM_DETAIL_HAS_MEMBER_FUNCTION(on_event)
+FGFSM_DETAIL_HAS_MEMBER_FUNCTION(on_exit)
 
 #undef FGFSM_DETAIL_CALL_STATE_MEMBER
+
+template<class State, class Event>
+void call_on_entry(State& state, const Event& event)
+{
+    if constexpr(has_on_entry<State&, const Event&>())
+        state.on_entry(event);
+    else if constexpr(has_on_entry<State&>())
+        state.on_entry();
+    else
+        int* error = "No state::on_entry(event) or state::on_entry() found";
+}
+
+template<class State, class Event>
+void call_on_event(State& state, const Event& event)
+{
+    if constexpr(has_on_event<State&, const Event&>())
+        state.on_event(event);
+}
+
+template<class State, class Event>
+void call_on_exit(State& state, const Event& event)
+{
+    if constexpr(has_on_exit<State&, const Event&>())
+        state.on_exit(event);
+    else if constexpr(has_on_exit<State&>())
+        state.on_exit();
+    else
+        int* error = "No state::on_exit(event) or state::on_exit() found";
+}
 
 } //namespace
 

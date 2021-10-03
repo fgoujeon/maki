@@ -18,11 +18,15 @@ namespace
     {
         struct on
         {
+            void on_entry(){}
+            void on_exit(){}
             context& ctx;
         };
 
         struct off
         {
+            void on_entry(){}
+            void on_exit(){}
             context& ctx;
         };
     }

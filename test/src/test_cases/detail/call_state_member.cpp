@@ -12,7 +12,7 @@ namespace
 {
     struct context
     {
-        std::string output;
+        int i = 0;
     };
 
     struct event
@@ -26,7 +26,7 @@ namespace
         {
             if(const event* pevt = evt.get<event>())
             {
-                ctx.output = std::to_string(pevt->i);
+                ctx.i = pevt->i;
             }
         }
 
@@ -34,7 +34,7 @@ namespace
         {
             if(const event* pevt = evt.get<event>())
             {
-                ctx.output = std::to_string(pevt->i);
+                ctx.i = pevt->i;
             }
         }
 
@@ -42,7 +42,7 @@ namespace
         {
             if(const event* pevt = evt.get<event>())
             {
-                ctx.output = std::to_string(pevt->i);
+                ctx.i = pevt->i;
             }
         }
 
@@ -53,17 +53,12 @@ namespace
     {
         void on_entry()
         {
-            ctx.output = '-';
-        }
-
-        void on_event()
-        {
-            ctx.output = '-';
+            ctx.i = 99;
         }
 
         void on_exit()
         {
-            ctx.output = '-';
+            ctx.i = 99;
         }
 
         context& ctx;
@@ -82,30 +77,39 @@ TEST_CASE("detail::call_state_member")
     auto state1 = state_without_event{ctx};
     auto state2 = state_without_anything{ctx};
 
+    ctx.i = -1;
     fgfsm::detail::call_on_entry(state0, event{0});
-    REQUIRE(ctx.output == "0");
+    REQUIRE(ctx.i == 0);
 
+    ctx.i = -1;
     fgfsm::detail::call_on_entry(state1, event{1});
-    REQUIRE(ctx.output == "-");
+    REQUIRE(ctx.i == 99);
 
+    ctx.i = -1;
     fgfsm::detail::call_on_entry(state2, event{2});
-    REQUIRE(ctx.output == "-");
+    REQUIRE(ctx.i == -1);
 
+    ctx.i = -1;
     fgfsm::detail::call_on_event(state0, event{3});
-    REQUIRE(ctx.output == "3");
+    REQUIRE(ctx.i == 3);
 
+    ctx.i = -1;
     fgfsm::detail::call_on_event(state1, event{4});
-    REQUIRE(ctx.output == "-");
+    REQUIRE(ctx.i == -1);
 
+    ctx.i = -1;
     fgfsm::detail::call_on_event(state2, event{5});
-    REQUIRE(ctx.output == "-");
+    REQUIRE(ctx.i == -1);
 
+    ctx.i = -1;
     fgfsm::detail::call_on_exit(state0, event{6});
-    REQUIRE(ctx.output == "6");
+    REQUIRE(ctx.i == 6);
 
+    ctx.i = -1;
     fgfsm::detail::call_on_exit(state1, event{7});
-    REQUIRE(ctx.output == "-");
+    REQUIRE(ctx.i == 99);
 
+    ctx.i = -1;
     fgfsm::detail::call_on_exit(state2, event{8});
-    REQUIRE(ctx.output == "-");
+    REQUIRE(ctx.i == -1);
 }

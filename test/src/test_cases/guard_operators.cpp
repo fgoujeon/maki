@@ -25,11 +25,40 @@ namespace
 
     namespace states
     {
-        struct idle{context& ctx;};
-        struct state0{context& ctx;};
-        struct state1{context& ctx;};
-        struct state2{context& ctx;};
-        struct state3{context& ctx;};
+        struct idle
+        {
+            void on_entry(){}
+            void on_exit(){}
+            context& ctx;
+        };
+
+        struct state0
+        {
+            void on_entry(){}
+            void on_exit(){}
+            context& ctx;
+        };
+
+        struct state1
+        {
+            void on_entry(){}
+            void on_exit(){}
+            context& ctx;
+        };
+
+        struct state2
+        {
+            void on_entry(){}
+            void on_exit(){}
+            context& ctx;
+        };
+
+        struct state3
+        {
+            void on_entry(){}
+            void on_exit(){}
+            context& ctx;
+        };
     }
 
     namespace events

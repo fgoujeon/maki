@@ -28,7 +28,7 @@ class state_transition_policy_helper
         <
             class TransitionTable,
             class StateTransitionPolicy,
-            class OnEventInvocationPolicy
+            class InternalTransitionPolicy
         >
         friend class fsm;
 

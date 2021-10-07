@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
-#ifndef FGFSM_ON_EVENT_INVOCATION_POLICY_HPP
-#define FGFSM_ON_EVENT_INVOCATION_POLICY_HPP
+#ifndef FGFSM_INTERNAL_TRANSITION_POLICY_HPP
+#define FGFSM_INTERNAL_TRANSITION_POLICY_HPP
 
 #include "detail/call_state_member.hpp"
 #include <type_traits>
@@ -16,18 +16,18 @@ namespace fgfsm
 {
 
 template<class State, class Event>
-class on_event_invocation_policy_helper
+class internal_transition_policy_helper
 {
     private:
         template
         <
             class TransitionTable,
-            class TransitionPolicy,
-            class OnEventInvocationPolicy
+            class StateTransitionPolicy,
+            class InternalTransitionPolicy
         >
         friend class fsm;
 
-        on_event_invocation_policy_helper
+        internal_transition_policy_helper
         (
             State& state,
             const Event& event
@@ -48,15 +48,15 @@ class on_event_invocation_policy_helper
         const Event& event_;
 };
 
-struct fast_on_event_invocation_policy
+struct fast_internal_transition_policy
 {
     template<class... Args>
-    fast_on_event_invocation_policy(const Args&...)
+    fast_internal_transition_policy(const Args&...)
     {
     }
 
     template<class State, class Event>
-    void operator()(on_event_invocation_policy_helper<State, Event>& helper)
+    void operator()(internal_transition_policy_helper<State, Event>& helper)
     {
         helper.invoke_state_on_event();
     }

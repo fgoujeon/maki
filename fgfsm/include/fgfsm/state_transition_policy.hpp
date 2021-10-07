@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
-#ifndef FGFSM_TRANSITION_POLICY_HPP
-#define FGFSM_TRANSITION_POLICY_HPP
+#ifndef FGFSM_STATE_TRANSITION_POLICY_HPP
+#define FGFSM_STATE_TRANSITION_POLICY_HPP
 
 #include "detail/call_state_member.hpp"
 #include <type_traits>
@@ -21,18 +21,18 @@ template
     class Action,
     class Guard
 >
-class transition_policy_helper
+class state_transition_policy_helper
 {
     private:
         template
         <
             class TransitionTable,
-            class TransitionPolicy,
-            class OnEventInvocationPolicy
+            class StateTransitionPolicy,
+            class InternalTransitionPolicy
         >
         friend class fsm;
 
-        transition_policy_helper
+        state_transition_policy_helper
         (
             StartState& start_state,
             const Event& event,
@@ -66,8 +66,7 @@ class transition_policy_helper
 
         void invoke_start_state_on_exit()
         {
-            if constexpr(!internal_transition)
-                detail::call_on_exit(start_state_, event_);
+            detail::call_on_exit(start_state_, event_);
         }
 
         void activate_target_state()
@@ -82,17 +81,10 @@ class transition_policy_helper
 
         void invoke_target_state_on_entry()
         {
-            if constexpr(!internal_transition)
-                detail::call_on_entry(target_state_, event_);
+            detail::call_on_entry(target_state_, event_);
         }
 
     private:
-        static constexpr bool internal_transition = std::is_same_v
-        <
-            StartState,
-            TargetState
-        >;
-
         StartState& start_state_;
         const Event& event_;
         TargetState& target_state_;
@@ -103,10 +95,10 @@ class transition_policy_helper
         const int target_state_index_;
 };
 
-struct fast_transition_policy
+struct fast_state_transition_policy
 {
     template<class... Args>
-    fast_transition_policy(const Args&...)
+    fast_state_transition_policy(const Args&...)
     {
     }
 
@@ -120,7 +112,7 @@ struct fast_transition_policy
     >
     void operator()
     (
-        transition_policy_helper<StartState, Event, TargetState, Action, Guard>& helper
+        state_transition_policy_helper<StartState, Event, TargetState, Action, Guard>& helper
     )
     {
         if(helper.check_guard())

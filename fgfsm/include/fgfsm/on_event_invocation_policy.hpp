@@ -22,7 +22,7 @@ class on_event_invocation_policy_helper
         template
         <
             class TransitionTable,
-            class TransitionPolicy,
+            class StateTransitionPolicy,
             class OnEventInvocationPolicy
         >
         friend class fsm;

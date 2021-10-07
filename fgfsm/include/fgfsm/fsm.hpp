@@ -7,7 +7,7 @@
 #ifndef FGFSM_FSM_HPP
 #define FGFSM_FSM_HPP
 
-#include "transition_policy.hpp"
+#include "state_transition_policy.hpp"
 #include "on_event_invocation_policy.hpp"
 #include "none.hpp"
 #include "detail/call_state_member.hpp"
@@ -24,7 +24,7 @@ namespace fgfsm
 template
 <
     class TransitionTable,
-    class TransitionPolicy = fast_transition_policy,
+    class StateTransitionPolicy = fast_state_transition_policy,
     class OnEventInvocationPolicy = fast_on_event_invocation_policy
 >
 class fsm
@@ -45,7 +45,7 @@ class fsm
             states_(detail::make_tuple<state_tuple>(context)),
             actions_(detail::make_tuple<action_tuple>(context)),
             guards_(detail::make_tuple<guard_tuple>(context)),
-            transition_policy_(context),
+            state_transition_policy_(context),
             on_event_invocation_policy_(context)
         {
         }
@@ -173,7 +173,7 @@ class fsm
                             transition_target_state
                         >;
 
-                        auto helper = transition_policy_helper
+                        auto helper = state_transition_policy_helper
                         <
                             transition_start_state,
                             transition_event,
@@ -193,7 +193,7 @@ class fsm
                         };
 
                         //Perform the transition
-                        transition_policy_(helper);
+                        state_transition_policy_(helper);
                     }
                 }
             );
@@ -230,7 +230,7 @@ class fsm
         state_tuple states_;
         action_tuple actions_;
         guard_tuple guards_;
-        TransitionPolicy transition_policy_;
+        StateTransitionPolicy state_transition_policy_;
         OnEventInvocationPolicy on_event_invocation_policy_;
 
         int active_state_index_ = 0;

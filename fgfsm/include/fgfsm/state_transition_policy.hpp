@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
-#ifndef FGFSM_TRANSITION_POLICY_HPP
-#define FGFSM_TRANSITION_POLICY_HPP
+#ifndef FGFSM_STATE_TRANSITION_POLICY_HPP
+#define FGFSM_STATE_TRANSITION_POLICY_HPP
 
 #include "event_ref.hpp"
 #include "detail/call_state_member.hpp"
@@ -21,18 +21,18 @@ template
     class Action,
     class Guard
 >
-class transition_policy_helper
+class state_transition_policy_helper
 {
     private:
         template
         <
             class TransitionTable,
-            class TransitionPolicy,
+            class StateTransitionPolicy,
             class OnEventInvocationPolicy
         >
         friend class fsm;
 
-        transition_policy_helper
+        state_transition_policy_helper
         (
             StartState& start_state,
             const event_ref& evt,
@@ -95,10 +95,10 @@ class transition_policy_helper
         const int target_state_index_;
 };
 
-struct fast_transition_policy
+struct fast_state_transition_policy
 {
     template<class... Args>
-    fast_transition_policy(const Args&...)
+    fast_state_transition_policy(const Args&...)
     {
     }
 
@@ -111,7 +111,13 @@ struct fast_transition_policy
     >
     void operator()
     (
-        transition_policy_helper<StartState, TargetState, Action, Guard>& helper
+        state_transition_policy_helper
+        <
+            StartState,
+            TargetState,
+            Action,
+            Guard
+        >& helper
     )
     {
         if(helper.check_guard())

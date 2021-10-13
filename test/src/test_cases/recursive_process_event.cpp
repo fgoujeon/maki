@@ -9,20 +9,21 @@
 
 namespace
 {
-    FGFSM_DECLARE_FSM_CLASS(fsm)
-
-    struct context
-    {
-        fsm* pfsm = nullptr;
-        std::string output;
-    };
-
     namespace events
     {
         struct start_button_press{};
         struct quick_start_button_press{};
         struct end_of_loading{};
     }
+
+    class fsm;
+    void process_event(fsm& sm, const events::end_of_loading& event);
+
+    struct context
+    {
+        fsm& sm;
+        std::string output;
+    };
 
     namespace states
     {
@@ -74,7 +75,7 @@ namespace
             template<class StartState, class Event, class TargetState>
             void operator()(StartState&, Event&, TargetState&)
             {
-                process_event(ctx.pfsm, events::end_of_loading{});
+                process_event(ctx.sm, events::end_of_loading{});
             }
 
             context& ctx;
@@ -88,16 +89,41 @@ namespace
         fgfsm::row<states::loading, events::end_of_loading,           states::ready>
     >;
 
-    using fsm_impl = fgfsm::fsm<transition_table>;
-    FGFSM_DEFINE_FSM_CLASS(fsm, fsm_impl)
+    class fsm
+    {
+        public:
+            fsm():
+                ctx_{*this},
+                impl_(ctx_)
+            {
+            }
+
+            template<class Event>
+            void process_event(const Event& event)
+            {
+                impl_.process_event(event);
+            }
+
+            context& get_context()
+            {
+                return ctx_;
+            }
+
+        private:
+            context ctx_;
+            fgfsm::fsm<transition_table> impl_;
+    };
+
+    void process_event(fsm& sm, const events::end_of_loading& event)
+    {
+        sm.process_event(event);
+    }
 }
 
 TEST_CASE("recursive process_event")
 {
-    auto ctx = context{};
-    auto sm = fsm{ctx};
-    ctx.pfsm = &sm;
+    auto sm = fsm{};
 
     sm.process_event(events::quick_start_button_press{});
-    REQUIRE(ctx.output == "idle::on_exit;loading::on_entry;loading::on_exit;ready::on_entry;");
+    REQUIRE(sm.get_context().output == "idle::on_exit;loading::on_entry;loading::on_exit;ready::on_entry;");
 }

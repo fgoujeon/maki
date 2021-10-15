@@ -52,7 +52,9 @@ class fsm
 
         void process_event(const event& evt)
         {
-            process_event_in_transition_table(evt);
+            const auto processed = process_event_in_transition_table(evt);
+            if(!processed)
+                process_event_in_current_state(evt);
         }
 
     private:
@@ -118,6 +120,26 @@ class fsm
             );
 
             return processed;
+        }
+
+        /*
+        Call current_state.on_event(event)
+        */
+        template<class Event>
+        void process_event_in_current_state(const Event& event)
+        {
+            detail::for_each
+            (
+                states_,
+                [this, &event](auto& s)
+                {
+                    using state = std::decay_t<decltype(s)>;
+                    if(is_current_state<state>())
+                    {
+                        detail::call_on_event(s, event);
+                    }
+                }
+            );
         }
 
     private:

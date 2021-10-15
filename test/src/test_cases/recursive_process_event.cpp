@@ -21,6 +21,12 @@ namespace
 
     struct context
     {
+        template<class Event>
+        void process_event(const Event& event)
+        {
+            ::process_event(sm, event);
+        }
+
         fsm& sm;
         std::string output;
     };
@@ -75,7 +81,7 @@ namespace
             template<class StartState, class Event, class TargetState>
             void operator()(StartState&, Event&, TargetState&)
             {
-                process_event(ctx.sm, events::end_of_loading{});
+                ctx.process_event(events::end_of_loading{});
             }
 
             context& ctx;

@@ -109,9 +109,8 @@ class fsm
         template<class Event>
         void process_event_once(const Event& event)
         {
-            const auto processed = process_event_in_transition_table(event);
-            if(!processed)
-                process_event_in_active_state(event);
+            process_event_in_active_state(event);
+            process_event_in_transition_table(event);
         }
 
         /*
@@ -119,15 +118,13 @@ class fsm
         transitions, if any.
         */
         template<class Event>
-        bool process_event_in_transition_table(const Event& event)
+        void process_event_in_transition_table(const Event& event)
         {
             const bool processed = process_event_in_transition_table_once(event);
 
             //Anonymous transitions
             if(processed)
                 while(process_event_in_transition_table_once(none{}));
-
-            return processed;
         }
 
         //Try and trigger one transition

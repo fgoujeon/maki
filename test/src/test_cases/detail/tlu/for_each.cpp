@@ -21,19 +21,24 @@ namespace
     TYPE(type2);
 
 #undef TYPE
+
+    struct for_each_helper
+    {
+        template<class T>
+        void operator()()
+        {
+            str += std::string{T::name} + ";";
+        }
+
+        std::string& str;
+    };
 }
 
 TEST_CASE("detail::tlu::for_each")
 {
+    using type_list = std::tuple<type0, type1, type2>;
     auto str = std::string{};
-    fgfsm::detail::tlu::for_each<std::tuple<type0, type1, type2>>
-    (
-        [&str](auto* const ptr)
-        {
-            using type = std::remove_pointer_t<decltype(ptr)>;
-            str += std::string{type::name} + ";";
-        }
-    );
-
+    auto helper = for_each_helper{str};
+    fgfsm::detail::tlu::for_each<type_list>(helper);
     REQUIRE(str == "type0;type1;type2;");
 }

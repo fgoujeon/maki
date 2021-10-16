@@ -136,70 +136,85 @@ class fsm
         {
             bool processed = false;
 
-            detail::tlu::for_each<transition_table> //For each row
-            (
-                [this, &event, &processed](auto* ptransition)
-                {
-                    using transition              = std::remove_pointer_t<decltype(ptransition)>;
-                    using transition_start_state  = typename transition::start_state;
-                    using transition_event        = typename transition::event;
-                    using transition_target_state = typename transition::target_state;
-                    using transition_action       = typename transition::action;
-                    using transition_guard        = typename transition::guard;
+            const auto helper = process_event_in_transition_table_once_helper<Event>
+            {
+                *this,
+                event,
+                processed
+            };
 
-                    if constexpr(std::is_same_v<transition_event, Event>)
-                    {
-                        //Make sure we don't trigger more than one transition
-                        if(processed)
-                            return;
-
-                        //Make sure the transition start state is the active
-                        //state
-                        if(!is_active_state<transition_start_state>())
-                            return;
-
-                        auto& start_state =
-                            std::get<transition_start_state>(states_)
-                        ;
-                        auto& target_state =
-                            std::get<transition_target_state>(states_)
-                        ;
-                        auto& guard = std::get<transition_guard>(guards_);
-                        auto& action = std::get<transition_action>(actions_);
-
-                        const auto target_state_index = detail::tlu::get_index
-                        <
-                            state_tuple,
-                            transition_target_state
-                        >;
-
-                        auto helper = state_transition_policy_helper
-                        <
-                            transition_start_state,
-                            transition_event,
-                            transition_target_state,
-                            transition_action,
-                            transition_guard
-                        >
-                        {
-                            start_state,
-                            event,
-                            target_state,
-                            action,
-                            guard,
-                            active_state_index_,
-                            processed,
-                            target_state_index
-                        };
-
-                        //Perform the transition
-                        state_transition_policy_(helper);
-                    }
-                }
-            );
+            //For each row
+            detail::tlu::for_each<transition_table>(helper);
 
             return processed;
         }
+
+        template<class Event>
+        struct process_event_in_transition_table_once_helper
+        {
+            template<class Transition>
+            void operator()() const
+            {
+                using transition_start_state  = typename Transition::start_state;
+                using transition_event        = typename Transition::event;
+                using transition_target_state = typename Transition::target_state;
+                using transition_action       = typename Transition::action;
+                using transition_guard        = typename Transition::guard;
+
+                if constexpr(std::is_same_v<transition_event, Event>)
+                {
+                    //Make sure we don't trigger more than one transition
+                    if(processed)
+                        return;
+
+                    //Make sure the transition start state is the active
+                    //state
+                    if(!self.is_active_state<transition_start_state>())
+                        return;
+
+                    auto& start_state =
+                        std::get<transition_start_state>(self.states_)
+                    ;
+                    auto& target_state =
+                        std::get<transition_target_state>(self.states_)
+                    ;
+                    auto& guard = std::get<transition_guard>(self.guards_);
+                    auto& action = std::get<transition_action>(self.actions_);
+
+                    const auto target_state_index = detail::tlu::get_index
+                    <
+                        state_tuple,
+                        transition_target_state
+                    >;
+
+                    auto helper = state_transition_policy_helper
+                    <
+                        transition_start_state,
+                        transition_event,
+                        transition_target_state,
+                        transition_action,
+                        transition_guard
+                    >
+                    {
+                        start_state,
+                        event,
+                        target_state,
+                        action,
+                        guard,
+                        self.active_state_index_,
+                        processed,
+                        target_state_index
+                    };
+
+                    //Perform the transition
+                    self.state_transition_policy_(helper);
+                }
+            }
+
+            fsm& self;
+            const Event& event;
+            bool& processed;
+        };
 
         /*
         Call active_state.on_event(event)

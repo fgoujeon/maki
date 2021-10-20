@@ -33,13 +33,13 @@ namespace
         struct button_press{};
     }
 
-    using transition_table = fgfsm::transition_table
+    using state_transition_table = fgfsm::state_transition_table
     <
         fgfsm::row<states::off, events::button_press, states::on>,
         fgfsm::row<states::on,  events::button_press, states::off>
     >;
 
-    using fsm = fgfsm::fsm<transition_table>;
+    using fsm = fgfsm::fsm<state_transition_table>;
 }
 
 TEST_CASE("basic transition")

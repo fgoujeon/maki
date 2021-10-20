@@ -5,9 +5,9 @@
 //Official repository: https://github.com/fgoujeon/fgfsm
 
 #include <fgfsm/row.hpp>
-#include <fgfsm/transition_table.hpp>
+#include <fgfsm/state_transition_table.hpp>
 #include <fgfsm/none.hpp>
-#include <fgfsm/detail/transition_table_digest.hpp>
+#include <fgfsm/detail/state_transition_table_digest.hpp>
 #include <catch2/catch.hpp>
 #include <tuple>
 
@@ -29,7 +29,7 @@ namespace
     struct guard0{};
     struct guard1{};
 
-    using transition_table = fgfsm::transition_table
+    using state_transition_table = fgfsm::state_transition_table
     <
         fgfsm::row<state0, event0, state1>,
         fgfsm::row<state1, event1, state2, fgfsm::none, guard0>,
@@ -37,7 +37,7 @@ namespace
         fgfsm::row<state3, event3, state0, action1,     guard1>
     >;
 
-    using digest = fgfsm::detail::transition_table_digest<transition_table>;
+    using digest = fgfsm::detail::state_transition_table_digest<state_transition_table>;
 
     using action_tuple = std::tuple<fgfsm::none, action0, action1>;
     using guard_tuple = std::tuple<fgfsm::none, guard0, guard1>;

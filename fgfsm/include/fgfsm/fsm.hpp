@@ -7,13 +7,14 @@
 #ifndef FGFSM_FSM_HPP
 #define FGFSM_FSM_HPP
 
+#include "fsm_configuration.hpp"
 #include "state_transition_policy.hpp"
 #include "internal_transition_policy.hpp"
 #include "none.hpp"
 #include "detail/call_state_member.hpp"
 #include "detail/for_each.hpp"
 #include "detail/make_tuple.hpp"
-#include "detail/transition_table_digest.hpp"
+#include "detail/state_transition_table_digest.hpp"
 #include <functional>
 #include <queue>
 #include <cassert>
@@ -21,23 +22,21 @@
 namespace fgfsm
 {
 
-template
-<
-    class TransitionTable,
-    class StateTransitionPolicy = fast_state_transition_policy,
-    class InternalTransitionPolicy = fast_internal_transition_policy
->
+template<class StateTransitionTable, class Configuration = fsm_configuration>
 class fsm
 {
     private:
-        using transition_table = TransitionTable;
-        using transition_table_digest =
-            detail::transition_table_digest<transition_table>
-        ;
+        using state_transition_table = StateTransitionTable;
 
-        using state_tuple  = typename transition_table_digest::state_tuple;
-        using action_tuple = typename transition_table_digest::action_tuple;
-        using guard_tuple  = typename transition_table_digest::guard_tuple;
+        using state_transition_policy = typename Configuration::state_transition_policy;
+        using internal_transition_policy = typename Configuration::internal_transition_policy;
+
+        using state_transition_table_digest =
+            detail::state_transition_table_digest<state_transition_table>
+        ;
+        using state_tuple  = typename state_transition_table_digest::state_tuple;
+        using action_tuple = typename state_transition_table_digest::action_tuple;
+        using guard_tuple  = typename state_transition_table_digest::guard_tuple;
 
     public:
         template<class Context>
@@ -141,7 +140,7 @@ class fsm
             };
 
             //For each row
-            detail::tlu::for_each<transition_table>(helper);
+            detail::tlu::for_each<state_transition_table>(helper);
 
             return processed;
         }
@@ -242,8 +241,8 @@ class fsm
         state_tuple states_;
         action_tuple actions_;
         guard_tuple guards_;
-        StateTransitionPolicy state_transition_policy_;
-        InternalTransitionPolicy internal_transition_policy_;
+        state_transition_policy state_transition_policy_;
+        internal_transition_policy internal_transition_policy_;
 
         int active_state_index_ = 0;
         bool processing_event_ = false;

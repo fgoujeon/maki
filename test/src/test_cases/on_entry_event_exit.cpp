@@ -73,14 +73,14 @@ namespace
         };
     }
 
-    using transition_table = fgfsm::transition_table
+    using state_transition_table = fgfsm::state_transition_table
     <
         fgfsm::row<states::idle,    events::next_language_request, states::english>,
         fgfsm::row<states::english, events::next_language_request, states::french>,
         fgfsm::row<states::french,  events::next_language_request, states::idle>
     >;
 
-    using fsm = fgfsm::fsm<transition_table>;
+    using fsm = fgfsm::fsm<state_transition_table>;
 }
 
 TEST_CASE("on_entry_event_exit")

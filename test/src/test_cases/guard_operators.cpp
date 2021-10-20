@@ -103,7 +103,7 @@ namespace
         using can_access_state3 = fgfsm::not_<guards::cant_access_state3>;
     }
 
-    using transition_table = fgfsm::transition_table
+    using state_transition_table = fgfsm::state_transition_table
     <
         fgfsm::row<states::idle, events::start, states::state0, fgfsm::none, guards::can_access_state0>,
         fgfsm::row<states::idle, events::start, states::state1, fgfsm::none, guards::can_access_state1>,
@@ -116,7 +116,7 @@ namespace
         fgfsm::row<states::state3, events::stop, states::idle>
     >;
 
-    using fsm = fgfsm::fsm<transition_table>;
+    using fsm = fgfsm::fsm<state_transition_table>;
 }
 
 TEST_CASE("guard operators")

@@ -58,7 +58,7 @@ namespace
         };
     }
 
-    using transition_table = fgfsm::transition_table
+    using state_transition_table = fgfsm::state_transition_table
     <
         fgfsm::row<states::state0, events::next_state, states::state1>,
         fgfsm::row<states::state1, events::next_state, states::state2>,
@@ -72,7 +72,7 @@ namespace
         fgfsm::row<states::state9, events::next_state, states::benchmarking>
     >;
 
-    using fsm = fgfsm::fsm<transition_table>;
+    using fsm = fgfsm::fsm<state_transition_table>;
 }
 
 TEST_CASE("internal transition")

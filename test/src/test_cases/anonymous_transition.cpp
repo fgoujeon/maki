@@ -54,7 +54,7 @@ namespace
         };
     };
 
-    using transition_table = fgfsm::transition_table
+    using state_transition_table = fgfsm::state_transition_table
     <
         fgfsm::row<states::s0, events::go_on, states::s1>,
         fgfsm::row<states::s1, fgfsm::none,   states::s2>,
@@ -63,7 +63,7 @@ namespace
         fgfsm::row<states::s4, fgfsm::none,   states::s0>
     >;
 
-    using fsm = fgfsm::fsm<transition_table>;
+    using fsm = fgfsm::fsm<state_transition_table>;
 }
 
 TEST_CASE("anonymous transition")

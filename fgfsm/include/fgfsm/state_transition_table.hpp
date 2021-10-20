@@ -11,7 +11,7 @@ namespace fgfsm
 {
 
 template<class... Ts>
-struct transition_table{};
+struct state_transition_table{};
 
 } //namespace
 

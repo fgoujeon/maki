@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/fgfsm
 
 #include "fgfsm/fsm.hpp"
-#include "fgfsm/fsm_class.hpp"
+#include "fgfsm/fsm_configuration.hpp"
 #include "fgfsm/guard_operators.hpp"
 #include "fgfsm/none.hpp"
 #include "fgfsm/row.hpp"

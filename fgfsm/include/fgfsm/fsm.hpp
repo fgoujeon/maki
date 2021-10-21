@@ -22,6 +22,58 @@
 namespace fgfsm
 {
 
+template<class InternalTransitionPolicy, class Event, class StateTuple>
+class internal_transition_processor;
+
+template<class InternalTransitionPolicy, class Event, class... States>
+class internal_transition_processor<InternalTransitionPolicy, Event, std::tuple<States...>>
+{
+    public:
+        using state_tuple = std::tuple<States...>;
+
+    public:
+        //Calls process2 with the active state
+        static void process
+        (
+            state_tuple& states,
+            const Event& event,
+            InternalTransitionPolicy& policy,
+            const int active_state_index
+        )
+        {
+            using fn = void(*)
+            (
+                state_tuple& states,
+                const Event& event,
+                InternalTransitionPolicy& internal_transition_policy
+            );
+
+            static constexpr fn jump_table[] =
+            {
+                &process2<States>...
+            };
+
+            jump_table[active_state_index](states, event, policy);
+        }
+
+    private:
+        template<class ActiveState>
+        static void process2
+        (
+            state_tuple& states,
+            const Event& event,
+            InternalTransitionPolicy& policy
+        )
+        {
+            auto helper = internal_transition_policy_helper
+            <
+                ActiveState,
+                Event
+            >{std::get<ActiveState>(states), event};
+            policy(helper);
+        }
+};
+
 template<class StateTransitionTable, class Configuration = fsm_configuration>
 class fsm
 {
@@ -218,22 +270,17 @@ class fsm
         template<class Event>
         void process_event_in_active_state(const Event& event)
         {
-            detail::for_each
+            internal_transition_processor
+            <
+                internal_transition_policy,
+                Event,
+                state_tuple
+            >::process
             (
                 states_,
-                [this, &event](auto& s)
-                {
-                    using state = std::decay_t<decltype(s)>;
-                    if(is_active_state<state>())
-                    {
-                        auto helper = internal_transition_policy_helper
-                        <
-                            state,
-                            Event
-                        >{s, event};
-                        internal_transition_policy_(helper);
-                    }
-                }
+                event,
+                internal_transition_policy_,
+                active_state_index_
             );
         }
 

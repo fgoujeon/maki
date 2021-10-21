@@ -19,8 +19,8 @@ template<class State, class Event>
 class internal_transition_policy_helper
 {
     private:
-        template<class StateTransitionTable, class Configuration>
-        friend class fsm;
+        template<class InternalTransitionPolicy, class Event2, class StateTuple>
+        friend class internal_transition_processor;
 
         internal_transition_policy_helper
         (

@@ -62,37 +62,44 @@ class fsm
 
         void process_event(const event_ref& evt)
         {
-            //Defer event processing in case of recursive call
-            if(processing_event_)
+            if constexpr(Configuration::enable_event_queue)
             {
-                deferred_events_.push(evt);
-                return;
+                //Defer event processing in case of recursive call
+                if(processing_event_)
+                {
+                    deferred_events_.push(evt);
+                    return;
+                }
+
+                struct processing_event_guard
+                {
+                    processing_event_guard(bool& b):
+                        b(b)
+                    {
+                        b = true;
+                    }
+
+                    ~processing_event_guard()
+                    {
+                        b = false;
+                    }
+
+                    bool& b;
+                };
+                auto processing_guard = processing_event_guard{processing_event_};
+
+                process_event_once(evt);
+
+                //Process deferred event processings
+                while(!deferred_events_.empty())
+                {
+                    process_event_once(deferred_events_.front());
+                    deferred_events_.pop();
+                }
             }
-
-            struct processing_event_guard
+            else
             {
-                processing_event_guard(bool& b):
-                    b(b)
-                {
-                    b = true;
-                }
-
-                ~processing_event_guard()
-                {
-                    b = false;
-                }
-
-                bool& b;
-            };
-            auto processing_guard = processing_event_guard{processing_event_};
-
-            process_event_once(evt);
-
-            //Process deferred event processings
-            while(!deferred_events_.empty())
-            {
-                process_event_once(deferred_events_.front());
-                deferred_events_.pop();
+                process_event_once(evt);
             }
         }
 

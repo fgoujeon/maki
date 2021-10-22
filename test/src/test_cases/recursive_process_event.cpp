@@ -9,22 +9,22 @@
 
 namespace
 {
-    class robot;
-    void process_event(robot& r, const fgfsm::event_ref& evt);
+    class fsm;
+    void process_event(fsm& sm, const fgfsm::event_ref& evt);
 
     struct context
     {
-        context(robot& rob):
-            rob(rob)
+        context(fsm& sm):
+            sm(sm)
         {
         }
 
         void process_event(const fgfsm::event_ref& evt)
         {
-            ::process_event(rob, evt);
+            ::process_event(sm, evt);
         }
 
-        robot& rob;
+        fsm& sm;
         std::string output;
     };
 
@@ -101,43 +101,46 @@ namespace
         fgfsm::row<states::loading, events::end_of_loading,           states::ready>
     >;
 
-    class robot
+    struct fsm_configuration: fgfsm::fsm_configuration
     {
-        private:
-            using fsm = fgfsm::fsm<transition_table>;
+        static constexpr auto enable_event_queue = true;
+    };
 
+    class fsm
+    {
         public:
-            robot():
+            fsm():
                 ctx_{*this},
-                fsm_{ctx_}
+                impl_{ctx_}
             {
             }
 
             void process_event(const fgfsm::event_ref& evt)
             {
-                fsm_.process_event(evt);
+                impl_.process_event(evt);
             }
 
-            const std::string get_output() const
+            const context& get_context() const
             {
-                return ctx_.output;
+                return ctx_;
             }
 
         private:
             context ctx_;
-            fsm fsm_;
+            fgfsm::fsm<transition_table, fsm_configuration> impl_;
     };
 
-    void process_event(robot& r, const fgfsm::event_ref& evt)
+    void process_event(fsm& sm, const fgfsm::event_ref& evt)
     {
-        r.process_event(evt);
+        sm.process_event(evt);
     }
 }
 
 TEST_CASE("recursive process_event")
 {
-    auto rob = robot{};
+    auto sm = fsm{};
+    const auto& ctx = sm.get_context();
 
-    rob.process_event(events::quick_start_button_press{});
-    REQUIRE(rob.get_output() == "idle::on_exit;loading::on_entry;loading::on_exit;ready::on_entry;");
+    sm.process_event(events::quick_start_button_press{});
+    REQUIRE(ctx.output == "idle::on_exit;loading::on_entry;loading::on_exit;ready::on_entry;");
 }

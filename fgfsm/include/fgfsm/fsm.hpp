@@ -37,6 +37,7 @@ class fsm
         using state_tuple  = typename transition_table_digest::state_tuple;
         using action_tuple = typename transition_table_digest::action_tuple;
         using guard_tuple  = typename transition_table_digest::guard_tuple;
+        using event_tuple  = typename transition_table_digest::event_tuple;
 
     public:
         template<class Context>
@@ -116,7 +117,9 @@ class fsm
         void process_event_once(const Event& event)
         {
             process_event_in_active_state(event);
-            process_event_in_transition_table(event);
+
+            if constexpr(detail::tlu::contains<event_tuple, Event>)
+                process_event_in_transition_table(event);
         }
 
         /*
@@ -129,8 +132,9 @@ class fsm
             const bool processed = process_event_in_transition_table_once(event);
 
             //Anonymous transitions
-            if(processed)
-                while(process_event_in_transition_table_once(none{}));
+            if constexpr(detail::tlu::contains<event_tuple, none>)
+                if(processed)
+                    while(process_event_in_transition_table_once(none{}));
         }
 
         //Try and trigger one transition

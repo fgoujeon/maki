@@ -52,11 +52,7 @@ class state_transition_policy_helper
     public:
         bool check_guard() const
         {
-            const auto result =
-                guard_(start_state_, event_, target_state_)
-            ;
-            processed_ = result;
-            return result;
+            return guard_(start_state_, event_, target_state_);
         }
 
         void invoke_start_state_on_exit()
@@ -67,6 +63,7 @@ class state_transition_policy_helper
         void activate_target_state()
         {
             active_state_index_ = target_state_index_;
+            processed_ = true;
         }
 
         void execute_action()

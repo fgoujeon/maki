@@ -96,6 +96,11 @@ namespace
         fgfsm::row<states::loading, events::end_of_loading,           states::ready>
     >;
 
+    struct fsm_configuration: fgfsm::fsm_configuration
+    {
+        static constexpr auto enable_event_queue = true;
+    };
+
     class fsm
     {
         public:
@@ -118,7 +123,7 @@ namespace
 
         private:
             context ctx_;
-            fgfsm::fsm<transition_table> impl_;
+            fgfsm::fsm<transition_table, fsm_configuration> impl_;
     };
 
     void process_event(fsm& sm, const events::end_of_loading& event)

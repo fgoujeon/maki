@@ -64,43 +64,50 @@ class fsm
         template<class Event>
         void process_event(const Event& event)
         {
-            //Defer event processing in case of recursive call
-            if(processing_event_)
+            if constexpr(Configuration::enable_event_queue)
             {
-                deferred_event_processings_.push
-                (
-                    [this, event]
+                //Defer event processing in case of recursive call
+                if(processing_event_)
+                {
+                    deferred_event_processings_.push
+                    (
+                        [this, event]
+                        {
+                            process_event_once(event);
+                        }
+                    );
+                    return;
+                }
+
+                struct processing_event_guard
+                {
+                    processing_event_guard(bool& b):
+                        b(b)
                     {
-                        process_event_once(event);
+                        b = true;
                     }
-                );
-                return;
+
+                    ~processing_event_guard()
+                    {
+                        b = false;
+                    }
+
+                    bool& b;
+                };
+                auto processing_guard = processing_event_guard{processing_event_};
+
+                process_event_once(event);
+
+                //Process deferred event processings
+                while(!deferred_event_processings_.empty())
+                {
+                    deferred_event_processings_.front()();
+                    deferred_event_processings_.pop();
+                }
             }
-
-            struct processing_event_guard
+            else
             {
-                processing_event_guard(bool& b):
-                    b(b)
-                {
-                    b = true;
-                }
-
-                ~processing_event_guard()
-                {
-                    b = false;
-                }
-
-                bool& b;
-            };
-            auto processing_guard = processing_event_guard{processing_event_};
-
-            process_event_once(event);
-
-            //Process deferred event processings
-            while(!deferred_event_processings_.empty())
-            {
-                deferred_event_processings_.front()();
-                deferred_event_processings_.pop();
+                process_event_once(event);
             }
         }
 

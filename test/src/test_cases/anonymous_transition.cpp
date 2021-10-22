@@ -34,12 +34,7 @@ namespace
         fgfsm::row<states::s4, fgfsm::none,   states::s0>
     >;
 
-    struct fsm_configuration: fgfsm::fsm_configuration
-    {
-        static constexpr auto enable_anonymous_transitions = true;
-    };
-
-    using fsm = fgfsm::fsm<transition_table, fsm_configuration>;
+    using fsm = fgfsm::fsm<transition_table>;
 }
 
 TEST_CASE("anonymous transition")

@@ -7,7 +7,7 @@
 #ifndef FGFSM_STATE_TRANSITION_POLICY_HPP
 #define FGFSM_STATE_TRANSITION_POLICY_HPP
 
-#include "event_ref.hpp"
+#include "event.hpp"
 #include "detail/call_state_member.hpp"
 #include <type_traits>
 

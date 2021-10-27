@@ -11,7 +11,7 @@
 #include "state_transition_policy.hpp"
 #include "internal_transition_policy.hpp"
 #include "none.hpp"
-#include "event_ref.hpp"
+#include "event.hpp"
 #include "detail/call_state_member.hpp"
 #include "detail/for_each.hpp"
 #include "detail/make_tuple.hpp"
@@ -67,7 +67,7 @@ class fsm
                 //Defer event processing in case of recursive call
                 if(processing_event_)
                 {
-                    deferred_events_.push(evt);
+                    deferred_events_.push(evt.make_deep_copy());
                     return;
                 }
 
@@ -93,7 +93,7 @@ class fsm
                 //Process deferred event processings
                 while(!deferred_events_.empty())
                 {
-                    process_event_once(deferred_events_.front());
+                    process_event_once(deferred_events_.front().make_ref());
                     deferred_events_.pop();
                 }
             }
@@ -243,7 +243,7 @@ class fsm
 
         int active_state_index_ = 0;
         bool processing_event_ = false;
-        std::queue<event_ref> deferred_events_;
+        std::queue<event> deferred_events_;
 };
 
 } //namespace

@@ -35,6 +35,16 @@ namespace
         struct quick_start_button_press{};
 
         struct end_of_loading{};
+
+        struct self_call_request
+        {
+            std::string data;
+        };
+
+        struct self_call_response
+        {
+            std::string data;
+        };
     }
 
     namespace states
@@ -69,6 +79,18 @@ namespace
             void on_entry()
             {
                 ctx.output += "ready::on_entry;";
+            }
+
+            void on_event(const fgfsm::event_ref& evt)
+            {
+                if(const auto pevt = evt.get<events::self_call_request>())
+                {
+                    ctx.process_event(events::self_call_response{pevt->data});
+                }
+                else if(const auto pevt = evt.get<events::self_call_response>())
+                {
+                    ctx.output = pevt->data;
+                }
             }
 
             void on_exit()
@@ -143,4 +165,8 @@ TEST_CASE("recursive process_event")
 
     sm.process_event(events::quick_start_button_press{});
     REQUIRE(ctx.output == "idle::on_exit;loading::on_entry;loading::on_exit;ready::on_entry;");
+
+    const auto long_string = "auienratuiernaturnietnrautisretadlepetwufieqarnpecdaedpceoanuprecanrpecadtpeadcepde";
+    sm.process_event(events::self_call_request{long_string});
+    REQUIRE(ctx.output == long_string);
 }

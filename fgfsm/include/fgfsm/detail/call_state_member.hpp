@@ -7,7 +7,7 @@
 #ifndef FGFSM_DETAIL_CALL_STATE_MEMBER_HPP
 #define FGFSM_DETAIL_CALL_STATE_MEMBER_HPP
 
-#include "../event_ref.hpp"
+#include "../event.hpp"
 #include <utility>
 
 namespace fgfsm::detail

@@ -7,7 +7,7 @@
 #ifndef FGFSM_TRANSITION_POLICY_HPP
 #define FGFSM_TRANSITION_POLICY_HPP
 
-#include "event.hpp"
+#include "event_ref.hpp"
 #include "detail/call_state_member.hpp"
 #include <type_traits>
 
@@ -30,7 +30,7 @@ class transition_policy_helper
         transition_policy_helper
         (
             StartState& start_state,
-            const event& evt,
+            const event_ref& evt,
             TargetState& target_state,
             Action& action,
             Guard& guard,
@@ -89,7 +89,7 @@ class transition_policy_helper
         >;
 
         StartState& start_state_;
-        const event& evt_;
+        const event_ref& evt_;
         TargetState& target_state_;
         Action& action_;
         Guard& guard_;

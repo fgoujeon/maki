@@ -22,7 +22,7 @@ namespace
 
     struct state_with_event
     {
-        void on_entry(const fgfsm::event& evt)
+        void on_entry(const fgfsm::event_ref& evt)
         {
             if(const event* pevt = evt.get<event>())
             {
@@ -30,7 +30,7 @@ namespace
             }
         }
 
-        void on_event(const fgfsm::event& evt)
+        void on_event(const fgfsm::event_ref& evt)
         {
             if(const event* pevt = evt.get<event>())
             {
@@ -38,7 +38,7 @@ namespace
             }
         }
 
-        void on_exit(const fgfsm::event& evt)
+        void on_exit(const fgfsm::event_ref& evt)
         {
             if(const event* pevt = evt.get<event>())
             {

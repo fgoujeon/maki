@@ -9,7 +9,7 @@
 
 #include "transition_policy.hpp"
 #include "none.hpp"
-#include "event.hpp"
+#include "event_ref.hpp"
 #include "detail/call_state_member.hpp"
 #include "detail/for_each.hpp"
 #include "detail/make_tuple.hpp"
@@ -54,7 +54,7 @@ class fsm
             return given_state_index == active_state_index_;
         }
 
-        void process_event(const event& evt)
+        void process_event(const event_ref& evt)
         {
             //Defer event processing in case of recursive call
             if(processing_event_)
@@ -91,7 +91,7 @@ class fsm
         }
 
     private:
-        void process_event_once(const event& evt)
+        void process_event_once(const event_ref& evt)
         {
             const auto processed = process_event_in_transition_table(evt);
             if(!processed)
@@ -102,7 +102,7 @@ class fsm
         Try and trigger a transition and potential subsequent anonymous
         transitions, if any.
         */
-        bool process_event_in_transition_table(const event& evt)
+        bool process_event_in_transition_table(const event_ref& evt)
         {
             const bool processed = process_event_in_transition_table_once(evt);
 
@@ -114,7 +114,7 @@ class fsm
         }
 
         //Try and trigger one transition
-        bool process_event_in_transition_table_once(const event& evt)
+        bool process_event_in_transition_table_once(const event_ref& evt)
         {
             bool processed = false;
 
@@ -185,7 +185,7 @@ class fsm
         /*
         Call active_state.on_event(event)
         */
-        void process_event_in_active_state(const event& evt)
+        void process_event_in_active_state(const event_ref& evt)
         {
             detail::for_each
             (
@@ -208,7 +208,7 @@ class fsm
         TransitionPolicy transition_policy_;
         int active_state_index_ = 0;
         bool processing_event_ = false;
-        std::queue<event> deferred_events_;
+        std::queue<event_ref> deferred_events_;
 };
 
 } //namespace

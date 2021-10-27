@@ -7,7 +7,7 @@
 #ifndef FGFSM_DETAIL_CALL_STATE_MEMBER_HPP
 #define FGFSM_DETAIL_CALL_STATE_MEMBER_HPP
 
-#include "../event.hpp"
+#include "../event_ref.hpp"
 
 namespace fgfsm::detail
 {
@@ -21,14 +21,14 @@ call_on_xxx(state, event) calls either (in this order of priority):
 
 #define FGFSM_DETAIL_CALL_STATE_MEMBER(MEMBER) \
     template<class State> \
-    auto call_##MEMBER##_with_event(State& state, const event& evt, int) -> decltype(state.MEMBER(evt), bool()) \
+    auto call_##MEMBER##_with_event(State& state, const event_ref& evt, int) -> decltype(state.MEMBER(evt), bool()) \
     { \
         state.MEMBER(evt); \
         return true; \
     } \
  \
     template<class State> \
-    bool call_##MEMBER##_with_event(State&, const event&, long) \
+    bool call_##MEMBER##_with_event(State&, const event_ref&, long) \
     { \
         return false; \
     } \
@@ -47,7 +47,7 @@ call_on_xxx(state, event) calls either (in this order of priority):
     } \
  \
     template<class State> \
-    void call_##MEMBER(State& state, const event& evt) \
+    void call_##MEMBER(State& state, const event_ref& evt) \
     { \
         call_##MEMBER##_with_event(state, evt, 0) || \
         call_##MEMBER##_without_event(state, 0); \

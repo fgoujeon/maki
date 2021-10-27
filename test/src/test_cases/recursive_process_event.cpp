@@ -10,7 +10,7 @@
 namespace
 {
     class robot;
-    void process_event(robot& r, const fgfsm::event& evt);
+    void process_event(robot& r, const fgfsm::event_ref& evt);
 
     struct context
     {
@@ -19,7 +19,7 @@ namespace
         {
         }
 
-        void process_event(const fgfsm::event& evt)
+        void process_event(const fgfsm::event_ref& evt)
         {
             ::process_event(rob, evt);
         }
@@ -85,7 +85,7 @@ namespace
         struct skip_loading
         {
             template<class StartState, class TargetState>
-            void operator()(StartState&, const fgfsm::event&, TargetState&)
+            void operator()(StartState&, const fgfsm::event_ref&, TargetState&)
             {
                 ctx.process_event(events::end_of_loading{});
             }
@@ -113,7 +113,7 @@ namespace
             {
             }
 
-            void process_event(const fgfsm::event& evt)
+            void process_event(const fgfsm::event_ref& evt)
             {
                 fsm_.process_event(evt);
             }
@@ -128,7 +128,7 @@ namespace
             fsm fsm_;
     };
 
-    void process_event(robot& r, const fgfsm::event& evt)
+    void process_event(robot& r, const fgfsm::event_ref& evt)
     {
         r.process_event(evt);
     }

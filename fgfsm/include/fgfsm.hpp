@@ -4,7 +4,7 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
-#include "fgfsm/event.hpp"
+#include "fgfsm/event_ref.hpp"
 #include "fgfsm/fsm.hpp"
 #include "fgfsm/guard_operators.hpp"
 #include "fgfsm/none.hpp"

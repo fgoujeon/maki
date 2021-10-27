@@ -39,7 +39,7 @@ namespace
             bool operator()
             (
                 const states::off&,
-                const fgfsm::event&,
+                const fgfsm::event_ref&,
                 const states::on&
             )
             {

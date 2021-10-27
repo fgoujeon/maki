@@ -37,7 +37,7 @@ namespace
                 ctx.hello = "hello";
             }
 
-            void on_event(const fgfsm::event& event)
+            void on_event(const fgfsm::event_ref& event)
             {
                 if(event.is<events::say_dog>())
                     ctx.dog = "dog";
@@ -58,7 +58,7 @@ namespace
                 ctx.hello = "bonjour";
             }
 
-            void on_event(const fgfsm::event& event)
+            void on_event(const fgfsm::event_ref& event)
             {
                 if(event.is<events::say_dog>())
                     ctx.dog = "chien";

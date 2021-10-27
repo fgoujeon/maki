@@ -17,15 +17,15 @@ namespace
     {
         struct on
         {
-            void on_entry(const fgfsm::event& event)
+            void on_entry(const fgfsm::event_ref& event_ref)
             {
             }
 
-            void on_event(const fgfsm::event& event)
+            void on_event(const fgfsm::event_ref& event_ref)
             {
             }
 
-            void on_exit(const fgfsm::event& event)
+            void on_exit(const fgfsm::event_ref& event_ref)
             {
             }
 
@@ -34,15 +34,15 @@ namespace
 
         struct off
         {
-            void on_entry(const fgfsm::event& event)
+            void on_entry(const fgfsm::event_ref& event_ref)
             {
             }
 
-            void on_event(const fgfsm::event& event)
+            void on_event(const fgfsm::event_ref& event_ref)
             {
             }
 
-            void on_exit(const fgfsm::event& event)
+            void on_exit(const fgfsm::event_ref& event_ref)
             {
             }
 

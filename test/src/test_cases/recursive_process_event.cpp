@@ -94,16 +94,16 @@ namespace
         };
     }
 
+    using transition_table = fgfsm::transition_table
+    <
+        fgfsm::row<states::idle,    events::start_button_press,       states::loading>,
+        fgfsm::row<states::idle,    events::quick_start_button_press, states::loading,  actions::skip_loading>,
+        fgfsm::row<states::loading, events::end_of_loading,           states::ready>
+    >;
+
     class robot
     {
         private:
-            using transition_table = fgfsm::transition_table
-            <
-                fgfsm::row<states::idle,    events::start_button_press,       states::loading>,
-                fgfsm::row<states::idle,    events::quick_start_button_press, states::loading, actions::skip_loading>,
-                fgfsm::row<states::loading, events::end_of_loading,           states::ready>
-            >;
-
             using fsm = fgfsm::fsm<transition_table>;
 
         public:

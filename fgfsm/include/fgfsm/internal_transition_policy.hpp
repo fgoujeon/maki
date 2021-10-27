@@ -20,12 +20,7 @@ template<class State>
 class internal_transition_policy_helper
 {
     private:
-        template
-        <
-            class TransitionTable,
-            class StateTransitionPolicy,
-            class InternalTransitionPolicy
-        >
+        template<class TransitionTable, class Configuration>
         friend class fsm;
 
         internal_transition_policy_helper

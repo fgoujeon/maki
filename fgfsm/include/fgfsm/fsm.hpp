@@ -100,24 +100,21 @@ class fsm
     private:
         void process_event_once(const event_ref& evt)
         {
-            const auto processed = process_event_in_transition_table(evt);
-            if(!processed)
-                process_event_in_active_state(evt);
+            process_event_in_active_state(evt);
+            process_event_in_transition_table(evt);
         }
 
         /*
         Try and trigger a transition and potential subsequent anonymous
         transitions, if any.
         */
-        bool process_event_in_transition_table(const event_ref& evt)
+        void process_event_in_transition_table(const event_ref& evt)
         {
             const bool processed = process_event_in_transition_table_once(evt);
 
             //Anonymous transitions
             if(processed)
                 while(process_event_in_transition_table_once(none{}));
-
-            return processed;
         }
 
         //Try and trigger one transition

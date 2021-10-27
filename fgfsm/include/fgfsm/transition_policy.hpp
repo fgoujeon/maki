@@ -66,8 +66,7 @@ class transition_policy_helper
 
         void invoke_start_state_on_exit()
         {
-            if constexpr(!internal_transition)
-                detail::call_on_exit(start_state_, evt_);
+            detail::call_on_exit(start_state_, evt_);
         }
 
         void activate_target_state()
@@ -82,17 +81,10 @@ class transition_policy_helper
 
         void invoke_target_state_on_entry()
         {
-            if constexpr(!internal_transition)
-                detail::call_on_entry(target_state_, evt_);
+            detail::call_on_entry(target_state_, evt_);
         }
 
     private:
-        static constexpr bool internal_transition = std::is_same_v
-        <
-            StartState,
-            TargetState
-        >;
-
         StartState& start_state_;
         const event_ref& evt_;
         TargetState& target_state_;

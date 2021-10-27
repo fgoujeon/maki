@@ -119,8 +119,13 @@ class fsm
             const bool processed = process_event_in_transition_table_once(evt);
 
             //Anonymous transitions
-            if(processed)
-                while(process_event_in_transition_table_once(none{}));
+            if constexpr(Configuration::enable_anonymous_transitions)
+            {
+                if(processed)
+                {
+                    while(process_event_in_transition_table_once(none{}));
+                }
+            }
         }
 
         //Try and trigger one transition

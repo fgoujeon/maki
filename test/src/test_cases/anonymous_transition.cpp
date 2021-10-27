@@ -18,40 +18,11 @@ namespace
 
     struct states
     {
-        struct s0
-        {
-            void on_entry(){}
-            void on_exit(){}
-            context& ctx;
-        };
-
-        struct s1
-        {
-            void on_entry(){}
-            void on_exit(){}
-            context& ctx;
-        };
-
-        struct s2
-        {
-            void on_entry(){}
-            void on_exit(){}
-            context& ctx;
-        };
-
-        struct s3
-        {
-            void on_entry(){}
-            void on_exit(){}
-            context& ctx;
-        };
-
-        struct s4
-        {
-            void on_entry(){}
-            void on_exit(){}
-            context& ctx;
-        };
+        struct s0 { context& ctx; };
+        struct s1 { context& ctx; };
+        struct s2 { context& ctx; };
+        struct s3 { context& ctx; };
+        struct s4 { context& ctx; };
     };
 
     using transition_table = fgfsm::transition_table
@@ -63,7 +34,12 @@ namespace
         fgfsm::row<states::s4, fgfsm::none,   states::s0>
     >;
 
-    using fsm = fgfsm::fsm<transition_table>;
+    struct fsm_configuration: fgfsm::fsm_configuration
+    {
+        static constexpr auto enable_anonymous_transitions = true;
+    };
+
+    using fsm = fgfsm::fsm<transition_table, fsm_configuration>;
 }
 
 TEST_CASE("anonymous transition")

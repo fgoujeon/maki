@@ -11,3 +11,4 @@
 #include "fgfsm/none.hpp"
 #include "fgfsm/row.hpp"
 #include "fgfsm/transition_table.hpp"
+#include "fgfsm/version.hpp"

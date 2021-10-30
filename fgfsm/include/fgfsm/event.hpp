@@ -11,6 +11,10 @@
 #include <memory>
 #include <utility>
 
+#ifdef _MSC_VER
+#include <typeinfo>
+#endif
+
 namespace fgfsm
 {
 
@@ -98,6 +102,20 @@ class event_ref
         template<class Event>
         struct manager
         {
+            /*
+            We must guarantee that the address of this function is unique to
+            each Event type.
+            The returned value doesn't matter as the function is never called.
+            */
+            static const char* identifier()
+            {
+#ifdef _MSC_VER
+                return typeid(Event).name();
+#else
+                return nullptr;
+#endif
+            }
+
             static event make_deep_copy(const void* pevt)
             {
                 const auto pevt2 = static_cast<const Event*>(pevt);
@@ -105,18 +123,21 @@ class event_ref
             }
         };
 
+        using identifier_fn = const char*(*)();
         using make_deep_copy_fn = event(*)(const void*);
 
     public:
         template<class Event>
         event_ref(const Event& evt):
             pevt_(&evt),
+            identifier_(&manager<Event>::identifier),
             make_deep_copy_(&manager<Event>::make_deep_copy)
         {
         }
 
         event_ref(const event_ref& other):
             pevt_(other.pevt_),
+            identifier_(other.identifier_),
             make_deep_copy_(other.make_deep_copy_)
         {
         }
@@ -135,7 +156,7 @@ class event_ref
         template<class OtherEvent>
         const OtherEvent* get() const
         {
-            if(make_deep_copy_ == &manager<OtherEvent>::make_deep_copy) //Event == OtherEvent?
+            if(identifier_ == &manager<OtherEvent>::identifier) //Event == OtherEvent?
                 return static_cast<const OtherEvent*>(pevt_);
             else
                 return nullptr;
@@ -155,6 +176,7 @@ class event_ref
 
     private:
         const void* pevt_ = nullptr;
+        identifier_fn identifier_;
         make_deep_copy_fn make_deep_copy_;
 };
 

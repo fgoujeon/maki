@@ -36,6 +36,8 @@ class event_ref;
 class event
 {
     private:
+        friend class event_ref;
+
         template<class Event>
         struct manager
         {
@@ -69,19 +71,30 @@ class event
         {
         }
 
-        event(const event_ref&) = delete;
+        event(const event_ref& evt);
 
+        void operator=(const event&) = delete;
+
+        void operator=(event&& other)
+        {
+            pevt_ = std::move(other.pevt_);
+            make_ref_ = std::exchange(other.make_ref_, nullptr);
+        }
+
+    private:
         event_ref make_ref() const;
 
     private:
         detail::unique_ptr_to_const_fake_void pevt_;
-        make_ref_fn make_ref_;
+        make_ref_fn make_ref_ = nullptr;
 };
 
 //Holds a reference to any type
 class event_ref
 {
     private:
+        friend class event;
+
         template<class Event>
         struct manager
         {
@@ -102,13 +115,20 @@ class event_ref
         {
         }
 
-        event_ref(const event_ref& evt):
-            pevt_(evt.pevt_),
-            make_deep_copy_(evt.make_deep_copy_)
+        event_ref(const event_ref& other):
+            pevt_(other.pevt_),
+            make_deep_copy_(other.make_deep_copy_)
         {
         }
 
-        event_ref(const event&) = delete;
+        event_ref(const event& evt)
+        {
+            *this = evt.make_ref();
+        }
+
+        event_ref& operator=(const event_ref&) = default;
+
+        event_ref& operator=(event_ref&&) = default;
 
         template<class OtherEvent>
         const OtherEvent* get() const
@@ -125,13 +145,14 @@ class event_ref
             return get<OtherEvent>() != nullptr;
         }
 
+    private:
         event make_deep_copy() const
         {
             return make_deep_copy_(pevt_);
         }
 
     private:
-        const void* pevt_;
+        const void* pevt_ = nullptr;
         make_deep_copy_fn make_deep_copy_;
 };
 
@@ -139,6 +160,13 @@ template<class Event>
 event_ref event::manager<Event>::make_ref(const detail::fake_void* pevt)
 {
     return event_ref{*reinterpret_cast<const Event*>(pevt)};
+}
+
+inline
+event::event(const event_ref& evt):
+    pevt_(nullptr, nullptr)
+{
+    *this = evt.make_deep_copy();
 }
 
 inline

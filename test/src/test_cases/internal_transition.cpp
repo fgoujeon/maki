@@ -43,9 +43,10 @@ namespace
 
         struct benchmarking
         {
-            void on_event(const fgfsm::event_ref&)
+            void on_event(const fgfsm::event_ref& evt)
             {
-                ++ctx.side_effect;
+                if(evt.is<events::internal_transition>())
+                    ++ctx.side_effect;
             }
 
             context& ctx;
@@ -77,6 +78,9 @@ TEST_CASE("internal transition")
     for(auto i = 0; i < 10; ++i)
         sm.process_event(events::next_state{});
     REQUIRE(sm.is_active_state<states::benchmarking>());
+
+    sm.process_event(events::internal_transition{});
+    REQUIRE(ctx.side_effect == 1);
 
 #ifdef CATCH_CONFIG_ENABLE_BENCHMARKING
     BENCHMARK("process_event")

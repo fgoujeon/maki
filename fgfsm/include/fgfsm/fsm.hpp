@@ -67,7 +67,7 @@ class fsm
                 //Defer event processing in case of recursive call
                 if(processing_event_)
                 {
-                    deferred_events_.push(evt.make_deep_copy());
+                    deferred_events_.push(evt);
                     return;
                 }
 
@@ -93,7 +93,7 @@ class fsm
                 //Process deferred event processings
                 while(!deferred_events_.empty())
                 {
-                    process_event_once(deferred_events_.front().make_ref());
+                    process_event_once(deferred_events_.front());
                     deferred_events_.pop();
                 }
             }

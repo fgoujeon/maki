@@ -81,16 +81,20 @@ namespace
                 ctx.output += "ready::on_entry;";
             }
 
-            void on_event(const fgfsm::event_ref& evt)
+            void on_event(const fgfsm::event_ref& event)
             {
-                if(const auto pevt = evt.get<events::self_call_request>())
-                {
-                    ctx.process_event(events::self_call_response{pevt->data});
-                }
-                else if(const auto pevt = evt.get<events::self_call_response>())
-                {
-                    ctx.output = pevt->data;
-                }
+                visit
+                (
+                    event,
+                    [this](const events::self_call_request& event)
+                    {
+                        ctx.process_event(events::self_call_response{event.data});
+                    },
+                    [this](const events::self_call_response& event)
+                    {
+                        ctx.output = event.data;
+                    }
+                );
             }
 
             void on_exit()

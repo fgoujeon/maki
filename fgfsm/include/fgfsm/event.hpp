@@ -8,10 +8,27 @@
 #define FGFSM_EVENT_REF_HPP
 
 #include <type_traits>
+#include <memory>
 #include <utility>
 
 namespace fgfsm
 {
+
+namespace detail
+{
+    /*
+    A way to have a valid std::unique_ptr<const void, void(*)(const void*)>.
+    We still have to reinterpret_cast instead of static_cast-ing from/to
+    fake_void, though.
+    */
+    struct fake_void
+    {
+        fake_void() = delete;
+        fake_void(const fake_void&) = delete;
+        fake_void(fake_void&&) = delete;
+    };
+    using unique_ptr_to_const_fake_void = std::unique_ptr<const fake_void, void(*)(const fake_void*)>;
+}
 
 class event_ref;
 
@@ -22,22 +39,24 @@ class event
         template<class Event>
         struct manager
         {
-            static void free(const void* pevt)
+            static void free(const detail::fake_void* pevt)
             {
-                delete static_cast<const Event*>(pevt);
+                delete reinterpret_cast<const Event*>(pevt);
             }
 
-            static event_ref make_ref(const void* pevt);
+            static event_ref make_ref(const detail::fake_void* pevt);
         };
 
-        using free_fn = void(*)(const void*);
-        using make_ref_fn = event_ref(*)(const void*);
+        using make_ref_fn = event_ref(*)(const detail::fake_void*);
 
     public:
         template<class Event>
         event(const Event& evt):
-            pevt_(new Event{evt}),
-            free_(&manager<Event>::free),
+            pevt_
+            (
+                reinterpret_cast<const detail::fake_void*>(new Event{evt}),
+                &manager<Event>::free
+            ),
             make_ref_(&manager<Event>::make_ref)
         {
         }
@@ -45,24 +64,17 @@ class event
         event(const event&) = delete;
 
         event(event&& other):
-            pevt_(std::exchange(other.pevt_, nullptr)),
-            free_(other.free_),
+            pevt_(std::move(other.pevt_)),
             make_ref_(other.make_ref_)
         {
         }
 
         event(const event_ref&) = delete;
 
-        ~event()
-        {
-            free_(pevt_);
-        }
-
         event_ref make_ref() const;
 
     private:
-        const void* pevt_;
-        free_fn free_;
+        detail::unique_ptr_to_const_fake_void pevt_;
         make_ref_fn make_ref_;
 };
 
@@ -124,15 +136,15 @@ class event_ref
 };
 
 template<class Event>
-event_ref event::manager<Event>::make_ref(const void* pevt)
+event_ref event::manager<Event>::make_ref(const detail::fake_void* pevt)
 {
-    return event_ref{*static_cast<const Event*>(pevt)};
+    return event_ref{*reinterpret_cast<const Event*>(pevt)};
 }
 
 inline
 event_ref event::make_ref() const
 {
-    return make_ref_(pevt_);
+    return make_ref_(pevt_.get());
 }
 
 } //namespace

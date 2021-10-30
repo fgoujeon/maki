@@ -7,6 +7,7 @@
 #ifndef FGFSM_DETAIL_CALL_STATE_MEMBER_HPP
 #define FGFSM_DETAIL_CALL_STATE_MEMBER_HPP
 
+#include "ignore_unused.hpp"
 #include "../event.hpp"
 #include <utility>
 
@@ -52,6 +53,7 @@ void call_on_entry(State& state, const event_ref& evt)
         state.on_entry(evt);
     else if constexpr(has_on_entry<State&>())
         state.on_entry();
+    ignore_unused(state, evt);
 }
 
 template<class State>
@@ -59,6 +61,7 @@ void call_on_event(State& state, const event_ref& evt)
 {
     if constexpr(has_on_event<State&, const event_ref&>())
         state.on_event(evt);
+    ignore_unused(state, evt);
 }
 
 template<class State>
@@ -68,6 +71,7 @@ void call_on_exit(State& state, const event_ref& evt)
         state.on_exit(evt);
     else if constexpr(has_on_exit<State&>())
         state.on_exit();
+    ignore_unused(state, evt);
 }
 
 } //namespace

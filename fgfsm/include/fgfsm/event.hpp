@@ -32,7 +32,7 @@ namespace detail
 
 class event_ref;
 
-//Stores an instance of any type
+//Stores a copy of the given object
 class event
 {
     private:
@@ -89,7 +89,7 @@ class event
         make_ref_fn make_ref_ = nullptr;
 };
 
-//Holds a reference to any type
+//Holds a reference to the given object
 class event_ref
 {
     private:
@@ -126,10 +126,12 @@ class event_ref
             *this = evt.make_ref();
         }
 
+    private:
         event_ref& operator=(const event_ref&) = default;
 
         event_ref& operator=(event_ref&&) = default;
 
+    public:
         template<class OtherEvent>
         const OtherEvent* get() const
         {
@@ -173,6 +175,73 @@ inline
 event_ref event::make_ref() const
 {
     return make_ref_(pevt_.get());
+}
+
+
+
+//
+//visit
+//
+
+namespace detail
+{
+    //Fonction object case
+    template<class F>
+    struct first_arg_of_unary_function:
+        first_arg_of_unary_function<decltype(&F::operator())>
+    {
+    };
+
+    //Fonction case
+    template<class R, class Arg>
+    struct first_arg_of_unary_function<R(Arg)>
+    {
+        using type = Arg;
+    };
+
+    //Fonction pointer case
+    template<class R, class Arg>
+    struct first_arg_of_unary_function<R(*)(Arg)>
+    {
+        using type = Arg;
+    };
+
+    //Pointer to member function case
+    template<class T, class R, class Arg>
+    struct first_arg_of_unary_function<R(T::*)(Arg)>
+    {
+        using type = Arg;
+    };
+
+    //Pointer to member function case
+    template<class T, class R, class Arg>
+    struct first_arg_of_unary_function<R(T::*)(Arg) const>
+    {
+        using type = Arg;
+    };
+
+    template<class F>
+    using first_arg_of_unary_function_t =
+        typename first_arg_of_unary_function<F>::type
+    ;
+}
+
+template<class Visitor, class... Visitors>
+void visit(const event_ref& evt, Visitor&& visitor, Visitors&&... visitors)
+{
+    using decaid_visitor_t = std::decay_t<Visitor>;
+    using arg_type_t = detail::first_arg_of_unary_function_t<decaid_visitor_t>;
+    using decaid_arg_type_t = std::decay_t<arg_type_t>;
+
+    if(const auto pevt = evt.get<decaid_arg_type_t>())
+        visitor(*pevt);
+    else
+        visit(evt, visitors...);
+}
+
+inline
+void visit(const event_ref&)
+{
 }
 
 } //namespace

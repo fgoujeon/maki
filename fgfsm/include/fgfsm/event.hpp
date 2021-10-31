@@ -11,10 +11,6 @@
 #include <memory>
 #include <utility>
 
-#ifdef _MSC_VER
-#include <typeinfo>
-#endif
-
 namespace fgfsm
 {
 
@@ -53,7 +49,7 @@ class event
             static event_ref make_ref(const detail::fake_void* pevt);
         };
 
-        using make_ref_fn = event_ref(*)(const detail::fake_void*);
+        using make_ref_t = event_ref(*)(const detail::fake_void*);
 
     public:
         template<class Event>
@@ -90,7 +86,7 @@ class event
 
     private:
         detail::unique_ptr_to_const_fake_void pevt_;
-        make_ref_fn make_ref_ = nullptr;
+        make_ref_t make_ref_ = nullptr;
 };
 
 //Holds a reference to the given object
@@ -102,29 +98,21 @@ class event_ref
         template<class Event>
         struct manager
         {
-            /*
-            We must guarantee that the address of this function is unique to
-            each Event type.
-            The returned value doesn't matter as the function is never called.
-            */
-            static const char* identifier()
-            {
-#ifdef _MSC_VER
-                return typeid(Event).name();
-#else
-                return nullptr;
-#endif
-            }
-
             static event make_deep_copy(const void* pevt)
             {
                 const auto pevt2 = static_cast<const Event*>(pevt);
                 return event{*pevt2};
             }
+
+            /*
+            ID unique to each Event type.
+            The ID is not the value of the variable, but its address.
+            */
+            static constexpr char identifier = {};
         };
 
-        using identifier_fn = const char*(*)();
-        using make_deep_copy_fn = event(*)(const void*);
+        using identifier_t = const char*;
+        using make_deep_copy_t = event(*)(const void*);
 
     public:
         template<class Event>
@@ -176,8 +164,8 @@ class event_ref
 
     private:
         const void* pevt_ = nullptr;
-        identifier_fn identifier_;
-        make_deep_copy_fn make_deep_copy_;
+        identifier_t identifier_;
+        make_deep_copy_t make_deep_copy_;
 };
 
 template<class Event>
@@ -251,11 +239,11 @@ namespace detail
 template<class Visitor, class... Visitors>
 void visit(const event_ref& evt, Visitor&& visitor, Visitors&&... visitors)
 {
-    using decaid_visitor_t = std::decay_t<Visitor>;
-    using arg_type_t = detail::first_arg_of_unary_function_t<decaid_visitor_t>;
-    using decaid_arg_type_t = std::decay_t<arg_type_t>;
+    using decayed_visitor_t = std::decay_t<Visitor>;
+    using arg_type_t = detail::first_arg_of_unary_function_t<decayed_visitor_t>;
+    using decayed_arg_type_t = std::decay_t<arg_type_t>;
 
-    if(const auto pevt = evt.get<decaid_arg_type_t>())
+    if(const auto pevt = evt.get<decayed_arg_type_t>())
         visitor(*pevt);
     else
         visit(evt, visitors...);

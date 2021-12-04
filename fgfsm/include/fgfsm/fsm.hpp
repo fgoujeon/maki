@@ -118,6 +118,7 @@ class fsm
         void process_event_in_transition_table(const event_ref& evt)
         {
             const bool processed = process_event_in_transition_table_once(evt);
+            detail::ignore_unused(processed);
 
             //Anonymous transitions
             if constexpr(detail::tlu::contains<event_tuple, none>)

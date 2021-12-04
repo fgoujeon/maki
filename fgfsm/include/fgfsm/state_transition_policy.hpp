@@ -89,8 +89,8 @@ class state_transition_policy_helper
 
 struct fast_state_transition_policy
 {
-    template<class... Args>
-    fast_state_transition_policy(const Args&...)
+    template<class Context>
+    fast_state_transition_policy(const Context&)
     {
     }
 

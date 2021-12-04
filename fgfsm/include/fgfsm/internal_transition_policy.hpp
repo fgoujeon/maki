@@ -46,8 +46,8 @@ class internal_transition_policy_helper
 
 struct fast_internal_transition_policy
 {
-    template<class... Args>
-    fast_internal_transition_policy(const Args&...)
+    template<class Context>
+    fast_internal_transition_policy(const Context&)
     {
     }
 

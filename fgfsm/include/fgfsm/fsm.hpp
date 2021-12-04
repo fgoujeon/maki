@@ -44,8 +44,8 @@ class fsm
             states_(detail::make_tuple<state_tuple>(context)),
             actions_(detail::make_tuple<action_tuple>(context)),
             guards_(detail::make_tuple<guard_tuple>(context)),
-            state_transition_policy_(context),
-            internal_transition_policy_(context)
+            state_transition_policy_{context},
+            internal_transition_policy_{context}
         {
         }
 

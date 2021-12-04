@@ -68,7 +68,7 @@ class fsm
                 //Defer event processing in case of recursive call
                 if(processing_event_)
                 {
-                    deferred_events_.push(evt);
+                    deferred_events_.push(event{evt});
                     return;
                 }
 

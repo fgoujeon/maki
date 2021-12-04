@@ -53,7 +53,7 @@ class event
 
     public:
         template<class Event>
-        event(const Event& evt):
+        explicit event(const Event& evt):
             pevt_
             (
                 reinterpret_cast<const detail::fake_void*>(new Event{evt}),
@@ -71,7 +71,7 @@ class event
         {
         }
 
-        event(const event_ref& evt);
+        explicit event(const event_ref& evt);
 
         void operator=(const event&) = delete;
 

@@ -37,7 +37,12 @@ namespace
         fgfsm::row<states::on,  events::button_press, states::off>
     >;
 
-    using fsm = fgfsm::fsm<transition_table>;
+    struct fsm_configuration: fgfsm::fsm_configuration
+    {
+        static constexpr auto enable_event_queue = false;
+    };
+
+    using fsm = fgfsm::fsm<transition_table, fsm_configuration>;
 }
 
 TEST_CASE("basic transition")

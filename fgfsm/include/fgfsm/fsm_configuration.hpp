@@ -18,7 +18,7 @@ struct fsm_configuration
     using state_transition_policy = fast_state_transition_policy;
     using internal_transition_policy = fast_internal_transition_policy;
 
-    static constexpr auto enable_event_queue = false;
+    static constexpr auto enable_event_queue = true;
 };
 
 } //namespace

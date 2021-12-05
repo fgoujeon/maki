@@ -67,7 +67,12 @@ namespace
         fgfsm::row<states::state9, events::next_state, states::benchmarking>
     >;
 
-    using fsm = fgfsm::fsm<transition_table>;
+    struct fsm_configuration: fgfsm::fsm_configuration
+    {
+        static constexpr auto enable_event_queue = false;
+    };
+
+    using fsm = fgfsm::fsm<transition_table, fsm_configuration>;
 }
 
 TEST_CASE("internal transition")

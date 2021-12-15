@@ -25,40 +25,11 @@ namespace
 
     namespace states
     {
-        struct idle
-        {
-            void on_entry(){}
-            void on_exit(){}
-            context& ctx;
-        };
-
-        struct state0
-        {
-            void on_entry(){}
-            void on_exit(){}
-            context& ctx;
-        };
-
-        struct state1
-        {
-            void on_entry(){}
-            void on_exit(){}
-            context& ctx;
-        };
-
-        struct state2
-        {
-            void on_entry(){}
-            void on_exit(){}
-            context& ctx;
-        };
-
-        struct state3
-        {
-            void on_entry(){}
-            void on_exit(){}
-            context& ctx;
-        };
+        FGFSM_SIMPLE_STATE(idle)
+        FGFSM_SIMPLE_STATE(state0)
+        FGFSM_SIMPLE_STATE(state1)
+        FGFSM_SIMPLE_STATE(state2)
+        FGFSM_SIMPLE_STATE(state3)
     }
 
     namespace events

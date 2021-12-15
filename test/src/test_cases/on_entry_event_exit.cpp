@@ -25,16 +25,11 @@ namespace
 
     namespace states
     {
-        struct idle
-        {
-            void on_entry(){}
-            void on_exit(){}
-            context& ctx;
-        };
+        FGFSM_SIMPLE_STATE(idle)
 
         struct english
         {
-            void on_entry()
+            void on_entry(const fgfsm::event_ref&)
             {
                 ctx.hello = "hello";
             }
@@ -45,7 +40,7 @@ namespace
                     ctx.dog = "dog";
             }
 
-            void on_exit()
+            void on_exit(const fgfsm::event_ref&)
             {
                 ctx.goodbye = "goodbye";
             }
@@ -66,7 +61,7 @@ namespace
                     ctx.dog = "chien";
             }
 
-            void on_exit()
+            void on_exit(const fgfsm::event_ref&)
             {
                 ctx.goodbye = "au revoir";
             }

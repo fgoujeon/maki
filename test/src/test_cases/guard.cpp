@@ -16,19 +16,8 @@ namespace
 
     namespace states
     {
-        struct on
-        {
-            void on_entry(){}
-            void on_exit(){}
-            context& ctx;
-        };
-
-        struct off
-        {
-            void on_entry(){}
-            void on_exit(){}
-            context& ctx;
-        };
+        FGFSM_SIMPLE_STATE(on)
+        FGFSM_SIMPLE_STATE(off)
     }
 
     namespace events

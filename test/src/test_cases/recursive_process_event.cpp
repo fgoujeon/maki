@@ -51,7 +51,14 @@ namespace
     {
         struct idle
         {
-            void on_exit()
+            void on_entry(const fgfsm::event_ref&)
+            {
+                ctx.output += "idle::on_entry;";
+            }
+
+            void on_event(const fgfsm::event_ref&){}
+
+            void on_exit(const fgfsm::event_ref&)
             {
                 ctx.output += "idle::on_exit;";
             }
@@ -61,12 +68,14 @@ namespace
 
         struct loading
         {
-            void on_entry()
+            void on_entry(const fgfsm::event_ref&)
             {
                 ctx.output += "loading::on_entry;";
             }
 
-            void on_exit()
+            void on_event(const fgfsm::event_ref&){}
+
+            void on_exit(const fgfsm::event_ref&)
             {
                 ctx.output += "loading::on_exit;";
             }
@@ -76,7 +85,7 @@ namespace
 
         struct ready
         {
-            void on_entry()
+            void on_entry(const fgfsm::event_ref&)
             {
                 ctx.output += "ready::on_entry;";
             }
@@ -97,7 +106,7 @@ namespace
                 );
             }
 
-            void on_exit()
+            void on_exit(const fgfsm::event_ref&)
             {
                 ctx.output += "ready::on_exit;";
             }

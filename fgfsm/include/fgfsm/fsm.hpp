@@ -12,10 +12,10 @@
 #include "internal_transition_policy.hpp"
 #include "none.hpp"
 #include "event.hpp"
-#include "detail/call_state_member.hpp"
 #include "detail/for_each.hpp"
 #include "detail/make_tuple.hpp"
 #include "detail/transition_table_digest.hpp"
+#include "detail/ignore_unused.hpp"
 #include <queue>
 
 namespace fgfsm

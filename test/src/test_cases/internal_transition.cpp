@@ -22,31 +22,31 @@ namespace
 
     namespace states
     {
-#define STATE(NAME) \
-    struct NAME \
-    { \
-        context& ctx; \
-    };
-
-        STATE(state0);
-        STATE(state1);
-        STATE(state2);
-        STATE(state3);
-        STATE(state4);
-        STATE(state5);
-        STATE(state6);
-        STATE(state7);
-        STATE(state8);
-        STATE(state9);
-
-#undef STATE
+        FGFSM_SIMPLE_STATE(state0)
+        FGFSM_SIMPLE_STATE(state1)
+        FGFSM_SIMPLE_STATE(state2)
+        FGFSM_SIMPLE_STATE(state3)
+        FGFSM_SIMPLE_STATE(state4)
+        FGFSM_SIMPLE_STATE(state5)
+        FGFSM_SIMPLE_STATE(state6)
+        FGFSM_SIMPLE_STATE(state7)
+        FGFSM_SIMPLE_STATE(state8)
+        FGFSM_SIMPLE_STATE(state9)
 
         struct benchmarking
         {
+            void on_entry(const fgfsm::event_ref&)
+            {
+            }
+
             void on_event(const fgfsm::event_ref& evt)
             {
                 if(evt.is<events::internal_transition>())
                     ++ctx.side_effect;
+            }
+
+            void on_exit(const fgfsm::event_ref&)
+            {
             }
 
             context& ctx;

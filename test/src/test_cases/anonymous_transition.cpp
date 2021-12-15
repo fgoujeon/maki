@@ -18,11 +18,11 @@ namespace
 
     struct states
     {
-        struct s0 { context& ctx; };
-        struct s1 { context& ctx; };
-        struct s2 { context& ctx; };
-        struct s3 { context& ctx; };
-        struct s4 { context& ctx; };
+        FGFSM_SIMPLE_STATE(s0)
+        FGFSM_SIMPLE_STATE(s1)
+        FGFSM_SIMPLE_STATE(s2)
+        FGFSM_SIMPLE_STATE(s3)
+        FGFSM_SIMPLE_STATE(s4)
     };
 
     using transition_table = fgfsm::transition_table

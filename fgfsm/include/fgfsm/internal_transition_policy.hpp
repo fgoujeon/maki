@@ -8,10 +8,7 @@
 #define FGFSM_INTERNAL_TRANSITION_POLICY_HPP
 
 #include "event.hpp"
-#include "detail/call_state_member.hpp"
 #include <type_traits>
-
-//Invocation policy of active_state.on_event(event)
 
 namespace fgfsm
 {
@@ -36,7 +33,7 @@ class internal_transition_policy_helper
     public:
         void invoke_state_on_event()
         {
-            detail::call_on_event(state_, evt_);
+            state_.on_event(evt_);
         }
 
     private:

@@ -33,13 +33,12 @@ namespace
 
     namespace states
     {
-        struct idle
-        {
-            context& ctx;
-        };
+        FGFSM_SIMPLE_STATE(idle);
 
         struct replacing_values
         {
+            void on_entry(const fgfsm::event_ref&){}
+
             void on_event(const fgfsm::event_ref& event)
             {
                 visit
@@ -56,11 +55,15 @@ namespace
                 );
             }
 
+            void on_exit(const fgfsm::event_ref&){}
+
             context& ctx;
         };
 
         struct cumulating_values
         {
+            void on_entry(const fgfsm::event_ref&){}
+
             void on_event(const fgfsm::event_ref& event)
             {
                 visit
@@ -76,6 +79,8 @@ namespace
                     }
                 );
             }
+
+            void on_exit(const fgfsm::event_ref&){}
 
             context& ctx;
         };

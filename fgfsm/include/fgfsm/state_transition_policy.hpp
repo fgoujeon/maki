@@ -8,7 +8,6 @@
 #define FGFSM_STATE_TRANSITION_POLICY_HPP
 
 #include "event.hpp"
-#include "detail/call_state_member.hpp"
 #include <type_traits>
 
 namespace fgfsm
@@ -57,7 +56,7 @@ class state_transition_policy_helper
 
         void invoke_start_state_on_exit()
         {
-            detail::call_on_exit(start_state_, evt_);
+            start_state_.on_exit(evt_);
         }
 
         void activate_target_state()
@@ -73,7 +72,7 @@ class state_transition_policy_helper
 
         void invoke_target_state_on_entry()
         {
-            detail::call_on_entry(target_state_, evt_);
+            target_state_.on_entry(evt_);
         }
 
     private:

@@ -15,15 +15,8 @@ namespace
 
     namespace states
     {
-        struct on
-        {
-            context& ctx;
-        };
-
-        struct off
-        {
-            context& ctx;
-        };
+        FGFSM_SIMPLE_STATE(on)
+        FGFSM_SIMPLE_STATE(off)
     }
 
     namespace events

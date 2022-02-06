@@ -10,6 +10,7 @@
 #include "fsm_configuration.hpp"
 #include "state_transition_policy.hpp"
 #include "internal_transition_policy.hpp"
+#include "any.hpp"
 #include "none.hpp"
 #include "event.hpp"
 #include "detail/for_each.hpp"
@@ -59,6 +60,21 @@ class fsm
                 State
             >;
             return given_state_index == active_state_index_;
+        }
+
+        template<class F>
+        void visit_active_state(F&& f)
+        {
+            detail::for_each
+            (
+                states_,
+                [this, &f](auto& s)
+                {
+                    using state = std::decay_t<decltype(s)>;
+                    if(is_active_state<state>())
+                        f(s);
+                }
+            );
         }
 
         void process_event(const event_ref& evt)
@@ -131,19 +147,35 @@ class fsm
         {
             bool processed = false;
 
-            const auto helper = process_event_in_transition_table_once_helper
-            {
-                *this,
-                evt,
-                processed
-            };
+            visit_active_state
+            (
+                [&](auto& active_state)
+                {
+                    using active_state_t = std::decay_t<decltype(active_state)>;
+                    using helper_t =
+                        process_event_in_transition_table_once_helper
+                        <
+                            active_state_t
+                        >
+                    ;
 
-            //For each row
-            detail::tlu::for_each<transition_table>(helper);
+                    const auto helper = helper_t
+                    {
+                        *this,
+                        active_state,
+                        evt,
+                        processed
+                    };
+
+                    //For each row
+                    detail::tlu::for_each<transition_table>(helper);
+                }
+            );
 
             return processed;
         }
 
+        template<class ActiveState>
         struct process_event_in_transition_table_once_helper
         {
             template<class Transition>
@@ -155,56 +187,57 @@ class fsm
                 using transition_action       = typename Transition::action;
                 using transition_guard        = typename Transition::guard;
 
-                //Make sure we don't trigger more than one transition
-                if(processed)
-                    return;
-
-                if(evt.is<transition_event>())
+                //If the transition start state is the active state or any
+                if constexpr
+                (
+                    std::is_same_v<transition_start_state, ActiveState> ||
+                    std::is_same_v<transition_start_state, any>
+                )
                 {
-                    //Make sure the transition start state is the active
-                    //state
-                    if(!self.is_active_state<transition_start_state>())
+                    //Make sure we don't trigger more than one transition
+                    if(processed)
                         return;
 
-                    auto& start_state =
-                        std::get<transition_start_state>(self.states_)
-                    ;
-                    auto& target_state =
-                        std::get<transition_target_state>(self.states_)
-                    ;
-                    auto& guard = std::get<transition_guard>(self.guards_);
-                    auto& action = std::get<transition_action>(self.actions_);
-
-                    const auto target_state_index = detail::tlu::get_index
-                    <
-                        state_tuple,
-                        transition_target_state
-                    >;
-
-                    auto helper = state_transition_policy_helper
-                    <
-                        transition_start_state,
-                        transition_target_state,
-                        transition_action,
-                        transition_guard
-                    >
+                    if(evt.is<transition_event>())
                     {
-                        start_state,
-                        evt,
-                        target_state,
-                        action,
-                        guard,
-                        self.active_state_index_,
-                        processed,
-                        target_state_index
-                    };
+                        auto& target_state =
+                            std::get<transition_target_state>(self.states_)
+                        ;
+                        auto& guard = std::get<transition_guard>(self.guards_);
+                        auto& action = std::get<transition_action>(self.actions_);
 
-                    //Perform the transition
-                    self.state_transition_policy_(helper);
+                        const auto target_state_index = detail::tlu::get_index
+                        <
+                            state_tuple,
+                            transition_target_state
+                        >;
+
+                        auto helper = state_transition_policy_helper
+                        <
+                            ActiveState,
+                            transition_target_state,
+                            transition_action,
+                            transition_guard
+                        >
+                        {
+                            active_state,
+                            evt,
+                            target_state,
+                            action,
+                            guard,
+                            self.active_state_index_,
+                            processed,
+                            target_state_index
+                        };
+
+                        //Perform the transition
+                        self.state_transition_policy_(helper);
+                    }
                 }
             }
 
             fsm& self;
+            ActiveState& active_state;
             const event_ref& evt;
             bool& processed;
         };
@@ -214,20 +247,16 @@ class fsm
         */
         void process_event_in_active_state(const event_ref& evt)
         {
-            detail::for_each
+            visit_active_state
             (
-                states_,
                 [this, &evt](auto& s)
                 {
                     using state = std::decay_t<decltype(s)>;
-                    if(is_active_state<state>())
-                    {
-                        auto helper = internal_transition_policy_helper
-                        <
-                            state
-                        >{s, evt};
-                        internal_transition_policy_(helper);
-                    }
+                    auto helper = internal_transition_policy_helper
+                    <
+                        state
+                    >{s, evt};
+                    internal_transition_policy_(helper);
                 }
             );
         }

@@ -13,7 +13,7 @@ namespace fgfsm
 /*
 Represents either:
 - a null event (for anonymous transitions);
-- a action that does nothing;
+- an action that does nothing;
 - a guard that always returns true.
 */
 struct none

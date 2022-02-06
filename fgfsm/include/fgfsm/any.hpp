@@ -4,11 +4,17 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
-//TLU = Type List Utility
+#ifndef FGFSM_ANY_HPP
+#define FGFSM_ANY_HPP
 
-#include "tlu/contains.hpp"
-#include "tlu/for_each.hpp"
-#include "tlu/get_index.hpp"
-#include "tlu/push_back.hpp"
-#include "tlu/push_back_unique.hpp"
-#include "tlu/push_back_unique_if_not_any.hpp"
+namespace fgfsm
+{
+
+/*
+Represents any start state.
+*/
+struct any{};
+
+} //namespace
+
+#endif

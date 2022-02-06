@@ -31,10 +31,11 @@ namespace
 
     using transition_table = fgfsm::transition_table
     <
-        fgfsm::row<state0, event0, state1>,
-        fgfsm::row<state1, event1, state2, fgfsm::none, guard0>,
-        fgfsm::row<state2, event2, state3, action0>,
-        fgfsm::row<state3, event3, state0, action1,     guard1>
+        fgfsm::row<state0,     event0, state1>,
+        fgfsm::row<state1,     event1, state2, fgfsm::none, guard0>,
+        fgfsm::row<state2,     event2, state3, action0>,
+        fgfsm::row<state3,     event3, state0, action1,     guard1>,
+        fgfsm::row<fgfsm::any, event3, state0>
     >;
 
     using digest = fgfsm::detail::transition_table_digest<transition_table>;

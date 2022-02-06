@@ -10,7 +10,7 @@
 namespace
 {
     class fsm;
-    void process_event(fsm& sm, const fgfsm::any_cref& evt);
+    void process_event(fsm& sm, const fgfsm::any_cref& event);
 
     struct context
     {
@@ -19,9 +19,9 @@ namespace
         {
         }
 
-        void process_event(const fgfsm::any_cref& evt)
+        void process_event(const fgfsm::any_cref& event)
         {
-            ::process_event(sm, evt);
+            ::process_event(sm, event);
         }
 
         fsm& sm;
@@ -145,9 +145,9 @@ namespace
             {
             }
 
-            void process_event(const fgfsm::any_cref& evt)
+            void process_event(const fgfsm::any_cref& event)
             {
-                impl_.process_event(evt);
+                impl_.process_event(event);
             }
 
             const context& get_context() const
@@ -160,9 +160,9 @@ namespace
             fgfsm::fsm<transition_table> impl_;
     };
 
-    void process_event(fsm& sm, const fgfsm::any_cref& evt)
+    void process_event(fsm& sm, const fgfsm::any_cref& event)
     {
-        sm.process_event(evt);
+        sm.process_event(event);
     }
 }
 

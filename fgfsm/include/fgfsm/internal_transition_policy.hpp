@@ -23,10 +23,10 @@ class internal_transition_policy_helper
         internal_transition_policy_helper
         (
             State& state,
-            const any_cref& evt
+            const any_cref& event
         ):
             state_(state),
-            evt_(evt)
+            evt_(event)
         {
         }
 

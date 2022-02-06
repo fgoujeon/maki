@@ -29,7 +29,7 @@ class state_transition_policy_helper
         state_transition_policy_helper
         (
             StartState& start_state,
-            const any_cref& evt,
+            const any_cref& event,
             TargetState& target_state,
             Action& action,
             Guard& guard,
@@ -38,7 +38,7 @@ class state_transition_policy_helper
             const int target_state_index
         ):
             start_state_(start_state),
-            evt_(evt),
+            evt_(event),
             target_state_(target_state),
             action_(action),
             guard_(guard),

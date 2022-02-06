@@ -12,7 +12,7 @@
 #include "internal_transition_policy.hpp"
 #include "any.hpp"
 #include "none.hpp"
-#include "event.hpp"
+#include "any_copy.hpp"
 #include "detail/for_each.hpp"
 #include "detail/make_tuple.hpp"
 #include "detail/transition_table_digest.hpp"
@@ -77,14 +77,14 @@ class fsm
             );
         }
 
-        void process_event(const event_ref& evt)
+        void process_event(const any_cref& event)
         {
             if constexpr(Configuration::enable_event_queue)
             {
                 //Defer event processing in case of recursive call
                 if(processing_event_)
                 {
-                    deferred_events_.push(event{evt});
+                    deferred_events_.push(any_copy{event});
                     return;
                 }
 
@@ -105,7 +105,7 @@ class fsm
                 };
                 auto processing_guard = processing_event_guard{processing_event_};
 
-                process_event_once(evt);
+                process_event_once(event);
 
                 //Process deferred event processings
                 while(!deferred_events_.empty())
@@ -116,24 +116,24 @@ class fsm
             }
             else
             {
-                process_event_once(evt);
+                process_event_once(event);
             }
         }
 
     private:
-        void process_event_once(const event_ref& evt)
+        void process_event_once(const any_cref& event)
         {
-            process_event_in_active_state(evt);
-            process_event_in_transition_table(evt);
+            process_event_in_active_state(event);
+            process_event_in_transition_table(event);
         }
 
         /*
         Try and trigger a transition and potential subsequent anonymous
         transitions, if any.
         */
-        void process_event_in_transition_table(const event_ref& evt)
+        void process_event_in_transition_table(const any_cref& event)
         {
-            const bool processed = process_event_in_transition_table_once(evt);
+            const bool processed = process_event_in_transition_table_once(event);
             detail::ignore_unused(processed);
 
             //Anonymous transitions
@@ -143,7 +143,7 @@ class fsm
         }
 
         //Try and trigger one transition
-        bool process_event_in_transition_table_once(const event_ref& evt)
+        bool process_event_in_transition_table_once(const any_cref& event)
         {
             bool processed = false;
 
@@ -163,7 +163,7 @@ class fsm
                     {
                         *this,
                         active_state,
-                        evt,
+                        event,
                         processed
                     };
 
@@ -198,7 +198,7 @@ class fsm
                     if(processed)
                         return;
 
-                    if(evt.is<transition_event>())
+                    if(event.is<transition_event>())
                     {
                         auto& target_state =
                             std::get<transition_target_state>(self.states_)
@@ -221,7 +221,7 @@ class fsm
                         >
                         {
                             active_state,
-                            evt,
+                            event,
                             target_state,
                             action,
                             guard,
@@ -238,24 +238,24 @@ class fsm
 
             fsm& self;
             ActiveState& active_state;
-            const event_ref& evt;
+            const any_cref& event;
             bool& processed;
         };
 
         /*
         Call active_state.on_event(event)
         */
-        void process_event_in_active_state(const event_ref& evt)
+        void process_event_in_active_state(const any_cref& event)
         {
             visit_active_state
             (
-                [this, &evt](auto& s)
+                [this, &event](auto& s)
                 {
                     using state = std::decay_t<decltype(s)>;
                     auto helper = internal_transition_policy_helper
                     <
                         state
-                    >{s, evt};
+                    >{s, event};
                     internal_transition_policy_(helper);
                 }
             );
@@ -270,7 +270,7 @@ class fsm
 
         int active_state_index_ = 0;
         bool processing_event_ = false;
-        std::queue<event> deferred_events_;
+        std::queue<any_copy> deferred_events_;
 };
 
 } //namespace

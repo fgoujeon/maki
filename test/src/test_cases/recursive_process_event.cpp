@@ -10,7 +10,7 @@
 namespace
 {
     class fsm;
-    void process_event(fsm& sm, const fgfsm::event_ref& evt);
+    void process_event(fsm& sm, const fgfsm::any_cref& event);
 
     struct context
     {
@@ -19,9 +19,9 @@ namespace
         {
         }
 
-        void process_event(const fgfsm::event_ref& evt)
+        void process_event(const fgfsm::any_cref& event)
         {
-            ::process_event(sm, evt);
+            ::process_event(sm, event);
         }
 
         fsm& sm;
@@ -51,14 +51,14 @@ namespace
     {
         struct idle
         {
-            void on_entry(const fgfsm::event_ref&)
+            void on_entry(const fgfsm::any_cref&)
             {
                 ctx.output += "idle::on_entry;";
             }
 
-            void on_event(const fgfsm::event_ref&){}
+            void on_event(const fgfsm::any_cref&){}
 
-            void on_exit(const fgfsm::event_ref&)
+            void on_exit(const fgfsm::any_cref&)
             {
                 ctx.output += "idle::on_exit;";
             }
@@ -68,14 +68,14 @@ namespace
 
         struct loading
         {
-            void on_entry(const fgfsm::event_ref&)
+            void on_entry(const fgfsm::any_cref&)
             {
                 ctx.output += "loading::on_entry;";
             }
 
-            void on_event(const fgfsm::event_ref&){}
+            void on_event(const fgfsm::any_cref&){}
 
-            void on_exit(const fgfsm::event_ref&)
+            void on_exit(const fgfsm::any_cref&)
             {
                 ctx.output += "loading::on_exit;";
             }
@@ -85,12 +85,12 @@ namespace
 
         struct ready
         {
-            void on_entry(const fgfsm::event_ref&)
+            void on_entry(const fgfsm::any_cref&)
             {
                 ctx.output += "ready::on_entry;";
             }
 
-            void on_event(const fgfsm::event_ref& event)
+            void on_event(const fgfsm::any_cref& event)
             {
                 visit
                 (
@@ -106,7 +106,7 @@ namespace
                 );
             }
 
-            void on_exit(const fgfsm::event_ref&)
+            void on_exit(const fgfsm::any_cref&)
             {
                 ctx.output += "ready::on_exit;";
             }
@@ -120,7 +120,7 @@ namespace
         struct skip_loading
         {
             template<class StartState, class TargetState>
-            void operator()(StartState&, const fgfsm::event_ref&, TargetState&)
+            void operator()(StartState&, const fgfsm::any_cref&, TargetState&)
             {
                 ctx.process_event(events::end_of_loading{});
             }
@@ -145,9 +145,9 @@ namespace
             {
             }
 
-            void process_event(const fgfsm::event_ref& evt)
+            void process_event(const fgfsm::any_cref& event)
             {
-                impl_.process_event(evt);
+                impl_.process_event(event);
             }
 
             const context& get_context() const
@@ -160,9 +160,9 @@ namespace
             fgfsm::fsm<transition_table> impl_;
     };
 
-    void process_event(fsm& sm, const fgfsm::event_ref& evt)
+    void process_event(fsm& sm, const fgfsm::any_cref& event)
     {
-        sm.process_event(evt);
+        sm.process_event(event);
     }
 }
 

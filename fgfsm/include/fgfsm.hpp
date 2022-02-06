@@ -5,7 +5,8 @@
 //Official repository: https://github.com/fgoujeon/fgfsm
 
 #include "fgfsm/any.hpp"
-#include "fgfsm/event.hpp"
+#include "fgfsm/any_copy.hpp"
+#include "fgfsm/any_cref.hpp"
 #include "fgfsm/fsm.hpp"
 #include "fgfsm/fsm_configuration.hpp"
 #include "fgfsm/guard_operators.hpp"

@@ -15,15 +15,15 @@
         { \
         } \
  \
-        void on_entry(const fgfsm::event_ref&) \
+        void on_entry(const fgfsm::any_cref&) \
         { \
         } \
  \
-        void on_event(const fgfsm::event_ref&) \
+        void on_event(const fgfsm::any_cref&) \
         { \
         } \
  \
-        void on_exit(const fgfsm::event_ref&) \
+        void on_exit(const fgfsm::any_cref&) \
         { \
         } \
     };

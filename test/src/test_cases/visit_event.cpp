@@ -37,9 +37,9 @@ namespace
 
         struct replacing_values
         {
-            void on_entry(const fgfsm::event_ref&){}
+            void on_entry(const fgfsm::any_cref&){}
 
-            void on_event(const fgfsm::event_ref& event)
+            void on_event(const fgfsm::any_cref& event)
             {
                 visit
                 (
@@ -55,16 +55,16 @@ namespace
                 );
             }
 
-            void on_exit(const fgfsm::event_ref&){}
+            void on_exit(const fgfsm::any_cref&){}
 
             context& ctx;
         };
 
         struct cumulating_values
         {
-            void on_entry(const fgfsm::event_ref&){}
+            void on_entry(const fgfsm::any_cref&){}
 
-            void on_event(const fgfsm::event_ref& event)
+            void on_event(const fgfsm::any_cref& event)
             {
                 visit
                 (
@@ -80,7 +80,7 @@ namespace
                 );
             }
 
-            void on_exit(const fgfsm::event_ref&){}
+            void on_exit(const fgfsm::any_cref&){}
 
             context& ctx;
         };

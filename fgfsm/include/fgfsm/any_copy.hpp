@@ -142,19 +142,19 @@ class any_cref
         any_cref& operator=(any_cref&&) = default;
 
     public:
-        template<class OtherObject>
-        const OtherObject* get() const
+        template<class T>
+        const T* get_if() const
         {
-            if(identifier_ == &manager<OtherObject>::identifier) //Object == OtherObject?
-                return static_cast<const OtherObject*>(pevt_);
+            if(identifier_ == &manager<T>::identifier) //Object == T?
+                return static_cast<const T*>(pevt_);
             else
                 return nullptr;
         }
 
-        template<class OtherObject>
+        template<class T>
         bool is() const
         {
-            return get<OtherObject>() != nullptr;
+            return get_if<T>() != nullptr;
         }
 
     private:
@@ -244,7 +244,7 @@ void visit(const any_cref& evt, Visitor&& visitor, Visitors&&... visitors)
     using arg_type_t = detail::first_arg_of_unary_function_t<decayed_visitor_t>;
     using decayed_arg_type_t = std::decay_t<arg_type_t>;
 
-    if(const auto pevt = evt.get<decayed_arg_type_t>())
+    if(const auto pevt = evt.get_if<decayed_arg_type_t>())
         visitor(*pevt);
     else
         visit(evt, visitors...);

@@ -12,7 +12,7 @@
 #include "internal_transition_policy.hpp"
 #include "any.hpp"
 #include "none.hpp"
-#include "event.hpp"
+#include "any_copy.hpp"
 #include "detail/for_each.hpp"
 #include "detail/make_tuple.hpp"
 #include "detail/transition_table_digest.hpp"
@@ -77,14 +77,14 @@ class fsm
             );
         }
 
-        void process_event(const event_ref& evt)
+        void process_event(const any_cref& evt)
         {
             if constexpr(Configuration::enable_event_queue)
             {
                 //Defer event processing in case of recursive call
                 if(processing_event_)
                 {
-                    deferred_events_.push(event{evt});
+                    deferred_events_.push(any_copy{evt});
                     return;
                 }
 
@@ -121,7 +121,7 @@ class fsm
         }
 
     private:
-        void process_event_once(const event_ref& evt)
+        void process_event_once(const any_cref& evt)
         {
             process_event_in_active_state(evt);
             process_event_in_transition_table(evt);
@@ -131,7 +131,7 @@ class fsm
         Try and trigger a transition and potential subsequent anonymous
         transitions, if any.
         */
-        void process_event_in_transition_table(const event_ref& evt)
+        void process_event_in_transition_table(const any_cref& evt)
         {
             const bool processed = process_event_in_transition_table_once(evt);
             detail::ignore_unused(processed);
@@ -143,7 +143,7 @@ class fsm
         }
 
         //Try and trigger one transition
-        bool process_event_in_transition_table_once(const event_ref& evt)
+        bool process_event_in_transition_table_once(const any_cref& evt)
         {
             bool processed = false;
 
@@ -238,14 +238,14 @@ class fsm
 
             fsm& self;
             ActiveState& active_state;
-            const event_ref& evt;
+            const any_cref& evt;
             bool& processed;
         };
 
         /*
         Call active_state.on_event(event)
         */
-        void process_event_in_active_state(const event_ref& evt)
+        void process_event_in_active_state(const any_cref& evt)
         {
             visit_active_state
             (
@@ -270,7 +270,7 @@ class fsm
 
         int active_state_index_ = 0;
         bool processing_event_ = false;
-        std::queue<event> deferred_events_;
+        std::queue<any_copy> deferred_events_;
 };
 
 } //namespace

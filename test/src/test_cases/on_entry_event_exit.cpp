@@ -29,18 +29,18 @@ namespace
 
         struct english
         {
-            void on_entry(const fgfsm::event_ref&)
+            void on_entry(const fgfsm::any_cref&)
             {
                 ctx.hello = "hello";
             }
 
-            void on_event(const fgfsm::event_ref& event)
+            void on_event(const fgfsm::any_cref& event)
             {
                 if(event.is<events::say_dog>())
                     ctx.dog = "dog";
             }
 
-            void on_exit(const fgfsm::event_ref&)
+            void on_exit(const fgfsm::any_cref&)
             {
                 ctx.goodbye = "goodbye";
             }
@@ -50,18 +50,18 @@ namespace
 
         struct french
         {
-            void on_entry(const fgfsm::event_ref&)
+            void on_entry(const fgfsm::any_cref&)
             {
                 ctx.hello = "bonjour";
             }
 
-            void on_event(const fgfsm::event_ref& event)
+            void on_event(const fgfsm::any_cref& event)
             {
                 if(event.is<events::say_dog>())
                     ctx.dog = "chien";
             }
 
-            void on_exit(const fgfsm::event_ref&)
+            void on_exit(const fgfsm::any_cref&)
             {
                 ctx.goodbye = "au revoir";
             }

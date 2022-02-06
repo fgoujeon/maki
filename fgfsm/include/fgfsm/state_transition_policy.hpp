@@ -7,7 +7,7 @@
 #ifndef FGFSM_STATE_TRANSITION_POLICY_HPP
 #define FGFSM_STATE_TRANSITION_POLICY_HPP
 
-#include "event.hpp"
+#include "any_copy.hpp"
 #include <type_traits>
 
 namespace fgfsm
@@ -29,7 +29,7 @@ class state_transition_policy_helper
         state_transition_policy_helper
         (
             StartState& start_state,
-            const event_ref& evt,
+            const any_cref& evt,
             TargetState& target_state,
             Action& action,
             Guard& guard,
@@ -77,7 +77,7 @@ class state_transition_policy_helper
 
     private:
         StartState& start_state_;
-        const event_ref& evt_;
+        const any_cref& evt_;
         TargetState& target_state_;
         Action& action_;
         Guard& guard_;

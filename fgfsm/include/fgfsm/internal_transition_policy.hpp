@@ -7,7 +7,7 @@
 #ifndef FGFSM_INTERNAL_TRANSITION_POLICY_HPP
 #define FGFSM_INTERNAL_TRANSITION_POLICY_HPP
 
-#include "event.hpp"
+#include "any_copy.hpp"
 #include <type_traits>
 
 namespace fgfsm
@@ -23,7 +23,7 @@ class internal_transition_policy_helper
         internal_transition_policy_helper
         (
             State& state,
-            const event_ref& evt
+            const any_cref& evt
         ):
             state_(state),
             evt_(evt)
@@ -38,7 +38,7 @@ class internal_transition_policy_helper
 
     private:
         State& state_;
-        const event_ref& evt_;
+        const any_cref& evt_;
 };
 
 struct fast_internal_transition_policy

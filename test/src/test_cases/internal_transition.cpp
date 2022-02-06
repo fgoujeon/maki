@@ -35,17 +35,17 @@ namespace
 
         struct benchmarking
         {
-            void on_entry(const fgfsm::event_ref&)
+            void on_entry(const fgfsm::any_cref&)
             {
             }
 
-            void on_event(const fgfsm::event_ref& evt)
+            void on_event(const fgfsm::any_cref& evt)
             {
                 if(evt.is<events::internal_transition>())
                     ++ctx.side_effect;
             }
 
-            void on_exit(const fgfsm::event_ref&)
+            void on_exit(const fgfsm::any_cref&)
             {
             }
 

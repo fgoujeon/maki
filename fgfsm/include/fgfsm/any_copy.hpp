@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
-#ifndef FGFSM_EVENT_REF_HPP
-#define FGFSM_EVENT_REF_HPP
+#ifndef FGFSM_ANY_COPY_HPP
+#define FGFSM_ANY_COPY_HPP
 
 #include <type_traits>
 #include <memory>
@@ -30,161 +30,162 @@ namespace detail
     using unique_ptr_to_const_fake_void = std::unique_ptr<const fake_void, void(*)(const fake_void*)>;
 }
 
-class event_ref;
+class any_cref;
 
-//Stores a copy of the given object
-class event
+//Stores a copy of the given object (like std::any)
+class any_copy
 {
     private:
-        friend class event_ref;
+        friend class any_cref;
 
-        template<class Event>
+        template<class Object>
         struct manager
         {
             static void free(const detail::fake_void* pevt)
             {
-                delete reinterpret_cast<const Event*>(pevt);
+                delete reinterpret_cast<const Object*>(pevt);
             }
 
-            static event_ref make_ref(const detail::fake_void* pevt);
+            static any_cref make_cref(const detail::fake_void* pevt);
         };
 
-        using make_ref_t = event_ref(*)(const detail::fake_void*);
+        using make_cref_t = any_cref(*)(const detail::fake_void*);
 
     public:
-        template<class Event>
-        explicit event(const Event& evt):
+        template<class Object>
+        explicit any_copy(const Object& evt):
             pevt_
             (
-                reinterpret_cast<const detail::fake_void*>(new Event{evt}),
-                &manager<Event>::free
+                reinterpret_cast<const detail::fake_void*>(new Object{evt}),
+                &manager<Object>::free
             ),
-            make_ref_(&manager<Event>::make_ref)
+            make_cref_(&manager<Object>::make_cref)
         {
         }
 
-        event(const event&) = delete;
+        any_copy(const any_copy&) = delete;
 
-        event(event&& other):
+        any_copy(any_copy&& other):
             pevt_(std::move(other.pevt_)),
-            make_ref_(other.make_ref_)
+            make_cref_(other.make_cref_)
         {
         }
 
-        explicit event(const event_ref& evt);
+        explicit any_copy(const any_cref& evt);
 
-        void operator=(const event&) = delete;
+        void operator=(const any_copy&) = delete;
 
-        void operator=(event&& other)
+        void operator=(any_copy&& other)
         {
             pevt_ = std::move(other.pevt_);
-            make_ref_ = std::exchange(other.make_ref_, nullptr);
+            make_cref_ = std::exchange(other.make_cref_, nullptr);
         }
 
     private:
-        event_ref make_ref() const;
+        any_cref make_cref() const;
 
     private:
         detail::unique_ptr_to_const_fake_void pevt_;
-        make_ref_t make_ref_ = nullptr;
+        make_cref_t make_cref_ = nullptr;
 };
 
-//Holds a reference to the given object
-class event_ref
+//Stores a const reference to the given object (like what a std::any for const
+//references would be)
+class any_cref
 {
     private:
-        friend class event;
+        friend class any_copy;
 
-        template<class Event>
+        template<class T>
         struct manager
         {
-            static event make_deep_copy(const void* pevt)
+            static any_copy make_copy(const void* pevt)
             {
-                const auto pevt2 = static_cast<const Event*>(pevt);
-                return event{*pevt2};
+                const auto pevt2 = static_cast<const T*>(pevt);
+                return any_copy{*pevt2};
             }
 
             /*
-            ID unique to each Event type.
+            ID unique to each type.
             The ID is not the value of the variable, but its address.
             */
             static constexpr char identifier = {};
         };
 
         using identifier_t = const char*;
-        using make_deep_copy_t = event(*)(const void*);
+        using make_copy_t = any_copy(*)(const void*);
 
     public:
-        template<class Event>
-        event_ref(const Event& evt):
+        template<class Object>
+        any_cref(const Object& evt):
             pevt_(&evt),
-            identifier_(&manager<Event>::identifier),
-            make_deep_copy_(&manager<Event>::make_deep_copy)
+            identifier_(&manager<Object>::identifier),
+            make_copy_(&manager<Object>::make_copy)
         {
         }
 
-        event_ref(const event_ref& other):
+        any_cref(const any_cref& other):
             pevt_(other.pevt_),
             identifier_(other.identifier_),
-            make_deep_copy_(other.make_deep_copy_)
+            make_copy_(other.make_copy_)
         {
         }
 
-        event_ref(const event& evt)
+        any_cref(const any_copy& evt)
         {
-            *this = evt.make_ref();
+            *this = evt.make_cref();
         }
 
     private:
-        event_ref& operator=(const event_ref&) = default;
+        any_cref& operator=(const any_cref&) = default;
 
-        event_ref& operator=(event_ref&&) = default;
+        any_cref& operator=(any_cref&&) = default;
 
     public:
-        template<class OtherEvent>
-        const OtherEvent* get() const
+        template<class OtherObject>
+        const OtherObject* get() const
         {
-            if(identifier_ == &manager<OtherEvent>::identifier) //Event == OtherEvent?
-                return static_cast<const OtherEvent*>(pevt_);
+            if(identifier_ == &manager<OtherObject>::identifier) //Object == OtherObject?
+                return static_cast<const OtherObject*>(pevt_);
             else
                 return nullptr;
         }
 
-        template<class OtherEvent>
+        template<class OtherObject>
         bool is() const
         {
-            return get<OtherEvent>() != nullptr;
+            return get<OtherObject>() != nullptr;
         }
 
     private:
-        event make_deep_copy() const
+        any_copy make_copy() const
         {
-            return make_deep_copy_(pevt_);
+            return make_copy_(pevt_);
         }
 
     private:
         const void* pevt_ = nullptr;
         identifier_t identifier_;
-        make_deep_copy_t make_deep_copy_;
+        make_copy_t make_copy_;
 };
 
-template<class Event>
-event_ref event::manager<Event>::make_ref(const detail::fake_void* pevt)
+template<class Object>
+any_cref any_copy::manager<Object>::make_cref(const detail::fake_void* pevt)
 {
-    return event_ref{*reinterpret_cast<const Event*>(pevt)};
+    return any_cref{*reinterpret_cast<const Object*>(pevt)};
 }
 
 inline
-event::event(const event_ref& evt):
+any_copy::any_copy(const any_cref& evt):
     pevt_(nullptr, nullptr)
 {
-    *this = evt.make_deep_copy();
+    *this = evt.make_copy();
 }
 
 inline
-event_ref event::make_ref() const
+any_cref any_copy::make_cref() const
 {
-    return make_ref_(pevt_.get());
+    return make_cref_(pevt_.get());
 }
 
 
@@ -237,7 +238,7 @@ namespace detail
 }
 
 template<class Visitor, class... Visitors>
-void visit(const event_ref& evt, Visitor&& visitor, Visitors&&... visitors)
+void visit(const any_cref& evt, Visitor&& visitor, Visitors&&... visitors)
 {
     using decayed_visitor_t = std::decay_t<Visitor>;
     using arg_type_t = detail::first_arg_of_unary_function_t<decayed_visitor_t>;
@@ -250,7 +251,7 @@ void visit(const event_ref& evt, Visitor&& visitor, Visitors&&... visitors)
 }
 
 inline
-void visit(const event_ref&)
+void visit(const any_cref&)
 {
 }
 

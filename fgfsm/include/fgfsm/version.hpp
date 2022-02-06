@@ -12,7 +12,7 @@ namespace fgfsm
 
 constexpr auto version_major = 0;
 constexpr auto version_minor = 2;
-constexpr auto version_patch = 4;
+constexpr auto version_patch = 5;
 
 } //namespace
 

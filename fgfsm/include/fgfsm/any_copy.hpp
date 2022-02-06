@@ -38,25 +38,25 @@ class any_copy
     private:
         friend class any_cref;
 
-        template<class Object>
+        template<class T>
         struct manager
         {
-            static void free(const detail::fake_void* pevt)
+            static void free(const detail::fake_void* pobj)
             {
-                delete reinterpret_cast<const Object*>(pevt);
+                delete reinterpret_cast<const T*>(pobj);
             }
 
-            static any_cref make_cref(const detail::fake_void* pevt);
+            static any_cref make_cref(const detail::fake_void* pobj);
         };
 
         using make_cref_t = any_cref(*)(const detail::fake_void*);
 
     public:
         template<class Object>
-        explicit any_copy(const Object& evt):
-            pevt_
+        explicit any_copy(const Object& obj):
+            pobj_
             (
-                reinterpret_cast<const detail::fake_void*>(new Object{evt}),
+                reinterpret_cast<const detail::fake_void*>(new Object{obj}),
                 &manager<Object>::free
             ),
             make_cref_(&manager<Object>::make_cref)
@@ -66,18 +66,18 @@ class any_copy
         any_copy(const any_copy&) = delete;
 
         any_copy(any_copy&& other):
-            pevt_(std::move(other.pevt_)),
+            pobj_(std::move(other.pobj_)),
             make_cref_(other.make_cref_)
         {
         }
 
-        explicit any_copy(const any_cref& evt);
+        explicit any_copy(const any_cref& obj);
 
         void operator=(const any_copy&) = delete;
 
         void operator=(any_copy&& other)
         {
-            pevt_ = std::move(other.pevt_);
+            pobj_ = std::move(other.pobj_);
             make_cref_ = std::exchange(other.make_cref_, nullptr);
         }
 
@@ -85,7 +85,7 @@ class any_copy
         any_cref make_cref() const;
 
     private:
-        detail::unique_ptr_to_const_fake_void pevt_;
+        detail::unique_ptr_to_const_fake_void pobj_;
         make_cref_t make_cref_ = nullptr;
 };
 
@@ -99,10 +99,10 @@ class any_cref
         template<class T>
         struct manager
         {
-            static any_copy make_copy(const void* pevt)
+            static any_copy make_copy(const void* pobj)
             {
-                const auto pevt2 = static_cast<const T*>(pevt);
-                return any_copy{*pevt2};
+                const auto pobj2 = static_cast<const T*>(pobj);
+                return any_copy{*pobj2};
             }
 
             /*
@@ -117,23 +117,23 @@ class any_cref
 
     public:
         template<class Object>
-        any_cref(const Object& evt):
-            pevt_(&evt),
+        any_cref(const Object& obj):
+            pobj_(&obj),
             identifier_(&manager<Object>::identifier),
             make_copy_(&manager<Object>::make_copy)
         {
         }
 
         any_cref(const any_cref& other):
-            pevt_(other.pevt_),
+            pobj_(other.pobj_),
             identifier_(other.identifier_),
             make_copy_(other.make_copy_)
         {
         }
 
-        any_cref(const any_copy& evt)
+        any_cref(const any_copy& obj)
         {
-            *this = evt.make_cref();
+            *this = obj.make_cref();
         }
 
     private:
@@ -146,7 +146,7 @@ class any_cref
         const T* get_if() const
         {
             if(identifier_ == &manager<T>::identifier) //Object == T?
-                return static_cast<const T*>(pevt_);
+                return static_cast<const T*>(pobj_);
             else
                 return nullptr;
         }
@@ -160,32 +160,32 @@ class any_cref
     private:
         any_copy make_copy() const
         {
-            return make_copy_(pevt_);
+            return make_copy_(pobj_);
         }
 
     private:
-        const void* pevt_ = nullptr;
+        const void* pobj_ = nullptr;
         identifier_t identifier_;
         make_copy_t make_copy_;
 };
 
 template<class Object>
-any_cref any_copy::manager<Object>::make_cref(const detail::fake_void* pevt)
+any_cref any_copy::manager<Object>::make_cref(const detail::fake_void* pobj)
 {
-    return any_cref{*reinterpret_cast<const Object*>(pevt)};
+    return any_cref{*reinterpret_cast<const Object*>(pobj)};
 }
 
 inline
-any_copy::any_copy(const any_cref& evt):
-    pevt_(nullptr, nullptr)
+any_copy::any_copy(const any_cref& obj):
+    pobj_(nullptr, nullptr)
 {
-    *this = evt.make_copy();
+    *this = obj.make_copy();
 }
 
 inline
 any_cref any_copy::make_cref() const
 {
-    return make_cref_(pevt_.get());
+    return make_cref_(pobj_.get());
 }
 
 
@@ -238,16 +238,16 @@ namespace detail
 }
 
 template<class Visitor, class... Visitors>
-void visit(const any_cref& evt, Visitor&& visitor, Visitors&&... visitors)
+void visit(const any_cref& obj, Visitor&& visitor, Visitors&&... visitors)
 {
     using decayed_visitor_t = std::decay_t<Visitor>;
     using arg_type_t = detail::first_arg_of_unary_function_t<decayed_visitor_t>;
     using decayed_arg_type_t = std::decay_t<arg_type_t>;
 
-    if(const auto pevt = evt.get_if<decayed_arg_type_t>())
-        visitor(*pevt);
+    if(const auto pobj = obj.get_if<decayed_arg_type_t>())
+        visitor(*pobj);
     else
-        visit(evt, visitors...);
+        visit(obj, visitors...);
 }
 
 inline

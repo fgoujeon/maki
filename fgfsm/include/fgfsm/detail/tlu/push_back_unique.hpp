@@ -8,7 +8,7 @@
 #define FGFSM_DETAIL_TLU_PUSH_BACK_UNIQUE_HPP
 
 #include "contains.hpp"
-#include "push_back.hpp"
+#include "push_back_if.hpp"
 
 namespace fgfsm::detail::tlu
 {
@@ -26,31 +26,8 @@ In this example...:
 typelist3 is an alias of std::tuple<char, short, int>.
 */
 
-namespace push_back_unique_detail
-{
-    template<class TList, class U, bool Contained>
-    struct push_back_unique;
-
-    template<class TList, class U>
-    struct push_back_unique<TList, U, true>
-    {
-        using type = TList;
-    };
-
-    template<class TList, class U>
-    struct push_back_unique<TList, U, false>
-    {
-        using type = push_back<TList, U>;
-    };
-}
-
 template<class TList, class U>
-using push_back_unique = typename push_back_unique_detail::push_back_unique
-<
-    TList,
-    U,
-    contains<TList, U>
->::type;
+using push_back_unique = push_back_if<TList, U, !contains<TList, U>>;
 
 } //namespace
 

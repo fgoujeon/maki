@@ -4,23 +4,24 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
-#ifndef FGFSM_DETAIL_TLU_PUSH_BACK_UNIQUE_IF_NOT_ANY_HPP
-#define FGFSM_DETAIL_TLU_PUSH_BACK_UNIQUE_IF_NOT_ANY_HPP
+#ifndef FGFSM_DETAIL_TLU_PUSH_BACK_UNIQUE_IF_NOT_ANY_OR_NONE_HPP
+#define FGFSM_DETAIL_TLU_PUSH_BACK_UNIQUE_IF_NOT_ANY_OR_NONE_HPP
 
 #include "contains.hpp"
 #include "push_back_if.hpp"
 #include <fgfsm/any.hpp>
+#include <fgfsm/none.hpp>
 #include <type_traits>
 
 namespace fgfsm::detail::tlu
 {
 
 template<class TList, class U>
-using push_back_unique_if_not_any = push_back_if
+using push_back_unique_if_not_any_or_none = push_back_if
 <
     TList,
     U,
-    !contains<TList, U> && !std::is_same_v<U, any>
+    !contains<TList, U> && !std::is_same_v<U, any> && !std::is_same_v<U, none>
 >;
 
 } //namespace

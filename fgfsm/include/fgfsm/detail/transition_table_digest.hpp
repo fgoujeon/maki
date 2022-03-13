@@ -49,9 +49,9 @@ namespace transition_table_digest_detail
         <
             tlu::push_back_unique<ActionTuple, typename Row::action>,
             tlu::push_back_unique<GuardTuple, typename Row::guard>,
-            tlu::push_back_unique_if_not_any
+            tlu::push_back_unique_if_not_any_or_none
             <
-                tlu::push_back_unique_if_not_any<StateTuple, typename Row::start_state>,
+                tlu::push_back_unique_if_not_any_or_none<StateTuple, typename Row::start_state>,
                 typename Row::target_state
             >,
             tlu::push_back_unique<EventTuple, typename Row::event>,

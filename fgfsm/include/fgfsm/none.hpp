@@ -13,6 +13,7 @@ namespace fgfsm
 /*
 Represents either:
 - a null event (for anonymous transitions);
+- a null target state (for internal transitions in transition table);
 - an action that does nothing;
 - a guard that always returns true.
 */

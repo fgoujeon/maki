@@ -8,6 +8,7 @@
 #define FGFSM_STATE_TRANSITION_POLICY_HPP
 
 #include "any_copy.hpp"
+#include "none.hpp"
 #include <type_traits>
 
 namespace fgfsm
@@ -56,12 +57,14 @@ class state_transition_policy_helper
 
         void invoke_start_state_on_exit()
         {
-            start_state_.on_exit(evt_);
+            if constexpr(!std::is_same_v<TargetState, none>)
+                start_state_.on_exit(evt_);
         }
 
         void activate_target_state()
         {
-            active_state_index_ = target_state_index_;
+            if constexpr(!std::is_same_v<TargetState, none>)
+                active_state_index_ = target_state_index_;
             processed_ = true;
         }
 
@@ -72,7 +75,8 @@ class state_transition_policy_helper
 
         void invoke_target_state_on_entry()
         {
-            target_state_.on_entry(evt_);
+            if constexpr(!std::is_same_v<TargetState, none>)
+                target_state_.on_entry(evt_);
         }
 
     private:

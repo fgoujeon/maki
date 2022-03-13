@@ -200,17 +200,29 @@ class fsm
 
                     if(event.is<transition_event>())
                     {
-                        auto& target_state =
-                            std::get<transition_target_state>(self.states_)
-                        ;
+                        auto none_state = none{};
+
+                        auto& target_state = [&]() -> transition_target_state&
+                        {
+                            if constexpr(std::is_same_v<transition_target_state, none>)
+                                return none_state;
+                            else
+                                return std::get<transition_target_state>(self.states_);
+                        }();
                         auto& guard = std::get<transition_guard>(self.guards_);
                         auto& action = std::get<transition_action>(self.actions_);
 
-                        const auto target_state_index = detail::tlu::get_index
-                        <
-                            state_tuple,
-                            transition_target_state
-                        >;
+                        const auto target_state_index = [&]
+                        {
+                            if constexpr(std::is_same_v<transition_target_state, none>)
+                                return -1; //whatever, ignored in none case
+                            else
+                                return detail::tlu::get_index
+                                <
+                                    state_tuple,
+                                    transition_target_state
+                                >;
+                        }();
 
                         auto helper = state_transition_policy_helper
                         <

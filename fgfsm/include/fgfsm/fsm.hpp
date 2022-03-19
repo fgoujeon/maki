@@ -13,6 +13,7 @@
 #include "any.hpp"
 #include "none.hpp"
 #include "any_copy.hpp"
+#include "detail/tlu/head.hpp"
 #include "detail/for_each.hpp"
 #include "detail/make_tuple.hpp"
 #include "detail/transition_table_digest.hpp"
@@ -38,6 +39,10 @@ class fsm
         using action_tuple = typename transition_table_digest::action_tuple;
         using guard_tuple  = typename transition_table_digest::guard_tuple;
         using event_tuple  = typename transition_table_digest::event_tuple;
+
+        using first_state_t = detail::tlu::head<state_tuple>;
+
+        using on_event_fn = void (*)(state_tuple& states, const any_cref&);
 
     public:
         template<class Context>
@@ -215,13 +220,21 @@ class fsm
                         const auto target_state_index = [&]
                         {
                             if constexpr(std::is_same_v<transition_target_state, none>)
-                                return -1; //whatever, ignored in none case
+                                return -1; //whatever, ignored in this case
                             else
                                 return detail::tlu::get_index
                                 <
                                     state_tuple,
                                     transition_target_state
                                 >;
+                        }();
+
+                        const auto target_state_on_event_fn = [&]() -> on_event_fn
+                        {
+                            if constexpr(std::is_same_v<transition_target_state, none>)
+                                return nullptr; //whatever, ignored in this case
+                            else
+                                return &call_state_on_event<transition_target_state>;
                         }();
 
                         auto helper = state_transition_policy_helper
@@ -237,9 +250,11 @@ class fsm
                             target_state,
                             action,
                             guard,
-                            self.active_state_index_,
                             processed,
-                            target_state_index
+                            self.active_state_index_,
+                            target_state_index,
+                            reinterpret_cast<void**>(&self.active_state_on_event_fn_),
+                            reinterpret_cast<void*>(target_state_on_event_fn)
                         };
 
                         //Perform the transition
@@ -259,18 +274,14 @@ class fsm
         */
         void process_event_in_active_state(const any_cref& event)
         {
-            visit_active_state
-            (
-                [this, &event](auto& s)
-                {
-                    using state = std::decay_t<decltype(s)>;
-                    auto helper = internal_transition_policy_helper
-                    <
-                        state
-                    >{s, event};
-                    internal_transition_policy_(helper);
-                }
-            );
+            active_state_on_event_fn_(states_, event);
+        }
+
+        //Call State::on_event(event)
+        template<class State>
+        static void call_state_on_event(state_tuple& states, const any_cref& event)
+        {
+            std::get<State>(states).on_event(event);
         }
 
     private:
@@ -281,6 +292,9 @@ class fsm
         internal_transition_policy internal_transition_policy_;
 
         int active_state_index_ = 0;
+        on_event_fn active_state_on_event_fn_ =
+            &call_state_on_event<first_state_t>
+        ;
         bool processing_event_ = false;
         std::queue<any_copy> deferred_events_;
 };

@@ -9,6 +9,7 @@
 #include "tlu/contains.hpp"
 #include "tlu/for_each.hpp"
 #include "tlu/get_index.hpp"
+#include "tlu/head.hpp"
 #include "tlu/push_back.hpp"
 #include "tlu/push_back_unique.hpp"
 #include "tlu/push_back_unique_if_not_any_or_none.hpp"

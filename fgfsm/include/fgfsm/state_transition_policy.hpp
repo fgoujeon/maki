@@ -27,6 +27,9 @@ class state_transition_policy_helper
         template<class TransitionTable, class Configuration>
         friend class fsm;
 
+        using voidp = void*;
+        using voidpp = void**;
+
         state_transition_policy_helper
         (
             StartState& start_state,
@@ -34,18 +37,22 @@ class state_transition_policy_helper
             TargetState& target_state,
             Action& action,
             Guard& guard,
-            int& active_state_index,
             bool& processed,
-            const int target_state_index
+            int& active_state_index,
+            const int target_state_index,
+            const voidpp ppactive_state_on_event_fn,
+            const voidp ptarget_state_on_event_fn
         ):
             start_state_(start_state),
             evt_(event),
             target_state_(target_state),
             action_(action),
             guard_(guard),
-            active_state_index_(active_state_index),
             processed_(processed),
-            target_state_index_(target_state_index)
+            active_state_index_(active_state_index),
+            target_state_index_(target_state_index),
+            ppactive_state_on_event_fn_(ppactive_state_on_event_fn),
+            ptarget_state_on_event_fn_(ptarget_state_on_event_fn)
         {
         }
 
@@ -64,7 +71,10 @@ class state_transition_policy_helper
         void activate_target_state()
         {
             if constexpr(!std::is_same_v<TargetState, none>)
+            {
                 active_state_index_ = target_state_index_;
+                *ppactive_state_on_event_fn_ = ptarget_state_on_event_fn_;
+            }
             processed_ = true;
         }
 
@@ -85,9 +95,11 @@ class state_transition_policy_helper
         TargetState& target_state_;
         Action& action_;
         Guard& guard_;
-        int& active_state_index_;
         bool& processed_;
+        int& active_state_index_;
         const int target_state_index_;
+        const voidpp ppactive_state_on_event_fn_;
+        const voidp ptarget_state_on_event_fn_;
 };
 
 struct fast_state_transition_policy

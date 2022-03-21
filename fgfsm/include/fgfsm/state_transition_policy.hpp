@@ -55,6 +55,11 @@ class state_transition_policy_helper
             return guard_(start_state_, evt_, target_state_);
         }
 
+        void validate_transition()
+        {
+            processed_ = true;
+        }
+
         void invoke_start_state_on_exit()
         {
             if constexpr(!std::is_same_v<TargetState, none>)
@@ -65,7 +70,6 @@ class state_transition_policy_helper
         {
             if constexpr(!std::is_same_v<TargetState, none>)
                 active_state_index_ = target_state_index_;
-            processed_ = true;
         }
 
         void execute_action()
@@ -117,6 +121,7 @@ struct fast_state_transition_policy
     {
         if(helper.check_guard())
         {
+            helper.validate_transition();
             helper.invoke_start_state_on_exit();
             helper.activate_target_state();
             helper.execute_action();

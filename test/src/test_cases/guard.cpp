@@ -32,7 +32,7 @@ namespace
             bool operator()
             (
                 const states::off&,
-                const fgfsm::any_cref&,
+                const events::button_press&,
                 const states::on&
             )
             {

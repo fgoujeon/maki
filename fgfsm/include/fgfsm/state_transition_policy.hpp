@@ -17,6 +17,7 @@ namespace fgfsm
 template
 <
     class StartState,
+    class Event,
     class TargetState,
     class Action,
     class Guard
@@ -30,7 +31,7 @@ class state_transition_policy_helper
         state_transition_policy_helper
         (
             StartState& start_state,
-            const any_cref& event,
+            const Event& event,
             TargetState& target_state,
             Action& action,
             Guard& guard,
@@ -39,7 +40,7 @@ class state_transition_policy_helper
             const int target_state_index
         ):
             start_state_(start_state),
-            evt_(event),
+            event_(event),
             target_state_(target_state),
             action_(action),
             guard_(guard),
@@ -52,13 +53,13 @@ class state_transition_policy_helper
     public:
         bool check_guard() const
         {
-            return guard_(start_state_, evt_, target_state_);
+            return guard_(start_state_, event_, target_state_);
         }
 
         void invoke_start_state_on_exit()
         {
             if constexpr(!std::is_same_v<TargetState, none>)
-                start_state_.on_exit(evt_);
+                start_state_.on_exit(event_);
         }
 
         void activate_target_state()
@@ -70,18 +71,18 @@ class state_transition_policy_helper
 
         void execute_action()
         {
-            action_(start_state_, evt_, target_state_);
+            action_(start_state_, event_, target_state_);
         }
 
         void invoke_target_state_on_entry()
         {
             if constexpr(!std::is_same_v<TargetState, none>)
-                target_state_.on_entry(evt_);
+                target_state_.on_entry(event_);
         }
 
     private:
         StartState& start_state_;
-        const any_cref& evt_;
+        const Event& event_;
         TargetState& target_state_;
         Action& action_;
         Guard& guard_;
@@ -100,6 +101,7 @@ struct fast_state_transition_policy
     template
     <
         class StartState,
+        class Event,
         class TargetState,
         class Action,
         class Guard
@@ -109,6 +111,7 @@ struct fast_state_transition_policy
         state_transition_policy_helper
         <
             StartState,
+            Event,
             TargetState,
             Action,
             Guard

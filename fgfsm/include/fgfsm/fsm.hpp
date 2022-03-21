@@ -227,13 +227,14 @@ class fsm
                         auto helper = state_transition_policy_helper
                         <
                             ActiveState,
+                            transition_event,
                             transition_target_state,
                             transition_action,
                             transition_guard
                         >
                         {
                             active_state,
-                            event,
+                            *event.get_if<transition_event>(),
                             target_state,
                             action,
                             guard,

@@ -29,12 +29,12 @@ namespace
     {
         struct beep
         {
-            void operator()(const states::off&, const fgfsm::any_cref&, const states::on&) const
+            void operator()(const states::off&, const events::button_press&, const states::on&) const
             {
                 ctx.i = 1;
             }
 
-            void operator()(const states::on&, const fgfsm::any_cref&, const states::off&) const
+            void operator()(const states::on&, const events::button_press&, const states::off&) const
             {
                 ctx.i = 0;
             }

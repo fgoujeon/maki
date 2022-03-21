@@ -14,4 +14,5 @@
 #include "fgfsm/row.hpp"
 #include "fgfsm/simple_state.hpp"
 #include "fgfsm/transition_table.hpp"
+#include "fgfsm/unused.hpp"
 #include "fgfsm/version.hpp"

@@ -115,8 +115,7 @@ namespace
     {
         struct skip_loading
         {
-            template<class StartState, class TargetState>
-            void operator()(StartState&, const fgfsm::any_cref&, TargetState&)
+            void operator()(const fgfsm::any_cref&)
             {
                 ctx.process_event(events::end_of_loading{});
             }

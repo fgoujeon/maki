@@ -68,8 +68,7 @@ namespace
     {
         struct beep
         {
-            template<class StartState, class TargetState>
-            void operator()(StartState&, const fgfsm::any_cref&, TargetState&)
+            void operator()(const fgfsm::any_cref&)
             {
                 ctx.out += "beep;";
             }

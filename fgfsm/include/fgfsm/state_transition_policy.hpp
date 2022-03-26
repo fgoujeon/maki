@@ -52,7 +52,7 @@ class state_transition_policy_helper
     public:
         bool check_guard() const
         {
-            return guard_(start_state_, evt_, target_state_);
+            return guard_(evt_);
         }
 
         void validate_transition()
@@ -74,7 +74,7 @@ class state_transition_policy_helper
 
         void execute_action()
         {
-            action_(start_state_, evt_, target_state_);
+            action_(evt_);
         }
 
         void invoke_target_state_on_entry()

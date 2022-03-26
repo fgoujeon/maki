@@ -29,12 +29,17 @@ namespace
     {
         struct beep
         {
-            void operator()(const states::off&, const fgfsm::any_cref&, const states::on&) const
+            void operator()(const fgfsm::any_cref&) const
             {
                 ctx.i = 1;
             }
 
-            void operator()(const states::on&, const fgfsm::any_cref&, const states::off&) const
+            context& ctx;
+        };
+
+        struct boop
+        {
+            void operator()(const fgfsm::any_cref&) const
             {
                 ctx.i = 0;
             }
@@ -46,7 +51,7 @@ namespace
     using transition_table = fgfsm::transition_table
     <
         fgfsm::row<states::off, events::button_press, states::on,  actions::beep>,
-        fgfsm::row<states::on,  events::button_press, states::off, actions::beep>
+        fgfsm::row<states::on,  events::button_press, states::off, actions::boop>
     >;
 
     using fsm = fgfsm::fsm<transition_table>;

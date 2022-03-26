@@ -44,13 +44,7 @@ namespace
 #define GUARD(NAME) \
     struct NAME \
     { \
-        template<class StartState, class Event, class TargetState> \
-        bool operator() \
-        ( \
-            const StartState&, \
-            const Event&, \
-            const TargetState& \
-        ) const \
+        bool operator()(const fgfsm::any_cref&) const \
         { \
             return ctx.NAME; \
         } \

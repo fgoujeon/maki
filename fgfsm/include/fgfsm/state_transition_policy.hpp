@@ -94,10 +94,10 @@ class state_transition_policy_helper
         const int target_state_index_;
 };
 
-struct fast_state_transition_policy
+struct default_state_transition_policy
 {
     template<class Context>
-    fast_state_transition_policy(const Context&)
+    default_state_transition_policy(const Context&)
     {
     }
 

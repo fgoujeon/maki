@@ -41,10 +41,10 @@ class internal_transition_policy_helper
         const any_cref& evt_;
 };
 
-struct fast_internal_transition_policy
+struct default_internal_transition_policy
 {
     template<class Context>
-    fast_internal_transition_policy(const Context&)
+    default_internal_transition_policy(const Context&)
     {
     }
 

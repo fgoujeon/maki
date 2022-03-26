@@ -15,8 +15,8 @@ namespace fgfsm
 
 struct fsm_configuration
 {
-    using state_transition_policy = fast_state_transition_policy;
-    using internal_transition_policy = fast_internal_transition_policy;
+    using state_transition_policy = default_state_transition_policy;
+    using internal_transition_policy = default_internal_transition_policy;
 
     static constexpr auto enable_event_queue = true;
 };

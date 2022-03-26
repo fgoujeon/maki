@@ -14,18 +14,18 @@ namespace
         int i = 0;
     };
 
-    struct events
+    namespace events
     {
         struct button_press{};
-    };
+    }
 
-    struct states
+    namespace states
     {
         FGFSM_SIMPLE_STATE(off)
         FGFSM_SIMPLE_STATE(on)
-    };
+    }
 
-    struct actions
+    namespace actions
     {
         struct beep
         {
@@ -37,21 +37,16 @@ namespace
             context& ctx;
         };
 
-        struct boop
+        void boop(context& ctx, const fgfsm::any_cref&)
         {
-            void operator()(const fgfsm::any_cref&) const
-            {
-                ctx.i = 0;
-            }
-
-            context& ctx;
-        };
-    };
+            ctx.i = 0;
+        }
+    }
 
     using transition_table = fgfsm::transition_table
     <
         fgfsm::row<states::off, events::button_press, states::on,  actions::beep>,
-        fgfsm::row<states::on,  events::button_press, states::off, actions::boop>
+        fgfsm::row<states::on,  events::button_press, states::off, fgfsm::fn<actions::boop>>
     >;
 
     using fsm = fgfsm::fsm<transition_table>;

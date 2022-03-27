@@ -48,7 +48,7 @@ namespace detail
             }
 
             template<class... Args>
-            bool operator()(const Args&... args) const
+            bool operator()(const Args&... args)
             {
                 return Operator::test(lhs_(args...), rhs_(args...));
             }
@@ -63,7 +63,7 @@ template<class T>
 struct not_
 {
     template<class... Args>
-    bool operator()(const Args&... args) const
+    bool operator()(const Args&... args)
     {
         return !guard(args...);
     }

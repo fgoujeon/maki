@@ -51,7 +51,7 @@ class state_transition_policy_helper
         }
 
     public:
-        bool check_guard() const
+        bool check_guard()
         {
             if constexpr(!std::is_same_v<Guard, none>)
             {

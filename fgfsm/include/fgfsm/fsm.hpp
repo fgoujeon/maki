@@ -200,14 +200,12 @@ class fsm
 
                     if(event.is<transition_event>())
                     {
-                        auto none_state = none{};
-
-                        auto& target_state = [&]() -> transition_target_state&
+                        const auto ptarget_state = [&]() -> transition_target_state*
                         {
                             if constexpr(std::is_same_v<transition_target_state, none>)
-                                return none_state;
+                                return nullptr;
                             else
-                                return std::get<transition_target_state>(self.states_);
+                                return &std::get<transition_target_state>(self.states_);
                         }();
 
                         const auto pguard = [&]() -> transition_guard*
@@ -248,7 +246,7 @@ class fsm
                         {
                             active_state,
                             event,
-                            target_state,
+                            ptarget_state,
                             paction,
                             pguard,
                             self.active_state_index_,

@@ -32,7 +32,7 @@ class state_transition_policy_helper
         (
             StartState& start_state,
             const any_cref& event,
-            TargetState& target_state,
+            TargetState* const ptarget_state,
             Action* const paction,
             Guard* const pguard,
             int& active_state_index,
@@ -41,7 +41,7 @@ class state_transition_policy_helper
         ):
             start_state_(start_state),
             evt_(event),
-            target_state_(target_state),
+            ptarget_state_(ptarget_state),
             paction_(paction),
             pguard_(pguard),
             active_state_index_(active_state_index),
@@ -93,13 +93,16 @@ class state_transition_policy_helper
         void invoke_target_state_on_entry()
         {
             if constexpr(!std::is_same_v<TargetState, none>)
-                target_state_.on_entry(evt_);
+            {
+                assert(ptarget_state_);
+                ptarget_state_->on_entry(evt_);
+            }
         }
 
     private:
         StartState& start_state_;
         const any_cref& evt_;
-        TargetState& target_state_;
+        TargetState* const ptarget_state_ = nullptr;
         Action* const paction_ = nullptr;
         Guard* const pguard_ = nullptr;
         int& active_state_index_;

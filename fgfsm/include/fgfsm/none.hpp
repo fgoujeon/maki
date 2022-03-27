@@ -17,19 +17,7 @@ Represents either:
 - an action that does nothing;
 - a guard that always returns true.
 */
-struct none
-{
-    template<class... Args>
-    none(const Args&...)
-    {
-    }
-
-    template<class... Args>
-    bool operator()(const Args&...)
-    {
-        return true;
-    }
-};
+struct none{};
 
 } //namespace
 

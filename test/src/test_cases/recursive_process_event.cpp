@@ -13,14 +13,9 @@ namespace
 
     struct context
     {
-        context(fsm& sm):
-            sm(sm)
-        {
-        }
-
         void process_event(const fgfsm::any_cref& event);
 
-        fsm& sm;
+        fsm* pfsm;
         std::string output;
     };
 
@@ -131,40 +126,24 @@ namespace
         fgfsm::row<states::loading, events::end_of_loading,           states::ready>
     >;
 
-    class fsm
+    using fsm_t = fgfsm::fsm<transition_table>;
+
+    struct fsm: fsm_t
     {
-        public:
-            fsm():
-                ctx_{*this},
-                impl_{ctx_}
-            {
-            }
-
-            void process_event(const fgfsm::any_cref& event)
-            {
-                impl_.process_event(event);
-            }
-
-            const context& get_context() const
-            {
-                return ctx_;
-            }
-
-        private:
-            context ctx_;
-            fgfsm::fsm<transition_table> impl_;
+        using fsm_t::fsm_t;
     };
 
     void context::process_event(const fgfsm::any_cref& event)
     {
-        sm.process_event(event);
+        pfsm->process_event(event);
     }
 }
 
 TEST_CASE("recursive process_event")
 {
-    auto sm = fsm{};
-    const auto& ctx = sm.get_context();
+    auto ctx = context{};
+    auto sm = fsm{ctx};
+    ctx.pfsm = &sm;
 
     sm.process_event(events::quick_start_button_press{});
     REQUIRE(ctx.output == "idle::on_exit;loading::on_entry;loading::on_exit;ready::on_entry;");

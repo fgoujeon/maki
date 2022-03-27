@@ -8,6 +8,8 @@
 #define FGFSM_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 
 #include "tlu.hpp"
+#include "../any.hpp"
+#include "../none.hpp"
 #include "../transition_table.hpp"
 #include <tuple>
 
@@ -31,8 +33,8 @@ For example, the following digest type...:
 ... is equivalent to this type:
     struct digest
     {
-        using action_tuple = std::tuple<fgfsm::none, action0, action1>;
-        using guard_tuple = std::tuple<fgfsm::none, guard0, guard1>;
+        using action_tuple = std::tuple<action0, action1>;
+        using guard_tuple = std::tuple<guard0, guard1>;
         using state_tuple = std::tuple<state0, state1, state2, state3>;
         using event_tuple = std::tuple<event0, event1, event2, event3>;
     };
@@ -40,6 +42,14 @@ For example, the following digest type...:
 
 namespace transition_table_digest_detail
 {
+    template<class TList, class U>
+    using push_back_unique_if_not_any_or_none = tlu::push_back_if
+    <
+        TList,
+        U,
+        !tlu::contains<TList, U> && !std::is_same_v<U, any> && !std::is_same_v<U, none>
+    >;
+
     template<class ActionTuple, class GuardTuple, class StateTuple, class EventTuple, class... Rows>
     struct helper;
 
@@ -47,11 +57,11 @@ namespace transition_table_digest_detail
     struct helper<ActionTuple, GuardTuple, StateTuple, EventTuple, Row, Rows...>:
         helper
         <
-            tlu::push_back_unique<ActionTuple, typename Row::action>,
-            tlu::push_back_unique<GuardTuple, typename Row::guard>,
-            tlu::push_back_unique_if_not_any_or_none
+            push_back_unique_if_not_any_or_none<ActionTuple, typename Row::action>,
+            push_back_unique_if_not_any_or_none<GuardTuple, typename Row::guard>,
+            push_back_unique_if_not_any_or_none
             <
-                tlu::push_back_unique_if_not_any_or_none<StateTuple, typename Row::start_state>,
+                push_back_unique_if_not_any_or_none<StateTuple, typename Row::start_state>,
                 typename Row::target_state
             >,
             tlu::push_back_unique<EventTuple, typename Row::event>,

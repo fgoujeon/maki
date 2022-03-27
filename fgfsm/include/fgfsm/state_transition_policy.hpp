@@ -10,6 +10,7 @@
 #include "any_copy.hpp"
 #include "none.hpp"
 #include <type_traits>
+#include <cassert>
 
 namespace fgfsm
 {
@@ -32,8 +33,8 @@ class state_transition_policy_helper
             StartState& start_state,
             const any_cref& event,
             TargetState& target_state,
-            Action& action,
-            Guard& guard,
+            Action* const paction,
+            Guard* const pguard,
             int& active_state_index,
             bool& processed,
             const int target_state_index
@@ -41,8 +42,8 @@ class state_transition_policy_helper
             start_state_(start_state),
             evt_(event),
             target_state_(target_state),
-            action_(action),
-            guard_(guard),
+            paction_(paction),
+            pguard_(pguard),
             active_state_index_(active_state_index),
             processed_(processed),
             target_state_index_(target_state_index)
@@ -52,7 +53,15 @@ class state_transition_policy_helper
     public:
         bool check_guard() const
         {
-            return guard_(evt_);
+            if constexpr(!std::is_same_v<Guard, none>)
+            {
+                assert(pguard_);
+                return (*pguard_)(evt_);
+            }
+            else
+            {
+                return true;
+            }
         }
 
         void validate_transition()
@@ -74,7 +83,11 @@ class state_transition_policy_helper
 
         void execute_action()
         {
-            action_(evt_);
+            if constexpr(!std::is_same_v<Action, none>)
+            {
+                assert(paction_);
+                (*paction_)(evt_);
+            }
         }
 
         void invoke_target_state_on_entry()
@@ -87,8 +100,8 @@ class state_transition_policy_helper
         StartState& start_state_;
         const any_cref& evt_;
         TargetState& target_state_;
-        Action& action_;
-        Guard& guard_;
+        Action* const paction_ = nullptr;
+        Guard* const pguard_ = nullptr;
         int& active_state_index_;
         bool& processed_;
         const int target_state_index_;

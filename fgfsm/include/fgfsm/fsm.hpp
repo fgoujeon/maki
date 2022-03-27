@@ -209,8 +209,22 @@ class fsm
                             else
                                 return std::get<transition_target_state>(self.states_);
                         }();
-                        auto& guard = std::get<transition_guard>(self.guards_);
-                        auto& action = std::get<transition_action>(self.actions_);
+
+                        const auto pguard = [&]() -> transition_guard*
+                        {
+                            if constexpr(std::is_same_v<transition_guard, none>)
+                                return nullptr;
+                            else
+                                return &std::get<transition_guard>(self.guards_);
+                        }();
+
+                        const auto paction = [&]() -> transition_action*
+                        {
+                            if constexpr(std::is_same_v<transition_action, none>)
+                                return nullptr;
+                            else
+                                return &std::get<transition_action>(self.actions_);
+                        }();
 
                         const auto target_state_index = [&]
                         {
@@ -235,8 +249,8 @@ class fsm
                             active_state,
                             event,
                             target_state,
-                            action,
-                            guard,
+                            paction,
+                            pguard,
                             self.active_state_index_,
                             processed,
                             target_state_index

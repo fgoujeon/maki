@@ -40,8 +40,8 @@ namespace
 
     using digest = fgfsm::detail::transition_table_digest<transition_table>;
 
-    using action_tuple = std::tuple<fgfsm::none, action0, action1>;
-    using guard_tuple = std::tuple<fgfsm::none, guard0, guard1>;
+    using action_tuple = std::tuple<action0, action1>;
+    using guard_tuple = std::tuple<guard0, guard1>;
     using state_tuple = std::tuple<state0, state1, state2, state3>;
     using event_tuple = std::tuple<event0, event1, event2, event3>;
 }

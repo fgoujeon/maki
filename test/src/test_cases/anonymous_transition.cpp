@@ -25,16 +25,24 @@ namespace
         FGFSM_SIMPLE_STATE(s4)
     };
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::s0, events::go_on, states::s1>,
-        fgfsm::row<states::s1, fgfsm::none,   states::s2>,
-        fgfsm::row<states::s2, events::go_on, states::s3>,
-        fgfsm::row<states::s3, fgfsm::none,   states::s4>,
-        fgfsm::row<states::s4, fgfsm::none,   states::s0>
-    >;
+    struct fsm_configuration: fgfsm::fsm_configuration
+    {
+        using context = ::context;
 
-    using fsm = fgfsm::fsm<transition_table>;
+        static auto make_transition_table()
+        {
+            return fgfsm::transition_table
+            {
+                fgfsm::make_row<states::s0, events::go_on, states::s1>(),
+                fgfsm::make_row<states::s1, fgfsm::none,   states::s2>(),
+                fgfsm::make_row<states::s2, events::go_on, states::s3>(),
+                fgfsm::make_row<states::s3, fgfsm::none,   states::s4>(),
+                fgfsm::make_row<states::s4, fgfsm::none,   states::s0>()
+            };
+        }
+    };
+
+    using fsm = fgfsm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("anonymous transition")

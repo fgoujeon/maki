@@ -18,33 +18,39 @@
 #include "detail/transition_table_digest.hpp"
 #include "detail/ignore_unused.hpp"
 #include <queue>
+#include <type_traits>
 
 namespace fgfsm
 {
 
-template<class TransitionTable, class Configuration = fsm_configuration>
+template<class Configuration = fsm_configuration>
 class fsm
 {
     private:
-        using transition_table = TransitionTable;
+        using context_t = typename Configuration::context;
 
-        using state_transition_policy = typename Configuration::state_transition_policy;
-        using internal_transition_policy = typename Configuration::internal_transition_policy;
+        using transition_table_t =
+            std::invoke_result_t<decltype(Configuration::make_transition_table)>
+        ;
+
+        using state_transition_policy =
+            typename Configuration::state_transition_policy
+        ;
+        using internal_transition_policy =
+            typename Configuration::internal_transition_policy
+        ;
 
         using transition_table_digest =
-            detail::transition_table_digest<transition_table>
+            detail::transition_table_digest<transition_table_t>
         ;
-        using state_tuple  = typename transition_table_digest::state_tuple;
-        using action_tuple = typename transition_table_digest::action_tuple;
-        using guard_tuple  = typename transition_table_digest::guard_tuple;
-        using event_tuple  = typename transition_table_digest::event_tuple;
+        using state_tuple = typename transition_table_digest::state_tuple;
+        using event_tuple = typename transition_table_digest::event_tuple;
 
     public:
-        template<class Context>
-        fsm(Context& context):
+        fsm(context_t& context):
+            context_(context),
+            transition_table_(Configuration::make_transition_table()),
             states_(detail::make_tuple<state_tuple>(context)),
-            actions_(detail::make_tuple<action_tuple>(context)),
-            guards_(detail::make_tuple<guard_tuple>(context)),
             state_transition_policy_{context},
             internal_transition_policy_{context}
         {
@@ -168,7 +174,7 @@ class fsm
                     };
 
                     //For each row
-                    detail::tlu::for_each<transition_table>(helper);
+                    detail::for_each(transition_table_.rows_, helper);
                 }
             );
 
@@ -179,13 +185,13 @@ class fsm
         struct process_event_in_transition_table_once_helper
         {
             template<class Transition>
-            void operator()() const
+            void operator()(Transition& row) const
             {
-                using transition_start_state  = typename Transition::start_state;
-                using transition_event        = typename Transition::event;
-                using transition_target_state = typename Transition::target_state;
-                using transition_action       = typename Transition::action;
-                using transition_guard        = typename Transition::guard;
+                using transition_start_state  = typename Transition::start_state_t;
+                using transition_event        = typename Transition::event_t;
+                using transition_target_state = typename Transition::target_state_t;
+                using transition_action       = typename Transition::action_t;
+                using transition_guard        = typename Transition::guard_t;
 
                 //If the transition start state is the active state or any
                 if constexpr
@@ -208,22 +214,6 @@ class fsm
                                 return &std::get<transition_target_state>(self.states_);
                         }();
 
-                        const auto pguard = [&]() -> transition_guard*
-                        {
-                            if constexpr(std::is_same_v<transition_guard, none>)
-                                return nullptr;
-                            else
-                                return &std::get<transition_guard>(self.guards_);
-                        }();
-
-                        const auto paction = [&]() -> transition_action*
-                        {
-                            if constexpr(std::is_same_v<transition_action, none>)
-                                return nullptr;
-                            else
-                                return &std::get<transition_action>(self.actions_);
-                        }();
-
                         const auto target_state_index = [&]
                         {
                             if constexpr(std::is_same_v<transition_target_state, none>)
@@ -238,17 +228,19 @@ class fsm
 
                         auto helper = state_transition_policy_helper
                         <
+                            context_t,
                             ActiveState,
                             transition_target_state,
                             transition_action,
                             transition_guard
                         >
                         {
+                            self.context_,
                             active_state,
                             event,
                             ptarget_state,
-                            paction,
-                            pguard,
+                            row.action,
+                            row.guard,
                             self.active_state_index_,
                             processed,
                             target_state_index
@@ -286,9 +278,9 @@ class fsm
         }
 
     private:
+        context_t& context_;
+        transition_table_t transition_table_;
         state_tuple states_;
-        action_tuple actions_;
-        guard_tuple guards_;
         state_transition_policy state_transition_policy_;
         internal_transition_policy internal_transition_policy_;
 

@@ -70,14 +70,22 @@ namespace
         };
     }
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::idle,    events::next_language_request, states::english>,
-        fgfsm::row<states::english, events::next_language_request, states::french>,
-        fgfsm::row<states::french,  events::next_language_request, states::idle>
-    >;
+    struct fsm_configuration: fgfsm::fsm_configuration
+    {
+        using context = ::context;
 
-    using fsm = fgfsm::fsm<transition_table>;
+        static auto make_transition_table()
+        {
+            return fgfsm::transition_table
+            {
+                fgfsm::make_row<states::idle,    events::next_language_request, states::english>(),
+                fgfsm::make_row<states::english, events::next_language_request, states::french>(),
+                fgfsm::make_row<states::french,  events::next_language_request, states::idle>()
+            };
+        }
+    };
+
+    using fsm = fgfsm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("on_entry_event_exit")

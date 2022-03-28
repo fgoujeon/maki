@@ -9,7 +9,8 @@
 
 namespace
 {
-    class fsm;
+    struct fsm_configuration;
+    using fsm = fgfsm::fsm<fsm_configuration>;
 
     struct context
     {
@@ -108,30 +109,28 @@ namespace
 
     namespace actions
     {
-        struct skip_loading
+        void skip_loading(context& ctx, const fgfsm::any_cref&)
         {
-            void operator()(const fgfsm::any_cref&)
-            {
-                ctx.process_event(events::end_of_loading{});
-            }
-
-            context& ctx;
-        };
+            ctx.process_event(events::end_of_loading{});
+        }
     }
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::idle,    events::start_button_press,       states::loading>,
-        fgfsm::row<states::idle,    events::quick_start_button_press, states::loading,  actions::skip_loading>,
-        fgfsm::row<states::loading, events::end_of_loading,           states::ready>
-    >;
-
-    using fsm_t = fgfsm::fsm<transition_table>;
-
-    struct fsm: fsm_t
+    struct fsm_configuration: fgfsm::fsm_configuration
     {
-        using fsm_t::fsm_t;
+        using context = ::context;
+
+        static auto make_transition_table()
+        {
+            return fgfsm::transition_table
+            {
+                fgfsm::make_row<states::idle,    events::start_button_press,       states::loading> (),
+                fgfsm::make_row<states::idle,    events::quick_start_button_press, states::loading> (actions::skip_loading),
+                fgfsm::make_row<states::loading, events::end_of_loading,           states::ready>   ()
+            };
+        }
     };
+
+    using fsm = fgfsm::fsm<fsm_configuration>;
 
     void context::process_event(const fgfsm::any_cref& event)
     {

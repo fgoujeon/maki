@@ -87,14 +87,22 @@ namespace
 
     }
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::idle,              events::next, states::replacing_values>,
-        fgfsm::row<states::replacing_values,  events::next, states::cumulating_values>,
-        fgfsm::row<states::cumulating_values, events::next, states::idle>
-    >;
+    struct fsm_configuration: fgfsm::fsm_configuration
+    {
+        using context = ::context;
 
-    using fsm = fgfsm::fsm<transition_table>;
+        static auto make_transition_table()
+        {
+            return fgfsm::transition_table
+            {
+                fgfsm::make_row<states::idle,              events::next, states::replacing_values>(),
+                fgfsm::make_row<states::replacing_values,  events::next, states::cumulating_values>(),
+                fgfsm::make_row<states::cumulating_values, events::next, states::idle>()
+            };
+        }
+    };
+
+    using fsm = fgfsm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("visit_event")

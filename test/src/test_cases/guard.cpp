@@ -33,13 +33,21 @@ namespace
         }
     }
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::off, events::button_press, states::on,  fgfsm::none, fgfsm::fn<guards::has_power>>,
-        fgfsm::row<states::on,  events::button_press, states::off, fgfsm::none>
-    >;
+    struct fsm_configuration: fgfsm::fsm_configuration
+    {
+        using context = ::context;
 
-    using fsm = fgfsm::fsm<transition_table>;
+        static auto make_transition_table()
+        {
+            return fgfsm::transition_table
+            {
+                fgfsm::make_row<states::off, events::button_press, states::on>  (fgfsm::null_action{}, guards::has_power),
+                fgfsm::make_row<states::on,  events::button_press, states::off> ()
+            };
+        }
+    };
+
+    using fsm = fgfsm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("guard")

@@ -65,7 +65,7 @@ class rgb_led
 An instance of this class is shared by all the states, actions and guards of the
 FSM.
 */
-struct context
+struct fsm_context
 {
     rgb_led led;
 };
@@ -111,7 +111,7 @@ namespace states
         {
         }
 
-        context& ctx;
+        fsm_context& ctx;
     };
 
     /*
@@ -125,129 +125,114 @@ namespace states
 }
 
 /*
-Actions are classes.
+Actions are functions or function objects.
 */
 namespace actions
 {
-    /*
-    An action class is required to implement the operator()() function described
-    below.
-    Also, just like state classes, action classes must be constructible with a
-    reference to the context.
-    */
-    struct turn_light_white
+    void turn_light_white(fsm_context& ctx, const fgfsm::any_cref& /*event*/)
     {
-        void operator()(const fgfsm::any_cref& /*event*/)
-        {
-            ctx.led.set_color(rgb_led::color::white);
-        }
-
-        context& ctx;
+        ctx.led.set_color(rgb_led::color::white);
     };
 
-    /*
-    We can also define an action with a function, but it must be wrapped into
-    an fgfsm::fn to turn it into a class.
-    */
-    void turn_light_red(context& ctx, const fgfsm::any_cref& /*event*/)
+    void turn_light_red(fsm_context& ctx, const fgfsm::any_cref& /*event*/)
     {
         ctx.led.set_color(rgb_led::color::red);
     }
 
-    void turn_light_green(context& ctx, const fgfsm::any_cref& /*event*/)
+    void turn_light_green(fsm_context& ctx, const fgfsm::any_cref& /*event*/)
     {
         ctx.led.set_color(rgb_led::color::green);
     }
 
-    void turn_light_blue(context& ctx, const fgfsm::any_cref& /*event*/)
+    void turn_light_blue(fsm_context& ctx, const fgfsm::any_cref& /*event*/)
     {
         ctx.led.set_color(rgb_led::color::blue);
     }
 
-    void turn_light_off(context& ctx, const fgfsm::any_cref& /*event*/)
+    void turn_light_off(fsm_context& ctx, const fgfsm::any_cref& /*event*/)
     {
         ctx.led.set_color(rgb_led::color::off);
     }
 }
 
 /*
-Guards are classes.
+Guards are functions or function objects.
 */
 namespace guards
 {
-    /*
-    An action class is required to implement the operator()() function described
-    below.
-    Also, just like state classes, action classes must be constructible with a
-    reference to the context.
-    */
-    struct is_long_push
+    bool is_long_push(fsm_context& ctx, const fgfsm::any_cref& event)
     {
-        bool operator()(const fgfsm::any_cref& event)
-        {
-            auto long_push = false;
+        auto long_push = false;
+
+        /*
+        An fgfsm::any_cref object is usually accessed through the
+        fgfsm::visit() function, which takes the fgfsm::any_cref object,
+        followed by any number of unary function objects.
+        */
+        fgfsm::visit
+        (
+            event,
 
             /*
-            An fgfsm::any_cref object is usually accessed through the
-            fgfsm::visit() function, which takes the fgfsm::any_cref object,
-            followed by any number of unary function objects.
+            This function object is called if the actual type of the event
+            is button::push_event.
             */
-            fgfsm::visit
-            (
-                event,
+            [&](const button::push_event& event)
+            {
+                if(event.duration_ms > 1000)
+                    long_push = true;
+            },
 
-                /*
-                This function object is called if the actual type of the event
-                is button::push_event.
-                */
-                [&](const button::push_event& event)
-                {
-                    if(event.duration_ms > 1000)
-                        long_push = true;
-                },
+            /*
+            This function object is called if the actual type of the event
+            is int... which never happens in our example. This is just here
+            as an illustration.
+            */
+            [&](const int /*event*/)
+            {
+                //Won't happen.
+            }
+        );
 
-                /*
-                This function object is called if the actual type of the event
-                is int... which never happens in our example. This is just here
-                as an illustration.
-                */
-                [&](const int /*event*/)
-                {
-                    //Won't happen.
-                }
-            );
+        return long_push;
+    }
 
-            return long_push;
-        }
-
-        context& ctx;
-    };
-
-    using is_short_push = fgfsm::not_<is_long_push>;
+    bool is_short_push(fsm_context& ctx, const fgfsm::any_cref& event)
+    {
+        return !is_long_push(ctx, event);
+    }
 }
 
-//Allow shorter names in transition table
+using fgfsm::make_row;
 using namespace states;
 using namespace actions;
 using namespace guards;
 using push_event = button::push_event;
 
-using transition_table = fgfsm::transition_table
-<
-    //         start state,    event,      target state,   action,                      guard
-    fgfsm::row<off,            push_event, emitting_white, turn_light_white>,
-    fgfsm::row<emitting_white, push_event, emitting_red,   fgfsm::fn<turn_light_red>,   is_short_push>,
-    fgfsm::row<emitting_red,   push_event, emitting_green, fgfsm::fn<turn_light_green>, is_short_push>,
-    fgfsm::row<emitting_green, push_event, emitting_blue,  fgfsm::fn<turn_light_blue>,  is_short_push>,
-    fgfsm::row<emitting_blue,  push_event, emitting_white, turn_light_white,            is_short_push>,
-    fgfsm::row<fgfsm::any,     push_event, off,            fgfsm::fn<turn_light_off>,   is_long_push>
->;
+struct fsm_configuration: fgfsm::fsm_configuration
+{
+    using context = fsm_context;
 
-using fsm = fgfsm::fsm<transition_table>;
+    static auto make_transition_table()
+    {
+        return fgfsm::transition_table
+        {
+            //-------start-state     event       target-state    action             guard
+            make_row<off,            push_event, emitting_white> (turn_light_white),
+            make_row<emitting_white, push_event, emitting_red>   (turn_light_red,   is_short_push),
+            make_row<emitting_red,   push_event, emitting_green> (turn_light_green, is_short_push),
+            make_row<emitting_green, push_event, emitting_blue>  (turn_light_blue,  is_short_push),
+            make_row<emitting_blue,  push_event, emitting_white> (turn_light_white, is_short_push),
+            make_row<fgfsm::any,     push_event, off>            (turn_light_off,   is_long_push)
+        };
+    }
+};
+
+using fsm = fgfsm::fsm<fsm_configuration>;
 
 int main()
 {
-    auto ctx = context{};
+    auto ctx = fsm_context{};
     auto sm = fsm{ctx};
 
 #if TESTING

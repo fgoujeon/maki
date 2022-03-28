@@ -10,8 +10,25 @@
 namespace fgfsm
 {
 
-template<class... Ts>
-struct transition_table{};
+template<class... Rows>
+class transition_table
+{
+    public:
+        template<class... RowArgs>
+        transition_table(RowArgs&&... rows):
+            rows_(rows...)
+        {
+        }
+
+    private:
+        template<class Configuration>
+        friend class fsm;
+
+        std::tuple<Rows...> rows_;
+};
+
+template<class... RowArgs>
+transition_table(RowArgs&&...) -> transition_table<std::decay_t<RowArgs>...>;
 
 } //namespace
 

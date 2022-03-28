@@ -24,18 +24,23 @@ namespace
         struct button_press{};
     }
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::off, events::button_press, states::on>,
-        fgfsm::row<states::on,  events::button_press, states::off>
-    >;
-
     struct fsm_configuration: fgfsm::fsm_configuration
     {
+        using context = ::context;
+
+        static auto make_transition_table()
+        {
+            return fgfsm::transition_table
+            {
+                fgfsm::make_row<states::off, events::button_press, states::on>(),
+                fgfsm::make_row<states::on,  events::button_press, states::off>()
+            };
+        }
+
         static constexpr auto enable_event_queue = false;
     };
 
-    using fsm = fgfsm::fsm<transition_table, fsm_configuration>;
+    using fsm = fgfsm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("basic transition")

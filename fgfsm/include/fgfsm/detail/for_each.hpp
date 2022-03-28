@@ -32,7 +32,7 @@ namespace for_each_detail
     };
 }
 
-template<class F, class Tuple>
+template<class Tuple, class F>
 void for_each(Tuple&& t, F&& f)
 {
     using decaid_tuple = std::decay_t<Tuple>;

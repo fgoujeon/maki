@@ -17,6 +17,7 @@ namespace fgfsm
 
 template
 <
+    class Context,
     class StartState,
     class TargetState,
     class Action,
@@ -25,25 +26,27 @@ template
 class state_transition_policy_helper
 {
     private:
-        template<class TransitionTable, class Configuration>
+        template<class Configuration>
         friend class fsm;
 
         state_transition_policy_helper
         (
+            Context& ctx,
             StartState& start_state,
             const any_cref& event,
             TargetState* const ptarget_state,
-            Action* const paction,
-            Guard* const pguard,
+            Action& action,
+            Guard& guard,
             int& active_state_index,
             bool& processed,
             const int target_state_index
         ):
+            ctx_(ctx),
             start_state_(start_state),
             evt_(event),
             ptarget_state_(ptarget_state),
-            paction_(paction),
-            pguard_(pguard),
+            action_(action),
+            guard_(guard),
             active_state_index_(active_state_index),
             processed_(processed),
             target_state_index_(target_state_index)
@@ -53,15 +56,7 @@ class state_transition_policy_helper
     public:
         bool check_guard()
         {
-            if constexpr(!std::is_same_v<Guard, none>)
-            {
-                assert(pguard_);
-                return (*pguard_)(evt_);
-            }
-            else
-            {
-                return true;
-            }
+            return guard_(ctx_, evt_);
         }
 
         void validate_transition()
@@ -83,11 +78,7 @@ class state_transition_policy_helper
 
         void execute_action()
         {
-            if constexpr(!std::is_same_v<Action, none>)
-            {
-                assert(paction_);
-                (*paction_)(evt_);
-            }
+            action_(ctx_, evt_);
         }
 
         void invoke_target_state_on_entry()
@@ -100,11 +91,12 @@ class state_transition_policy_helper
         }
 
     private:
+        Context& ctx_;
         StartState& start_state_;
         const any_cref& evt_;
         TargetState* const ptarget_state_ = nullptr;
-        Action* const paction_ = nullptr;
-        Guard* const pguard_ = nullptr;
+        Action& action_;
+        Guard& guard_;
         int& active_state_index_;
         bool& processed_;
         const int target_state_index_;
@@ -119,6 +111,7 @@ struct default_state_transition_policy
 
     template
     <
+        class Context,
         class StartState,
         class TargetState,
         class Action,
@@ -128,6 +121,7 @@ struct default_state_transition_policy
     (
         state_transition_policy_helper
         <
+            Context,
             StartState,
             TargetState,
             Action,

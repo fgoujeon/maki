@@ -16,40 +16,30 @@ namespace
     struct state0{};
     struct state1{};
     struct state2{};
-    struct state3{};
 
     struct event0{};
     struct event1{};
     struct event2{};
-    struct event3{};
 
-    struct action0{};
-    struct action1{};
-
-    struct guard0{};
-    struct guard1{};
-
-    using transition_table = fgfsm::transition_table
+    using transition_table_t = fgfsm::transition_table
     <
-        fgfsm::row<state0,     event0, state1>,
-        fgfsm::row<state1,     event1, state2, fgfsm::none, guard0>,
-        fgfsm::row<state2,     event2, state3, action0>,
-        fgfsm::row<state3,     event3, state0, action1,     guard1>,
-        fgfsm::row<fgfsm::any, event3, state0>
+        fgfsm::row<state0,     event0,      state1>,
+        fgfsm::row<state1,     fgfsm::none, state2>,
+        fgfsm::row<state2,     event1,      fgfsm::none>,
+        fgfsm::row<fgfsm::any, event2,      state0>
     >;
 
-    using digest = fgfsm::detail::transition_table_digest<transition_table>;
+    using digest = fgfsm::detail::transition_table_digest
+    <
+        transition_table_t
+    >;
 
-    using action_tuple = std::tuple<action0, action1>;
-    using guard_tuple = std::tuple<guard0, guard1>;
-    using state_tuple = std::tuple<state0, state1, state2, state3>;
-    using event_tuple = std::tuple<event0, event1, event2, event3>;
+    using state_tuple = std::tuple<state0, state1, state2>;
+    using event_tuple = std::tuple<event0, fgfsm::none, event1, event2>;
 }
 
 TEST_CASE("detail::transition_table_digest")
 {
-    REQUIRE(std::is_same_v<digest::action_tuple, action_tuple>);
-    REQUIRE(std::is_same_v<digest::guard_tuple, guard_tuple>);
     REQUIRE(std::is_same_v<digest::state_tuple, state_tuple>);
     REQUIRE(std::is_same_v<digest::event_tuple, event_tuple>);
 }

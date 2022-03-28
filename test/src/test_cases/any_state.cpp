@@ -25,15 +25,23 @@ namespace
         struct error{};
     }
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::idle,    events::start_button_press, states::running>,
-        fgfsm::row<states::running, events::stop_button_press,  states::idle>,
-        fgfsm::row<states::failed,  events::stop_button_press,  states::idle>,
-        fgfsm::row<fgfsm::any,      events::error,              states::failed>
-    >;
+    struct fsm_configuration: fgfsm::fsm_configuration
+    {
+        using context = ::context;
 
-    using fsm = fgfsm::fsm<transition_table>;
+        static auto make_transition_table()
+        {
+            return fgfsm::transition_table
+            {
+                fgfsm::make_row<states::idle,    events::start_button_press, states::running>(),
+                fgfsm::make_row<states::running, events::stop_button_press,  states::idle>(),
+                fgfsm::make_row<states::failed,  events::stop_button_press,  states::idle>(),
+                fgfsm::make_row<fgfsm::any,      events::error,              states::failed>()
+            };
+        }
+    };
+
+    using fsm = fgfsm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("any state")

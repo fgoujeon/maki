@@ -27,15 +27,10 @@ namespace
 
     namespace actions
     {
-        struct beep
+        void beep(context& ctx, const fgfsm::any_cref&)
         {
-            void operator()(const fgfsm::any_cref&) const
-            {
-                ctx.i = 1;
-            }
-
-            context& ctx;
-        };
+            ctx.i = 1;
+        }
 
         void boop(context& ctx, const fgfsm::any_cref&)
         {
@@ -43,13 +38,21 @@ namespace
         }
     }
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::off, events::button_press, states::on,  actions::beep>,
-        fgfsm::row<states::on,  events::button_press, states::off, fgfsm::fn<actions::boop>>
-    >;
+    struct fsm_configuration: fgfsm::fsm_configuration
+    {
+        using context = ::context;
 
-    using fsm = fgfsm::fsm<transition_table>;
+        static auto make_transition_table()
+        {
+            return fgfsm::transition_table
+            {
+                fgfsm::make_row<states::off, events::button_press, states::on>  (actions::beep),
+                fgfsm::make_row<states::on,  events::button_press, states::off> (actions::boop)
+            };
+        }
+    };
+
+    using fsm = fgfsm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("action")

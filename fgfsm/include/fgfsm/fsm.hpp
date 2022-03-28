@@ -8,7 +8,7 @@
 #define FGFSM_FSM_HPP
 
 #include "fsm_configuration.hpp"
-#include "state_transition_policy.hpp"
+#include "state_transition_helper.hpp"
 #include "internal_transition_policy.hpp"
 #include "any.hpp"
 #include "none.hpp"
@@ -33,9 +33,6 @@ class fsm
             std::invoke_result_t<decltype(Configuration::make_transition_table)>
         ;
 
-        using state_transition_policy =
-            typename Configuration::state_transition_policy
-        ;
         using internal_transition_policy =
             typename Configuration::internal_transition_policy
         ;
@@ -51,7 +48,6 @@ class fsm
             context_(context),
             transition_table_(Configuration::make_transition_table()),
             states_(detail::make_tuple<state_tuple>(context)),
-            state_transition_policy_{context},
             internal_transition_policy_{context}
         {
         }
@@ -226,7 +222,7 @@ class fsm
                                 >;
                         }();
 
-                        auto helper = state_transition_policy_helper
+                        auto helper = state_transition_helper
                         <
                             context_t,
                             ActiveState,
@@ -247,7 +243,7 @@ class fsm
                         };
 
                         //Perform the transition
-                        self.state_transition_policy_(helper);
+                        Configuration::perform_state_transition(helper);
                     }
                 }
             }
@@ -281,7 +277,6 @@ class fsm
         context_t& context_;
         transition_table_t transition_table_;
         state_tuple states_;
-        state_transition_policy state_transition_policy_;
         internal_transition_policy internal_transition_policy_;
 
         int active_state_index_ = 0;

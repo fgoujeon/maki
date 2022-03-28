@@ -7,7 +7,7 @@
 #ifndef FGFSM_FSM_CONFIGURATION_HPP
 #define FGFSM_FSM_CONFIGURATION_HPP
 
-#include "state_transition_policy.hpp"
+#include "state_transition_helper.hpp"
 #include "internal_transition_policy.hpp"
 
 namespace fgfsm
@@ -15,8 +15,20 @@ namespace fgfsm
 
 struct fsm_configuration
 {
-    using state_transition_policy = default_state_transition_policy;
     using internal_transition_policy = default_internal_transition_policy;
+
+    template<class StateTransitionHelper>
+    static void perform_state_transition(StateTransitionHelper& helper)
+    {
+        if(helper.check_guard())
+        {
+            helper.validate_transition();
+            helper.invoke_start_state_on_exit();
+            helper.activate_target_state();
+            helper.execute_action();
+            helper.invoke_target_state_on_entry();
+        }
+    }
 
     static constexpr auto enable_event_queue = true;
 };

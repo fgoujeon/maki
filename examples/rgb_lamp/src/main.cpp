@@ -230,17 +230,19 @@ namespace guards
 using namespace states;
 using namespace actions;
 using namespace guards;
-using push_event = button::push_event;
+using push = button::push_event;
+using fgfsm::row;
+using fgfsm::fn;
 
 using transition_table = fgfsm::transition_table
 <
-    //         start state,    event,      target state,   action,                      guard
-    fgfsm::row<off,            push_event, emitting_white, turn_light_white>,
-    fgfsm::row<emitting_white, push_event, emitting_red,   fgfsm::fn<turn_light_red>,   is_short_push>,
-    fgfsm::row<emitting_red,   push_event, emitting_green, fgfsm::fn<turn_light_green>, is_short_push>,
-    fgfsm::row<emitting_green, push_event, emitting_blue,  fgfsm::fn<turn_light_blue>,  is_short_push>,
-    fgfsm::row<emitting_blue,  push_event, emitting_white, turn_light_white,            is_short_push>,
-    fgfsm::row<fgfsm::any,     push_event, off,            fgfsm::fn<turn_light_off>,   is_long_push>
+    //  start state,    event, target state,   action,               guard
+    row<off,            push,  emitting_white, turn_light_white>,
+    row<emitting_white, push,  emitting_red,   fn<turn_light_red>,   is_short_push>,
+    row<emitting_red,   push,  emitting_green, fn<turn_light_green>, is_short_push>,
+    row<emitting_green, push,  emitting_blue,  fn<turn_light_blue>,  is_short_push>,
+    row<emitting_blue,  push,  emitting_white, turn_light_white,     is_short_push>,
+    row<fgfsm::any,     push,  off,            fn<turn_light_off>,   is_long_push>
 >;
 
 using fsm = fgfsm::fsm<transition_table>;

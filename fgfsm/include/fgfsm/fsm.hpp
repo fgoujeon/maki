@@ -8,8 +8,8 @@
 #define FGFSM_FSM_HPP
 
 #include "fsm_configuration.hpp"
-#include "state_transition_policy.hpp"
 #include "internal_transition_policy.hpp"
+#include "state_transition_policy.hpp"
 #include "any.hpp"
 #include "none.hpp"
 #include "any_copy.hpp"
@@ -35,8 +35,9 @@ class fsm
 
         using transition_table = TransitionTable;
 
-        using state_transition_policy = typename Configuration::state_transition_policy;
+        using pre_transition_event_handler = typename Configuration::pre_transition_event_handler;
         using internal_transition_policy = typename Configuration::internal_transition_policy;
+        using state_transition_policy = typename Configuration::state_transition_policy;
 
         using transition_table_digest =
             detail::transition_table_digest<transition_table>
@@ -52,8 +53,9 @@ class fsm
             states_(detail::make_tuple<state_tuple>(context)),
             actions_(detail::make_tuple<action_tuple>(context)),
             guards_(detail::make_tuple<guard_tuple>(context)),
-            state_transition_policy_{context},
-            internal_transition_policy_{context}
+            pre_transition_event_handler_{context},
+            internal_transition_policy_{context},
+            state_transition_policy_{context}
         {
         }
 
@@ -130,6 +132,7 @@ class fsm
     private:
         void process_event_once(const any_cref& event)
         {
+            pre_transition_event_handler_.on_event(event);
             process_event_in_active_state(event);
             process_event_in_transition_table(event);
         }
@@ -296,8 +299,9 @@ class fsm
         state_tuple states_;
         action_tuple actions_;
         guard_tuple guards_;
-        state_transition_policy state_transition_policy_;
+        pre_transition_event_handler pre_transition_event_handler_;
         internal_transition_policy internal_transition_policy_;
+        state_transition_policy state_transition_policy_;
 
         int active_state_index_ = 0;
         bool processing_event_ = false;

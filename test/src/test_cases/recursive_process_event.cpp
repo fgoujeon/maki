@@ -126,7 +126,33 @@ namespace
         fgfsm::row<states::loading, events::end_of_loading,           states::ready>
     >;
 
-    using fsm_t = fgfsm::fsm<transition_table>;
+    struct fsm_configuration: fgfsm::fsm_configuration
+    {
+        struct pre_transition_event_handler
+        {
+            void on_event(const fgfsm::any_cref& event)
+            {
+                visit
+                (
+                    event,
+
+                    [&](const events::quick_start_button_press&)
+                    {
+                        ctx.output += "quick_start_button_press;";
+                    },
+
+                    [&](const events::end_of_loading&)
+                    {
+                        ctx.output += "end_of_loading;";
+                    }
+                );
+            }
+
+            context& ctx;
+        };
+    };
+
+    using fsm_t = fgfsm::fsm<transition_table, fsm_configuration>;
 
     struct fsm: fsm_t
     {
@@ -146,7 +172,16 @@ TEST_CASE("recursive process_event")
     ctx.pfsm = &sm;
 
     sm.process_event(events::quick_start_button_press{});
-    REQUIRE(ctx.output == "idle::on_exit;loading::on_entry;loading::on_exit;ready::on_entry;");
+    REQUIRE
+    (
+        ctx.output ==
+            "quick_start_button_press;"
+            "idle::on_exit;"
+            "loading::on_entry;"
+            "end_of_loading;"
+            "loading::on_exit;"
+            "ready::on_entry;"
+    );
 
     const auto long_string = "auienratuiernaturnietnrautisretadlepetwufieqarnpecdaedpceoanuprecanrpecadtpeadcepde";
     sm.process_event(events::self_call_request{long_string});

@@ -15,8 +15,27 @@ namespace fgfsm
 
 struct fsm_configuration
 {
-    using state_transition_policy = default_state_transition_policy;
+    /*
+    Called whenever an event is being processed, after recursive call protection
+    and just before performing internal and state transitions.
+    It is useful for handling event independently of the active state by taking
+    advantage of the run-to-completion mechanism.
+    */
+    struct pre_transition_event_handler
+    {
+        template<class Context>
+        pre_transition_event_handler(Context&)
+        {
+        }
+
+        void on_event(const any_cref&)
+        {
+        }
+    };
+
     using internal_transition_policy = default_internal_transition_policy;
+
+    using state_transition_policy = default_state_transition_policy;
 
     static constexpr auto enable_event_queue = true;
 };

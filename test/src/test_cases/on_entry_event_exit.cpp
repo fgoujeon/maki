@@ -77,7 +77,12 @@ namespace
         fgfsm::row<states::french,  events::next_language_request, states::idle>
     >;
 
-    using fsm = fgfsm::fsm<transition_table>;
+    struct fsm_configuration: fgfsm::fsm_configuration
+    {
+        using transition_table = ::transition_table;
+    };
+
+    using fsm = fgfsm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("on_entry_event_exit")

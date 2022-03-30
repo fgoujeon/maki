@@ -22,11 +22,11 @@
 namespace fgfsm
 {
 
-template<class TransitionTable, class Configuration = fsm_configuration>
+template<class Configuration>
 class fsm
 {
     private:
-        using transition_table = TransitionTable;
+        using transition_table = typename Configuration::transition_table;
 
         using state_transition_policy = typename Configuration::state_transition_policy;
         using internal_transition_policy = typename Configuration::internal_transition_policy;

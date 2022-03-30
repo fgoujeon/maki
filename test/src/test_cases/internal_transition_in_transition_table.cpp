@@ -84,7 +84,12 @@ namespace
         fgfsm::row<states::running, events::beep_button_press,  fgfsm::none,      actions::beep>
     >;
 
-    using fsm = fgfsm::fsm<transition_table>;
+    struct fsm_configuration: fgfsm::fsm_configuration
+    {
+        using transition_table = ::transition_table;
+    };
+
+    using fsm = fgfsm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("internal transition in transition table")

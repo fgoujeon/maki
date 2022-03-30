@@ -69,10 +69,12 @@ namespace
 
     struct fsm_configuration: fgfsm::fsm_configuration
     {
+        using transition_table = ::transition_table;
+
         static constexpr auto enable_event_queue = false;
     };
 
-    using fsm = fgfsm::fsm<transition_table, fsm_configuration>;
+    using fsm = fgfsm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("internal transition")

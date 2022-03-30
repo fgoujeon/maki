@@ -243,7 +243,12 @@ using transition_table = fgfsm::transition_table
     fgfsm::row<fgfsm::any,     push_event, off,            fgfsm::fn<turn_light_off>,   is_long_push>
 >;
 
-using fsm = fgfsm::fsm<transition_table>;
+struct fsm_configuration: fgfsm::fsm_configuration
+{
+    using transition_table = ::transition_table;
+};
+
+using fsm = fgfsm::fsm<fsm_configuration>;
 
 int main()
 {

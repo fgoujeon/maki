@@ -9,7 +9,8 @@
 
 namespace
 {
-    class fsm;
+    struct fsm_configuration;
+    using fsm = fgfsm::fsm<fsm_configuration>;
 
     struct context
     {
@@ -126,12 +127,12 @@ namespace
         fgfsm::row<states::loading, events::end_of_loading,           states::ready>
     >;
 
-    using fsm_t = fgfsm::fsm<transition_table>;
-
-    struct fsm: fsm_t
+    struct fsm_configuration: fgfsm::fsm_configuration
     {
-        using fsm_t::fsm_t;
+        using transition_table = ::transition_table;
     };
+
+    using fsm = fgfsm::fsm<fsm_configuration>;
 
     void context::process_event(const fgfsm::any_cref& event)
     {

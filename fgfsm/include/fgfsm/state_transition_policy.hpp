@@ -17,6 +17,7 @@ namespace fgfsm
 
 template
 <
+    class Context,
     class StartState,
     class TargetState,
     class Action,
@@ -30,6 +31,7 @@ class state_transition_policy_helper
 
         state_transition_policy_helper
         (
+            Context& ctx,
             StartState& start_state,
             const any_cref& event,
             TargetState* const ptarget_state,
@@ -39,6 +41,7 @@ class state_transition_policy_helper
             bool& processed,
             const int target_state_index
         ):
+            ctx_(ctx),
             start_state_(start_state),
             evt_(event),
             ptarget_state_(ptarget_state),
@@ -56,7 +59,7 @@ class state_transition_policy_helper
             if constexpr(!std::is_same_v<Guard, none>)
             {
                 assert(pguard_);
-                return (*pguard_)(evt_);
+                return (*pguard_)(ctx_, evt_);
             }
             else
             {
@@ -86,7 +89,7 @@ class state_transition_policy_helper
             if constexpr(!std::is_same_v<Action, none>)
             {
                 assert(paction_);
-                (*paction_)(evt_);
+                (*paction_)(ctx_, evt_);
             }
         }
 
@@ -100,6 +103,7 @@ class state_transition_policy_helper
         }
 
     private:
+        Context& ctx_;
         StartState& start_state_;
         const any_cref& evt_;
         TargetState* const ptarget_state_ = nullptr;
@@ -117,23 +121,8 @@ struct default_state_transition_policy
     {
     }
 
-    template
-    <
-        class StartState,
-        class TargetState,
-        class Action,
-        class Guard
-    >
-    void operator()
-    (
-        state_transition_policy_helper
-        <
-            StartState,
-            TargetState,
-            Action,
-            Guard
-        >& helper
-    )
+    template<class StateTransitionPolicyHelper>
+    void operator()(StateTransitionPolicyHelper& helper)
     {
         if(helper.check_guard())
         {

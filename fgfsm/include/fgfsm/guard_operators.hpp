@@ -40,15 +40,8 @@ namespace detail
     class binary_operator_guard
     {
         public:
-            template<class Context>
-            binary_operator_guard(Context& context):
-                lhs_{context},
-                rhs_{context}
-            {
-            }
-
             template<class... Args>
-            bool operator()(const Args&... args)
+            bool operator()(Args&... args)
             {
                 return Operator::test(lhs_(args...), rhs_(args...));
             }
@@ -60,15 +53,17 @@ namespace detail
 }
 
 template<class T>
-struct not_
+class not_
 {
-    template<class... Args>
-    bool operator()(const Args&... args)
-    {
-        return !guard(args...);
-    }
+    public:
+        template<class... Args>
+        bool operator()(Args&... args)
+        {
+            return !guard_(args...);
+        }
 
-    T guard;
+    private:
+        T guard_;
 };
 
 template<class L, class R>

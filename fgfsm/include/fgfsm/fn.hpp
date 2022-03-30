@@ -7,26 +7,22 @@
 #ifndef FGFSM_FN_HPP
 #define FGFSM_FN_HPP
 
-#include "detail/first_arg.hpp"
-
 namespace fgfsm
 {
 
 /*
 An adapter that turns a pointer to a function of the following form:
-    return_type f(context& ctx, other_arg_types...)
+    return_type f(arg_types...)
     {
         //...
     }
 into a struct of the following form:
     struct s
     {
-        return_type operator()(other_arg_types...)
+        return_type operator()(arg_types...)
         {
             //...
         }
-
-        context& ctx;
     };
 
 This allows to write actions and guards in a less verbose fashion.
@@ -35,12 +31,10 @@ template<auto F>
 struct fn
 {
     template<class... Args>
-    auto operator()(Args&&... args) const
+    auto operator()(Args&&... args)
     {
-        return F(ctx, std::forward<Args>(args)...);
+        return F(std::forward<Args>(args)...);
     }
-
-    detail::first_arg<decltype(F)> ctx;
 };
 
 } //namespace

@@ -44,12 +44,10 @@ namespace
 #define GUARD(NAME) \
     struct NAME \
     { \
-        bool operator()(const fgfsm::any_cref&) const \
+        bool operator()(context& ctx, const fgfsm::any_cref&) const \
         { \
             return ctx.NAME; \
         } \
- \
-        context& ctx; \
     };
 
         GUARD(can_access_state0_0);

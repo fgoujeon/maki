@@ -51,8 +51,6 @@ class fsm
         fsm(context& ctx):
             ctx_(ctx),
             states_(detail::make_tuple<state_tuple>(ctx)),
-            actions_(detail::make_tuple<action_tuple>(ctx)),
-            guards_(detail::make_tuple<guard_tuple>(ctx)),
             state_transition_policy_{ctx},
             internal_transition_policy_{ctx}
         {
@@ -246,12 +244,14 @@ class fsm
 
                         auto helper = state_transition_policy_helper
                         <
+                            context,
                             ActiveState,
                             transition_target_state,
                             transition_action,
                             transition_guard
                         >
                         {
+                            self.ctx_,
                             active_state,
                             event,
                             ptarget_state,

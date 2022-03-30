@@ -68,12 +68,10 @@ namespace
     {
         struct beep
         {
-            void operator()(const fgfsm::any_cref&)
+            void operator()(context& ctx, const fgfsm::any_cref&)
             {
                 ctx.out += "beep;";
             }
-
-            context& ctx;
         };
     };
 

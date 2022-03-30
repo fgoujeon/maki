@@ -111,12 +111,10 @@ namespace
     {
         struct skip_loading
         {
-            void operator()(const fgfsm::any_cref&)
+            void operator()(context& ctx, const fgfsm::any_cref&)
             {
                 ctx.process_event(events::end_of_loading{});
             }
-
-            context& ctx;
         };
     }
 

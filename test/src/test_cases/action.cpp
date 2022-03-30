@@ -29,12 +29,10 @@ namespace
     {
         struct beep
         {
-            void operator()(const fgfsm::any_cref&) const
+            void operator()(context& ctx, const fgfsm::any_cref&) const
             {
                 ctx.i = 1;
             }
-
-            context& ctx;
         };
 
         void boop(context& ctx, const fgfsm::any_cref&)

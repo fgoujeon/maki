@@ -49,7 +49,7 @@ struct default_internal_transition_policy
     }
 
     template<class State>
-    void operator()(internal_transition_policy_helper<State>& helper)
+    void do_transition(internal_transition_policy_helper<State>& helper)
     {
         helper.invoke_state_on_event();
     }

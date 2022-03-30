@@ -117,23 +117,8 @@ struct default_state_transition_policy
     {
     }
 
-    template
-    <
-        class StartState,
-        class TargetState,
-        class Action,
-        class Guard
-    >
-    void operator()
-    (
-        state_transition_policy_helper
-        <
-            StartState,
-            TargetState,
-            Action,
-            Guard
-        >& helper
-    )
+    template<class Helper>
+    void do_transition(Helper& helper)
     {
         if(helper.check_guard())
         {

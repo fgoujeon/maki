@@ -262,7 +262,7 @@ class fsm
                         };
 
                         //Perform the transition
-                        self.state_transition_policy_(helper);
+                        self.state_transition_policy_.do_transition(helper);
                     }
                 }
             }
@@ -287,7 +287,7 @@ class fsm
                     <
                         state
                     >{s, event};
-                    internal_transition_policy_(helper);
+                    internal_transition_policy_.do_transition(helper);
                 }
             );
         }

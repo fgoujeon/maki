@@ -30,7 +30,7 @@ namespace
         template<int Value>
         struct beep
         {
-            void operator()(const fgfsm::any_cref&) const
+            void execute(const fgfsm::any_cref&)
             {
                 ctx.i = Value;
             }

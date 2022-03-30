@@ -56,7 +56,7 @@ class state_transition_policy_helper
             if constexpr(!std::is_same_v<Guard, none>)
             {
                 assert(pguard_);
-                return (*pguard_)(evt_);
+                return pguard_->check(evt_);
             }
             else
             {
@@ -86,7 +86,7 @@ class state_transition_policy_helper
             if constexpr(!std::is_same_v<Action, none>)
             {
                 assert(paction_);
-                (*paction_)(evt_);
+                paction_->execute(evt_);
             }
         }
 

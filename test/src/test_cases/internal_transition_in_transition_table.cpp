@@ -68,7 +68,7 @@ namespace
     {
         struct beep
         {
-            void operator()(const fgfsm::any_cref&)
+            void execute(const fgfsm::any_cref&)
             {
                 ctx.out += "beep;";
             }

@@ -168,14 +168,14 @@ Actions are classes.
 namespace actions
 {
     /*
-    An action class is required to implement the operator()() function described
+    An action class is required to implement the execute() function described
     below.
     Also, just like state classes, action classes must be constructible with a
     reference to the context.
     */
     struct turn_light_white
     {
-        void operator()(const fgfsm::any_cref& /*event*/)
+        void execute(const fgfsm::any_cref& /*event*/)
         {
             ctx.led.set_color(rgb_led::color::white);
         }
@@ -185,7 +185,7 @@ namespace actions
 
     struct turn_light_red
     {
-        void operator()(const fgfsm::any_cref& /*event*/)
+        void execute(const fgfsm::any_cref& /*event*/)
         {
             ctx.led.set_color(rgb_led::color::red);
         }
@@ -195,7 +195,7 @@ namespace actions
 
     struct turn_light_green
     {
-        void operator()(const fgfsm::any_cref& /*event*/)
+        void execute(const fgfsm::any_cref& /*event*/)
         {
             ctx.led.set_color(rgb_led::color::green);
         }
@@ -205,7 +205,7 @@ namespace actions
 
     struct turn_light_blue
     {
-        void operator()(const fgfsm::any_cref& /*event*/)
+        void execute(const fgfsm::any_cref& /*event*/)
         {
             ctx.led.set_color(rgb_led::color::blue);
         }
@@ -215,7 +215,7 @@ namespace actions
 
     struct turn_light_off
     {
-        void operator()(const fgfsm::any_cref& /*event*/)
+        void execute(const fgfsm::any_cref& /*event*/)
         {
             ctx.led.set_color(rgb_led::color::off);
         }
@@ -230,14 +230,14 @@ Guards are classes.
 namespace guards
 {
     /*
-    A guard class is required to implement the operator()() function described
+    A guard class is required to implement the check() function described
     below.
     Also, just like state classes, guard classes must be constructible with a
     reference to the context.
     */
     struct is_long_push
     {
-        bool operator()(const fgfsm::any_cref& event)
+        bool check(const fgfsm::any_cref& event)
         {
             auto long_push = false;
 

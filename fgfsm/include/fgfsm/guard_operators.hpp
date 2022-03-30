@@ -48,9 +48,13 @@ namespace detail
             }
 
             template<class... Args>
-            bool operator()(const Args&... args)
+            bool check(const Args&... args)
             {
-                return Operator::test(lhs_(args...), rhs_(args...));
+                return Operator::test
+                (
+                    lhs_.check(args...),
+                    rhs_.check(args...)
+                );
             }
 
         private:
@@ -60,15 +64,23 @@ namespace detail
 }
 
 template<class T>
-struct not_
+class not_
 {
-    template<class... Args>
-    bool operator()(const Args&... args)
-    {
-        return !guard(args...);
-    }
+    public:
+        template<class Context>
+        not_(Context& context):
+            guard_{context}
+        {
+        }
 
-    T guard;
+        template<class... Args>
+        bool check(const Args&... args)
+        {
+            return !guard_.check(args...);
+        }
+
+    private:
+        T guard_;
 };
 
 template<class L, class R>

@@ -26,6 +26,7 @@ template<class Configuration>
 class fsm
 {
     private:
+        using context = typename Configuration::context;
         using transition_table = typename Configuration::transition_table;
 
         using state_transition_policy = typename Configuration::state_transition_policy;
@@ -40,13 +41,13 @@ class fsm
         using event_tuple  = typename transition_table_digest::event_tuple;
 
     public:
-        template<class Context>
-        fsm(Context& context):
-            states_(detail::make_tuple<state_tuple>(context)),
-            actions_(detail::make_tuple<action_tuple>(context)),
-            guards_(detail::make_tuple<guard_tuple>(context)),
-            state_transition_policy_{context},
-            internal_transition_policy_{context}
+        fsm(context& ctx):
+            ctx_(ctx),
+            states_(detail::make_tuple<state_tuple>(ctx)),
+            actions_(detail::make_tuple<action_tuple>(ctx)),
+            guards_(detail::make_tuple<guard_tuple>(ctx)),
+            state_transition_policy_{ctx},
+            internal_transition_policy_{ctx}
         {
         }
 
@@ -286,6 +287,7 @@ class fsm
         }
 
     private:
+        context& ctx_;
         state_tuple states_;
         action_tuple actions_;
         guard_tuple guards_;

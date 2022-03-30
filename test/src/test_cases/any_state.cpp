@@ -35,6 +35,7 @@ namespace
 
     struct fsm_configuration: fgfsm::fsm_configuration
     {
+        using context = ::context;
         using transition_table = ::transition_table;
     };
 

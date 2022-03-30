@@ -18,6 +18,7 @@
 #include "detail/transition_table_digest.hpp"
 #include "detail/ignore_unused.hpp"
 #include <queue>
+#include <type_traits>
 
 namespace fgfsm
 {
@@ -26,6 +27,12 @@ template<class TransitionTable, class Configuration = fsm_configuration>
 class fsm
 {
     private:
+        static_assert
+        (
+            std::is_base_of_v<fsm_configuration, Configuration>,
+            "Given configuration type must inherit from fgfsm::fsm_configuration."
+        );
+
         using transition_table = TransitionTable;
 
         using state_transition_policy = typename Configuration::state_transition_policy;

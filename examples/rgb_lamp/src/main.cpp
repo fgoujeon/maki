@@ -145,29 +145,45 @@ namespace actions
         context& ctx;
     };
 
-    /*
-    We can also define an action with a function, but it must be wrapped into
-    an fgfsm::fn to turn it into a class.
-    */
-    void turn_light_red(context& ctx, const fgfsm::any_cref& /*event*/)
+    struct turn_light_red
     {
-        ctx.led.set_color(rgb_led::color::red);
-    }
+        void operator()(const fgfsm::any_cref& /*event*/)
+        {
+            ctx.led.set_color(rgb_led::color::red);
+        }
 
-    void turn_light_green(context& ctx, const fgfsm::any_cref& /*event*/)
-    {
-        ctx.led.set_color(rgb_led::color::green);
-    }
+        context& ctx;
+    };
 
-    void turn_light_blue(context& ctx, const fgfsm::any_cref& /*event*/)
+    struct turn_light_green
     {
-        ctx.led.set_color(rgb_led::color::blue);
-    }
+        void operator()(const fgfsm::any_cref& /*event*/)
+        {
+            ctx.led.set_color(rgb_led::color::green);
+        }
 
-    void turn_light_off(context& ctx, const fgfsm::any_cref& /*event*/)
+        context& ctx;
+    };
+
+    struct turn_light_blue
     {
-        ctx.led.set_color(rgb_led::color::off);
-    }
+        void operator()(const fgfsm::any_cref& /*event*/)
+        {
+            ctx.led.set_color(rgb_led::color::blue);
+        }
+
+        context& ctx;
+    };
+
+    struct turn_light_off
+    {
+        void operator()(const fgfsm::any_cref& /*event*/)
+        {
+            ctx.led.set_color(rgb_led::color::off);
+        }
+
+        context& ctx;
+    };
 }
 
 /*
@@ -176,9 +192,9 @@ Guards are classes.
 namespace guards
 {
     /*
-    An action class is required to implement the operator()() function described
+    A guard class is required to implement the operator()() function described
     below.
-    Also, just like state classes, action classes must be constructible with a
+    Also, just like state classes, guard classes must be constructible with a
     reference to the context.
     */
     struct is_long_push
@@ -223,6 +239,7 @@ namespace guards
         context& ctx;
     };
 
+    //You can use guard operators to combine your guards.
     using is_short_push = fgfsm::not_<is_long_push>;
 }
 
@@ -234,13 +251,13 @@ using push_event = button::push_event;
 
 using transition_table = fgfsm::transition_table
 <
-    //         start state,    event,      target state,   action,                      guard
+    //         start state,    event,      target state,   action,            guard
     fgfsm::row<off,            push_event, emitting_white, turn_light_white>,
-    fgfsm::row<emitting_white, push_event, emitting_red,   fgfsm::fn<turn_light_red>,   is_short_push>,
-    fgfsm::row<emitting_red,   push_event, emitting_green, fgfsm::fn<turn_light_green>, is_short_push>,
-    fgfsm::row<emitting_green, push_event, emitting_blue,  fgfsm::fn<turn_light_blue>,  is_short_push>,
-    fgfsm::row<emitting_blue,  push_event, emitting_white, turn_light_white,            is_short_push>,
-    fgfsm::row<fgfsm::any,     push_event, off,            fgfsm::fn<turn_light_off>,   is_long_push>
+    fgfsm::row<emitting_white, push_event, emitting_red,   turn_light_red,    is_short_push>,
+    fgfsm::row<emitting_red,   push_event, emitting_green, turn_light_green,  is_short_push>,
+    fgfsm::row<emitting_green, push_event, emitting_blue,  turn_light_blue,   is_short_push>,
+    fgfsm::row<emitting_blue,  push_event, emitting_white, turn_light_white,  is_short_push>,
+    fgfsm::row<fgfsm::any,     push_event, off,            turn_light_off,    is_long_push>
 >;
 
 using fsm = fgfsm::fsm<transition_table>;

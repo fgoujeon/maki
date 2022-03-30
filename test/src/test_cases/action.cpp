@@ -27,26 +27,22 @@ namespace
 
     namespace actions
     {
+        template<int Value>
         struct beep
         {
             void operator()(const fgfsm::any_cref&) const
             {
-                ctx.i = 1;
+                ctx.i = Value;
             }
 
             context& ctx;
         };
-
-        void boop(context& ctx, const fgfsm::any_cref&)
-        {
-            ctx.i = 0;
-        }
     }
 
     using transition_table = fgfsm::transition_table
     <
-        fgfsm::row<states::off, events::button_press, states::on,  actions::beep>,
-        fgfsm::row<states::on,  events::button_press, states::off, fgfsm::fn<actions::boop>>
+        fgfsm::row<states::off, events::button_press, states::on,  actions::beep<1>>,
+        fgfsm::row<states::on,  events::button_press, states::off, actions::beep<0>>
     >;
 
     using fsm = fgfsm::fsm<transition_table>;

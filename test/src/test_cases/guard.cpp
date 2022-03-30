@@ -27,15 +27,20 @@ namespace
 
     namespace guards
     {
-        bool has_power(context& ctx, const fgfsm::any_cref&)
+        struct has_power
         {
-            return ctx.has_power;
-        }
+            bool operator()(const fgfsm::any_cref&)
+            {
+                return ctx.has_power;
+            }
+
+            context& ctx;
+        };
     }
 
     using transition_table = fgfsm::transition_table
     <
-        fgfsm::row<states::off, events::button_press, states::on,  fgfsm::none, fgfsm::fn<guards::has_power>>,
+        fgfsm::row<states::off, events::button_press, states::on,  fgfsm::none, guards::has_power>,
         fgfsm::row<states::on,  events::button_press, states::off, fgfsm::none>
     >;
 

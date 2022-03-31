@@ -7,8 +7,12 @@
 #ifndef FGFSM_ANY_CREF_HPP
 #define FGFSM_ANY_CREF_HPP
 
-//We can't have any_cref without any_copy, but this is an implementation detail.
-//That's why this file exists.
+/*
+any_cref and any_copy must be defined in the same file, but this is an
+implementation detail. Users must be able to include the header that defines
+any_cref without having to know this.
+That's why this file exists.
+*/
 
 #include "any_copy.hpp"
 

@@ -235,24 +235,62 @@ namespace detail
     using first_arg_of_unary_function_t =
         typename first_arg_of_unary_function<F>::type
     ;
+
+    template<class DefaultVisitor>
+    auto visit_with_default
+    (
+        const any_cref& obj,
+        DefaultVisitor&& default_visitor
+    )
+    {
+        return default_visitor();
+    }
+
+    template<class DefaultVisitor, class Visitor, class... Visitors>
+    auto visit_with_default
+    (
+        const any_cref& obj,
+        DefaultVisitor&& default_visitor,
+        Visitor&& visitor,
+        Visitors&&... visitors
+    )
+    {
+        using decayed_visitor_t = std::decay_t<Visitor>;
+        using arg_type_t = first_arg_of_unary_function_t<decayed_visitor_t>;
+        using decayed_arg_type_t = std::decay_t<arg_type_t>;
+
+        if(const auto pobj = obj.get_if<decayed_arg_type_t>())
+            return visitor(*pobj);
+        else
+            return visit_with_default
+            (
+                obj,
+                default_visitor,
+                std::forward<Visitors>(visitors)...
+            );
+    }
 }
 
-template<class Visitor, class... Visitors>
-void visit(const any_cref& obj, Visitor&& visitor, Visitors&&... visitors)
+template<class... Visitors>
+void visit(const any_cref& obj, Visitors&&... visitors)
 {
-    using decayed_visitor_t = std::decay_t<Visitor>;
-    using arg_type_t = detail::first_arg_of_unary_function_t<decayed_visitor_t>;
-    using decayed_arg_type_t = std::decay_t<arg_type_t>;
-
-    if(const auto pobj = obj.get_if<decayed_arg_type_t>())
-        visitor(*pobj);
-    else
-        visit(obj, visitors...);
+    detail::visit_with_default
+    (
+        obj,
+        []{},
+        std::forward<Visitors>(visitors)...
+    );
 }
 
-inline
-void visit(const any_cref&)
+template<class... Visitors>
+bool visit_or_false(const any_cref& obj, Visitors&&... visitors)
 {
+    return detail::visit_with_default
+    (
+        obj,
+        []{return false;},
+        std::forward<Visitors>(visitors)...
+    );
 }
 
 } //namespace

@@ -9,6 +9,7 @@
 #include "fgfsm/any_cref.hpp"
 #include "fgfsm/fsm.hpp"
 #include "fgfsm/fsm_configuration.hpp"
+#include "fgfsm/guard_fn.hpp"
 #include "fgfsm/guard_operators.hpp"
 #include "fgfsm/none.hpp"
 #include "fgfsm/row.hpp"

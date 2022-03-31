@@ -127,8 +127,9 @@ namespace states
         This function is called whenever the FSM enters this state.
         The event that caused the state transition is given as argument. The
         event is wrapped into an fgfsm::any_cref object.
-        See guards::is_long_push later in the code to see how the event can be
-        accessed.
+        fgfsm::any_cref is a std::any-like container that stores a reference
+        of an object. FGFSM provides visitation functions to access
+        fgfsm::any_cref objects is a safe and concise way.
         */
         void on_entry(const fgfsm::any_cref& /*event*/)
         {
@@ -239,46 +240,38 @@ namespace guards
     {
         bool check(const fgfsm::any_cref& event)
         {
-            auto long_push = false;
-
             /*
-            An fgfsm::any_cref object is usually accessed through the
-            fgfsm::visit() function, which takes the fgfsm::any_cref object,
-            followed by any number of unary function objects.
+            fgfsm::any_cref objects are usually accessed through visitation
+            functions like this one.
             */
-            fgfsm::visit
+            return fgfsm::visit_or_false
             (
                 event,
-
-                /*
-                This function object is called if the actual type of the event
-                is button::push_event.
-                */
-                [&](const button::push_event& event)
+                [](const button::push_event& event)
                 {
-                    if(event.duration_ms > 1000)
-                        long_push = true;
-                },
-
-                /*
-                This function object is called if the actual type of the event
-                is int... which never happens in our example. This is just here
-                as an illustration.
-                */
-                [&](const int /*event*/)
-                {
-                    //Won't happen.
+                    return event.duration_ms > 1000;
                 }
             );
-
-            return long_push;
         }
 
         context& ctx;
     };
 
-    //You can use guard operators to combine your guards.
-    using is_short_push = fgfsm::not_<is_long_push>;
+    /*
+    Admittedly, the guard above is quite verbose.
+    We can write guards much more concisely by using the fgfsm::guard_fn
+    adapter.
+    */
+    bool is_short_push_impl(context& ctx, const button::push_event& event)
+    {
+        return event.duration_ms <= 1000;
+    }
+    using is_short_push = fgfsm::guard_fn<is_short_push_impl>;
+
+    /*
+    We could have written is_short_push like below.
+    */
+    using is_short_push_2 = fgfsm::not_<is_long_push>;
 }
 
 //Allow shorter names in transition table

@@ -22,7 +22,10 @@ namespace
 
     namespace events
     {
-        struct button_press{};
+        struct button_press
+        {
+            bool hard = false;
+        };
     }
 
     namespace guards
@@ -36,12 +39,18 @@ namespace
 
             context& ctx;
         };
+
+        bool is_pressing_hard_impl(context&, const events::button_press& event)
+        {
+            return event.hard;
+        }
+        using is_pressing_hard = fgfsm::guard_fn<is_pressing_hard_impl>;
     }
 
     using transition_table = fgfsm::transition_table
     <
         fgfsm::row<states::off, events::button_press, states::on,  fgfsm::none, guards::has_power>,
-        fgfsm::row<states::on,  events::button_press, states::off, fgfsm::none>
+        fgfsm::row<states::on,  events::button_press, states::off, fgfsm::none, guards::is_pressing_hard>
     >;
 
     using fsm = fgfsm::fsm<transition_table>;
@@ -56,6 +65,6 @@ TEST_CASE("guard")
     REQUIRE(sm.is_active_state<states::off>());
 
     ctx.has_power = true;
-    sm.process_event(events::button_press{});
+    sm.process_event(events::button_press{true});
     REQUIRE(sm.is_active_state<states::on>());
 }

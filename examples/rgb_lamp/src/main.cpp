@@ -219,8 +219,21 @@ namespace guards
         context& ctx;
     };
 
-    //You can use guard operators to combine your guards.
-    using is_short_push = fgfsm::not_<is_long_push>;
+    /*
+    Admittedly, the guard above is quite verbose.
+    We can write guards much more concisely by using the fgfsm::guard_fn
+    adapter.
+    */
+    bool is_short_push_impl(context& ctx, const button::push_event& event)
+    {
+        return event.duration_ms <= 1000;
+    }
+    using is_short_push = fgfsm::guard_fn<is_short_push_impl>;
+
+    /*
+    We could have written is_short_push like below.
+    */
+    using is_short_push_2 = fgfsm::not_<is_long_push>;
 }
 
 //Allow shorter names in transition table

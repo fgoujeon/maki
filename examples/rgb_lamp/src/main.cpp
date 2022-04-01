@@ -136,46 +136,6 @@ namespace actions
     Also, just like state classes, action classes must be constructible with a
     reference to the context.
     */
-    struct turn_light_white
-    {
-        void execute(const fgfsm::any_cref& /*event*/)
-        {
-            ctx.led.set_color(rgb_led::color::white);
-        }
-
-        context& ctx;
-    };
-
-    struct turn_light_red
-    {
-        void execute(const fgfsm::any_cref& /*event*/)
-        {
-            ctx.led.set_color(rgb_led::color::red);
-        }
-
-        context& ctx;
-    };
-
-    struct turn_light_green
-    {
-        void execute(const fgfsm::any_cref& /*event*/)
-        {
-            ctx.led.set_color(rgb_led::color::green);
-        }
-
-        context& ctx;
-    };
-
-    struct turn_light_blue
-    {
-        void execute(const fgfsm::any_cref& /*event*/)
-        {
-            ctx.led.set_color(rgb_led::color::blue);
-        }
-
-        context& ctx;
-    };
-
     struct turn_light_off
     {
         void execute(const fgfsm::any_cref& /*event*/)
@@ -185,6 +145,21 @@ namespace actions
 
         context& ctx;
     };
+
+    //We can of course factorize with a template.
+    template<auto Color>
+    struct turn_light_tpl
+    {
+        void execute(const fgfsm::any_cref& /*event*/)
+        {
+            ctx.led.set_color(Color);
+        }
+        context& ctx;
+    };
+    using turn_light_white = turn_light_tpl<rgb_led::color::white>;
+    using turn_light_red   = turn_light_tpl<rgb_led::color::red>;
+    using turn_light_green = turn_light_tpl<rgb_led::color::green>;
+    using turn_light_blue  = turn_light_tpl<rgb_led::color::blue>;
 }
 
 /*

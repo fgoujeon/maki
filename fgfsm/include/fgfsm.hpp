@@ -4,6 +4,7 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
+#include "fgfsm/action_fn.hpp"
 #include "fgfsm/any.hpp"
 #include "fgfsm/any_copy.hpp"
 #include "fgfsm/any_cref.hpp"

@@ -89,12 +89,23 @@ namespace states
         This function is called whenever the FSM enters this state.
         The event that caused the state transition is given as argument. The
         event is wrapped into an fgfsm::any_cref object.
-        fgfsm::any_cref is a std::any-like container that stores a reference
-        of an object. FGFSM provides visitation functions to access
-        fgfsm::any_cref objects is a safe and concise way.
         */
-        void on_entry(const fgfsm::any_cref& /*event*/)
+        void on_entry(const fgfsm::any_cref& event)
         {
+            /*
+            fgfsm::any_cref is a std::any-like container that stores a reference
+            to a const object. FGFSM provides visitation functions to access
+            fgfsm::any_cref objects in a safe and concise way.
+            */
+            fgfsm::visit
+            (
+                event,
+                [&](const button::push_event& event)
+                {
+                    std::cout << "Turned off after a ";
+                    std::cout << event.duration_ms << " millisecond push\n";
+                }
+            );
         }
 
         /*

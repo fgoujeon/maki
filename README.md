@@ -1,5 +1,5 @@
 # FGFSM
-FGFSM is a C++ Finite State Machine library.
+FGFSM is a C++17 Finite State Machine library.
 
 ## Features
 FGFSM implements the following key features:
@@ -8,14 +8,29 @@ FGFSM implements the following key features:
   * **actions**;
   * **guards**;
   * **internal transitions**, aka transitions to `none` state;
-  * **anonymous transitions**, aka transitions through `none` event;
-  * **transition factorizations**, aka transitions from `any` state;
+  * **completion transitions**, aka anonymous transitions, aka transitions through `none` event;
+  * **self transitions**,
+  * **Kleene start state**, aka transitions from `any` state;
 * **state entry/exit actions** as state members (`on_entry()` and `on_exit()`);
 * **internal transitions actions** as state member (`on_event()`);
+* **run-to-completion**, the guarantee that the processing of an event won't be interrupted, even if we ask to handle other events in the process;
 * **sane build time**, thanks to:
-  * the low build-time complexity (O(n), n being the number of rows in the transition table) of the template instantiation of `fgfsm::fsm`;
-  * the fact that `fgfsm::fsm::process_event()` is not a template function;
-  * the fact that the user code doesn't *have to* define templates.
+  * the low build-time complexity (*O(n)*, *n* being the number of rows in the transition table, where most FSM libraries would be *O(mn)*, *m* being the number of event types) of the template instantiation of `fgfsm::fsm`;
+  * the fact that `fgfsm::fsm::process_event()` is not a function template;
+  * the fact that the user code doesn't have to define templates.
+
+Besides its features, FGFSM:
+
+* is **simple** to use and simple to understand;
+* **doesn't depend on any library** other than the C++ standard library;
+* **doesn't rely on exceptions**, while still allowing you to be exception-safe;
+* **doesn't rely on RTTI**;
+* is licensed under the terms of the **Boost Software License**, allowing you to use the library in any kind of free or proprietary software or firmware.
+
+Now, here are some reasons why you might *not* want to use FGFSM:
+
+* Runtime performance is not the main concern of the library. Don't get it wrong, runtime performance *is* a concern, but it must be known that some compromises have been made in favor of a better usability and shorter build times.
+* FGFSM doesn't (yet) implement some of the advanced features you can find in other FSM libraries, such as submachines, orthogonal regions, forks, pseudostates, history or event deferral.
 
 ## Example
 The following example is firmware for an RGB lamp. This lamp has a single button and an LED that can emit white, red, green or blue.

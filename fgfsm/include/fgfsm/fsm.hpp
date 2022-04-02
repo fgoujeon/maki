@@ -133,7 +133,8 @@ class fsm
         void process_event_once(const any_cref& event)
         {
             pre_transition_event_handler_.on_event(event);
-            process_event_in_active_state(event);
+            if constexpr(Configuration::enable_in_state_internal_transitions)
+                process_event_in_active_state(event);
             process_event_in_transition_table(event);
         }
 

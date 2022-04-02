@@ -38,6 +38,7 @@ struct fsm_configuration
     using state_transition_policy = default_state_transition_policy;
 
     static constexpr auto enable_run_to_completion = true;
+    static constexpr auto enable_in_state_internal_transitions = true;
 };
 
 } //namespace

@@ -96,6 +96,9 @@ namespace states
             fgfsm::any_cref is a std::any-like container that stores a reference
             to a const object. FGFSM provides visitation functions to access
             fgfsm::any_cref objects in a safe and concise way.
+            fgfsm::visit() takes an fgfsm::any_cref and a series of unary
+            function objects. The function object whose parameter type matches
+            the type of the object wrapped into the fgfsm::any_cref gets called.
             */
             fgfsm::visit
             (
@@ -191,6 +194,9 @@ namespace guards
             /*
             fgfsm::any_cref objects are usually accessed through visitation
             functions like this one.
+            fgfsm::visit_or_false() acts like fgfsm::visit() (seen earlier in
+            the program) except that it returns the boolean returned by the
+            matching function object, or false if no match is found.
             */
             return fgfsm::visit_or_false
             (
@@ -208,7 +214,7 @@ namespace guards
     /*
     Admittedly, the guard above is quite verbose.
     We can write guards much more concisely by using the fgfsm::guard_fn
-    adapter.
+    adapter, which internally calls fgfsm::visit_or_false().
     */
     bool is_short_push_impl(context& ctx, const button::push_event& event)
     {
@@ -228,6 +234,19 @@ using namespace actions;
 using namespace guards;
 using push_event = button::push_event;
 
+/*
+This is the transition table. This is where we define the actions that must be
+executed depending on the active state and the event we receive.
+Basically, whenever fgfsm::fsm::process_event() is called, FGFSM iterates over
+the rows of this table until it finds a match, i.e. when:
+- 'start state' is the currently active state (or is fgfsm::any);
+- 'event' is the type of the processed event;
+- and the 'guard' returns true (or is fgfsm::none).
+When a match is found, the 'action' is executed and 'target state' becomes the
+new active state.
+The initial active state of the FSM is the first state encountered in the
+transition table (off, is our case).
+*/
 using transition_table = fgfsm::transition_table
 <
     //         start state,    event,      target state,   action,            guard
@@ -239,11 +258,29 @@ using transition_table = fgfsm::transition_table
     fgfsm::row<fgfsm::any,     push_event, off,            turn_light_off,    is_long_push>
 >;
 
+/*
+We finally have our FSM.
+Note that we can pass a configuration struct as second template argument to fine
+tune the behavior of our FSM.
+*/
 using fsm = fgfsm::fsm<transition_table>;
 
 int main()
 {
+    /*
+    We're responsible for instantiating our context ourselves. Also, as the
+    states, actions and guards only holds a reference to this context and not
+    a copy, it's also our responsibility to keep it alive until the FSM is
+    destructed.
+    */
     auto ctx = context{};
+
+    /*
+    When we instantiate the FSM, we also instantiate every state, action and
+    guard mentionned in the transition table. Note that they're instantiated
+    once and for all: no construction or destruction happens during state
+    transitions.
+    */
     auto sm = fsm{ctx};
 
 #if TESTING

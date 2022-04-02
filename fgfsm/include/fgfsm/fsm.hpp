@@ -71,21 +71,6 @@ class fsm
             return given_state_index == active_state_index_;
         }
 
-        template<class F>
-        void visit_active_state(F&& f)
-        {
-            detail::for_each
-            (
-                states_,
-                [this, &f](auto& s)
-                {
-                    using state = std::decay_t<decltype(s)>;
-                    if(is_active_state<state>())
-                        f(s);
-                }
-            );
-        }
-
         void process_event(const any_cref& event)
         {
             if constexpr(Configuration::enable_event_queue)
@@ -130,6 +115,21 @@ class fsm
         }
 
     private:
+        template<class F>
+        void visit_active_state(F&& f)
+        {
+            detail::for_each
+            (
+                states_,
+                [this, &f](auto& s)
+                {
+                    using state = std::decay_t<decltype(s)>;
+                    if(is_active_state<state>())
+                        f(s);
+                }
+            );
+        }
+
         void process_event_once(const any_cref& event)
         {
             pre_transition_event_handler_.on_event(event);

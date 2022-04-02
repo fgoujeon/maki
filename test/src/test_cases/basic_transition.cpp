@@ -32,7 +32,7 @@ namespace
 
     struct fsm_configuration: fgfsm::fsm_configuration
     {
-        static constexpr auto enable_event_queue = false;
+        static constexpr auto enable_run_to_completion = false;
     };
 
     using fsm = fgfsm::fsm<transition_table, fsm_configuration>;

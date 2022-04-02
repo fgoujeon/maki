@@ -73,7 +73,7 @@ class fsm
 
         void process_event(const any_cref& event)
         {
-            if constexpr(Configuration::enable_event_queue)
+            if constexpr(Configuration::enable_run_to_completion)
             {
                 //Defer event processing in case of recursive call
                 if(processing_event_)

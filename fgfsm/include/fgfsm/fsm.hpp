@@ -45,10 +45,31 @@ class fsm
         using action_tuple = typename transition_table_digest::action_tuple;
         using guard_tuple  = typename transition_table_digest::guard_tuple;
 
-        using transition_table = detail::resolve_transition_table
+        /*
+        Calling detail::resolve_transition_table<> isn't free. We need this
+        trick to avoid the call when it's unnecessary (i.e. when there's no
+        any-start-state in the transition table).
+        */
+        static constexpr auto make_transition_table_ptr()
+        {
+            if constexpr(transition_table_digest::has_any_start_states)
+            {
+                using ptr_t = detail::resolve_transition_table
+                <
+                    TransitionTable,
+                    state_tuple
+                >*;
+                return ptr_t{};
+            }
+            else
+            {
+                using ptr_t = TransitionTable*;
+                return ptr_t{};
+            }
+        }
+        using transition_table = std::remove_pointer_t
         <
-            TransitionTable,
-            state_tuple
+            decltype(make_transition_table_ptr())
         >;
 
     public:

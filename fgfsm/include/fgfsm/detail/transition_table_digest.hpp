@@ -36,7 +36,7 @@ For example, the following digest type...:
         using action_tuple = std::tuple<action0, action1>;
         using guard_tuple = std::tuple<guard0, guard1>;
         using state_tuple = std::tuple<state0, state1, state2, state3>;
-        using event_tuple = std::tuple<event0, event1, event2, event3>;
+        static constexpr auto has_none_events = false;
     };
 */
 
@@ -55,7 +55,7 @@ namespace transition_table_digest_detail
         using action_tuple = std::tuple<>;
         using guard_tuple = std::tuple<>;
         using state_tuple = std::tuple<>;
-        using event_tuple = std::tuple<>;
+        static constexpr auto has_none_events = false;
     };
 
     template<class Digest, class Row>
@@ -83,11 +83,10 @@ namespace transition_table_digest_detail
             typename Row::target_state
         >;
 
-        using event_tuple = tlu::push_back_unique
-        <
-            typename Digest::event_tuple,
-            typename Row::event
-        >;
+        static constexpr auto has_none_events =
+            Digest::has_none_events ||
+            std::is_same_v<typename Row::event, none>
+        ;
     };
 }
 

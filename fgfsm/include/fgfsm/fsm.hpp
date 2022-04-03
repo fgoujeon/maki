@@ -44,7 +44,6 @@ class fsm
         using state_tuple  = typename transition_table_digest::state_tuple;
         using action_tuple = typename transition_table_digest::action_tuple;
         using guard_tuple  = typename transition_table_digest::guard_tuple;
-        using event_tuple  = typename transition_table_digest::event_tuple;
 
         using transition_table = detail::resolve_transition_table
         <
@@ -153,7 +152,7 @@ class fsm
             detail::ignore_unused(processed);
 
             //Anonymous transitions
-            if constexpr(detail::tlu::contains<event_tuple, none>)
+            if constexpr(transition_table_digest::has_none_events)
                 if(processed)
                     while(process_event_in_transition_table_once(none{}));
         }

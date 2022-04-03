@@ -8,6 +8,7 @@
 #define FGFSM_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 
 #include "tlu.hpp"
+#include "type_list.hpp"
 #include "../any.hpp"
 #include "../none.hpp"
 #include "../transition_table.hpp"
@@ -33,9 +34,9 @@ For example, the following digest type...:
 ... is equivalent to this type:
     struct digest
     {
+        using state_tuple = std::tuple<state0, state1, state2, state3>;
         using action_tuple = std::tuple<action0, action1>;
         using guard_tuple = std::tuple<guard0, guard1>;
-        using state_tuple = std::tuple<state0, state1, state2, state3>;
         static constexpr auto has_any_start_states = false;
         static constexpr auto has_none_events = false;
     };
@@ -43,6 +44,18 @@ For example, the following digest type...:
 
 namespace transition_table_digest_detail
 {
+    template<class TList>
+    struct to_std_tuple_helper;
+
+    template<template<class...> class TList, class... Ts>
+    struct to_std_tuple_helper<TList<Ts...>>
+    {
+        using type = std::tuple<Ts...>;
+    };
+
+    template<class TList>
+    using to_std_tuple = typename to_std_tuple_helper<TList>::type;
+
     template<class TList, class U>
     using push_back_unique_if_not_any_or_none = tlu::push_back_if
     <
@@ -53,9 +66,9 @@ namespace transition_table_digest_detail
 
     struct initial_digest
     {
-        using action_tuple = std::tuple<>;
-        using guard_tuple = std::tuple<>;
-        using state_tuple = std::tuple<>;
+        using state_tuple = type_list<>;
+        using action_tuple = type_list<>;
+        using guard_tuple = type_list<>;
         static constexpr auto has_any_start_states = false;
         static constexpr auto has_none_events = false;
     };
@@ -63,6 +76,16 @@ namespace transition_table_digest_detail
     template<class Digest, class Row>
     struct add_row_to_digest
     {
+        using state_tuple = push_back_unique_if_not_any_or_none
+        <
+            push_back_unique_if_not_any_or_none
+            <
+                typename Digest::state_tuple,
+                typename Row::start_state
+            >,
+            typename Row::target_state
+        >;
+
         using action_tuple = push_back_unique_if_not_any_or_none
         <
             typename Digest::action_tuple,
@@ -75,16 +98,6 @@ namespace transition_table_digest_detail
             typename Row::guard
         >;
 
-        using state_tuple = push_back_unique_if_not_any_or_none
-        <
-            push_back_unique_if_not_any_or_none
-            <
-                typename Digest::state_tuple,
-                typename Row::start_state
-            >,
-            typename Row::target_state
-        >;
-
         static constexpr auto has_any_start_states =
             Digest::has_any_start_states ||
             std::is_same_v<typename Row::start_state, any>
@@ -95,15 +108,48 @@ namespace transition_table_digest_detail
             std::is_same_v<typename Row::event, none>
         ;
     };
+
+    /*
+    First step with type_list instead of std::tuple, so that we don't
+    instantiate intermediate std::tuple
+    */
+    template<class TransitionTable>
+    using digest_with_type_lists = tlu::left_fold
+    <
+        TransitionTable,
+        add_row_to_digest,
+        initial_digest
+    >;
 }
 
 template<class TransitionTable>
-using transition_table_digest = tlu::left_fold
-<
-    TransitionTable,
-    transition_table_digest_detail::add_row_to_digest,
-    transition_table_digest_detail::initial_digest
->;
+class transition_table_digest
+{
+    private:
+        using digest_t = transition_table_digest_detail::digest_with_type_lists
+        <
+            TransitionTable
+        >;
+
+    public:
+        using state_tuple = transition_table_digest_detail::to_std_tuple
+        <
+            typename digest_t::state_tuple
+        >;
+
+        using action_tuple = transition_table_digest_detail::to_std_tuple
+        <
+            typename digest_t::action_tuple
+        >;
+
+        using guard_tuple = transition_table_digest_detail::to_std_tuple
+        <
+            typename digest_t::guard_tuple
+        >;
+
+        static constexpr auto has_any_start_states = digest_t::has_any_start_states;
+        static constexpr auto has_none_events = digest_t::has_none_events;
+};
 
 } //namespace
 

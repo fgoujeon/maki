@@ -36,6 +36,7 @@ For example, the following digest type...:
         using action_tuple = std::tuple<action0, action1>;
         using guard_tuple = std::tuple<guard0, guard1>;
         using state_tuple = std::tuple<state0, state1, state2, state3>;
+        static constexpr auto has_any_start_states = false;
         static constexpr auto has_none_events = false;
     };
 */
@@ -55,6 +56,7 @@ namespace transition_table_digest_detail
         using action_tuple = std::tuple<>;
         using guard_tuple = std::tuple<>;
         using state_tuple = std::tuple<>;
+        static constexpr auto has_any_start_states = false;
         static constexpr auto has_none_events = false;
     };
 
@@ -82,6 +84,11 @@ namespace transition_table_digest_detail
             >,
             typename Row::target_state
         >;
+
+        static constexpr auto has_any_start_states =
+            Digest::has_any_start_states ||
+            std::is_same_v<typename Row::start_state, any>
+        ;
 
         static constexpr auto has_none_events =
             Digest::has_none_events ||

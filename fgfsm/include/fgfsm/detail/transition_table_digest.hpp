@@ -50,52 +50,54 @@ namespace transition_table_digest_detail
         !tlu::contains<TList, U> && !std::is_same_v<U, any> && !std::is_same_v<U, none>
     >;
 
-    template<class ActionTuple, class GuardTuple, class StateTuple, class EventTuple, class... Rows>
-    struct helper;
-
-    template<class ActionTuple, class GuardTuple, class StateTuple, class EventTuple, class Row, class... Rows>
-    struct helper<ActionTuple, GuardTuple, StateTuple, EventTuple, Row, Rows...>:
-        helper
-        <
-            push_back_unique_if_not_any_or_none<ActionTuple, typename Row::action>,
-            push_back_unique_if_not_any_or_none<GuardTuple, typename Row::guard>,
-            push_back_unique_if_not_any_or_none
-            <
-                push_back_unique_if_not_any_or_none<StateTuple, typename Row::start_state>,
-                typename Row::target_state
-            >,
-            tlu::push_back_unique<EventTuple, typename Row::event>,
-            Rows...
-        >
+    struct initial_digest
     {
+        using action_tuple = std::tuple<>;
+        using guard_tuple = std::tuple<>;
+        using state_tuple = std::tuple<>;
+        using event_tuple = std::tuple<>;
     };
 
-    //terminal case
-    template<class ActionTuple, class GuardTuple, class StateTuple, class EventTuple>
-    struct helper<ActionTuple, GuardTuple, StateTuple, EventTuple>
+    template<class Digest, class Row>
+    struct add_row_to_digest
     {
-        using action_tuple = ActionTuple;
-        using guard_tuple = GuardTuple;
-        using state_tuple = StateTuple;
-        using event_tuple = EventTuple;
+        using action_tuple = push_back_unique_if_not_any_or_none
+        <
+            typename Digest::action_tuple,
+            typename Row::action
+        >;
+
+        using guard_tuple = push_back_unique_if_not_any_or_none
+        <
+            typename Digest::guard_tuple,
+            typename Row::guard
+        >;
+
+        using state_tuple = push_back_unique_if_not_any_or_none
+        <
+            push_back_unique_if_not_any_or_none
+            <
+                typename Digest::state_tuple,
+                typename Row::start_state
+            >,
+            typename Row::target_state
+        >;
+
+        using event_tuple = tlu::push_back_unique
+        <
+            typename Digest::event_tuple,
+            typename Row::event
+        >;
     };
 }
 
 template<class TransitionTable>
-struct transition_table_digest;
-
-template<class... Rows>
-struct transition_table_digest<transition_table<Rows...>>:
-    transition_table_digest_detail::helper
-    <
-        std::tuple<>,
-        std::tuple<>,
-        std::tuple<>,
-        std::tuple<>,
-        Rows...
-    >
-{
-};
+using transition_table_digest = tlu::left_fold
+<
+    TransitionTable,
+    transition_table_digest_detail::add_row_to_digest,
+    transition_table_digest_detail::initial_digest
+>;
 
 } //namespace
 

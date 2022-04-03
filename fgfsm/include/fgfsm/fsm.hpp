@@ -44,12 +44,32 @@ class fsm
         using state_tuple  = typename transition_table_digest::state_tuple;
         using action_tuple = typename transition_table_digest::action_tuple;
         using guard_tuple  = typename transition_table_digest::guard_tuple;
-        using event_tuple  = typename transition_table_digest::event_tuple;
 
-        using transition_table = detail::resolve_transition_table
+        /*
+        Calling detail::resolve_transition_table<> isn't free. We need this
+        trick to avoid the call when it's unnecessary (i.e. when there's no
+        any-start-state in the transition table).
+        */
+        static constexpr auto make_transition_table_ptr()
+        {
+            if constexpr(transition_table_digest::has_any_start_states)
+            {
+                using ptr_t = detail::resolve_transition_table
+                <
+                    TransitionTable,
+                    state_tuple
+                >*;
+                return ptr_t{};
+            }
+            else
+            {
+                using ptr_t = TransitionTable*;
+                return ptr_t{};
+            }
+        }
+        using transition_table = std::remove_pointer_t
         <
-            TransitionTable,
-            state_tuple
+            decltype(make_transition_table_ptr())
         >;
 
     public:
@@ -153,7 +173,7 @@ class fsm
             detail::ignore_unused(processed);
 
             //Anonymous transitions
-            if constexpr(detail::tlu::contains<event_tuple, none>)
+            if constexpr(transition_table_digest::has_none_events)
                 if(processed)
                     while(process_event_in_transition_table_once(none{}));
         }

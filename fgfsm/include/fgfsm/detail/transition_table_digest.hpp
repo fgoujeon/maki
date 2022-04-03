@@ -8,6 +8,7 @@
 #define FGFSM_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 
 #include "tlu.hpp"
+#include "type_list.hpp"
 #include "../any.hpp"
 #include "../none.hpp"
 #include "../transition_table.hpp"
@@ -33,15 +34,28 @@ For example, the following digest type...:
 ... is equivalent to this type:
     struct digest
     {
+        using state_tuple = std::tuple<state0, state1, state2, state3>;
         using action_tuple = std::tuple<action0, action1>;
         using guard_tuple = std::tuple<guard0, guard1>;
-        using state_tuple = std::tuple<state0, state1, state2, state3>;
-        using event_tuple = std::tuple<event0, event1, event2, event3>;
+        static constexpr auto has_any_start_states = false;
+        static constexpr auto has_none_events = false;
     };
 */
 
 namespace transition_table_digest_detail
 {
+    template<class TList>
+    struct to_std_tuple_helper;
+
+    template<template<class...> class TList, class... Ts>
+    struct to_std_tuple_helper<TList<Ts...>>
+    {
+        using type = std::tuple<Ts...>;
+    };
+
+    template<class TList>
+    using to_std_tuple = typename to_std_tuple_helper<TList>::type;
+
     template<class TList, class U>
     using push_back_unique_if_not_any_or_none = tlu::push_back_if
     <
@@ -50,51 +64,91 @@ namespace transition_table_digest_detail
         !tlu::contains<TList, U> && !std::is_same_v<U, any> && !std::is_same_v<U, none>
     >;
 
-    template<class ActionTuple, class GuardTuple, class StateTuple, class EventTuple, class... Rows>
-    struct helper;
+    struct initial_digest
+    {
+        using state_tuple = type_list<>;
+        using action_tuple = type_list<>;
+        using guard_tuple = type_list<>;
+        static constexpr auto has_any_start_states = false;
+        static constexpr auto has_none_events = false;
+    };
 
-    template<class ActionTuple, class GuardTuple, class StateTuple, class EventTuple, class Row, class... Rows>
-    struct helper<ActionTuple, GuardTuple, StateTuple, EventTuple, Row, Rows...>:
-        helper
+    template<class Digest, class Row>
+    struct add_row_to_digest
+    {
+        using state_tuple = push_back_unique_if_not_any_or_none
         <
-            push_back_unique_if_not_any_or_none<ActionTuple, typename Row::action>,
-            push_back_unique_if_not_any_or_none<GuardTuple, typename Row::guard>,
             push_back_unique_if_not_any_or_none
             <
-                push_back_unique_if_not_any_or_none<StateTuple, typename Row::start_state>,
-                typename Row::target_state
+                typename Digest::state_tuple,
+                typename Row::start_state
             >,
-            tlu::push_back_unique<EventTuple, typename Row::event>,
-            Rows...
-        >
-    {
+            typename Row::target_state
+        >;
+
+        using action_tuple = push_back_unique_if_not_any_or_none
+        <
+            typename Digest::action_tuple,
+            typename Row::action
+        >;
+
+        using guard_tuple = push_back_unique_if_not_any_or_none
+        <
+            typename Digest::guard_tuple,
+            typename Row::guard
+        >;
+
+        static constexpr auto has_any_start_states =
+            Digest::has_any_start_states ||
+            std::is_same_v<typename Row::start_state, any>
+        ;
+
+        static constexpr auto has_none_events =
+            Digest::has_none_events ||
+            std::is_same_v<typename Row::event, none>
+        ;
     };
 
-    //terminal case
-    template<class ActionTuple, class GuardTuple, class StateTuple, class EventTuple>
-    struct helper<ActionTuple, GuardTuple, StateTuple, EventTuple>
-    {
-        using action_tuple = ActionTuple;
-        using guard_tuple = GuardTuple;
-        using state_tuple = StateTuple;
-        using event_tuple = EventTuple;
-    };
+    /*
+    First step with type_list instead of std::tuple, so that we don't
+    instantiate intermediate std::tuple
+    */
+    template<class TransitionTable>
+    using digest_with_type_lists = tlu::left_fold
+    <
+        TransitionTable,
+        add_row_to_digest,
+        initial_digest
+    >;
 }
 
 template<class TransitionTable>
-struct transition_table_digest;
-
-template<class... Rows>
-struct transition_table_digest<transition_table<Rows...>>:
-    transition_table_digest_detail::helper
-    <
-        std::tuple<>,
-        std::tuple<>,
-        std::tuple<>,
-        std::tuple<>,
-        Rows...
-    >
+class transition_table_digest
 {
+    private:
+        using digest_t = transition_table_digest_detail::digest_with_type_lists
+        <
+            TransitionTable
+        >;
+
+    public:
+        using state_tuple = transition_table_digest_detail::to_std_tuple
+        <
+            typename digest_t::state_tuple
+        >;
+
+        using action_tuple = transition_table_digest_detail::to_std_tuple
+        <
+            typename digest_t::action_tuple
+        >;
+
+        using guard_tuple = transition_table_digest_detail::to_std_tuple
+        <
+            typename digest_t::guard_tuple
+        >;
+
+        static constexpr auto has_any_start_states = digest_t::has_any_start_states;
+        static constexpr auto has_none_events = digest_t::has_none_events;
 };
 
 } //namespace

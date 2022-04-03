@@ -9,8 +9,7 @@ FGFSM implements the following key features:
   * **guards**;
   * **internal transitions**, aka transitions to `none` state;
   * **completion transitions**, aka anonymous transitions, aka transitions through `none` event;
-  * **self transitions**,
-  * **Kleene start state**, aka transitions from `any` state;
+  * **Kleene start states**, aka transitions from `any` state;
 * **state entry/exit actions** as state members (`on_entry()` and `on_exit()`);
 * **internal transitions actions** as state member (`on_event()`);
 * **run-to-completion**, the guarantee that the processing of an event won't be interrupted, even if we ask to handle other events in the process;
@@ -21,7 +20,6 @@ FGFSM implements the following key features:
 
 Besides its features, FGFSM:
 
-* is **simple** to use and simple to understand;
 * **doesn't depend on any library** other than the C++ standard library;
 * **doesn't rely on exceptions**, while still allowing you to be exception-safe;
 * **doesn't rely on RTTI**;
@@ -29,7 +27,7 @@ Besides its features, FGFSM:
 
 Now, here are some reasons why you might *not* want to use FGFSM:
 
-* Runtime performance is not the main concern of the library. Don't get it wrong, runtime performance *is* a concern, but it must be known that some compromises have been made in favor of a better usability and shorter build times.
+* Runtime performance is not the main concern of the library. Don't get it wrong, runtime performance *is* a concern, but it must be known that some compromises have been made in favor of a better usability and much shorter build times.
 * FGFSM doesn't (yet) implement some of the advanced features you can find in other FSM libraries, such as submachines, orthogonal regions, forks, pseudostates, history or event deferral.
 
 ## Example
@@ -396,6 +394,4 @@ int main()
 ```
 
 ## Credits
-FGFSM is greatly inspired by Boost.MSM, and more precisely by its function front-end.
-
-Actually, FGFSM was born because Boost.MSM was too slow to build large FSMs (which is expected for a library that has been written in a time when variadic templates weren't supported by the language).
+FGFSM is greatly inspired by Boost.MSM, and more precisely by its function front-end. Actually, FGFSM was born because Boost.MSM was too slow to build large FSMs (which is expected for a library that has been written in a time when variadic templates weren't supported by the language).

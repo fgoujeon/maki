@@ -20,11 +20,6 @@ namespace
         int value = 0;
     };
 
-    struct text_data
-    {
-        std::string value;
-    };
-
     struct assign_i_1
     {
         void execute(const fgfsm::any_cref& event)
@@ -69,15 +64,18 @@ TEST_CASE("action_fn")
     auto action_2 = assign_i_2{ctx};
     auto action_3 = assign_i_3{ctx};
 
+    auto evt = int_data{1};
+    auto evt_any = fgfsm::any_cref{evt};
+
     ctx.i = 0;
-    action_1.execute(int_data{1});
+    action_1.execute(evt_any);
     REQUIRE(ctx.i == 1);
 
     ctx.i = 0;
-    action_2.execute(int_data{1});
+    action_2.execute(evt_any);
     REQUIRE(ctx.i == 1);
 
     ctx.i = 0;
-    action_3.execute(int_data{1});
+    action_3.execute(evt_any);
     REQUIRE(ctx.i == 1);
 }

@@ -69,21 +69,21 @@ TEST_CASE("guard_fn")
     auto guard_3 = is_positive_int_3{ctx};
 
     {
-        const auto value = int_data{1};
+        const auto value = fgfsm::any_copy{int_data{1}};
         REQUIRE(guard_1.check(value));
         REQUIRE(guard_2.check(value));
         REQUIRE(guard_3.check(value));
     }
 
     {
-        const auto value = int_data{-1};
+        const auto value = fgfsm::any_copy{int_data{-1}};
         REQUIRE(!guard_1.check(value));
         REQUIRE(!guard_2.check(value));
         REQUIRE(!guard_3.check(value));
     }
 
     {
-        const auto value = text_data{"1"};
+        const auto value = fgfsm::any_copy{text_data{"1"}};
         REQUIRE(!guard_1.check(value));
         REQUIRE(!guard_2.check(value));
         REQUIRE(!guard_3.check(value));

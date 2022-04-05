@@ -18,6 +18,7 @@ namespace fgfsm
 template
 <
     class StartState,
+    class Event,
     class TargetState,
     class Action,
     class Guard
@@ -31,7 +32,7 @@ class state_transition_policy_helper
         state_transition_policy_helper
         (
             StartState& start_state,
-            const any_cref& event,
+            const Event& event,
             TargetState* const ptarget_state,
             Action* const paction,
             Guard* const pguard,
@@ -72,7 +73,7 @@ class state_transition_policy_helper
         void invoke_start_state_on_exit()
         {
             if constexpr(!std::is_same_v<TargetState, none>)
-                start_state_.on_exit(evt_);
+            start_state_.on_exit(evt_);
         }
 
         void activate_target_state()
@@ -101,7 +102,7 @@ class state_transition_policy_helper
 
     private:
         StartState& start_state_;
-        const any_cref& evt_;
+        const Event& evt_;
         TargetState* const ptarget_state_ = nullptr;
         Action* const paction_ = nullptr;
         Guard* const pguard_ = nullptr;

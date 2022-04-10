@@ -24,23 +24,6 @@ into a struct of the following form:
     {
         bool check(const fgfsm::any_cref& event)
         {
-            return fgfsm::visit_or_false
-            (
-                event,
-                [this](const event_type& event)
-                {
-                    //...
-                }
-            );
-        }
-
-        context& ctx;
-    };
-or, if event_type is fgfsm::any_cref:
-    struct s
-    {
-        bool check(const fgfsm::any_cref& event)
-        {
             //...
         }
 
@@ -52,8 +35,6 @@ class guard_fn
 {
     private:
         using context_arg_t = detail::function_traits::first_arg<decltype(F)>;
-        using event_arg_t = detail::function_traits::second_arg<decltype(F)>;
-        using event_t = std::decay_t<event_arg_t>;
 
     public:
         guard_fn(context_arg_t ctx):
@@ -61,23 +42,10 @@ class guard_fn
         {
         }
 
-        bool check(const any_cref& event)
+        template<class Event>
+        bool check(const Event& event)
         {
-            if constexpr(std::is_same_v<event_t, any_cref>)
-            {
-                return F(ctx_, event);
-            }
-            else
-            {
-                return visit_or_false
-                (
-                    event,
-                    [this](event_arg_t event)
-                    {
-                        return F(ctx_, event);
-                    }
-                );
-            }
+            return F(ctx_, event);
         }
 
     private:

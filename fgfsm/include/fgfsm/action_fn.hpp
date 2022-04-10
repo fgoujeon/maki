@@ -24,23 +24,6 @@ into a struct of the following form:
     {
         void execute(const fgfsm::any_cref& event)
         {
-            fgfsm::visit
-            (
-                event,
-                [this](const event_type& event)
-                {
-                    //...
-                }
-            );
-        }
-
-        context& ctx;
-    };
-or, if event_type is fgfsm::any_cref:
-    struct s
-    {
-        void execute(const fgfsm::any_cref& event)
-        {
             //...
         }
 
@@ -52,8 +35,6 @@ class action_fn
 {
     private:
         using context_arg_t = detail::function_traits::first_arg<decltype(F)>;
-        using event_arg_t = detail::function_traits::second_arg<decltype(F)>;
-        using event_t = std::decay_t<event_arg_t>;
 
     public:
         action_fn(context_arg_t ctx):
@@ -61,23 +42,10 @@ class action_fn
         {
         }
 
-        void execute(const any_cref& event)
+        template<class Event>
+        void execute(const Event& event)
         {
-            if constexpr(std::is_same_v<event_t, any_cref>)
-            {
-                F(ctx_, event);
-            }
-            else
-            {
-                visit
-                (
-                    event,
-                    [this](event_arg_t event)
-                    {
-                        F(ctx_, event);
-                    }
-                );
-            }
+            F(ctx_, event);
         }
 
     private:

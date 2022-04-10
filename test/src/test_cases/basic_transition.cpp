@@ -30,7 +30,7 @@ namespace
         fgfsm::row<states::on,  events::button_press, states::off>
     >;
 
-    struct fsm_configuration: fgfsm::fsm_configuration
+    struct fsm_configuration: fgfsm::default_fsm_configuration
     {
         static constexpr auto enable_run_to_completion = false;
     };

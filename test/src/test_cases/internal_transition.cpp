@@ -67,7 +67,7 @@ namespace
         fgfsm::row<states::state9, events::next_state, states::benchmarking>
     >;
 
-    struct fsm_configuration: fgfsm::fsm_configuration
+    struct fsm_configuration: fgfsm::default_fsm_configuration
     {
         static constexpr auto enable_run_to_completion = false;
     };

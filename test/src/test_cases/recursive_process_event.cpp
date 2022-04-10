@@ -126,7 +126,7 @@ namespace
         fgfsm::row<states::loading, events::end_of_loading,           states::ready>
     >;
 
-    struct fsm_configuration: fgfsm::fsm_configuration
+    struct fsm_configuration: fgfsm::default_fsm_configuration
     {
         struct pre_transition_event_handler
         {

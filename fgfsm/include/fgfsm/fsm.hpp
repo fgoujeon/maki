@@ -7,7 +7,7 @@
 #ifndef FGFSM_FSM_HPP
 #define FGFSM_FSM_HPP
 
-#include "fsm_configuration.hpp"
+#include "default_fsm_configuration.hpp"
 #include "internal_transition_policy_helper.hpp"
 #include "state_transition_policy_helper.hpp"
 #include "any.hpp"
@@ -24,14 +24,14 @@
 namespace fgfsm
 {
 
-template<class TransitionTable, class Configuration = fsm_configuration>
+template<class TransitionTable, class Configuration = default_fsm_configuration>
 class fsm
 {
     private:
         static_assert
         (
-            std::is_base_of_v<fsm_configuration, Configuration>,
-            "Given configuration type must inherit from fgfsm::fsm_configuration."
+            std::is_base_of_v<default_fsm_configuration, Configuration>,
+            "Given configuration type must inherit from fgfsm::default_fsm_configuration."
         );
 
         using pre_transition_event_handler = typename Configuration::pre_transition_event_handler;

@@ -47,7 +47,7 @@ namespace
         fgfsm::row<states::single, events::self_transition, states::single>
     >;
 
-    struct fsm_configuration: fgfsm::fsm_configuration
+    struct fsm_configuration: fgfsm::default_fsm_configuration
     {
         static constexpr auto enable_in_state_internal_transitions = false;
     };

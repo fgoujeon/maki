@@ -4,13 +4,13 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
-#ifndef FGFSM_FSM_CONFIGURATION_HPP
-#define FGFSM_FSM_CONFIGURATION_HPP
+#ifndef FGFSM_DEFAULT_FSM_CONFIGURATION_HPP
+#define FGFSM_DEFAULT_FSM_CONFIGURATION_HPP
 
 namespace fgfsm
 {
 
-struct fsm_configuration
+struct default_fsm_configuration
 {
     /*
     Called whenever an event is being processed, after recursive call protection

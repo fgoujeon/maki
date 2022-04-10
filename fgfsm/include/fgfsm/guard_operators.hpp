@@ -49,13 +49,13 @@ namespace detail
             {
             }
 
-            template<class... Args>
-            bool check(const Args&... args)
+            template<class Event>
+            bool check(const Event& event)
             {
                 return Operator::test
                 (
-                    detail::call_check(lhs_, args...),
-                    detail::call_check(rhs_, args...)
+                    detail::call_check(lhs_, event),
+                    detail::call_check(rhs_, event)
                 );
             }
 
@@ -75,10 +75,10 @@ class not_
         {
         }
 
-        template<class... Args>
-        bool check(const Args&... args)
+        template<class Event>
+        bool check(const Event& event)
         {
-            return !detail::call_check(guard_, args...);
+            return !detail::call_check(guard_, event);
         }
 
     private:

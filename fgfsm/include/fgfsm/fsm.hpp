@@ -8,8 +8,8 @@
 #define FGFSM_FSM_HPP
 
 #include "fsm_configuration.hpp"
-#include "internal_transition_policy.hpp"
-#include "state_transition_policy.hpp"
+#include "internal_transition_policy_helper.hpp"
+#include "state_transition_policy_helper.hpp"
 #include "any.hpp"
 #include "none.hpp"
 #include "any_copy.hpp"

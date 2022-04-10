@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
-#ifndef FGFSM_INTERNAL_TRANSITION_POLICY_HPP
-#define FGFSM_INTERNAL_TRANSITION_POLICY_HPP
+#ifndef FGFSM_INTERNAL_TRANSITION_POLICY_HELPER_HPP
+#define FGFSM_INTERNAL_TRANSITION_POLICY_HELPER_HPP
 
 #include "any_copy.hpp"
 #include <type_traits>
@@ -39,20 +39,6 @@ class internal_transition_policy_helper
     private:
         State& state_;
         const any_cref& evt_;
-};
-
-struct default_internal_transition_policy
-{
-    template<class Context>
-    default_internal_transition_policy(const Context&)
-    {
-    }
-
-    template<class State>
-    void do_transition(internal_transition_policy_helper<State>& helper)
-    {
-        helper.invoke_state_on_event();
-    }
 };
 
 } //namespace

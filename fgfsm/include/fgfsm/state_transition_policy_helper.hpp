@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
-#ifndef FGFSM_STATE_TRANSITION_POLICY_HPP
-#define FGFSM_STATE_TRANSITION_POLICY_HPP
+#ifndef FGFSM_STATE_TRANSITION_POLICY_HELPER_HPP
+#define FGFSM_STATE_TRANSITION_POLICY_HELPER_HPP
 
 #include "any_copy.hpp"
 #include "none.hpp"
@@ -122,27 +122,6 @@ class state_transition_policy_helper
         int& active_state_index_;
         bool& processed_;
         const int target_state_index_;
-};
-
-struct default_state_transition_policy
-{
-    template<class Context>
-    default_state_transition_policy(const Context&)
-    {
-    }
-
-    template<class Helper>
-    void do_transition(Helper& helper)
-    {
-        if(helper.check_guard())
-        {
-            helper.validate_transition();
-            helper.invoke_start_state_on_exit();
-            helper.activate_target_state();
-            helper.execute_action();
-            helper.invoke_target_state_on_entry();
-        }
-    }
 };
 
 } //namespace

@@ -15,7 +15,7 @@
         { \
         } \
  \
-        void on_entry(const fgfsm::any_cref&) \
+        void on_entry() \
         { \
         } \
  \
@@ -23,7 +23,7 @@
         { \
         } \
  \
-        void on_exit(const fgfsm::any_cref&) \
+        void on_exit() \
         { \
         } \
     };

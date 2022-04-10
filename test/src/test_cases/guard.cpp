@@ -32,7 +32,7 @@ namespace
     {
         struct has_power
         {
-            bool check(const fgfsm::any_cref&)
+            bool check()
             {
                 return ctx.has_power;
             }
@@ -40,11 +40,15 @@ namespace
             context& ctx;
         };
 
-        bool is_pressing_hard_impl(context&, const events::button_press& event)
+        struct is_pressing_hard
         {
-            return event.hard;
-        }
-        using is_pressing_hard = fgfsm::guard_fn<is_pressing_hard_impl>;
+            bool check(const events::button_press& event)
+            {
+                return event.hard;
+            }
+
+            context& ctx;
+        };
     }
 
     using transition_table = fgfsm::transition_table

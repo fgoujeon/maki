@@ -9,6 +9,7 @@
 
 #include "any_copy.hpp"
 #include "none.hpp"
+#include "detail/call_member.hpp"
 #include <type_traits>
 #include <cassert>
 
@@ -18,6 +19,7 @@ namespace fgfsm
 template
 <
     class StartState,
+    class Event,
     class TargetState,
     class Action,
     class Guard
@@ -31,7 +33,7 @@ class state_transition_policy_helper
         state_transition_policy_helper
         (
             StartState& start_state,
-            const any_cref& event,
+            const Event& event,
             TargetState* const ptarget_state,
             Action* const paction,
             Guard* const pguard,
@@ -56,7 +58,7 @@ class state_transition_policy_helper
             if constexpr(!std::is_same_v<Guard, none>)
             {
                 assert(pguard_);
-                return pguard_->check(evt_);
+                return detail::call_check(*pguard_, evt_);
             }
             else
             {
@@ -71,37 +73,49 @@ class state_transition_policy_helper
 
         void invoke_start_state_on_exit()
         {
-            if constexpr(!std::is_same_v<TargetState, none>)
-                start_state_.on_exit(evt_);
+            [&](auto /*dummy*/)
+            {
+                if constexpr(!std::is_same_v<TargetState, none>)
+                    detail::call_on_exit(start_state_, evt_);
+            }(0);
         }
 
         void activate_target_state()
         {
-            if constexpr(!std::is_same_v<TargetState, none>)
-                active_state_index_ = target_state_index_;
+            [&](auto /*dummy*/)
+            {
+                if constexpr(!std::is_same_v<TargetState, none>)
+                    active_state_index_ = target_state_index_;
+            }(0);
         }
 
         void execute_action()
         {
-            if constexpr(!std::is_same_v<Action, none>)
+            [&](auto /*dummy*/)
             {
-                assert(paction_);
-                paction_->execute(evt_);
-            }
+                if constexpr(!std::is_same_v<Action, none>)
+                {
+                    assert(paction_);
+                    detail::call_execute(*paction_, evt_);
+                }
+            }(0);
         }
 
         void invoke_target_state_on_entry()
         {
-            if constexpr(!std::is_same_v<TargetState, none>)
+            [&](auto /*dummy*/)
             {
-                assert(ptarget_state_);
-                ptarget_state_->on_entry(evt_);
-            }
+                if constexpr(!std::is_same_v<TargetState, none>)
+                {
+                    assert(ptarget_state_);
+                    detail::call_on_entry(*ptarget_state_, evt_);
+                }
+            }(0);
         }
 
     private:
         StartState& start_state_;
-        const any_cref& evt_;
+        const Event& evt_;
         TargetState* const ptarget_state_ = nullptr;
         Action* const paction_ = nullptr;
         Guard* const pguard_ = nullptr;

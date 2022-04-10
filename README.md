@@ -43,13 +43,13 @@ This behavior can be expressed with the following transition table:
 ```c++
 using transition_table = fgfsm::transition_table
 <
-    //         start state,    event,      target state,   action,            guard
-    fgfsm::row<off,            push_event, emitting_white, turn_light_white>,
-    fgfsm::row<emitting_white, push_event, emitting_red,   turn_light_red,    is_short_push>,
-    fgfsm::row<emitting_red,   push_event, emitting_green, turn_light_green,  is_short_push>,
-    fgfsm::row<emitting_green, push_event, emitting_blue,  turn_light_blue,   is_short_push>,
-    fgfsm::row<emitting_blue,  push_event, emitting_white, turn_light_white,  is_short_push>,
-    fgfsm::row<fgfsm::any,     push_event, off,            turn_light_off,    is_long_push>
+    //         start state,    event,       target state,   action,            guard
+    fgfsm::row<off,            button_push, emitting_white, turn_light_white>,
+    fgfsm::row<emitting_white, button_push, emitting_red,   turn_light_red,    is_short_push>,
+    fgfsm::row<emitting_red,   button_push, emitting_green, turn_light_green,  is_short_push>,
+    fgfsm::row<emitting_green, button_push, emitting_blue,  turn_light_blue,   is_short_push>,
+    fgfsm::row<emitting_blue,  button_push, emitting_white, turn_light_white,  is_short_push>,
+    fgfsm::row<fgfsm::any,     button_push, off,            turn_light_off,    is_long_push>
 >;
 ```
 
@@ -137,43 +137,64 @@ namespace states
     struct off
     {
         /*
-        This function is called whenever the FSM enters this state.
-        The event that caused the state transition is given as argument. The
-        event is wrapped into an fgfsm::any_cref object.
+        Whenever an FSM enters a state, it calls the on_entry() function of that
+        state. It tries to do so using the following statements, in that order,
+        until it finds a valid one:
+            state.on_entry(event);
+            state.on_entry();
+        If no valid statement is found, a build error occurs.
         */
-        void on_entry(const fgfsm::any_cref& event)
+        void on_entry(const button::push_event& event)
+        {
+            std::cout << "Turned off after a ";
+            std::cout << event.duration_ms << " millisecond push\n";
+        }
+
+        /*
+        Accordingly to the explanation given in the comment just above, this
+        overload is called for all the types of event that don't have their
+        on_entry() overload.
+        Note: This is not actually needed here since button::push_event is the
+        only event type that leads to the off state.
+        */
+        void on_entry()
+        {
+        }
+
+        /*
+        This function is called whenever fgfsm::fsm::process_event() is called,
+        provided this state is active.
+        Unlike the other functions that take an event as argument, on_event()
+        receives the event wrapped into an fgfsm::any_cref object.
+        */
+        void on_event(const fgfsm::any_cref& event)
         {
             /*
             fgfsm::any_cref is a std::any-like container that stores a reference
             to a const object. FGFSM provides visitation functions to access
             fgfsm::any_cref objects in a safe and concise way.
-            fgfsm::visit() takes an fgfsm::any_cref and a series of unary
-            function objects. The function object whose parameter type matches
-            the type of the object wrapped into the fgfsm::any_cref gets called.
+            For example, fgfsm::visit() takes an fgfsm::any_cref and a series of
+            unary function objects. The function object whose parameter type
+            matches the type of the object wrapped into the fgfsm::any_cref gets
+            called.
             */
             fgfsm::visit
             (
                 event,
                 [&](const button::push_event& event)
                 {
-                    std::cout << "Turned off after a ";
-                    std::cout << event.duration_ms << " millisecond push\n";
+                    std::cout << "Received a ";
+                    std::cout << event.duration_ms;
+                    std::cout << " millisecond push in off state\n";
                 }
             );
         }
 
         /*
-        This function is called whenever fgfsm::fsm::process_event() is called,
-        provided this state is active.
+        Whenever an FSM exits a state, it calls the on_exit() function of that
+        state. It uses the same mechanism as the one used for on_entry().
         */
-        void on_event(const fgfsm::any_cref& /*event*/)
-        {
-        }
-
-        /*
-        This function is called whenever the FSM exits this state.
-        */
-        void on_exit(const fgfsm::any_cref& /*event*/)
+        void on_exit()
         {
         }
 
@@ -203,7 +224,15 @@ namespace actions
     */
     struct turn_light_off
     {
-        void execute(const fgfsm::any_cref& /*event*/)
+        /*
+        Whenever an FSM executes an action, it calls the execute() function of
+        that action. It tries to do so using the following statements, in that
+        order, until it finds a valid one:
+            action.execute(event);
+            action.execute();
+        If no valid statement is found, a build error occurs.
+        */
+        void execute()
         {
             ctx.led.set_color(rgb_led::color::off);
         }
@@ -215,7 +244,7 @@ namespace actions
     template<auto Color>
     struct turn_light_tpl
     {
-        void execute(const fgfsm::any_cref& /*event*/)
+        void execute()
         {
             ctx.led.set_color(Color);
         }
@@ -240,73 +269,57 @@ namespace guards
     */
     struct is_long_push
     {
-        bool check(const fgfsm::any_cref& event)
+        /*
+        Whenever an FSM checks a guard, it calls the check() function of that
+        guard. It tries to do so using the following statements, in that order,
+        until it finds a valid one:
+            guard.check(event);
+            guard.check();
+        If no valid statement is found, a build error occurs.
+        */
+        bool check(const button::push_event& event)
         {
-            /*
-            fgfsm::any_cref objects are usually accessed through visitation
-            functions like this one.
-            fgfsm::visit_or_false() acts like fgfsm::visit() (seen earlier in
-            the program) except that it returns the boolean returned by the
-            matching function object, or false if no match is found.
-            */
-            return fgfsm::visit_or_false
-            (
-                event,
-                [](const button::push_event& event)
-                {
-                    return event.duration_ms > 1000;
-                }
-            );
+            return event.duration_ms > 1000;
         }
 
         context& ctx;
     };
 
-    /*
-    Admittedly, the guard above is quite verbose.
-    We can write guards much more concisely by using the fgfsm::guard_fn
-    adapter, which internally calls fgfsm::visit_or_false().
-    */
-    bool is_short_push_impl(context& ctx, const button::push_event& event)
-    {
-        return event.duration_ms <= 1000;
-    }
-    using is_short_push = fgfsm::guard_fn<is_short_push_impl>;
-
-    /*
-    We could have written is_short_push like below.
-    */
-    using is_short_push_2 = fgfsm::not_<is_long_push>;
+    //We can use guard operators to combine our guards.
+    using is_short_push = fgfsm::not_<is_long_push>;
 }
 
 //Allow shorter names in transition table
 using namespace states;
 using namespace actions;
 using namespace guards;
-using push_event = button::push_event;
+using button_push = button::push_event;
 
 /*
 This is the transition table. This is where we define the actions that must be
 executed depending on the active state and the event we receive.
 Basically, whenever fgfsm::fsm::process_event() is called, FGFSM iterates over
 the rows of this table until it finds a match, i.e. when:
-- 'start state' is the currently active state (or is fgfsm::any);
+- 'start_state' is the currently active state (or is fgfsm::any);
 - 'event' is the type of the processed event;
 - and the 'guard' returns true (or is fgfsm::none).
-When a match is found, the 'action' is executed and 'target state' becomes the
-new active state.
+When a match is found, FGFSM:
+- exits 'start_state';
+- marks 'target_state' as the new active state;
+- executes the 'action';
+- enters 'target_state'.
 The initial active state of the FSM is the first state encountered in the
-transition table (off, is our case).
+transition table ('off', is our case).
 */
 using transition_table = fgfsm::transition_table
 <
-    //         start state,    event,      target state,   action,            guard
-    fgfsm::row<off,            push_event, emitting_white, turn_light_white>,
-    fgfsm::row<emitting_white, push_event, emitting_red,   turn_light_red,    is_short_push>,
-    fgfsm::row<emitting_red,   push_event, emitting_green, turn_light_green,  is_short_push>,
-    fgfsm::row<emitting_green, push_event, emitting_blue,  turn_light_blue,   is_short_push>,
-    fgfsm::row<emitting_blue,  push_event, emitting_white, turn_light_white,  is_short_push>,
-    fgfsm::row<fgfsm::any,     push_event, off,            turn_light_off,    is_long_push>
+    //         start_state,    event,       target_state,   action,            guard
+    fgfsm::row<off,            button_push, emitting_white, turn_light_white>,
+    fgfsm::row<emitting_white, button_push, emitting_red,   turn_light_red,    is_short_push>,
+    fgfsm::row<emitting_red,   button_push, emitting_green, turn_light_green,  is_short_push>,
+    fgfsm::row<emitting_green, button_push, emitting_blue,  turn_light_blue,   is_short_push>,
+    fgfsm::row<emitting_blue,  button_push, emitting_white, turn_light_white,  is_short_push>,
+    fgfsm::row<fgfsm::any,     button_push, off,            turn_light_off,    is_long_push>
 >;
 
 /*

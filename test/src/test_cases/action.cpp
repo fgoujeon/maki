@@ -30,7 +30,7 @@ namespace
         template<int Value>
         struct beep
         {
-            void execute(const fgfsm::any_cref&)
+            void execute(const events::button_press&)
             {
                 ctx.i = Value;
             }

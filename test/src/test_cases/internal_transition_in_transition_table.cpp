@@ -25,7 +25,7 @@ namespace
     {
         struct idle
         {
-            void on_entry(const fgfsm::any_cref&)
+            void on_entry()
             {
                 ctx.out += "idle::on_entry;";
             }
@@ -35,7 +35,7 @@ namespace
                 ctx.out += "idle::on_event;";
             }
 
-            void on_exit(const fgfsm::any_cref&)
+            void on_exit()
             {
                 ctx.out += "idle::on_exit;";
             }
@@ -45,7 +45,7 @@ namespace
 
         struct running
         {
-            void on_entry(const fgfsm::any_cref&)
+            void on_entry()
             {
                 ctx.out += "running::on_entry;";
             }
@@ -55,7 +55,7 @@ namespace
                 ctx.out += "running::on_event;";
             }
 
-            void on_exit(const fgfsm::any_cref&)
+            void on_exit()
             {
                 ctx.out += "running::on_exit;";
             }
@@ -68,7 +68,7 @@ namespace
     {
         struct beep
         {
-            void execute(const fgfsm::any_cref&)
+            void execute()
             {
                 ctx.out += "beep;";
             }

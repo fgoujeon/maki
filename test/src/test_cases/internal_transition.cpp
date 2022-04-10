@@ -35,7 +35,7 @@ namespace
 
         struct benchmarking
         {
-            void on_entry(const fgfsm::any_cref&)
+            void on_entry()
             {
             }
 
@@ -45,7 +45,7 @@ namespace
                     ++ctx.side_effect;
             }
 
-            void on_exit(const fgfsm::any_cref&)
+            void on_exit()
             {
             }
 

@@ -42,14 +42,14 @@ namespace
     {
         struct idle
         {
-            void on_entry(const fgfsm::any_cref&)
+            void on_entry()
             {
                 ctx.output += "idle::on_entry;";
             }
 
             void on_event(const fgfsm::any_cref&){}
 
-            void on_exit(const fgfsm::any_cref&)
+            void on_exit()
             {
                 ctx.output += "idle::on_exit;";
             }
@@ -59,14 +59,14 @@ namespace
 
         struct loading
         {
-            void on_entry(const fgfsm::any_cref&)
+            void on_entry()
             {
                 ctx.output += "loading::on_entry;";
             }
 
             void on_event(const fgfsm::any_cref&){}
 
-            void on_exit(const fgfsm::any_cref&)
+            void on_exit()
             {
                 ctx.output += "loading::on_exit;";
             }
@@ -76,7 +76,7 @@ namespace
 
         struct ready
         {
-            void on_entry(const fgfsm::any_cref&)
+            void on_entry()
             {
                 ctx.output += "ready::on_entry;";
             }
@@ -97,7 +97,7 @@ namespace
                 );
             }
 
-            void on_exit(const fgfsm::any_cref&)
+            void on_exit()
             {
                 ctx.output += "ready::on_exit;";
             }
@@ -110,7 +110,7 @@ namespace
     {
         struct skip_loading
         {
-            void execute(const fgfsm::any_cref&)
+            void execute()
             {
                 ctx.process_event(events::end_of_loading{});
             }

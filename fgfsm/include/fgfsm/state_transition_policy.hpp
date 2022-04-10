@@ -9,6 +9,7 @@
 
 #include "any_copy.hpp"
 #include "none.hpp"
+#include "detail/call_state_member.hpp"
 #include <type_traits>
 #include <cassert>
 
@@ -72,32 +73,44 @@ class state_transition_policy_helper
 
         void invoke_start_state_on_exit()
         {
-            if constexpr(!std::is_same_v<TargetState, none>)
-            start_state_.on_exit(evt_);
+            [&](auto /*dummy*/)
+            {
+                if constexpr(!std::is_same_v<TargetState, none>)
+                    detail::call_on_exit(start_state_, evt_);
+            }(0);
         }
 
         void activate_target_state()
         {
-            if constexpr(!std::is_same_v<TargetState, none>)
-                active_state_index_ = target_state_index_;
+            [&](auto /*dummy*/)
+            {
+                if constexpr(!std::is_same_v<TargetState, none>)
+                    active_state_index_ = target_state_index_;
+            }(0);
         }
 
         void execute_action()
         {
-            if constexpr(!std::is_same_v<Action, none>)
+            [&](auto /*dummy*/)
             {
-                assert(paction_);
-                paction_->execute(evt_);
-            }
+                if constexpr(!std::is_same_v<Action, none>)
+                {
+                    assert(paction_);
+                    paction_->execute(evt_);
+                }
+            }(0);
         }
 
         void invoke_target_state_on_entry()
         {
-            if constexpr(!std::is_same_v<TargetState, none>)
+            [&](auto /*dummy*/)
             {
-                assert(ptarget_state_);
-                ptarget_state_->on_entry(evt_);
-            }
+                if constexpr(!std::is_same_v<TargetState, none>)
+                {
+                    assert(ptarget_state_);
+                    detail::call_on_entry(*ptarget_state_, evt_);
+                }
+            }(0);
         }
 
     private:

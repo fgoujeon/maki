@@ -86,15 +86,28 @@ namespace states
     struct off
     {
         /*
-        This function is called whenever the FSM enters this state.
-        The event that caused the state transition is given as argument.
-        You might need to write a set of overloads of on_entry() functions
-        to handle all the possible event types that can lead to this state.
+        Whenever an FSM enters a state, it calls the on_entry() function of that
+        state. It tries to do so using the following statements, in that order,
+        until it finds a valid one:
+            state.on_entry(event);
+            state.on_entry();
+        If no valid statement is found, a build error occurs.
         */
         void on_entry(const button::push_event& event)
         {
             std::cout << "Turned off after a ";
             std::cout << event.duration_ms << " millisecond push\n";
+        }
+
+        /*
+        Accordingly to the explanation given in the comment just above, this
+        overload is called for all the types of event that don't have their
+        on_entry() overload.
+        Note: This is not actually needed here since button::push_event is the
+        only event type that leads to the off state.
+        */
+        void on_entry()
+        {
         }
 
         /*
@@ -127,11 +140,10 @@ namespace states
         }
 
         /*
-        This function is called whenever the FSM exits this state.
-        Just like with on_entry(), the event that caused the state transition is
-        given as argument.
+        Whenever an FSM exits a state, it calls the on_exit() function of that
+        state. It uses the same mechanism as the one used for on_entry().
         */
-        void on_exit(const button::push_event& /*event*/)
+        void on_exit()
         {
         }
 

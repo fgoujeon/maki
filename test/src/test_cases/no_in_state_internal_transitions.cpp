@@ -25,7 +25,7 @@ namespace
     {
         struct single
         {
-            void on_entry(const events::self_transition&)
+            void on_entry()
             {
             }
 
@@ -34,7 +34,7 @@ namespace
                 ++ctx.i;
             }
 
-            void on_exit(const events::self_transition&)
+            void on_exit()
             {
             }
 

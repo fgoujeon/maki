@@ -29,7 +29,7 @@ namespace
 
         struct english
         {
-            void on_entry(const fgfsm::any_cref&)
+            void on_entry()
             {
                 ctx.hello = "hello";
             }
@@ -40,7 +40,7 @@ namespace
                     ctx.dog = "dog";
             }
 
-            void on_exit(const fgfsm::any_cref&)
+            void on_exit()
             {
                 ctx.goodbye = "goodbye";
             }
@@ -50,7 +50,7 @@ namespace
 
         struct french
         {
-            void on_entry(const fgfsm::any_cref&)
+            void on_entry()
             {
                 ctx.hello = "bonjour";
             }
@@ -61,7 +61,7 @@ namespace
                     ctx.dog = "chien";
             }
 
-            void on_exit(const fgfsm::any_cref&)
+            void on_exit()
             {
                 ctx.goodbye = "au revoir";
             }

@@ -4,20 +4,13 @@
 //https://www.boost.org/LICENSE_1_without_event.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
-#ifndef FGFSM_DETAIL_CALL_STATE_MEMBER_HPP
-#define FGFSM_DETAIL_CALL_STATE_MEMBER_HPP
+#ifndef FGFSM_DETAIL_CALL_MEMBER_HPP
+#define FGFSM_DETAIL_CALL_MEMBER_HPP
 
 #include <utility>
 
 namespace fgfsm::detail
 {
-
-/*
-call_on_xxx(state, event) calls either (in this order of priority):
-- state.on_xxx(event);
-- state.on_xxx() if the above function doesn't exist;
-- nothing, if the above functions don't exist.
-*/
 
 #define FGFSM_DETAIL_HAS_MEMBER_FUNCTION(MEMBER_NAME) \
     template<class T, class... Args> \
@@ -40,6 +33,8 @@ call_on_xxx(state, event) calls either (in this order of priority):
 
 FGFSM_DETAIL_HAS_MEMBER_FUNCTION(on_entry)
 FGFSM_DETAIL_HAS_MEMBER_FUNCTION(on_exit)
+FGFSM_DETAIL_HAS_MEMBER_FUNCTION(execute)
+FGFSM_DETAIL_HAS_MEMBER_FUNCTION(check)
 
 #undef FGFSM_DETAIL_CALL_STATE_MEMBER
 
@@ -63,6 +58,28 @@ void call_on_exit(State& state, const Event& event)
         state.on_exit();
     else
         int* error = "No on_exit(event) or on_exit() found in state type";
+}
+
+template<class Action, class Event>
+void call_execute(Action& action, const Event& event)
+{
+    if constexpr(has_execute<Action&, const Event&>())
+        action.execute(event);
+    else if constexpr(has_execute<Action&>())
+        action.execute();
+    else
+        int* error = "No execute(event) or execute() found in action type";
+}
+
+template<class Guard, class Event>
+bool call_check(Guard& guard, const Event& event)
+{
+    if constexpr(has_check<Guard&, const Event&>())
+        return guard.check(event);
+    else if constexpr(has_check<Guard&>())
+        return guard.check();
+    else
+        int* error = "No check(event) or check() found in guard type";
 }
 
 } //namespace

@@ -9,7 +9,7 @@
 
 #include "any_copy.hpp"
 #include "none.hpp"
-#include "detail/call_state_member.hpp"
+#include "detail/call_member.hpp"
 #include <type_traits>
 #include <cassert>
 
@@ -58,7 +58,7 @@ class state_transition_policy_helper
             if constexpr(!std::is_same_v<Guard, none>)
             {
                 assert(pguard_);
-                return pguard_->check(evt_);
+                return detail::call_check(*pguard_, evt_);
             }
             else
             {
@@ -96,7 +96,7 @@ class state_transition_policy_helper
                 if constexpr(!std::is_same_v<Action, none>)
                 {
                     assert(paction_);
-                    paction_->execute(evt_);
+                    detail::call_execute(*paction_, evt_);
                 }
             }(0);
         }

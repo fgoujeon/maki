@@ -173,7 +173,15 @@ namespace actions
     */
     struct turn_light_off
     {
-        void execute(const button::push_event& /*event*/)
+        /*
+        Whenever an FSM executes an action, it calls the execute() function of
+        that action. It tries to do so using the following statements, in that
+        order, until it finds a valid one:
+            action.execute(event);
+            action.execute();
+        If no valid statement is found, a build error occurs.
+        */
+        void execute()
         {
             ctx.led.set_color(rgb_led::color::off);
         }
@@ -185,7 +193,7 @@ namespace actions
     template<auto Color>
     struct turn_light_tpl
     {
-        void execute(const button::push_event& /*event*/)
+        void execute()
         {
             ctx.led.set_color(Color);
         }
@@ -210,6 +218,14 @@ namespace guards
     */
     struct is_long_push
     {
+        /*
+        Whenever an FSM checks a guard, it calls the check() function of that
+        guard. It tries to do so using the following statements, in that order,
+        until it finds a valid one:
+            guard.check(event);
+            guard.check();
+        If no valid statement is found, a build error occurs.
+        */
         bool check(const button::push_event& event)
         {
             return event.duration_ms > 1000;

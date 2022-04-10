@@ -7,6 +7,8 @@
 #ifndef FGFSM_GUARD_OPERATORS_HPP
 #define FGFSM_GUARD_OPERATORS_HPP
 
+#include "detail/call_member.hpp"
+
 namespace fgfsm
 {
 
@@ -52,8 +54,8 @@ namespace detail
             {
                 return Operator::test
                 (
-                    lhs_.check(args...),
-                    rhs_.check(args...)
+                    detail::call_check(lhs_, args...),
+                    detail::call_check(rhs_, args...)
                 );
             }
 
@@ -76,7 +78,7 @@ class not_
         template<class... Args>
         bool check(const Args&... args)
         {
-            return !guard_.check(args...);
+            return !detail::call_check(guard_, args...);
         }
 
     private:

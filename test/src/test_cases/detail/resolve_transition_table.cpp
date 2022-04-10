@@ -22,37 +22,37 @@ namespace
 
     struct action0
     {
-        void execute(const fgfsm::any_cref&){}
+        void execute(){}
         context& ctx;
     };
 
     struct action1
     {
-        void execute(const fgfsm::any_cref&){}
+        void execute(){}
         context& ctx;
     };
 
     struct action2
     {
-        void execute(const fgfsm::any_cref&){}
+        void execute(){}
         context& ctx;
     };
 
     struct guard0
     {
-        bool check(const fgfsm::any_cref&){return true;}
+        bool check(){return true;}
         context& ctx;
     };
 
     struct guard1
     {
-        bool check(const fgfsm::any_cref&){return true;}
+        bool check(){return true;}
         context& ctx;
     };
 
     struct guard2
     {
-        bool check(const fgfsm::any_cref&){return true;}
+        bool check(){return true;}
         context& ctx;
     };
 }

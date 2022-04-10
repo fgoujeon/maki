@@ -32,7 +32,7 @@ namespace
     {
         struct has_power
         {
-            bool check(const fgfsm::any_cref&)
+            bool check()
             {
                 return ctx.has_power;
             }

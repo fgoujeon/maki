@@ -44,7 +44,7 @@ namespace
 #define GUARD(NAME) \
     struct NAME \
     { \
-        bool check(const fgfsm::any_cref&) const \
+        bool check() const \
         { \
             return ctx.NAME; \
         } \

@@ -22,7 +22,7 @@ An adapter that wraps a pointer to a function of the following form:
 into a struct of the following form:
     struct s
     {
-        void execute(const fgfsm::any_cref& event)
+        void execute(const event_type& event)
         {
             //...
         }

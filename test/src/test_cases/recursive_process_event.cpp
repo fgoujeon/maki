@@ -110,7 +110,7 @@ namespace
     {
         struct skip_loading
         {
-            void execute(const fgfsm::any_cref&)
+            void execute()
             {
                 ctx.process_event(events::end_of_loading{});
             }

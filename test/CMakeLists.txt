@@ -6,16 +6,15 @@
 
 cmake_minimum_required(VERSION 3.10)
 
+include(fgfsm)
+
 set(TARGET test)
 
 file(GLOB_RECURSE SOURCE_FILES *)
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${SOURCE_FILES})
 add_executable(${TARGET} ${SOURCE_FILES})
 
-set_target_properties(
-    ${TARGET} PROPERTIES
-    CXX_STANDARD 17
-)
+fgfsm_target_common_options(${TARGET})
 
 if(FGFSM_ENABLE_BENCHMARKING)
     target_compile_definitions(
@@ -31,20 +30,6 @@ target_link_libraries(
         fgfsm
         Catch2::Catch2
 )
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(
-        ${TARGET}
-        PRIVATE
-            -Wall -Werror -pedantic
-    )
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    target_compile_options(
-        ${TARGET}
-        PRIVATE
-            /W4 /WX /permissive-
-    )
-endif()
 
 add_test(
     NAME ${TARGET}

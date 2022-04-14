@@ -239,7 +239,7 @@ namespace detail
     template<class DefaultVisitor>
     auto visit_with_default
     (
-        const any_cref& obj,
+        const any_cref&,
         DefaultVisitor&& default_visitor
     )
     {

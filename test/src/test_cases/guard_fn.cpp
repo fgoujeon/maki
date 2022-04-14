@@ -29,7 +29,7 @@ namespace
         context& ctx;
     };
 
-    bool is_positive_int_2_impl(context& ctx, const some_event& event)
+    bool is_positive_int_2_impl(context&, const some_event& event)
     {
         return event.value > 0;
     }

@@ -1,0 +1,26 @@
+version: 1.0.{build}
+
+image:
+  - Visual Studio 2017
+  - Visual Studio 2019
+
+platform:
+  - Win32
+  - x64
+
+configuration:
+  - Release
+  - Debug
+
+install:
+  - vcpkg install catch2:x64-windows
+  - vcpkg install catch2:x86-windows
+
+before_build:
+  - cmake -DFGFSM_BUILD_TEST=1 -DFGFSM_BUILD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake .
+
+build:
+  project: $(APPVEYOR_BUILD_FOLDER)\$(APPVEYOR_PROJECT_NAME).sln
+
+test_script:
+  - '%APPVEYOR_BUILD_FOLDER%\%CONFIGURATION%\fgfsm_test.exe'

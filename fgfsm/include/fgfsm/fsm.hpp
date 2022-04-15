@@ -223,31 +223,31 @@ class fsm
                     detail::get<transition_start_state>(self.states_)
                 ;
 
-                const auto ptarget_state = [&]() -> transition_target_state*
+                const auto ptarget_state = [&](auto) -> transition_target_state*
                 {
                     if constexpr(std::is_same_v<transition_target_state, none>)
                         return nullptr;
                     else
                         return &detail::get<transition_target_state>(self.states_);
-                }();
+                }(0);
 
-                const auto pguard = [&]() -> transition_guard*
+                const auto pguard = [&](auto) -> transition_guard*
                 {
                     if constexpr(std::is_same_v<transition_guard, none>)
                         return nullptr;
                     else
                         return &detail::get<transition_guard>(self.guards_);
-                }();
+                }(0);
 
-                const auto paction = [&]() -> transition_action*
+                const auto paction = [&](auto) -> transition_action*
                 {
                     if constexpr(std::is_same_v<transition_action, none>)
                         return nullptr;
                     else
                         return &detail::get<transition_action>(self.actions_);
-                }();
+                }(0);
 
-                const auto target_state_index = [&]
+                const auto target_state_index = [&](auto)
                 {
                     if constexpr(std::is_same_v<transition_target_state, none>)
                         return -1; //whatever, ignored in none case
@@ -257,7 +257,7 @@ class fsm
                             state_tuple,
                             transition_target_state
                         >;
-                }();
+                }(0);
 
                 auto helper = state_transition_policy_helper
                 <

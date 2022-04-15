@@ -23,5 +23,6 @@ if(FGFSM_BUILD_EXAMPLES)
 endif()
 
 if(FGFSM_BUILD_TEST)
+    enable_testing()
     add_subdirectory(test)
 endif()

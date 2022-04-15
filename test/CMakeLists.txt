@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.10)
 
 include(fgfsm)
 
-set(TARGET test)
+set(TARGET fgfsm_test)
 
 file(GLOB_RECURSE SOURCE_FILES *)
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${SOURCE_FILES})

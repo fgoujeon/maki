@@ -9,10 +9,10 @@
 
 #include "tlu.hpp"
 #include "type_list.hpp"
+#include "tuple.hpp"
 #include "../any.hpp"
 #include "../none.hpp"
 #include "../transition_table.hpp"
-#include <tuple>
 
 namespace fgfsm::detail
 {
@@ -34,9 +34,9 @@ For example, the following digest type...:
 ... is equivalent to this type:
     struct digest
     {
-        using state_tuple = std::tuple<state0, state1, state2, state3>;
-        using action_tuple = std::tuple<action0, action1>;
-        using guard_tuple = std::tuple<guard0, guard1>;
+        using state_tuple = fgfsm::detail::tuple<state0, state1, state2, state3>;
+        using action_tuple = fgfsm::detail::tuple<action0, action1>;
+        using guard_tuple = fgfsm::detail::tuple<guard0, guard1>;
         static constexpr auto has_any_start_states = false;
         static constexpr auto has_none_events = false;
     };
@@ -45,16 +45,16 @@ For example, the following digest type...:
 namespace transition_table_digest_detail
 {
     template<class TList>
-    struct to_std_tuple_helper;
+    struct to_tuple_helper;
 
     template<template<class...> class TList, class... Ts>
-    struct to_std_tuple_helper<TList<Ts...>>
+    struct to_tuple_helper<TList<Ts...>>
     {
-        using type = std::tuple<Ts...>;
+        using type = fgfsm::detail::tuple<Ts...>;
     };
 
     template<class TList>
-    using to_std_tuple = typename to_std_tuple_helper<TList>::type;
+    using to_tuple = typename to_tuple_helper<TList>::type;
 
     template<class TList, class U>
     using push_back_unique_if_not_any_or_none = tlu::push_back_if
@@ -110,8 +110,8 @@ namespace transition_table_digest_detail
     };
 
     /*
-    First step with type_list instead of std::tuple, so that we don't
-    instantiate intermediate std::tuple
+    First step with type_list instead of fgfsm::detail::tuple, so that we don't
+    instantiate intermediate fgfsm::detail::tuple
     */
     template<class TransitionTable>
     using digest_with_type_lists = tlu::left_fold
@@ -132,17 +132,17 @@ class transition_table_digest
         >;
 
     public:
-        using state_tuple = transition_table_digest_detail::to_std_tuple
+        using state_tuple = transition_table_digest_detail::to_tuple
         <
             typename digest_t::state_tuple
         >;
 
-        using action_tuple = transition_table_digest_detail::to_std_tuple
+        using action_tuple = transition_table_digest_detail::to_tuple
         <
             typename digest_t::action_tuple
         >;
 
-        using guard_tuple = transition_table_digest_detail::to_std_tuple
+        using guard_tuple = transition_table_digest_detail::to_tuple
         <
             typename digest_t::guard_tuple
         >;

@@ -7,7 +7,9 @@
 #ifndef FGFSM_DETAIL_FOR_EACH_HPP
 #define FGFSM_DETAIL_FOR_EACH_HPP
 
-#include <tuple>
+#include "tuple.hpp"
+#include <type_traits>
+#include <utility>
 
 namespace fgfsm::detail
 {
@@ -18,16 +20,16 @@ for_each calls f(element) for each element of the given tuple.
 
 namespace for_each_detail
 {
-    template<class Tuple_>
+    template<class Tuple>
     struct helper;
 
-    template<class... Ts>
-    struct helper<std::tuple<Ts...>>
+    template<template<class...> class Tuple, class... Ts>
+    struct helper<Tuple<Ts...>>
     {
         template<class F, class Tuple_>
         static void call(F&& f, Tuple_&& t)
         {
-            (f(std::get<Ts>(t)), ...);
+            (f(get<Ts>(t)), ...);
         }
     };
 }

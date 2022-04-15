@@ -14,7 +14,7 @@
 #include "none.hpp"
 #include "any_copy.hpp"
 #include "detail/for_each.hpp"
-#include "detail/make_tuple.hpp"
+#include "detail/tuple.hpp"
 #include "detail/resolve_transition_table.hpp"
 #include "detail/transition_table_digest.hpp"
 #include "detail/alternative_lazy.hpp"
@@ -75,9 +75,9 @@ class fsm
     public:
         template<class Context>
         fsm(Context& context):
-            states_(detail::make_tuple<state_tuple>(context)),
-            actions_(detail::make_tuple<action_tuple>(context)),
-            guards_(detail::make_tuple<guard_tuple>(context)),
+            states_(context),
+            actions_(context),
+            guards_(context),
             pre_transition_event_handler_{context},
             internal_transition_policy_{context},
             state_transition_policy_{context}
@@ -220,7 +220,7 @@ class fsm
                     return;
 
                 auto& start_state =
-                    std::get<transition_start_state>(self.states_)
+                    detail::get<transition_start_state>(self.states_)
                 ;
 
                 const auto ptarget_state = [&]() -> transition_target_state*
@@ -228,7 +228,7 @@ class fsm
                     if constexpr(std::is_same_v<transition_target_state, none>)
                         return nullptr;
                     else
-                        return &std::get<transition_target_state>(self.states_);
+                        return &detail::get<transition_target_state>(self.states_);
                 }();
 
                 const auto pguard = [&]() -> transition_guard*
@@ -236,7 +236,7 @@ class fsm
                     if constexpr(std::is_same_v<transition_guard, none>)
                         return nullptr;
                     else
-                        return &std::get<transition_guard>(self.guards_);
+                        return &detail::get<transition_guard>(self.guards_);
                 }();
 
                 const auto paction = [&]() -> transition_action*
@@ -244,7 +244,7 @@ class fsm
                     if constexpr(std::is_same_v<transition_action, none>)
                         return nullptr;
                     else
-                        return &std::get<transition_action>(self.actions_);
+                        return &detail::get<transition_action>(self.actions_);
                 }();
 
                 const auto target_state_index = [&]

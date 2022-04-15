@@ -10,7 +10,7 @@ project(fgfsm)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
-find_package(Catch2 2.13 REQUIRED)
+find_package(Catch2 2.10 REQUIRED)
 
 option(FGFSM_BUILD_EXAMPLES "Build example executables" OFF)
 option(FGFSM_BUILD_TEST "Build test executable" OFF)

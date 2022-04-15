@@ -45,36 +45,16 @@ class tuple<T, Ts...>: public tuple<Ts...>
         T obj_;
 };
 
-template<class T>
-class tuple<T>
-{
-    public:
-        template<class Arg>
-        tuple(Arg& arg):
-            obj_{arg}
-        {
-        }
-
-        T& get(T*)
-        {
-            return obj_;
-        }
-
-        const T& get(T*) const
-        {
-            return obj_;
-        }
-
-    private:
-        T obj_;
-};
-
 template<>
 class tuple<>
 {
     public:
         template<class Arg>
         tuple(Arg&)
+        {
+        }
+
+        void get() const
         {
         }
 };

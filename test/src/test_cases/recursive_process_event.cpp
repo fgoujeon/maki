@@ -9,7 +9,7 @@
 
 namespace
 {
-    class fsm;
+    struct fsm;
 
     struct context
     {

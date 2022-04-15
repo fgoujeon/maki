@@ -1,3 +1,7 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/c82pwtf6q4bjeima/branch/master?svg=true)](https://ci.appveyor.com/project/fgoujeon/fgfsm/branch/master)
+
+---
+
 # FGFSM
 FGFSM is a C++17 Finite State Machine library.
 

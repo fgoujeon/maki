@@ -32,7 +32,7 @@ Besides its features, FGFSM:
 Now, here are some reasons why you might *not* want to use FGFSM:
 
 * Runtime performance is not the main concern of the library. Don't get it wrong, runtime performance *is* a concern, but it must be known that some compromises have been made in favor of a better usability and much shorter build times.
-* FGFSM doesn't (yet) implement some of the advanced features you can find in other FSM libraries, such as submachines, orthogonal regions, forks, pseudostates, history or event deferral.
+* FGFSM doesn't implement some of the advanced features you can find in other FSM libraries, such as submachines, orthogonal regions, forks, pseudostates, history or event deferral.
 
 ## Example
 The following example is firmware for an RGB lamp. This lamp has a single button and an LED that can emit white, red, green or blue.

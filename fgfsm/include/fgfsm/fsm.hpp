@@ -17,6 +17,7 @@
 #include "detail/make_tuple.hpp"
 #include "detail/resolve_transition_table.hpp"
 #include "detail/transition_table_digest.hpp"
+#include "detail/alternative_lazy.hpp"
 #include "detail/ignore_unused.hpp"
 #include <queue>
 #include <type_traits>
@@ -46,30 +47,29 @@ class fsm
         using guard_tuple  = typename transition_table_digest::guard_tuple;
 
         /*
-        Calling detail::resolve_transition_table<> isn't free. We need this
-        trick to avoid the call when it's unnecessary (i.e. when there's no
-        any-start-state in the transition table).
+        Calling detail::resolve_transition_table<> isn't free. We need
+        alternative_lazy to avoid the call when it's unnecessary (i.e. when
+        there's no any-start-state in the transition table).
         */
-        static constexpr auto make_transition_table_ptr()
+        struct unresolved_transition_table_holder
         {
-            if constexpr(transition_table_digest::has_any_start_states)
-            {
-                using ptr_t = detail::resolve_transition_table
-                <
-                    TransitionTable,
-                    state_tuple
-                >*;
-                return ptr_t{};
-            }
-            else
-            {
-                using ptr_t = TransitionTable*;
-                return ptr_t{};
-            }
-        }
-        using transition_table = std::remove_pointer_t
+            template<class = void>
+            using type = TransitionTable;
+        };
+        struct resolved_transition_table_holder
+        {
+            template<class = void>
+            using type = detail::resolve_transition_table
+            <
+                TransitionTable,
+                state_tuple
+            >;
+        };
+        using transition_table = detail::alternative_lazy
         <
-            decltype(make_transition_table_ptr())
+            transition_table_digest::has_any_start_states,
+            resolved_transition_table_holder,
+            unresolved_transition_table_holder
         >;
 
     public:

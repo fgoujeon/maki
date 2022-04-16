@@ -13,6 +13,7 @@
 #include "../any.hpp"
 #include "../none.hpp"
 #include "../transition_table.hpp"
+#include <type_traits>
 
 namespace fgfsm::detail
 {

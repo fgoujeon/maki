@@ -14,10 +14,10 @@ namespace fgfsm::detail::tlu
 push_back adds a type to the back of a typelist.
 
 In this example...:
-    using typelist = std::tuple<char, short, int>;
+    using typelist = tuple<char, short, int>;
     using typelist2 = push_back<typelist, long>;
 
-... typelist2 is an alias of std::tuple<char, short, int, long>.
+... typelist2 is an alias of tuple<char, short, int, long>.
 */
 
 namespace push_back_detail

@@ -14,7 +14,7 @@ namespace fgfsm::detail::tlu
 get_index returns the index of the given type in the given type list
 
 In this example, index == 2:
-    using tuple = std::tuple<char, short, int, long>;
+    using tuple = tuple<char, short, int, long>;
     constexpr auto index = get_index<tuple, int>;
 */
 namespace get_index_detail

@@ -7,8 +7,6 @@
 #ifndef FGFSM_DETAIL_TLU_FOR_EACH_HPP
 #define FGFSM_DETAIL_TLU_FOR_EACH_HPP
 
-#include <utility>
-
 namespace fgfsm::detail::tlu
 {
 
@@ -17,7 +15,7 @@ for_each is a fonction that takes a generic functor. It calls this functor for
 each type in the given type list.
 
 For example, this call...:
-    for_each<std::tuple<type0, type1, type2>>(f);
+    for_each<tuple<type0, type1, type2>>(f);
 
 ... is equivalent to these calls:
     f<type0>();

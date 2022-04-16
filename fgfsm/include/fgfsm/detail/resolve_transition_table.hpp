@@ -33,7 +33,7 @@ For example, the following resolved_transition_table_t type...:
         fgfsm::detail::resolve_transition_table
         <
             transition_table,
-            std::tuple<state0, state1, state2, state3>
+            tuple<state0, state1, state2, state3>
         >
     ;
 

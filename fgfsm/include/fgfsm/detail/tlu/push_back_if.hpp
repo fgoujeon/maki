@@ -17,12 +17,12 @@ push_back_if adds a type to the back of a typelist provided the given condition
 is true.
 
 In this example...:
-    using typelist = std::tuple<char, short, int>;
+    using typelist = tuple<char, short, int>;
     using typelist2 = push_back_unique<typelist, long, contains<typelist, long>>;
     using typelist3 = push_back_unique<typelist, short, contains<typelist, short>>;
 
-... typelist2 is an alias of std::tuple<char, short, int, long> and
-typelist3 is an alias of std::tuple<char, short, int>.
+... typelist2 is an alias of tuple<char, short, int, long> and
+typelist3 is an alias of tuple<char, short, int>.
 */
 
 namespace push_back_if_detail

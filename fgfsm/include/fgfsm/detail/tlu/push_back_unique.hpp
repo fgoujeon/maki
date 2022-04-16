@@ -18,12 +18,12 @@ push_back_unique adds a type to the back of a typelist provided it's not already
 in the typelist.
 
 In this example...:
-    using typelist = std::tuple<char, short, int>;
+    using typelist = tuple<char, short, int>;
     using typelist2 = push_back_unique<typelist, long>;
     using typelist3 = push_back_unique<typelist, short>;
 
-... typelist2 is an alias of std::tuple<char, short, int, long> and
-typelist3 is an alias of std::tuple<char, short, int>.
+... typelist2 is an alias of tuple<char, short, int, long> and
+typelist3 is an alias of tuple<char, short, int>.
 */
 
 template<class TList, class U>

@@ -209,8 +209,19 @@ class fsm
         template<class TransitionTable2>
         struct transition_table_event_processor;
 
-        template<class Row, class... Rows>
-        struct transition_table_event_processor<transition_table<Row, Rows...>>
+        template<class... Rows>
+        struct transition_table_event_processor<transition_table<Rows...>>
+        {
+            template<class Event>
+            static bool process(fsm& sm, const Event& event)
+            {
+                return (sm.process_event_against_one_row<Rows>(event) || ...);
+            }
+        };
+
+        //Process event against one row of the (resolved) transition table
+        template<class Row, class Event>
+        bool process_event_against_one_row(const Event& event)
         {
             using transition_start_state  = typename Row::start_state;
             using transition_event        = typename Row::event;
@@ -218,53 +229,34 @@ class fsm
             using transition_action       = typename Row::action;
             using transition_guard        = typename Row::guard;
 
-            template<class Event>
-            static bool process(fsm& sm, const Event& event)
+            //Make sure the event type is the one described the transition
+            if constexpr(std::is_same_v<Event, transition_event>)
             {
-                //Make sure the event type is the one described the transition
-                if constexpr(std::is_same_v<Event, transition_event>)
-                {
-                    //Make sure the transition start state is the active state
-                    if(sm.is_active_state<transition_start_state>())
-                    {
-                        //Perform the transition
-                        using helper_t = state_transition_policy_helper
-                        <
-                            fsm,
-                            transition_start_state,
-                            transition_event,
-                            transition_target_state,
-                            transition_action,
-                            transition_guard
-                        >;
-                        const auto processed =
-                            sm.state_transition_policy_.do_transition
-                            (
-                                helper_t{sm, event}
-                            )
-                        ;
-
-                        if(processed)
-                            return true;
-                    }
-                }
-
-                //Next row
-                if constexpr(sizeof...(Rows) > 0)
-                {
-                    using next_row_helper_t = transition_table_event_processor
-                    <
-                        transition_table<Rows...>
-                    >;
-                    return next_row_helper_t::process(sm, event);
-                }
-                else
-                {
-                    detail::ignore_unused(event);
+                //Make sure the transition start state is the active state
+                if(!is_active_state<transition_start_state>())
                     return false;
-                }
+
+                //Perform the transition
+                using helper_t = state_transition_policy_helper
+                <
+                    fsm,
+                    transition_start_state,
+                    transition_event,
+                    transition_target_state,
+                    transition_action,
+                    transition_guard
+                >;
+                return state_transition_policy_.do_transition
+                (
+                    helper_t{*this, event}
+                );
             }
-        };
+            else
+            {
+                detail::ignore_unused(event);
+                return false;
+            }
+        }
 
         /*
         Call active_state.on_event(event)

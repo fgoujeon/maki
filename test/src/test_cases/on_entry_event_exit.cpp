@@ -34,11 +34,6 @@ namespace
                 ctx.hello = "hello";
             }
 
-            template<class Event>
-            void on_event(const Event&)
-            {
-            }
-
             void on_event(const events::say_dog&)
             {
                 ctx.dog = "dog";
@@ -57,11 +52,6 @@ namespace
             void on_entry()
             {
                 ctx.hello = "bonjour";
-            }
-
-            template<class Event>
-            void on_event(const Event&)
-            {
             }
 
             void on_event(const events::say_dog&)

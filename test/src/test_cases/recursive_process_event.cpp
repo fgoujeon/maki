@@ -48,9 +48,6 @@ namespace
                 ctx.output += "idle::on_entry;";
             }
 
-            template<class Event>
-            void on_event(const Event&){}
-
             void on_exit()
             {
                 ctx.output += "idle::on_exit;";
@@ -66,9 +63,6 @@ namespace
                 ctx.output += "loading::on_entry;";
             }
 
-            template<class Event>
-            void on_event(const Event&){}
-
             void on_exit()
             {
                 ctx.output += "loading::on_exit;";
@@ -83,9 +77,6 @@ namespace
             {
                 ctx.output += "ready::on_entry;";
             }
-
-            template<class Event>
-            void on_event(const Event&){}
 
             void on_event(const events::self_call_request& event)
             {

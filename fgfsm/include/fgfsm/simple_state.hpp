@@ -19,11 +19,6 @@
         { \
         } \
  \
-        template<class Event> \
-        void on_event(const Event&) \
-        { \
-        } \
- \
         void on_exit() \
         { \
         } \

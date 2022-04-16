@@ -39,11 +39,6 @@ namespace
             {
             }
 
-            template<class Event>
-            void on_event(const Event&)
-            {
-            }
-
             void on_event(const events::internal_transition&)
             {
                 ++ctx.side_effect;

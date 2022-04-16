@@ -7,6 +7,8 @@
 #ifndef FGFSM_INTERNAL_TRANSITION_POLICY_HELPER_HPP
 #define FGFSM_INTERNAL_TRANSITION_POLICY_HELPER_HPP
 
+#include "detail/call_member.hpp"
+
 namespace fgfsm
 {
 
@@ -19,19 +21,19 @@ class internal_transition_policy_helper
 
         internal_transition_policy_helper(State& state, const Event& event):
             state_(state),
-            evt_(event)
+            event_(event)
         {
         }
 
     public:
         void invoke_state_on_event()
         {
-            state_.on_event(evt_);
+            detail::call_on_event(state_, event_);
         }
 
     private:
         State& state_;
-        const Event& evt_;
+        const Event& event_;
 };
 
 } //namespace

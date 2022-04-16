@@ -113,30 +113,12 @@ namespace states
         /*
         This function is called whenever fgfsm::fsm::process_event() is called,
         provided this state is active.
-        Unlike the other functions that take an event as argument, on_event()
-        receives the event wrapped into an fgfsm::any_cref object.
         */
-        void on_event(const fgfsm::any_cref& event)
+        void on_event(const button::push_event& event)
         {
-            /*
-            fgfsm::any_cref is a std::any-like container that stores a reference
-            to a const object. FGFSM provides visitation functions to access
-            fgfsm::any_cref objects in a safe and concise way.
-            For example, fgfsm::visit() takes an fgfsm::any_cref and a series of
-            unary function objects. The function object whose parameter type
-            matches the type of the object wrapped into the fgfsm::any_cref gets
-            called.
-            */
-            fgfsm::visit
-            (
-                event,
-                [&](const button::push_event& event)
-                {
-                    std::cout << "Received a ";
-                    std::cout << event.duration_ms;
-                    std::cout << " millisecond push in off state\n";
-                }
-            );
+            std::cout << "Received a ";
+            std::cout << event.duration_ms;
+            std::cout << " millisecond push in off state\n";
         }
 
         /*

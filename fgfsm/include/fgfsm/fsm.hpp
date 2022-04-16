@@ -12,7 +12,6 @@
 #include "state_transition_policy_helper.hpp"
 #include "any.hpp"
 #include "none.hpp"
-#include "any_copy.hpp"
 #include "detail/for_each.hpp"
 #include "detail/tuple.hpp"
 #include "detail/resolve_transition_table.hpp"
@@ -20,6 +19,7 @@
 #include "detail/alternative_lazy.hpp"
 #include "detail/ignore_unused.hpp"
 #include <queue>
+#include <functional>
 #include <type_traits>
 
 namespace fgfsm
@@ -96,14 +96,21 @@ class fsm
             return given_state_index == active_state_index_;
         }
 
-        void process_event(const any_cref& event)
+        template<class Event>
+        void process_event(const Event& event)
         {
             if constexpr(Configuration::enable_run_to_completion)
             {
-                //Defer event processing in case of recursive call
+                //Queue event processing in case of recursive call
                 if(processing_event_)
                 {
-                    deferred_events_.push(any_copy{event});
+                    queued_event_processings_.push
+                    (
+                        [this, event]
+                        {
+                            process_event_once(event);
+                        }
+                    );
                     return;
                 }
 
@@ -127,10 +134,10 @@ class fsm
                 process_event_once(event);
 
                 //Process deferred event processings
-                while(!deferred_events_.empty())
+                while(!queued_event_processings_.empty())
                 {
-                    process_event_once(deferred_events_.front());
-                    deferred_events_.pop();
+                    queued_event_processings_.front()();
+                    queued_event_processings_.pop();
                 }
             }
             else
@@ -155,7 +162,8 @@ class fsm
             );
         }
 
-        void process_event_once(const any_cref& event)
+        template<class Event>
+        void process_event_once(const Event& event)
         {
             pre_transition_event_handler_.on_event(event);
             if constexpr(Configuration::enable_in_state_internal_transitions)
@@ -167,7 +175,8 @@ class fsm
         Try and trigger a transition and potential subsequent anonymous
         transitions, if any.
         */
-        void process_event_in_transition_table(const any_cref& event)
+        template<class Event>
+        void process_event_in_transition_table(const Event& event)
         {
             const bool processed = process_event_in_transition_table_once(event);
             detail::ignore_unused(processed);
@@ -179,11 +188,12 @@ class fsm
         }
 
         //Try and trigger one transition
-        bool process_event_in_transition_table_once(const any_cref& event)
+        template<class Event>
+        bool process_event_in_transition_table_once(const Event& event)
         {
             bool processed = false;
 
-            const auto helper = process_event_in_transition_table_once_helper
+            const auto helper = process_event_in_transition_table_once_helper<Event>
             {
                 *this,
                 event,
@@ -196,6 +206,7 @@ class fsm
             return processed;
         }
 
+        template<class Event>
         struct process_event_in_transition_table_once_helper
         {
             template<class Transition>
@@ -207,90 +218,91 @@ class fsm
                 using transition_action       = typename Transition::action;
                 using transition_guard        = typename Transition::guard;
 
-                //Make sure we don't trigger more than one transition
-                if(processed)
-                    return;
-
-                //Make sure the transition start state is the active state
-                if(!self.is_active_state<transition_start_state>())
-                    return;
-
                 //Make sure the event type is the one described the transition
-                if(!event.is<transition_event>())
-                    return;
-
-                auto& start_state =
-                    detail::get<transition_start_state>(self.states_)
-                ;
-
-                const auto ptarget_state = [&](auto) -> transition_target_state*
+                if constexpr(std::is_same_v<Event, transition_event>)
                 {
-                    if constexpr(std::is_same_v<transition_target_state, none>)
-                        return nullptr;
-                    else
-                        return &detail::get<transition_target_state>(self.states_);
-                }(0);
+                    //Make sure we don't trigger more than one transition
+                    if(processed)
+                        return;
 
-                const auto pguard = [&](auto) -> transition_guard*
-                {
-                    if constexpr(std::is_same_v<transition_guard, none>)
-                        return nullptr;
-                    else
-                        return &detail::get<transition_guard>(self.guards_);
-                }(0);
+                    //Make sure the transition start state is the active state
+                    if(!self.is_active_state<transition_start_state>())
+                        return;
 
-                const auto paction = [&](auto) -> transition_action*
-                {
-                    if constexpr(std::is_same_v<transition_action, none>)
-                        return nullptr;
-                    else
-                        return &detail::get<transition_action>(self.actions_);
-                }(0);
+                    auto& start_state =
+                        detail::get<transition_start_state>(self.states_)
+                    ;
 
-                const auto target_state_index = [&](auto)
-                {
-                    if constexpr(std::is_same_v<transition_target_state, none>)
-                        return -1; //whatever, ignored in none case
-                    else
-                        return detail::tlu::get_index
-                        <
-                            state_tuple,
-                            transition_target_state
-                        >;
-                }(0);
+                    const auto ptarget_state = [&](auto) -> transition_target_state*
+                    {
+                        if constexpr(std::is_same_v<transition_target_state, none>)
+                            return nullptr;
+                        else
+                            return &detail::get<transition_target_state>(self.states_);
+                    }(0);
 
-                auto helper = state_transition_policy_helper
-                <
-                    transition_start_state,
-                    transition_event,
-                    transition_target_state,
-                    transition_action,
-                    transition_guard
-                >
-                {
-                    start_state,
-                    *event.get_if<transition_event>(),
-                    ptarget_state,
-                    paction,
-                    pguard,
-                    self.active_state_index_,
-                    processed,
-                    target_state_index
-                };
+                    const auto pguard = [&](auto) -> transition_guard*
+                    {
+                        if constexpr(std::is_same_v<transition_guard, none>)
+                            return nullptr;
+                        else
+                            return &detail::get<transition_guard>(self.guards_);
+                    }(0);
 
-                //Perform the transition
-                self.state_transition_policy_.do_transition(helper);
+                    const auto paction = [&](auto) -> transition_action*
+                    {
+                        if constexpr(std::is_same_v<transition_action, none>)
+                            return nullptr;
+                        else
+                            return &detail::get<transition_action>(self.actions_);
+                    }(0);
+
+                    const auto target_state_index = [&](auto)
+                    {
+                        if constexpr(std::is_same_v<transition_target_state, none>)
+                            return -1; //whatever, ignored in none case
+                        else
+                            return detail::tlu::get_index
+                            <
+                                state_tuple,
+                                transition_target_state
+                            >;
+                    }(0);
+
+                    auto helper = state_transition_policy_helper
+                    <
+                        transition_start_state,
+                        transition_event,
+                        transition_target_state,
+                        transition_action,
+                        transition_guard
+                    >
+                    {
+                        start_state,
+                        event,
+                        ptarget_state,
+                        paction,
+                        pguard,
+                        self.active_state_index_,
+                        processed,
+                        target_state_index
+                    };
+
+                    //Perform the transition
+                    self.state_transition_policy_.do_transition(helper);
+                }
             }
 
             fsm& self;
-            const any_cref& event;
+            const Event& event;
             bool& processed;
         };
 
         /*
         Call active_state.on_event(event)
         */
-        void process_event_in_active_state(const any_cref& event)
+        template<class Event>
+        void process_event_in_active_state(const Event& event)
         {
             visit_active_state
             (
@@ -299,7 +311,8 @@ class fsm
                     using state = std::decay_t<decltype(s)>;
                     auto helper = internal_transition_policy_helper
                     <
-                        state
+                        state,
+                        Event
                     >{s, event};
                     internal_transition_policy_.do_transition(helper);
                 }
@@ -316,7 +329,7 @@ class fsm
 
         int active_state_index_ = 0;
         bool processing_event_ = false;
-        std::queue<any_copy> deferred_events_;
+        std::queue<std::function<void()>> queued_event_processings_;
 };
 
 } //namespace

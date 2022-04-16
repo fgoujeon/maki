@@ -30,7 +30,8 @@ namespace
                 ctx.out += "idle::on_entry;";
             }
 
-            void on_event(const fgfsm::any_cref&)
+            template<class Event>
+            void on_event(const Event&)
             {
                 ctx.out += "idle::on_event;";
             }
@@ -50,7 +51,8 @@ namespace
                 ctx.out += "running::on_entry;";
             }
 
-            void on_event(const fgfsm::any_cref&)
+            template<class Event>
+            void on_event(const Event&)
             {
                 ctx.out += "running::on_event;";
             }

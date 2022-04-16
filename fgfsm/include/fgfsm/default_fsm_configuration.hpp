@@ -25,7 +25,8 @@ struct default_fsm_configuration
         {
         }
 
-        void on_event(const any_cref&)
+        template<class Event>
+        void on_event(const Event&)
         {
         }
     };

@@ -34,10 +34,14 @@ namespace
                 ctx.hello = "hello";
             }
 
-            void on_event(const fgfsm::any_cref& event)
+            template<class Event>
+            void on_event(const Event&)
             {
-                if(event.is<events::say_dog>())
-                    ctx.dog = "dog";
+            }
+
+            void on_event(const events::say_dog&)
+            {
+                ctx.dog = "dog";
             }
 
             void on_exit()
@@ -55,10 +59,14 @@ namespace
                 ctx.hello = "bonjour";
             }
 
-            void on_event(const fgfsm::any_cref& event)
+            template<class Event>
+            void on_event(const Event&)
             {
-                if(event.is<events::say_dog>())
-                    ctx.dog = "chien";
+            }
+
+            void on_event(const events::say_dog&)
+            {
+                ctx.dog = "chien";
             }
 
             void on_exit()

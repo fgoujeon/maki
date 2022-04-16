@@ -39,10 +39,14 @@ namespace
             {
             }
 
-            void on_event(const fgfsm::any_cref& event)
+            template<class Event>
+            void on_event(const Event&)
             {
-                if(event.is<events::internal_transition>())
-                    ++ctx.side_effect;
+            }
+
+            void on_event(const events::internal_transition&)
+            {
+                ++ctx.side_effect;
             }
 
             void on_exit()

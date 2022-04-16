@@ -7,24 +7,17 @@
 #ifndef FGFSM_INTERNAL_TRANSITION_POLICY_HELPER_HPP
 #define FGFSM_INTERNAL_TRANSITION_POLICY_HELPER_HPP
 
-#include "any_copy.hpp"
-#include <type_traits>
-
 namespace fgfsm
 {
 
-template<class State>
+template<class State, class Event>
 class internal_transition_policy_helper
 {
     private:
         template<class TransitionTable, class Configuration>
         friend class fsm;
 
-        internal_transition_policy_helper
-        (
-            State& state,
-            const any_cref& event
-        ):
+        internal_transition_policy_helper(State& state, const Event& event):
             state_(state),
             evt_(event)
         {
@@ -38,7 +31,7 @@ class internal_transition_policy_helper
 
     private:
         State& state_;
-        const any_cref& evt_;
+        const Event& evt_;
 };
 
 } //namespace

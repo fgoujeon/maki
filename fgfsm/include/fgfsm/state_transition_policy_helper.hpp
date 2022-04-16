@@ -7,7 +7,6 @@
 #ifndef FGFSM_STATE_TRANSITION_POLICY_HELPER_HPP
 #define FGFSM_STATE_TRANSITION_POLICY_HELPER_HPP
 
-#include "any_copy.hpp"
 #include "none.hpp"
 #include "detail/call_member.hpp"
 #include <type_traits>

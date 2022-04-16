@@ -53,16 +53,17 @@ struct default_fsm_configuration
         }
 
         template<class Helper>
-        void do_transition(const Helper& helper)
+        bool do_transition(const Helper& helper)
         {
-            if(helper.check_guard())
-            {
-                helper.validate_transition();
-                helper.invoke_start_state_on_exit();
-                helper.activate_target_state();
-                helper.execute_action();
-                helper.invoke_target_state_on_entry();
-            }
+            if(!helper.check_guard())
+                return false;
+
+            helper.invoke_start_state_on_exit();
+            helper.activate_target_state();
+            helper.execute_action();
+            helper.invoke_target_state_on_entry();
+
+            return true;
         }
     };
 

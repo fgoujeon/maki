@@ -32,15 +32,9 @@ class state_transition_policy_helper
         template<class TransitionTable, class Configuration>
         friend class fsm;
 
-        state_transition_policy_helper
-        (
-            Fsm& sm,
-            const Event& event,
-            bool& processed
-        ):
+        state_transition_policy_helper(Fsm& sm, const Event& event):
             sm_(sm),
-            event_(event),
-            processed_(processed)
+            event_(event)
         {
         }
 
@@ -59,11 +53,6 @@ class state_transition_policy_helper
             {
                 return true;
             }
-        }
-
-        void validate_transition() const
-        {
-            processed_ = true;
         }
 
         void invoke_start_state_on_exit() const
@@ -129,7 +118,6 @@ class state_transition_policy_helper
     private:
         Fsm& sm_;
         const Event& event_;
-        bool& processed_;
 };
 
 } //namespace

@@ -42,10 +42,6 @@ namespace
                 ctx.out += "on_entry();";
             }
 
-            void on_event(const fgfsm::any_cref&)
-            {
-            }
-
             void on_exit(const events::e1&)
             {
                 ctx.out += "on_exit(e1);";

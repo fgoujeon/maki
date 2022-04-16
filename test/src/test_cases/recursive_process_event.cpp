@@ -13,7 +13,8 @@ namespace
 
     struct context
     {
-        void process_event(const fgfsm::any_cref& event);
+        template<class Event>
+        void process_event(const Event&);
 
         fsm* pfsm;
         std::string output;
@@ -47,8 +48,6 @@ namespace
                 ctx.output += "idle::on_entry;";
             }
 
-            void on_event(const fgfsm::any_cref&){}
-
             void on_exit()
             {
                 ctx.output += "idle::on_exit;";
@@ -63,8 +62,6 @@ namespace
             {
                 ctx.output += "loading::on_entry;";
             }
-
-            void on_event(const fgfsm::any_cref&){}
 
             void on_exit()
             {
@@ -81,20 +78,14 @@ namespace
                 ctx.output += "ready::on_entry;";
             }
 
-            void on_event(const fgfsm::any_cref& event)
+            void on_event(const events::self_call_request& event)
             {
-                visit
-                (
-                    event,
-                    [this](const events::self_call_request& event)
-                    {
-                        ctx.process_event(events::self_call_response{event.data});
-                    },
-                    [this](const events::self_call_response& event)
-                    {
-                        ctx.output = event.data;
-                    }
-                );
+                ctx.process_event(events::self_call_response{event.data});
+            }
+
+            void on_event(const events::self_call_response& event)
+            {
+                ctx.output = event.data;
             }
 
             void on_exit()
@@ -130,22 +121,19 @@ namespace
     {
         struct pre_transition_event_handler
         {
-            void on_event(const fgfsm::any_cref& event)
+            void on_event(const events::quick_start_button_press&)
             {
-                visit
-                (
-                    event,
+                ctx.output += "quick_start_button_press;";
+            }
 
-                    [&](const events::quick_start_button_press&)
-                    {
-                        ctx.output += "quick_start_button_press;";
-                    },
+            void on_event(const events::end_of_loading&)
+            {
+                ctx.output += "end_of_loading;";
+            }
 
-                    [&](const events::end_of_loading&)
-                    {
-                        ctx.output += "end_of_loading;";
-                    }
-                );
+            template<class Event>
+            void on_event(const Event&)
+            {
             }
 
             context& ctx;
@@ -159,7 +147,8 @@ namespace
         using fsm_t::fsm_t;
     };
 
-    void context::process_event(const fgfsm::any_cref& event)
+    template<class Event>
+    void context::process_event(const Event& event)
     {
         pfsm->process_event(event);
     }

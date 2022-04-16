@@ -7,38 +7,33 @@
 #ifndef FGFSM_INTERNAL_TRANSITION_POLICY_HELPER_HPP
 #define FGFSM_INTERNAL_TRANSITION_POLICY_HELPER_HPP
 
-#include "any_copy.hpp"
-#include <type_traits>
+#include "detail/call_member.hpp"
 
 namespace fgfsm
 {
 
-template<class State>
+template<class State, class Event>
 class internal_transition_policy_helper
 {
     private:
         template<class TransitionTable, class Configuration>
         friend class fsm;
 
-        internal_transition_policy_helper
-        (
-            State& state,
-            const any_cref& event
-        ):
+        internal_transition_policy_helper(State& state, const Event& event):
             state_(state),
-            evt_(event)
+            event_(event)
         {
         }
 
     public:
         void invoke_state_on_event()
         {
-            state_.on_event(evt_);
+            detail::call_on_event(state_, event_);
         }
 
     private:
         State& state_;
-        const any_cref& evt_;
+        const Event& event_;
 };
 
 } //namespace

@@ -14,13 +14,10 @@ FGFSM implements the following key features:
   * **internal transitions**, aka transitions to `none` state;
   * **completion transitions**, aka anonymous transitions, aka transitions through `none` event;
   * **Kleene start states**, aka transitions from `any` state;
-* **state entry/exit actions** as state members (`on_entry()` and `on_exit()`);
-* **internal transitions actions** as state member (`on_event()`);
-* **run-to-completion**, the guarantee that the processing of an event won't be interrupted, even if we ask to handle other events in the process;
-* **sane build time**, thanks to:
-  * the low build-time complexity (*O(n)*, *n* being the number of rows in the transition table, where most FSM libraries would be *O(mn)*, *m* being the number of event types) of the template instantiation of `fgfsm::fsm`;
-  * the fact that `fgfsm::fsm::process_event()` is not a function template;
-  * the fact that the user code doesn't have to define templates.
+* **states as classes**, featuring:
+  * **entry/exit actions**, aka `on_entry()` and `on_exit()` member functions;
+  * **internal transition actions**, aka `on_event()` member function;
+* **run-to-completion**, the guarantee that the processing of an event won't be interrupted, even if we ask to handle other events in the process.
 
 Besides its features, FGFSM:
 
@@ -28,11 +25,6 @@ Besides its features, FGFSM:
 * **doesn't rely on exceptions**, while still allowing you to be exception-safe;
 * **doesn't rely on RTTI**;
 * is licensed under the terms of the **Boost Software License**, allowing you to use the library in any kind of free or proprietary software or firmware.
-
-Now, here are some reasons why you might *not* want to use FGFSM:
-
-* Runtime performance is not the main concern of the library. Don't get it wrong, runtime performance *is* a concern, but it must be known that some compromises have been made in favor of a better usability and much shorter build times.
-* FGFSM doesn't implement some of the advanced features you can find in other FSM libraries, such as submachines, orthogonal regions, forks, pseudostates, history or event deferral.
 
 ## Example
 The following example is firmware for an RGB lamp. This lamp has a single button and an LED that can emit white, red, green or blue.
@@ -166,32 +158,15 @@ namespace states
         }
 
         /*
-        This function is called whenever fgfsm::fsm::process_event() is called,
-        provided this state is active.
-        Unlike the other functions that take an event as argument, on_event()
-        receives the event wrapped into an fgfsm::any_cref object.
+        Whenever the FSM processes an event, it calls the on_event() function of
+        the active state by passing it the event. The FSM does this call just
+        before processing the event in the transition table.
         */
-        void on_event(const fgfsm::any_cref& event)
+        void on_event(const button::push_event& event)
         {
-            /*
-            fgfsm::any_cref is a std::any-like container that stores a reference
-            to a const object. FGFSM provides visitation functions to access
-            fgfsm::any_cref objects in a safe and concise way.
-            For example, fgfsm::visit() takes an fgfsm::any_cref and a series of
-            unary function objects. The function object whose parameter type
-            matches the type of the object wrapped into the fgfsm::any_cref gets
-            called.
-            */
-            fgfsm::visit
-            (
-                event,
-                [&](const button::push_event& event)
-                {
-                    std::cout << "Received a ";
-                    std::cout << event.duration_ms;
-                    std::cout << " millisecond push in off state\n";
-                }
-            );
+            std::cout << "Received a ";
+            std::cout << event.duration_ms;
+            std::cout << " millisecond push in off state\n";
         }
 
         /*

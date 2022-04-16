@@ -33,6 +33,7 @@ namespace fgfsm::detail
     }
 
 FGFSM_DETAIL_HAS_MEMBER_FUNCTION(on_entry)
+FGFSM_DETAIL_HAS_MEMBER_FUNCTION(on_event)
 FGFSM_DETAIL_HAS_MEMBER_FUNCTION(on_exit)
 FGFSM_DETAIL_HAS_MEMBER_FUNCTION(execute)
 FGFSM_DETAIL_HAS_MEMBER_FUNCTION(check)
@@ -51,6 +52,15 @@ void call_on_entry(State& state, const Event& event)
     }
     else
         int* error = "No on_entry(event) or on_entry() found in state type";
+}
+
+template<class State, class Event>
+void call_on_event(State& state, const Event& event)
+{
+    if constexpr(has_on_event<State&, const Event&>())
+        state.on_event(event);
+    else
+        ignore_unused(state, event);
 }
 
 template<class State, class Event>

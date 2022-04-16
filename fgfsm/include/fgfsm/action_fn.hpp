@@ -7,7 +7,6 @@
 #ifndef FGFSM_ACTION_FN_HPP
 #define FGFSM_ACTION_FN_HPP
 
-#include "any_cref.hpp"
 #include "detail/function_traits.hpp"
 
 namespace fgfsm

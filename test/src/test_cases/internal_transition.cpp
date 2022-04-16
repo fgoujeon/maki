@@ -39,10 +39,9 @@ namespace
             {
             }
 
-            void on_event(const fgfsm::any_cref& event)
+            void on_event(const events::internal_transition&)
             {
-                if(event.is<events::internal_transition>())
-                    ++ctx.side_effect;
+                ++ctx.side_effect;
             }
 
             void on_exit()

@@ -19,10 +19,6 @@
         { \
         } \
  \
-        void on_event(const fgfsm::any_cref&) \
-        { \
-        } \
- \
         void on_exit() \
         { \
         } \

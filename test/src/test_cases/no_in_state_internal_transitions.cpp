@@ -29,7 +29,7 @@ namespace
             {
             }
 
-            void on_event(const fgfsm::any_cref&)
+            void on_event(const events::internal_transition&)
             {
                 ++ctx.i;
             }

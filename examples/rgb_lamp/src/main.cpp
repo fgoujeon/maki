@@ -111,8 +111,9 @@ namespace states
         }
 
         /*
-        This function is called whenever fgfsm::fsm::process_event() is called,
-        provided this state is active.
+        Whenever the FSM processes an event, it calls the on_event() function of
+        the active state by passing it the event. The FSM does this call just
+        before processing the event in the transition table.
         */
         void on_event(const button::push_event& event)
         {

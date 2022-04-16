@@ -53,7 +53,7 @@ struct default_fsm_configuration
         }
 
         template<class Helper>
-        void do_transition(Helper& helper)
+        void do_transition(const Helper& helper)
         {
             if(helper.check_guard())
             {

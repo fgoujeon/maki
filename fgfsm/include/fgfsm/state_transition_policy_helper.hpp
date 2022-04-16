@@ -8,6 +8,8 @@
 #define FGFSM_STATE_TRANSITION_POLICY_HELPER_HPP
 
 #include "none.hpp"
+#include "detail/tlu.hpp"
+#include "detail/tuple.hpp"
 #include "detail/call_member.hpp"
 #include <type_traits>
 #include <cassert>
@@ -17,6 +19,7 @@ namespace fgfsm
 
 template
 <
+    class Fsm,
     class StartState,
     class Event,
     class TargetState,
@@ -31,33 +34,26 @@ class state_transition_policy_helper
 
         state_transition_policy_helper
         (
-            StartState& start_state,
+            Fsm& sm,
             const Event& event,
-            TargetState* const ptarget_state,
-            Action* const paction,
-            Guard* const pguard,
-            int& active_state_index,
-            bool& processed,
-            const int target_state_index
+            bool& processed
         ):
-            start_state_(start_state),
-            evt_(event),
-            ptarget_state_(ptarget_state),
-            paction_(paction),
-            pguard_(pguard),
-            active_state_index_(active_state_index),
-            processed_(processed),
-            target_state_index_(target_state_index)
+            sm_(sm),
+            event_(event),
+            processed_(processed)
         {
         }
 
     public:
-        bool check_guard()
+        bool check_guard() const
         {
             if constexpr(!std::is_same_v<Guard, none>)
             {
-                assert(pguard_);
-                return detail::call_check(*pguard_, evt_);
+                return detail::call_check
+                (
+                    detail::get<Guard>(sm_.guards_),
+                    event_
+                );
             }
             else
             {
@@ -65,62 +61,75 @@ class state_transition_policy_helper
             }
         }
 
-        void validate_transition()
+        void validate_transition() const
         {
             processed_ = true;
         }
 
-        void invoke_start_state_on_exit()
+        void invoke_start_state_on_exit() const
         {
-            [&](auto /*dummy*/)
+            [&](auto)
             {
                 if constexpr(!std::is_same_v<TargetState, none>)
-                    detail::call_on_exit(start_state_, evt_);
-            }(0);
-        }
-
-        void activate_target_state()
-        {
-            [&](auto /*dummy*/)
-            {
-                if constexpr(!std::is_same_v<TargetState, none>)
-                    active_state_index_ = target_state_index_;
-            }(0);
-        }
-
-        void execute_action()
-        {
-            [&](auto /*dummy*/)
-            {
-                if constexpr(!std::is_same_v<Action, none>)
                 {
-                    assert(paction_);
-                    detail::call_execute(*paction_, evt_);
+                    detail::call_on_exit
+                    (
+                        detail::get<StartState>(sm_.states_),
+                        event_
+                    );
                 }
             }(0);
         }
 
-        void invoke_target_state_on_entry()
+        void activate_target_state() const
         {
-            [&](auto /*dummy*/)
+            [&](auto)
             {
                 if constexpr(!std::is_same_v<TargetState, none>)
                 {
-                    assert(ptarget_state_);
-                    detail::call_on_entry(*ptarget_state_, evt_);
+                    sm_.active_state_index_ = detail::tlu::get_index
+                    <
+                        typename Fsm::state_tuple,
+                        TargetState
+                    >;
+                }
+            }(0);
+        }
+
+        void execute_action() const
+        {
+            [&](auto)
+            {
+                if constexpr(!std::is_same_v<Action, none>)
+                {
+                    detail::call_execute
+                    (
+                        detail::get<Action>(sm_.actions_),
+                        event_
+                    );
+                }
+            }(0);
+        }
+
+        void invoke_target_state_on_entry() const
+        {
+            [&](auto)
+            {
+                if constexpr(!std::is_same_v<TargetState, none>)
+                {
+                    detail::call_on_entry
+                    (
+                        detail::get<TargetState>(sm_.states_),
+                        event_
+                    );
                 }
             }(0);
         }
 
     private:
-        StartState& start_state_;
-        const Event& evt_;
-        TargetState* const ptarget_state_ = nullptr;
-        Action* const paction_ = nullptr;
-        Guard* const pguard_ = nullptr;
-        int& active_state_index_;
+        Fsm& sm_;
+        const Event& event_;
         bool& processed_;
-        const int target_state_index_;
 };
 
 } //namespace

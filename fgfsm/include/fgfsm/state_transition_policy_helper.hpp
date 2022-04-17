@@ -57,62 +57,50 @@ class state_transition_policy_helper
 
         void invoke_start_state_on_exit() const
         {
-            [&](auto)
+            if constexpr(!std::is_same_v<TargetState, none>)
             {
-                if constexpr(!std::is_same_v<TargetState, none>)
-                {
-                    detail::call_on_exit
-                    (
-                        detail::get<StartState>(sm_.states_),
-                        event_
-                    );
-                }
-            }(0);
+                detail::call_on_exit
+                (
+                    detail::get<StartState>(sm_.states_),
+                    event_
+                );
+            }
         }
 
         void activate_target_state() const
         {
-            [&](auto)
+            if constexpr(!std::is_same_v<TargetState, none>)
             {
-                if constexpr(!std::is_same_v<TargetState, none>)
-                {
-                    sm_.active_state_index_ = detail::tlu::get_index
-                    <
-                        typename Fsm::state_tuple,
-                        TargetState
-                    >;
-                }
-            }(0);
+                sm_.active_state_index_ = detail::tlu::get_index
+                <
+                    typename Fsm::state_tuple,
+                    TargetState
+                >;
+            }
         }
 
         void execute_action() const
         {
-            [&](auto)
+            if constexpr(!std::is_same_v<Action, none>)
             {
-                if constexpr(!std::is_same_v<Action, none>)
-                {
-                    detail::call_execute
-                    (
-                        detail::get<Action>(sm_.actions_),
-                        event_
-                    );
-                }
-            }(0);
+                detail::call_execute
+                (
+                    detail::get<Action>(sm_.actions_),
+                    event_
+                );
+            }
         }
 
         void invoke_target_state_on_entry() const
         {
-            [&](auto)
+            if constexpr(!std::is_same_v<TargetState, none>)
             {
-                if constexpr(!std::is_same_v<TargetState, none>)
-                {
-                    detail::call_on_entry
-                    (
-                        detail::get<TargetState>(sm_.states_),
-                        event_
-                    );
-                }
-            }(0);
+                detail::call_on_entry
+                (
+                    detail::get<TargetState>(sm_.states_),
+                    event_
+                );
+            }
         }
 
     private:

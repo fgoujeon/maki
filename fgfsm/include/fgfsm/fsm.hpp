@@ -206,6 +206,7 @@ class fsm
             );
         }
 
+        //Processes events against all rows of the (resolved) transition table
         template<class TransitionTable2>
         struct transition_table_event_processor;
 
@@ -215,13 +216,13 @@ class fsm
             template<class Event>
             static bool process(fsm& sm, const Event& event)
             {
-                return (sm.process_event_against_one_row<Rows>(event) || ...);
+                return (transition_table_row_event_processor<Rows>::process(sm, &event) || ...);
             }
         };
 
-        //Process event against one row of the (resolved) transition table
-        template<class Row, class Event>
-        bool process_event_against_one_row(const Event& event)
+        //Processes events against one row of the (resolved) transition table
+        template<class Row>
+        struct transition_table_row_event_processor
         {
             using transition_start_state  = typename Row::start_state;
             using transition_event        = typename Row::event;
@@ -229,11 +230,10 @@ class fsm
             using transition_action       = typename Row::action;
             using transition_guard        = typename Row::guard;
 
-            //Make sure the event type is the one described the transition
-            if constexpr(std::is_same_v<Event, transition_event>)
+            static bool process(fsm& sm, const transition_event* const pevent)
             {
                 //Make sure the transition start state is the active state
-                if(!is_active_state<transition_start_state>())
+                if(!sm.is_active_state<transition_start_state>())
                     return false;
 
                 //Perform the transition
@@ -246,17 +246,30 @@ class fsm
                     transition_action,
                     transition_guard
                 >;
-                return state_transition_policy_.do_transition
+                return sm.state_transition_policy_.do_transition
                 (
-                    helper_t{*this, event}
+                    helper_t{sm, *pevent}
                 );
             }
-            else
+
+            /*
+            This void* trick allows for shorter build times.
+
+            This alternative implementation takes more time to build:
+                template<class Event>
+                static bool process(fsm&, const Event&)
+                {
+                    return false;
+                }
+
+            Using an if-constexpr in the process() function above is worse as
+            well.
+            */
+            static bool process(fsm&, const void*)
             {
-                detail::ignore_unused(event);
                 return false;
             }
-        }
+        };
 
         /*
         Call active_state.on_event(event)

@@ -22,55 +22,36 @@
 #include <functional>
 #include <type_traits>
 
-namespace fgfsm
+namespace fgfsm::detail
 {
 
-template<class TransitionTable, class Configuration = default_fsm_configuration>
-class fsm
+template
+<
+    class ResolvedTransitionTable,
+    class TransitionTableDigest,
+    class Configuration
+>
+class fsm_impl;
+
+template
+<
+    class TransitionTableDigest,
+    class Configuration,
+    class... Rows
+>
+class fsm_impl<transition_table<Rows...>, TransitionTableDigest, Configuration>
 {
     private:
-        static_assert
-        (
-            std::is_base_of_v<default_fsm_configuration, Configuration>,
-            "Given configuration type must inherit from fgfsm::default_fsm_configuration."
-        );
-
         using pre_transition_event_handler = typename Configuration::pre_transition_event_handler;
         using internal_transition_policy = typename Configuration::internal_transition_policy;
         using state_transition_policy = typename Configuration::state_transition_policy;
 
-        using transition_table_digest =
-            detail::transition_table_digest<TransitionTable>
-        ;
+        using transition_table_digest = TransitionTableDigest;
         using state_tuple  = typename transition_table_digest::state_tuple;
         using action_tuple = typename transition_table_digest::action_tuple;
         using guard_tuple  = typename transition_table_digest::guard_tuple;
 
-        /*
-        Calling detail::resolve_transition_table<> isn't free. We need
-        alternative_lazy to avoid the call when it's unnecessary (i.e. when
-        there's no any-start-state in the transition table).
-        */
-        struct unresolved_transition_table_holder
-        {
-            template<class = void>
-            using type = TransitionTable;
-        };
-        struct resolved_transition_table_holder
-        {
-            template<class = void>
-            using type = detail::resolve_transition_table
-            <
-                TransitionTable,
-                state_tuple
-            >;
-        };
-        using transition_table_t = detail::alternative_lazy
-        <
-            transition_table_digest::has_any_start_states,
-            resolved_transition_table_holder,
-            unresolved_transition_table_holder
-        >;
+        using transition_table_t = transition_table<Rows...>;
 
         template
         <
@@ -81,11 +62,11 @@ class fsm
             class Action,
             class Guard
         >
-        friend class state_transition_policy_helper;
+        friend class fgfsm::state_transition_policy_helper;
 
     public:
         template<class Context>
-        fsm(Context& context):
+        fsm_impl(Context& context):
             states_(context),
             actions_(context),
             guards_(context),
@@ -199,25 +180,8 @@ class fsm
         template<class Event>
         bool process_event_in_transition_table_once(const Event& event)
         {
-            return transition_table_event_processor<transition_table_t>::process
-            (
-                *this,
-                event
-            );
+            return (process_event_against_one_row<Rows>(event) || ...);
         }
-
-        template<class TransitionTable2>
-        struct transition_table_event_processor;
-
-        template<class... Rows>
-        struct transition_table_event_processor<transition_table<Rows...>>
-        {
-            template<class Event>
-            static bool process(fsm& sm, const Event& event)
-            {
-                return (sm.process_event_against_one_row<Rows>(event) || ...);
-            }
-        };
 
         //Process event against one row of the (resolved) transition table
         template<class Row, class Event>
@@ -239,7 +203,7 @@ class fsm
                 //Perform the transition
                 using helper_t = state_transition_policy_helper
                 <
-                    fsm,
+                    fsm_impl,
                     transition_start_state,
                     transition_event,
                     transition_target_state,
@@ -290,6 +254,88 @@ class fsm
         int active_state_index_ = 0;
         bool processing_event_ = false;
         std::queue<std::function<void()>> queued_event_processings_;
+};
+
+} //namespace
+
+namespace fgfsm
+{
+
+template<class TransitionTable, class Configuration = default_fsm_configuration>
+class fsm
+{
+    public:
+        template<class Context>
+        fsm(Context& context):
+            impl_(context)
+        {
+        }
+
+        //Check whether the given State is the active state type
+        template<class State>
+        bool is_active_state() const
+        {
+            return impl_.template is_active_state<State>();
+        }
+
+        template<class Event>
+        void process_event(const Event& event)
+        {
+            impl_.process_event(event);
+        }
+
+    private:
+        static_assert
+        (
+            std::is_base_of_v<default_fsm_configuration, Configuration>,
+            "Given configuration type must inherit from fgfsm::default_fsm_configuration."
+        );
+
+        using pre_transition_event_handler = typename Configuration::pre_transition_event_handler;
+        using internal_transition_policy = typename Configuration::internal_transition_policy;
+        using state_transition_policy = typename Configuration::state_transition_policy;
+
+        using transition_table_digest =
+            detail::transition_table_digest<TransitionTable>
+        ;
+        using state_tuple  = typename transition_table_digest::state_tuple;
+        using action_tuple = typename transition_table_digest::action_tuple;
+        using guard_tuple  = typename transition_table_digest::guard_tuple;
+
+        /*
+        Calling detail::resolve_transition_table<> isn't free. We need
+        alternative_lazy to avoid the call when it's unnecessary (i.e. when
+        there's no any-start-state in the transition table).
+        */
+        struct unresolved_transition_table_holder
+        {
+            template<class = void>
+            using type = TransitionTable;
+        };
+        struct resolved_transition_table_holder
+        {
+            template<class = void>
+            using type = detail::resolve_transition_table
+            <
+                TransitionTable,
+                state_tuple
+            >;
+        };
+        using transition_table_t = detail::alternative_lazy
+        <
+            transition_table_digest::has_any_start_states,
+            resolved_transition_table_holder,
+            unresolved_transition_table_holder
+        >;
+
+        using fsm_impl_t = detail::fsm_impl
+        <
+            transition_table_t,
+            transition_table_digest,
+            Configuration
+        >;
+
+        fsm_impl_t impl_;
 };
 
 } //namespace

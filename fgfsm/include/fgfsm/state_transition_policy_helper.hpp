@@ -17,6 +17,17 @@
 namespace fgfsm
 {
 
+namespace detail
+{
+    template
+    <
+        class ResolvedTransitionTable,
+        class TransitionTableDigest,
+        class Configuration
+    >
+    class fsm_impl;
+}
+
 template
 <
     class Fsm,
@@ -29,8 +40,13 @@ template
 class state_transition_policy_helper
 {
     private:
-        template<class TransitionTable, class Configuration>
-        friend class fsm;
+        template
+        <
+            class ResolvedTransitionTable,
+            class TransitionTableDigest,
+            class Configuration
+        >
+        friend class detail::fsm_impl;
 
         state_transition_policy_helper(Fsm& sm, const Event& event):
             sm_(sm),

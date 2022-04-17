@@ -59,20 +59,6 @@ class tuple<>
         }
 };
 
-template<class T, class... Ts>
-auto& get(tuple<Ts...>& t)
-{
-    using ptr_t = T*;
-    return t.get(ptr_t{});
-}
-
-template<class T, class... Ts>
-const auto& get(const tuple<Ts...>& t)
-{
-    using ptr_t = T*;
-    return t.get(ptr_t{});
-}
-
 } //namespace
 
 #endif

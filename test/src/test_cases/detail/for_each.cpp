@@ -5,27 +5,30 @@
 //Official repository: https://github.com/fgoujeon/fgfsm
 
 #include <fgfsm/detail/for_each.hpp>
+#include <fgfsm/detail/tuple.hpp>
 #include <catch2/catch.hpp>
-#include <tuple>
 
 namespace
 {
     struct type0
     {
+        int& ignored;
         int i = 0;
     };
 
     struct type1
     {
+        int& ignored;
         int i = 1;
     };
 
-    using type_tuple = std::tuple<type0, type1>;
+    using type_tuple = fgfsm::detail::tuple<type0, type1>;
 }
 
 TEST_CASE("detail::for_each")
 {
-    auto tuple = type_tuple{};
+    int ignored = 0;
+    auto tuple = type_tuple{ignored};
 
     fgfsm::detail::for_each
     (

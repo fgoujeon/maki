@@ -43,9 +43,10 @@ class state_transition_policy_helper
         {
             if constexpr(!std::is_same_v<Guard, none>)
             {
+                using tag_t = Guard*;
                 return detail::call_check
                 (
-                    detail::get<Guard>(sm_.guards_),
+                    sm_.guards_.get(tag_t{}),
                     event_
                 );
             }
@@ -59,9 +60,10 @@ class state_transition_policy_helper
         {
             if constexpr(!std::is_same_v<TargetState, none>)
             {
+                using tag_t = StartState*;
                 detail::call_on_exit
                 (
-                    detail::get<StartState>(sm_.states_),
+                    sm_.states_.get(tag_t{}),
                     event_
                 );
             }
@@ -83,9 +85,10 @@ class state_transition_policy_helper
         {
             if constexpr(!std::is_same_v<Action, none>)
             {
+                using tag_t = Action*;
                 detail::call_execute
                 (
-                    detail::get<Action>(sm_.actions_),
+                    sm_.actions_.get(tag_t{}),
                     event_
                 );
             }
@@ -95,9 +98,10 @@ class state_transition_policy_helper
         {
             if constexpr(!std::is_same_v<TargetState, none>)
             {
+                using tag_t = TargetState*;
                 detail::call_on_entry
                 (
-                    detail::get<TargetState>(sm_.states_),
+                    sm_.states_.get(tag_t{}),
                     event_
                 );
             }

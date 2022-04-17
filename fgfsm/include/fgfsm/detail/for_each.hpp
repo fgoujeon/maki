@@ -29,7 +29,7 @@ namespace for_each_detail
         template<class F, class Tuple_>
         static void call(F&& f, Tuple_&& t)
         {
-            (f(get<Ts>(t)), ...);
+            (f(t.get(static_cast<Ts*>(nullptr))), ...);
         }
     };
 }

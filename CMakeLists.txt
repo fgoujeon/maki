@@ -10,7 +10,9 @@ project(fgfsm)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
-find_package(Catch2 2.10 REQUIRED)
+if(FGFSM_BUILD_TEST)
+    find_package(Catch2 2.10 REQUIRED)
+endif()
 
 option(FGFSM_BUILD_EXAMPLES "Build example executables" OFF)
 option(FGFSM_BUILD_TEST "Build test executable" OFF)

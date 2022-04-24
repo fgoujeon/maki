@@ -158,9 +158,12 @@ namespace states
         }
 
         /*
+        Optionally, state types can define a set of on_event() functions.
         Whenever the FSM processes an event, it calls the on_event() function of
-        the active state by passing it the event. The FSM does this call just
-        before processing the event in the transition table.
+        the active state by passing it the event (provided this function
+        exists).
+        The FSM does this call just before processing the event in the
+        transition table.
         */
         void on_event(const button::push_event& event)
         {
@@ -181,13 +184,12 @@ namespace states
     };
 
     /*
-    In this example, since we don't need entry/exit actions or internal
-    transitions, we can declare our states with FGFSM_SIMPLE_STATE.
+    Empty state types are not required to implement on_entry() and on_exit().
     */
-    FGFSM_SIMPLE_STATE(emitting_white);
-    FGFSM_SIMPLE_STATE(emitting_red);
-    FGFSM_SIMPLE_STATE(emitting_green);
-    FGFSM_SIMPLE_STATE(emitting_blue);
+    struct emitting_white{};
+    struct emitting_red{};
+    struct emitting_green{};
+    struct emitting_blue{};
 }
 
 /*

@@ -15,8 +15,8 @@ namespace
 
     namespace states
     {
-        FGFSM_SIMPLE_STATE(on)
-        FGFSM_SIMPLE_STATE(off)
+        struct on{};
+        struct off{};
     }
 
     namespace events

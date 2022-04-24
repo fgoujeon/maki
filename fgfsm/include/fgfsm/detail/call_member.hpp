@@ -8,6 +8,7 @@
 #define FGFSM_DETAIL_CALL_MEMBER_HPP
 
 #include "ignore_unused.hpp"
+#include <type_traits>
 #include <utility>
 
 namespace fgfsm::detail
@@ -44,14 +45,18 @@ template<class State, class Event>
 void call_on_entry(State& state, const Event& event)
 {
     if constexpr(has_on_entry<State&, const Event&>())
+    {
+        static_assert(!std::is_empty_v<State>, "Empty state types can't have on_entry() function");
         state.on_entry(event);
+    }
     else if constexpr(has_on_entry<State&>())
     {
+        static_assert(!std::is_empty_v<State>, "Empty state types can't have on_entry() function");
         ignore_unused(event);
         state.on_entry();
     }
-    else
-        int* error = "No on_entry(event) or on_entry() found in state type";
+    else if constexpr(!std::is_empty_v<State>)
+        int* error = "No on_entry(event) or on_entry() found in non-empty state type";
 }
 
 template<class State, class Event>
@@ -67,14 +72,18 @@ template<class State, class Event>
 void call_on_exit(State& state, const Event& event)
 {
     if constexpr(has_on_exit<State&, const Event&>())
+    {
+        static_assert(!std::is_empty_v<State>, "Empty state types can't have on_exit() function");
         state.on_exit(event);
+    }
     else if constexpr(has_on_exit<State&>())
     {
+        static_assert(!std::is_empty_v<State>, "Empty state types can't have on_exit() function");
         ignore_unused(event);
         state.on_exit();
     }
-    else
-        int* error = "No on_exit(event) or on_exit() found in state type";
+    else if constexpr(!std::is_empty_v<State>)
+        int* error = "No on_exit(event) or on_exit() found in non-empty state type";
 }
 
 template<class Action, class Event>

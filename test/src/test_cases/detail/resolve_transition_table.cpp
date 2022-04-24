@@ -11,10 +11,10 @@ namespace
 {
     struct context{};
 
-    FGFSM_SIMPLE_STATE(state0);
-    FGFSM_SIMPLE_STATE(state1);
-    FGFSM_SIMPLE_STATE(state2);
-    FGFSM_SIMPLE_STATE(state3);
+    struct state0{};
+    struct state1{};
+    struct state2{};
+    struct state3{};
 
     struct event0{};
     struct event1{};

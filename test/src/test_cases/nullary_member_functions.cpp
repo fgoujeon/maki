@@ -28,7 +28,7 @@ namespace
 
     namespace states
     {
-        FGFSM_SIMPLE_STATE(off)
+        struct off{};
 
         struct on
         {

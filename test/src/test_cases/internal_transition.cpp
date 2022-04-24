@@ -22,16 +22,16 @@ namespace
 
     namespace states
     {
-        FGFSM_SIMPLE_STATE(state0)
-        FGFSM_SIMPLE_STATE(state1)
-        FGFSM_SIMPLE_STATE(state2)
-        FGFSM_SIMPLE_STATE(state3)
-        FGFSM_SIMPLE_STATE(state4)
-        FGFSM_SIMPLE_STATE(state5)
-        FGFSM_SIMPLE_STATE(state6)
-        FGFSM_SIMPLE_STATE(state7)
-        FGFSM_SIMPLE_STATE(state8)
-        FGFSM_SIMPLE_STATE(state9)
+        struct state0{};
+        struct state1{};
+        struct state2{};
+        struct state3{};
+        struct state4{};
+        struct state5{};
+        struct state6{};
+        struct state7{};
+        struct state8{};
+        struct state9{};
 
         struct benchmarking
         {

@@ -25,7 +25,7 @@ namespace
 
     namespace states
     {
-        FGFSM_SIMPLE_STATE(idle)
+        struct idle{};
 
         struct english
         {

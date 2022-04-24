@@ -13,9 +13,9 @@ namespace
 
     namespace states
     {
-        FGFSM_SIMPLE_STATE(idle)
-        FGFSM_SIMPLE_STATE(running)
-        FGFSM_SIMPLE_STATE(failed)
+        struct idle{};
+        struct running{};
+        struct failed{};
     }
 
     namespace events

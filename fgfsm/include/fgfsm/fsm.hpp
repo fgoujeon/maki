@@ -13,7 +13,6 @@
 #include "any.hpp"
 #include "none.hpp"
 #include "detail/for_each.hpp"
-#include "detail/tuple.hpp"
 #include "detail/resolve_transition_table.hpp"
 #include "detail/transition_table_digest.hpp"
 #include "detail/alternative_lazy.hpp"

@@ -25,8 +25,6 @@ namespace
         {
             return event.value > 0;
         }
-
-        context& ctx;
     };
 
     bool is_positive_int_2_impl(context&, const some_event& event)
@@ -39,7 +37,7 @@ namespace
 TEST_CASE("guard_fn")
 {
     auto ctx = context{};
-    auto guard_1 = is_positive_int_1{ctx};
+    auto guard_1 = is_positive_int_1{};
     auto guard_2 = is_positive_int_2{ctx};
 
     {

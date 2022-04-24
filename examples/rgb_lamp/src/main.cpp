@@ -76,12 +76,12 @@ States are classes.
 namespace states
 {
     /*
-    A state class is required to implement the on_entry(), on_event() and
-    on_exit() functions described below.
-    Also, it must be constructible with a reference to the context. Since FGFSM
-    instantiates its states using aggregate initialization, an explicit
-    constructor isn't necessary. Declaring a public member variable like below
-    is enough.
+    A state class is required to implement the on_entry() and on_exit()
+    functions described below.
+    Also, it must be either constructible with a reference to the context or
+    default-constructible. Since FGFSM instantiates its states using aggregate
+    initialization, an explicit constructor isn't necessary. Declaring a public
+    member variable like below is enough.
     */
     struct off
     {
@@ -151,8 +151,8 @@ namespace actions
     /*
     An action class is required to implement the execute() function described
     below.
-    Also, just like state classes, action classes must be constructible with a
-    reference to the context.
+    Also, just like state classes, action classes must be either constructible
+    with a reference to the context or default-constructible.
     */
     struct turn_light_off
     {
@@ -196,8 +196,8 @@ namespace guards
     /*
     A guard class is required to implement the check() function described
     below.
-    Also, just like state classes, guard classes must be constructible with a
-    reference to the context.
+    Also, just like state classes, guard classes must be either constructible
+    with a reference to the context or default-constructible.
     */
     struct is_long_push
     {
@@ -213,8 +213,6 @@ namespace guards
         {
             return event.duration_ms > 1000;
         }
-
-        context& ctx;
     };
 
     //We can use guard operators to combine our guards.

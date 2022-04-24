@@ -4,9 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
-#include <fgfsm/detail/tuple.hpp>
+#include <fgfsm/detail/fsm_object_holder_tuple.hpp>
 #include <catch2/catch.hpp>
-#include <tuple>
 
 namespace
 {
@@ -20,7 +19,7 @@ namespace
         int& data;
     };
 
-    using type_tuple = fgfsm::detail::tuple<type0, type1>;
+    using type_tuple = fgfsm::detail::fsm_object_holder_tuple<type0, type1>;
 }
 
 TEST_CASE("detail::make_tuple")

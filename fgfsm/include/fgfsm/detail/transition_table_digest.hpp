@@ -9,7 +9,7 @@
 
 #include "tlu.hpp"
 #include "type_list.hpp"
-#include "tuple.hpp"
+#include "fsm_object_holder_tuple.hpp"
 #include "../any.hpp"
 #include "../none.hpp"
 #include "../transition_table.hpp"
@@ -35,9 +35,9 @@ For example, the following digest type...:
 ... is equivalent to this type:
     struct digest
     {
-        using state_tuple = fgfsm::detail::tuple<state0, state1, state2, state3>;
-        using action_tuple = fgfsm::detail::tuple<action0, action1>;
-        using guard_tuple = fgfsm::detail::tuple<guard0, guard1>;
+        using state_tuple = fgfsm::detail::fsm_object_holder_tuple<state0, state1, state2, state3>;
+        using action_tuple = fgfsm::detail::fsm_object_holder_tuple<action0, action1>;
+        using guard_tuple = fgfsm::detail::fsm_object_holder_tuple<guard0, guard1>;
         static constexpr auto has_any_start_states = false;
         static constexpr auto has_none_events = false;
     };
@@ -51,7 +51,7 @@ namespace transition_table_digest_detail
     template<template<class...> class TList, class... Ts>
     struct to_tuple_helper<TList<Ts...>>
     {
-        using type = fgfsm::detail::tuple<Ts...>;
+        using type = fgfsm::detail::fsm_object_holder_tuple<Ts...>;
     };
 
     template<class TList>
@@ -111,8 +111,8 @@ namespace transition_table_digest_detail
     };
 
     /*
-    First step with type_list instead of fgfsm::detail::tuple, so that we don't
-    instantiate intermediate fgfsm::detail::tuple
+    First step with type_list instead of fgfsm::detail::fsm_object_holder_tuple,
+    so that we don't instantiate intermediate tuples.
     */
     template<class TransitionTable>
     using digest_with_type_lists = tlu::left_fold

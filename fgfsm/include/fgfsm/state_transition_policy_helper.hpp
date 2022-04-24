@@ -9,7 +9,6 @@
 
 #include "none.hpp"
 #include "detail/tlu.hpp"
-#include "detail/tuple.hpp"
 #include "detail/call_member.hpp"
 #include <type_traits>
 #include <cassert>

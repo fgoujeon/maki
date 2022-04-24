@@ -8,7 +8,7 @@
 #include <fgfsm/transition_table.hpp>
 #include <fgfsm/none.hpp>
 #include <fgfsm/detail/transition_table_digest.hpp>
-#include <fgfsm/detail/tuple.hpp>
+#include <fgfsm/detail/fsm_object_holder_tuple.hpp>
 #include <catch2/catch.hpp>
 
 namespace
@@ -40,9 +40,9 @@ namespace
 
     using digest = fgfsm::detail::transition_table_digest<transition_table>;
 
-    using action_tuple = fgfsm::detail::tuple<action0, action1>;
-    using guard_tuple = fgfsm::detail::tuple<guard0, guard1>;
-    using state_tuple = fgfsm::detail::tuple<state0, state1, state2, state3>;
+    using action_tuple = fgfsm::detail::fsm_object_holder_tuple<action0, action1>;
+    using guard_tuple = fgfsm::detail::fsm_object_holder_tuple<guard0, guard1>;
+    using state_tuple = fgfsm::detail::fsm_object_holder_tuple<state0, state1, state2, state3>;
 }
 
 TEST_CASE("detail::transition_table_digest")

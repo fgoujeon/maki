@@ -46,8 +46,6 @@ namespace
             {
                 return event.hard;
             }
-
-            context& ctx;
         };
     }
 

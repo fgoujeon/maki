@@ -7,6 +7,7 @@
 #ifndef FGFSM_GUARD_OPERATORS_HPP
 #define FGFSM_GUARD_OPERATORS_HPP
 
+#include "detail/fsm_object_holder.hpp"
 #include "detail/call_member.hpp"
 
 namespace fgfsm
@@ -54,14 +55,14 @@ namespace detail
             {
                 return Operator::test
                 (
-                    detail::call_check(lhs_, event),
-                    detail::call_check(rhs_, event)
+                    detail::call_check(lhs_.object, event),
+                    detail::call_check(rhs_.object, event)
                 );
             }
 
         private:
-            Lhs lhs_;
-            Rhs rhs_;
+            detail::fsm_object_holder<Lhs> lhs_;
+            detail::fsm_object_holder<Rhs> rhs_;
     };
 }
 
@@ -78,11 +79,11 @@ class not_
         template<class Event>
         bool check(const Event& event)
         {
-            return !detail::call_check(guard_, event);
+            return !detail::call_check(guard_.object, event);
         }
 
     private:
-        T guard_;
+        detail::fsm_object_holder<T> guard_;
 };
 
 template<class L, class R>

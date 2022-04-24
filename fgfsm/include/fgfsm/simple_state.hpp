@@ -10,11 +10,6 @@
 #define FGFSM_SIMPLE_STATE(NAME) \
     struct NAME \
     { \
-        template<class Context> \
-        NAME(Context&) \
-        { \
-        } \
- \
         void on_entry() \
         { \
         } \

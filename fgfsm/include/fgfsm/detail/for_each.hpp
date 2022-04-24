@@ -7,7 +7,6 @@
 #ifndef FGFSM_DETAIL_FOR_EACH_HPP
 #define FGFSM_DETAIL_FOR_EACH_HPP
 
-#include "tuple.hpp"
 #include <type_traits>
 #include <utility>
 

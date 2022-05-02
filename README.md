@@ -147,17 +147,6 @@ namespace states
         }
 
         /*
-        Accordingly to the explanation given in the comment just above, this
-        overload is called for all the types of event that don't have their
-        on_entry() overload.
-        Note: This is not actually needed here since button::push_event is the
-        only event type that leads to the off state.
-        */
-        void on_entry()
-        {
-        }
-
-        /*
         Optionally, state types can define a set of on_event() functions.
         Whenever the FSM processes an event, it calls the on_event() function of
         the active state by passing it the event (provided this function

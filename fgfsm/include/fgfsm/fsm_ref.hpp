@@ -16,54 +16,49 @@ namespace fgfsm
 namespace detail
 {
     template<class... Events>
-    class fsm_ref_impl;
+    struct fsm_ref_impl;
 
     template<class Event, class... Events>
-    class fsm_ref_impl<Event, Events...>: fsm_ref_impl<Events...>
+    struct fsm_ref_impl<Event, Events...>: fsm_ref_impl<Events...>
     {
-        public:
-            template<class Fsm>
-            fsm_ref_impl(Fsm& sm):
-                fsm_ref_impl<Events...>{sm},
-                pprocess_event_
+        template<class Fsm>
+        fsm_ref_impl(Fsm& sm):
+            fsm_ref_impl<Events...>{sm},
+            pprocess_event
+            {
+                [](void* const vpfsm, const Event& event)
                 {
-                    [](void* const vpfsm, const Event& event)
-                    {
-                        const auto pfsm = reinterpret_cast<Fsm*>(vpfsm);
-                        pfsm->process_event(event);
-                    }
+                    const auto pfsm = reinterpret_cast<Fsm*>(vpfsm);
+                    pfsm->process_event(event);
                 }
-            {
             }
+        {
+        }
 
-            using fsm_ref_impl<Events...>::process_event;
+        using fsm_ref_impl<Events...>::process_event;
 
-            void process_event(const Event& event)
-            {
-                (*pprocess_event_)(this->vpfsm_, event);
-            }
+        void process_event(const Event& event)
+        {
+            (*pprocess_event)(this->vpfsm, event);
+        }
 
-        private:
-            using pprocess_event_t = void(*)(void*, const Event&);
-            pprocess_event_t pprocess_event_ = nullptr;
+        void(*pprocess_event)(void*, const Event&) = nullptr;
     };
 
     template<>
-    class fsm_ref_impl<>
+    struct fsm_ref_impl<>
     {
-        public:
-            template<class Fsm>
-            fsm_ref_impl(Fsm& sm):
-                vpfsm_(&sm)
-            {
-            }
+        template<class Fsm>
+        fsm_ref_impl(Fsm& sm):
+            vpfsm(&sm)
+        {
+        }
 
-            void process_event()
-            {
-            }
+        void process_event()
+        {
+        }
 
-        protected:
-            void* vpfsm_ = nullptr;
+        void* vpfsm = nullptr;
     };
 }
 

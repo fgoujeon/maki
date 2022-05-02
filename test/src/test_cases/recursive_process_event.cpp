@@ -4,14 +4,19 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
-#include <fgfsm.hpp>
-#include <catch2/catch.hpp>
+#include <fgfsm/fsm_fwd.hpp>
 
 namespace
 {
     struct fsm_configuration;
     using fsm = fgfsm::fsm<fsm_configuration>;
+}
 
+#include <fgfsm.hpp>
+#include <catch2/catch.hpp>
+
+namespace
+{
     struct context
     {
         std::string output;

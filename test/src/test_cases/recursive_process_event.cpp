@@ -75,7 +75,10 @@ namespace
                 ctx.output += "ready::on_entry;";
             }
 
-            void on_event(const events::self_call_request& event);
+            void on_event(const events::self_call_request& event)
+            {
+                sm.process_event(events::self_call_response{event.data});
+            }
 
             void on_event(const events::self_call_response& event)
             {
@@ -88,7 +91,7 @@ namespace
             }
 
             context& ctx;
-            fsm& sm;
+            fgfsm::fsm_ref<events::self_call_response> sm;
         };
     }
 
@@ -96,10 +99,13 @@ namespace
     {
         struct skip_loading
         {
-            void execute();
+            void execute()
+            {
+                sm.process_event(events::end_of_loading{});
+            }
 
             context& ctx;
-            fsm& sm;
+            fgfsm::fsm_ref<events::end_of_loading> sm;
         };
     }
 
@@ -133,22 +139,6 @@ namespace
             fsm& sm;
         };
     };
-
-    namespace states
-    {
-        void ready::on_event(const events::self_call_request& event)
-        {
-            sm.process_event(events::self_call_response{event.data});
-        }
-    }
-
-    namespace actions
-    {
-        void skip_loading::execute()
-        {
-            sm.process_event(events::end_of_loading{});
-        }
-    }
 }
 
 TEST_CASE("recursive process_event")

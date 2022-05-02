@@ -9,7 +9,8 @@
 
 namespace
 {
-    struct fsm;
+    struct fsm_configuration;
+    using fsm = fgfsm::fsm<fsm_configuration>;
 
     struct context
     {
@@ -138,13 +139,6 @@ namespace
 
             context& ctx;
         };
-    };
-
-    using fsm_t = fgfsm::fsm<fsm_configuration>;
-
-    struct fsm: fsm_t
-    {
-        using fsm_t::fsm_t;
     };
 
     template<class Event>

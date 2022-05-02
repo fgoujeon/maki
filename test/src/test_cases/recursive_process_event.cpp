@@ -110,15 +110,15 @@ namespace
         };
     }
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::idle,    events::start_button_press,       states::loading>,
-        fgfsm::row<states::idle,    events::quick_start_button_press, states::loading,  actions::skip_loading>,
-        fgfsm::row<states::loading, events::end_of_loading,           states::ready>
-    >;
-
-    struct fsm_configuration: fgfsm::default_fsm_configuration
+    struct fsm_configuration: fgfsm::fsm_configuration
     {
+        using transition_table_t = fgfsm::transition_table
+        <
+            fgfsm::row<states::idle,    events::start_button_press,       states::loading>,
+            fgfsm::row<states::idle,    events::quick_start_button_press, states::loading,  actions::skip_loading>,
+            fgfsm::row<states::loading, events::end_of_loading,           states::ready>
+        >;
+
         struct pre_transition_event_handler
         {
             void on_event(const events::quick_start_button_press&)
@@ -140,7 +140,7 @@ namespace
         };
     };
 
-    using fsm_t = fgfsm::fsm<transition_table, fsm_configuration>;
+    using fsm_t = fgfsm::fsm<fsm_configuration>;
 
     struct fsm: fsm_t
     {

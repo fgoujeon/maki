@@ -7,7 +7,7 @@
 #ifndef FGFSM_FSM_HPP
 #define FGFSM_FSM_HPP
 
-#include "default_fsm_configuration.hpp"
+#include "fsm_configuration.hpp"
 #include "internal_transition_policy_helper.hpp"
 #include "state_transition_policy_helper.hpp"
 #include "any.hpp"
@@ -24,22 +24,23 @@
 namespace fgfsm
 {
 
-template<class TransitionTable, class Configuration = default_fsm_configuration>
+template<class Configuration>
 class fsm
 {
     private:
         static_assert
         (
-            std::is_base_of_v<default_fsm_configuration, Configuration>,
-            "Given configuration type must inherit from fgfsm::default_fsm_configuration."
+            std::is_base_of_v<fsm_configuration, Configuration>,
+            "Given configuration type must inherit from fgfsm::fsm_configuration."
         );
 
+        using unresolved_transition_table = typename Configuration::transition_table_t;
         using pre_transition_event_handler = typename Configuration::pre_transition_event_handler;
         using internal_transition_policy = typename Configuration::internal_transition_policy;
         using state_transition_policy = typename Configuration::state_transition_policy;
 
         using transition_table_digest =
-            detail::transition_table_digest<TransitionTable>
+            detail::transition_table_digest<unresolved_transition_table>
         ;
         using state_tuple  = typename transition_table_digest::state_tuple;
         using action_tuple = typename transition_table_digest::action_tuple;
@@ -53,14 +54,14 @@ class fsm
         struct unresolved_transition_table_holder
         {
             template<class = void>
-            using type = TransitionTable;
+            using type = unresolved_transition_table;
         };
         struct resolved_transition_table_holder
         {
             template<class = void>
             using type = detail::resolve_transition_table
             <
-                TransitionTable,
+                unresolved_transition_table,
                 state_tuple
             >;
         };

@@ -68,20 +68,23 @@ namespace
         using can_access_state3 = fgfsm::not_<guards::cant_access_state3>;
     }
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::idle, events::start, states::state0, fgfsm::none, guards::can_access_state0>,
-        fgfsm::row<states::idle, events::start, states::state1, fgfsm::none, guards::can_access_state1>,
-        fgfsm::row<states::idle, events::start, states::state2, fgfsm::none, guards::can_access_state2>,
-        fgfsm::row<states::idle, events::start, states::state3, fgfsm::none, guards::can_access_state3>,
+    struct fsm_configuration: fgfsm::fsm_configuration
+    {
+        using transition_table_t = fgfsm::transition_table
+        <
+            fgfsm::row<states::idle, events::start, states::state0, fgfsm::none, guards::can_access_state0>,
+            fgfsm::row<states::idle, events::start, states::state1, fgfsm::none, guards::can_access_state1>,
+            fgfsm::row<states::idle, events::start, states::state2, fgfsm::none, guards::can_access_state2>,
+            fgfsm::row<states::idle, events::start, states::state3, fgfsm::none, guards::can_access_state3>,
 
-        fgfsm::row<states::state0, events::stop, states::idle>,
-        fgfsm::row<states::state1, events::stop, states::idle>,
-        fgfsm::row<states::state2, events::stop, states::idle>,
-        fgfsm::row<states::state3, events::stop, states::idle>
-    >;
+            fgfsm::row<states::state0, events::stop, states::idle>,
+            fgfsm::row<states::state1, events::stop, states::idle>,
+            fgfsm::row<states::state2, events::stop, states::idle>,
+            fgfsm::row<states::state3, events::stop, states::idle>
+        >;
+    };
 
-    using fsm = fgfsm::fsm<transition_table>;
+    using fsm = fgfsm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("guard operators")

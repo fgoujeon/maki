@@ -25,16 +25,19 @@ namespace
         struct s4{};
     };
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::s0, events::go_on, states::s1>,
-        fgfsm::row<states::s1, fgfsm::none,   states::s2>,
-        fgfsm::row<states::s2, events::go_on, states::s3>,
-        fgfsm::row<states::s3, fgfsm::none,   states::s4>,
-        fgfsm::row<states::s4, fgfsm::none,   states::s0>
-    >;
+    struct fsm_conf: fgfsm::fsm_configuration
+    {
+        using transition_table_t = fgfsm::transition_table
+        <
+            fgfsm::row<states::s0, events::go_on, states::s1>,
+            fgfsm::row<states::s1, fgfsm::none,   states::s2>,
+            fgfsm::row<states::s2, events::go_on, states::s3>,
+            fgfsm::row<states::s3, fgfsm::none,   states::s4>,
+            fgfsm::row<states::s4, fgfsm::none,   states::s0>
+        >;
+    };
 
-    using fsm = fgfsm::fsm<transition_table>;
+    using fsm = fgfsm::fsm<fsm_conf>;
 }
 
 TEST_CASE("anonymous transition")

@@ -52,26 +52,26 @@ namespace
         };
     }
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::state0, events::next_state, states::state1>,
-        fgfsm::row<states::state1, events::next_state, states::state2>,
-        fgfsm::row<states::state2, events::next_state, states::state3>,
-        fgfsm::row<states::state3, events::next_state, states::state4>,
-        fgfsm::row<states::state4, events::next_state, states::state5>,
-        fgfsm::row<states::state5, events::next_state, states::state6>,
-        fgfsm::row<states::state6, events::next_state, states::state7>,
-        fgfsm::row<states::state7, events::next_state, states::state8>,
-        fgfsm::row<states::state8, events::next_state, states::state9>,
-        fgfsm::row<states::state9, events::next_state, states::benchmarking>
-    >;
-
-    struct fsm_configuration: fgfsm::default_fsm_configuration
+    struct fsm_configuration: fgfsm::fsm_configuration
     {
+        using transition_table_t = fgfsm::transition_table
+        <
+            fgfsm::row<states::state0, events::next_state, states::state1>,
+            fgfsm::row<states::state1, events::next_state, states::state2>,
+            fgfsm::row<states::state2, events::next_state, states::state3>,
+            fgfsm::row<states::state3, events::next_state, states::state4>,
+            fgfsm::row<states::state4, events::next_state, states::state5>,
+            fgfsm::row<states::state5, events::next_state, states::state6>,
+            fgfsm::row<states::state6, events::next_state, states::state7>,
+            fgfsm::row<states::state7, events::next_state, states::state8>,
+            fgfsm::row<states::state8, events::next_state, states::state9>,
+            fgfsm::row<states::state9, events::next_state, states::benchmarking>
+        >;
+
         static constexpr auto enable_run_to_completion = false;
     };
 
-    using fsm = fgfsm::fsm<transition_table, fsm_configuration>;
+    using fsm = fgfsm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("internal transition")

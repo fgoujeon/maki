@@ -49,13 +49,16 @@ namespace
         };
     }
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::off, events::button_press, states::on,  fgfsm::none, guards::has_power>,
-        fgfsm::row<states::on,  events::button_press, states::off, fgfsm::none, guards::is_pressing_hard>
-    >;
+    struct fsm_configuration: fgfsm::fsm_configuration
+    {
+        using transition_table_t = fgfsm::transition_table
+        <
+            fgfsm::row<states::off, events::button_press, states::on,  fgfsm::none, guards::has_power>,
+            fgfsm::row<states::on,  events::button_press, states::off, fgfsm::none, guards::is_pressing_hard>
+        >;
+    };
 
-    using fsm = fgfsm::fsm<transition_table>;
+    using fsm = fgfsm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("guard")

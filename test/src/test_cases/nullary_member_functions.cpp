@@ -88,15 +88,18 @@ namespace
         context& ctx;
     };
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::off, events::e1, states::on,  action, guard>,
-        fgfsm::row<states::off, events::e2, states::on,  action, guard>,
-        fgfsm::row<states::on,  events::e1, states::off, action, guard>,
-        fgfsm::row<states::on,  events::e2, states::off, action, guard>
-    >;
+    struct fsm_configuration: fgfsm::fsm_configuration
+    {
+        using transition_table_t = fgfsm::transition_table
+        <
+            fgfsm::row<states::off, events::e1, states::on,  action, guard>,
+            fgfsm::row<states::off, events::e2, states::on,  action, guard>,
+            fgfsm::row<states::on,  events::e1, states::off, action, guard>,
+            fgfsm::row<states::on,  events::e2, states::off, action, guard>
+        >;
+    };
 
-    using fsm = fgfsm::fsm<transition_table>;
+    using fsm = fgfsm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("nullary_member_functions")

@@ -25,7 +25,7 @@ namespace
 TEST_CASE("detail::make_tuple")
 {
     auto data = 42;
-    auto tuple = type_tuple{data};
+    auto tuple = type_tuple{data, data /*ignored*/};
     auto& obj0 = tuple.get(static_cast<type0*>(nullptr));
     auto& obj1 = tuple.get(static_cast<type1*>(nullptr));
 

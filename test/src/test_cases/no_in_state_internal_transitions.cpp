@@ -42,17 +42,17 @@ namespace
         };
     }
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::single, events::self_transition, states::single>
-    >;
-
-    struct fsm_configuration: fgfsm::default_fsm_configuration
+    struct fsm_configuration: fgfsm::fsm_configuration
     {
+        using transition_table_t = fgfsm::transition_table
+        <
+            fgfsm::row<states::single, events::self_transition, states::single>
+        >;
+
         static constexpr auto enable_in_state_internal_transitions = false;
     };
 
-    using fsm = fgfsm::fsm<transition_table, fsm_configuration>;
+    using fsm = fgfsm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("no_in_state_internal_transitions")

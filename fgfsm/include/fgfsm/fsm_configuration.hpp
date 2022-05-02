@@ -4,13 +4,13 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
-#ifndef FGFSM_DEFAULT_FSM_CONFIGURATION_HPP
-#define FGFSM_DEFAULT_FSM_CONFIGURATION_HPP
+#ifndef FGFSM_FSM_CONFIGURATION_HPP
+#define FGFSM_FSM_CONFIGURATION_HPP
 
 namespace fgfsm
 {
 
-struct default_fsm_configuration
+struct fsm_configuration
 {
     /*
     Called whenever an event is being processed, after recursive call protection
@@ -20,8 +20,8 @@ struct default_fsm_configuration
     */
     struct pre_transition_event_handler
     {
-        template<class Context>
-        pre_transition_event_handler(Context&)
+        template<class Context, class Fsm>
+        pre_transition_event_handler(Context&, Fsm&)
         {
         }
 
@@ -33,8 +33,8 @@ struct default_fsm_configuration
 
     struct internal_transition_policy
     {
-        template<class Context>
-        internal_transition_policy(const Context&)
+        template<class Context, class Fsm>
+        internal_transition_policy(const Context&, Fsm&)
         {
         }
 
@@ -47,8 +47,8 @@ struct default_fsm_configuration
 
     struct state_transition_policy
     {
-        template<class Context>
-        state_transition_policy(const Context&)
+        template<class Context, class Fsm>
+        state_transition_policy(const Context&, Fsm&)
         {
         }
 

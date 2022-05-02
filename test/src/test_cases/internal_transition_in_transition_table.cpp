@@ -79,14 +79,17 @@ namespace
         };
     };
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::idle,    events::power_button_press, states::running>,
-        fgfsm::row<states::running, events::power_button_press, states::idle>,
-        fgfsm::row<states::running, events::beep_button_press,  fgfsm::none,      actions::beep>
-    >;
+    struct fsm_configuration: fgfsm::fsm_configuration
+    {
+        using transition_table_t = fgfsm::transition_table
+        <
+            fgfsm::row<states::idle,    events::power_button_press, states::running>,
+            fgfsm::row<states::running, events::power_button_press, states::idle>,
+            fgfsm::row<states::running, events::beep_button_press,  fgfsm::none,      actions::beep>
+        >;
+    };
 
-    using fsm = fgfsm::fsm<transition_table>;
+    using fsm = fgfsm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("internal transition in transition table")

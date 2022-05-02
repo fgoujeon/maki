@@ -274,39 +274,42 @@ using namespace actions;
 using namespace guards;
 using button_push = button::push_event;
 
-/*
-This is the transition table. This is where we define the actions that must be
-executed depending on the active state and the event we receive.
-Basically, whenever fgfsm::fsm::process_event() is called, FGFSM iterates over
-the rows of this table until it finds a match, i.e. when:
-- 'start_state' is the currently active state (or is fgfsm::any);
-- 'event' is the type of the processed event;
-- and the 'guard' returns true (or is fgfsm::none).
-When a match is found, FGFSM:
-- exits 'start_state';
-- marks 'target_state' as the new active state;
-- executes the 'action';
-- enters 'target_state'.
-The initial active state of the FSM is the first state encountered in the
-transition table ('off', is our case).
-*/
-using transition_table = fgfsm::transition_table
-<
-    //         start_state,    event,       target_state,   action,            guard
-    fgfsm::row<off,            button_push, emitting_white, turn_light_white>,
-    fgfsm::row<emitting_white, button_push, emitting_red,   turn_light_red,    is_short_push>,
-    fgfsm::row<emitting_red,   button_push, emitting_green, turn_light_green,  is_short_push>,
-    fgfsm::row<emitting_green, button_push, emitting_blue,  turn_light_blue,   is_short_push>,
-    fgfsm::row<emitting_blue,  button_push, emitting_white, turn_light_white,  is_short_push>,
-    fgfsm::row<fgfsm::any,     button_push, off,            turn_light_off,    is_long_push>
->;
+struct fsm_configuration: fgfsm::fsm_configuration
+{
+    /*
+    This is the transition table. This is where we define the actions that must
+    be executed depending on the active state and the event we receive.
+    Basically, whenever fgfsm::fsm::process_event() is called, FGFSM iterates
+    over the rows of this table until it finds a match, i.e. when:
+    - 'start_state' is the currently active state (or is fgfsm::any);
+    - 'event' is the type of the processed event;
+    - and the 'guard' returns true (or is fgfsm::none).
+    When a match is found, FGFSM:
+    - exits 'start_state';
+    - marks 'target_state' as the new active state;
+    - executes the 'action';
+    - enters 'target_state'.
+    The initial active state of the FSM is the first state encountered in the
+    transition table ('off', is our case).
+    */
+    using transition_table_t = fgfsm::transition_table
+    <
+        //         start_state,    event,       target_state,   action,            guard
+        fgfsm::row<off,            button_push, emitting_white, turn_light_white>,
+        fgfsm::row<emitting_white, button_push, emitting_red,   turn_light_red,    is_short_push>,
+        fgfsm::row<emitting_red,   button_push, emitting_green, turn_light_green,  is_short_push>,
+        fgfsm::row<emitting_green, button_push, emitting_blue,  turn_light_blue,   is_short_push>,
+        fgfsm::row<emitting_blue,  button_push, emitting_white, turn_light_white,  is_short_push>,
+        fgfsm::row<fgfsm::any,     button_push, off,            turn_light_off,    is_long_push>
+    >;
+};
 
 /*
 We finally have our FSM.
 Note that we can pass a configuration struct as second template argument to fine
 tune the behavior of our FSM.
 */
-using fsm = fgfsm::fsm<transition_table>;
+using fsm = fgfsm::fsm<fsm_configuration>;
 
 int main()
 {

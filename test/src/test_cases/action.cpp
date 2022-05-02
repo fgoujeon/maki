@@ -39,13 +39,16 @@ namespace
         };
     }
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::off, events::button_press, states::on,  actions::beep<1>>,
-        fgfsm::row<states::on,  events::button_press, states::off, actions::beep<0>>
-    >;
+    struct fsm_conf: fgfsm::fsm_configuration
+    {
+        using transition_table_t = fgfsm::transition_table
+        <
+            fgfsm::row<states::off, events::button_press, states::on,  actions::beep<1>>,
+            fgfsm::row<states::on,  events::button_press, states::off, actions::beep<0>>
+        >;
+    };
 
-    using fsm = fgfsm::fsm<transition_table>;
+    using fsm = fgfsm::fsm<fsm_conf>;
 }
 
 TEST_CASE("action")

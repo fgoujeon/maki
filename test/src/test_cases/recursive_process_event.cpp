@@ -4,19 +4,21 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
+#include <fgfsm/fsm_fwd.hpp>
+
+namespace
+{
+    struct fsm_configuration;
+    using fsm = fgfsm::fsm<fsm_configuration>;
+}
+
 #include <fgfsm.hpp>
 #include <catch2/catch.hpp>
 
 namespace
 {
-    struct fsm;
-
     struct context
     {
-        template<class Event>
-        void process_event(const Event&);
-
-        fsm* pfsm;
         std::string output;
     };
 
@@ -80,7 +82,7 @@ namespace
 
             void on_event(const events::self_call_request& event)
             {
-                ctx.process_event(events::self_call_response{event.data});
+                sm.process_event(events::self_call_response{event.data});
             }
 
             void on_event(const events::self_call_response& event)
@@ -94,6 +96,7 @@ namespace
             }
 
             context& ctx;
+            fgfsm::fsm_ref<events::self_call_response> sm;
         };
     }
 
@@ -103,22 +106,23 @@ namespace
         {
             void execute()
             {
-                ctx.process_event(events::end_of_loading{});
+                sm.process_event(events::end_of_loading{});
             }
 
             context& ctx;
+            fgfsm::fsm_ref<events::end_of_loading> sm;
         };
     }
 
-    using transition_table = fgfsm::transition_table
-    <
-        fgfsm::row<states::idle,    events::start_button_press,       states::loading>,
-        fgfsm::row<states::idle,    events::quick_start_button_press, states::loading,  actions::skip_loading>,
-        fgfsm::row<states::loading, events::end_of_loading,           states::ready>
-    >;
-
-    struct fsm_configuration: fgfsm::default_fsm_configuration
+    struct fsm_configuration: fgfsm::fsm_configuration
     {
+        using transition_table_t = fgfsm::transition_table
+        <
+            fgfsm::row<states::idle,    events::start_button_press,       states::loading>,
+            fgfsm::row<states::idle,    events::quick_start_button_press, states::loading,  actions::skip_loading>,
+            fgfsm::row<states::loading, events::end_of_loading,           states::ready>
+        >;
+
         struct pre_transition_event_handler
         {
             void on_event(const events::quick_start_button_press&)
@@ -137,28 +141,15 @@ namespace
             }
 
             context& ctx;
+            fsm& sm;
         };
     };
-
-    using fsm_t = fgfsm::fsm<transition_table, fsm_configuration>;
-
-    struct fsm: fsm_t
-    {
-        using fsm_t::fsm_t;
-    };
-
-    template<class Event>
-    void context::process_event(const Event& event)
-    {
-        pfsm->process_event(event);
-    }
 }
 
 TEST_CASE("recursive process_event")
 {
     auto ctx = context{};
     auto sm = fsm{ctx};
-    ctx.pfsm = &sm;
 
     sm.process_event(events::quick_start_button_press{});
     REQUIRE

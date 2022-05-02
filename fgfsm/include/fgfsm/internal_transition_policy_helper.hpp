@@ -16,7 +16,7 @@ template<class State, class Event>
 class internal_transition_policy_helper
 {
     private:
-        template<class TransitionTable, class Configuration>
+        template<class FsmConfiguration>
         friend class fsm;
 
         internal_transition_policy_helper(State& state, const Event& event):

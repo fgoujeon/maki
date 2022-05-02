@@ -21,15 +21,16 @@ namespace
 
     namespace events
     {
-        struct button_press{};
+        struct on_button_press{};
+        struct off_button_press{};
     }
 
     struct fsm_configuration: fgfsm::fsm_configuration
     {
         using transition_table_t = fgfsm::transition_table
         <
-            fgfsm::row<states::off, events::button_press, states::on>,
-            fgfsm::row<states::on,  events::button_press, states::off>
+            fgfsm::row<states::off, events::on_button_press,  states::on>,
+            fgfsm::row<states::on,  events::off_button_press, states::off>
         >;
 
         static constexpr auto enable_run_to_completion = false;
@@ -38,23 +39,17 @@ namespace
     using fsm = fgfsm::fsm<fsm_configuration>;
 }
 
-TEST_CASE("basic transition")
+TEST_CASE("fsm_ref")
 {
     auto ctx = context{};
     auto sm = fsm{ctx};
+    auto sm_ref = fgfsm::fsm_ref<events::on_button_press, events::off_button_press>{sm};
 
     REQUIRE(sm.is_active_state<states::off>());
 
-    sm.process_event(events::button_press{});
+    sm_ref.process_event(events::on_button_press{});
     REQUIRE(sm.is_active_state<states::on>());
 
-    sm.process_event(events::button_press{});
+    sm_ref.process_event(events::off_button_press{});
     REQUIRE(sm.is_active_state<states::off>());
-
-#ifdef CATCH_CONFIG_ENABLE_BENCHMARKING
-    BENCHMARK("process_event")
-    {
-        sm.process_event(events::button_press{});
-    };
-#endif
 }

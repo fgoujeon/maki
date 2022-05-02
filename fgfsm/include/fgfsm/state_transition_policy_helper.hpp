@@ -28,7 +28,7 @@ template
 class state_transition_policy_helper
 {
     private:
-        template<class TransitionTable, class Configuration>
+        template<class FsmConfiguration>
         friend class fsm;
 
         state_transition_policy_helper(Fsm& sm, const Event& event):

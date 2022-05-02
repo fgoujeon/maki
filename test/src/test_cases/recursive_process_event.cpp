@@ -14,10 +14,6 @@ namespace
 
     struct context
     {
-        template<class Event>
-        void process_event(const Event&);
-
-        fsm* pfsm;
         std::string output;
     };
 
@@ -79,10 +75,7 @@ namespace
                 ctx.output += "ready::on_entry;";
             }
 
-            void on_event(const events::self_call_request& event)
-            {
-                ctx.process_event(events::self_call_response{event.data});
-            }
+            void on_event(const events::self_call_request& event);
 
             void on_event(const events::self_call_response& event)
             {
@@ -95,6 +88,7 @@ namespace
             }
 
             context& ctx;
+            fsm& sm;
         };
     }
 
@@ -102,12 +96,10 @@ namespace
     {
         struct skip_loading
         {
-            void execute()
-            {
-                ctx.process_event(events::end_of_loading{});
-            }
+            void execute();
 
             context& ctx;
+            fsm& sm;
         };
     }
 
@@ -138,13 +130,24 @@ namespace
             }
 
             context& ctx;
+            fsm& sm;
         };
     };
 
-    template<class Event>
-    void context::process_event(const Event& event)
+    namespace states
     {
-        pfsm->process_event(event);
+        void ready::on_event(const events::self_call_request& event)
+        {
+            sm.process_event(events::self_call_response{event.data});
+        }
+    }
+
+    namespace actions
+    {
+        void skip_loading::execute()
+        {
+            sm.process_event(events::end_of_loading{});
+        }
     }
 }
 
@@ -152,7 +155,6 @@ TEST_CASE("recursive process_event")
 {
     auto ctx = context{};
     auto sm = fsm{ctx};
-    ctx.pfsm = &sm;
 
     sm.process_event(events::quick_start_button_press{});
     REQUIRE

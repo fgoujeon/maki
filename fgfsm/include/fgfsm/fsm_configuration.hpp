@@ -20,8 +20,8 @@ struct fsm_configuration
     */
     struct pre_transition_event_handler
     {
-        template<class Context>
-        pre_transition_event_handler(Context&)
+        template<class Context, class Fsm>
+        pre_transition_event_handler(Context&, Fsm&)
         {
         }
 
@@ -33,8 +33,8 @@ struct fsm_configuration
 
     struct internal_transition_policy
     {
-        template<class Context>
-        internal_transition_policy(const Context&)
+        template<class Context, class Fsm>
+        internal_transition_policy(const Context&, Fsm&)
         {
         }
 
@@ -47,8 +47,8 @@ struct fsm_configuration
 
     struct state_transition_policy
     {
-        template<class Context>
-        state_transition_policy(const Context&)
+        template<class Context, class Fsm>
+        state_transition_policy(const Context&, Fsm&)
         {
         }
 

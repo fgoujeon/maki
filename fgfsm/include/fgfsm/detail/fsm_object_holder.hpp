@@ -44,10 +44,25 @@ construct the objects.
 template<class T>
 struct fsm_object_holder
 {
-    template<class Context, class U = T>
+    template<class Context, class Fsm, class U = T>
     fsm_object_holder
     (
         Context& ctx,
+        Fsm& sm,
+        std::enable_if_t
+        <
+            fsm_object_holder_detail::is_brace_constructible<U, Context&, Fsm&>
+        >* = nullptr
+    ):
+        object{ctx, sm}
+    {
+    }
+
+    template<class Context, class Fsm, class U = T>
+    fsm_object_holder
+    (
+        Context& ctx,
+        Fsm&,
         std::enable_if_t
         <
             fsm_object_holder_detail::is_brace_constructible<U, Context&>
@@ -57,10 +72,11 @@ struct fsm_object_holder
     {
     }
 
-    template<class Context, class U = T>
+    template<class Context, class Fsm, class U = T>
     fsm_object_holder
     (
         Context&,
+        Fsm&,
         std::enable_if_t<std::is_default_constructible_v<U>>* = nullptr
     )
     {

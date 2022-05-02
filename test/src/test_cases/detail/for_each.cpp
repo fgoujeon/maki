@@ -26,7 +26,7 @@ namespace
 TEST_CASE("detail::for_each")
 {
     void* ignored = nullptr;
-    auto tuple = type_tuple{ignored};
+    auto tuple = type_tuple{ignored, ignored};
 
     fgfsm::detail::for_each
     (

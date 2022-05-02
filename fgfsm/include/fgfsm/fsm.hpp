@@ -86,12 +86,12 @@ class fsm
     public:
         template<class Context>
         fsm(Context& context):
-            states_(context),
-            actions_(context),
-            guards_(context),
-            pre_transition_event_handler_{context},
-            internal_transition_policy_{context},
-            state_transition_policy_{context}
+            states_(context, *this),
+            actions_(context, *this),
+            guards_(context, *this),
+            pre_transition_event_handler_{context, *this},
+            internal_transition_policy_{context, *this},
+            state_transition_policy_{context, *this}
         {
         }
 

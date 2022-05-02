@@ -43,10 +43,10 @@ namespace detail
     class binary_operator_guard
     {
         public:
-            template<class Context>
-            binary_operator_guard(Context& context):
-                lhs_{context},
-                rhs_{context}
+            template<class Context, class Fsm>
+            binary_operator_guard(Context& context, Fsm& sm):
+                lhs_{context, sm},
+                rhs_{context, sm}
             {
             }
 
@@ -70,9 +70,9 @@ template<class T>
 class not_
 {
     public:
-        template<class Context>
-        not_(Context& context):
-            guard_{context}
+        template<class Context, class Fsm>
+        not_(Context& context, Fsm& sm):
+            guard_{context, sm}
         {
         }
 

@@ -27,17 +27,13 @@ template
 >
 class state_transition_policy_helper
 {
-    private:
-        template<class FsmConfiguration>
-        friend class fsm;
-
-        state_transition_policy_helper(Fsm& sm, const Event& event):
-            sm_(sm),
-            event_(event)
-        {
-        }
-
     public:
+        using start_state_type = StartState;
+        using event_type = Event;
+        using target_state_type = TargetState;
+        using action_type = Action;
+        using guard_type = Guard;
+
         bool check_guard() const
         {
             if constexpr(!std::is_same_v<Guard, none>)
@@ -107,6 +103,15 @@ class state_transition_policy_helper
         }
 
     private:
+        template<class FsmConfiguration>
+        friend class fsm;
+
+        state_transition_policy_helper(Fsm& sm, const Event& event):
+            sm_(sm),
+            event_(event)
+        {
+        }
+
         auto& get_target_state() const
         {
             if constexpr(std::is_same_v<TargetState, none>)

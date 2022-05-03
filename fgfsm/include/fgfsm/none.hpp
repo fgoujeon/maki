@@ -19,6 +19,11 @@ Represents either:
 */
 struct none{};
 
+namespace detail
+{
+    constexpr auto none_v = none{};
+}
+
 } //namespace
 
 #endif

@@ -116,8 +116,7 @@ class state_transition_policy_helper
         {
             if constexpr(std::is_same_v<TargetState, none>)
             {
-                static constexpr auto none_instance = none{};
-                return none_instance;
+                return detail::none_v;
             }
             else
             {

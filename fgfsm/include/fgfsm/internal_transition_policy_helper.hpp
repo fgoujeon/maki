@@ -15,6 +15,15 @@ namespace fgfsm
 template<class State, class Event>
 class internal_transition_policy_helper
 {
+    public:
+        using state_type = State;
+        using event_type = Event;
+
+        void invoke_state_on_event()
+        {
+            detail::call_on_event(state_, event_);
+        }
+
     private:
         template<class FsmConfiguration>
         friend class fsm;
@@ -25,13 +34,6 @@ class internal_transition_policy_helper
         {
         }
 
-    public:
-        void invoke_state_on_event()
-        {
-            detail::call_on_event(state_, event_);
-        }
-
-    private:
         State& state_;
         const Event& event_;
 };

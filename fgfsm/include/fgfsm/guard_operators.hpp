@@ -60,6 +60,33 @@ namespace detail
                 );
             }
 
+            template<class StartState, class Event, class TargetState>
+            bool check
+            (
+                StartState& start_state,
+                const Event& event,
+                TargetState& target_state
+            )
+            {
+                return Operator::test
+                (
+                    detail::call_check
+                    (
+                        lhs_.object,
+                        start_state,
+                        event,
+                        target_state
+                    ),
+                    detail::call_check
+                    (
+                        rhs_.object,
+                        start_state,
+                        event,
+                        target_state
+                    )
+                );
+            }
+
         private:
             detail::fsm_object_holder<Lhs> lhs_;
             detail::fsm_object_holder<Rhs> rhs_;
@@ -76,10 +103,21 @@ class not_
         {
         }
 
-        template<class Event>
-        bool check(const Event& event)
+        template<class StartState, class Event, class TargetState>
+        bool check
+        (
+            StartState& start_state,
+            const Event& event,
+            TargetState& target_state
+        )
         {
-            return !detail::call_check(guard_.object, event);
+            return !detail::call_check
+            (
+                guard_.object,
+                start_state,
+                event,
+                target_state
+            );
         }
 
     private:

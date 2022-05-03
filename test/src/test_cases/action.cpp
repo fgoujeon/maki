@@ -27,12 +27,21 @@ namespace
 
     namespace actions
     {
-        template<int Value>
         struct beep
         {
             void execute(const events::button_press&)
             {
-                ctx.i = Value;
+                ctx.i = 1;
+            }
+
+            context& ctx;
+        };
+
+        struct boop
+        {
+            void execute(const states::on&, const events::button_press&, const states::off&)
+            {
+                ctx.i = 0;
             }
 
             context& ctx;
@@ -43,8 +52,8 @@ namespace
     {
         using transition_table_t = fgfsm::transition_table
         <
-            fgfsm::row<states::off, events::button_press, states::on,  actions::beep<1>>,
-            fgfsm::row<states::on,  events::button_press, states::off, actions::beep<0>>
+            fgfsm::row<states::off, events::button_press, states::on,  actions::beep>,
+            fgfsm::row<states::on,  events::button_press, states::off, actions::boop>
         >;
     };
 

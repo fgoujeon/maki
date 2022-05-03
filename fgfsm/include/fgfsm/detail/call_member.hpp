@@ -90,32 +90,72 @@ void call_on_exit(State& state, const Event& event)
         ignore_unused(event);
 }
 
-template<class Action, class Event>
-void call_execute(Action& action, const Event& event)
+template<class Action, class StartState, class Event, class TargetState>
+void call_execute
+(
+    Action& action,
+    StartState& start_state,
+    const Event& event,
+    TargetState& target_state
+)
 {
-    if constexpr(has_execute<Action&, const Event&>())
+    static_assert
+    (
+        has_execute<Action&, StartState&, const Event&, TargetState&>() ||
+        has_execute<Action&, const Event&>() ||
+        has_execute<Action&>(),
+        "No execute(start_state, event, target_state), "
+        "execute(event) or execute() found in action type"
+    );
+
+    if constexpr(has_execute<Action&, StartState&, const Event&, TargetState&>())
+    {
+        action.execute(start_state, event, target_state);
+    }
+    else if constexpr(has_execute<Action&, const Event&>())
+    {
+        ignore_unused(start_state, target_state);
         action.execute(event);
+    }
     else if constexpr(has_execute<Action&>())
     {
-        ignore_unused(event);
+        ignore_unused(start_state, event, target_state);
         action.execute();
     }
-    else
-        int* error = "No execute(event) or execute() found in action type";
 }
 
-template<class Guard, class Event>
-bool call_check(Guard& guard, const Event& event)
+template<class Guard, class StartState, class Event, class TargetState>
+bool call_check
+(
+    Guard& guard,
+    StartState& start_state,
+    const Event& event,
+    TargetState& target_state
+)
 {
-    if constexpr(has_check<Guard&, const Event&>())
+    static_assert
+    (
+        has_check<Guard&, StartState&, const Event&, TargetState&>() ||
+        has_check<Guard&, const Event&>() ||
+        has_check<Guard&>(),
+        "No check(start_state, event, target_state), "
+        "check(event) or check() found in guard type"
+    );
+
+    if constexpr(has_check<Guard&, StartState&, const Event&, TargetState&>())
+    {
+        return guard.check(start_state, event, target_state);
+    }
+    else if constexpr(has_check<Guard&, const Event&>())
+    {
+        ignore_unused(start_state, target_state);
         return guard.check(event);
+    }
     else if constexpr(has_check<Guard&>())
     {
-        ignore_unused(event);
+        ignore_unused(start_state, event, target_state);
         return guard.check();
     }
-    else
-        int* error = "No check(event) or check() found in guard type";
 }
 
 } //namespace

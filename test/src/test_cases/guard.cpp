@@ -47,6 +47,14 @@ namespace
                 return event.hard;
             }
         };
+
+        struct always_false
+        {
+            bool check(const states::on&, const events::button_press&, const states::off&)
+            {
+                return false;
+            }
+        };
     }
 
     struct fsm_configuration: fgfsm::fsm_configuration
@@ -54,6 +62,7 @@ namespace
         using transition_table_t = fgfsm::transition_table
         <
             fgfsm::row<states::off, events::button_press, states::on,  fgfsm::none, guards::has_power>,
+            fgfsm::row<states::on,  events::button_press, states::off, fgfsm::none, guards::always_false>,
             fgfsm::row<states::on,  events::button_press, states::off, fgfsm::none, guards::is_pressing_hard>
         >;
     };

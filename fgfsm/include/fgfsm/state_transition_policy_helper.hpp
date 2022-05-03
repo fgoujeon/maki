@@ -42,11 +42,12 @@ class state_transition_policy_helper
         {
             if constexpr(!std::is_same_v<Guard, none>)
             {
-                using tag_t = Guard*;
                 return detail::call_check
                 (
-                    sm_.guards_.get(tag_t{}),
-                    event_
+                    sm_.guards_.get(static_cast<Guard*>(nullptr)),
+                    sm_.states_.get(static_cast<StartState*>(nullptr)),
+                    event_,
+                    get_target_state()
                 );
             }
             else
@@ -59,10 +60,9 @@ class state_transition_policy_helper
         {
             if constexpr(!std::is_same_v<TargetState, none>)
             {
-                using tag_t = StartState*;
                 detail::call_on_exit
                 (
-                    sm_.states_.get(tag_t{}),
+                    sm_.states_.get(static_cast<StartState*>(nullptr)),
                     event_
                 );
             }
@@ -84,11 +84,12 @@ class state_transition_policy_helper
         {
             if constexpr(!std::is_same_v<Action, none>)
             {
-                using tag_t = Action*;
                 detail::call_execute
                 (
-                    sm_.actions_.get(tag_t{}),
-                    event_
+                    sm_.actions_.get(static_cast<Action*>(nullptr)),
+                    sm_.states_.get(static_cast<StartState*>(nullptr)),
+                    event_,
+                    get_target_state()
                 );
             }
         }
@@ -97,16 +98,28 @@ class state_transition_policy_helper
         {
             if constexpr(!std::is_same_v<TargetState, none>)
             {
-                using tag_t = TargetState*;
                 detail::call_on_entry
                 (
-                    sm_.states_.get(tag_t{}),
+                    get_target_state(),
                     event_
                 );
             }
         }
 
     private:
+        auto& get_target_state() const
+        {
+            if constexpr(std::is_same_v<TargetState, none>)
+            {
+                static constexpr auto none_instance = none{};
+                return none_instance;
+            }
+            else
+            {
+                return sm_.states_.get(static_cast<TargetState*>(nullptr));
+            }
+        }
+
         Fsm& sm_;
         const Event& event_;
 };

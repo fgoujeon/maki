@@ -22,11 +22,11 @@ template
 >
 struct row
 {
-    using start_state = StartState;
-    using event = Event;
-    using target_state = TargetState;
-    using action = Action;
-    using guard = Guard;
+    using start_state_type = StartState;
+    using event_type = Event;
+    using target_state_type = TargetState;
+    using action_type = Action;
+    using guard_type = Guard;
 };
 
 } //namespace

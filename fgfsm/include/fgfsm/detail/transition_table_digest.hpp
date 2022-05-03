@@ -82,31 +82,31 @@ namespace transition_table_digest_detail
             push_back_unique_if_not_any_or_none
             <
                 typename Digest::state_tuple,
-                typename Row::start_state
+                typename Row::start_state_type
             >,
-            typename Row::target_state
+            typename Row::target_state_type
         >;
 
         using action_tuple = push_back_unique_if_not_any_or_none
         <
             typename Digest::action_tuple,
-            typename Row::action
+            typename Row::action_type
         >;
 
         using guard_tuple = push_back_unique_if_not_any_or_none
         <
             typename Digest::guard_tuple,
-            typename Row::guard
+            typename Row::guard_type
         >;
 
         static constexpr auto has_any_start_states =
             Digest::has_any_start_states ||
-            std::is_same_v<typename Row::start_state, any>
+            std::is_same_v<typename Row::start_state_type, any>
         ;
 
         static constexpr auto has_none_events =
             Digest::has_none_events ||
-            std::is_same_v<typename Row::event, none>
+            std::is_same_v<typename Row::event_type, none>
         ;
     };
 

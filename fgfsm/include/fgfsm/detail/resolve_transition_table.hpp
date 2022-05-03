@@ -94,10 +94,10 @@ namespace resolve_transition_table_detail
             row
             <
                 StartState,
-                typename OriginalRow::event,
-                typename OriginalRow::target_state,
-                typename OriginalRow::action,
-                typename OriginalRow::guard
+                typename OriginalRow::event_type,
+                typename OriginalRow::target_state_type,
+                typename OriginalRow::action_type,
+                typename OriginalRow::guard_type
             >
         >;
     };

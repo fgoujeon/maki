@@ -224,11 +224,11 @@ class fsm
         template<class Row>
         struct transition_table_row_event_processor
         {
-            using transition_start_state  = typename Row::start_state;
-            using transition_event        = typename Row::event;
-            using transition_target_state = typename Row::target_state;
-            using transition_action       = typename Row::action;
-            using transition_guard        = typename Row::guard;
+            using transition_start_state  = typename Row::start_state_type;
+            using transition_event        = typename Row::event_type;
+            using transition_target_state = typename Row::target_state_type;
+            using transition_action       = typename Row::action_type;
+            using transition_guard        = typename Row::guard_type;
 
             static bool process(fsm& sm, const transition_event* const pevent)
             {

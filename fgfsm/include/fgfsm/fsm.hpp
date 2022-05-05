@@ -12,6 +12,7 @@
 #include "state_transition_policy_helper.hpp"
 #include "any.hpp"
 #include "none.hpp"
+#include "detail/final_act.hpp"
 #include "detail/for_each.hpp"
 #include "detail/resolve_transition_table.hpp"
 #include "detail/transition_table_digest.hpp"
@@ -23,31 +24,6 @@
 
 namespace fgfsm
 {
-
-namespace detail
-{
-    class processing_event_guard
-    {
-        public:
-            processing_event_guard(bool& b):
-                b_(b)
-            {
-            }
-
-            processing_event_guard(const processing_event_guard&) = delete;
-            processing_event_guard(processing_event_guard&&) = delete;
-            processing_event_guard& operator=(const processing_event_guard&) = delete;
-            processing_event_guard& operator=(processing_event_guard&&) = delete;
-
-            ~processing_event_guard()
-            {
-                b_ = false;
-            }
-
-        private:
-            bool& b_;
-    };
-}
 
 template<class Configuration>
 class fsm
@@ -95,10 +71,7 @@ class fsm
                 }
 
                 processing_event_ = true;
-                auto processing_guard = detail::processing_event_guard
-                {
-                    processing_event_
-                };
+                auto _ = detail::final_act{[this]{processing_event_ = false;}};
 
                 process_event_once(event);
 

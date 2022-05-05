@@ -1,5 +1,5 @@
 ---
-Checks:          'clang-diagnostic-*,clang-analyzer-*,modernize-*,bugprone-*,cppcoreguidelines-*,performance-*,portability-*,readability-*,-modernize-use-trailing-return-type'
+Checks:          'clang-diagnostic-*,clang-analyzer-*,modernize-*,bugprone-*,cppcoreguidelines-*,performance-*,portability-*,readability-*,misc-*,-modernize-use-trailing-return-type'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false
@@ -28,6 +28,8 @@ CheckOptions:
     value:           '60'
   - key:             readability-suspicious-call-argument.Equality
     value:           'true'
+  - key:             misc-uniqueptr-reset-release.IncludeStyle
+    value:           llvm
   - key:             bugprone-easily-swappable-parameters.QualifiersMix
     value:           'false'
   - key:             bugprone-suspicious-string-compare.WarnOnImplicitComparison
@@ -44,6 +46,8 @@ CheckOptions:
     value:           ''
   - key:             readability-suspicious-call-argument.SuffixSimilarAbove
     value:           '30'
+  - key:             misc-definitions-in-headers.HeaderFileExtensions
+    value:           ';h;hh;hpp;hxx'
   - key:             cppcoreguidelines-narrowing-conversions.WarnOnIntegerNarrowingConversion
     value:           'true'
   - key:             bugprone-easily-swappable-parameters.IgnoredParameterNames
@@ -90,6 +94,8 @@ CheckOptions:
     value:           'false'
   - key:             readability-suspicious-call-argument.Levenshtein
     value:           'true'
+  - key:             misc-throw-by-value-catch-by-reference.CheckThrowTemporaries
+    value:           'true'
   - key:             bugprone-not-null-terminated-result.WantToUseSafeFunctions
     value:           'true'
   - key:             bugprone-string-constructor.LargeLengthThreshold
@@ -122,6 +128,8 @@ CheckOptions:
     value:           'false'
   - key:             modernize-make-shared.MakeSmartPtrFunctionHeader
     value:           '<memory>'
+  - key:             misc-non-private-member-variables-in-classes.IgnorePublicMemberVariables
+    value:           'false'
   - key:             bugprone-sizeof-expression.WarnOnSizeOfConstant
     value:           'true'
   - key:             readability-redundant-string-init.StringNames
@@ -174,12 +182,14 @@ CheckOptions:
     value:           ''
   - key:             readability-uniqueptr-delete-release.PreferResetCall
     value:           'false'
-  - key:             cppcoreguidelines-avoid-magic-numbers.IgnorePowersOf2IntegerValues
-    value:           'false'
+  - key:             misc-definitions-in-headers.UseHeaderFileExtension
+    value:           'true'
   - key:             google-readability-namespace-comments.SpacesBeforeComments
     value:           '2'
   - key:             cppcoreguidelines-avoid-magic-numbers.IgnoreBitFieldsWidths
     value:           'true'
+  - key:             cppcoreguidelines-avoid-magic-numbers.IgnorePowersOf2IntegerValues
+    value:           'false'
   - key:             cppcoreguidelines-avoid-magic-numbers.IgnoredIntegerValues
     value:           '1;2;3;4;'
   - key:             cppcoreguidelines-no-malloc.Allocations
@@ -217,6 +227,8 @@ CheckOptions:
   - key:             bugprone-dangling-handle.HandleClasses
     value:           'std::basic_string_view;std::experimental::basic_string_view'
   - key:             readability-magic-numbers.IgnorePowersOf2IntegerValues
+    value:           'false'
+  - key:             misc-unused-parameters.StrictMode
     value:           'false'
   - key:             readability-suspicious-call-argument.JaroWinklerSimilarAbove
     value:           '85'
@@ -276,6 +288,8 @@ CheckOptions:
     value:           'true'
   - key:             bugprone-argument-comment.StrictMode
     value:           '0'
+  - key:             misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+    value:           'false'
   - key:             modernize-replace-random-shuffle.IncludeStyle
     value:           llvm
   - key:             modernize-use-bool-literals.IgnoreMacros
@@ -372,18 +386,18 @@ CheckOptions:
     value:           '0'
   - key:             readability-magic-numbers.IgnoredFloatingPointValues
     value:           '1.0;100.0;'
-  - key:             readability-implicit-bool-conversion.AllowPointerConditions
-    value:           'false'
   - key:             performance-inefficient-string-concatenation.StrictMode
     value:           'false'
+  - key:             readability-redundant-declaration.IgnoreMacros
+    value:           'true'
   - key:             bugprone-easily-swappable-parameters.IgnoredParameterTypeSuffixes
     value:           'bool;Bool;_Bool;it;It;iterator;Iterator;inputit;InputIt;forwardit;FowardIt;bidirit;BidirIt;constiterator;const_iterator;Const_Iterator;Constiterator;ConstIterator;RandomIt;randomit;random_iterator;ReverseIt;reverse_iterator;reverse_const_iterator;ConstReverseIterator;Const_Reverse_Iterator;const_reverse_iterator;Constreverseiterator;constreverseiterator'
   - key:             modernize-make-unique.MakeSmartPtrFunction
     value:           'std::make_unique'
   - key:             portability-restrict-system-includes.Includes
     value:           '*'
-  - key:             readability-redundant-declaration.IgnoreMacros
-    value:           'true'
+  - key:             readability-implicit-bool-conversion.AllowPointerConditions
+    value:           'false'
   - key:             modernize-make-unique.MakeSmartPtrFunctionHeader
     value:           '<memory>'
   - key:             bugprone-signal-handler.AsyncSafeFunctionSet
@@ -436,6 +450,8 @@ CheckOptions:
     value:           lit
   - key:             readability-suspicious-call-argument.Dice
     value:           'true'
+  - key:             misc-throw-by-value-catch-by-reference.WarnOnLargeObjects
+    value:           'false'
   - key:             modernize-raw-string-literal.ReplaceShorterLiterals
     value:           'false'
   - key:             readability-magic-numbers.IgnoredIntegerValues
@@ -448,10 +464,10 @@ CheckOptions:
     value:           llvm
   - key:             portability-simd-intrinsics.Std
     value:           ''
-  - key:             performance-unnecessary-value-param.IncludeStyle
-    value:           llvm
   - key:             readability-redundant-member-init.IgnoreBaseInCopyConstructors
     value:           'false'
+  - key:             performance-unnecessary-value-param.IncludeStyle
+    value:           llvm
   - key:             modernize-replace-disallow-copy-and-assign-macro.MacroName
     value:           DISALLOW_COPY_AND_ASSIGN
   - key:             llvm-else-after-return.WarnOnUnfixable

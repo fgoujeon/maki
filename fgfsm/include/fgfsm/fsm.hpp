@@ -24,6 +24,31 @@
 namespace fgfsm
 {
 
+namespace detail
+{
+    class processing_event_guard
+    {
+        public:
+            processing_event_guard(bool& b):
+                b_(b)
+            {
+            }
+
+            processing_event_guard(const processing_event_guard&) = delete;
+            processing_event_guard(processing_event_guard&&) = delete;
+            processing_event_guard& operator=(const processing_event_guard&) = delete;
+            processing_event_guard& operator=(processing_event_guard&&) = delete;
+
+            ~processing_event_guard()
+            {
+                b_ = false;
+            }
+
+        private:
+            bool& b_;
+    };
+}
+
 template<class Configuration>
 class fsm
 {
@@ -69,27 +94,11 @@ class fsm
                     return;
                 }
 
-                struct processing_event_guard
+                processing_event_ = true;
+                auto processing_guard = detail::processing_event_guard
                 {
-                    processing_event_guard(bool& b):
-                        b(b)
-                    {
-                        b = true;
-                    }
-
-                    processing_event_guard(const processing_event_guard&) = delete;
-                    processing_event_guard(processing_event_guard&&) = delete;
-                    processing_event_guard& operator=(const processing_event_guard&) = delete;
-                    processing_event_guard& operator=(processing_event_guard&&) = delete;
-
-                    ~processing_event_guard()
-                    {
-                        b = false;
-                    }
-
-                    bool& b;
+                    processing_event_
                 };
-                auto processing_guard = processing_event_guard{processing_event_};
 
                 process_event_once(event);
 

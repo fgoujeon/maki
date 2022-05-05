@@ -27,6 +27,85 @@ namespace fgfsm
 template<class Configuration>
 class fsm
 {
+    public:
+        template<class Context>
+        fsm(Context& context):
+            states_(context, *this),
+            actions_(context, *this),
+            guards_(context, *this),
+            pre_transition_event_handler_{context, *this},
+            internal_transition_policy_{context, *this},
+            state_transition_policy_{context, *this}
+        {
+        }
+
+        //Check whether the given State is the active state type
+        template<class State>
+        [[nodiscard]] bool is_active_state() const
+        {
+            constexpr auto given_state_index = detail::tlu::get_index
+            <
+                state_tuple,
+                State
+            >;
+            return given_state_index == active_state_index_;
+        }
+
+        template<class Event>
+        void process_event(const Event& event)
+        {
+            if constexpr(Configuration::enable_run_to_completion)
+            {
+                //Queue event processing in case of recursive call
+                if(processing_event_)
+                {
+                    queued_event_processings_.push
+                    (
+                        [this, event]
+                        {
+                            process_event_once(event);
+                        }
+                    );
+                    return;
+                }
+
+                struct processing_event_guard
+                {
+                    processing_event_guard(bool& b):
+                        b(b)
+                    {
+                        b = true;
+                    }
+
+                    processing_event_guard(const processing_event_guard&) = delete;
+                    processing_event_guard(processing_event_guard&&) = delete;
+                    processing_event_guard& operator=(const processing_event_guard&) = delete;
+                    processing_event_guard& operator=(processing_event_guard&&) = delete;
+
+                    ~processing_event_guard()
+                    {
+                        b = false;
+                    }
+
+                    bool& b;
+                };
+                auto processing_guard = processing_event_guard{processing_event_};
+
+                process_event_once(event);
+
+                //Process deferred event processings
+                while(!queued_event_processings_.empty())
+                {
+                    queued_event_processings_.front()();
+                    queued_event_processings_.pop();
+                }
+            }
+            else
+            {
+                process_event_once(event);
+            }
+        }
+
     private:
         static_assert
         (
@@ -83,81 +162,6 @@ class fsm
         >
         friend class state_transition_policy_helper;
 
-    public:
-        template<class Context>
-        fsm(Context& context):
-            states_(context, *this),
-            actions_(context, *this),
-            guards_(context, *this),
-            pre_transition_event_handler_{context, *this},
-            internal_transition_policy_{context, *this},
-            state_transition_policy_{context, *this}
-        {
-        }
-
-        //Check whether the given State is the active state type
-        template<class State>
-        bool is_active_state() const
-        {
-            constexpr auto given_state_index = detail::tlu::get_index
-            <
-                state_tuple,
-                State
-            >;
-            return given_state_index == active_state_index_;
-        }
-
-        template<class Event>
-        void process_event(const Event& event)
-        {
-            if constexpr(Configuration::enable_run_to_completion)
-            {
-                //Queue event processing in case of recursive call
-                if(processing_event_)
-                {
-                    queued_event_processings_.push
-                    (
-                        [this, event]
-                        {
-                            process_event_once(event);
-                        }
-                    );
-                    return;
-                }
-
-                struct processing_event_guard
-                {
-                    processing_event_guard(bool& b):
-                        b(b)
-                    {
-                        b = true;
-                    }
-
-                    ~processing_event_guard()
-                    {
-                        b = false;
-                    }
-
-                    bool& b;
-                };
-                auto processing_guard = processing_event_guard{processing_event_};
-
-                process_event_once(event);
-
-                //Process deferred event processings
-                while(!queued_event_processings_.empty())
-                {
-                    queued_event_processings_.front()();
-                    queued_event_processings_.pop();
-                }
-            }
-            else
-            {
-                process_event_once(event);
-            }
-        }
-
-    private:
         template<class F>
         void visit_active_state(F&& f)
         {
@@ -168,7 +172,9 @@ class fsm
                 {
                     using state = std::decay_t<decltype(s)>;
                     if(is_active_state<state>())
+                    {
                         f(s);
+                    }
                 }
             );
         }
@@ -179,7 +185,9 @@ class fsm
             pre_transition_event_handler_.on_event(event);
 
             if constexpr(Configuration::enable_in_state_internal_transitions)
+            {
                 process_event_in_active_state(event);
+            }
 
             const bool processed = process_event_in_transition_table_once(event);
 
@@ -187,7 +195,9 @@ class fsm
             if constexpr(transition_table_digest::has_none_events)
             {
                 if(processed)
-                    while(process_event_in_transition_table_once(none{}));
+                {
+                    while(process_event_in_transition_table_once(none{})){}
+                }
             }
             else
             {
@@ -234,7 +244,9 @@ class fsm
             {
                 //Make sure the transition start state is the active state
                 if(!sm.is_active_state<transition_start_state>())
+                {
                     return false;
+                }
 
                 //Perform the transition
                 using helper_t = state_transition_policy_helper
@@ -265,7 +277,7 @@ class fsm
             Using an if-constexpr in the process() function above is worse as
             well.
             */
-            static bool process(fsm&, const void*)
+            static bool process(fsm& /*sm*/, const void* /*pevent*/)
             {
                 return false;
             }
@@ -292,7 +304,6 @@ class fsm
             );
         }
 
-    private:
         state_tuple states_;
         action_tuple actions_;
         guard_tuple guards_;

@@ -56,9 +56,14 @@ void call_on_entry(State& state, const Event& event)
         state.on_entry();
     }
     else if constexpr(!std::is_empty_v<State>)
-        int* error = "No on_entry(event) or on_entry() found in non-empty state type";
-    else
+    {
         ignore_unused(event);
+        static_assert
+        (
+            std::is_empty_v<State>,
+            "No on_entry(event) or on_entry() found in non-empty state type"
+        );
+    }
 }
 
 template<class State, class Event>
@@ -84,10 +89,15 @@ void call_on_exit(State& state, const Event& event)
         ignore_unused(event);
         state.on_exit();
     }
-    else if constexpr(!std::is_empty_v<State>)
-        int* error = "No on_exit(event) or on_exit() found in non-empty state type";
     else
+    {
         ignore_unused(event);
+        static_assert
+        (
+            std::is_empty_v<State>,
+            "No on_exit(event) or on_exit() found in non-empty state type"
+        );
+    }
 }
 
 template<class Action, class StartState, class Event, class TargetState>

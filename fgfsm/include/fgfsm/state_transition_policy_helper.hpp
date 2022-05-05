@@ -34,7 +34,7 @@ class state_transition_policy_helper
         using action_type = Action;
         using guard_type = Guard;
 
-        bool check_guard() const
+        [[nodiscard]] bool check_guard() const
         {
             if constexpr(!std::is_same_v<Guard, none>)
             {

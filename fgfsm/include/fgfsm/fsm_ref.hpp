@@ -28,7 +28,7 @@ namespace detail
             {
                 [](void* const vpfsm, const Event& event)
                 {
-                    const auto pfsm = reinterpret_cast<Fsm*>(vpfsm);
+                    const auto pfsm = reinterpret_cast<Fsm*>(vpfsm); //NOLINT
                     pfsm->process_event(event);
                 }
             }

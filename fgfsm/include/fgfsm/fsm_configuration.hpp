@@ -21,12 +21,12 @@ struct fsm_configuration
     struct pre_transition_event_handler
     {
         template<class Context, class Fsm>
-        pre_transition_event_handler(Context&, Fsm&)
+        pre_transition_event_handler(Context& /*ctx*/, Fsm& /*sm*/)
         {
         }
 
         template<class Event>
-        void on_event(const Event&)
+        void on_event(const Event& /*event*/)
         {
         }
     };
@@ -34,7 +34,7 @@ struct fsm_configuration
     struct internal_transition_policy
     {
         template<class Context, class Fsm>
-        internal_transition_policy(const Context&, Fsm&)
+        internal_transition_policy(const Context& /*ctx*/, Fsm& /*sm*/)
         {
         }
 
@@ -48,7 +48,7 @@ struct fsm_configuration
     struct state_transition_policy
     {
         template<class Context, class Fsm>
-        state_transition_policy(const Context&, Fsm&)
+        state_transition_policy(const Context& /*ctx*/, Fsm& /*sm*/)
         {
         }
 
@@ -56,7 +56,9 @@ struct fsm_configuration
         bool do_transition(const Helper& helper)
         {
             if(!helper.check_guard())
+            {
                 return false;
+            }
 
             helper.invoke_start_state_on_exit();
             helper.activate_target_state();

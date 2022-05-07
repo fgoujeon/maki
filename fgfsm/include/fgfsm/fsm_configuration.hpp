@@ -7,6 +7,8 @@
 #ifndef FGFSM_FSM_CONFIGURATION_HPP
 #define FGFSM_FSM_CONFIGURATION_HPP
 
+#include <exception>
+
 namespace fgfsm
 {
 
@@ -33,40 +35,63 @@ struct fsm_configuration
     struct internal_transition_policy
     {
         template<class Context>
-        internal_transition_policy(const Context& /*ctx*/, Fsm& /*sm*/)
+        internal_transition_policy(const Context& /*ctx*/, Fsm& sm):
+            sm(sm)
         {
         }
 
         template<class Helper>
         void do_transition(Helper& helper)
         {
-            helper.invoke_state_on_event();
+            try
+            {
+                helper.invoke_state_on_event();
+            }
+            catch(...)
+            {
+                sm.process_event(std::current_exception());
+            }
         }
+
+        Fsm& sm;
     };
 
     template<class Fsm>
     struct state_transition_policy
     {
         template<class Context>
-        state_transition_policy(const Context& /*ctx*/, Fsm& /*sm*/)
+        state_transition_policy(const Context& /*ctx*/, Fsm& sm):
+            sm(sm)
         {
         }
 
         template<class Helper>
         bool do_transition(const Helper& helper)
         {
-            if(!helper.check_guard())
+            auto processed = false;
+
+            try
             {
-                return false;
+                processed = helper.check_guard();
+                if(!processed)
+                {
+                    return false;
+                }
+
+                helper.invoke_start_state_on_exit();
+                helper.activate_target_state();
+                helper.execute_action();
+                helper.invoke_target_state_on_entry();
+            }
+            catch(...)
+            {
+                sm.process_event(std::current_exception());
             }
 
-            helper.invoke_start_state_on_exit();
-            helper.activate_target_state();
-            helper.execute_action();
-            helper.invoke_target_state_on_entry();
-
-            return true;
+            return processed;
         }
+
+        Fsm& sm;
     };
 
     static constexpr auto enable_run_to_completion = true;

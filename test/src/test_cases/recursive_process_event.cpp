@@ -123,6 +123,7 @@ namespace
             fgfsm::row<states::loading, events::end_of_loading,           states::ready>
         >;
 
+        template<class Fsm>
         struct pre_transition_event_handler
         {
             void on_event(const events::quick_start_button_press&)
@@ -136,7 +137,7 @@ namespace
             }
 
             context& ctx;
-            fsm& sm;
+            Fsm& sm;
         };
     };
 }

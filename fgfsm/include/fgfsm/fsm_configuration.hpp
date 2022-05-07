@@ -12,23 +12,27 @@ namespace fgfsm
 
 struct fsm_configuration
 {
-    /*
-    Called whenever an event is being processed, after recursive call protection
-    and just before performing internal and state transitions.
-    It is useful for handling event independently of the active state by taking
-    advantage of the run-to-completion mechanism.
-    */
+    template<class Fsm>
     struct pre_transition_event_handler
     {
-        template<class Context, class Fsm>
+        template<class Context>
         pre_transition_event_handler(Context& /*ctx*/, Fsm& /*sm*/)
         {
+            /*
+            Called whenever an event is being processed, after recursive call
+            protection and just before performing internal and state
+            transitions.
+            It is useful for handling event independently of the active state by
+            taking advantage of the run-to-completion mechanism.
+            */
+            //void on_event(const Event&);
         }
     };
 
+    template<class Fsm>
     struct internal_transition_policy
     {
-        template<class Context, class Fsm>
+        template<class Context>
         internal_transition_policy(const Context& /*ctx*/, Fsm& /*sm*/)
         {
         }
@@ -40,9 +44,10 @@ struct fsm_configuration
         }
     };
 
+    template<class Fsm>
     struct state_transition_policy
     {
-        template<class Context, class Fsm>
+        template<class Context>
         state_transition_policy(const Context& /*ctx*/, Fsm& /*sm*/)
         {
         }

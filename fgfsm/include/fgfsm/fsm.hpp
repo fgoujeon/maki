@@ -101,10 +101,18 @@ class fsm
         }
 
     private:
-        using unresolved_transition_table_t = typename Configuration::transition_table;
-        using pre_transition_event_handler_t = typename Configuration::pre_transition_event_handler;
-        using internal_transition_policy_t = typename Configuration::internal_transition_policy;
-        using state_transition_policy_t = typename Configuration::state_transition_policy;
+        using unresolved_transition_table_t =
+            typename Configuration::transition_table
+        ;
+        using pre_transition_event_handler_t =
+            typename Configuration::pre_transition_event_handler<fsm>
+        ;
+        using internal_transition_policy_t =
+            typename Configuration::internal_transition_policy<fsm>
+        ;
+        using state_transition_policy_t =
+            typename Configuration::state_transition_policy<fsm>
+        ;
 
         using transition_table_digest_t =
             detail::transition_table_digest<unresolved_transition_table_t>

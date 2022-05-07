@@ -147,6 +147,23 @@ class fsm
             unresolved_transition_table_holder
         >;
 
+        struct function_queue_holder
+        {
+            template<class = void>
+            using type = std::queue<std::function<void()>>;
+        };
+        struct empty_holder
+        {
+            template<class = void>
+            struct type{};
+        };
+        using queued_event_processing_storage_t = detail::alternative_lazy
+        <
+            Configuration::enable_run_to_completion,
+            function_queue_holder,
+            empty_holder
+        >;
+
         template
         <
             class Fsm,
@@ -309,7 +326,7 @@ class fsm
 
         int active_state_index_ = 0;
         bool processing_event_ = false;
-        std::queue<std::function<void()>> queued_event_processings_;
+        queued_event_processing_storage_t queued_event_processings_;
 };
 
 } //namespace

@@ -135,11 +135,6 @@ namespace
                 ctx.output += "end_of_loading;";
             }
 
-            template<class Event>
-            void on_event(const Event&)
-            {
-            }
-
             context& ctx;
             fsm& sm;
         };

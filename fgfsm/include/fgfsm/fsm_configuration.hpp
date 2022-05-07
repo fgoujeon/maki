@@ -24,11 +24,6 @@ struct fsm_configuration
         pre_transition_event_handler(Context& /*ctx*/, Fsm& /*sm*/)
         {
         }
-
-        template<class Event>
-        void on_event(const Event& /*event*/)
-        {
-        }
     };
 
     struct internal_transition_policy

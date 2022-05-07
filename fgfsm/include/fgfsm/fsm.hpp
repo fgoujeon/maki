@@ -170,7 +170,7 @@ class fsm
         template<class Event>
         void process_event_once(const Event& event)
         {
-            pre_transition_event_handler_.on_event(event);
+            detail::call_on_event(pre_transition_event_handler_, event);
 
             if constexpr(Configuration::enable_in_state_internal_transitions)
             {

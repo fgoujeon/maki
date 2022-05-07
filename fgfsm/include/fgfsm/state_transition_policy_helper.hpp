@@ -11,7 +11,6 @@
 #include "detail/tlu.hpp"
 #include "detail/call_member.hpp"
 #include <type_traits>
-#include <cassert>
 
 namespace fgfsm
 {

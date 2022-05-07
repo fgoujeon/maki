@@ -41,9 +41,15 @@ namespace
 
 TEST_CASE("fsm_ref")
 {
+    using fsm_ref =
+        fgfsm::fsm_ref<events::on_button_press, events::off_button_press>
+    ;
+
     auto ctx = context{};
     auto sm = fsm{ctx};
-    auto sm_ref = fgfsm::fsm_ref<events::on_button_press, events::off_button_press>{sm};
+    auto psm_ref_temp = std::make_unique<fsm_ref>(sm); //test ref of ref
+    auto sm_ref = fsm_ref{*psm_ref_temp};
+    psm_ref_temp.reset();
 
     REQUIRE(sm.is_active_state<states::off>());
 

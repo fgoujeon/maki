@@ -30,7 +30,7 @@ class fsm
 {
     public:
         template<class Context>
-        fsm(Context& context):
+        explicit fsm(Context& context):
             states_(context, *this),
             actions_(context, *this),
             guards_(context, *this),
@@ -39,6 +39,12 @@ class fsm
             state_transition_policy_{context, *this}
         {
         }
+
+        fsm(const fsm&) = delete;
+        fsm(fsm&&) = delete;
+        fsm& operator=(const fsm&) = delete;
+        fsm& operator=(fsm&&) = delete;
+        ~fsm() = default;
 
         //Check whether the given State is the active state type
         template<class State>

@@ -7,6 +7,7 @@
 #ifndef FGFSM_FSM_REF_HPP
 #define FGFSM_FSM_REF_HPP
 
+#include "fsm.hpp"
 #include "detail/type_list.hpp"
 #include "detail/tlu.hpp"
 
@@ -22,14 +23,15 @@ namespace detail
     class fsm_ref_impl<Event, Events...>: fsm_ref_impl<Events...>
     {
         public:
-            template<class Fsm>
-            fsm_ref_impl(Fsm& sm):
+            template<class FsmConfiguration>
+            fsm_ref_impl(fsm<FsmConfiguration>& sm):
                 fsm_ref_impl<Events...>{sm},
                 pprocess_event_
                 {
                     [](void* const vpfsm, const Event& event)
                     {
-                        const auto pfsm = reinterpret_cast<Fsm*>(vpfsm); //NOLINT
+                        using fsm_t = fsm<FsmConfiguration>;
+                        const auto pfsm = reinterpret_cast<fsm_t*>(vpfsm); //NOLINT
                         pfsm->process_event(event);
                     }
                 }
@@ -54,8 +56,8 @@ namespace detail
     class fsm_ref_impl<>
     {
         public:
-            template<class Fsm>
-            fsm_ref_impl(Fsm& sm):
+            template<class FsmConfiguration>
+            fsm_ref_impl(fsm<FsmConfiguration>& sm):
                 vpfsm_(&sm)
             {
             }
@@ -83,11 +85,17 @@ template<class... Events>
 class fsm_ref
 {
     public:
-        template<class Fsm>
-        fsm_ref(Fsm& sm):
+        template<class FsmConfiguration>
+        fsm_ref(fsm<FsmConfiguration>& sm):
             impl_{sm}
         {
         }
+
+        fsm_ref(const fsm_ref&) noexcept = default;
+        fsm_ref(fsm_ref&&) noexcept = default;
+        fsm_ref& operator=(const fsm_ref&) noexcept = default;
+        fsm_ref& operator=(fsm_ref&&) noexcept = default;
+        ~fsm_ref() = default;
 
         template<class Event>
         void process_event(const Event& event)

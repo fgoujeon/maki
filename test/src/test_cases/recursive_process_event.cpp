@@ -24,93 +24,81 @@ namespace
 
     namespace events
     {
-        struct start_button_press{};
-
-        struct quick_start_button_press{};
-
-        struct end_of_loading{};
-
-        struct self_call_request
-        {
-            std::string data;
-        };
-
-        struct self_call_response
-        {
-            std::string data;
-        };
+        struct s0_to_s1_request{};
+        struct s1_to_s2_request{};
+        struct s2_to_s0_request{};
     }
 
     namespace states
     {
-        struct idle
+        struct s0
         {
             void on_entry()
             {
-                ctx.output += "idle::on_entry;";
+                ctx.output += "s0::on_entry;";
             }
 
             void on_exit()
             {
-                ctx.output += "idle::on_exit;";
+                ctx.output += "s0::on_exit;";
             }
 
             context& ctx;
         };
 
-        struct loading
+        struct s1
         {
             void on_entry()
             {
-                ctx.output += "loading::on_entry;";
+                ctx.output += "s1::on_entry;";
             }
 
             void on_exit()
             {
-                ctx.output += "loading::on_exit;";
+                ctx.output += "s1::on_exit;";
             }
 
             context& ctx;
         };
 
-        struct ready
+        struct s2
         {
             void on_entry()
             {
-                ctx.output += "ready::on_entry;";
-            }
-
-            void on_event(const events::self_call_request& event)
-            {
-                sm.process_event(events::self_call_response{event.data});
-            }
-
-            void on_event(const events::self_call_response& event)
-            {
-                ctx.output = event.data;
+                ctx.output += "s2::on_entry;";
             }
 
             void on_exit()
             {
-                ctx.output += "ready::on_exit;";
+                ctx.output += "s2::on_exit;";
             }
 
             context& ctx;
-            fgfsm::fsm_ref<events::self_call_response> sm;
         };
     }
 
     namespace actions
     {
-        struct skip_loading
+        struct s0_to_s1
         {
             void execute()
             {
-                sm.process_event(events::end_of_loading{});
+                sm.process_event(events::s1_to_s2_request{});
             }
 
             context& ctx;
-            fgfsm::fsm_ref<events::end_of_loading> sm;
+            fgfsm::fsm_ref<events::s1_to_s2_request> sm;
+        };
+
+        struct s1_to_s2
+        {
+            void execute()
+            {
+                sm.process_event(events::s2_to_s0_request{});
+            }
+
+            context& ctx;
+            fgfsm::fsm_ref<events::s2_to_s0_request> sm;
         };
     }
 
@@ -118,27 +106,10 @@ namespace
     {
         using transition_table = fgfsm::transition_table
         <
-            fgfsm::row<states::idle,    events::start_button_press,       states::loading>,
-            fgfsm::row<states::idle,    events::quick_start_button_press, states::loading,  actions::skip_loading>,
-            fgfsm::row<states::loading, events::end_of_loading,           states::ready>
+            fgfsm::row<states::s0, events::s0_to_s1_request, states::s1, actions::s0_to_s1>,
+            fgfsm::row<states::s1, events::s1_to_s2_request, states::s2, actions::s1_to_s2>,
+            fgfsm::row<states::s2, events::s2_to_s0_request, states::s0>
         >;
-
-        template<class Fsm>
-        struct pre_transition_event_handler
-        {
-            void on_event(const events::quick_start_button_press&)
-            {
-                ctx.output += "quick_start_button_press;";
-            }
-
-            void on_event(const events::end_of_loading&)
-            {
-                ctx.output += "end_of_loading;";
-            }
-
-            context& ctx;
-            Fsm& sm;
-        };
     };
 }
 
@@ -147,19 +118,16 @@ TEST_CASE("recursive process_event")
     auto ctx = context{};
     auto sm = fsm{ctx};
 
-    sm.process_event(events::quick_start_button_press{});
+    //Indirectly process s1_to_s2_request and s2_to_s0_request
+    sm.process_event(events::s0_to_s1_request{});
     REQUIRE
     (
         ctx.output ==
-            "quick_start_button_press;"
-            "idle::on_exit;"
-            "loading::on_entry;"
-            "end_of_loading;"
-            "loading::on_exit;"
-            "ready::on_entry;"
+            "s0::on_exit;"
+            "s1::on_entry;"
+            "s1::on_exit;"
+            "s2::on_entry;"
+            "s2::on_exit;"
+            "s0::on_entry;"
     );
-
-    const auto long_string = "auienratuiernaturnietnrautisretadlepetwufieqarnpecdaedpceoanuprecanrpecadtpeadcepde";
-    sm.process_event(events::self_call_request{long_string});
-    REQUIRE(ctx.output == long_string);
 }

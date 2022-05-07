@@ -81,7 +81,7 @@ namespace
 
     struct fsm_configuration: fgfsm::fsm_configuration
     {
-        using transition_table_t = fgfsm::transition_table
+        using transition_table = fgfsm::transition_table
         <
             fgfsm::row<states::idle,    events::power_button_press, states::running>,
             fgfsm::row<states::running, events::power_button_press, states::idle>,

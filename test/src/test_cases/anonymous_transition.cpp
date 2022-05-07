@@ -27,7 +27,7 @@ namespace
 
     struct fsm_conf: fgfsm::fsm_configuration
     {
-        using transition_table_t = fgfsm::transition_table
+        using transition_table = fgfsm::transition_table
         <
             fgfsm::row<states::s0, events::go_on, states::s1>,
             fgfsm::row<states::s1, fgfsm::none,   states::s2>,

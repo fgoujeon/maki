@@ -70,7 +70,7 @@ namespace
 
     struct fsm_configuration: fgfsm::fsm_configuration
     {
-        using transition_table_t = fgfsm::transition_table
+        using transition_table = fgfsm::transition_table
         <
             fgfsm::row<states::idle, events::start, states::state0, fgfsm::none, guards::can_access_state0>,
             fgfsm::row<states::idle, events::start, states::state1, fgfsm::none, guards::can_access_state1>,

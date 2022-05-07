@@ -70,7 +70,7 @@ namespace
 
     struct fsm_configuration: fgfsm::fsm_configuration
     {
-        using transition_table_t = fgfsm::transition_table
+        using transition_table = fgfsm::transition_table
         <
             fgfsm::row<states::idle,    events::next_language_request, states::english>,
             fgfsm::row<states::english, events::next_language_request, states::french>,

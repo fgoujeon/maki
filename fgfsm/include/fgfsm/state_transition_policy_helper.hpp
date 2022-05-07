@@ -70,7 +70,7 @@ class state_transition_policy_helper
             {
                 sm_.active_state_index_ = detail::tlu::get_index
                 <
-                    typename Fsm::state_tuple,
+                    typename Fsm::state_tuple_t,
                     TargetState
                 >;
             }

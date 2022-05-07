@@ -50,7 +50,7 @@ namespace
 
     struct fsm_conf: fgfsm::fsm_configuration
     {
-        using transition_table_t = fgfsm::transition_table
+        using transition_table = fgfsm::transition_table
         <
             fgfsm::row<states::off, events::button_press, states::on,  actions::beep>,
             fgfsm::row<states::on,  events::button_press, states::off, actions::boop>

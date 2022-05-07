@@ -236,7 +236,7 @@ struct fsm_configuration: fgfsm::fsm_configuration
     The initial active state of the FSM is the first state encountered in the
     transition table ('off', is our case).
     */
-    using transition_table_t = fgfsm::transition_table
+    using transition_table = fgfsm::transition_table
     <
         //         start_state,    event,       target_state,   action,            guard
         fgfsm::row<off,            button_push, emitting_white, turn_light_white>,

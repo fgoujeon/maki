@@ -29,6 +29,12 @@ template<class Configuration>
 class fsm
 {
     public:
+        static_assert
+        (
+            std::is_base_of_v<fsm_configuration, Configuration>,
+            "Given configuration type must inherit from fgfsm::fsm_configuration."
+        );
+
         template<class Context>
         explicit fsm(Context& context):
             states_(context, *this),
@@ -52,7 +58,7 @@ class fsm
         {
             constexpr auto given_state_index = detail::tlu::get_index
             <
-                state_tuple,
+                state_tuple_t,
                 State
             >;
             return given_state_index == active_state_index_;
@@ -95,23 +101,17 @@ class fsm
         }
 
     private:
-        static_assert
-        (
-            std::is_base_of_v<fsm_configuration, Configuration>,
-            "Given configuration type must inherit from fgfsm::fsm_configuration."
-        );
+        using unresolved_transition_table_t = typename Configuration::transition_table;
+        using pre_transition_event_handler_t = typename Configuration::pre_transition_event_handler;
+        using internal_transition_policy_t = typename Configuration::internal_transition_policy;
+        using state_transition_policy_t = typename Configuration::state_transition_policy;
 
-        using unresolved_transition_table = typename Configuration::transition_table_t;
-        using pre_transition_event_handler = typename Configuration::pre_transition_event_handler;
-        using internal_transition_policy = typename Configuration::internal_transition_policy;
-        using state_transition_policy = typename Configuration::state_transition_policy;
-
-        using transition_table_digest =
-            detail::transition_table_digest<unresolved_transition_table>
+        using transition_table_digest_t =
+            detail::transition_table_digest<unresolved_transition_table_t>
         ;
-        using state_tuple  = typename transition_table_digest::state_tuple;
-        using action_tuple = typename transition_table_digest::action_tuple;
-        using guard_tuple  = typename transition_table_digest::guard_tuple;
+        using state_tuple_t = typename transition_table_digest_t::state_tuple;
+        using action_tuple_t = typename transition_table_digest_t::action_tuple;
+        using guard_tuple_t = typename transition_table_digest_t::guard_tuple;
 
         /*
         Calling detail::resolve_transition_table<> isn't free. We need
@@ -121,20 +121,20 @@ class fsm
         struct unresolved_transition_table_holder
         {
             template<class = void>
-            using type = unresolved_transition_table;
+            using type = unresolved_transition_table_t;
         };
         struct resolved_transition_table_holder
         {
             template<class = void>
             using type = detail::resolve_transition_table
             <
-                unresolved_transition_table,
-                state_tuple
+                unresolved_transition_table_t,
+                state_tuple_t
             >;
         };
         using transition_table_t = detail::alternative_lazy
         <
-            transition_table_digest::has_any_start_states,
+            transition_table_digest_t::has_any_start_states,
             resolved_transition_table_holder,
             unresolved_transition_table_holder
         >;
@@ -180,7 +180,7 @@ class fsm
             const bool processed = process_event_in_transition_table_once(event);
 
             //Anonymous transitions
-            if constexpr(transition_table_digest::has_none_events)
+            if constexpr(transition_table_digest_t::has_none_events)
             {
                 if(processed)
                 {
@@ -292,12 +292,12 @@ class fsm
             );
         }
 
-        state_tuple states_;
-        action_tuple actions_;
-        guard_tuple guards_;
-        pre_transition_event_handler pre_transition_event_handler_;
-        internal_transition_policy internal_transition_policy_;
-        state_transition_policy state_transition_policy_;
+        state_tuple_t states_;
+        action_tuple_t actions_;
+        guard_tuple_t guards_;
+        pre_transition_event_handler_t pre_transition_event_handler_;
+        internal_transition_policy_t internal_transition_policy_;
+        state_transition_policy_t state_transition_policy_;
 
         int active_state_index_ = 0;
         bool processing_event_ = false;

@@ -90,7 +90,7 @@ namespace
 
     struct fsm_configuration: fgfsm::fsm_configuration
     {
-        using transition_table_t = fgfsm::transition_table
+        using transition_table = fgfsm::transition_table
         <
             fgfsm::row<states::off, events::e1, states::on,  action, guard>,
             fgfsm::row<states::off, events::e2, states::on,  action, guard>,

@@ -64,6 +64,10 @@ void call_on_entry(State& state, const Event& event)
             "No on_entry(event) or on_entry() found in non-empty state type"
         );
     }
+    else
+    {
+        ignore_unused(event);
+    }
 }
 
 template<class State, class Event>

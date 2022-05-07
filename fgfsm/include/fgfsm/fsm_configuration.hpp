@@ -35,7 +35,7 @@ struct fsm_configuration
     struct internal_transition_policy
     {
         template<class Context>
-        internal_transition_policy(const Context& /*ctx*/, Fsm& sm):
+        internal_transition_policy(Context& /*ctx*/, Fsm& sm):
             sm(sm)
         {
         }
@@ -60,13 +60,13 @@ struct fsm_configuration
     struct state_transition_policy
     {
         template<class Context>
-        state_transition_policy(const Context& /*ctx*/, Fsm& sm):
+        state_transition_policy(Context& /*ctx*/, Fsm& sm):
             sm(sm)
         {
         }
 
         template<class Helper>
-        bool do_transition(const Helper& helper)
+        bool do_transition(Helper& helper)
         {
             auto processed = false;
 

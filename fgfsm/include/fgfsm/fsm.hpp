@@ -271,10 +271,8 @@ class fsm
                     transition_action,
                     transition_guard
                 >;
-                return sm.state_transition_policy_.do_transition
-                (
-                    helper_t{sm, *pevent}
-                );
+                auto helper = helper_t{sm, *pevent};
+                return sm.state_transition_policy_.do_transition(helper);
             }
 
             /*

@@ -33,7 +33,7 @@ class state_transition_policy_helper
         using action_type = Action;
         using guard_type = Guard;
 
-        [[nodiscard]] bool check_guard() const
+        [[nodiscard]] bool check_guard()
         {
             if constexpr(!std::is_same_v<Guard, none>)
             {
@@ -51,7 +51,7 @@ class state_transition_policy_helper
             }
         }
 
-        void invoke_start_state_on_exit() const
+        void invoke_start_state_on_exit()
         {
             if constexpr(!std::is_same_v<TargetState, none>)
             {
@@ -63,7 +63,7 @@ class state_transition_policy_helper
             }
         }
 
-        void activate_target_state() const
+        void activate_target_state()
         {
             if constexpr(!std::is_same_v<TargetState, none>)
             {
@@ -75,7 +75,7 @@ class state_transition_policy_helper
             }
         }
 
-        void execute_action() const
+        void execute_action()
         {
             if constexpr(!std::is_same_v<Action, none>)
             {
@@ -89,7 +89,7 @@ class state_transition_policy_helper
             }
         }
 
-        void invoke_target_state_on_entry() const
+        void invoke_target_state_on_entry()
         {
             if constexpr(!std::is_same_v<TargetState, none>)
             {

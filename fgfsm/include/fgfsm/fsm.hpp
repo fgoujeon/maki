@@ -105,13 +105,13 @@ class fsm
             typename Configuration::transition_table
         ;
         using pre_transition_event_handler_t =
-            typename Configuration::pre_transition_event_handler<fsm>
+            typename Configuration::template pre_transition_event_handler<fsm>
         ;
         using internal_transition_policy_t =
-            typename Configuration::internal_transition_policy<fsm>
+            typename Configuration::template internal_transition_policy<fsm>
         ;
         using state_transition_policy_t =
-            typename Configuration::state_transition_policy<fsm>
+            typename Configuration::template state_transition_policy<fsm>
         ;
 
         using transition_table_digest_t =

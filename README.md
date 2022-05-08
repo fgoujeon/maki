@@ -380,5 +380,5 @@ int main()
 }
 ```
 
-## Credits
-FGFSM is greatly inspired by Boost.MSM, and more precisely by its function front-end. Actually, FGFSM was born because Boost.MSM was too slow to build large FSMs (which is expected for a library that has been written in a time when variadic templates weren't supported by the language).
+## Acknowledgements
+FGFSM is greatly inspired by Boost.MSM, and more precisely by its functor front-end. Actually, FGFSM was born because Boost.MSM was too slow to build large FSMs (which is expected for a library that has been written in a time when variadic templates weren't supported by the language).

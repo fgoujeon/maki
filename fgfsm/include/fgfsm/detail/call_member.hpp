@@ -41,6 +41,8 @@ FGFSM_DETAIL_HAS_MEMBER_FUNCTION(check)
 
 #undef FGFSM_DETAIL_CALL_STATE_MEMBER
 
+//Note: enable_if + void*-overload is faster to build than if-constexprs.
+
 template<class State, class Event>
 void call_on_entry(State& state, const Event& event)
 {
@@ -70,13 +72,19 @@ void call_on_entry(State& state, const Event& event)
     }
 }
 
-template<class State, class Event>
-void call_on_event(State& state, const Event& event)
+template
+<
+    class State,
+    class Event,
+    class = std::enable_if_t<has_on_event<State&, const Event&>()>
+>
+void call_on_event(State* pstate, const Event* pevent)
 {
-    if constexpr(has_on_event<State&, const Event&>())
-        state.on_event(event);
-    else
-        ignore_unused(state, event);
+    pstate->on_event(*pevent);
+}
+
+inline void call_on_event(void* /*pstate*/, const void* /*pevent*/)
+{
 }
 
 template<class State, class Event>

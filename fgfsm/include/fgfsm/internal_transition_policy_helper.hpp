@@ -21,7 +21,7 @@ class internal_transition_policy_helper
 
         void invoke_state_on_event()
         {
-            detail::call_on_event(state_, event_);
+            detail::call_on_event(&state_, &event_);
         }
 
     private:

@@ -345,7 +345,12 @@ class fsm
         {
             if(is_active_state<State>())
             {
-                pstate->on_event(*pevent);
+                auto helper = internal_transition_policy_helper
+                <
+                    State,
+                    Event
+                >{*pstate, *pevent};
+                internal_transition_policy_.do_transition(helper);
                 return true;
             }
             return false;

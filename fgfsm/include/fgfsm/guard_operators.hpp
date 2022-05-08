@@ -72,17 +72,17 @@ namespace detail
                 (
                     detail::call_check
                     (
-                        lhs_.object,
-                        start_state,
-                        event,
-                        target_state
+                        &lhs_.object,
+                        &start_state,
+                        &event,
+                        &target_state
                     ),
                     detail::call_check
                     (
-                        rhs_.object,
-                        start_state,
-                        event,
-                        target_state
+                        &rhs_.object,
+                        &start_state,
+                        &event,
+                        &target_state
                     )
                 );
             }
@@ -113,10 +113,10 @@ class not_
         {
             return !detail::call_check
             (
-                guard_.object,
-                start_state,
-                event,
-                target_state
+                &guard_.object,
+                &start_state,
+                &event,
+                &target_state
             );
         }
 

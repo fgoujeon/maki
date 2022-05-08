@@ -201,7 +201,7 @@ class fsm
         template<class Event>
         void process_event_once(const Event& event)
         {
-            detail::call_on_event(&pre_transition_event_handler_, &event);
+            detail::call_on_event(&pre_transition_event_handler_, &event, 0);
 
             if constexpr(Configuration::enable_in_state_internal_transitions)
             {
@@ -323,35 +323,43 @@ class fsm
             template<class Event>
             static void process(fsm& sm, const Event& event)
             {
-                (state_event_processor<States>::process(sm, &event) || ...);
+                (
+                    sm.process_event_in_state
+                    (
+                        &sm.states_.get(static_cast<States*>(nullptr)),
+                        &event,
+                        0
+                    ) || ...
+                );
             }
         };
 
         //Processes internal events against one state
-        template<class State>
-        struct state_event_processor
+        template<class State, class Event>
+        auto process_event_in_state
+        (
+            State* pstate,
+            const Event* pevent,
+            int /*dummy*/
+        ) -> decltype(pstate->on_event(*pevent), bool())
         {
-            template
-            <
-                class Event,
-                class = std::enable_if_t<detail::has_on_event<State&, const Event&>()>
-            >
-            static bool process(fsm& sm, const Event* pevent)
+            if(is_active_state<State>())
             {
-                if(sm.is_active_state<State>())
-                {
-                    State* tag = nullptr;
-                    sm.states_.get(tag).on_event(*pevent);
-                    return true;
-                }
-                return false;
+                pstate->on_event(*pevent);
+                return true;
             }
+            return false;
+        }
 
-            static bool process(fsm& /*sm*/, const void* /*pevent*/)
-            {
-                return false;
-            }
-        };
+        bool process_event_in_state
+        (
+            void* /*pstate*/,
+            const void* /*pevent*/,
+            long /*dummy*/
+        )
+        {
+            return false;
+        }
 
         state_tuple_t states_;
         action_tuple_t actions_;

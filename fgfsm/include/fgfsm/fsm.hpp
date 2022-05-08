@@ -175,23 +175,6 @@ class fsm
         >
         friend class state_transition_policy_helper;
 
-        template<class F>
-        void visit_active_state(F&& f)
-        {
-            detail::for_each
-            (
-                states_,
-                [this, &f](auto& s)
-                {
-                    using state = std::decay_t<decltype(s)>;
-                    if(is_active_state<state>())
-                    {
-                        f(s);
-                    }
-                }
-            );
-        }
-
         template<class Event>
         void process_event_once(const Event& event)
         {
@@ -300,20 +283,44 @@ class fsm
         template<class Event>
         void process_event_in_active_state(const Event& event)
         {
-            visit_active_state
+            return active_state_event_processor<state_tuple_t>::process
             (
-                [this, &event](auto& s)
-                {
-                    using state = std::decay_t<decltype(s)>;
-                    auto helper = internal_transition_policy_helper
-                    <
-                        state,
-                        Event
-                    >{s, event};
-                    internal_transition_policy_.do_transition(helper);
-                }
+                *this,
+                event
             );
         }
+
+        //Processes internal events against all states
+        template<class StateTuple>
+        struct active_state_event_processor;
+
+        template<class... States>
+        struct active_state_event_processor<detail::fsm_object_holder_tuple<States...>>
+        {
+            template<class Event>
+            static void process(fsm& sm, const Event& event)
+            {
+                (state_event_processor<States>::process(sm, event), ...);
+            }
+        };
+
+        //Processes internal events against one state
+        template<class State>
+        struct state_event_processor
+        {
+            template<class Event>
+            static void process(fsm& sm, const Event& event)
+            {
+                if constexpr(detail::has_on_event<State&, const Event&>())
+                {
+                    if(sm.is_active_state<State>())
+                    {
+                        State* tag = nullptr;
+                        sm.states_.get(tag).on_event(event);
+                    }
+                }
+            }
+        };
 
         state_tuple_t states_;
         action_tuple_t actions_;

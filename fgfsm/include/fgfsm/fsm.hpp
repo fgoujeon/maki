@@ -300,7 +300,7 @@ class fsm
             template<class Event>
             static void process(fsm& sm, const Event& event)
             {
-                (state_event_processor<States>::process(sm, event), ...);
+                (state_event_processor<States>::process(sm, &event), ...);
             }
         };
 
@@ -308,17 +308,22 @@ class fsm
         template<class State>
         struct state_event_processor
         {
-            template<class Event>
-            static void process(fsm& sm, const Event& event)
+            template
+            <
+                class Event,
+                class = std::enable_if_t<detail::has_on_event<State&, const Event&>()>
+            >
+            static void process(fsm& sm, const Event* pevent)
             {
-                if constexpr(detail::has_on_event<State&, const Event&>())
+                if(sm.is_active_state<State>())
                 {
-                    if(sm.is_active_state<State>())
-                    {
-                        State* tag = nullptr;
-                        sm.states_.get(tag).on_event(event);
-                    }
+                    State* tag = nullptr;
+                    sm.states_.get(tag).on_event(*pevent);
                 }
+            }
+
+            static void process(fsm& /*sm*/, const void* /*pevent*/)
+            {
             }
         };
 

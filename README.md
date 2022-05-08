@@ -21,10 +21,11 @@ FGFSM implements the following key features:
 
 Besides its features, FGFSM:
 
+* **has excellent performance**, both at build time and runtime (see [benchmark](https://github.com/fgoujeon/fsm-benchmark));
 * **doesn't depend on any library** other than the C++ standard library;
 * **doesn't rely on exceptions**, while still allowing you to be exception-safe;
 * **doesn't rely on RTTI**;
-* is licensed under the terms of the **Boost Software License**, allowing you to use the library in any kind of free or proprietary software or firmware.
+* is licensed under the terms of the very permissive **Boost Software License**, allowing you to use the library in any kind of free or proprietary software or firmware.
 
 ## Example
 The following example is firmware for an RGB lamp. This lamp has a single button and an LED that can emit white, red, green or blue.

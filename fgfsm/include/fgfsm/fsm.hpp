@@ -12,8 +12,6 @@
 #include "state_transition_policy_helper.hpp"
 #include "any.hpp"
 #include "none.hpp"
-#include "detail/final_act.hpp"
-#include "detail/for_each.hpp"
 #include "detail/resolve_transition_table.hpp"
 #include "detail/transition_table_digest.hpp"
 #include "detail/alternative_lazy.hpp"
@@ -24,6 +22,31 @@
 
 namespace fgfsm
 {
+
+namespace detail
+{
+    class false_at_destruction_setter
+    {
+        public:
+            false_at_destruction_setter(bool& b):
+                b_(b)
+            {
+            }
+
+            false_at_destruction_setter(const false_at_destruction_setter&) = delete;
+            false_at_destruction_setter(false_at_destruction_setter&&) = delete;
+            false_at_destruction_setter& operator=(const false_at_destruction_setter&) = delete;
+            false_at_destruction_setter& operator=(false_at_destruction_setter&&) = delete;
+
+            ~false_at_destruction_setter()
+            {
+                b_ = false;
+            }
+
+        private:
+            bool& b_;
+    };
+}
 
 template<class Configuration>
 class fsm
@@ -83,7 +106,7 @@ class fsm
                 }
 
                 processing_event_ = true;
-                auto _ = detail::final_act{[this]{processing_event_ = false;}};
+                auto _ = detail::false_at_destruction_setter{processing_event_};
 
                 process_event_once(event);
 
@@ -175,27 +198,10 @@ class fsm
         >
         friend class state_transition_policy_helper;
 
-        template<class F>
-        void visit_active_state(F&& f)
-        {
-            detail::for_each
-            (
-                states_,
-                [this, &f](auto& s)
-                {
-                    using state = std::decay_t<decltype(s)>;
-                    if(is_active_state<state>())
-                    {
-                        f(s);
-                    }
-                }
-            );
-        }
-
         template<class Event>
         void process_event_once(const Event& event)
         {
-            detail::call_on_event(pre_transition_event_handler_, event);
+            detail::call_on_event(&pre_transition_event_handler_, &event, 0);
 
             if constexpr(Configuration::enable_in_state_internal_transitions)
             {
@@ -300,19 +306,59 @@ class fsm
         template<class Event>
         void process_event_in_active_state(const Event& event)
         {
-            visit_active_state
+            return active_state_event_processor<state_tuple_t>::process
             (
-                [this, &event](auto& s)
-                {
-                    using state = std::decay_t<decltype(s)>;
-                    auto helper = internal_transition_policy_helper
-                    <
-                        state,
-                        Event
-                    >{s, event};
-                    internal_transition_policy_.do_transition(helper);
-                }
+                *this,
+                event
             );
+        }
+
+        //Processes internal events against all states
+        template<class StateTuple>
+        struct active_state_event_processor;
+
+        template<class... States>
+        struct active_state_event_processor<detail::fsm_object_holder_tuple<States...>>
+        {
+            template<class Event>
+            static void process(fsm& sm, const Event& event)
+            {
+                (
+                    sm.process_event_in_state
+                    (
+                        &sm.states_.get(static_cast<States*>(nullptr)),
+                        &event,
+                        0
+                    ) || ...
+                );
+            }
+        };
+
+        //Processes internal events against one state
+        template<class State, class Event>
+        auto process_event_in_state
+        (
+            State* pstate,
+            const Event* pevent,
+            int /*dummy*/
+        ) -> decltype(pstate->on_event(*pevent), bool())
+        {
+            if(is_active_state<State>())
+            {
+                pstate->on_event(*pevent);
+                return true;
+            }
+            return false;
+        }
+
+        bool process_event_in_state
+        (
+            void* /*pstate*/,
+            const void* /*pevent*/,
+            long /*dummy*/
+        )
+        {
+            return false;
         }
 
         state_tuple_t states_;

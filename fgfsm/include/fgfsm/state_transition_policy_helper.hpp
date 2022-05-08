@@ -39,10 +39,10 @@ class state_transition_policy_helper
             {
                 return detail::call_check
                 (
-                    sm_.guards_.get(static_cast<Guard*>(nullptr)),
-                    sm_.states_.get(static_cast<StartState*>(nullptr)),
-                    event_,
-                    get_target_state()
+                    &sm_.guards_.get(static_cast<Guard*>(nullptr)),
+                    &sm_.states_.get(static_cast<StartState*>(nullptr)),
+                    &event_,
+                    get_target_state_ptr()
                 );
             }
             else
@@ -57,8 +57,9 @@ class state_transition_policy_helper
             {
                 detail::call_on_exit
                 (
-                    sm_.states_.get(static_cast<StartState*>(nullptr)),
-                    event_
+                    &sm_.states_.get(static_cast<StartState*>(nullptr)),
+                    &event_,
+                    0
                 );
             }
         }
@@ -81,10 +82,10 @@ class state_transition_policy_helper
             {
                 detail::call_execute
                 (
-                    sm_.actions_.get(static_cast<Action*>(nullptr)),
-                    sm_.states_.get(static_cast<StartState*>(nullptr)),
-                    event_,
-                    get_target_state()
+                    &sm_.actions_.get(static_cast<Action*>(nullptr)),
+                    &sm_.states_.get(static_cast<StartState*>(nullptr)),
+                    &event_,
+                    get_target_state_ptr()
                 );
             }
         }
@@ -95,8 +96,9 @@ class state_transition_policy_helper
             {
                 detail::call_on_entry
                 (
-                    get_target_state(),
-                    event_
+                    get_target_state_ptr(),
+                    &event_,
+                    0
                 );
             }
         }
@@ -111,15 +113,15 @@ class state_transition_policy_helper
         {
         }
 
-        auto& get_target_state() const
+        auto get_target_state_ptr() const
         {
             if constexpr(std::is_same_v<TargetState, none>)
             {
-                return detail::none_v;
+                return nullptr;
             }
             else
             {
-                return sm_.states_.get(static_cast<TargetState*>(nullptr));
+                return &sm_.states_.get(static_cast<TargetState*>(nullptr));
             }
         }
 

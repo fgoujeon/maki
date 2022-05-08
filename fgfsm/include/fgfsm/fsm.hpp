@@ -12,8 +12,6 @@
 #include "state_transition_policy_helper.hpp"
 #include "any.hpp"
 #include "none.hpp"
-#include "detail/final_act.hpp"
-#include "detail/for_each.hpp"
 #include "detail/resolve_transition_table.hpp"
 #include "detail/transition_table_digest.hpp"
 #include "detail/alternative_lazy.hpp"
@@ -24,6 +22,31 @@
 
 namespace fgfsm
 {
+
+namespace detail
+{
+    class false_at_destruction_setter
+    {
+        public:
+            false_at_destruction_setter(bool& b):
+                b_(b)
+            {
+            }
+
+            false_at_destruction_setter(const false_at_destruction_setter&) = delete;
+            false_at_destruction_setter(false_at_destruction_setter&&) = delete;
+            false_at_destruction_setter& operator=(const false_at_destruction_setter&) = delete;
+            false_at_destruction_setter& operator=(false_at_destruction_setter&&) = delete;
+
+            ~false_at_destruction_setter()
+            {
+                b_ = false;
+            }
+
+        private:
+            bool& b_;
+    };
+}
 
 template<class Configuration>
 class fsm
@@ -83,7 +106,7 @@ class fsm
                 }
 
                 processing_event_ = true;
-                auto _ = detail::final_act{[this]{processing_event_ = false;}};
+                auto _ = detail::false_at_destruction_setter{processing_event_};
 
                 process_event_once(event);
 

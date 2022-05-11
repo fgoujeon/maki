@@ -15,10 +15,10 @@
 #include "detail/resolve_transition_table.hpp"
 #include "detail/transition_table_digest.hpp"
 #include "detail/alternative_lazy.hpp"
+#include "detail/any_container.hpp"
 #include "detail/ignore_unused.hpp"
 #include <queue>
 #include <type_traits>
-#include <any>
 
 namespace fgfsm
 {
@@ -150,9 +150,9 @@ class fsm
                     event_(event),
                     pprocess_event_
                     (
-                        [](fsm& sm, const std::any& event)
+                        [](fsm& sm, const detail::any_container& event)
                         {
-                            sm.process_event_once(std::any_cast<Event>(event));
+                            sm.process_event_once(event.get<Event>());
                         }
                     )
                 {
@@ -165,8 +165,8 @@ class fsm
 
             private:
                 fsm& sm_;
-                std::any event_;
-                void(*pprocess_event_)(fsm&, const std::any&) = nullptr;
+                detail::any_container event_;
+                void(*pprocess_event_)(fsm&, const detail::any_container&) = nullptr;
         };
 
         /*

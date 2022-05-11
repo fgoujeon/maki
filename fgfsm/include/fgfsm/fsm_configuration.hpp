@@ -14,10 +14,9 @@ namespace fgfsm
 
 struct fsm_configuration
 {
-    template<class Fsm>
     struct pre_transition_event_handler
     {
-        template<class Context>
+        template<class Context, class Fsm>
         pre_transition_event_handler(Context& /*ctx*/, Fsm& /*sm*/)
         {
             /*

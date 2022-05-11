@@ -17,8 +17,8 @@
 #include "detail/alternative_lazy.hpp"
 #include "detail/ignore_unused.hpp"
 #include <queue>
-#include <functional>
 #include <type_traits>
+#include <any>
 
 namespace fgfsm
 {
@@ -97,10 +97,7 @@ class fsm
                 {
                     queued_event_processings_.push
                     (
-                        [this, event]
-                        {
-                            process_event_once(event);
-                        }
+                        event_processing{*this, event}
                     );
                     return;
                 }
@@ -144,6 +141,34 @@ class fsm
         using action_tuple_t = typename transition_table_digest_t::action_tuple;
         using guard_tuple_t = typename transition_table_digest_t::guard_tuple;
 
+        class event_processing
+        {
+            public:
+                template<class Event>
+                event_processing(fsm& sm, const Event& event):
+                    sm_(sm),
+                    event_(event),
+                    pprocess_event_
+                    (
+                        [](fsm& sm, const std::any& event)
+                        {
+                            sm.process_event_once(std::any_cast<Event>(event));
+                        }
+                    )
+                {
+                }
+
+                void operator()()
+                {
+                    (*pprocess_event_)(sm_, event_);
+                }
+
+            private:
+                fsm& sm_;
+                std::any event_;
+                void(*pprocess_event_)(fsm&, const std::any&) = nullptr;
+        };
+
         /*
         Calling detail::resolve_transition_table<> isn't free. We need
         alternative_lazy to avoid the call when it's unnecessary (i.e. when
@@ -173,7 +198,7 @@ class fsm
         struct function_queue_holder
         {
             template<class = void>
-            using type = std::queue<std::function<void()>>;
+            using type = std::queue<event_processing>;
         };
         struct empty_holder
         {

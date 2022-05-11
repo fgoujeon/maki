@@ -4,13 +4,11 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
-#include "fgfsm/action_fn.hpp"
 #include "fgfsm/any.hpp"
 #include "fgfsm/fsm.hpp"
 #include "fgfsm/fsm_configuration.hpp"
 #include "fgfsm/fsm_fwd.hpp"
 #include "fgfsm/fsm_ref.hpp"
-#include "fgfsm/guard_fn.hpp"
 #include "fgfsm/guard_operators.hpp"
 #include "fgfsm/none.hpp"
 #include "fgfsm/row.hpp"

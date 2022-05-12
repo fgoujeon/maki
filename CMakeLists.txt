@@ -16,7 +16,6 @@ endif()
 
 option(FGFSM_BUILD_EXAMPLES "Build example executables" OFF)
 option(FGFSM_BUILD_TEST "Build test executable" OFF)
-option(FGFSM_ENABLE_BENCHMARKING "Enable benchmarking in test executable" OFF)
 
 add_subdirectory(fgfsm)
 

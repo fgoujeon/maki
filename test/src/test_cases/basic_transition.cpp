@@ -50,11 +50,4 @@ TEST_CASE("basic transition")
 
     sm.process_event(events::button_press{});
     REQUIRE(sm.is_active_state<states::off>());
-
-#ifdef CATCH_CONFIG_ENABLE_BENCHMARKING
-    BENCHMARK("process_event")
-    {
-        sm.process_event(events::button_press{});
-    };
-#endif
 }

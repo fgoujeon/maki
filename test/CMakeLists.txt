@@ -16,14 +16,6 @@ add_executable(${TARGET} ${SOURCE_FILES})
 
 fgfsm_target_common_options(${TARGET})
 
-if(FGFSM_ENABLE_BENCHMARKING)
-    target_compile_definitions(
-        ${TARGET}
-        PRIVATE
-            CATCH_CONFIG_ENABLE_BENCHMARKING
-    )
-endif()
-
 target_link_libraries(
     ${TARGET}
     PRIVATE

@@ -31,18 +31,10 @@ class any_container
         }
 
         any_container(const any_container&) = delete;
-
-        any_container(any_container&& other):
-            pobj_(std::move(other.pobj_))
-        {
-        }
-
+        any_container(any_container&& other) = delete;
+        ~any_container() = default;
         void operator=(const any_container&) = delete;
-
-        void operator=(any_container&& other)
-        {
-            pobj_ = std::move(other.pobj_);
-        }
+        void operator=(any_container&& other) = delete;
 
         template<class T>
         const T& get() const

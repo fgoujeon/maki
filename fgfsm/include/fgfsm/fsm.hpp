@@ -95,10 +95,7 @@ class fsm
                 //Queue event processing in case of recursive call
                 if(processing_event_)
                 {
-                    queued_event_processings_.push
-                    (
-                        event_processing{*this, event}
-                    );
+                    queued_event_processings_.emplace(*this, event);
                     return;
                 }
 
@@ -157,6 +154,12 @@ class fsm
                     )
                 {
                 }
+
+                event_processing(const event_processing&) = delete;
+                event_processing(event_processing&&) = delete;
+                ~event_processing() = default;
+                event_processing& operator=(const event_processing&) = delete;
+                event_processing& operator=(event_processing&&) = delete;
 
                 void operator()()
                 {

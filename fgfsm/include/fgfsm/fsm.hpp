@@ -17,6 +17,7 @@
 #include "detail/alternative_lazy.hpp"
 #include "detail/any_container.hpp"
 #include "detail/ignore_unused.hpp"
+#include "detail/tlu/apply.hpp"
 #include <queue>
 #include <type_traits>
 
@@ -256,19 +257,15 @@ class fsm
         template<class Event>
         bool process_event_in_transition_table_once(const Event& event)
         {
-            return transition_table_event_processor<transition_table_t>::process
-            (
-                *this,
-                event
-            );
+            return detail::tlu::apply
+            <
+                transition_table_t,
+                transition_table_event_processor
+            >::process(*this, event);
         }
 
-        //Processes events against all rows of the (resolved) transition table
-        template<class TransitionTable2>
-        struct transition_table_event_processor;
-
         template<class... Rows>
-        struct transition_table_event_processor<transition_table<Rows...>>
+        struct transition_table_event_processor
         {
             template<class Event>
             static bool process(fsm& sm, const Event& event)
@@ -334,19 +331,16 @@ class fsm
         template<class Event>
         void process_event_in_active_state(const Event& event)
         {
-            return active_state_event_processor<state_tuple_t>::process
-            (
-                *this,
-                event
-            );
+            return detail::tlu::apply
+            <
+                state_tuple_t,
+                active_state_event_processor
+            >::process(*this, event);
         }
 
         //Processes internal events against all states
-        template<class StateTuple>
-        struct active_state_event_processor;
-
         template<class... States>
-        struct active_state_event_processor<detail::fsm_object_holder_tuple<States...>>
+        struct active_state_event_processor
         {
             template<class Event>
             static void process(fsm& sm, const Event& event)

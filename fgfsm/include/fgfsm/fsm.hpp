@@ -345,14 +345,7 @@ class fsm
             template<class Event>
             static void process(fsm& sm, const Event& event)
             {
-                (
-                    sm.process_event_in_state
-                    (
-                        &sm.states_.get(static_cast<States*>(nullptr)),
-                        &event,
-                        0
-                    ) || ...
-                );
+                (sm.process_event_in_state<States>(&event) || ...);
             }
         };
 
@@ -360,29 +353,27 @@ class fsm
         template<class State, class Event>
         auto process_event_in_state
         (
-            State* pstate,
-            const Event* pevent,
-            int /*dummy*/
-        ) -> decltype(pstate->on_event(*pevent), bool())
+            const Event* pevent
+        ) -> decltype(std::declval<State>().on_event(*pevent), bool())
         {
             if(is_active_state<State>())
             {
+                auto& state = states_.get(static_cast<State*>(nullptr));
                 auto helper = internal_transition_policy_helper
                 <
                     State,
                     Event
-                >{*pstate, *pevent};
+                >{state, *pevent};
                 internal_transition_policy_.do_transition(helper);
                 return true;
             }
             return false;
         }
 
+        template<class State>
         bool process_event_in_state
         (
-            void* /*pstate*/,
-            const void* /*pevent*/,
-            long /*dummy*/
+            const void* /*pevent*/
         )
         {
             return false;

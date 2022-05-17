@@ -148,7 +148,7 @@ class fsm
                     event_(event),
                     pprocess_event_
                     (
-                        [](fsm& sm, const detail::any_container& event)
+                        [](fsm& sm, const event_storage_t& event)
                         {
                             sm.process_event_once(event.get<Event>());
                         }
@@ -168,9 +168,12 @@ class fsm
                 }
 
             private:
+                static constexpr auto small_event_size = 16;
+                using event_storage_t = detail::any_container<small_event_size>;
+
                 fsm& sm_;
-                detail::any_container event_;
-                void(*pprocess_event_)(fsm&, const detail::any_container&) = nullptr;
+                event_storage_t event_;
+                void(*pprocess_event_)(fsm&, const event_storage_t&) = nullptr;
         };
 
         /*

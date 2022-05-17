@@ -13,16 +13,45 @@
 namespace fgfsm::detail
 {
 
-//A minimal std::any-like container that fits our needs
+/*
+A type-unsafe container for an object of any type.
+No dynamic memory allocation happens if the size of the given object is lower
+or equal to StaticStorageSize.
+*/
+template<auto StaticStorageSize>
 class any_container
 {
     public:
+        static_assert(StaticStorageSize > 0);
+
+        //small object optimization
         template<class Object>
-        explicit any_container(const Object& obj):
-            pobj_
+        explicit any_container
+        (
+            const Object& obj,
+            std::enable_if_t<sizeof(Object) <= StaticStorageSize>* = nullptr
+        ):
+            pobj_(new(static_storage_) Object{obj}),
+            pdelete_
             (
-                reinterpret_cast<const fake_void*>(new Object{obj}),
-                [](const fake_void* pobj)
+                [](const void* pobj)
+                {
+                    reinterpret_cast<const Object*>(pobj)->~Object();
+                }
+            )
+        {
+        }
+
+        template<class Object>
+        explicit any_container
+        (
+            const Object& obj,
+            std::enable_if_t<(sizeof(Object) > StaticStorageSize)>* = nullptr
+        ):
+            pobj_(new Object{obj}),
+            pdelete_
+            (
+                [](const void* pobj)
                 {
                     delete reinterpret_cast<const Object*>(pobj);
                 }
@@ -31,44 +60,26 @@ class any_container
         }
 
         any_container(const any_container&) = delete;
+        any_container(any_container&& other) = delete;
 
-        any_container(any_container&& other):
-            pobj_(std::move(other.pobj_))
+        ~any_container()
         {
+            (*pdelete_)(pobj_);
         }
 
         void operator=(const any_container&) = delete;
-
-        void operator=(any_container&& other)
-        {
-            pobj_ = std::move(other.pobj_);
-        }
+        void operator=(any_container&& other) = delete;
 
         template<class T>
         const T& get() const
         {
-            return *reinterpret_cast<const T*>(pobj_.get());
+            return *reinterpret_cast<const T*>(pobj_);
         }
 
     private:
-        /*
-        A way to have a valid std::unique_ptr<const void, void(*)(const void*)>.
-        We still have to reinterpret_cast instead of static_cast-ing from/to
-        fake_void, though.
-        */
-        struct fake_void
-        {
-            fake_void() = delete;
-            fake_void(const fake_void&) = delete;
-            fake_void(fake_void&&) = delete;
-        };
-        using unique_ptr_to_const_fake_void = std::unique_ptr
-        <
-            const fake_void,
-            void(*)(const fake_void*)
-        >;
-
-        unique_ptr_to_const_fake_void pobj_;
+        char static_storage_[StaticStorageSize]; //small object optimization
+        const void* pobj_ = nullptr;
+        void(*pdelete_)(const void*) = nullptr;
 };
 
 } //namespace

@@ -17,6 +17,7 @@
 #include "detail/alternative_lazy.hpp"
 #include "detail/any_container.hpp"
 #include "detail/ignore_unused.hpp"
+#include "detail/tlu/apply.hpp"
 #include <queue>
 #include <type_traits>
 
@@ -95,10 +96,7 @@ class fsm
                 //Queue event processing in case of recursive call
                 if(processing_event_)
                 {
-                    queued_event_processings_.push
-                    (
-                        event_processing{*this, event}
-                    );
+                    queued_event_processings_.emplace(*this, event);
                     return;
                 }
 
@@ -150,7 +148,7 @@ class fsm
                     event_(event),
                     pprocess_event_
                     (
-                        [](fsm& sm, const detail::any_container& event)
+                        [](fsm& sm, const event_storage_t& event)
                         {
                             sm.process_event_once(event.get<Event>());
                         }
@@ -158,15 +156,24 @@ class fsm
                 {
                 }
 
+                event_processing(const event_processing&) = delete;
+                event_processing(event_processing&&) = delete;
+                ~event_processing() = default;
+                event_processing& operator=(const event_processing&) = delete;
+                event_processing& operator=(event_processing&&) = delete;
+
                 void operator()()
                 {
                     (*pprocess_event_)(sm_, event_);
                 }
 
             private:
+                static constexpr auto small_event_size = 16;
+                using event_storage_t = detail::any_container<small_event_size>;
+
                 fsm& sm_;
-                detail::any_container event_;
-                void(*pprocess_event_)(fsm&, const detail::any_container&) = nullptr;
+                event_storage_t event_;
+                void(*pprocess_event_)(fsm&, const event_storage_t&) = nullptr;
         };
 
         /*
@@ -253,19 +260,15 @@ class fsm
         template<class Event>
         bool process_event_in_transition_table_once(const Event& event)
         {
-            return transition_table_event_processor<transition_table_t>::process
-            (
-                *this,
-                event
-            );
+            return detail::tlu::apply
+            <
+                transition_table_t,
+                transition_table_event_processor
+            >::process(*this, event);
         }
 
-        //Processes events against all rows of the (resolved) transition table
-        template<class TransitionTable2>
-        struct transition_table_event_processor;
-
         template<class... Rows>
-        struct transition_table_event_processor<transition_table<Rows...>>
+        struct transition_table_event_processor
         {
             template<class Event>
             static bool process(fsm& sm, const Event& event)
@@ -331,31 +334,21 @@ class fsm
         template<class Event>
         void process_event_in_active_state(const Event& event)
         {
-            return active_state_event_processor<state_tuple_t>::process
-            (
-                *this,
-                event
-            );
+            return detail::tlu::apply
+            <
+                state_tuple_t,
+                active_state_event_processor
+            >::process(*this, event);
         }
 
         //Processes internal events against all states
-        template<class StateTuple>
-        struct active_state_event_processor;
-
         template<class... States>
-        struct active_state_event_processor<detail::fsm_object_holder_tuple<States...>>
+        struct active_state_event_processor
         {
             template<class Event>
             static void process(fsm& sm, const Event& event)
             {
-                (
-                    sm.process_event_in_state
-                    (
-                        &sm.states_.get(static_cast<States*>(nullptr)),
-                        &event,
-                        0
-                    ) || ...
-                );
+                (sm.process_event_in_state<States>(&event) || ...);
             }
         };
 
@@ -363,29 +356,27 @@ class fsm
         template<class State, class Event>
         auto process_event_in_state
         (
-            State* pstate,
-            const Event* pevent,
-            int /*dummy*/
-        ) -> decltype(pstate->on_event(*pevent), bool())
+            const Event* pevent
+        ) -> decltype(std::declval<State>().on_event(*pevent), bool())
         {
             if(is_active_state<State>())
             {
+                auto& state = states_.get(static_cast<State*>(nullptr));
                 auto helper = internal_transition_policy_helper
                 <
                     State,
                     Event
-                >{*pstate, *pevent};
+                >{state, *pevent};
                 internal_transition_policy_.do_transition(helper);
                 return true;
             }
             return false;
         }
 
+        template<class State>
         bool process_event_in_state
         (
-            void* /*pstate*/,
-            const void* /*pevent*/,
-            long /*dummy*/
+            const void* /*pevent*/
         )
         {
             return false;

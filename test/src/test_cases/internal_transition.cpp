@@ -85,12 +85,4 @@ TEST_CASE("internal transition")
 
     sm.process_event(events::internal_transition{});
     REQUIRE(ctx.side_effect == 1);
-
-#ifdef CATCH_CONFIG_ENABLE_BENCHMARKING
-    BENCHMARK("process_event")
-    {
-        sm.process_event(events::internal_transition{});
-        return ctx.side_effect;
-    };
-#endif
 }

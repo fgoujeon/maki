@@ -6,6 +6,7 @@
 
 //TLU = Type List Utility
 
+#include "tlu/apply.hpp"
 #include "tlu/contains.hpp"
 #include "tlu/get_index.hpp"
 #include "tlu/left_fold.hpp"

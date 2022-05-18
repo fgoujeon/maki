@@ -217,6 +217,8 @@ using namespace states;
 using namespace actions;
 using namespace guards;
 using button_push = button::push_event;
+using fgfsm::row;
+using fgfsm::any_but;
 
 struct fsm_configuration: fgfsm::fsm_configuration
 {
@@ -238,13 +240,13 @@ struct fsm_configuration: fgfsm::fsm_configuration
     */
     using transition_table = fgfsm::transition_table
     <
-        //         start_state,    event,       target_state,   action,            guard
-        fgfsm::row<off,            button_push, emitting_white, turn_light_white>,
-        fgfsm::row<emitting_white, button_push, emitting_red,   turn_light_red,    is_short_push>,
-        fgfsm::row<emitting_red,   button_push, emitting_green, turn_light_green,  is_short_push>,
-        fgfsm::row<emitting_green, button_push, emitting_blue,  turn_light_blue,   is_short_push>,
-        fgfsm::row<emitting_blue,  button_push, emitting_white, turn_light_white,  is_short_push>,
-        fgfsm::row<fgfsm::any,     button_push, off,            turn_light_off,    is_long_push>
+        //  start_state,    event,       target_state,   action,            guard
+        row<off,            button_push, emitting_white, turn_light_white>,
+        row<emitting_white, button_push, emitting_red,   turn_light_red,    is_short_push>,
+        row<emitting_red,   button_push, emitting_green, turn_light_green,  is_short_push>,
+        row<emitting_green, button_push, emitting_blue,  turn_light_blue,   is_short_push>,
+        row<emitting_blue,  button_push, emitting_white, turn_light_white,  is_short_push>,
+        row<any_but<off>,   button_push, off,            turn_light_off,    is_long_push>
     >;
 };
 

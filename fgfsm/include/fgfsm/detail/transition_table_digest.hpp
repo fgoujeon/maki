@@ -10,7 +10,7 @@
 #include "tlu.hpp"
 #include "type_list.hpp"
 #include "fsm_object_holder_tuple.hpp"
-#include "../any.hpp"
+#include "../type_pattern.hpp"
 #include "../none.hpp"
 #include "../transition_table.hpp"
 #include <type_traits>
@@ -38,7 +38,7 @@ For example, the following digest type...:
         using state_tuple = fgfsm::detail::fsm_object_holder_tuple<state0, state1, state2, state3>;
         using action_tuple = fgfsm::detail::fsm_object_holder_tuple<action0, action1>;
         using guard_tuple = fgfsm::detail::fsm_object_holder_tuple<guard0, guard1>;
-        static constexpr auto has_any_start_states = false;
+        static constexpr auto has_start_state_patterns = false;
         static constexpr auto has_none_events = false;
     };
 */
@@ -58,11 +58,15 @@ namespace transition_table_digest_detail
     using to_tuple = typename to_tuple_helper<TList>::type;
 
     template<class TList, class U>
-    using push_back_unique_if_not_any_or_none = tlu::push_back_if
+    using push_back_unique_if_not_pattern = tlu::push_back_if
     <
         TList,
         U,
-        !tlu::contains<TList, U> && !std::is_same_v<U, any> && !std::is_same_v<U, none>
+        (
+            !tlu::contains<TList, U> &&
+            !std::is_base_of_v<type_pattern, U> &&
+            !std::is_same_v<U, none>
+        )
     >;
 
     struct initial_digest
@@ -70,16 +74,16 @@ namespace transition_table_digest_detail
         using state_tuple = type_list<>;
         using action_tuple = type_list<>;
         using guard_tuple = type_list<>;
-        static constexpr auto has_any_start_states = false;
+        static constexpr auto has_start_state_patterns = false;
         static constexpr auto has_none_events = false;
     };
 
     template<class Digest, class Row>
     struct add_row_to_digest
     {
-        using state_tuple = push_back_unique_if_not_any_or_none
+        using state_tuple = push_back_unique_if_not_pattern
         <
-            push_back_unique_if_not_any_or_none
+            push_back_unique_if_not_pattern
             <
                 typename Digest::state_tuple,
                 typename Row::start_state_type
@@ -87,21 +91,21 @@ namespace transition_table_digest_detail
             typename Row::target_state_type
         >;
 
-        using action_tuple = push_back_unique_if_not_any_or_none
+        using action_tuple = push_back_unique_if_not_pattern
         <
             typename Digest::action_tuple,
             typename Row::action_type
         >;
 
-        using guard_tuple = push_back_unique_if_not_any_or_none
+        using guard_tuple = push_back_unique_if_not_pattern
         <
             typename Digest::guard_tuple,
             typename Row::guard_type
         >;
 
-        static constexpr auto has_any_start_states =
-            Digest::has_any_start_states ||
-            std::is_same_v<typename Row::start_state_type, any>
+        static constexpr auto has_start_state_patterns =
+            Digest::has_start_state_patterns ||
+            std::is_base_of_v<type_pattern, typename Row::start_state_type>
         ;
 
         static constexpr auto has_none_events =
@@ -148,7 +152,7 @@ class transition_table_digest
             typename digest_t::guard_tuple
         >;
 
-        static constexpr auto has_any_start_states = digest_t::has_any_start_states;
+        static constexpr auto has_start_state_patterns = digest_t::has_start_state_patterns;
         static constexpr auto has_none_events = digest_t::has_none_events;
 };
 

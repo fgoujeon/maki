@@ -4,7 +4,6 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/fgfsm
 
-#include "fgfsm/any.hpp"
 #include "fgfsm/fsm.hpp"
 #include "fgfsm/fsm_configuration.hpp"
 #include "fgfsm/fsm_fwd.hpp"
@@ -13,4 +12,5 @@
 #include "fgfsm/none.hpp"
 #include "fgfsm/row.hpp"
 #include "fgfsm/transition_table.hpp"
+#include "fgfsm/type_pattern.hpp"
 #include "fgfsm/version.hpp"

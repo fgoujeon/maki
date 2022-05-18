@@ -10,7 +10,6 @@
 #include "fsm_configuration.hpp"
 #include "internal_transition_policy_helper.hpp"
 #include "state_transition_policy_helper.hpp"
-#include "any.hpp"
 #include "none.hpp"
 #include "detail/resolve_transition_table.hpp"
 #include "detail/transition_table_digest.hpp"
@@ -179,7 +178,7 @@ class fsm
         /*
         Calling detail::resolve_transition_table<> isn't free. We need
         alternative_lazy to avoid the call when it's unnecessary (i.e. when
-        there's no any-start-state in the transition table).
+        there's no pattern-start-state in the transition table).
         */
         struct unresolved_transition_table_holder
         {
@@ -197,7 +196,7 @@ class fsm
         };
         using transition_table_t = detail::alternative_lazy
         <
-            transition_table_digest_t::has_any_start_states,
+            transition_table_digest_t::has_start_state_patterns,
             resolved_transition_table_holder,
             unresolved_transition_table_holder
         >;

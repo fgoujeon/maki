@@ -8,17 +8,18 @@
 #define FGFSM_DETAIL_RESOLVE_TRANSITION_TABLE_HPP
 
 #include "alternative.hpp"
+#include "alternative_lazy.hpp"
 #include "tlu.hpp"
 #include "../row.hpp"
-#include "../any.hpp"
+#include "../type_pattern.hpp"
 #include "../transition_table.hpp"
 
 namespace fgfsm::detail
 {
 
 /*
-Replaces each 'any'-start-state row with equivalent set of n rows, n being the
-number of distinct state types.
+Replaces each pattern-start-state row with equivalent set of n rows, n being the
+number of state types that match the pattern.
 The list of state types is given as second argument to save some build time.
 It's already computed at the time we call resolve_transition_table.
 
@@ -49,76 +50,71 @@ For example, the following resolved_transition_table_t type...:
     >;
 */
 
-//has_any_start_state
 namespace resolve_transition_table_detail
 {
-    template<class Row>
-    struct has_any_start_state_helper;
-
-    template
-    <
-        class StartState,
-        class Event,
-        class TargetState,
-        class Action,
-        class Guard
-    >
-    struct has_any_start_state_helper
-    <
-        row
-        <
-            StartState,
-            Event,
-            TargetState,
-            Action,
-            Guard
-        >
-    >
-    {
-        static constexpr auto value = std::is_same_v<StartState, fgfsm::any>;
-    };
-
-    template<class Row>
-    constexpr auto has_any_start_state = has_any_start_state_helper<Row>::value;
-}
-
-namespace resolve_transition_table_detail
-{
-    template<class OriginalRow>
-    struct add_resolved_row
+    template<class RowWithPattern>
+    struct add_resolved_row_holder
     {
         template<class TransitionTable, class StartState>
-        using call = tlu::push_back
+        using type = alternative
         <
-            TransitionTable,
-            row
+            RowWithPattern::start_state_type::template matches<StartState>,
+            tlu::push_back
             <
-                StartState,
-                typename OriginalRow::event_type,
-                typename OriginalRow::target_state_type,
-                typename OriginalRow::action_type,
-                typename OriginalRow::guard_type
-            >
+                TransitionTable,
+                row
+                <
+                    StartState,
+                    typename RowWithPattern::event_type,
+                    typename RowWithPattern::target_state_type,
+                    typename RowWithPattern::action_type,
+                    typename RowWithPattern::guard_type
+                >
+            >,
+            TransitionTable
         >;
     };
 
-    template<class StateTypeList>
-    struct helper
+    /*
+    Return TransitionTable with n new rows, n being the number of matching
+    states.
+    */
+    template<class TransitionTable, class Row, class StateTypeList>
+    struct add_row_with_pattern_holder
     {
-        template<class TransitionTable, class Row>
-        using add_any_row = tlu::left_fold
+        template<class = void>
+        using type = tlu::left_fold
         <
             StateTypeList,
-            add_resolved_row<Row>::template call,
+            add_resolved_row_holder<Row>::template type,
             TransitionTable
         >;
+    };
 
+    template<class TransitionTable, class Row>
+    struct add_row_without_pattern_holder
+    {
+        template<class = void>
+        using type = tlu::push_back<TransitionTable, Row>;
+    };
+
+    //We need a holder to pass StateTypeList
+    template<class StateTypeList>
+    struct add_row_holder
+    {
+        /*
+        Return TransitionTable with added rows.
+        Added rows are either:
+        - Row as is if Row::start_state_type isn't a pattern;
+        - n resolved rows otherwise (n being the number of states that match the
+          pattern).
+        */
         template<class TransitionTable, class Row>
-        using add_row = alternative
+        using type = alternative_lazy
         <
-            has_any_start_state<Row>,
-            add_any_row<TransitionTable, Row>,
-            tlu::push_back<TransitionTable, Row>
+            std::is_base_of_v<type_pattern, typename Row::start_state_type>,
+            add_row_with_pattern_holder<TransitionTable, Row, StateTypeList>,
+            add_row_without_pattern_holder<TransitionTable, Row>
         >;
     };
 }
@@ -127,7 +123,7 @@ template<class TransitionTable, class StateTypeList>
 using resolve_transition_table = tlu::left_fold
 <
     TransitionTable,
-    resolve_transition_table_detail::helper<StateTypeList>::template add_row,
+    resolve_transition_table_detail::add_row_holder<StateTypeList>::template type,
     transition_table<>
 >;
 

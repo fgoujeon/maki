@@ -14,7 +14,10 @@ namespace
     struct state0{};
     struct state1{};
     struct state2{};
-    struct state3{};
+    struct state3
+    {
+        int i;
+    };
 
     struct event0{};
     struct event1{};
@@ -61,10 +64,24 @@ TEST_CASE("detail::resolve_transition_table")
 {
     using transition_table = fgfsm::transition_table
     <
-        fgfsm::row<state0,     event0, state1, action0, guard0>,
-        fgfsm::row<fgfsm::any, event0, state1, action0, guard0>,
-        fgfsm::row<state1,     event1, state2, action1, guard1>,
-        fgfsm::row<fgfsm::any, event2, state3, action2, guard2>
+        fgfsm::row<state0, event0, state1, action0, guard0>,
+        fgfsm::row<state1, event1, state2, action1, guard1>,
+        fgfsm::row<state2, event2, state3, action2, guard2>,
+
+        //pattern 1
+        fgfsm::row<fgfsm::any, event0, state0, action0, guard0>,
+
+        //pattern 2
+        fgfsm::row<fgfsm::any_of<state0, state2>, event0, state0, action0, guard0>,
+
+        //pattern 3
+        fgfsm::row<fgfsm::any_but<state0, state2>, event0, state0, action0, guard0>,
+
+        //pattern 4
+        fgfsm::row<fgfsm::any_if<std::is_empty>, event0, state0, action0, guard0>,
+
+        //pattern 5
+        fgfsm::row<fgfsm::any_if_not<std::is_empty>, event0, state0, action0, guard0>
     >;
 
     using resolved_transition_table_t =
@@ -77,23 +94,31 @@ TEST_CASE("detail::resolve_transition_table")
 
     using expected_resolved_transition_table_t = fgfsm::transition_table
     <
-        //copied
         fgfsm::row<state0, event0, state1, action0, guard0>,
-
-        //resolved
-        fgfsm::row<state0, event0, state1, action0, guard0>,
-        fgfsm::row<state1, event0, state1, action0, guard0>,
-        fgfsm::row<state2, event0, state1, action0, guard0>,
-        fgfsm::row<state3, event0, state1, action0, guard0>,
-
-        //copied
         fgfsm::row<state1, event1, state2, action1, guard1>,
-
-        //resolved
-        fgfsm::row<state0, event2, state3, action2, guard2>,
-        fgfsm::row<state1, event2, state3, action2, guard2>,
         fgfsm::row<state2, event2, state3, action2, guard2>,
-        fgfsm::row<state3, event2, state3, action2, guard2>
+
+        //pattern 1
+        fgfsm::row<state0, event0, state0, action0, guard0>,
+        fgfsm::row<state1, event0, state0, action0, guard0>,
+        fgfsm::row<state2, event0, state0, action0, guard0>,
+        fgfsm::row<state3, event0, state0, action0, guard0>,
+
+        //pattern 2
+        fgfsm::row<state0, event0, state0, action0, guard0>,
+        fgfsm::row<state2, event0, state0, action0, guard0>,
+
+        //pattern 3
+        fgfsm::row<state1, event0, state0, action0, guard0>,
+        fgfsm::row<state3, event0, state0, action0, guard0>,
+
+        //pattern 4
+        fgfsm::row<state0, event0, state0, action0, guard0>,
+        fgfsm::row<state1, event0, state0, action0, guard0>,
+        fgfsm::row<state2, event0, state0, action0, guard0>,
+
+        //pattern 5
+        fgfsm::row<state3, event0, state0, action0, guard0>
     >;
 
     REQUIRE

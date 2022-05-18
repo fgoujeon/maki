@@ -13,7 +13,7 @@ FGFSM implements the following key features:
   * **guards**;
   * **internal transitions**, aka transitions to `none` state;
   * **completion transitions**, aka anonymous transitions, aka transitions through `none` event;
-  * **Kleene start states**, aka transitions from `any` state;
+  * start state **pattern matching** with `any`, `any_of`, `any_but`, `any_if` and `any_if_not`;
 * **states as classes**, featuring:
   * **entry/exit actions**, aka `on_entry()` and `on_exit()` member functions;
   * **internal transition actions**, aka `on_event()` member function;

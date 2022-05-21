@@ -48,7 +48,7 @@ namespace
         };
     }
 
-    struct fsm_conf: awesm::fsm_configuration
+    struct sm_conf: awesm::sm_configuration
     {
         using transition_table = awesm::transition_table
         <
@@ -57,19 +57,19 @@ namespace
         >;
     };
 
-    using fsm = awesm::fsm<fsm_conf>;
+    using sm = awesm::sm<sm_conf>;
 }
 
 TEST_CASE("action")
 {
     auto ctx = context{};
-    auto sm = fsm{ctx};
+    auto machine = sm{ctx};
 
-    sm.process_event(events::button_press{});
-    REQUIRE(sm.is_active_state<states::on>());
+    machine.process_event(events::button_press{});
+    REQUIRE(machine.is_active_state<states::on>());
     REQUIRE(ctx.i == 1);
 
-    sm.process_event(events::button_press{});
-    REQUIRE(sm.is_active_state<states::off>());
+    machine.process_event(events::button_press{});
+    REQUIRE(machine.is_active_state<states::off>());
     REQUIRE(ctx.i == 0);
 }

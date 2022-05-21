@@ -88,7 +88,7 @@ namespace
         context& ctx;
     };
 
-    struct fsm_configuration: awesm::fsm_configuration
+    struct sm_configuration: awesm::sm_configuration
     {
         using transition_table = awesm::transition_table
         <
@@ -99,27 +99,27 @@ namespace
         >;
     };
 
-    using fsm = awesm::fsm<fsm_configuration>;
+    using sm = awesm::sm<sm_configuration>;
 }
 
 TEST_CASE("nullary_member_functions")
 {
     auto ctx = context{};
-    auto sm = fsm{ctx};
+    auto machine = sm{ctx};
 
     ctx.out.clear();
-    sm.process_event(events::e1{});
+    machine.process_event(events::e1{});
     REQUIRE(ctx.out == "check(e1);execute(e1);on_entry(e1);");
 
     ctx.out.clear();
-    sm.process_event(events::e1{});
+    machine.process_event(events::e1{});
     REQUIRE(ctx.out == "check(e1);on_exit(e1);execute(e1);");
 
     ctx.out.clear();
-    sm.process_event(events::e2{});
+    machine.process_event(events::e2{});
     REQUIRE(ctx.out == "check();execute();on_entry();");
 
     ctx.out.clear();
-    sm.process_event(events::e2{});
+    machine.process_event(events::e2{});
     REQUIRE(ctx.out == "check();on_exit();execute();");
 }

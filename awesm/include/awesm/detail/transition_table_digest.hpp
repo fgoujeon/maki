@@ -9,7 +9,7 @@
 
 #include "tlu.hpp"
 #include "type_list.hpp"
-#include "fsm_object_holder_tuple.hpp"
+#include "sm_object_holder_tuple.hpp"
 #include "../type_pattern.hpp"
 #include "../none.hpp"
 #include "../transition_table.hpp"
@@ -35,9 +35,9 @@ For example, the following digest type...:
 ... is equivalent to this type:
     struct digest
     {
-        using state_tuple = awesm::detail::fsm_object_holder_tuple<state0, state1, state2, state3>;
-        using action_tuple = awesm::detail::fsm_object_holder_tuple<action0, action1>;
-        using guard_tuple = awesm::detail::fsm_object_holder_tuple<guard0, guard1>;
+        using state_tuple = awesm::detail::sm_object_holder_tuple<state0, state1, state2, state3>;
+        using action_tuple = awesm::detail::sm_object_holder_tuple<action0, action1>;
+        using guard_tuple = awesm::detail::sm_object_holder_tuple<guard0, guard1>;
         static constexpr auto has_start_state_patterns = false;
         static constexpr auto has_none_events = false;
     };
@@ -51,7 +51,7 @@ namespace transition_table_digest_detail
     template<template<class...> class TList, class... Ts>
     struct to_tuple_helper<TList<Ts...>>
     {
-        using type = awesm::detail::fsm_object_holder_tuple<Ts...>;
+        using type = awesm::detail::sm_object_holder_tuple<Ts...>;
     };
 
     template<class TList>
@@ -115,7 +115,7 @@ namespace transition_table_digest_detail
     };
 
     /*
-    First step with type_list instead of awesm::detail::fsm_object_holder_tuple,
+    First step with type_list instead of awesm::detail::sm_object_holder_tuple,
     so that we don't instantiate intermediate tuples.
     */
     template<class TransitionTable>

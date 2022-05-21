@@ -4,14 +4,14 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_FSM_FWD_HPP
-#define AWESM_FSM_FWD_HPP
+#ifndef AWESM_SM_FWD_HPP
+#define AWESM_SM_FWD_HPP
 
 namespace awesm
 {
 
 template<class Configuration>
-class fsm;
+class sm;
 
 } //namespace
 

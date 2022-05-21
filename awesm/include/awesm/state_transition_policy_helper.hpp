@@ -17,7 +17,7 @@ namespace awesm
 
 template
 <
-    class Fsm,
+    class Sm,
     class StartState,
     class Event,
     class TargetState,
@@ -70,7 +70,7 @@ class state_transition_policy_helper
             {
                 sm_.active_state_index_ = detail::tlu::get_index
                 <
-                    typename Fsm::state_tuple_t,
+                    typename Sm::state_tuple_t,
                     TargetState
                 >;
             }
@@ -105,10 +105,10 @@ class state_transition_policy_helper
 
     private:
         template<class FsmConfiguration>
-        friend class fsm;
+        friend class sm;
 
-        state_transition_policy_helper(Fsm& sm, const Event& event):
-            sm_(sm),
+        state_transition_policy_helper(Sm& machine, const Event& event):
+            sm_(machine),
             event_(event)
         {
         }
@@ -125,7 +125,7 @@ class state_transition_policy_helper
             }
         }
 
-        Fsm& sm_;
+        Sm& sm_;
         const Event& event_;
 };
 

@@ -26,7 +26,7 @@ class internal_transition_policy_helper
 
     private:
         template<class FsmConfiguration>
-        friend class fsm;
+        friend class sm;
 
         internal_transition_policy_helper(State& state, const Event& event):
             state_(state),

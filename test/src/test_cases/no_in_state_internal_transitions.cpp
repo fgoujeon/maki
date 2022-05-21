@@ -42,7 +42,7 @@ namespace
         };
     }
 
-    struct fsm_configuration: awesm::fsm_configuration
+    struct sm_configuration: awesm::sm_configuration
     {
         using transition_table = awesm::transition_table
         <
@@ -52,15 +52,15 @@ namespace
         static constexpr auto enable_in_state_internal_transitions = false;
     };
 
-    using fsm = awesm::fsm<fsm_configuration>;
+    using sm = awesm::sm<sm_configuration>;
 }
 
 TEST_CASE("no_in_state_internal_transitions")
 {
     auto ctx = context{};
-    auto sm = fsm{ctx};
+    auto machine = sm{ctx};
 
     //Shall have no effect
-    sm.process_event(events::internal_transition{});
+    machine.process_event(events::internal_transition{});
     REQUIRE(ctx.i == 0);
 }

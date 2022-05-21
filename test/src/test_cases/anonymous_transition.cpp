@@ -25,7 +25,7 @@ namespace
         struct s4{};
     };
 
-    struct fsm_conf: awesm::fsm_configuration
+    struct sm_conf: awesm::sm_configuration
     {
         using transition_table = awesm::transition_table
         <
@@ -37,17 +37,17 @@ namespace
         >;
     };
 
-    using fsm = awesm::fsm<fsm_conf>;
+    using sm = awesm::sm<sm_conf>;
 }
 
 TEST_CASE("anonymous transition")
 {
     auto ctx = context{};
-    auto sm = fsm{ctx};
+    auto machine = sm{ctx};
 
-    sm.process_event(events::go_on{});
-    REQUIRE(sm.is_active_state<states::s2>());
+    machine.process_event(events::go_on{});
+    REQUIRE(machine.is_active_state<states::s2>());
 
-    sm.process_event(events::go_on{});
-    REQUIRE(sm.is_active_state<states::s0>());
+    machine.process_event(events::go_on{});
+    REQUIRE(machine.is_active_state<states::s0>());
 }

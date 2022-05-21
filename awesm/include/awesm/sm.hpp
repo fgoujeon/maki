@@ -4,10 +4,10 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_FSM_HPP
-#define AWESM_FSM_HPP
+#ifndef AWESM_SM_HPP
+#define AWESM_SM_HPP
 
-#include "fsm_configuration.hpp"
+#include "sm_configuration.hpp"
 #include "internal_transition_policy_helper.hpp"
 #include "state_transition_policy_helper.hpp"
 #include "none.hpp"
@@ -49,17 +49,17 @@ namespace detail
 }
 
 template<class Configuration>
-class fsm
+class sm
 {
     public:
         static_assert
         (
-            std::is_base_of_v<fsm_configuration, Configuration>,
-            "Given configuration type must inherit from awesm::fsm_configuration."
+            std::is_base_of_v<sm_configuration, Configuration>,
+            "Given configuration type must inherit from awesm::sm_configuration."
         );
 
         template<class Context>
-        explicit fsm(Context& context):
+        explicit sm(Context& context):
             states_(context, *this),
             actions_(context, *this),
             guards_(context, *this),
@@ -69,11 +69,11 @@ class fsm
         {
         }
 
-        fsm(const fsm&) = delete;
-        fsm(fsm&&) = delete;
-        fsm& operator=(const fsm&) = delete;
-        fsm& operator=(fsm&&) = delete;
-        ~fsm() = default;
+        sm(const sm&) = delete;
+        sm(sm&&) = delete;
+        sm& operator=(const sm&) = delete;
+        sm& operator=(sm&&) = delete;
+        ~sm() = default;
 
         //Check whether the given State is the active state type
         template<class State>
@@ -125,10 +125,10 @@ class fsm
             typename Configuration::pre_transition_event_handler
         ;
         using internal_transition_policy_t =
-            typename Configuration::template internal_transition_policy<fsm>
+            typename Configuration::template internal_transition_policy<sm>
         ;
         using state_transition_policy_t =
-            typename Configuration::template state_transition_policy<fsm>
+            typename Configuration::template state_transition_policy<sm>
         ;
 
         using transition_table_digest_t =
@@ -142,14 +142,14 @@ class fsm
         {
             public:
                 template<class Event>
-                event_processing(fsm& sm, const Event& event):
-                    sm_(sm),
+                event_processing(sm& machine, const Event& event):
+                    sm_(machine),
                     event_(event),
                     pprocess_event_
                     (
-                        [](fsm& sm, const event_storage_t& event)
+                        [](sm& machine, const event_storage_t& event)
                         {
-                            sm.process_event_once(event.get<Event>());
+                            machine.process_event_once(event.get<Event>());
                         }
                     )
                 {
@@ -170,9 +170,9 @@ class fsm
                 static constexpr auto small_event_size = 16;
                 using event_storage_t = detail::any_container<small_event_size>;
 
-                fsm& sm_;
+                sm& sm_;
                 event_storage_t event_;
-                void(*pprocess_event_)(fsm&, const event_storage_t&) = nullptr;
+                void(*pprocess_event_)(sm&, const event_storage_t&) = nullptr;
         };
 
         /*
@@ -220,7 +220,7 @@ class fsm
 
         template
         <
-            class Fsm,
+            class Sm,
             class StartState,
             class Event,
             class TargetState,
@@ -270,9 +270,9 @@ class fsm
         struct transition_table_event_processor
         {
             template<class Event>
-            static bool process(fsm& sm, const Event& event)
+            static bool process(sm& machine, const Event& event)
             {
-                return (transition_table_row_event_processor<Rows>::process(sm, &event) || ...);
+                return (transition_table_row_event_processor<Rows>::process(machine, &event) || ...);
             }
         };
 
@@ -286,10 +286,10 @@ class fsm
             using transition_action       = typename Row::action_type;
             using transition_guard        = typename Row::guard_type;
 
-            static bool process(fsm& sm, const transition_event* const pevent)
+            static bool process(sm& machine, const transition_event* const pevent)
             {
                 //Make sure the transition start state is the active state
-                if(!sm.is_active_state<transition_start_state>())
+                if(!machine.is_active_state<transition_start_state>())
                 {
                     return false;
                 }
@@ -297,15 +297,15 @@ class fsm
                 //Perform the transition
                 using helper_t = state_transition_policy_helper
                 <
-                    fsm,
+                    sm,
                     transition_start_state,
                     transition_event,
                     transition_target_state,
                     transition_action,
                     transition_guard
                 >;
-                auto helper = helper_t{sm, *pevent};
-                return sm.state_transition_policy_.do_transition(helper);
+                auto helper = helper_t{machine, *pevent};
+                return machine.state_transition_policy_.do_transition(helper);
             }
 
             /*
@@ -313,7 +313,7 @@ class fsm
 
             This alternative implementation takes more time to build:
                 template<class Event>
-                static bool process(fsm&, const Event&)
+                static bool process(sm&, const Event&)
                 {
                     return false;
                 }
@@ -321,7 +321,7 @@ class fsm
             Using an if-constexpr in the process() function above is worse as
             well.
             */
-            static bool process(fsm& /*sm*/, const void* /*pevent*/)
+            static bool process(sm& /*machine*/, const void* /*pevent*/)
             {
                 return false;
             }
@@ -345,9 +345,9 @@ class fsm
         struct active_state_event_processor
         {
             template<class Event>
-            static void process(fsm& sm, const Event& event)
+            static void process(sm& machine, const Event& event)
             {
-                (sm.process_event_in_state<States>(&event) || ...);
+                (machine.process_event_in_state<States>(&event) || ...);
             }
         };
 

@@ -8,7 +8,7 @@
 #include <awesm/transition_table.hpp>
 #include <awesm/none.hpp>
 #include <awesm/detail/transition_table_digest.hpp>
-#include <awesm/detail/fsm_object_holder_tuple.hpp>
+#include <awesm/detail/sm_object_holder_tuple.hpp>
 #include <catch2/catch.hpp>
 
 namespace
@@ -40,9 +40,9 @@ namespace
 
     using digest = awesm::detail::transition_table_digest<transition_table>;
 
-    using action_tuple = awesm::detail::fsm_object_holder_tuple<action0, action1>;
-    using guard_tuple = awesm::detail::fsm_object_holder_tuple<guard0, guard1>;
-    using state_tuple = awesm::detail::fsm_object_holder_tuple<state0, state1, state2, state3>;
+    using action_tuple = awesm::detail::sm_object_holder_tuple<action0, action1>;
+    using guard_tuple = awesm::detail::sm_object_holder_tuple<guard0, guard1>;
+    using state_tuple = awesm::detail::sm_object_holder_tuple<state0, state1, state2, state3>;
 }
 
 TEST_CASE("detail::transition_table_digest")

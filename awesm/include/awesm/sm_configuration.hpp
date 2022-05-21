@@ -4,20 +4,20 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_FSM_CONFIGURATION_HPP
-#define AWESM_FSM_CONFIGURATION_HPP
+#ifndef AWESM_SM_CONFIGURATION_HPP
+#define AWESM_SM_CONFIGURATION_HPP
 
 #include <exception>
 
 namespace awesm
 {
 
-struct fsm_configuration
+struct sm_configuration
 {
     struct pre_transition_event_handler
     {
-        template<class Context, class Fsm>
-        pre_transition_event_handler(Context& /*ctx*/, Fsm& /*sm*/)
+        template<class Context, class Sm>
+        pre_transition_event_handler(Context& /*ctx*/, Sm& /*machine*/)
         {
             /*
             Called whenever an event is being processed, after recursive call
@@ -30,12 +30,12 @@ struct fsm_configuration
         }
     };
 
-    template<class Fsm>
+    template<class Sm>
     struct internal_transition_policy
     {
         template<class Context>
-        internal_transition_policy(Context& /*ctx*/, Fsm& sm):
-            sm(sm)
+        internal_transition_policy(Context& /*ctx*/, Sm& machine):
+            machine(machine)
         {
         }
 
@@ -48,19 +48,19 @@ struct fsm_configuration
             }
             catch(...)
             {
-                sm.process_event(std::current_exception());
+                machine.process_event(std::current_exception());
             }
         }
 
-        Fsm& sm;
+        Sm& machine;
     };
 
-    template<class Fsm>
+    template<class Sm>
     struct state_transition_policy
     {
         template<class Context>
-        state_transition_policy(Context& /*ctx*/, Fsm& sm):
-            sm(sm)
+        state_transition_policy(Context& /*ctx*/, Sm& machine):
+            machine(machine)
         {
         }
 
@@ -84,13 +84,13 @@ struct fsm_configuration
             }
             catch(...)
             {
-                sm.process_event(std::current_exception());
+                machine.process_event(std::current_exception());
             }
 
             return processed;
         }
 
-        Fsm& sm;
+        Sm& machine;
     };
 
     static constexpr auto enable_run_to_completion = true;

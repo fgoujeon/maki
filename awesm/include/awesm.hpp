@@ -4,10 +4,10 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#include "awesm/fsm.hpp"
-#include "awesm/fsm_configuration.hpp"
-#include "awesm/fsm_fwd.hpp"
-#include "awesm/fsm_ref.hpp"
+#include "awesm/sm.hpp"
+#include "awesm/sm_configuration.hpp"
+#include "awesm/sm_fwd.hpp"
+#include "awesm/sm_ref.hpp"
 #include "awesm/guard_operators.hpp"
 #include "awesm/none.hpp"
 #include "awesm/row.hpp"

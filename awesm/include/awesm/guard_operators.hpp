@@ -7,7 +7,7 @@
 #ifndef AWESM_GUARD_OPERATORS_HPP
 #define AWESM_GUARD_OPERATORS_HPP
 
-#include "detail/fsm_object_holder.hpp"
+#include "detail/sm_object_holder.hpp"
 #include "detail/call_member.hpp"
 
 namespace awesm
@@ -43,10 +43,10 @@ namespace detail
     class binary_operator_guard
     {
         public:
-            template<class Context, class Fsm>
-            binary_operator_guard(Context& context, Fsm& sm):
-                lhs_{context, sm},
-                rhs_{context, sm}
+            template<class Context, class Sm>
+            binary_operator_guard(Context& context, Sm& machine):
+                lhs_{context, machine},
+                rhs_{context, machine}
             {
             }
 
@@ -88,8 +88,8 @@ namespace detail
             }
 
         private:
-            detail::fsm_object_holder<Lhs> lhs_;
-            detail::fsm_object_holder<Rhs> rhs_;
+            detail::sm_object_holder<Lhs> lhs_;
+            detail::sm_object_holder<Rhs> rhs_;
     };
 }
 
@@ -97,9 +97,9 @@ template<class T>
 class not_
 {
     public:
-        template<class Context, class Fsm>
-        not_(Context& context, Fsm& sm):
-            guard_{context, sm}
+        template<class Context, class Sm>
+        not_(Context& context, Sm& machine):
+            guard_{context, machine}
         {
         }
 
@@ -121,7 +121,7 @@ class not_
         }
 
     private:
-        detail::fsm_object_holder<T> guard_;
+        detail::sm_object_holder<T> guard_;
 };
 
 template<class L, class R>

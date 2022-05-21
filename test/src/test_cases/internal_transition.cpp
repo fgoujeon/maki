@@ -52,7 +52,7 @@ namespace
         };
     }
 
-    struct fsm_configuration: awesm::fsm_configuration
+    struct sm_configuration: awesm::sm_configuration
     {
         using transition_table = awesm::transition_table
         <
@@ -71,18 +71,18 @@ namespace
         static constexpr auto enable_run_to_completion = false;
     };
 
-    using fsm = awesm::fsm<fsm_configuration>;
+    using sm = awesm::sm<sm_configuration>;
 }
 
 TEST_CASE("internal transition")
 {
     auto ctx = context{};
-    auto sm = fsm{ctx};
+    auto machine = sm{ctx};
 
     for(auto i = 0; i < 10; ++i)
-        sm.process_event(events::next_state{});
-    REQUIRE(sm.is_active_state<states::benchmarking>());
+        machine.process_event(events::next_state{});
+    REQUIRE(machine.is_active_state<states::benchmarking>());
 
-    sm.process_event(events::internal_transition{});
+    machine.process_event(events::internal_transition{});
     REQUIRE(ctx.side_effect == 1);
 }

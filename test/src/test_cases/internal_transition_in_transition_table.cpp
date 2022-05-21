@@ -79,7 +79,7 @@ namespace
         };
     };
 
-    struct fsm_configuration: awesm::fsm_configuration
+    struct sm_configuration: awesm::sm_configuration
     {
         using transition_table = awesm::transition_table
         <
@@ -89,18 +89,18 @@ namespace
         >;
     };
 
-    using fsm = awesm::fsm<fsm_configuration>;
+    using sm = awesm::sm<sm_configuration>;
 }
 
 TEST_CASE("internal transition in transition table")
 {
     auto ctx = context{};
-    auto sm = fsm{ctx};
+    auto machine = sm{ctx};
 
-    sm.process_event(events::power_button_press{});
+    machine.process_event(events::power_button_press{});
     REQUIRE(ctx.out == "idle::on_event;idle::on_exit;running::on_entry;");
 
     ctx.out.clear();
-    sm.process_event(events::beep_button_press{});
+    machine.process_event(events::beep_button_press{});
     REQUIRE(ctx.out == "running::on_event;beep;");
 }

@@ -7,6 +7,8 @@
 #ifndef AWESM_TYPE_PATTERN_HPP
 #define AWESM_TYPE_PATTERN_HPP
 
+#include <type_traits>
+
 namespace awesm
 {
 

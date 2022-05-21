@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm.hpp>
+#include <awesm.hpp>
 #include <catch2/catch.hpp>
 
 namespace
@@ -48,16 +48,16 @@ namespace
         };
     }
 
-    struct fsm_conf: fgfsm::fsm_configuration
+    struct fsm_conf: awesm::fsm_configuration
     {
-        using transition_table = fgfsm::transition_table
+        using transition_table = awesm::transition_table
         <
-            fgfsm::row<states::off, events::button_press, states::on,  actions::beep>,
-            fgfsm::row<states::on,  events::button_press, states::off, actions::boop>
+            awesm::row<states::off, events::button_press, states::on,  actions::beep>,
+            awesm::row<states::on,  events::button_press, states::off, actions::boop>
         >;
     };
 
-    using fsm = fgfsm::fsm<fsm_conf>;
+    using fsm = awesm::fsm<fsm_conf>;
 }
 
 TEST_CASE("action")

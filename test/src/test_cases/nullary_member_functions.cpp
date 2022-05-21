@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm.hpp>
+#include <awesm.hpp>
 #include <catch2/catch.hpp>
 #include <string>
 
@@ -88,18 +88,18 @@ namespace
         context& ctx;
     };
 
-    struct fsm_configuration: fgfsm::fsm_configuration
+    struct fsm_configuration: awesm::fsm_configuration
     {
-        using transition_table = fgfsm::transition_table
+        using transition_table = awesm::transition_table
         <
-            fgfsm::row<states::off, events::e1, states::on,  action, guard>,
-            fgfsm::row<states::off, events::e2, states::on,  action, guard>,
-            fgfsm::row<states::on,  events::e1, states::off, action, guard>,
-            fgfsm::row<states::on,  events::e2, states::off, action, guard>
+            awesm::row<states::off, events::e1, states::on,  action, guard>,
+            awesm::row<states::off, events::e2, states::on,  action, guard>,
+            awesm::row<states::on,  events::e1, states::off, action, guard>,
+            awesm::row<states::on,  events::e2, states::off, action, guard>
         >;
     };
 
-    using fsm = fgfsm::fsm<fsm_configuration>;
+    using fsm = awesm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("nullary_member_functions")

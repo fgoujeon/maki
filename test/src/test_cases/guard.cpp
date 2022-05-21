@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm.hpp>
+#include <awesm.hpp>
 #include <catch2/catch.hpp>
 
 namespace
@@ -57,17 +57,17 @@ namespace
         };
     }
 
-    struct fsm_configuration: fgfsm::fsm_configuration
+    struct fsm_configuration: awesm::fsm_configuration
     {
-        using transition_table = fgfsm::transition_table
+        using transition_table = awesm::transition_table
         <
-            fgfsm::row<states::off, events::button_press, states::on,  fgfsm::none, guards::has_power>,
-            fgfsm::row<states::on,  events::button_press, states::off, fgfsm::none, guards::always_false>,
-            fgfsm::row<states::on,  events::button_press, states::off, fgfsm::none, guards::is_pressing_hard>
+            awesm::row<states::off, events::button_press, states::on,  awesm::none, guards::has_power>,
+            awesm::row<states::on,  events::button_press, states::off, awesm::none, guards::always_false>,
+            awesm::row<states::on,  events::button_press, states::off, awesm::none, guards::is_pressing_hard>
         >;
     };
 
-    using fsm = fgfsm::fsm<fsm_configuration>;
+    using fsm = awesm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("guard")

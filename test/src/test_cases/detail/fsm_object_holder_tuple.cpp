@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm/detail/fsm_object_holder_tuple.hpp>
+#include <awesm/detail/fsm_object_holder_tuple.hpp>
 #include <catch2/catch.hpp>
 
 namespace
@@ -19,7 +19,7 @@ namespace
         int& data;
     };
 
-    using type_tuple = fgfsm::detail::fsm_object_holder_tuple<type0, type1>;
+    using type_tuple = awesm::detail::fsm_object_holder_tuple<type0, type1>;
 }
 
 TEST_CASE("detail::make_tuple")

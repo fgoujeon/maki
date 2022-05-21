@@ -2,13 +2,13 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm/row.hpp>
-#include <fgfsm/transition_table.hpp>
-#include <fgfsm/none.hpp>
-#include <fgfsm/detail/transition_table_digest.hpp>
-#include <fgfsm/detail/fsm_object_holder_tuple.hpp>
+#include <awesm/row.hpp>
+#include <awesm/transition_table.hpp>
+#include <awesm/none.hpp>
+#include <awesm/detail/transition_table_digest.hpp>
+#include <awesm/detail/fsm_object_holder_tuple.hpp>
 #include <catch2/catch.hpp>
 
 namespace
@@ -29,20 +29,20 @@ namespace
     struct guard0{};
     struct guard1{};
 
-    using transition_table = fgfsm::transition_table
+    using transition_table = awesm::transition_table
     <
-        fgfsm::row<state0,     event0, state1>,
-        fgfsm::row<state1,     event1, state2, fgfsm::none, guard0>,
-        fgfsm::row<state2,     event2, state3, action0>,
-        fgfsm::row<state3,     event3, state0, action1,     guard1>,
-        fgfsm::row<fgfsm::any, event3, state0>
+        awesm::row<state0,     event0, state1>,
+        awesm::row<state1,     event1, state2, awesm::none, guard0>,
+        awesm::row<state2,     event2, state3, action0>,
+        awesm::row<state3,     event3, state0, action1,     guard1>,
+        awesm::row<awesm::any, event3, state0>
     >;
 
-    using digest = fgfsm::detail::transition_table_digest<transition_table>;
+    using digest = awesm::detail::transition_table_digest<transition_table>;
 
-    using action_tuple = fgfsm::detail::fsm_object_holder_tuple<action0, action1>;
-    using guard_tuple = fgfsm::detail::fsm_object_holder_tuple<guard0, guard1>;
-    using state_tuple = fgfsm::detail::fsm_object_holder_tuple<state0, state1, state2, state3>;
+    using action_tuple = awesm::detail::fsm_object_holder_tuple<action0, action1>;
+    using guard_tuple = awesm::detail::fsm_object_holder_tuple<guard0, guard1>;
+    using state_tuple = awesm::detail::fsm_object_holder_tuple<state0, state1, state2, state3>;
 }
 
 TEST_CASE("detail::transition_table_digest")

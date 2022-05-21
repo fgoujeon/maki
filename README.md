@@ -1,12 +1,12 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/c82pwtf6q4bjeima/branch/master?svg=true)](https://ci.appveyor.com/project/fgoujeon/fgfsm/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/1jvbol4cwrfivd3y/branch/master?svg=true)](https://ci.appveyor.com/project/fgoujeon/awesm/branch/master)
 
 ---
 
-# FGFSM
-FGFSM is a C++17 Finite State Machine library.
+# AweSM
+AweSM is a C++17 finite-state machine library.
 
 ## Features
-FGFSM implements the following key features:
+AweSM implements the following key features:
 
 * **transition tables**, featuring:
   * **actions**;
@@ -19,7 +19,7 @@ FGFSM implements the following key features:
   * **internal transition actions**, aka `on_event()` member function;
 * **run-to-completion**, the guarantee that the processing of an event won't be interrupted, even if we ask to handle other events in the process.
 
-Besides its features, FGFSM:
+Besides its features, AweSM:
 
 * **has excellent performance**, both at build time and runtime (see [benchmark](https://github.com/fgoujeon/fsm-benchmark));
 * **doesn't depend on any library** other than the C++ standard library;
@@ -38,7 +38,7 @@ The expected behavior is:
 
 This behavior can be expressed with the following transition table:
 ```c++
-using transition_table = fgfsm::transition_table
+using transition_table = awesm::transition_table
 <
     //  start_state,    event,       target_state,   action,            guard
     row<off,            button_push, emitting_white, turn_light_white>,
@@ -52,7 +52,7 @@ using transition_table = fgfsm::transition_table
 
 Here is the full program:
 ```c++
-#include <fgfsm.hpp>
+#include <awesm.hpp>
 #include <functional>
 #include <iostream>
 
@@ -127,7 +127,7 @@ namespace states
     A state class is required to implement the on_entry() and on_exit()
     functions described below.
     Also, it must be either constructible with a reference to the context or
-    default-constructible. Since FGFSM instantiates its states using aggregate
+    default-constructible. Since AweSM instantiates its states using aggregate
     initialization, an explicit constructor isn't necessary. Declaring a public
     member variable like below is enough.
     */
@@ -257,7 +257,7 @@ namespace guards
     };
 
     //We can use guard operators to combine our guards.
-    using is_short_push = fgfsm::not_<is_long_push>;
+    using is_short_push = awesm::not_<is_long_push>;
 }
 
 //Allow shorter names in transition table
@@ -265,20 +265,20 @@ using namespace states;
 using namespace actions;
 using namespace guards;
 using button_push = button::push_event;
-using fgfsm::row;
-using fgfsm::any_but;
+using awesm::row;
+using awesm::any_but;
 
-struct fsm_configuration: fgfsm::fsm_configuration
+struct fsm_configuration: awesm::fsm_configuration
 {
     /*
     This is the transition table. This is where we define the actions that must
     be executed depending on the active state and the event we receive.
-    Basically, whenever fgfsm::fsm::process_event() is called, FGFSM iterates
+    Basically, whenever awesm::fsm::process_event() is called, AweSM iterates
     over the rows of this table until it finds a match, i.e. when:
-    - 'start_state' is the currently active state (or is fgfsm::any);
+    - 'start_state' is the currently active state (or is awesm::any);
     - 'event' is the type of the processed event;
-    - and the 'guard' returns true (or is fgfsm::none).
-    When a match is found, FGFSM:
+    - and the 'guard' returns true (or is awesm::none).
+    When a match is found, AweSM:
     - exits 'start_state';
     - marks 'target_state' as the new active state;
     - executes the 'action';
@@ -286,7 +286,7 @@ struct fsm_configuration: fgfsm::fsm_configuration
     The initial active state of the FSM is the first state encountered in the
     transition table ('off', is our case).
     */
-    using transition_table = fgfsm::transition_table
+    using transition_table = awesm::transition_table
     <
         //  start_state,    event,       target_state,   action,            guard
         row<off,            button_push, emitting_white, turn_light_white>,
@@ -303,7 +303,7 @@ We finally have our FSM.
 Note that we can pass a configuration struct as second template argument to fine
 tune the behavior of our FSM.
 */
-using fsm = fgfsm::fsm<fsm_configuration>;
+using fsm = awesm::fsm<fsm_configuration>;
 
 int main()
 {
@@ -383,4 +383,4 @@ int main()
 ```
 
 ## Acknowledgements
-FGFSM is greatly inspired by Boost.MSM, and more precisely by its functor front-end. Actually, FGFSM was born because Boost.MSM was too slow to build large FSMs (which is expected for a library that has been written in a time when variadic templates weren't supported by the language).
+AweSM is greatly inspired by Boost.MSM, and more precisely by its functor front-end. Actually, AweSM was born because Boost.MSM was too slow to build large FSMs (which is expected for a library that has been written in a time when variadic templates weren't supported by the language).

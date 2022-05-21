@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm.hpp>
+#include <awesm.hpp>
 #include <catch2/catch.hpp>
 
 namespace
@@ -42,17 +42,17 @@ namespace
         };
     }
 
-    struct fsm_configuration: fgfsm::fsm_configuration
+    struct fsm_configuration: awesm::fsm_configuration
     {
-        using transition_table = fgfsm::transition_table
+        using transition_table = awesm::transition_table
         <
-            fgfsm::row<states::single, events::self_transition, states::single>
+            awesm::row<states::single, events::self_transition, states::single>
         >;
 
         static constexpr auto enable_in_state_internal_transitions = false;
     };
 
-    using fsm = fgfsm::fsm<fsm_configuration>;
+    using fsm = awesm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("no_in_state_internal_transitions")

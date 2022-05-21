@@ -2,17 +2,17 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm/fsm_fwd.hpp>
+#include <awesm/fsm_fwd.hpp>
 
 namespace
 {
     struct fsm_configuration;
-    using fsm = fgfsm::fsm<fsm_configuration>;
+    using fsm = awesm::fsm<fsm_configuration>;
 }
 
-#include <fgfsm.hpp>
+#include <awesm.hpp>
 #include <catch2/catch.hpp>
 
 namespace
@@ -87,7 +87,7 @@ namespace
             }
 
             context& ctx;
-            fgfsm::fsm_ref<events::s1_to_s2_request> sm;
+            awesm::fsm_ref<events::s1_to_s2_request> sm;
         };
 
         struct s1_to_s2
@@ -98,17 +98,17 @@ namespace
             }
 
             context& ctx;
-            fgfsm::fsm_ref<events::s2_to_s0_request> sm;
+            awesm::fsm_ref<events::s2_to_s0_request> sm;
         };
     }
 
-    struct fsm_configuration: fgfsm::fsm_configuration
+    struct fsm_configuration: awesm::fsm_configuration
     {
-        using transition_table = fgfsm::transition_table
+        using transition_table = awesm::transition_table
         <
-            fgfsm::row<states::s0, events::s0_to_s1_request, states::s1, actions::s0_to_s1>,
-            fgfsm::row<states::s1, events::s1_to_s2_request, states::s2, actions::s1_to_s2>,
-            fgfsm::row<states::s2, events::s2_to_s0_request, states::s0>
+            awesm::row<states::s0, events::s0_to_s1_request, states::s1, actions::s0_to_s1>,
+            awesm::row<states::s1, events::s1_to_s2_request, states::s2, actions::s1_to_s2>,
+            awesm::row<states::s2, events::s2_to_s0_request, states::s0>
         >;
     };
 }

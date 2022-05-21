@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm.hpp>
+#include <awesm.hpp>
 #include <catch2/catch.hpp>
 
 namespace
@@ -52,26 +52,26 @@ namespace
         };
     }
 
-    struct fsm_configuration: fgfsm::fsm_configuration
+    struct fsm_configuration: awesm::fsm_configuration
     {
-        using transition_table = fgfsm::transition_table
+        using transition_table = awesm::transition_table
         <
-            fgfsm::row<states::state0, events::next_state, states::state1>,
-            fgfsm::row<states::state1, events::next_state, states::state2>,
-            fgfsm::row<states::state2, events::next_state, states::state3>,
-            fgfsm::row<states::state3, events::next_state, states::state4>,
-            fgfsm::row<states::state4, events::next_state, states::state5>,
-            fgfsm::row<states::state5, events::next_state, states::state6>,
-            fgfsm::row<states::state6, events::next_state, states::state7>,
-            fgfsm::row<states::state7, events::next_state, states::state8>,
-            fgfsm::row<states::state8, events::next_state, states::state9>,
-            fgfsm::row<states::state9, events::next_state, states::benchmarking>
+            awesm::row<states::state0, events::next_state, states::state1>,
+            awesm::row<states::state1, events::next_state, states::state2>,
+            awesm::row<states::state2, events::next_state, states::state3>,
+            awesm::row<states::state3, events::next_state, states::state4>,
+            awesm::row<states::state4, events::next_state, states::state5>,
+            awesm::row<states::state5, events::next_state, states::state6>,
+            awesm::row<states::state6, events::next_state, states::state7>,
+            awesm::row<states::state7, events::next_state, states::state8>,
+            awesm::row<states::state8, events::next_state, states::state9>,
+            awesm::row<states::state9, events::next_state, states::benchmarking>
         >;
 
         static constexpr auto enable_run_to_completion = false;
     };
 
-    using fsm = fgfsm::fsm<fsm_configuration>;
+    using fsm = awesm::fsm<fsm_configuration>;
 }
 
 TEST_CASE("internal transition")

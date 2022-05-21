@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm/detail/any_container.hpp>
+#include <awesm/detail/any_container.hpp>
 #include <catch2/catch.hpp>
 #include <array>
 
@@ -69,10 +69,10 @@ TEST_CASE("detail::any_container")
         auto pbig = new big_struct{big_array};
         REQUIRE(new_operator_call_count == 2);
 
-        auto small_any = fgfsm::detail::any_container<sizeof(small_struct)>{*psmall};
+        auto small_any = awesm::detail::any_container<sizeof(small_struct)>{*psmall};
         REQUIRE(new_operator_call_count == 2);
 
-        auto big_any = fgfsm::detail::any_container<sizeof(big_struct) / 2>{*pbig};
+        auto big_any = awesm::detail::any_container<sizeof(big_struct) / 2>{*pbig};
         REQUIRE(new_operator_call_count == 3);
 
         delete psmall;

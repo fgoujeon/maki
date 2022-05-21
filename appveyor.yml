@@ -2,7 +2,7 @@
 #Distributed under the Boost Software License, Version 1.0.
 #(See accompanying file LICENSE or copy at
 #https://www.boost.org/LICENSE_1_0.txt)
-#Official repository: https://github.com/fgoujeon/fgfsm
+#Official repository: https://github.com/fgoujeon/awesm
 
 version: 1.0.{build}
 
@@ -23,7 +23,7 @@ install:
   - vcpkg install catch2:x86-windows
 
 before_build:
-  - cmake -DFGFSM_BUILD_TEST=1 -DFGFSM_BUILD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake -A%PLATFORM% .
+  - cmake -DAWESM_BUILD_TEST=1 -DAWESM_BUILD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake -A%PLATFORM% .
 
 build:
   project: $(APPVEYOR_BUILD_FOLDER)\$(APPVEYOR_PROJECT_NAME).sln

@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm.hpp>
+#include <awesm.hpp>
 #include <catch2/catch.hpp>
 
 namespace
@@ -57,28 +57,28 @@ namespace
         };
     }
 
-    struct fsm_configuration: fgfsm::fsm_configuration
+    struct sm_configuration: awesm::sm_configuration
     {
-        using transition_table = fgfsm::transition_table
+        using transition_table = awesm::transition_table
         <
-            fgfsm::row<states::off, events::button_press, states::on,  fgfsm::none, guards::has_power>,
-            fgfsm::row<states::on,  events::button_press, states::off, fgfsm::none, guards::always_false>,
-            fgfsm::row<states::on,  events::button_press, states::off, fgfsm::none, guards::is_pressing_hard>
+            awesm::row<states::off, events::button_press, states::on,  awesm::none, guards::has_power>,
+            awesm::row<states::on,  events::button_press, states::off, awesm::none, guards::always_false>,
+            awesm::row<states::on,  events::button_press, states::off, awesm::none, guards::is_pressing_hard>
         >;
     };
 
-    using fsm = fgfsm::fsm<fsm_configuration>;
+    using sm = awesm::sm<sm_configuration>;
 }
 
 TEST_CASE("guard")
 {
     auto ctx = context{};
-    auto sm = fsm{ctx};
+    auto machine = sm{ctx};
 
-    sm.process_event(events::button_press{});
-    REQUIRE(sm.is_active_state<states::off>());
+    machine.process_event(events::button_press{});
+    REQUIRE(machine.is_active_state<states::off>());
 
     ctx.has_power = true;
-    sm.process_event(events::button_press{true});
-    REQUIRE(sm.is_active_state<states::on>());
+    machine.process_event(events::button_press{true});
+    REQUIRE(machine.is_active_state<states::on>());
 }

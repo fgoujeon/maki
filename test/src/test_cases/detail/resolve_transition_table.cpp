@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm.hpp>
+#include <awesm.hpp>
 #include <catch2/catch.hpp>
 
 namespace
@@ -62,63 +62,63 @@ namespace
 
 TEST_CASE("detail::resolve_transition_table")
 {
-    using transition_table = fgfsm::transition_table
+    using transition_table = awesm::transition_table
     <
-        fgfsm::row<state0, event0, state1, action0, guard0>,
-        fgfsm::row<state1, event1, state2, action1, guard1>,
-        fgfsm::row<state2, event2, state3, action2, guard2>,
+        awesm::row<state0, event0, state1, action0, guard0>,
+        awesm::row<state1, event1, state2, action1, guard1>,
+        awesm::row<state2, event2, state3, action2, guard2>,
 
         //pattern 1
-        fgfsm::row<fgfsm::any, event0, state0, action0, guard0>,
+        awesm::row<awesm::any, event0, state0, action0, guard0>,
 
         //pattern 2
-        fgfsm::row<fgfsm::any_of<state0, state2>, event0, state0, action0, guard0>,
+        awesm::row<awesm::any_of<state0, state2>, event0, state0, action0, guard0>,
 
         //pattern 3
-        fgfsm::row<fgfsm::any_but<state0, state2>, event0, state0, action0, guard0>,
+        awesm::row<awesm::any_but<state0, state2>, event0, state0, action0, guard0>,
 
         //pattern 4
-        fgfsm::row<fgfsm::any_if<std::is_empty>, event0, state0, action0, guard0>,
+        awesm::row<awesm::any_if<std::is_empty>, event0, state0, action0, guard0>,
 
         //pattern 5
-        fgfsm::row<fgfsm::any_if_not<std::is_empty>, event0, state0, action0, guard0>
+        awesm::row<awesm::any_if_not<std::is_empty>, event0, state0, action0, guard0>
     >;
 
     using resolved_transition_table_t =
-        fgfsm::detail::resolve_transition_table
+        awesm::detail::resolve_transition_table
         <
             transition_table,
             std::tuple<state0, state1, state2, state3>
         >
     ;
 
-    using expected_resolved_transition_table_t = fgfsm::transition_table
+    using expected_resolved_transition_table_t = awesm::transition_table
     <
-        fgfsm::row<state0, event0, state1, action0, guard0>,
-        fgfsm::row<state1, event1, state2, action1, guard1>,
-        fgfsm::row<state2, event2, state3, action2, guard2>,
+        awesm::row<state0, event0, state1, action0, guard0>,
+        awesm::row<state1, event1, state2, action1, guard1>,
+        awesm::row<state2, event2, state3, action2, guard2>,
 
         //pattern 1
-        fgfsm::row<state0, event0, state0, action0, guard0>,
-        fgfsm::row<state1, event0, state0, action0, guard0>,
-        fgfsm::row<state2, event0, state0, action0, guard0>,
-        fgfsm::row<state3, event0, state0, action0, guard0>,
+        awesm::row<state0, event0, state0, action0, guard0>,
+        awesm::row<state1, event0, state0, action0, guard0>,
+        awesm::row<state2, event0, state0, action0, guard0>,
+        awesm::row<state3, event0, state0, action0, guard0>,
 
         //pattern 2
-        fgfsm::row<state0, event0, state0, action0, guard0>,
-        fgfsm::row<state2, event0, state0, action0, guard0>,
+        awesm::row<state0, event0, state0, action0, guard0>,
+        awesm::row<state2, event0, state0, action0, guard0>,
 
         //pattern 3
-        fgfsm::row<state1, event0, state0, action0, guard0>,
-        fgfsm::row<state3, event0, state0, action0, guard0>,
+        awesm::row<state1, event0, state0, action0, guard0>,
+        awesm::row<state3, event0, state0, action0, guard0>,
 
         //pattern 4
-        fgfsm::row<state0, event0, state0, action0, guard0>,
-        fgfsm::row<state1, event0, state0, action0, guard0>,
-        fgfsm::row<state2, event0, state0, action0, guard0>,
+        awesm::row<state0, event0, state0, action0, guard0>,
+        awesm::row<state1, event0, state0, action0, guard0>,
+        awesm::row<state2, event0, state0, action0, guard0>,
 
         //pattern 5
-        fgfsm::row<state3, event0, state0, action0, guard0>
+        awesm::row<state3, event0, state0, action0, guard0>
     >;
 
     REQUIRE

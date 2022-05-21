@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm.hpp>
+#include <awesm.hpp>
 #include <catch2/catch.hpp>
 
 namespace
@@ -25,31 +25,31 @@ namespace
         struct error{};
     }
 
-    struct fsm_conf: fgfsm::fsm_configuration
+    struct sm_conf: awesm::sm_configuration
     {
-        using transition_table = fgfsm::transition_table
+        using transition_table = awesm::transition_table
         <
-            fgfsm::row<states::idle,    events::start_button_press, states::running>,
-            fgfsm::row<states::running, events::stop_button_press,  states::idle>,
-            fgfsm::row<states::failed,  events::stop_button_press,  states::idle>,
-            fgfsm::row<fgfsm::any,      events::error,              states::failed>
+            awesm::row<states::idle,    events::start_button_press, states::running>,
+            awesm::row<states::running, events::stop_button_press,  states::idle>,
+            awesm::row<states::failed,  events::stop_button_press,  states::idle>,
+            awesm::row<awesm::any,      events::error,              states::failed>
         >;
     };
 
-    using fsm = fgfsm::fsm<fsm_conf>;
+    using sm = awesm::sm<sm_conf>;
 }
 
 TEST_CASE("any state")
 {
     auto ctx = context{};
-    auto sm = fsm{ctx};
+    auto machine = sm{ctx};
 
-    sm.process_event(events::stop_button_press{});
-    sm.process_event(events::error{});
-    REQUIRE(sm.is_active_state<states::failed>());
+    machine.process_event(events::stop_button_press{});
+    machine.process_event(events::error{});
+    REQUIRE(machine.is_active_state<states::failed>());
 
-    sm.process_event(events::stop_button_press{});
-    sm.process_event(events::start_button_press{});
-    sm.process_event(events::error{});
-    REQUIRE(sm.is_active_state<states::failed>());
+    machine.process_event(events::stop_button_press{});
+    machine.process_event(events::start_button_press{});
+    machine.process_event(events::error{});
+    REQUIRE(machine.is_active_state<states::failed>());
 }

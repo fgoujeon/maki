@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm.hpp>
+#include <awesm.hpp>
 #include <catch2/catch.hpp>
 #include <string>
 
@@ -79,28 +79,28 @@ namespace
         };
     };
 
-    struct fsm_configuration: fgfsm::fsm_configuration
+    struct sm_configuration: awesm::sm_configuration
     {
-        using transition_table = fgfsm::transition_table
+        using transition_table = awesm::transition_table
         <
-            fgfsm::row<states::idle,    events::power_button_press, states::running>,
-            fgfsm::row<states::running, events::power_button_press, states::idle>,
-            fgfsm::row<states::running, events::beep_button_press,  fgfsm::none,      actions::beep>
+            awesm::row<states::idle,    events::power_button_press, states::running>,
+            awesm::row<states::running, events::power_button_press, states::idle>,
+            awesm::row<states::running, events::beep_button_press,  awesm::none,      actions::beep>
         >;
     };
 
-    using fsm = fgfsm::fsm<fsm_configuration>;
+    using sm = awesm::sm<sm_configuration>;
 }
 
 TEST_CASE("internal transition in transition table")
 {
     auto ctx = context{};
-    auto sm = fsm{ctx};
+    auto machine = sm{ctx};
 
-    sm.process_event(events::power_button_press{});
+    machine.process_event(events::power_button_press{});
     REQUIRE(ctx.out == "idle::on_event;idle::on_exit;running::on_entry;");
 
     ctx.out.clear();
-    sm.process_event(events::beep_button_press{});
+    machine.process_event(events::beep_button_press{});
     REQUIRE(ctx.out == "running::on_event;beep;");
 }

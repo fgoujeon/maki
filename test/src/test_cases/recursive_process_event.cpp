@@ -2,17 +2,17 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm/fsm_fwd.hpp>
+#include <awesm/sm_fwd.hpp>
 
 namespace
 {
-    struct fsm_configuration;
-    using fsm = fgfsm::fsm<fsm_configuration>;
+    struct sm_configuration;
+    using sm = awesm::sm<sm_configuration>;
 }
 
-#include <fgfsm.hpp>
+#include <awesm.hpp>
 #include <catch2/catch.hpp>
 
 namespace
@@ -83,32 +83,32 @@ namespace
         {
             void execute()
             {
-                sm.process_event(events::s1_to_s2_request{});
+                machine.process_event(events::s1_to_s2_request{});
             }
 
             context& ctx;
-            fgfsm::fsm_ref<events::s1_to_s2_request> sm;
+            awesm::sm_ref<events::s1_to_s2_request> machine;
         };
 
         struct s1_to_s2
         {
             void execute()
             {
-                sm.process_event(events::s2_to_s0_request{});
+                machine.process_event(events::s2_to_s0_request{});
             }
 
             context& ctx;
-            fgfsm::fsm_ref<events::s2_to_s0_request> sm;
+            awesm::sm_ref<events::s2_to_s0_request> machine;
         };
     }
 
-    struct fsm_configuration: fgfsm::fsm_configuration
+    struct sm_configuration: awesm::sm_configuration
     {
-        using transition_table = fgfsm::transition_table
+        using transition_table = awesm::transition_table
         <
-            fgfsm::row<states::s0, events::s0_to_s1_request, states::s1, actions::s0_to_s1>,
-            fgfsm::row<states::s1, events::s1_to_s2_request, states::s2, actions::s1_to_s2>,
-            fgfsm::row<states::s2, events::s2_to_s0_request, states::s0>
+            awesm::row<states::s0, events::s0_to_s1_request, states::s1, actions::s0_to_s1>,
+            awesm::row<states::s1, events::s1_to_s2_request, states::s2, actions::s1_to_s2>,
+            awesm::row<states::s2, events::s2_to_s0_request, states::s0>
         >;
     };
 }
@@ -116,10 +116,10 @@ namespace
 TEST_CASE("recursive process_event")
 {
     auto ctx = context{};
-    auto sm = fsm{ctx};
+    auto machine = sm{ctx};
 
     //Indirectly process s1_to_s2_request and s2_to_s0_request
-    sm.process_event(events::s0_to_s1_request{});
+    machine.process_event(events::s0_to_s1_request{});
     REQUIRE
     (
         ctx.output ==

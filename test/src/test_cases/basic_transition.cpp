@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm.hpp>
+#include <awesm.hpp>
 #include <catch2/catch.hpp>
 
 namespace
@@ -24,30 +24,30 @@ namespace
         struct button_press{};
     }
 
-    struct fsm_configuration: fgfsm::fsm_configuration
+    struct sm_configuration: awesm::sm_configuration
     {
-        using transition_table = fgfsm::transition_table
+        using transition_table = awesm::transition_table
         <
-            fgfsm::row<states::off, events::button_press, states::on>,
-            fgfsm::row<states::on,  events::button_press, states::off>
+            awesm::row<states::off, events::button_press, states::on>,
+            awesm::row<states::on,  events::button_press, states::off>
         >;
 
         static constexpr auto enable_run_to_completion = false;
     };
 
-    using fsm = fgfsm::fsm<fsm_configuration>;
+    using sm = awesm::sm<sm_configuration>;
 }
 
 TEST_CASE("basic transition")
 {
     auto ctx = context{};
-    auto sm = fsm{ctx};
+    auto machine = sm{ctx};
 
-    REQUIRE(sm.is_active_state<states::off>());
+    REQUIRE(machine.is_active_state<states::off>());
 
-    sm.process_event(events::button_press{});
-    REQUIRE(sm.is_active_state<states::on>());
+    machine.process_event(events::button_press{});
+    REQUIRE(machine.is_active_state<states::on>());
 
-    sm.process_event(events::button_press{});
-    REQUIRE(sm.is_active_state<states::off>());
+    machine.process_event(events::button_press{});
+    REQUIRE(machine.is_active_state<states::off>());
 }

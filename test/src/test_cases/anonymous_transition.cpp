@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm.hpp>
+#include <awesm.hpp>
 #include <catch2/catch.hpp>
 
 namespace
@@ -25,29 +25,29 @@ namespace
         struct s4{};
     };
 
-    struct fsm_conf: fgfsm::fsm_configuration
+    struct sm_conf: awesm::sm_configuration
     {
-        using transition_table = fgfsm::transition_table
+        using transition_table = awesm::transition_table
         <
-            fgfsm::row<states::s0, events::go_on, states::s1>,
-            fgfsm::row<states::s1, fgfsm::none,   states::s2>,
-            fgfsm::row<states::s2, events::go_on, states::s3>,
-            fgfsm::row<states::s3, fgfsm::none,   states::s4>,
-            fgfsm::row<states::s4, fgfsm::none,   states::s0>
+            awesm::row<states::s0, events::go_on, states::s1>,
+            awesm::row<states::s1, awesm::none,   states::s2>,
+            awesm::row<states::s2, events::go_on, states::s3>,
+            awesm::row<states::s3, awesm::none,   states::s4>,
+            awesm::row<states::s4, awesm::none,   states::s0>
         >;
     };
 
-    using fsm = fgfsm::fsm<fsm_conf>;
+    using sm = awesm::sm<sm_conf>;
 }
 
 TEST_CASE("anonymous transition")
 {
     auto ctx = context{};
-    auto sm = fsm{ctx};
+    auto machine = sm{ctx};
 
-    sm.process_event(events::go_on{});
-    REQUIRE(sm.is_active_state<states::s2>());
+    machine.process_event(events::go_on{});
+    REQUIRE(machine.is_active_state<states::s2>());
 
-    sm.process_event(events::go_on{});
-    REQUIRE(sm.is_active_state<states::s0>());
+    machine.process_event(events::go_on{});
+    REQUIRE(machine.is_active_state<states::s0>());
 }

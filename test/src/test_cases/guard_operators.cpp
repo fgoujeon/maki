@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm.hpp>
+#include <awesm.hpp>
 #include <catch2/catch.hpp>
 
 namespace
@@ -62,127 +62,127 @@ namespace
 
 #undef GUARD
 
-        using can_access_state0 = fgfsm::and_<guards::can_access_state0_0, guards::can_access_state0_1>;
-        using can_access_state1 = fgfsm::or_<guards::can_access_state1_0, guards::can_access_state1_1>;
-        using can_access_state2 = fgfsm::xor_<guards::can_access_state2_0, guards::can_access_state2_1>;
-        using can_access_state3 = fgfsm::not_<guards::cant_access_state3>;
+        using can_access_state0 = awesm::and_<guards::can_access_state0_0, guards::can_access_state0_1>;
+        using can_access_state1 = awesm::or_<guards::can_access_state1_0, guards::can_access_state1_1>;
+        using can_access_state2 = awesm::xor_<guards::can_access_state2_0, guards::can_access_state2_1>;
+        using can_access_state3 = awesm::not_<guards::cant_access_state3>;
     }
 
-    struct fsm_configuration: fgfsm::fsm_configuration
+    struct sm_configuration: awesm::sm_configuration
     {
-        using transition_table = fgfsm::transition_table
+        using transition_table = awesm::transition_table
         <
-            fgfsm::row<states::idle, events::start, states::state0, fgfsm::none, guards::can_access_state0>,
-            fgfsm::row<states::idle, events::start, states::state1, fgfsm::none, guards::can_access_state1>,
-            fgfsm::row<states::idle, events::start, states::state2, fgfsm::none, guards::can_access_state2>,
-            fgfsm::row<states::idle, events::start, states::state3, fgfsm::none, guards::can_access_state3>,
+            awesm::row<states::idle, events::start, states::state0, awesm::none, guards::can_access_state0>,
+            awesm::row<states::idle, events::start, states::state1, awesm::none, guards::can_access_state1>,
+            awesm::row<states::idle, events::start, states::state2, awesm::none, guards::can_access_state2>,
+            awesm::row<states::idle, events::start, states::state3, awesm::none, guards::can_access_state3>,
 
-            fgfsm::row<states::state0, events::stop, states::idle>,
-            fgfsm::row<states::state1, events::stop, states::idle>,
-            fgfsm::row<states::state2, events::stop, states::idle>,
-            fgfsm::row<states::state3, events::stop, states::idle>
+            awesm::row<states::state0, events::stop, states::idle>,
+            awesm::row<states::state1, events::stop, states::idle>,
+            awesm::row<states::state2, events::stop, states::idle>,
+            awesm::row<states::state3, events::stop, states::idle>
         >;
     };
 
-    using fsm = fgfsm::fsm<fsm_configuration>;
+    using sm = awesm::sm<sm_configuration>;
 }
 
 TEST_CASE("guard operators")
 {
     auto ctx = context{};
-    auto sm = fsm{ctx};
+    auto machine = sm{ctx};
 
     SECTION("and")
     {
-       sm.process_event(events::stop{});
+       machine.process_event(events::stop{});
        ctx.can_access_state0_0 = false;
        ctx.can_access_state0_1 = false;
-       sm.process_event(events::start{});
-       REQUIRE(sm.is_active_state<states::idle>());
+       machine.process_event(events::start{});
+       REQUIRE(machine.is_active_state<states::idle>());
 
-       sm.process_event(events::stop{});
+       machine.process_event(events::stop{});
        ctx.can_access_state0_0 = false;
        ctx.can_access_state0_1 = true;
-       sm.process_event(events::start{});
-       REQUIRE(sm.is_active_state<states::idle>());
+       machine.process_event(events::start{});
+       REQUIRE(machine.is_active_state<states::idle>());
 
-       sm.process_event(events::stop{});
+       machine.process_event(events::stop{});
        ctx.can_access_state0_0 = true;
        ctx.can_access_state0_1 = false;
-       sm.process_event(events::start{});
-       REQUIRE(sm.is_active_state<states::idle>());
+       machine.process_event(events::start{});
+       REQUIRE(machine.is_active_state<states::idle>());
 
-       sm.process_event(events::stop{});
+       machine.process_event(events::stop{});
        ctx.can_access_state0_0 = true;
        ctx.can_access_state0_1 = true;
-       sm.process_event(events::start{});
-       REQUIRE(sm.is_active_state<states::state0>());
+       machine.process_event(events::start{});
+       REQUIRE(machine.is_active_state<states::state0>());
     }
 
     SECTION("or")
     {
-       sm.process_event(events::stop{});
+       machine.process_event(events::stop{});
        ctx.can_access_state1_0 = false;
        ctx.can_access_state1_1 = false;
-       sm.process_event(events::start{});
-       REQUIRE(sm.is_active_state<states::idle>());
+       machine.process_event(events::start{});
+       REQUIRE(machine.is_active_state<states::idle>());
 
-       sm.process_event(events::stop{});
+       machine.process_event(events::stop{});
        ctx.can_access_state1_0 = false;
        ctx.can_access_state1_1 = true;
-       sm.process_event(events::start{});
-       REQUIRE(sm.is_active_state<states::state1>());
+       machine.process_event(events::start{});
+       REQUIRE(machine.is_active_state<states::state1>());
 
-       sm.process_event(events::stop{});
+       machine.process_event(events::stop{});
        ctx.can_access_state1_0 = true;
        ctx.can_access_state1_1 = false;
-       sm.process_event(events::start{});
-       REQUIRE(sm.is_active_state<states::state1>());
+       machine.process_event(events::start{});
+       REQUIRE(machine.is_active_state<states::state1>());
 
-       sm.process_event(events::stop{});
+       machine.process_event(events::stop{});
        ctx.can_access_state1_0 = true;
        ctx.can_access_state1_1 = true;
-       sm.process_event(events::start{});
-       REQUIRE(sm.is_active_state<states::state1>());
+       machine.process_event(events::start{});
+       REQUIRE(machine.is_active_state<states::state1>());
     }
 
     SECTION("xor")
     {
-       sm.process_event(events::stop{});
+       machine.process_event(events::stop{});
        ctx.can_access_state2_0 = false;
        ctx.can_access_state2_1 = false;
-       sm.process_event(events::start{});
-       REQUIRE(sm.is_active_state<states::idle>());
+       machine.process_event(events::start{});
+       REQUIRE(machine.is_active_state<states::idle>());
 
-       sm.process_event(events::stop{});
+       machine.process_event(events::stop{});
        ctx.can_access_state2_0 = false;
        ctx.can_access_state2_1 = true;
-       sm.process_event(events::start{});
-       REQUIRE(sm.is_active_state<states::state2>());
+       machine.process_event(events::start{});
+       REQUIRE(machine.is_active_state<states::state2>());
 
-       sm.process_event(events::stop{});
+       machine.process_event(events::stop{});
        ctx.can_access_state2_0 = true;
        ctx.can_access_state2_1 = false;
-       sm.process_event(events::start{});
-       REQUIRE(sm.is_active_state<states::state2>());
+       machine.process_event(events::start{});
+       REQUIRE(machine.is_active_state<states::state2>());
 
-       sm.process_event(events::stop{});
+       machine.process_event(events::stop{});
        ctx.can_access_state2_0 = true;
        ctx.can_access_state2_1 = true;
-       sm.process_event(events::start{});
-       REQUIRE(sm.is_active_state<states::idle>());
+       machine.process_event(events::start{});
+       REQUIRE(machine.is_active_state<states::idle>());
     }
 
     SECTION("not")
     {
-       sm.process_event(events::stop{});
+       machine.process_event(events::stop{});
        ctx.cant_access_state3 = true;
-       sm.process_event(events::start{});
-       REQUIRE(sm.is_active_state<states::idle>());
+       machine.process_event(events::start{});
+       REQUIRE(machine.is_active_state<states::idle>());
 
-       sm.process_event(events::stop{});
+       machine.process_event(events::stop{});
        ctx.cant_access_state3 = false;
-       sm.process_event(events::start{});
-       REQUIRE(sm.is_active_state<states::state3>());
+       machine.process_event(events::start{});
+       REQUIRE(machine.is_active_state<states::state3>());
     }
 }

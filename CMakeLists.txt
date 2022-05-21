@@ -2,28 +2,28 @@
 #Distributed under the Boost Software License, Version 1.0.
 #(See accompanying file LICENSE or copy at
 #https://www.boost.org/LICENSE_1_0.txt)
-#Official repository: https://github.com/fgoujeon/fgfsm
+#Official repository: https://github.com/fgoujeon/awesm
 
 cmake_minimum_required(VERSION 3.10)
 
-project(fgfsm)
+project(awesm)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
-if(FGFSM_BUILD_TEST)
+if(AWESM_BUILD_TEST)
     find_package(Catch2 2.10 REQUIRED)
 endif()
 
-option(FGFSM_BUILD_EXAMPLES "Build example executables" OFF)
-option(FGFSM_BUILD_TEST "Build test executable" OFF)
+option(AWESM_BUILD_EXAMPLES "Build example executables" OFF)
+option(AWESM_BUILD_TEST "Build test executable" OFF)
 
-add_subdirectory(fgfsm)
+add_subdirectory(awesm)
 
-if(FGFSM_BUILD_EXAMPLES)
+if(AWESM_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-if(FGFSM_BUILD_TEST)
+if(AWESM_BUILD_TEST)
     enable_testing()
     add_subdirectory(test)
 endif()

@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/fgfsm
+//Official repository: https://github.com/fgoujeon/awesm
 
-#include <fgfsm.hpp>
+#include <awesm.hpp>
 #include <catch2/catch.hpp>
 #include <string>
 
@@ -68,55 +68,55 @@ namespace
         };
     }
 
-    struct fsm_configuration: fgfsm::fsm_configuration
+    struct sm_configuration: awesm::sm_configuration
     {
-        using transition_table = fgfsm::transition_table
+        using transition_table = awesm::transition_table
         <
-            fgfsm::row<states::idle,    events::next_language_request, states::english>,
-            fgfsm::row<states::english, events::next_language_request, states::french>,
-            fgfsm::row<states::french,  events::next_language_request, states::idle>
+            awesm::row<states::idle,    events::next_language_request, states::english>,
+            awesm::row<states::english, events::next_language_request, states::french>,
+            awesm::row<states::french,  events::next_language_request, states::idle>
         >;
     };
 
-    using fsm = fgfsm::fsm<fsm_configuration>;
+    using sm = awesm::sm<sm_configuration>;
 }
 
 TEST_CASE("on_entry_event_exit")
 {
     auto ctx = context{};
-    auto sm = fsm{ctx};
+    auto machine = sm{ctx};
 
-    REQUIRE(sm.is_active_state<states::idle>());
+    REQUIRE(machine.is_active_state<states::idle>());
     REQUIRE(ctx.hello == "");
     REQUIRE(ctx.dog == "");
     REQUIRE(ctx.goodbye == "");
 
-    sm.process_event(events::next_language_request{});
-    REQUIRE(sm.is_active_state<states::english>());
+    machine.process_event(events::next_language_request{});
+    REQUIRE(machine.is_active_state<states::english>());
     REQUIRE(ctx.hello == "hello");
     REQUIRE(ctx.dog == "");
     REQUIRE(ctx.goodbye == "");
 
-    sm.process_event(events::say_dog{});
-    REQUIRE(sm.is_active_state<states::english>());
+    machine.process_event(events::say_dog{});
+    REQUIRE(machine.is_active_state<states::english>());
     REQUIRE(ctx.hello == "hello");
     REQUIRE(ctx.dog == "dog");
     REQUIRE(ctx.goodbye == "");
 
-    sm.process_event(events::next_language_request{});
-    REQUIRE(sm.is_active_state<states::french>());
+    machine.process_event(events::next_language_request{});
+    REQUIRE(machine.is_active_state<states::french>());
     REQUIRE(ctx.hello == "bonjour");
     REQUIRE(ctx.dog == "dog");
     REQUIRE(ctx.goodbye == "goodbye");
 
-    sm.process_event(events::say_dog{});
-    REQUIRE(sm.is_active_state<states::french>());
+    machine.process_event(events::say_dog{});
+    REQUIRE(machine.is_active_state<states::french>());
     REQUIRE(ctx.hello == "bonjour");
     REQUIRE(ctx.dog == "chien");
     REQUIRE(ctx.goodbye == "goodbye");
 
-    sm.process_event(events::next_language_request{});
-    REQUIRE(sm.is_active_state<states::idle>());
+    machine.process_event(events::next_language_request{});
+    REQUIRE(machine.is_active_state<states::idle>());
     REQUIRE(ctx.hello == "bonjour");
     REQUIRE(ctx.dog == "chien");
     REQUIRE(ctx.goodbye == "au revoir");

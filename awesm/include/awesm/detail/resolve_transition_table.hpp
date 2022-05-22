@@ -58,17 +58,17 @@ namespace resolve_transition_table_detail
         template<class TransitionTable, class SourceState>
         using type = alternative
         <
-            RowWithPattern::source_state_type::template matches<SourceState>,
+            tt_row_source_state<RowWithPattern>::template matches<SourceState>,
             tlu::push_back
             <
                 TransitionTable,
                 row
                 <
                     SourceState,
-                    typename RowWithPattern::event_type,
-                    typename RowWithPattern::target_state_type,
-                    typename RowWithPattern::action_type,
-                    typename RowWithPattern::guard_type
+                    tt_row_event<RowWithPattern>,
+                    tt_row_target_state<RowWithPattern>,
+                    tt_row_action<RowWithPattern>,
+                    tt_row_guard<RowWithPattern>
                 >
             >,
             TransitionTable
@@ -112,7 +112,7 @@ namespace resolve_transition_table_detail
         template<class TransitionTable, class Row>
         using type = alternative_lazy
         <
-            std::is_base_of_v<type_pattern, typename Row::source_state_type>,
+            std::is_base_of_v<type_pattern, tt_row_source_state<Row>>,
             add_row_with_pattern_holder<TransitionTable, Row, StateTypeList>,
             add_row_without_pattern_holder<TransitionTable, Row>
         >;

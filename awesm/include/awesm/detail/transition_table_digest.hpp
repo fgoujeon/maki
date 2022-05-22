@@ -86,31 +86,31 @@ namespace transition_table_digest_detail
             push_back_unique_if_not_pattern
             <
                 typename Digest::state_tuple,
-                typename Row::source_state_type
+                tt_row_source_state<Row>
             >,
-            typename Row::target_state_type
+            tt_row_target_state<Row>
         >;
 
         using action_tuple = push_back_unique_if_not_pattern
         <
             typename Digest::action_tuple,
-            typename Row::action_type
+            tt_row_action<Row>
         >;
 
         using guard_tuple = push_back_unique_if_not_pattern
         <
             typename Digest::guard_tuple,
-            typename Row::guard_type
+            tt_row_guard<Row>
         >;
 
         static constexpr auto has_source_state_patterns =
             Digest::has_source_state_patterns ||
-            std::is_base_of_v<type_pattern, typename Row::source_state_type>
+            std::is_base_of_v<type_pattern, tt_row_source_state<Row>>
         ;
 
         static constexpr auto has_none_events =
             Digest::has_none_events ||
-            std::is_same_v<typename Row::event_type, none>
+            std::is_same_v<tt_row_event<Row>, none>
         ;
     };
 

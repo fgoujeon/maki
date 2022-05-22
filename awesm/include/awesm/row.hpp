@@ -7,26 +7,12 @@
 #ifndef AWESM_ROW_HPP
 #define AWESM_ROW_HPP
 
-#include "none.hpp"
-
 namespace awesm
 {
 
-template
-<
-    class SourceState,
-    class Event,
-    class TargetState,
-    class Action = none,
-    class Guard = none
->
+template<class... Ts>
 struct row
 {
-    using source_state_type = SourceState;
-    using event_type = Event;
-    using target_state_type = TargetState;
-    using action_type = Action;
-    using guard_type = Guard;
 };
 
 } //namespace

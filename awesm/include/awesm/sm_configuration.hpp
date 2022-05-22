@@ -77,7 +77,7 @@ struct sm_configuration
                     return false;
                 }
 
-                helper.invoke_start_state_on_exit();
+                helper.invoke_source_state_on_exit();
                 helper.activate_target_state();
                 helper.execute_action();
                 helper.invoke_target_state_on_entry();

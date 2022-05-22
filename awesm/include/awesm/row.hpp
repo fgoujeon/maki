@@ -14,7 +14,7 @@ namespace awesm
 
 template
 <
-    class StartState,
+    class SourceState,
     class Event,
     class TargetState,
     class Action = none,
@@ -22,7 +22,7 @@ template
 >
 struct row
 {
-    using start_state_type = StartState;
+    using source_state_type = SourceState;
     using event_type = Event;
     using target_state_type = TargetState;
     using action_type = Action;

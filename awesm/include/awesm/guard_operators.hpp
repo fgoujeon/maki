@@ -60,10 +60,10 @@ namespace detail
                 );
             }
 
-            template<class StartState, class Event, class TargetState>
+            template<class SourceState, class Event, class TargetState>
             bool check
             (
-                StartState& start_state,
+                SourceState& source_state,
                 const Event& event,
                 TargetState& target_state
             )
@@ -73,14 +73,14 @@ namespace detail
                     detail::call_check
                     (
                         &lhs_.object,
-                        &start_state,
+                        &source_state,
                         &event,
                         &target_state
                     ),
                     detail::call_check
                     (
                         &rhs_.object,
-                        &start_state,
+                        &source_state,
                         &event,
                         &target_state
                     )
@@ -103,10 +103,10 @@ class not_
         {
         }
 
-        template<class StartState, class Event, class TargetState>
+        template<class SourceState, class Event, class TargetState>
         bool check
         (
-            StartState& start_state,
+            SourceState& source_state,
             const Event& event,
             TargetState& target_state
         )
@@ -114,7 +114,7 @@ class not_
             return !detail::call_check
             (
                 &guard_.object,
-                &start_state,
+                &source_state,
                 &event,
                 &target_state
             );

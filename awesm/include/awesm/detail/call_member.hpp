@@ -78,23 +78,23 @@ void call_on_exit(State* /*pstate*/, const void* /*pevent*/, long /*dummy*/)
     );
 }
 
-template<class Action, class StartState, class Event, class TargetState>
+template<class Action, class SourceState, class Event, class TargetState>
 auto call_execute
 (
     Action* paction,
-    StartState* pstart_state,
+    SourceState* psource_state,
     const Event* pevent,
     TargetState* ptarget_state
-) -> decltype(paction->execute(*pstart_state, *pevent, *ptarget_state))
+) -> decltype(paction->execute(*psource_state, *pevent, *ptarget_state))
 {
-    paction->execute(*pstart_state, *pevent, *ptarget_state);
+    paction->execute(*psource_state, *pevent, *ptarget_state);
 }
 
 template<class Action, class Event>
 auto call_execute
 (
     Action* paction,
-    void* /*pstart_state*/,
+    void* /*psource_state*/,
     const Event* pevent,
     void* /*ptarget_state*/
 ) -> decltype(paction->execute(*pevent))
@@ -106,7 +106,7 @@ template<class Action>
 auto call_execute
 (
     Action* paction,
-    void* /*pstart_state*/,
+    void* /*psource_state*/,
     const void* /*pevent*/,
     void* /*ptarget_state*/
 ) -> decltype(paction->execute())
@@ -114,23 +114,23 @@ auto call_execute
     paction->execute();
 }
 
-template<class Guard, class StartState, class Event, class TargetState>
+template<class Guard, class SourceState, class Event, class TargetState>
 auto call_check
 (
     Guard* pguard,
-    StartState* pstart_state,
+    SourceState* psource_state,
     const Event* pevent,
     TargetState* ptarget_state
-) -> decltype(pguard->check(*pstart_state, *pevent, *ptarget_state))
+) -> decltype(pguard->check(*psource_state, *pevent, *ptarget_state))
 {
-    return pguard->check(*pstart_state, *pevent, *ptarget_state);
+    return pguard->check(*psource_state, *pevent, *ptarget_state);
 }
 
 template<class Guard, class Event>
 auto call_check
 (
     Guard* pguard,
-    void* /*pstart_state*/,
+    void* /*psource_state*/,
     const Event* pevent,
     void* /*ptarget_state*/
 ) -> decltype(pguard->check(*pevent))
@@ -142,7 +142,7 @@ template<class Guard>
 auto call_check
 (
     Guard* pguard,
-    void* /*pstart_state*/,
+    void* /*psource_state*/,
     const void* /*pevent*/,
     void* /*ptarget_state*/
 ) -> decltype(pguard->check())

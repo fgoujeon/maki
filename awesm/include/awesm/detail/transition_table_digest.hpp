@@ -38,7 +38,7 @@ For example, the following digest type...:
         using state_tuple = awesm::detail::sm_object_holder_tuple<state0, state1, state2, state3>;
         using action_tuple = awesm::detail::sm_object_holder_tuple<action0, action1>;
         using guard_tuple = awesm::detail::sm_object_holder_tuple<guard0, guard1>;
-        static constexpr auto has_start_state_patterns = false;
+        static constexpr auto has_source_state_patterns = false;
         static constexpr auto has_none_events = false;
     };
 */
@@ -74,7 +74,7 @@ namespace transition_table_digest_detail
         using state_tuple = type_list<>;
         using action_tuple = type_list<>;
         using guard_tuple = type_list<>;
-        static constexpr auto has_start_state_patterns = false;
+        static constexpr auto has_source_state_patterns = false;
         static constexpr auto has_none_events = false;
     };
 
@@ -86,7 +86,7 @@ namespace transition_table_digest_detail
             push_back_unique_if_not_pattern
             <
                 typename Digest::state_tuple,
-                typename Row::start_state_type
+                typename Row::source_state_type
             >,
             typename Row::target_state_type
         >;
@@ -103,9 +103,9 @@ namespace transition_table_digest_detail
             typename Row::guard_type
         >;
 
-        static constexpr auto has_start_state_patterns =
-            Digest::has_start_state_patterns ||
-            std::is_base_of_v<type_pattern, typename Row::start_state_type>
+        static constexpr auto has_source_state_patterns =
+            Digest::has_source_state_patterns ||
+            std::is_base_of_v<type_pattern, typename Row::source_state_type>
         ;
 
         static constexpr auto has_none_events =
@@ -152,7 +152,7 @@ class transition_table_digest
             typename digest_t::guard_tuple
         >;
 
-        static constexpr auto has_start_state_patterns = digest_t::has_start_state_patterns;
+        static constexpr auto has_source_state_patterns = digest_t::has_source_state_patterns;
         static constexpr auto has_none_events = digest_t::has_none_events;
 };
 

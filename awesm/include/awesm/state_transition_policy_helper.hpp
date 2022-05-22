@@ -18,7 +18,7 @@ namespace awesm
 template
 <
     class Sm,
-    class StartState,
+    class SourceState,
     class Event,
     class TargetState,
     class Action,
@@ -27,7 +27,7 @@ template
 class state_transition_policy_helper
 {
     public:
-        using start_state_type = StartState;
+        using source_state_type = SourceState;
         using event_type = Event;
         using target_state_type = TargetState;
         using action_type = Action;
@@ -40,7 +40,7 @@ class state_transition_policy_helper
                 return detail::call_check
                 (
                     &sm_.guards_.get(static_cast<Guard*>(nullptr)),
-                    &sm_.states_.get(static_cast<StartState*>(nullptr)),
+                    &sm_.states_.get(static_cast<SourceState*>(nullptr)),
                     &event_,
                     get_target_state_ptr()
                 );
@@ -51,13 +51,13 @@ class state_transition_policy_helper
             }
         }
 
-        void invoke_start_state_on_exit()
+        void invoke_source_state_on_exit()
         {
             if constexpr(!std::is_same_v<TargetState, none>)
             {
                 detail::call_on_exit
                 (
-                    &sm_.states_.get(static_cast<StartState*>(nullptr)),
+                    &sm_.states_.get(static_cast<SourceState*>(nullptr)),
                     &event_,
                     0
                 );
@@ -83,7 +83,7 @@ class state_transition_policy_helper
                 detail::call_execute
                 (
                     &sm_.actions_.get(static_cast<Action*>(nullptr)),
-                    &sm_.states_.get(static_cast<StartState*>(nullptr)),
+                    &sm_.states_.get(static_cast<SourceState*>(nullptr)),
                     &event_,
                     get_target_state_ptr()
                 );

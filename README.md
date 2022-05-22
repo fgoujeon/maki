@@ -13,7 +13,7 @@ AweSM implements the following key features:
   * **guards**;
   * **internal transitions**, aka transitions to `none` state;
   * **completion transitions**, aka anonymous transitions, aka transitions through `none` event;
-  * start state **pattern matching** with `any`, `any_of`, `any_but`, `any_if` and `any_if_not`;
+  * source state **pattern matching** with `any`, `any_of`, `any_but`, `any_if` and `any_if_not`;
 * **states as classes**, featuring:
   * **entry/exit actions**, aka `on_entry()` and `on_exit()` member functions;
   * **internal transition actions**, aka `on_event()` member function;
@@ -40,7 +40,7 @@ This behavior can be expressed with the following transition table:
 ```c++
 using transition_table = awesm::transition_table
 <
-    //  start_state,    event,       target_state,   action,            guard
+    //  source_state,    event,       target_state,   action,            guard
     row<off,            button_push, emitting_white, turn_light_white>,
     row<emitting_white, button_push, emitting_red,   turn_light_red,    is_short_push>,
     row<emitting_red,   button_push, emitting_green, turn_light_green,  is_short_push>,
@@ -111,7 +111,7 @@ class rgb_led
 
 /*
 An instance of this class is shared by all the states, actions and guards of the
-SM.
+state machine.
 */
 struct context
 {
@@ -134,9 +134,9 @@ namespace states
     struct off
     {
         /*
-        Whenever an SM enters a state, it calls the on_entry() function of that
-        state. It tries to do so using the following statements, in that order,
-        until it finds a valid one:
+        Whenever an state machine enters a state, it calls the on_entry()
+        function of that state. It tries to do so using the following
+        statements, in that order, until it finds a valid one:
             state.on_entry(event);
             state.on_entry();
         If no valid statement is found, a build error occurs.
@@ -149,11 +149,11 @@ namespace states
 
         /*
         Optionally, state types can define a set of on_event() functions.
-        Whenever the SM processes an event, it calls the on_event() function of
-        the active state by passing it the event (provided this function
-        exists).
-        The SM does this call just before processing the event in the transition
-        table.
+        Whenever the state machine processes an event, it calls the on_event()
+        function of the active state by passing it the event (provided this
+        function exists).
+        The state machine does this call just before processing the event in the
+        transition table.
         */
         void on_event(const button::push_event& event)
         {
@@ -163,8 +163,9 @@ namespace states
         }
 
         /*
-        Whenever an SM exits a state, it calls the on_exit() function of that
-        state. It uses the same mechanism as the one used for on_entry().
+        Whenever a state machine exits a state, it calls the on_exit() function
+        of that state. It uses the same mechanism as the one used for
+        on_entry().
         */
         void on_exit()
         {
@@ -196,10 +197,10 @@ namespace actions
     struct turn_light_off
     {
         /*
-        Whenever an SM executes an action, it calls the execute() function of
-        that action. It tries to do so using the following statements, in that
-        order, until it finds a valid one:
-            action.execute(start_state, event, target_state);
+        Whenever a state machine executes an action, it calls the execute()
+        function of that action. It tries to do so using the following
+        statements, in that order, until it finds a valid one:
+            action.execute(source_state, event, target_state);
             action.execute(event);
             action.execute();
         If no valid statement is found, a build error occurs.
@@ -242,10 +243,10 @@ namespace guards
     struct is_long_push
     {
         /*
-        Whenever an SM checks a guard, it calls the check() function of that
-        guard. It tries to do so using the following statements, in that order,
-        until it finds a valid one:
-            guard.check(start_state, event, target_state);
+        Whenever a state machine checks a guard, it calls the check() function
+        of that guard. It tries to do so using the following statements, in that
+        order, until it finds a valid one:
+            guard.check(source_state, event, target_state);
             guard.check(event);
             guard.check();
         If no valid statement is found, a build error occurs.
@@ -275,20 +276,20 @@ struct sm_configuration: awesm::sm_configuration
     be executed depending on the active state and the event we receive.
     Basically, whenever awesm::sm::process_event() is called, AweSM iterates
     over the rows of this table until it finds a match, i.e. when:
-    - 'start_state' is the currently active state (or is awesm::any);
+    - 'source_state' is the currently active state (or is awesm::any);
     - 'event' is the type of the processed event;
     - and the 'guard' returns true (or is awesm::none).
     When a match is found, AweSM:
-    - exits 'start_state';
+    - exits 'source_state';
     - marks 'target_state' as the new active state;
     - executes the 'action';
     - enters 'target_state'.
-    The initial active state of the SM is the first state encountered in the
-    transition table ('off', is our case).
+    The initial active state of the state machine is the first state encountered
+    in the transition table ('off', is our case).
     */
     using transition_table = awesm::transition_table
     <
-        //  start_state,    event,       target_state,   action,            guard
+        //  source_state,   event,       target_state,   action,            guard
         row<off,            button_push, emitting_white, turn_light_white>,
         row<emitting_white, button_push, emitting_red,   turn_light_red,    is_short_push>,
         row<emitting_red,   button_push, emitting_green, turn_light_green,  is_short_push>,
@@ -299,9 +300,9 @@ struct sm_configuration: awesm::sm_configuration
 };
 
 /*
-We finally have our SM.
+We finally have our state machine.
 Note that we can pass a configuration struct as second template argument to fine
-tune the behavior of our SM.
+tune the behavior of our state machine.
 */
 using sm_t = awesm::sm<sm_configuration>;
 
@@ -310,16 +311,16 @@ int main()
     /*
     We're responsible for instantiating our context ourselves. Also, as the
     states, actions and guards only holds a reference to this context and not
-    a copy, it's also our responsibility to keep it alive until the SM is
-    destructed.
+    a copy, it's also our responsibility to keep it alive until the state
+    machine is destructed.
     */
     auto ctx = context{};
 
     /*
-    When we instantiate the SM, we also instantiate every state, action and
-    guard mentionned in the transition table. Note that they're instantiated
-    once and for all: no construction or destruction happens during state
-    transitions.
+    When we instantiate the state machine, we also instantiate every state,
+    action and guard mentionned in the transition table. Note that they're
+    instantiated once and for all: no construction or destruction happens during
+    state transitions.
     */
     auto sm = sm_t{ctx};
 

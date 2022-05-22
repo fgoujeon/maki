@@ -196,7 +196,7 @@ class sm
         };
         using transition_table_t = detail::alternative_lazy
         <
-            transition_table_digest_t::has_start_state_patterns,
+            transition_table_digest_t::has_source_state_patterns,
             resolved_transition_table_holder,
             unresolved_transition_table_holder
         >;
@@ -221,7 +221,7 @@ class sm
         template
         <
             class Sm,
-            class StartState,
+            class SourceState,
             class Event,
             class TargetState,
             class Action,
@@ -280,7 +280,7 @@ class sm
         template<class Row>
         struct transition_table_row_event_processor
         {
-            using transition_start_state  = typename Row::start_state_type;
+            using transition_source_state  = typename Row::source_state_type;
             using transition_event        = typename Row::event_type;
             using transition_target_state = typename Row::target_state_type;
             using transition_action       = typename Row::action_type;
@@ -288,8 +288,8 @@ class sm
 
             static bool process(sm& machine, const transition_event* const pevent)
             {
-                //Make sure the transition start state is the active state
-                if(!machine.is_active_state<transition_start_state>())
+                //Make sure the transition source state is the active state
+                if(!machine.is_active_state<transition_source_state>())
                 {
                     return false;
                 }
@@ -298,7 +298,7 @@ class sm
                 using helper_t = state_transition_policy_helper
                 <
                     sm,
-                    transition_start_state,
+                    transition_source_state,
                     transition_event,
                     transition_target_state,
                     transition_action,

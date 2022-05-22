@@ -7,83 +7,116 @@
 #ifndef AWESM_GUARD_OPERATORS_HPP
 #define AWESM_GUARD_OPERATORS_HPP
 
+#include "detail/sm_object_holder_tuple.hpp"
 #include "detail/sm_object_holder.hpp"
 #include "detail/call_member.hpp"
 
 namespace awesm
 {
 
-namespace detail
+template<class... Guards>
+class and_
 {
-    struct and_
-    {
-        static bool test(const bool l, const bool r)
+    public:
+        template<class Context, class Sm>
+        and_(Context& context, Sm& machine):
+            guards_(context, machine)
         {
-            return l && r;
         }
-    };
 
-    struct or_
-    {
-        static bool test(const bool l, const bool r)
+        template<class SourceState, class Event, class TargetState>
+        bool check
+        (
+            SourceState& source_state,
+            const Event& event,
+            TargetState& target_state
+        )
         {
-            return l || r;
-        }
-    };
-
-    struct xor_
-    {
-        static bool test(const bool l, const bool r)
-        {
-            return l != r;
-        }
-    };
-
-    template<class Lhs, class Rhs, class Operator>
-    class binary_operator_guard
-    {
-        public:
-            template<class Context, class Sm>
-            binary_operator_guard(Context& context, Sm& machine):
-                lhs_{context, machine},
-                rhs_{context, machine}
-            {
-            }
-
-            template<class SourceState, class Event, class TargetState>
-            bool check
+            return
             (
-                SourceState& source_state,
-                const Event& event,
-                TargetState& target_state
-            )
-            {
-                return Operator::test
+                detail::call_check
                 (
-                    detail::call_check
-                    (
-                        &lhs_.object,
-                        &source_state,
-                        &event,
-                        &target_state
-                    ),
-                    detail::call_check
-                    (
-                        &rhs_.object,
-                        &source_state,
-                        &event,
-                        &target_state
-                    )
-                );
-            }
+                    &guards_.get(static_cast<Guards*>(nullptr)),
+                    &source_state,
+                    &event,
+                    &target_state
+                ) && ...
+            );
+        }
 
-        private:
-            detail::sm_object_holder<Lhs> lhs_;
-            detail::sm_object_holder<Rhs> rhs_;
-    };
-}
+    private:
+        detail::sm_object_holder_tuple<Guards...> guards_;
+};
 
-template<class T>
+template<class... Guards>
+class or_
+{
+    public:
+        template<class Context, class Sm>
+        or_(Context& context, Sm& machine):
+            guards_(context, machine)
+        {
+        }
+
+        template<class SourceState, class Event, class TargetState>
+        bool check
+        (
+            SourceState& source_state,
+            const Event& event,
+            TargetState& target_state
+        )
+        {
+            return
+            (
+                detail::call_check
+                (
+                    &guards_.get(static_cast<Guards*>(nullptr)),
+                    &source_state,
+                    &event,
+                    &target_state
+                ) || ...
+            );
+        }
+
+    private:
+        detail::sm_object_holder_tuple<Guards...> guards_;
+};
+
+template<class... Guards>
+class xor_
+{
+    public:
+        template<class Context, class Sm>
+        xor_(Context& context, Sm& machine):
+            guards_(context, machine)
+        {
+        }
+
+        template<class SourceState, class Event, class TargetState>
+        bool check
+        (
+            SourceState& source_state,
+            const Event& event,
+            TargetState& target_state
+        )
+        {
+            return
+            (
+                detail::call_check
+                (
+                    &guards_.get(static_cast<Guards*>(nullptr)),
+                    &source_state,
+                    &event,
+                    &target_state
+                ) != ...
+            );
+        }
+
+    private:
+        detail::sm_object_holder_tuple<Guards...> guards_;
+};
+
+template<class Guard>
 class not_
 {
     public:
@@ -111,17 +144,8 @@ class not_
         }
 
     private:
-        detail::sm_object_holder<T> guard_;
+        detail::sm_object_holder<Guard> guard_;
 };
-
-template<class L, class R>
-using and_ = detail::binary_operator_guard<L, R, detail::and_>;
-
-template<class L, class R>
-using or_ = detail::binary_operator_guard<L, R, detail::or_>;
-
-template<class L, class R>
-using xor_ = detail::binary_operator_guard<L, R, detail::xor_>;
 
 } //namespace
 

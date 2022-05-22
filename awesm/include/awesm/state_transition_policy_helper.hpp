@@ -39,8 +39,8 @@ class state_transition_policy_helper
             {
                 return detail::call_check
                 (
-                    &sm_.guards_.get(static_cast<Guard*>(nullptr)),
-                    &sm_.states_.get(static_cast<SourceState*>(nullptr)),
+                    &sm_.template get_object<Guard>(),
+                    &sm_.template get_object<SourceState>(),
                     &event_,
                     get_target_state_ptr()
                 );
@@ -57,7 +57,7 @@ class state_transition_policy_helper
             {
                 detail::call_on_exit
                 (
-                    &sm_.states_.get(static_cast<SourceState*>(nullptr)),
+                    &sm_.template get_object<SourceState>(),
                     &event_,
                     0
                 );
@@ -70,7 +70,7 @@ class state_transition_policy_helper
             {
                 sm_.active_state_index_ = detail::tlu::get_index
                 <
-                    typename Sm::state_tuple_t,
+                    typename Sm::state_type_list,
                     TargetState
                 >;
             }
@@ -82,8 +82,8 @@ class state_transition_policy_helper
             {
                 detail::call_execute
                 (
-                    &sm_.actions_.get(static_cast<Action*>(nullptr)),
-                    &sm_.states_.get(static_cast<SourceState*>(nullptr)),
+                    &sm_.template get_object<Action>(),
+                    &sm_.template get_object<SourceState>(),
                     &event_,
                     get_target_state_ptr()
                 );
@@ -121,7 +121,7 @@ class state_transition_policy_helper
             }
             else
             {
-                return &sm_.states_.get(static_cast<TargetState*>(nullptr));
+                return &sm_.template get_object<TargetState>();
             }
         }
 

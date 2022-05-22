@@ -11,6 +11,7 @@
 #include "internal_transition_policy_helper.hpp"
 #include "state_transition_policy_helper.hpp"
 #include "none.hpp"
+#include "detail/sm_object.hpp"
 #include "detail/resolve_transition_table.hpp"
 #include "detail/transition_table_digest.hpp"
 #include "detail/alternative_lazy.hpp"
@@ -60,20 +61,29 @@ class sm
 
         template<class Context>
         explicit sm(Context& context):
-            states_(context, *this),
-            actions_(context, *this),
-            guards_(context, *this),
             pre_transition_event_handler_{context, *this},
             internal_transition_policy_{context, *this},
             state_transition_policy_{context, *this}
         {
+            //Instantiate SM objects
+            detail::tlu::apply<state_type_list, object_maker>::make(context, *this);
+            detail::tlu::apply<action_type_list, object_maker>::make(context, *this);
+            detail::tlu::apply<guard_type_list, object_maker>::make(context, *this);
         }
 
         sm(const sm&) = delete;
         sm(sm&&) = delete;
+
+        ~sm()
+        {
+            //Destroy SM objects
+            detail::tlu::apply<state_type_list, object_unmaker>::unmake();
+            detail::tlu::apply<action_type_list, object_unmaker>::unmake();
+            detail::tlu::apply<guard_type_list, object_unmaker>::unmake();
+        }
+
         sm& operator=(const sm&) = delete;
         sm& operator=(sm&&) = delete;
-        ~sm() = default;
 
         //Check whether the given State is the active state type
         template<class State>
@@ -81,7 +91,7 @@ class sm
         {
             constexpr auto given_state_index = detail::tlu::get_index
             <
-                state_tuple_t,
+                state_type_list,
                 State
             >;
             return given_state_index == active_state_index_;
@@ -134,9 +144,28 @@ class sm
         using transition_table_digest_t =
             detail::transition_table_digest<unresolved_transition_table_t>
         ;
-        using state_tuple_t = typename transition_table_digest_t::state_tuple;
-        using action_tuple_t = typename transition_table_digest_t::action_tuple;
-        using guard_tuple_t = typename transition_table_digest_t::guard_tuple;
+        using state_type_list = typename transition_table_digest_t::state_type_list;
+        using action_type_list = typename transition_table_digest_t::action_type_list;
+        using guard_type_list = typename transition_table_digest_t::guard_type_list;
+
+        template<class... Objects>
+        struct object_maker
+        {
+            template<class Context>
+            static void make(Context& ctx, sm& machine)
+            {
+                (detail::make_sm_object<Objects>(ctx, machine), ...);
+            }
+        };
+
+        template<class... Objects>
+        struct object_unmaker
+        {
+            static void unmake()
+            {
+                (detail::unmake_sm_object<Objects>(), ...);
+            }
+        };
 
         class event_processing
         {
@@ -191,7 +220,7 @@ class sm
             using type = detail::resolve_transition_table
             <
                 unresolved_transition_table_t,
-                state_tuple_t
+                state_type_list
             >;
         };
         using transition_table_t = detail::alternative_lazy
@@ -228,6 +257,12 @@ class sm
             class Guard
         >
         friend class state_transition_policy_helper;
+
+        template<class Object>
+        Object& get_object()
+        {
+            return detail::get_sm_object<Object>();
+        }
 
         template<class Event>
         void process_event_once(const Event& event)
@@ -280,7 +315,7 @@ class sm
         template<class Row>
         struct transition_table_row_event_processor
         {
-            using transition_source_state  = typename Row::source_state_type;
+            using transition_source_state = typename Row::source_state_type;
             using transition_event        = typename Row::event_type;
             using transition_target_state = typename Row::target_state_type;
             using transition_action       = typename Row::action_type;
@@ -335,7 +370,7 @@ class sm
         {
             return detail::tlu::apply
             <
-                state_tuple_t,
+                state_type_list,
                 active_state_event_processor
             >::process(*this, event);
         }
@@ -360,7 +395,7 @@ class sm
         {
             if(is_active_state<State>())
             {
-                auto& state = states_.get(static_cast<State*>(nullptr));
+                auto& state = get_object<State>();
                 auto helper = internal_transition_policy_helper
                 <
                     State,
@@ -381,9 +416,6 @@ class sm
             return false;
         }
 
-        state_tuple_t states_;
-        action_tuple_t actions_;
-        guard_tuple_t guards_;
         pre_transition_event_handler_t pre_transition_event_handler_;
         internal_transition_policy_t internal_transition_policy_;
         state_transition_policy_t state_transition_policy_;

@@ -7,7 +7,7 @@
 #ifndef AWESM_GUARD_OPERATORS_HPP
 #define AWESM_GUARD_OPERATORS_HPP
 
-#include "detail/sm_object_holder.hpp"
+#include "detail/sm_object.hpp"
 #include "detail/call_member.hpp"
 
 namespace awesm
@@ -44,11 +44,23 @@ namespace detail
     {
         public:
             template<class Context, class Sm>
-            binary_operator_guard(Context& context, Sm& machine):
-                lhs_{context, machine},
-                rhs_{context, machine}
+            binary_operator_guard(Context& context, Sm& machine)
             {
+                detail::make_sm_object_if_null<Lhs>(context, machine);
+                detail::make_sm_object_if_null<Rhs>(context, machine);
             }
+
+            binary_operator_guard(const binary_operator_guard&) = delete;
+            binary_operator_guard(binary_operator_guard&&) = delete;
+
+            ~binary_operator_guard()
+            {
+                detail::unmake_sm_object_if_not_null<Lhs>();
+                detail::unmake_sm_object_if_not_null<Rhs>();
+            }
+
+            binary_operator_guard& operator=(const binary_operator_guard&) = delete;
+            binary_operator_guard& operator=(binary_operator_guard&&) = delete;
 
             template<class SourceState, class Event, class TargetState>
             bool check
@@ -62,36 +74,43 @@ namespace detail
                 (
                     detail::call_check
                     (
-                        &lhs_.object,
+                        &detail::get_sm_object<Lhs>(),
                         &source_state,
                         &event,
                         &target_state
                     ),
                     detail::call_check
                     (
-                        &rhs_.object,
+                        &detail::get_sm_object<Rhs>(),
                         &source_state,
                         &event,
                         &target_state
                     )
                 );
             }
-
-        private:
-            detail::sm_object_holder<Lhs> lhs_;
-            detail::sm_object_holder<Rhs> rhs_;
     };
 }
 
-template<class T>
+template<class Guard>
 class not_
 {
     public:
         template<class Context, class Sm>
-        not_(Context& context, Sm& machine):
-            guard_{context, machine}
+        not_(Context& context, Sm& machine)
         {
+            detail::make_sm_object_if_null<Guard>(context, machine);
         }
+
+        not_(const not_&) = delete;
+        not_(not_&&) = delete;
+
+        ~not_()
+        {
+            detail::unmake_sm_object_if_not_null<Guard>();
+        }
+
+        not_& operator=(const not_&) = delete;
+        not_& operator=(not_&&) = delete;
 
         template<class SourceState, class Event, class TargetState>
         bool check
@@ -103,15 +122,12 @@ class not_
         {
             return !detail::call_check
             (
-                &guard_.object,
+                &detail::get_sm_object<Guard>(),
                 &source_state,
                 &event,
                 &target_state
             );
         }
-
-    private:
-        detail::sm_object_holder<T> guard_;
 };
 
 template<class L, class R>

@@ -9,7 +9,6 @@
 
 #include "tlu.hpp"
 #include "type_list.hpp"
-#include "sm_object_holder_tuple.hpp"
 #include "../type_pattern.hpp"
 #include "../none.hpp"
 #include "../transition_table.hpp"
@@ -19,8 +18,8 @@ namespace awesm::detail
 {
 
 /*
-Creates a set of tuples containing all the action types, guard types and state
-types of a given transition_table.
+Creates a set of type lists containing all the action types, guard types and
+state types of a given transition_table.
 
 For example, the following digest type...:
     using transition_table = awesm::transition_table
@@ -35,9 +34,9 @@ For example, the following digest type...:
 ... is equivalent to this type:
     struct digest
     {
-        using state_tuple = awesm::detail::sm_object_holder_tuple<state0, state1, state2, state3>;
-        using action_tuple = awesm::detail::sm_object_holder_tuple<action0, action1>;
-        using guard_tuple = awesm::detail::sm_object_holder_tuple<guard0, guard1>;
+        using state_type_list = awesm::detail::type_list<state0, state1, state2, state3>;
+        using action_type_list = awesm::detail::type_list<action0, action1>;
+        using guard_type_list = awesm::detail::type_list<guard0, guard1>;
         static constexpr auto has_source_state_patterns = false;
         static constexpr auto has_none_events = false;
     };
@@ -45,18 +44,6 @@ For example, the following digest type...:
 
 namespace transition_table_digest_detail
 {
-    template<class TList>
-    struct to_tuple_helper;
-
-    template<template<class...> class TList, class... Ts>
-    struct to_tuple_helper<TList<Ts...>>
-    {
-        using type = awesm::detail::sm_object_holder_tuple<Ts...>;
-    };
-
-    template<class TList>
-    using to_tuple = typename to_tuple_helper<TList>::type;
-
     template<class TList, class U>
     using push_back_unique_if_not_pattern = tlu::push_back_if
     <
@@ -71,9 +58,9 @@ namespace transition_table_digest_detail
 
     struct initial_digest
     {
-        using state_tuple = type_list<>;
-        using action_tuple = type_list<>;
-        using guard_tuple = type_list<>;
+        using state_type_list = type_list<>;
+        using action_type_list = type_list<>;
+        using guard_type_list = type_list<>;
         static constexpr auto has_source_state_patterns = false;
         static constexpr auto has_none_events = false;
     };
@@ -81,25 +68,25 @@ namespace transition_table_digest_detail
     template<class Digest, class Row>
     struct add_row_to_digest
     {
-        using state_tuple = push_back_unique_if_not_pattern
+        using state_type_list = push_back_unique_if_not_pattern
         <
             push_back_unique_if_not_pattern
             <
-                typename Digest::state_tuple,
+                typename Digest::state_type_list,
                 typename Row::source_state_type
             >,
             typename Row::target_state_type
         >;
 
-        using action_tuple = push_back_unique_if_not_pattern
+        using action_type_list = push_back_unique_if_not_pattern
         <
-            typename Digest::action_tuple,
+            typename Digest::action_type_list,
             typename Row::action_type
         >;
 
-        using guard_tuple = push_back_unique_if_not_pattern
+        using guard_type_list = push_back_unique_if_not_pattern
         <
-            typename Digest::guard_tuple,
+            typename Digest::guard_type_list,
             typename Row::guard_type
         >;
 
@@ -113,48 +100,15 @@ namespace transition_table_digest_detail
             std::is_same_v<typename Row::event_type, none>
         ;
     };
-
-    /*
-    First step with type_list instead of awesm::detail::sm_object_holder_tuple,
-    so that we don't instantiate intermediate tuples.
-    */
-    template<class TransitionTable>
-    using digest_with_type_lists = tlu::left_fold
-    <
-        TransitionTable,
-        add_row_to_digest,
-        initial_digest
-    >;
 }
 
 template<class TransitionTable>
-class transition_table_digest
-{
-    private:
-        using digest_t = transition_table_digest_detail::digest_with_type_lists
-        <
-            TransitionTable
-        >;
-
-    public:
-        using state_tuple = transition_table_digest_detail::to_tuple
-        <
-            typename digest_t::state_tuple
-        >;
-
-        using action_tuple = transition_table_digest_detail::to_tuple
-        <
-            typename digest_t::action_tuple
-        >;
-
-        using guard_tuple = transition_table_digest_detail::to_tuple
-        <
-            typename digest_t::guard_tuple
-        >;
-
-        static constexpr auto has_source_state_patterns = digest_t::has_source_state_patterns;
-        static constexpr auto has_none_events = digest_t::has_none_events;
-};
+using transition_table_digest = tlu::left_fold
+<
+    TransitionTable,
+    transition_table_digest_detail::add_row_to_digest,
+    transition_table_digest_detail::initial_digest
+>;
 
 } //namespace
 

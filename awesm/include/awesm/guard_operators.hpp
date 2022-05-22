@@ -50,16 +50,6 @@ namespace detail
             {
             }
 
-            template<class Event>
-            bool check(const Event& event)
-            {
-                return Operator::test
-                (
-                    detail::call_check(lhs_.object, event),
-                    detail::call_check(rhs_.object, event)
-                );
-            }
-
             template<class SourceState, class Event, class TargetState>
             bool check
             (

@@ -8,9 +8,8 @@
 #define AWESM_SM_HPP
 
 #include "sm_configuration.hpp"
-#include "internal_transition_policy_helper.hpp"
-#include "state_transition_policy_helper.hpp"
 #include "none.hpp"
+#include "detail/call_member.hpp"
 #include "detail/resolve_transition_table.hpp"
 #include "detail/transition_table_digest.hpp"
 #include "detail/alternative_lazy.hpp"
@@ -63,9 +62,8 @@ class sm
             states_(context, *this),
             actions_(context, *this),
             guards_(context, *this),
-            pre_transition_event_handler_{context, *this},
-            internal_transition_policy_{context, *this},
-            state_transition_policy_{context, *this}
+            exception_handler_{context, *this},
+            pre_transition_event_handler_{context, *this}
         {
         }
 
@@ -95,7 +93,13 @@ class sm
                 //Queue event processing in case of recursive call
                 if(processing_event_)
                 {
-                    queued_event_processings_.emplace(*this, event);
+                    safe_call //copy constructor might throw
+                    (
+                        [&]
+                        {
+                            queued_event_processings_.emplace(*this, event);
+                        }
+                    );
                     return;
                 }
 
@@ -121,14 +125,11 @@ class sm
         using unresolved_transition_table_t =
             typename Configuration::transition_table
         ;
+        using exception_handler_t =
+            typename Configuration::template exception_handler<sm>
+        ;
         using pre_transition_event_handler_t =
             typename Configuration::pre_transition_event_handler
-        ;
-        using internal_transition_policy_t =
-            typename Configuration::template internal_transition_policy<sm>
-        ;
-        using state_transition_policy_t =
-            typename Configuration::template state_transition_policy<sm>
         ;
 
         using transition_table_digest_t =
@@ -218,21 +219,35 @@ class sm
             empty_holder
         >;
 
-        template
-        <
-            class Sm,
-            class SourceState,
-            class Event,
-            class TargetState,
-            class Action,
-            class Guard
-        >
-        friend class state_transition_policy_helper;
+        //Used to call client code
+        template<class F>
+        void safe_call(F&& f)
+        {
+            try
+            {
+                f();
+            }
+            catch(...)
+            {
+                exception_handler_.on_exception(std::current_exception());
+            }
+        }
 
         template<class Event>
         void process_event_once(const Event& event)
         {
-            detail::call_on_event(&pre_transition_event_handler_, &event, 0);
+            safe_call
+            (
+                [&]
+                {
+                    detail::call_on_event
+                    (
+                        &pre_transition_event_handler_,
+                        &event,
+                        0
+                    );
+                }
+            );
 
             if constexpr(Configuration::enable_in_state_internal_transitions)
             {
@@ -280,32 +295,13 @@ class sm
         template<class Row>
         struct transition_table_row_event_processor
         {
-            using transition_source_state  = typename Row::source_state_type;
-            using transition_event        = typename Row::event_type;
-            using transition_target_state = typename Row::target_state_type;
-            using transition_action       = typename Row::action_type;
-            using transition_guard        = typename Row::guard_type;
-
-            static bool process(sm& machine, const transition_event* const pevent)
+            static bool process
+            (
+                sm& machine,
+                const typename Row::event_type* const pevent
+            )
             {
-                //Make sure the transition source state is the active state
-                if(!machine.is_active_state<transition_source_state>())
-                {
-                    return false;
-                }
-
-                //Perform the transition
-                using helper_t = state_transition_policy_helper
-                <
-                    sm,
-                    transition_source_state,
-                    transition_event,
-                    transition_target_state,
-                    transition_action,
-                    transition_guard
-                >;
-                auto helper = helper_t{machine, *pevent};
-                return machine.state_transition_policy_.do_transition(helper);
+                return machine.process_event_in_row<Row>(*pevent);
             }
 
             /*
@@ -326,6 +322,122 @@ class sm
                 return false;
             }
         };
+
+        template<class Row, class Event>
+        bool process_event_in_row(const Event& event)
+        {
+            using source_state_t = typename Row::source_state_type;
+            using target_state_t = typename Row::target_state_type;
+            using action_t       = typename Row::action_type;
+            using guard_t        = typename Row::guard_type;
+
+            //Make sure the transition source state is the active state
+            if(!is_active_state<source_state_t>())
+            {
+                return false;
+            }
+
+            const auto get_target_state_ptr = [&]
+            {
+                if constexpr(std::is_same_v<target_state_t, none>)
+                {
+                    return nullptr;
+                }
+                else
+                {
+                    return &states_.get(static_cast<target_state_t*>(nullptr));
+                }
+            };
+
+            const auto check_guard = [&]
+            {
+                if constexpr(!std::is_same_v<guard_t, none>)
+                {
+                    return detail::call_check
+                    (
+                        &guards_.get(static_cast<guard_t*>(nullptr)),
+                        &states_.get(static_cast<source_state_t*>(nullptr)),
+                        &event,
+                        get_target_state_ptr()
+                    );
+                }
+                else
+                {
+                    return true;
+                }
+            };
+
+            const auto invoke_source_state_on_exit = [&]
+            {
+                if constexpr(!std::is_same_v<target_state_t, none>)
+                {
+                    detail::call_on_exit
+                    (
+                        &states_.get(static_cast<source_state_t*>(nullptr)),
+                        &event,
+                        0
+                    );
+                }
+            };
+
+            const auto activate_target_state = [&]
+            {
+                if constexpr(!std::is_same_v<target_state_t, none>)
+                {
+                    active_state_index_ = detail::tlu::get_index
+                    <
+                        state_tuple_t,
+                        target_state_t
+                    >;
+                }
+            };
+
+            const auto execute_action = [&]
+            {
+                if constexpr(!std::is_same_v<action_t, none>)
+                {
+                    detail::call_execute
+                    (
+                        &actions_.get(static_cast<action_t*>(nullptr)),
+                        &states_.get(static_cast<source_state_t*>(nullptr)),
+                        &event,
+                        get_target_state_ptr()
+                    );
+                }
+            };
+
+            const auto invoke_target_state_on_entry = [&]
+            {
+                if constexpr(!std::is_same_v<target_state_t, none>)
+                {
+                    detail::call_on_entry
+                    (
+                        get_target_state_ptr(),
+                        &event,
+                        0
+                    );
+                }
+            };
+
+            //Perform the transition
+            auto processed = false;
+            safe_call
+            (
+                [&]
+                {
+                    processed = check_guard();
+                    if(!processed)
+                    {
+                        return;
+                    }
+                    invoke_source_state_on_exit();
+                    activate_target_state();
+                    execute_action();
+                    invoke_target_state_on_entry();
+                }
+            );
+            return processed;
+        }
 
         /*
         Call active_state.on_event(event)
@@ -360,23 +472,20 @@ class sm
         {
             if(is_active_state<State>())
             {
-                auto& state = states_.get(static_cast<State*>(nullptr));
-                auto helper = internal_transition_policy_helper
-                <
-                    State,
-                    Event
-                >{state, *pevent};
-                internal_transition_policy_.do_transition(helper);
+                safe_call
+                (
+                    [&]
+                    {
+                        states_.get(static_cast<State*>(nullptr)).on_event(*pevent);
+                    }
+                );
                 return true;
             }
             return false;
         }
 
         template<class State>
-        bool process_event_in_state
-        (
-            const void* /*pevent*/
-        )
+        bool process_event_in_state(const void* /*pevent*/)
         {
             return false;
         }
@@ -384,9 +493,8 @@ class sm
         state_tuple_t states_;
         action_tuple_t actions_;
         guard_tuple_t guards_;
+        exception_handler_t exception_handler_;
         pre_transition_event_handler_t pre_transition_event_handler_;
-        internal_transition_policy_t internal_transition_policy_;
-        state_transition_policy_t state_transition_policy_;
 
         int active_state_index_ = 0;
         bool processing_event_ = false;

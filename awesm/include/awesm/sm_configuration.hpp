@@ -14,6 +14,25 @@ namespace awesm
 
 struct sm_configuration
 {
+    template<class Sm>
+    class exception_handler
+    {
+        public:
+            template<class Context>
+            exception_handler(Context& /*ctx*/, Sm& m):
+                sm_(m)
+            {
+            }
+
+            void on_exception(const std::exception_ptr& e)
+            {
+                sm_.process_event(e);
+            }
+
+        private:
+            Sm& sm_;
+    };
+
     struct pre_transition_event_handler
     {
         template<class Context, class Sm>
@@ -28,69 +47,6 @@ struct sm_configuration
             */
             //void on_event(const Event&);
         }
-    };
-
-    template<class Sm>
-    struct internal_transition_policy
-    {
-        template<class Context>
-        internal_transition_policy(Context& /*ctx*/, Sm& machine):
-            machine(machine)
-        {
-        }
-
-        template<class Helper>
-        void do_transition(Helper& helper)
-        {
-            try
-            {
-                helper.invoke_state_on_event();
-            }
-            catch(...)
-            {
-                machine.process_event(std::current_exception());
-            }
-        }
-
-        Sm& machine;
-    };
-
-    template<class Sm>
-    struct state_transition_policy
-    {
-        template<class Context>
-        state_transition_policy(Context& /*ctx*/, Sm& machine):
-            machine(machine)
-        {
-        }
-
-        template<class Helper>
-        bool do_transition(Helper& helper)
-        {
-            auto processed = false;
-
-            try
-            {
-                processed = helper.check_guard();
-                if(!processed)
-                {
-                    return false;
-                }
-
-                helper.invoke_source_state_on_exit();
-                helper.activate_target_state();
-                helper.execute_action();
-                helper.invoke_target_state_on_entry();
-            }
-            catch(...)
-            {
-                machine.process_event(std::current_exception());
-            }
-
-            return processed;
-        }
-
-        Sm& machine;
     };
 
     static constexpr auto enable_run_to_completion = true;

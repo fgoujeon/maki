@@ -93,7 +93,13 @@ class sm
                 //Queue event processing in case of recursive call
                 if(processing_event_)
                 {
-                    queued_event_processings_.emplace(*this, event);
+                    safe_call //copy constructor might throw
+                    (
+                        [&]
+                        {
+                            queued_event_processings_.emplace(*this, event);
+                        }
+                    );
                     return;
                 }
 
@@ -213,10 +219,35 @@ class sm
             empty_holder
         >;
 
+        //Used to call client code
+        template<class F>
+        void safe_call(F&& f)
+        {
+            try
+            {
+                f();
+            }
+            catch(...)
+            {
+                exception_handler_.on_exception(std::current_exception());
+            }
+        }
+
         template<class Event>
         void process_event_once(const Event& event)
         {
-            detail::call_on_event(&pre_transition_event_handler_, &event, 0);
+            safe_call
+            (
+                [&]
+                {
+                    detail::call_on_event
+                    (
+                        &pre_transition_event_handler_,
+                        &event,
+                        0
+                    );
+                }
+            );
 
             if constexpr(Configuration::enable_in_state_internal_transitions)
             {
@@ -306,7 +337,7 @@ class sm
                 return false;
             }
 
-            const auto get_target_state_ptr = [this]
+            const auto get_target_state_ptr = [&]
             {
                 if constexpr(std::is_same_v<target_state_t, none>)
                 {
@@ -318,7 +349,7 @@ class sm
                 }
             };
 
-            const auto check_guard = [this, &event, get_target_state_ptr]
+            const auto check_guard = [&]
             {
                 if constexpr(!std::is_same_v<guard_t, none>)
                 {
@@ -336,7 +367,7 @@ class sm
                 }
             };
 
-            const auto invoke_source_state_on_exit = [this, &event]
+            const auto invoke_source_state_on_exit = [&]
             {
                 if constexpr(!std::is_same_v<target_state_t, none>)
                 {
@@ -349,7 +380,7 @@ class sm
                 }
             };
 
-            const auto activate_target_state = [this]
+            const auto activate_target_state = [&]
             {
                 if constexpr(!std::is_same_v<target_state_t, none>)
                 {
@@ -361,7 +392,7 @@ class sm
                 }
             };
 
-            const auto execute_action = [this, &event, get_target_state_ptr]
+            const auto execute_action = [&]
             {
                 if constexpr(!std::is_same_v<action_t, none>)
                 {
@@ -375,7 +406,7 @@ class sm
                 }
             };
 
-            const auto invoke_target_state_on_entry = [this, &event, get_target_state_ptr]
+            const auto invoke_target_state_on_entry = [&]
             {
                 if constexpr(!std::is_same_v<target_state_t, none>)
                 {
@@ -390,22 +421,21 @@ class sm
 
             //Perform the transition
             auto processed = false;
-            try
-            {
-                processed = check_guard();
-                if(!processed)
+            safe_call
+            (
+                [&]
                 {
-                    return false;
+                    processed = check_guard();
+                    if(!processed)
+                    {
+                        return;
+                    }
+                    invoke_source_state_on_exit();
+                    activate_target_state();
+                    execute_action();
+                    invoke_target_state_on_entry();
                 }
-                invoke_source_state_on_exit();
-                activate_target_state();
-                execute_action();
-                invoke_target_state_on_entry();
-            }
-            catch(...)
-            {
-                exception_handler_.on_exception(std::current_exception());
-            }
+            );
             return processed;
         }
 
@@ -442,14 +472,13 @@ class sm
         {
             if(is_active_state<State>())
             {
-                try
-                {
-                    states_.get(static_cast<State*>(nullptr)).on_event(*pevent);
-                }
-                catch(...)
-                {
-                    process_event(std::current_exception());
-                }
+                safe_call
+                (
+                    [&]
+                    {
+                        states_.get(static_cast<State*>(nullptr)).on_event(*pevent);
+                    }
+                );
                 return true;
             }
             return false;

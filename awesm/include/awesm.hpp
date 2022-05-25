@@ -12,5 +12,5 @@
 #include "awesm/none.hpp"
 #include "awesm/row.hpp"
 #include "awesm/transition_table.hpp"
-#include "awesm/type_pattern.hpp"
+#include "awesm/type_patterns.hpp"
 #include "awesm/version.hpp"

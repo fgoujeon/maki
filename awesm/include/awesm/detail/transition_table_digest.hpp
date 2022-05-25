@@ -10,7 +10,7 @@
 #include "tlu.hpp"
 #include "type_list.hpp"
 #include "sm_object_holder_tuple.hpp"
-#include "../type_pattern.hpp"
+#include "../type_patterns.hpp"
 #include "../none.hpp"
 #include "../transition_table.hpp"
 #include <type_traits>

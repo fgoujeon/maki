@@ -11,7 +11,7 @@
 #include "alternative_lazy.hpp"
 #include "tlu.hpp"
 #include "../row.hpp"
-#include "../type_pattern.hpp"
+#include "../type_patterns.hpp"
 #include "../transition_table.hpp"
 
 namespace awesm::detail

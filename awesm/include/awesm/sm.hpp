@@ -9,7 +9,6 @@
 
 #include "sm_configuration.hpp"
 #include "internal_transition_policy_helper.hpp"
-#include "state_transition_policy_helper.hpp"
 #include "none.hpp"
 #include "detail/resolve_transition_table.hpp"
 #include "detail/transition_table_digest.hpp"
@@ -64,8 +63,7 @@ class sm
             actions_(context, *this),
             guards_(context, *this),
             pre_transition_event_handler_{context, *this},
-            internal_transition_policy_{context, *this},
-            state_transition_policy_{context, *this}
+            internal_transition_policy_{context, *this}
         {
         }
 
@@ -126,9 +124,6 @@ class sm
         ;
         using internal_transition_policy_t =
             typename Configuration::template internal_transition_policy<sm>
-        ;
-        using state_transition_policy_t =
-            typename Configuration::template state_transition_policy<sm>
         ;
 
         using transition_table_digest_t =
@@ -280,32 +275,13 @@ class sm
         template<class Row>
         struct transition_table_row_event_processor
         {
-            using transition_source_state  = typename Row::source_state_type;
-            using transition_event        = typename Row::event_type;
-            using transition_target_state = typename Row::target_state_type;
-            using transition_action       = typename Row::action_type;
-            using transition_guard        = typename Row::guard_type;
-
-            static bool process(sm& machine, const transition_event* const pevent)
+            static bool process
+            (
+                sm& machine,
+                const typename Row::event_type* const pevent
+            )
             {
-                //Make sure the transition source state is the active state
-                if(!machine.is_active_state<transition_source_state>())
-                {
-                    return false;
-                }
-
-                //Perform the transition
-                using helper_t = state_transition_policy_helper
-                <
-                    sm,
-                    transition_source_state,
-                    transition_event,
-                    transition_target_state,
-                    transition_action,
-                    transition_guard
-                >;
-                auto helper = helper_t{machine, *pevent};
-                return machine.state_transition_policy_.do_transition(helper);
+                return machine.process_event_in_row<Row>(*pevent);
             }
 
             /*
@@ -326,6 +302,123 @@ class sm
                 return false;
             }
         };
+
+        template<class Row, class Event>
+        bool process_event_in_row(const Event& event)
+        {
+            using source_state_t = typename Row::source_state_type;
+            using target_state_t = typename Row::target_state_type;
+            using action_t       = typename Row::action_type;
+            using guard_t        = typename Row::guard_type;
+
+            //Make sure the transition source state is the active state
+            if(!is_active_state<source_state_t>())
+            {
+                return false;
+            }
+
+            const auto get_target_state_ptr = [this]
+            {
+                if constexpr(std::is_same_v<target_state_t, none>)
+                {
+                    return nullptr;
+                }
+                else
+                {
+                    return &states_.get(static_cast<target_state_t*>(nullptr));
+                }
+            };
+
+            const auto check_guard = [this, &event, get_target_state_ptr]
+            {
+                if constexpr(!std::is_same_v<guard_t, none>)
+                {
+                    return detail::call_check
+                    (
+                        &guards_.get(static_cast<guard_t*>(nullptr)),
+                        &states_.get(static_cast<source_state_t*>(nullptr)),
+                        &event,
+                        get_target_state_ptr()
+                    );
+                }
+                else
+                {
+                    return true;
+                }
+            };
+
+            const auto invoke_source_state_on_exit = [this, &event]
+            {
+                if constexpr(!std::is_same_v<target_state_t, none>)
+                {
+                    detail::call_on_exit
+                    (
+                        &states_.get(static_cast<source_state_t*>(nullptr)),
+                        &event,
+                        0
+                    );
+                }
+            };
+
+            const auto activate_target_state = [this]
+            {
+                if constexpr(!std::is_same_v<target_state_t, none>)
+                {
+                    active_state_index_ = detail::tlu::get_index
+                    <
+                        state_tuple_t,
+                        target_state_t
+                    >;
+                }
+            };
+
+            const auto execute_action = [this, &event, get_target_state_ptr]
+            {
+                if constexpr(!std::is_same_v<action_t, none>)
+                {
+                    detail::call_execute
+                    (
+                        &actions_.get(static_cast<action_t*>(nullptr)),
+                        &states_.get(static_cast<source_state_t*>(nullptr)),
+                        &event,
+                        get_target_state_ptr()
+                    );
+                }
+            };
+
+            const auto invoke_target_state_on_entry = [this, &event, get_target_state_ptr]
+            {
+                if constexpr(!std::is_same_v<target_state_t, none>)
+                {
+                    detail::call_on_entry
+                    (
+                        get_target_state_ptr(),
+                        &event,
+                        0
+                    );
+                }
+            };
+
+            //Perform the transition
+            auto processed = false;
+            try
+            {
+                processed = check_guard();
+                if(!processed)
+                {
+                    return false;
+                }
+                invoke_source_state_on_exit();
+                activate_target_state();
+                execute_action();
+                invoke_target_state_on_entry();
+            }
+            catch(...)
+            {
+                process_event(std::current_exception());
+            }
+            return processed;
+        }
 
         /*
         Call active_state.on_event(event)
@@ -386,7 +479,6 @@ class sm
         guard_tuple_t guards_;
         pre_transition_event_handler_t pre_transition_event_handler_;
         internal_transition_policy_t internal_transition_policy_;
-        state_transition_policy_t state_transition_policy_;
 
         int active_state_index_ = 0;
         bool processing_event_ = false;

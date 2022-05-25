@@ -30,31 +30,6 @@ struct sm_configuration
         }
     };
 
-    template<class Sm>
-    struct internal_transition_policy
-    {
-        template<class Context>
-        internal_transition_policy(Context& /*ctx*/, Sm& machine):
-            machine(machine)
-        {
-        }
-
-        template<class Helper>
-        void do_transition(Helper& helper)
-        {
-            try
-            {
-                helper.invoke_state_on_event();
-            }
-            catch(...)
-            {
-                machine.process_event(std::current_exception());
-            }
-        }
-
-        Sm& machine;
-    };
-
     static constexpr auto enable_run_to_completion = true;
     static constexpr auto enable_in_state_internal_transitions = true;
 };

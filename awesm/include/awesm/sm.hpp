@@ -8,8 +8,8 @@
 #define AWESM_SM_HPP
 
 #include "sm_configuration.hpp"
-#include "internal_transition_policy_helper.hpp"
 #include "none.hpp"
+#include "detail/call_member.hpp"
 #include "detail/resolve_transition_table.hpp"
 #include "detail/transition_table_digest.hpp"
 #include "detail/alternative_lazy.hpp"
@@ -62,8 +62,7 @@ class sm
             states_(context, *this),
             actions_(context, *this),
             guards_(context, *this),
-            pre_transition_event_handler_{context, *this},
-            internal_transition_policy_{context, *this}
+            pre_transition_event_handler_{context, *this}
         {
         }
 
@@ -121,9 +120,6 @@ class sm
         ;
         using pre_transition_event_handler_t =
             typename Configuration::pre_transition_event_handler
-        ;
-        using internal_transition_policy_t =
-            typename Configuration::template internal_transition_policy<sm>
         ;
 
         using transition_table_digest_t =
@@ -453,23 +449,21 @@ class sm
         {
             if(is_active_state<State>())
             {
-                auto& state = states_.get(static_cast<State*>(nullptr));
-                auto helper = internal_transition_policy_helper
-                <
-                    State,
-                    Event
-                >{state, *pevent};
-                internal_transition_policy_.do_transition(helper);
+                try
+                {
+                    states_.get(static_cast<State*>(nullptr)).on_event(*pevent);
+                }
+                catch(...)
+                {
+                    process_event(std::current_exception());
+                }
                 return true;
             }
             return false;
         }
 
         template<class State>
-        bool process_event_in_state
-        (
-            const void* /*pevent*/
-        )
+        bool process_event_in_state(const void* /*pevent*/)
         {
             return false;
         }
@@ -478,7 +472,6 @@ class sm
         action_tuple_t actions_;
         guard_tuple_t guards_;
         pre_transition_event_handler_t pre_transition_event_handler_;
-        internal_transition_policy_t internal_transition_policy_;
 
         int active_state_index_ = 0;
         bool processing_event_ = false;

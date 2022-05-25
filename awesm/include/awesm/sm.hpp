@@ -62,6 +62,7 @@ class sm
             states_(context, *this),
             actions_(context, *this),
             guards_(context, *this),
+            exception_handler_{context, *this},
             pre_transition_event_handler_{context, *this}
         {
         }
@@ -117,6 +118,9 @@ class sm
     private:
         using unresolved_transition_table_t =
             typename Configuration::transition_table
+        ;
+        using exception_handler_t =
+            typename Configuration::template exception_handler<sm>
         ;
         using pre_transition_event_handler_t =
             typename Configuration::pre_transition_event_handler
@@ -411,7 +415,7 @@ class sm
             }
             catch(...)
             {
-                process_event(std::current_exception());
+                exception_handler_.on_exception(std::current_exception());
             }
             return processed;
         }
@@ -471,6 +475,7 @@ class sm
         state_tuple_t states_;
         action_tuple_t actions_;
         guard_tuple_t guards_;
+        exception_handler_t exception_handler_;
         pre_transition_event_handler_t pre_transition_event_handler_;
 
         int active_state_index_ = 0;

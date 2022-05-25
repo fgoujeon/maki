@@ -14,6 +14,25 @@ namespace awesm
 
 struct sm_configuration
 {
+    template<class Sm>
+    class exception_handler
+    {
+        public:
+            template<class Context>
+            exception_handler(Context& /*ctx*/, Sm& m):
+                sm_(m)
+            {
+            }
+
+            void on_exception(const std::exception_ptr& e)
+            {
+                sm_.process_event(e);
+            }
+
+        private:
+            Sm& sm_;
+    };
+
     struct pre_transition_event_handler
     {
         template<class Context, class Sm>

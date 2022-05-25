@@ -213,17 +213,6 @@ class sm
             empty_holder
         >;
 
-        template
-        <
-            class Sm,
-            class SourceState,
-            class Event,
-            class TargetState,
-            class Action,
-            class Guard
-        >
-        friend class state_transition_policy_helper;
-
         template<class Event>
         void process_event_once(const Event& event)
         {

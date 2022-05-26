@@ -50,7 +50,7 @@ namespace
 
         struct always_false
         {
-            bool check(const states::on&, const events::button_press&, const states::off&)
+            bool check(const events::button_press&)
             {
                 return false;
             }

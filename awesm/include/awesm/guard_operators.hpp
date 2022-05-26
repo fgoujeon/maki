@@ -24,22 +24,15 @@ class and_
         {
         }
 
-        template<class SourceState, class Event, class TargetState>
-        bool check
-        (
-            SourceState& source_state,
-            const Event& event,
-            TargetState& target_state
-        )
+        template<class Event>
+        bool check(const Event& event)
         {
             return
             (
                 detail::call_check
                 (
                     &guards_.get(static_cast<Guards*>(nullptr)),
-                    &source_state,
-                    &event,
-                    &target_state
+                    &event
                 ) && ...
             );
         }
@@ -58,22 +51,15 @@ class or_
         {
         }
 
-        template<class SourceState, class Event, class TargetState>
-        bool check
-        (
-            SourceState& source_state,
-            const Event& event,
-            TargetState& target_state
-        )
+        template<class Event>
+        bool check(const Event& event)
         {
             return
             (
                 detail::call_check
                 (
                     &guards_.get(static_cast<Guards*>(nullptr)),
-                    &source_state,
-                    &event,
-                    &target_state
+                    &event
                 ) || ...
             );
         }
@@ -92,22 +78,15 @@ class xor_
         {
         }
 
-        template<class SourceState, class Event, class TargetState>
-        bool check
-        (
-            SourceState& source_state,
-            const Event& event,
-            TargetState& target_state
-        )
+        template<class Event>
+        bool check(const Event& event)
         {
             return
             (
                 detail::call_check
                 (
                     &guards_.get(static_cast<Guards*>(nullptr)),
-                    &source_state,
-                    &event,
-                    &target_state
+                    &event
                 ) != ...
             );
         }
@@ -126,21 +105,10 @@ class not_
         {
         }
 
-        template<class SourceState, class Event, class TargetState>
-        bool check
-        (
-            SourceState& source_state,
-            const Event& event,
-            TargetState& target_state
-        )
+        template<class Event>
+        bool check(const Event& event)
         {
-            return !detail::call_check
-            (
-                &guard_.object,
-                &source_state,
-                &event,
-                &target_state
-            );
+            return !detail::call_check(&guard_.object, &event);
         }
 
     private:

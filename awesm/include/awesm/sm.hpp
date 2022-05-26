@@ -387,9 +387,7 @@ class sm
                     detail::call_execute
                     (
                         &actions_.get(static_cast<action_t*>(nullptr)),
-                        &states_.get(static_cast<source_state_t*>(nullptr)),
-                        &event,
-                        get_target_state_ptr()
+                        &event
                     );
                 }
 
@@ -420,9 +418,7 @@ class sm
                             detail::call_check
                             (
                                 &guards_.get(static_cast<guard_t*>(nullptr)),
-                                &states_.get(static_cast<source_state_t*>(nullptr)),
-                                &event,
-                                get_target_state_ptr()
+                                &event
                             )
                         )
                         {

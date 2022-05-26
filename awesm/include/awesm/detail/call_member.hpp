@@ -78,74 +78,30 @@ void call_on_exit(State* /*pstate*/, const void* /*pevent*/, long /*dummy*/)
     );
 }
 
-template<class Action, class SourceState, class Event, class TargetState>
-auto call_execute
-(
-    Action* paction,
-    SourceState* psource_state,
-    const Event* pevent,
-    TargetState* ptarget_state
-) -> decltype(paction->execute(*psource_state, *pevent, *ptarget_state))
-{
-    paction->execute(*psource_state, *pevent, *ptarget_state);
-}
-
 template<class Action, class Event>
-auto call_execute
-(
-    Action* paction,
-    void* /*psource_state*/,
-    const Event* pevent,
-    void* /*ptarget_state*/
-) -> decltype(paction->execute(*pevent))
+auto call_execute(Action* paction, const Event* pevent) ->
+    decltype(paction->execute(*pevent))
 {
     paction->execute(*pevent);
 }
 
 template<class Action>
-auto call_execute
-(
-    Action* paction,
-    void* /*psource_state*/,
-    const void* /*pevent*/,
-    void* /*ptarget_state*/
-) -> decltype(paction->execute())
+auto call_execute(Action* paction, const void* /*pevent*/) ->
+    decltype(paction->execute())
 {
     paction->execute();
 }
 
-template<class Guard, class SourceState, class Event, class TargetState>
-auto call_check
-(
-    Guard* pguard,
-    SourceState* psource_state,
-    const Event* pevent,
-    TargetState* ptarget_state
-) -> decltype(pguard->check(*psource_state, *pevent, *ptarget_state))
-{
-    return pguard->check(*psource_state, *pevent, *ptarget_state);
-}
-
 template<class Guard, class Event>
-auto call_check
-(
-    Guard* pguard,
-    void* /*psource_state*/,
-    const Event* pevent,
-    void* /*ptarget_state*/
-) -> decltype(pguard->check(*pevent))
+auto call_check(Guard* pguard, const Event* pevent) ->
+    decltype(pguard->check(*pevent))
 {
     return pguard->check(*pevent);
 }
 
 template<class Guard>
-auto call_check
-(
-    Guard* pguard,
-    void* /*psource_state*/,
-    const void* /*pevent*/,
-    void* /*ptarget_state*/
-) -> decltype(pguard->check())
+auto call_check(Guard* pguard, const void* /*pevent*/) ->
+    decltype(pguard->check())
 {
     return pguard->check();
 }

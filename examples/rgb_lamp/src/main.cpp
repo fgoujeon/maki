@@ -152,7 +152,6 @@ namespace actions
         Whenever a state machine executes an action, it calls the execute()
         function of that action. It tries to do so using the following
         statements, in that order, until it finds a valid one:
-            action.execute(source_state, event, target_state);
             action.execute(event);
             action.execute();
         If no valid statement is found, a build error occurs.
@@ -198,7 +197,6 @@ namespace guards
         Whenever a state machine checks a guard, it calls the check() function
         of that guard. It tries to do so using the following statements, in that
         order, until it finds a valid one:
-            guard.check(source_state, event, target_state);
             guard.check(event);
             guard.check();
         If no valid statement is found, a build error occurs.

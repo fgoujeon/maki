@@ -39,7 +39,7 @@ namespace
 
         struct boop
         {
-            void execute(const states::on&, const events::button_press&, const states::off&)
+            void execute(const events::button_press&)
             {
                 ctx.i = 0;
             }

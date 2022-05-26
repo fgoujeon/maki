@@ -40,7 +40,7 @@ This behavior can be expressed with the following transition table:
 ```c++
 using transition_table = awesm::transition_table
 <
-    //  source_state,    event,       target_state,   action,            guard
+    //  source_state,   event,       target_state,   action,            guard
     row<off,            button_push, emitting_white, turn_light_white>,
     row<emitting_white, button_push, emitting_red,   turn_light_red,    is_short_push>,
     row<emitting_red,   button_push, emitting_green, turn_light_green,  is_short_push>,
@@ -200,7 +200,6 @@ namespace actions
         Whenever a state machine executes an action, it calls the execute()
         function of that action. It tries to do so using the following
         statements, in that order, until it finds a valid one:
-            action.execute(source_state, event, target_state);
             action.execute(event);
             action.execute();
         If no valid statement is found, a build error occurs.
@@ -246,7 +245,6 @@ namespace guards
         Whenever a state machine checks a guard, it calls the check() function
         of that guard. It tries to do so using the following statements, in that
         order, until it finds a valid one:
-            guard.check(source_state, event, target_state);
             guard.check(event);
             guard.check();
         If no valid statement is found, a build error occurs.

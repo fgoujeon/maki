@@ -44,25 +44,25 @@ construct the objects.
 template<class T>
 struct sm_object_holder
 {
-    template<class Context, class Sm, class U = T>
+    template<class Sm, class Context, class U = T>
     sm_object_holder
     (
-        Context& ctx,
         Sm& machine,
+        Context& ctx,
         std::enable_if_t
         <
-            sm_object_holder_detail::is_brace_constructible<U, Context&, Sm&>
+            sm_object_holder_detail::is_brace_constructible<U, Sm&, Context&>
         >* = nullptr
     ):
-        object{ctx, machine}
+        object{machine, ctx}
     {
     }
 
-    template<class Context, class Sm, class U = T>
+    template<class Sm, class Context, class U = T>
     sm_object_holder
     (
-        Context& ctx,
         Sm&,
+        Context& ctx,
         std::enable_if_t
         <
             sm_object_holder_detail::is_brace_constructible<U, Context&>
@@ -72,11 +72,11 @@ struct sm_object_holder
     {
     }
 
-    template<class Context, class Sm, class U = T>
+    template<class Sm, class Context, class U = T>
     sm_object_holder
     (
-        Context&,
         Sm&,
+        Context&,
         std::enable_if_t<std::is_default_constructible_v<U>>* = nullptr
     )
     {

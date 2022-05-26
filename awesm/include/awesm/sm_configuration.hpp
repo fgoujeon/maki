@@ -19,7 +19,7 @@ struct sm_configuration
     {
         public:
             template<class Context>
-            exception_handler(Context& /*ctx*/, Sm& m):
+            exception_handler(Sm& m, Context& /*ctx*/):
                 sm_(m)
             {
             }
@@ -35,8 +35,8 @@ struct sm_configuration
 
     struct pre_transition_event_handler
     {
-        template<class Context, class Sm>
-        pre_transition_event_handler(Context& /*ctx*/, Sm& /*machine*/)
+        template<class Sm, class Context>
+        pre_transition_event_handler(Sm& /*machine*/, Context& /*ctx*/)
         {
             /*
             Called whenever an event is being processed, after recursive call
@@ -53,7 +53,7 @@ struct sm_configuration
     struct state_transition_hook_set
     {
         template<class Context>
-        state_transition_hook_set(Context& /*ctx*/, Sm& /*machine*/)
+        state_transition_hook_set(Sm& /*machine*/, Context& /*ctx*/)
         {
         }
 

@@ -24,10 +24,10 @@ template<class T, class... Ts>
 class sm_object_holder_tuple<T, Ts...>: public sm_object_holder_tuple<Ts...>
 {
     public:
-        template<class Context, class Sm>
-        sm_object_holder_tuple(Context& ctx, Sm& machine):
-            sm_object_holder_tuple<Ts...>(ctx, machine),
-            obj_{ctx, machine}
+        template<class Sm, class Context>
+        sm_object_holder_tuple(Sm& machine, Context& ctx):
+            sm_object_holder_tuple<Ts...>(machine, ctx),
+            obj_{machine, ctx}
         {
         }
 
@@ -51,8 +51,8 @@ template<>
 class sm_object_holder_tuple<>
 {
     public:
-        template<class Context, class Sm>
-        sm_object_holder_tuple(Context&, Sm&)
+        template<class Sm, class Context>
+        sm_object_holder_tuple(Sm&, Context&)
         {
         }
 

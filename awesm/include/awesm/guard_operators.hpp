@@ -18,9 +18,9 @@ template<class... Guards>
 class and_
 {
     public:
-        template<class Context, class Sm>
-        and_(Context& context, Sm& machine):
-            guards_(context, machine)
+        template<class Sm, class Context>
+        and_(Sm& machine, Context& context):
+            guards_(machine, context)
         {
         }
 
@@ -45,9 +45,9 @@ template<class... Guards>
 class or_
 {
     public:
-        template<class Context, class Sm>
-        or_(Context& context, Sm& machine):
-            guards_(context, machine)
+        template<class Sm, class Context>
+        or_(Sm& machine, Context& context):
+            guards_(machine, context)
         {
         }
 
@@ -72,9 +72,9 @@ template<class... Guards>
 class xor_
 {
     public:
-        template<class Context, class Sm>
-        xor_(Context& context, Sm& machine):
-            guards_(context, machine)
+        template<class Sm, class Context>
+        xor_(Sm& machine, Context& context):
+            guards_(machine, context)
         {
         }
 
@@ -99,9 +99,9 @@ template<class Guard>
 class not_
 {
     public:
-        template<class Context, class Sm>
-        not_(Context& context, Sm& machine):
-            guard_{context, machine}
+        template<class Sm, class Context>
+        not_(Sm& machine, Context& context):
+            guard_{machine, context}
         {
         }
 

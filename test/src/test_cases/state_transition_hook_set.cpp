@@ -61,8 +61,8 @@ namespace
                 ctx.out += std::string{SourceState::name} + "->" + TargetState::name + ";";
             }
 
-            context& ctx;
             Sm& sm;
+            context& ctx;
         };
     };
 

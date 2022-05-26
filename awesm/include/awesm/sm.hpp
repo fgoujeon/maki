@@ -59,12 +59,12 @@ class sm
 
         template<class Context>
         explicit sm(Context& context):
-            states_(context, *this),
-            actions_(context, *this),
-            guards_(context, *this),
-            exception_handler_{context, *this},
-            pre_transition_event_handler_{context, *this},
-            state_transition_hook_set_{context, *this}
+            states_(*this, context),
+            actions_(*this, context),
+            guards_(*this, context),
+            exception_handler_{*this, context},
+            pre_transition_event_handler_{*this, context},
+            state_transition_hook_set_{*this, context}
         {
         }
 

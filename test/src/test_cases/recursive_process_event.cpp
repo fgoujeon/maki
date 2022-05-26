@@ -86,8 +86,8 @@ namespace
                 machine.process_event(events::s1_to_s2_request{});
             }
 
-            context& ctx;
             awesm::sm_ref<events::s1_to_s2_request> machine;
+            context& ctx;
         };
 
         struct s1_to_s2
@@ -97,8 +97,8 @@ namespace
                 machine.process_event(events::s2_to_s0_request{});
             }
 
-            context& ctx;
             awesm::sm_ref<events::s2_to_s0_request> machine;
+            context& ctx;
         };
     }
 

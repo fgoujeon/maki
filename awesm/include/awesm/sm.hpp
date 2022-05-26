@@ -355,7 +355,7 @@ class sm
                 return false;
             }
 
-            const auto do_transition = [&]
+            const auto do_transition = [&](auto /*dummy*/)
             {
                 constexpr auto is_internal_transition =
                     std::is_same_v<target_state_t, none>
@@ -411,33 +411,40 @@ class sm
                 }
             };
 
-            return safe_call_or_false
-            (
-                [&]
-                {
-                    if constexpr(std::is_same_v<guard_t, none>)
+            if constexpr(std::is_same_v<guard_t, none>)
+            {
+                safe_call
+                (
+                    [&]
                     {
-                        do_transition();
-                        return true;
+                        do_transition(0);
                     }
-                    else
+                );
+                return true;
+            }
+            else
+            {
+                return safe_call_or_false
+                (
+                    [&]
                     {
                         if
                         (
-                            detail::call_check
+                            !detail::call_check
                             (
                                 &guards_.get(static_cast<guard_t*>(nullptr)),
                                 &event
                             )
                         )
                         {
-                            do_transition();
-                            return true;
+                            return false;
                         }
+
+                        do_transition(0);
+                        return true;
                     }
-                    return false;
-                }
-            );
+                );
+            }
         }
 
         /*

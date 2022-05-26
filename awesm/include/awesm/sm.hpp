@@ -351,18 +351,6 @@ class sm
                 return false;
             }
 
-            const auto get_target_state_ptr = [&]
-            {
-                if constexpr(std::is_same_v<target_state_t, none>)
-                {
-                    return nullptr;
-                }
-                else
-                {
-                    return &states_.get(static_cast<target_state_t*>(nullptr));
-                }
-            };
-
             const auto do_transition = [&]
             {
                 if constexpr(!std::is_same_v<target_state_t, none>)
@@ -394,7 +382,7 @@ class sm
                 {
                     detail::call_on_entry
                     (
-                        get_target_state_ptr(),
+                        &states_.get(static_cast<target_state_t*>(nullptr)),
                         &event,
                         0
                     );

@@ -87,6 +87,43 @@ class sm
         }
 
         template<class Event>
+        void start(const Event& event)
+        {
+            safe_call
+            (
+                [&]
+                {
+                    detail::call_on_entry
+                    (
+                        &states_.get(static_cast<initial_state_t*>(nullptr)),
+                        &event,
+                        0
+                    );
+                }
+            );
+        }
+
+        void start()
+        {
+            start(none{});
+        }
+
+        template<class Event>
+        void stop(const Event& event)
+        {
+            return detail::tlu::apply
+            <
+                state_tuple_t,
+                stop_helper
+            >::call(*this, event);
+        }
+
+        void stop()
+        {
+            stop(none{});
+        }
+
+        template<class Event>
         void process_event(const Event& event)
         {
             if constexpr(Configuration::enable_run_to_completion)
@@ -143,6 +180,8 @@ class sm
         using action_tuple_t = typename transition_table_digest_t::action_tuple;
         using guard_tuple_t = typename transition_table_digest_t::guard_tuple;
 
+        using initial_state_t = detail::tlu::at<state_tuple_t, 0>;
+
         class event_processing
         {
             public:
@@ -183,7 +222,7 @@ class sm
         /*
         Calling detail::resolve_transition_table<> isn't free. We need
         alternative_lazy to avoid the call when it's unnecessary (i.e. when
-        there's no pattern-start-state in the transition table).
+        there's no pattern-source-state in the transition table).
         */
         struct unresolved_transition_table_holder
         {
@@ -445,6 +484,38 @@ class sm
                     }
                 );
             }
+        }
+
+        template<class... States>
+        struct stop_helper
+        {
+            template<class Event>
+            static void call(sm& machine, const Event& event)
+            {
+                (machine.call_on_exit_of_active_state<States>(&event) || ...);
+            }
+        };
+
+        template<class State, class Event>
+        bool call_on_exit_of_active_state(const Event* pevent)
+        {
+            if(is_active_state<State>())
+            {
+                safe_call
+                (
+                    [&]
+                    {
+                        detail::call_on_exit
+                        (
+                            &states_.get(static_cast<State*>(nullptr)),
+                            pevent,
+                            0
+                        );
+                    }
+                );
+                return true;
+            }
+            return false;
         }
 
         /*

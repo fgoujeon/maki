@@ -233,6 +233,21 @@ class sm
             }
         }
 
+        //Used to call client code
+        template<class F>
+        bool safe_call_or_false(F&& f)
+        {
+            try
+            {
+                return f();
+            }
+            catch(...)
+            {
+                exception_handler_.on_exception(std::current_exception());
+                return false;
+            }
+        }
+
         template<class Event>
         void process_event_once(const Event& event)
         {
@@ -349,25 +364,7 @@ class sm
                 }
             };
 
-            const auto check_guard = [&]
-            {
-                if constexpr(!std::is_same_v<guard_t, none>)
-                {
-                    return detail::call_check
-                    (
-                        &guards_.get(static_cast<guard_t*>(nullptr)),
-                        &states_.get(static_cast<source_state_t*>(nullptr)),
-                        &event,
-                        get_target_state_ptr()
-                    );
-                }
-                else
-                {
-                    return true;
-                }
-            };
-
-            const auto invoke_source_state_on_exit = [&]
+            const auto do_transition = [&]
             {
                 if constexpr(!std::is_same_v<target_state_t, none>)
                 {
@@ -377,23 +374,14 @@ class sm
                         &event,
                         0
                     );
-                }
-            };
 
-            const auto activate_target_state = [&]
-            {
-                if constexpr(!std::is_same_v<target_state_t, none>)
-                {
                     active_state_index_ = detail::tlu::get_index
                     <
                         state_tuple_t,
                         target_state_t
                     >;
                 }
-            };
 
-            const auto execute_action = [&]
-            {
                 if constexpr(!std::is_same_v<action_t, none>)
                 {
                     detail::call_execute
@@ -404,10 +392,7 @@ class sm
                         get_target_state_ptr()
                     );
                 }
-            };
 
-            const auto invoke_target_state_on_entry = [&]
-            {
                 if constexpr(!std::is_same_v<target_state_t, none>)
                 {
                     detail::call_on_entry
@@ -419,24 +404,35 @@ class sm
                 }
             };
 
-            //Perform the transition
-            auto processed = false;
-            safe_call
+            return safe_call_or_false
             (
                 [&]
                 {
-                    processed = check_guard();
-                    if(!processed)
+                    if constexpr(std::is_same_v<guard_t, none>)
                     {
-                        return;
+                        do_transition();
+                        return true;
                     }
-                    invoke_source_state_on_exit();
-                    activate_target_state();
-                    execute_action();
-                    invoke_target_state_on_entry();
+                    else
+                    {
+                        if
+                        (
+                            detail::call_check
+                            (
+                                &guards_.get(static_cast<guard_t*>(nullptr)),
+                                &states_.get(static_cast<source_state_t*>(nullptr)),
+                                &event,
+                                get_target_state_ptr()
+                            )
+                        )
+                        {
+                            do_transition();
+                            return true;
+                        }
+                    }
+                    return false;
                 }
             );
-            return processed;
         }
 
         /*

@@ -49,6 +49,25 @@ struct sm_configuration
         }
     };
 
+    template<class Sm>
+    struct state_transition_hook_set
+    {
+        template<class Context>
+        state_transition_hook_set(Context& /*ctx*/, Sm& /*machine*/)
+        {
+        }
+
+        template<class SourceState, class Event, class TargetState>
+        void before_transition(const Event& /*event*/)
+        {
+        }
+
+        template<class SourceState, class Event, class TargetState>
+        void after_transition(const Event& /*event*/)
+        {
+        }
+    };
+
     static constexpr auto enable_run_to_completion = true;
     static constexpr auto enable_in_state_internal_transitions = true;
 };

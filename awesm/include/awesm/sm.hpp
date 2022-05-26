@@ -63,7 +63,8 @@ class sm
             actions_(context, *this),
             guards_(context, *this),
             exception_handler_{context, *this},
-            pre_transition_event_handler_{context, *this}
+            pre_transition_event_handler_{context, *this},
+            state_transition_hook_set_{context, *this}
         {
         }
 
@@ -130,6 +131,9 @@ class sm
         ;
         using pre_transition_event_handler_t =
             typename Configuration::pre_transition_event_handler
+        ;
+        using state_transition_hook_set_t =
+            typename Configuration::template state_transition_hook_set<sm>
         ;
 
         using transition_table_digest_t =
@@ -353,8 +357,19 @@ class sm
 
             const auto do_transition = [&]
             {
-                if constexpr(!std::is_same_v<target_state_t, none>)
+                constexpr auto is_internal_transition =
+                    std::is_same_v<target_state_t, none>
+                ;
+
+                if constexpr(!is_internal_transition)
                 {
+                    state_transition_hook_set_.template before_transition
+                    <
+                        source_state_t,
+                        Event,
+                        target_state_t
+                    >(event);
+
                     detail::call_on_exit
                     (
                         &states_.get(static_cast<source_state_t*>(nullptr)),
@@ -378,7 +393,7 @@ class sm
                     );
                 }
 
-                if constexpr(!std::is_same_v<target_state_t, none>)
+                if constexpr(!is_internal_transition)
                 {
                     detail::call_on_entry
                     (
@@ -386,6 +401,13 @@ class sm
                         &event,
                         0
                     );
+
+                    state_transition_hook_set_.template after_transition
+                    <
+                        source_state_t,
+                        Event,
+                        target_state_t
+                    >(event);
                 }
             };
 
@@ -474,6 +496,7 @@ class sm
         guard_tuple_t guards_;
         exception_handler_t exception_handler_;
         pre_transition_event_handler_t pre_transition_event_handler_;
+        state_transition_hook_set_t state_transition_hook_set_;
 
         int active_state_index_ = 0;
         bool processing_event_ = false;

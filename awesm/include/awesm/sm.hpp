@@ -258,8 +258,7 @@ class sm
                     detail::call_on_event
                     (
                         &pre_transition_event_handler_,
-                        &event,
-                        0
+                        &event
                     );
                 }
             );

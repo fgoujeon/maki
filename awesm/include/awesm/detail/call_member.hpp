@@ -20,16 +20,26 @@ We use this trick so that int overloads take precedence over long ones.
 */
 
 template<class State, class Event>
-auto call_on_entry(State* pstate, const Event* pevent, int /*dummy*/) -> decltype(pstate->on_entry(*pevent))
+auto call_on_entry(State* pstate, const Event* pevent, int /*dummy*/) ->
+    decltype(pstate->on_entry(*pevent))
 {
-    static_assert(!std::is_empty_v<State>, "Empty state types can't have on_entry() functions");
+    static_assert
+    (
+        !std::is_empty_v<State>,
+        "Empty state types can't have on_entry() functions"
+    );
     pstate->on_entry(*pevent);
 }
 
 template<class State>
-auto call_on_entry(State* pstate, const void* /*pevent*/, int /*dummy*/) -> decltype(pstate->on_entry())
+auto call_on_entry(State* pstate, const void* /*pevent*/, int /*dummy*/) ->
+    decltype(pstate->on_entry())
 {
-    static_assert(!std::is_empty_v<State>, "Empty state types can't have on_entry() functions");
+    static_assert
+    (
+        !std::is_empty_v<State>,
+        "Empty state types can't have on_entry() functions"
+    );
     pstate->on_entry();
 }
 
@@ -44,27 +54,38 @@ void call_on_entry(State* /*pstate*/, const void* /*pevent*/, long /*dummy*/)
 }
 
 template<class State, class Event>
-auto call_on_event(State* pstate, const Event* pevent, int /*dummy*/) -> decltype(pstate->on_event(*pevent))
+auto call_on_event(State* pstate, const Event* pevent) ->
+    decltype(pstate->on_event(*pevent))
 {
     pstate->on_event(*pevent);
 }
 
-inline void call_on_event(void* /*pstate*/, const void* /*pevent*/, long /*dummy*/)
+inline void call_on_event(void* /*pstate*/, const void* /*pevent*/)
 {
     //state::on_event() is optional
 }
 
 template<class State, class Event>
-auto call_on_exit(State* pstate, const Event* pevent, int /*dummy*/) -> decltype(pstate->on_exit(*pevent))
+auto call_on_exit(State* pstate, const Event* pevent, int /*dummy*/) ->
+    decltype(pstate->on_exit(*pevent))
 {
-    static_assert(!std::is_empty_v<State>, "Empty state types can't have on_exit() functions");
+    static_assert
+    (
+        !std::is_empty_v<State>,
+        "Empty state types can't have on_exit() functions"
+    );
     pstate->on_exit(*pevent);
 }
 
 template<class State>
-auto call_on_exit(State* pstate, const void* /*pevent*/, int /*dummy*/) -> decltype(pstate->on_exit())
+auto call_on_exit(State* pstate, const void* /*pevent*/, int /*dummy*/) ->
+    decltype(pstate->on_exit())
 {
-    static_assert(!std::is_empty_v<State>, "Empty state types can't have on_exit() functions");
+    static_assert
+    (
+        !std::is_empty_v<State>,
+        "Empty state types can't have on_exit() functions"
+    );
     pstate->on_exit();
 }
 

@@ -4,15 +4,15 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_SM_CONFIGURATION_HPP
-#define AWESM_SM_CONFIGURATION_HPP
+#ifndef AWESM_REGION_CONFIGURATION_HPP
+#define AWESM_REGION_CONFIGURATION_HPP
 
 #include <exception>
 
 namespace awesm
 {
 
-struct sm_configuration
+struct region_configuration
 {
     template<class Sm>
     class exception_handler
@@ -31,23 +31,6 @@ struct sm_configuration
 
         private:
             Sm& sm_;
-    };
-
-    struct pre_transition_event_handler
-    {
-        template<class Sm, class Context>
-        pre_transition_event_handler(Sm& /*machine*/, Context& /*ctx*/)
-        {
-        }
-
-        /*
-        Called whenever an event is being processed, after recursive call
-        protection and just before performing internal and state
-        transitions.
-        It is useful for handling event independently of the active state by
-        taking advantage of the run-to-completion mechanism.
-        */
-        //void on_event(const Event&);
     };
 
     template<class Sm>
@@ -69,7 +52,6 @@ struct sm_configuration
         }
     };
 
-    static constexpr auto enable_run_to_completion = true;
     static constexpr auto enable_in_state_internal_transitions = true;
 };
 

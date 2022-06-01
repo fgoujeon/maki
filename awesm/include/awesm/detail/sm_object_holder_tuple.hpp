@@ -43,6 +43,38 @@ class sm_object_holder_tuple<T, Ts...>: public sm_object_holder_tuple<Ts...>
             return obj_.object;
         }
 
+        template<int Index>
+        auto& get()
+        {
+            if constexpr(Index == 0)
+                return obj_.object;
+            else
+                return sm_object_holder_tuple<Ts...>::template get<Index - 1>();
+        }
+
+        template<int Index>
+        const auto& get() const
+        {
+            if constexpr(Index == 0)
+                return obj_.object;
+            else
+                return sm_object_holder_tuple<Ts...>::template get<Index - 1>();
+        }
+
+        template<class F>
+        void for_each(F&& f)
+        {
+            f(obj_.object);
+            sm_object_holder_tuple<Ts...>::for_each(f);
+        }
+
+        template<class F>
+        void for_each(F&& f) const
+        {
+            f(obj_.object);
+            sm_object_holder_tuple<Ts...>::for_each(f);
+        }
+
     private:
         sm_object_holder<T> obj_;
 };
@@ -57,6 +89,11 @@ class sm_object_holder_tuple<>
         }
 
         void get() const
+        {
+        }
+
+        template<class F>
+        void for_each(F&& /*f*/) const
         {
         }
 };

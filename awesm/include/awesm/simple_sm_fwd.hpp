@@ -8,7 +8,7 @@
 #define AWESM_SIMPLE_SM_FWD_HPP
 
 #include "region_configuration.hpp"
-#include "multi_sm_configuration.hpp"
+#include "sm_configuration.hpp"
 #include "simple_sm_configuration.hpp"
 #include "detail/type_list.hpp"
 
@@ -16,12 +16,12 @@ namespace awesm
 {
 
 template<class Configuration>
-class multi_sm;
+class sm;
 
 namespace detail
 {
     template<class Configuration>
-    struct simple_to_multi_sm_configuration_helper
+    struct simple_to_sm_configuration_helper
     {
         struct region_conf: region_configuration
         {
@@ -44,7 +44,7 @@ namespace detail
             ;
         };
 
-        struct type: multi_sm_configuration
+        struct type: sm_configuration
         {
             using region_configurations = detail::type_list
             <
@@ -54,13 +54,13 @@ namespace detail
     };
 
     template<class Configuration>
-    using sm_to_multi_sm_configuration =
-        typename simple_to_multi_sm_configuration_helper<Configuration>::type
+    using sm_to_sm_configuration =
+        typename simple_to_sm_configuration_helper<Configuration>::type
     ;
 }
 
 template<class Configuration>
-using simple_sm = multi_sm<detail::sm_to_multi_sm_configuration<Configuration>>;
+using simple_sm = sm<detail::sm_to_sm_configuration<Configuration>>;
 
 } //namespace
 

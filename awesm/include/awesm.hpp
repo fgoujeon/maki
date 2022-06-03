@@ -6,10 +6,13 @@
 
 #include "awesm/guard_operators.hpp"
 #include "awesm/none.hpp"
+#include "awesm/region_configuration.hpp"
 #include "awesm/row.hpp"
 #include "awesm/simple_sm.hpp"
 #include "awesm/simple_sm_configuration.hpp"
 #include "awesm/simple_sm_fwd.hpp"
+#include "awesm/sm.hpp"
+#include "awesm/sm_configuration.hpp"
 #include "awesm/sm_ref.hpp"
 #include "awesm/transition_table.hpp"
 #include "awesm/type_patterns.hpp"

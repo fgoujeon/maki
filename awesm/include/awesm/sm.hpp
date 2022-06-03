@@ -4,10 +4,10 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_MULTI_SM_HPP
-#define AWESM_MULTI_SM_HPP
+#ifndef AWESM_SM_HPP
+#define AWESM_SM_HPP
 
-#include "multi_sm_configuration.hpp"
+#include "sm_configuration.hpp"
 #include "none.hpp"
 #include "detail/region.hpp"
 #include "detail/call_member.hpp"
@@ -68,28 +68,28 @@ namespace detail
 }
 
 template<class Configuration>
-class multi_sm
+class sm
 {
     public:
         static_assert
         (
-            std::is_base_of_v<multi_sm_configuration, Configuration>,
-            "Given configuration type must inherit from awesm::multi_sm_configuration."
+            std::is_base_of_v<sm_configuration, Configuration>,
+            "Given configuration type must inherit from awesm::sm_configuration."
         );
 
         template<class Context>
-        explicit multi_sm(Context& context):
+        explicit sm(Context& context):
             regions_{*this, context},
             exception_handler_{*this, context},
             pre_transition_event_handler_{*this, context}
         {
         }
 
-        multi_sm(const multi_sm&) = delete;
-        multi_sm(multi_sm&&) = delete;
-        multi_sm& operator=(const multi_sm&) = delete;
-        multi_sm& operator=(multi_sm&&) = delete;
-        ~multi_sm() = default;
+        sm(const sm&) = delete;
+        sm(sm&&) = delete;
+        sm& operator=(const sm&) = delete;
+        sm& operator=(sm&&) = delete;
+        ~sm() = default;
 
         template<class State, int RegionIndex = 0>
         [[nodiscard]] bool is_active_state() const
@@ -181,25 +181,25 @@ class multi_sm
 
     private:
         using exception_handler_t =
-            typename Configuration::template exception_handler<multi_sm>
+            typename Configuration::template exception_handler<sm>
         ;
         using pre_transition_event_handler_t =
             typename Configuration::pre_transition_event_handler
         ;
         using state_transition_hook_set_t =
-            typename Configuration::template state_transition_hook_set<multi_sm>
+            typename Configuration::template state_transition_hook_set<sm>
         ;
 
         class event_processing
         {
             public:
                 template<class Event>
-                event_processing(multi_sm& machine, const Event& event):
+                event_processing(sm& machine, const Event& event):
                     sm_(machine),
                     event_(event),
                     pprocess_event_
                     (
-                        [](multi_sm& machine, const event_storage_t& event)
+                        [](sm& machine, const event_storage_t& event)
                         {
                             machine.process_event_once(event.get<Event>());
                         }
@@ -222,9 +222,9 @@ class multi_sm
                 static constexpr auto small_event_size = 16;
                 using event_storage_t = detail::any_container<small_event_size>;
 
-                multi_sm& sm_;
+                sm& sm_;
                 event_storage_t event_;
-                void(*pprocess_event_)(multi_sm&, const event_storage_t&) = nullptr;
+                void(*pprocess_event_)(sm&, const event_storage_t&) = nullptr;
         };
 
         struct queue_holder
@@ -246,7 +246,7 @@ class multi_sm
 
         using region_tuple_t = detail::region_configuration_list_to_region_tuple
         <
-            multi_sm,
+            sm,
             typename Configuration::region_configurations
         >;
 

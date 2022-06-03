@@ -8,6 +8,6 @@
 #define AWESM_SIMPLE_SM_HPP
 
 #include "simple_sm_fwd.hpp"
-#include "multi_sm.hpp"
+#include "sm.hpp"
 
 #endif

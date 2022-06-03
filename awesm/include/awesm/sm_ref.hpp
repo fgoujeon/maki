@@ -7,7 +7,7 @@
 #ifndef AWESM_SM_REF_HPP
 #define AWESM_SM_REF_HPP
 
-#include "multi_sm.hpp"
+#include "sm.hpp"
 #include "detail/type_list.hpp"
 #include "detail/tlu.hpp"
 
@@ -24,13 +24,13 @@ namespace detail
     {
         public:
             template<class SmConfiguration>
-            sm_ref_impl(multi_sm<SmConfiguration>& machine):
+            sm_ref_impl(sm<SmConfiguration>& machine):
                 sm_ref_impl<Events...>{machine},
                 pprocess_event_
                 {
                     [](void* const vpsm, const Event& event)
                     {
-                        using sm_t = multi_sm<SmConfiguration>;
+                        using sm_t = sm<SmConfiguration>;
                         const auto psm = reinterpret_cast<sm_t*>(vpsm); //NOLINT
                         psm->process_event(event);
                     }
@@ -57,7 +57,7 @@ namespace detail
     {
         public:
             template<class SmConfiguration>
-            sm_ref_impl(multi_sm<SmConfiguration>& machine):
+            sm_ref_impl(sm<SmConfiguration>& machine):
                 vpsm_(&machine)
             {
             }
@@ -78,15 +78,15 @@ namespace detail
 }
 
 /*
-sm_ref is a type-erasing container for a reference to a multi_sm of any type.
-It exposes the process_event() member function of the held multi_sm.
+sm_ref is a type-erasing container for a reference to a sm of any type.
+It exposes the process_event() member function of the held sm.
 */
 template<class... Events>
 class sm_ref
 {
     public:
         template<class SmConfiguration>
-        sm_ref(multi_sm<SmConfiguration>& machine):
+        sm_ref(sm<SmConfiguration>& machine):
             impl_{machine}
         {
         }

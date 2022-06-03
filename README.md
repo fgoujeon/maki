@@ -21,7 +21,7 @@ AweSM implements the following key features:
 
 Besides its features, AweSM:
 
-* **has excellent performance**, both at build time and runtime (see [benchmark](https://github.com/fgoujeon/sm-benchmark));
+* **has excellent performance**, both at build time and runtime (see [benchmark](https://github.com/fgoujeon/fsm-benchmark));
 * **doesn't depend on any library** other than the C++ standard library;
 * **doesn't rely on exceptions**, while still allowing you to be exception-safe;
 * **doesn't rely on RTTI**;

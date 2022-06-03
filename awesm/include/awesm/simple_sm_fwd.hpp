@@ -4,12 +4,12 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_SM_FWD_HPP
-#define AWESM_SM_FWD_HPP
+#ifndef AWESM_SIMPLE_SM_FWD_HPP
+#define AWESM_SIMPLE_SM_FWD_HPP
 
 #include "region_configuration.hpp"
 #include "multi_sm_configuration.hpp"
-#include "sm_configuration.hpp"
+#include "simple_sm_configuration.hpp"
 #include "detail/type_list.hpp"
 
 namespace awesm
@@ -21,7 +21,7 @@ class multi_sm;
 namespace detail
 {
     template<class Configuration>
-    struct sm_to_multi_sm_configuration_helper
+    struct simple_to_multi_sm_configuration_helper
     {
         struct region_conf: region_configuration
         {
@@ -55,12 +55,12 @@ namespace detail
 
     template<class Configuration>
     using sm_to_multi_sm_configuration =
-        typename sm_to_multi_sm_configuration_helper<Configuration>::type
+        typename simple_to_multi_sm_configuration_helper<Configuration>::type
     ;
 }
 
 template<class Configuration>
-using sm = multi_sm<detail::sm_to_multi_sm_configuration<Configuration>>;
+using simple_sm = multi_sm<detail::sm_to_multi_sm_configuration<Configuration>>;
 
 } //namespace
 

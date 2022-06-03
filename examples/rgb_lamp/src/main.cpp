@@ -219,7 +219,7 @@ using button_push = button::push_event;
 using awesm::row;
 using awesm::any_but;
 
-struct sm_configuration: awesm::sm_configuration
+struct sm_configuration: awesm::simple_sm_configuration
 {
     /*
     This is the transition table. This is where we define the actions that must
@@ -254,7 +254,7 @@ We finally have our state machine.
 Note that we can pass a configuration struct as second template argument to fine
 tune the behavior of our state machine.
 */
-using sm_t = awesm::sm<sm_configuration>;
+using sm_t = awesm::simple_sm<sm_configuration>;
 
 int main()
 {

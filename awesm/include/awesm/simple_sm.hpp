@@ -4,10 +4,10 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_SM_HPP
-#define AWESM_SM_HPP
+#ifndef AWESM_SIMPLE_SM_HPP
+#define AWESM_SIMPLE_SM_HPP
 
-#include "sm_fwd.hpp"
+#include "simple_sm_fwd.hpp"
 #include "multi_sm.hpp"
 
 #endif

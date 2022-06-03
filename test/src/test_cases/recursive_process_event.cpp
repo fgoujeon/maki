@@ -4,12 +4,12 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#include <awesm/sm_fwd.hpp>
+#include <awesm/simple_sm_fwd.hpp>
 
 namespace
 {
     struct sm_configuration;
-    using sm = awesm::sm<sm_configuration>;
+    using sm_t = awesm::simple_sm<sm_configuration>;
 }
 
 #include <awesm.hpp>
@@ -102,7 +102,7 @@ namespace
         };
     }
 
-    struct sm_configuration: awesm::sm_configuration
+    struct sm_configuration: awesm::simple_sm_configuration
     {
         using transition_table = awesm::transition_table
         <
@@ -116,10 +116,10 @@ namespace
 TEST_CASE("recursive process_event")
 {
     auto ctx = context{};
-    auto machine = sm{ctx};
+    auto sm = sm_t{ctx};
 
     //Indirectly process s1_to_s2_request and s2_to_s0_request
-    machine.process_event(events::s0_to_s1_request{});
+    sm.process_event(events::s0_to_s1_request{});
     REQUIRE
     (
         ctx.output ==

@@ -57,7 +57,7 @@ namespace
         };
     }
 
-    struct sm_configuration: awesm::sm_configuration
+    struct sm_configuration: awesm::simple_sm_configuration
     {
         using transition_table = awesm::transition_table
         <
@@ -67,18 +67,18 @@ namespace
         >;
     };
 
-    using sm = awesm::sm<sm_configuration>;
+    using sm_t = awesm::simple_sm<sm_configuration>;
 }
 
 TEST_CASE("guard")
 {
     auto ctx = context{};
-    auto machine = sm{ctx};
+    auto sm = sm_t{ctx};
 
-    machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::off>());
+    sm.process_event(events::button_press{});
+    REQUIRE(sm.is_active_state<states::off>());
 
     ctx.has_power = true;
-    machine.process_event(events::button_press{true});
-    REQUIRE(machine.is_active_state<states::on>());
+    sm.process_event(events::button_press{true});
+    REQUIRE(sm.is_active_state<states::on>());
 }

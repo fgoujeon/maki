@@ -14,7 +14,6 @@ namespace awesm
 
 struct region_configuration
 {
-    static constexpr auto enable_in_state_internal_transitions = true;
 };
 
 } //namespace

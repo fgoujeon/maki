@@ -29,10 +29,6 @@ namespace detail
             using transition_table =
                 typename Configuration::transition_table
             ;
-
-            static constexpr auto enable_in_state_internal_transitions =
-                Configuration::enable_in_state_internal_transitions
-            ;
         };
 
         struct type: sm_configuration
@@ -50,6 +46,10 @@ namespace detail
             template<class Sm>
             using state_transition_hook_set =
                 typename Configuration::template state_transition_hook_set<Sm>
+            ;
+
+            static constexpr auto enable_in_state_internal_transitions =
+                Configuration::enable_in_state_internal_transitions
             ;
         };
     };

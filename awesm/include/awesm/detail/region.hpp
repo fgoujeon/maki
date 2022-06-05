@@ -99,7 +99,7 @@ class region
         template<class Event>
         void process_event(const Event& event)
         {
-            if constexpr(Configuration::enable_in_state_internal_transitions)
+            if constexpr(PrivateConfiguration::enable_in_state_internal_transitions)
             {
                 process_event_in_active_state(event);
             }

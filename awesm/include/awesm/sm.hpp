@@ -57,6 +57,7 @@ namespace detail
         {
             using exception_handler = typename SmConfiguration::template exception_handler<Sm>;
             using state_transition_hook_set = typename SmConfiguration::template state_transition_hook_set<Sm>;
+            static constexpr auto enable_in_state_internal_transitions = SmConfiguration::enable_in_state_internal_transitions;
         };
 
         using type = sm_object_holder_tuple

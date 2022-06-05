@@ -105,6 +105,7 @@ namespace
 
                 void on_entry()
                 {
+                    subsm_.reset();
                     subsm_.start();
                 }
 
@@ -116,6 +117,7 @@ namespace
 
                 void on_exit()
                 {
+                    subsm_.stop();
                     ctx_.current_led_color = led_color::off;
                 }
 
@@ -178,4 +180,8 @@ TEST_CASE("composite_state")
     sm.process_event(events::power_button_press{});
     REQUIRE(sm.is_active_state<states::off>());
     REQUIRE(ctx.current_led_color == led_color::off);
+
+    sm.process_event(events::power_button_press{});
+    REQUIRE(sm.is_active_state<states::on>());
+    REQUIRE(ctx.current_led_color == led_color::red);
 }

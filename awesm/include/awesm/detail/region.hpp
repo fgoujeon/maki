@@ -59,6 +59,11 @@ class region
             return given_state_index == active_state_index_;
         }
 
+        void reset()
+        {
+            active_state_index_ = 0;
+        }
+
         template<class Event>
         void start(const Event& event)
         {

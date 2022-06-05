@@ -7,6 +7,7 @@
 #ifndef AWESM_SIMPLE_SM_FWD_HPP
 #define AWESM_SIMPLE_SM_FWD_HPP
 
+#include "region_configuration_list.hpp"
 #include "region_configuration.hpp"
 #include "sm_configuration.hpp"
 #include "simple_sm_configuration.hpp"
@@ -36,7 +37,7 @@ namespace detail
 
         struct type: sm_configuration
         {
-            using region_configurations = detail::type_list
+            using region_configurations = region_configuration_list
             <
                 region_conf
             >;

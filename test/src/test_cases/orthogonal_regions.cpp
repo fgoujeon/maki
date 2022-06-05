@@ -57,7 +57,7 @@ namespace
 
     struct sm_configuration: awesm::sm_configuration
     {
-        using region_configurations = std::tuple
+        using region_configurations = awesm::region_configuration_list
         <
             region_conf_0,
             region_conf_1

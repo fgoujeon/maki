@@ -8,15 +8,9 @@
 #define AWESM_SM_HPP
 
 #include "sm_configuration.hpp"
-#include "none.hpp"
-#include "detail/region.hpp"
-#include "detail/call_member.hpp"
-#include "detail/resolve_transition_table.hpp"
-#include "detail/transition_table_digest.hpp"
+#include "subsm.hpp"
 #include "detail/alternative_lazy.hpp"
 #include "detail/any_container.hpp"
-#include "detail/ignore_unused.hpp"
-#include "detail/tlu/apply.hpp"
 #include <queue>
 #include <type_traits>
 
@@ -46,35 +40,6 @@ namespace detail
         private:
             bool& b_;
     };
-
-    template<class Sm, class SmConfiguration, class RegionConfList>
-    struct region_configuration_list_to_region_tuple_helper;
-
-    template<class Sm, class SmConfiguration, template<class...> class RegionConfList, class... RegionConfs>
-    struct region_configuration_list_to_region_tuple_helper<Sm, SmConfiguration, RegionConfList<RegionConfs...>>
-    {
-        struct region_private_configuration
-        {
-            using exception_handler = typename SmConfiguration::exception_handler;
-            using state_transition_hook_set = typename SmConfiguration::state_transition_hook_set;
-            static constexpr auto enable_in_state_internal_transitions = SmConfiguration::enable_in_state_internal_transitions;
-        };
-
-        using type = sm_object_holder_tuple
-        <
-            region<RegionConfs, region_private_configuration>...
-        >;
-    };
-
-    template<class Sm, class SmConfiguration>
-    using sm_configuration_to_region_tuple =
-        typename region_configuration_list_to_region_tuple_helper
-        <
-            Sm,
-            SmConfiguration,
-            typename SmConfiguration::region_configurations
-        >::type
-    ;
 }
 
 template<class Configuration>
@@ -89,7 +54,7 @@ class sm
 
         template<class Context>
         explicit sm(Context& context):
-            regions_{*this, context},
+            subsm_{*this, context},
             exception_handler_{*this, context},
             pre_transition_event_handler_{*this, context}
         {
@@ -104,53 +69,29 @@ class sm
         template<class State, int RegionIndex = 0>
         [[nodiscard]] bool is_active_state() const
         {
-            return regions_.template get<RegionIndex>().template is_active_state<State>();
+            return subsm_.template is_active_state<State, RegionIndex>();
         }
 
         template<class Event>
         void start(const Event& event)
         {
-            regions_.for_each
-            (
-                [&](auto& reg)
-                {
-                    reg.start(event);
-                }
-            );
+            subsm_.start(event);
         }
 
         void start()
         {
-            regions_.for_each
-            (
-                [&](auto& reg)
-                {
-                    reg.start();
-                }
-            );
+            subsm_.start();
         }
 
         template<class Event>
         void stop(const Event& event)
         {
-            regions_.for_each
-            (
-                [&](auto& reg)
-                {
-                    reg.stop(event);
-                }
-            );
+            subsm_.stop(event);
         }
 
         void stop()
         {
-            regions_.for_each
-            (
-                [&](auto& reg)
-                {
-                    reg.stop();
-                }
-            );
+            subsm_.stop();
         }
 
         template<class Event>
@@ -196,6 +137,19 @@ class sm
         using pre_transition_event_handler_t =
             typename Configuration::pre_transition_event_handler
         ;
+        using state_transition_hook_set_t =
+            typename Configuration::state_transition_hook_set
+        ;
+
+        struct subsm_conf: subsm_configuration
+        {
+            using region_configurations = typename Configuration::region_configurations;
+            using exception_handler = exception_handler_t;
+            using state_transition_hook_set = state_transition_hook_set_t;
+            static constexpr auto enable_in_state_internal_transitions = Configuration::enable_in_state_internal_transitions;
+        };
+
+        using subsm_t = subsm<subsm_conf>;
 
         class event_processing
         {
@@ -251,12 +205,6 @@ class sm
             empty_holder
         >;
 
-        using region_tuple_t = detail::sm_configuration_to_region_tuple
-        <
-            sm,
-            Configuration
-        >;
-
         //Used to call client code
         template<class F>
         void safe_call(F&& f)
@@ -286,16 +234,10 @@ class sm
                 }
             );
 
-            regions_.for_each
-            (
-                [&](auto& reg)
-                {
-                    reg.process_event(event);
-                }
-            );
+            subsm_.process_event(event);
         }
 
-        region_tuple_t regions_;
+        subsm_t subsm_;
 
         exception_handler_t exception_handler_;
         pre_transition_event_handler_t pre_transition_event_handler_;

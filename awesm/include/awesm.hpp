@@ -15,6 +15,8 @@
 #include "awesm/sm.hpp"
 #include "awesm/sm_configuration.hpp"
 #include "awesm/sm_ref.hpp"
+#include "awesm/subsm.hpp"
+#include "awesm/subsm_configuration.hpp"
 #include "awesm/transition_table.hpp"
 #include "awesm/type_patterns.hpp"
 #include "awesm/version.hpp"

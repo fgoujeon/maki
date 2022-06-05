@@ -60,6 +60,7 @@ namespace
             {
             }
 
+            sm_t& sm;
             context& ctx;
         };
 
@@ -74,6 +75,7 @@ namespace
             {
             }
 
+            sm_t& sm;
             context& ctx;
         };
 
@@ -88,14 +90,15 @@ namespace
             {
             }
 
+            sm_t& sm;
             context& ctx;
         };
 
         class on
         {
             public:
-                on(sm_t& /*sm*/, context& ctx):
-                    subsm_(ctx),
+                on(sm_t& sm, context& ctx):
+                    subsm_(sm, ctx),
                     ctx_(ctx)
                 {
                 }
@@ -117,7 +120,7 @@ namespace
                 }
 
             private:
-                struct subsm_configuration: awesm::simple_sm_configuration
+                struct region_conf: awesm::region_configuration
                 {
                     using transition_table = awesm::transition_table
                     <
@@ -127,7 +130,15 @@ namespace
                     >;
                 };
 
-                using subsm_t = awesm::simple_sm<subsm_configuration>;
+                struct subsm_configuration: awesm::subsm_configuration
+                {
+                    using region_configurations = awesm::region_configuration_list
+                    <
+                        region_conf
+                    >;
+                };
+
+                using subsm_t = awesm::subsm<subsm_configuration>;
 
                 subsm_t subsm_;
                 context& ctx_;

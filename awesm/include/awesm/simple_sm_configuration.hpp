@@ -7,7 +7,7 @@
 #ifndef AWESM_SIMPLE_SM_CONFIGURATION_HPP
 #define AWESM_SIMPLE_SM_CONFIGURATION_HPP
 
-#include "sm_ref.hpp"
+#include "detail/default_exception_handler.hpp"
 #include <exception>
 
 namespace awesm
@@ -15,23 +15,7 @@ namespace awesm
 
 struct simple_sm_configuration
 {
-    class exception_handler
-    {
-        public:
-            template<class Sm, class Context>
-            exception_handler(Sm& m, Context& /*ctx*/):
-                sm_(m)
-            {
-            }
-
-            void on_exception(const std::exception_ptr& e)
-            {
-                sm_.process_event(e);
-            }
-
-        private:
-            sm_ref<std::exception_ptr> sm_;
-    };
+    using exception_handler = detail::default_exception_handler;
 
     struct pre_transition_event_handler
     {

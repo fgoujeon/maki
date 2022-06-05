@@ -122,7 +122,7 @@ namespace
                 }
 
             private:
-                struct region_conf: awesm::region_configuration
+                struct subsm_configuration: awesm::simple_subsm_configuration
                 {
                     using transition_table = awesm::transition_table
                     <
@@ -132,15 +132,7 @@ namespace
                     >;
                 };
 
-                struct subsm_configuration: awesm::subsm_configuration
-                {
-                    using region_configurations = awesm::region_configuration_list
-                    <
-                        region_conf
-                    >;
-                };
-
-                using subsm_t = awesm::subsm<subsm_configuration>;
+                using subsm_t = awesm::simple_subsm<subsm_configuration>;
 
                 subsm_t subsm_;
                 context& ctx_;

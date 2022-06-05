@@ -12,6 +12,8 @@
 #include "awesm/simple_sm.hpp"
 #include "awesm/simple_sm_configuration.hpp"
 #include "awesm/simple_sm_fwd.hpp"
+#include "awesm/simple_subsm.hpp"
+#include "awesm/simple_subsm_configuration.hpp"
 #include "awesm/sm.hpp"
 #include "awesm/sm_configuration.hpp"
 #include "awesm/sm_ref.hpp"

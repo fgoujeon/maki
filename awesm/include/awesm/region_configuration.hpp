@@ -14,44 +14,6 @@ namespace awesm
 
 struct region_configuration
 {
-    template<class Sm>
-    class exception_handler
-    {
-        public:
-            template<class Context>
-            exception_handler(Sm& m, Context& /*ctx*/):
-                sm_(m)
-            {
-            }
-
-            void on_exception(const std::exception_ptr& e)
-            {
-                sm_.process_event(e);
-            }
-
-        private:
-            Sm& sm_;
-    };
-
-    template<class Sm>
-    struct state_transition_hook_set
-    {
-        template<class Context>
-        state_transition_hook_set(Sm& /*machine*/, Context& /*ctx*/)
-        {
-        }
-
-        template<class SourceState, class Event, class TargetState>
-        void before_transition(const Event& /*event*/)
-        {
-        }
-
-        template<class SourceState, class Event, class TargetState>
-        void after_transition(const Event& /*event*/)
-        {
-        }
-    };
-
     static constexpr auto enable_in_state_internal_transitions = true;
 };
 

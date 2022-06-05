@@ -21,7 +21,7 @@
 namespace awesm::detail
 {
 
-template<class Sm, class Configuration>
+template<class Configuration, class PrivateConfiguration>
 class region
 {
     public:
@@ -31,7 +31,7 @@ class region
             "Given configuration type must inherit from awesm::region_configuration."
         );
 
-        template<class Context>
+        template<class Sm, class Context>
         explicit region(Sm& sm, Context& context):
             states_(sm, context),
             actions_(sm, context),
@@ -125,10 +125,10 @@ class region
             typename Configuration::transition_table
         ;
         using exception_handler_t =
-            typename Configuration::template exception_handler<Sm>
+            typename PrivateConfiguration::exception_handler
         ;
         using state_transition_hook_set_t =
-            typename Configuration::template state_transition_hook_set<Sm>
+            typename PrivateConfiguration::state_transition_hook_set
         ;
 
         using transition_table_digest_t =

@@ -47,22 +47,31 @@ namespace detail
             bool& b_;
     };
 
-    template<class Sm, class RegionConfList>
-    struct region_configuration_list_to_region_tuple_helper
+    template<class Sm, class SmConfiguration, class RegionConfList>
+    struct region_configuration_list_to_region_tuple_helper;
+
+    template<class Sm, class SmConfiguration, template<class...> class RegionConfList, class... RegionConfs>
+    struct region_configuration_list_to_region_tuple_helper<Sm, SmConfiguration, RegionConfList<RegionConfs...>>
     {
+        struct region_private_configuration
+        {
+            using exception_handler = typename SmConfiguration::template exception_handler<Sm>;
+            using state_transition_hook_set = typename SmConfiguration::template state_transition_hook_set<Sm>;
+        };
+
+        using type = sm_object_holder_tuple
+        <
+            region<RegionConfs, region_private_configuration>...
+        >;
     };
 
-    template<class Sm, template<class...> class RegionConfList, class... RegionConfs>
-    struct region_configuration_list_to_region_tuple_helper<Sm, RegionConfList<RegionConfs...>>
-    {
-        using type = sm_object_holder_tuple<region<Sm, RegionConfs>...>;
-    };
-
-    template<class Sm, class RegionConfList>
-    using region_configuration_list_to_region_tuple =
+    template<class Sm, class SmConfiguration>
+    using sm_configuration_to_region_tuple =
         typename region_configuration_list_to_region_tuple_helper
         <
-            Sm, RegionConfList
+            Sm,
+            SmConfiguration,
+            typename SmConfiguration::region_configurations
         >::type
     ;
 }
@@ -244,10 +253,10 @@ class sm
             empty_holder
         >;
 
-        using region_tuple_t = detail::region_configuration_list_to_region_tuple
+        using region_tuple_t = detail::sm_configuration_to_region_tuple
         <
             sm,
-            typename Configuration::region_configurations
+            Configuration
         >;
 
         //Used to call client code

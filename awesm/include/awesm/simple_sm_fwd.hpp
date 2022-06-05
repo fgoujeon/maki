@@ -21,22 +21,12 @@ class sm;
 namespace detail
 {
     template<class Configuration>
-    struct simple_to_sm_configuration_helper
+    struct simple_sm_to_sm_configuration_helper
     {
         struct region_conf: region_configuration
         {
             using transition_table =
                 typename Configuration::transition_table
-            ;
-
-            template<class Sm>
-            using exception_handler =
-                typename Configuration::template exception_handler<Sm>
-            ;
-
-            template<class Sm>
-            using state_transition_hook_set =
-                typename Configuration::template state_transition_hook_set<Sm>
             ;
 
             static constexpr auto enable_in_state_internal_transitions =
@@ -50,17 +40,27 @@ namespace detail
             <
                 region_conf
             >;
+
+            template<class Sm>
+            using exception_handler =
+                typename Configuration::template exception_handler<Sm>
+            ;
+
+            template<class Sm>
+            using state_transition_hook_set =
+                typename Configuration::template state_transition_hook_set<Sm>
+            ;
         };
     };
 
     template<class Configuration>
-    using sm_to_sm_configuration =
-        typename simple_to_sm_configuration_helper<Configuration>::type
+    using simple_sm_to_sm_configuration =
+        typename simple_sm_to_sm_configuration_helper<Configuration>::type
     ;
 }
 
 template<class Configuration>
-using simple_sm = sm<detail::sm_to_sm_configuration<Configuration>>;
+using simple_sm = sm<detail::simple_sm_to_sm_configuration<Configuration>>;
 
 } //namespace
 

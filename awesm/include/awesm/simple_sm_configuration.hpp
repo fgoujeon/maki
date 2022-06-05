@@ -8,6 +8,7 @@
 #define AWESM_SIMPLE_SM_CONFIGURATION_HPP
 
 #include "detail/default_exception_handler.hpp"
+#include "detail/default_state_transition_hook_set.hpp"
 #include <exception>
 
 namespace awesm
@@ -34,23 +35,7 @@ struct simple_sm_configuration
         //void on_event(const Event&);
     };
 
-    struct state_transition_hook_set
-    {
-        template<class Sm, class Context>
-        state_transition_hook_set(Sm& /*machine*/, Context& /*ctx*/)
-        {
-        }
-
-        template<class SourceState, class Event, class TargetState>
-        void before_transition(const Event& /*event*/)
-        {
-        }
-
-        template<class SourceState, class Event, class TargetState>
-        void after_transition(const Event& /*event*/)
-        {
-        }
-    };
+    using state_transition_hook_set = detail::default_state_transition_hook_set;
 
     static constexpr auto enable_run_to_completion = true;
     static constexpr auto enable_in_state_internal_transitions = true;

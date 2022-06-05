@@ -24,7 +24,7 @@ namespace
         struct button_press{};
     }
 
-    struct sm_configuration: awesm::sm_configuration
+    struct sm_configuration: awesm::simple_sm_configuration
     {
         using transition_table = awesm::transition_table
         <
@@ -35,19 +35,19 @@ namespace
         static constexpr auto enable_run_to_completion = false;
     };
 
-    using sm = awesm::sm<sm_configuration>;
+    using sm_t = awesm::simple_sm<sm_configuration>;
 }
 
 TEST_CASE("basic transition")
 {
     auto ctx = context{};
-    auto machine = sm{ctx};
+    auto sm = sm_t{ctx};
 
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(sm.is_active_state<states::off>());
 
-    machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    sm.process_event(events::button_press{});
+    REQUIRE(sm.is_active_state<states::on>());
 
-    machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::off>());
+    sm.process_event(events::button_press{});
+    REQUIRE(sm.is_active_state<states::off>());
 }

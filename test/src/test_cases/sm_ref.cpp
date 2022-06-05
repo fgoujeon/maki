@@ -25,7 +25,7 @@ namespace
         struct off_button_press{};
     }
 
-    struct sm_configuration: awesm::sm_configuration
+    struct simple_sm_configuration: awesm::simple_sm_configuration
     {
         using transition_table = awesm::transition_table
         <
@@ -36,26 +36,26 @@ namespace
         static constexpr auto enable_run_to_completion = false;
     };
 
-    using sm = awesm::sm<sm_configuration>;
+    using sm_t = awesm::simple_sm<simple_sm_configuration>;
 }
 
 TEST_CASE("sm_ref")
 {
-    using sm_ref =
+    using sm_ref_t =
         awesm::sm_ref<events::on_button_press, events::off_button_press>
     ;
 
     auto ctx = context{};
-    auto machine = sm{ctx};
-    auto pmachine_ref_temp = std::make_unique<sm_ref>(machine); //test ref of ref
-    auto machine_ref = sm_ref{*pmachine_ref_temp};
-    pmachine_ref_temp.reset();
+    auto sm = sm_t{ctx};
+    auto psm_ref_temp = std::make_unique<sm_ref_t>(sm); //test ref of ref
+    auto sm_ref = sm_ref_t{*psm_ref_temp};
+    psm_ref_temp.reset();
 
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(sm.is_active_state<states::off>());
 
-    machine_ref.process_event(events::on_button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    sm_ref.process_event(events::on_button_press{});
+    REQUIRE(sm.is_active_state<states::on>());
 
-    machine_ref.process_event(events::off_button_press{});
-    REQUIRE(machine.is_active_state<states::off>());
+    sm_ref.process_event(events::off_button_press{});
+    REQUIRE(sm.is_active_state<states::off>());
 }

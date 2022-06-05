@@ -53,7 +53,7 @@ namespace
         struct button_press{};
     }
 
-    struct sm_configuration: awesm::sm_configuration
+    struct sm_configuration: awesm::simple_sm_configuration
     {
         using transition_table = awesm::transition_table
         <
@@ -62,27 +62,27 @@ namespace
         >;
     };
 
-    using sm = awesm::sm<sm_configuration>;
+    using sm_t = awesm::simple_sm<sm_configuration>;
 }
 
 TEST_CASE("start_stop")
 {
     auto ctx = context{};
-    auto machine = sm{ctx};
+    auto sm = sm_t{ctx};
 
     REQUIRE(ctx.out == "");
 
-    machine.start();
-    REQUIRE(machine.is_active_state<states::off>());
+    sm.start();
+    REQUIRE(sm.is_active_state<states::off>());
     REQUIRE(ctx.out == "off::on_entry;");
 
     ctx.out.clear();
-    machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    sm.process_event(events::button_press{});
+    REQUIRE(sm.is_active_state<states::on>());
     REQUIRE(ctx.out == "off::on_exit;on::on_entry;");
 
     ctx.out.clear();
-    machine.stop();
-    REQUIRE(machine.is_active_state<states::on>());
+    sm.stop();
+    REQUIRE(sm.is_active_state<states::on>());
     REQUIRE(ctx.out == "on::on_exit;");
 }

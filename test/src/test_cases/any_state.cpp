@@ -25,7 +25,7 @@ namespace
         struct error{};
     }
 
-    struct sm_conf: awesm::sm_configuration
+    struct sm_conf: awesm::simple_sm_configuration
     {
         using transition_table = awesm::transition_table
         <
@@ -36,20 +36,20 @@ namespace
         >;
     };
 
-    using sm = awesm::sm<sm_conf>;
+    using sm_t = awesm::simple_sm<sm_conf>;
 }
 
 TEST_CASE("any state")
 {
     auto ctx = context{};
-    auto machine = sm{ctx};
+    auto sm = sm_t{ctx};
 
-    machine.process_event(events::stop_button_press{});
-    machine.process_event(events::error{});
-    REQUIRE(machine.is_active_state<states::failed>());
+    sm.process_event(events::stop_button_press{});
+    sm.process_event(events::error{});
+    REQUIRE(sm.is_active_state<states::failed>());
 
-    machine.process_event(events::stop_button_press{});
-    machine.process_event(events::start_button_press{});
-    machine.process_event(events::error{});
-    REQUIRE(machine.is_active_state<states::failed>());
+    sm.process_event(events::stop_button_press{});
+    sm.process_event(events::start_button_press{});
+    sm.process_event(events::error{});
+    REQUIRE(sm.is_active_state<states::failed>());
 }

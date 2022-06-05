@@ -4,15 +4,15 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_SM_CONFIGURATION_HPP
-#define AWESM_SM_CONFIGURATION_HPP
+#ifndef AWESM_SIMPLE_SM_CONFIGURATION_HPP
+#define AWESM_SIMPLE_SM_CONFIGURATION_HPP
 
 #include <exception>
 
 namespace awesm
 {
 
-struct sm_configuration
+struct simple_sm_configuration
 {
     template<class Sm>
     class exception_handler

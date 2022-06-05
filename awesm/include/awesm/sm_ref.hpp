@@ -23,14 +23,14 @@ namespace detail
     class sm_ref_impl<Event, Events...>: sm_ref_impl<Events...>
     {
         public:
-            template<class FsmConfiguration>
-            sm_ref_impl(sm<FsmConfiguration>& machine):
+            template<class SmConfiguration>
+            sm_ref_impl(sm<SmConfiguration>& machine):
                 sm_ref_impl<Events...>{machine},
                 pprocess_event_
                 {
                     [](void* const vpsm, const Event& event)
                     {
-                        using sm_t = sm<FsmConfiguration>;
+                        using sm_t = sm<SmConfiguration>;
                         const auto psm = reinterpret_cast<sm_t*>(vpsm); //NOLINT
                         psm->process_event(event);
                     }
@@ -56,8 +56,8 @@ namespace detail
     class sm_ref_impl<>
     {
         public:
-            template<class FsmConfiguration>
-            sm_ref_impl(sm<FsmConfiguration>& machine):
+            template<class SmConfiguration>
+            sm_ref_impl(sm<SmConfiguration>& machine):
                 vpsm_(&machine)
             {
             }
@@ -78,15 +78,15 @@ namespace detail
 }
 
 /*
-sm_ref is a type-erasing container for a reference to an sm of any type.
+sm_ref is a type-erasing container for a reference to a sm of any type.
 It exposes the process_event() member function of the held sm.
 */
 template<class... Events>
 class sm_ref
 {
     public:
-        template<class FsmConfiguration>
-        sm_ref(sm<FsmConfiguration>& machine):
+        template<class SmConfiguration>
+        sm_ref(sm<SmConfiguration>& machine):
             impl_{machine}
         {
         }

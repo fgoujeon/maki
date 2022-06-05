@@ -9,6 +9,7 @@
 
 #include "sm_configuration.hpp"
 #include "none.hpp"
+#include "detail/region.hpp"
 #include "detail/call_member.hpp"
 #include "detail/resolve_transition_table.hpp"
 #include "detail/transition_table_digest.hpp"
@@ -45,6 +46,34 @@ namespace detail
         private:
             bool& b_;
     };
+
+    template<class Sm, class SmConfiguration, class RegionConfList>
+    struct region_configuration_list_to_region_tuple_helper;
+
+    template<class Sm, class SmConfiguration, template<class...> class RegionConfList, class... RegionConfs>
+    struct region_configuration_list_to_region_tuple_helper<Sm, SmConfiguration, RegionConfList<RegionConfs...>>
+    {
+        struct region_private_configuration
+        {
+            using exception_handler = typename SmConfiguration::template exception_handler<Sm>;
+            using state_transition_hook_set = typename SmConfiguration::template state_transition_hook_set<Sm>;
+        };
+
+        using type = sm_object_holder_tuple
+        <
+            region<RegionConfs, region_private_configuration>...
+        >;
+    };
+
+    template<class Sm, class SmConfiguration>
+    using sm_configuration_to_region_tuple =
+        typename region_configuration_list_to_region_tuple_helper
+        <
+            Sm,
+            SmConfiguration,
+            typename SmConfiguration::region_configurations
+        >::type
+    ;
 }
 
 template<class Configuration>
@@ -59,12 +88,9 @@ class sm
 
         template<class Context>
         explicit sm(Context& context):
-            states_(*this, context),
-            actions_(*this, context),
-            guards_(*this, context),
+            regions_{*this, context},
             exception_handler_{*this, context},
-            pre_transition_event_handler_{*this, context},
-            state_transition_hook_set_{*this, context}
+            pre_transition_event_handler_{*this, context}
         {
         }
 
@@ -74,53 +100,56 @@ class sm
         sm& operator=(sm&&) = delete;
         ~sm() = default;
 
-        //Check whether the given State is the active state type
-        template<class State>
+        template<class State, int RegionIndex = 0>
         [[nodiscard]] bool is_active_state() const
         {
-            constexpr auto given_state_index = detail::tlu::get_index
-            <
-                state_tuple_t,
-                State
-            >;
-            return given_state_index == active_state_index_;
+            return regions_.template get<RegionIndex>().template is_active_state<State>();
         }
 
         template<class Event>
         void start(const Event& event)
         {
-            safe_call
+            regions_.for_each
             (
-                [&]
+                [&](auto& reg)
                 {
-                    detail::call_on_entry
-                    (
-                        &states_.get(static_cast<initial_state_t*>(nullptr)),
-                        &event,
-                        0
-                    );
+                    reg.start(event);
                 }
             );
         }
 
         void start()
         {
-            start(none{});
+            regions_.for_each
+            (
+                [&](auto& reg)
+                {
+                    reg.start();
+                }
+            );
         }
 
         template<class Event>
         void stop(const Event& event)
         {
-            return detail::tlu::apply
-            <
-                state_tuple_t,
-                stop_helper
-            >::call(*this, event);
+            regions_.for_each
+            (
+                [&](auto& reg)
+                {
+                    reg.stop(event);
+                }
+            );
         }
 
         void stop()
         {
-            stop(none{});
+            regions_.for_each
+            (
+                [&](auto& reg)
+                {
+                    reg.stop();
+                }
+            );
         }
 
         template<class Event>
@@ -160,9 +189,6 @@ class sm
         }
 
     private:
-        using unresolved_transition_table_t =
-            typename Configuration::transition_table
-        ;
         using exception_handler_t =
             typename Configuration::template exception_handler<sm>
         ;
@@ -172,15 +198,6 @@ class sm
         using state_transition_hook_set_t =
             typename Configuration::template state_transition_hook_set<sm>
         ;
-
-        using transition_table_digest_t =
-            detail::transition_table_digest<unresolved_transition_table_t>
-        ;
-        using state_tuple_t = typename transition_table_digest_t::state_tuple;
-        using action_tuple_t = typename transition_table_digest_t::action_tuple;
-        using guard_tuple_t = typename transition_table_digest_t::guard_tuple;
-
-        using initial_state_t = detail::tlu::at<state_tuple_t, 0>;
 
         class event_processing
         {
@@ -219,33 +236,7 @@ class sm
                 void(*pprocess_event_)(sm&, const event_storage_t&) = nullptr;
         };
 
-        /*
-        Calling detail::resolve_transition_table<> isn't free. We need
-        alternative_lazy to avoid the call when it's unnecessary (i.e. when
-        there's no pattern-source-state in the transition table).
-        */
-        struct unresolved_transition_table_holder
-        {
-            template<class = void>
-            using type = unresolved_transition_table_t;
-        };
-        struct resolved_transition_table_holder
-        {
-            template<class = void>
-            using type = detail::resolve_transition_table
-            <
-                unresolved_transition_table_t,
-                state_tuple_t
-            >;
-        };
-        using transition_table_t = detail::alternative_lazy
-        <
-            transition_table_digest_t::has_source_state_patterns,
-            resolved_transition_table_holder,
-            unresolved_transition_table_holder
-        >;
-
-        struct function_queue_holder
+        struct queue_holder
         {
             template<class = void>
             using type = std::queue<event_processing>;
@@ -258,8 +249,14 @@ class sm
         using queued_event_processing_storage_t = detail::alternative_lazy
         <
             Configuration::enable_run_to_completion,
-            function_queue_holder,
+            queue_holder,
             empty_holder
+        >;
+
+        using region_tuple_t = detail::sm_configuration_to_region_tuple
+        <
+            sm,
+            Configuration
         >;
 
         //Used to call client code
@@ -273,21 +270,6 @@ class sm
             catch(...)
             {
                 exception_handler_.on_exception(std::current_exception());
-            }
-        }
-
-        //Used to call client code
-        template<class F>
-        bool safe_call_or_false(F&& f)
-        {
-            try
-            {
-                return f();
-            }
-            catch(...)
-            {
-                exception_handler_.on_exception(std::current_exception());
-                return false;
             }
         }
 
@@ -306,277 +288,20 @@ class sm
                 }
             );
 
-            if constexpr(Configuration::enable_in_state_internal_transitions)
-            {
-                process_event_in_active_state(event);
-            }
-
-            const bool processed = process_event_in_transition_table_once(event);
-
-            //Anonymous transitions
-            if constexpr(transition_table_digest_t::has_none_events)
-            {
-                if(processed)
-                {
-                    while(process_event_in_transition_table_once(none{})){}
-                }
-            }
-            else
-            {
-                detail::ignore_unused(processed);
-            }
-        }
-
-        //Try and trigger one transition
-        template<class Event>
-        bool process_event_in_transition_table_once(const Event& event)
-        {
-            return detail::tlu::apply
-            <
-                transition_table_t,
-                transition_table_event_processor
-            >::process(*this, event);
-        }
-
-        template<class... Rows>
-        struct transition_table_event_processor
-        {
-            template<class Event>
-            static bool process(sm& machine, const Event& event)
-            {
-                return (transition_table_row_event_processor<Rows>::process(machine, &event) || ...);
-            }
-        };
-
-        //Processes events against one row of the (resolved) transition table
-        template<class Row>
-        struct transition_table_row_event_processor
-        {
-            static bool process
+            regions_.for_each
             (
-                sm& machine,
-                const typename Row::event_type* const pevent
-            )
-            {
-                return machine.process_event_in_row<Row>(*pevent);
-            }
-
-            /*
-            This void* trick allows for shorter build times.
-
-            This alternative implementation takes more time to build:
-                template<class Event>
-                static bool process(sm&, const Event&)
+                [&](auto& reg)
                 {
-                    return false;
+                    reg.process_event(event);
                 }
-
-            Using an if-constexpr in the process() function above is worse as
-            well.
-            */
-            static bool process(sm& /*machine*/, const void* /*pevent*/)
-            {
-                return false;
-            }
-        };
-
-        template<class Row, class Event>
-        bool process_event_in_row(const Event& event)
-        {
-            using source_state_t = typename Row::source_state_type;
-            using target_state_t = typename Row::target_state_type;
-            using action_t       = typename Row::action_type;
-            using guard_t        = typename Row::guard_type;
-
-            //Make sure the transition source state is the active state
-            if(!is_active_state<source_state_t>())
-            {
-                return false;
-            }
-
-            const auto do_transition = [&](auto /*dummy*/)
-            {
-                constexpr auto is_internal_transition =
-                    std::is_same_v<target_state_t, none>
-                ;
-
-                if constexpr(!is_internal_transition)
-                {
-                    state_transition_hook_set_.template before_transition
-                    <
-                        source_state_t,
-                        Event,
-                        target_state_t
-                    >(event);
-
-                    detail::call_on_exit
-                    (
-                        &states_.get(static_cast<source_state_t*>(nullptr)),
-                        &event,
-                        0
-                    );
-
-                    active_state_index_ = detail::tlu::get_index
-                    <
-                        state_tuple_t,
-                        target_state_t
-                    >;
-                }
-
-                if constexpr(!std::is_same_v<action_t, none>)
-                {
-                    detail::call_execute
-                    (
-                        &actions_.get(static_cast<action_t*>(nullptr)),
-                        &event
-                    );
-                }
-
-                if constexpr(!is_internal_transition)
-                {
-                    detail::call_on_entry
-                    (
-                        &states_.get(static_cast<target_state_t*>(nullptr)),
-                        &event,
-                        0
-                    );
-
-                    state_transition_hook_set_.template after_transition
-                    <
-                        source_state_t,
-                        Event,
-                        target_state_t
-                    >(event);
-                }
-            };
-
-            if constexpr(std::is_same_v<guard_t, none>)
-            {
-                safe_call
-                (
-                    [&]
-                    {
-                        do_transition(0);
-                    }
-                );
-                return true;
-            }
-            else
-            {
-                return safe_call_or_false
-                (
-                    [&]
-                    {
-                        if
-                        (
-                            !detail::call_check
-                            (
-                                &guards_.get(static_cast<guard_t*>(nullptr)),
-                                &event
-                            )
-                        )
-                        {
-                            return false;
-                        }
-
-                        do_transition(0);
-                        return true;
-                    }
-                );
-            }
+            );
         }
 
-        template<class... States>
-        struct stop_helper
-        {
-            template<class Event>
-            static void call(sm& machine, const Event& event)
-            {
-                (machine.call_on_exit_of_active_state<States>(&event) || ...);
-            }
-        };
+        region_tuple_t regions_;
 
-        template<class State, class Event>
-        bool call_on_exit_of_active_state(const Event* pevent)
-        {
-            if(is_active_state<State>())
-            {
-                safe_call
-                (
-                    [&]
-                    {
-                        detail::call_on_exit
-                        (
-                            &states_.get(static_cast<State*>(nullptr)),
-                            pevent,
-                            0
-                        );
-                    }
-                );
-                return true;
-            }
-            return false;
-        }
-
-        /*
-        Call active_state.on_event(event)
-        */
-        template<class Event>
-        void process_event_in_active_state(const Event& event)
-        {
-            return detail::tlu::apply
-            <
-                state_tuple_t,
-                active_state_event_processor
-            >::process(*this, event);
-        }
-
-        //Processes internal events against all states
-        template<class... States>
-        struct active_state_event_processor
-        {
-            template<class Event>
-            static void process(sm& machine, const Event& event)
-            {
-                (machine.process_event_in_state<States>(&event) || ...);
-            }
-        };
-
-        //Processes internal events against one state
-        template<class State, class Event>
-        auto process_event_in_state
-        (
-            const Event* pevent
-        ) -> decltype(std::declval<State>().on_event(*pevent), bool())
-        {
-            if(is_active_state<State>())
-            {
-                safe_call
-                (
-                    [&]
-                    {
-                        states_.get(static_cast<State*>(nullptr)).on_event(*pevent);
-                    }
-                );
-                return true;
-            }
-            return false;
-        }
-
-        template<class State>
-        bool process_event_in_state(const void* /*pevent*/)
-        {
-            return false;
-        }
-
-        state_tuple_t states_;
-        action_tuple_t actions_;
-        guard_tuple_t guards_;
         exception_handler_t exception_handler_;
         pre_transition_event_handler_t pre_transition_event_handler_;
-        state_transition_hook_set_t state_transition_hook_set_;
 
-        int active_state_index_ = 0;
         bool processing_event_ = false;
         queued_event_processing_storage_t queued_event_processings_;
 };

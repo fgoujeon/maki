@@ -36,7 +36,7 @@ namespace
         };
     }
 
-    struct sm_configuration: awesm::sm_configuration
+    struct sm_configuration: awesm::simple_sm_configuration
     {
         using transition_table = awesm::transition_table
         <
@@ -61,12 +61,12 @@ namespace
                 ctx.out += std::string{SourceState::name} + "->" + TargetState::name + ";";
             }
 
-            Sm& sm;
+            Sm& simple_sm;
             context& ctx;
         };
     };
 
-    using sm_t = awesm::sm<sm_configuration>;
+    using sm_t = awesm::simple_sm<sm_configuration>;
 }
 
 TEST_CASE("state_transition_hook_set")

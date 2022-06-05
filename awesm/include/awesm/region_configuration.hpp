@@ -4,14 +4,18 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_SM_FWD_HPP
-#define AWESM_SM_FWD_HPP
+#ifndef AWESM_REGION_CONFIGURATION_HPP
+#define AWESM_REGION_CONFIGURATION_HPP
+
+#include <exception>
 
 namespace awesm
 {
 
-template<class Configuration>
-class sm;
+struct region_configuration
+{
+    static constexpr auto enable_in_state_internal_transitions = true;
+};
 
 } //namespace
 

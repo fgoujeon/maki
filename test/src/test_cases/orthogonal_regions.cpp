@@ -9,6 +9,9 @@
 
 namespace
 {
+    struct sm_configuration;
+    using sm_t = awesm::sm<sm_configuration>;
+
     struct context
     {
         std::string out;
@@ -63,7 +66,6 @@ namespace
             region_conf_1
         >;
 
-        template<class Sm>
         struct exception_handler
         {
             void on_exception(const std::exception_ptr& e)
@@ -78,11 +80,10 @@ namespace
                 }
             }
 
-            Sm& sm;
+            sm_t& sm;
             context& ctx;
         };
 
-        template<class Sm>
         struct state_transition_hook_set
         {
             template<class SourceState, class Event, class TargetState>
@@ -97,12 +98,10 @@ namespace
                 ctx.out += "after_transition;";
             }
 
-            Sm& sm;
+            sm_t& sm;
             context& ctx;
         };
     };
-
-    using sm_t = awesm::sm<sm_configuration>;
 }
 
 TEST_CASE("orthogonal_regions")

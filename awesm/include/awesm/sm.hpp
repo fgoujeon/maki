@@ -55,8 +55,8 @@ namespace detail
     {
         struct region_private_configuration
         {
-            using exception_handler = typename SmConfiguration::template exception_handler<Sm>;
-            using state_transition_hook_set = typename SmConfiguration::template state_transition_hook_set<Sm>;
+            using exception_handler = typename SmConfiguration::exception_handler;
+            using state_transition_hook_set = typename SmConfiguration::state_transition_hook_set;
             static constexpr auto enable_in_state_internal_transitions = SmConfiguration::enable_in_state_internal_transitions;
         };
 
@@ -191,13 +191,10 @@ class sm
 
     private:
         using exception_handler_t =
-            typename Configuration::template exception_handler<sm>
+            typename Configuration::exception_handler
         ;
         using pre_transition_event_handler_t =
             typename Configuration::pre_transition_event_handler
-        ;
-        using state_transition_hook_set_t =
-            typename Configuration::template state_transition_hook_set<sm>
         ;
 
         class event_processing

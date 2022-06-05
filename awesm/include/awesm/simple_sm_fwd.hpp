@@ -7,6 +7,7 @@
 #ifndef AWESM_SIMPLE_SM_FWD_HPP
 #define AWESM_SIMPLE_SM_FWD_HPP
 
+#include "sm_fwd.hpp"
 #include "region_configuration_list.hpp"
 #include "region_configuration.hpp"
 #include "sm_configuration.hpp"
@@ -15,9 +16,6 @@
 
 namespace awesm
 {
-
-template<class Configuration>
-class sm;
 
 namespace detail
 {
@@ -38,14 +36,10 @@ namespace detail
                 region_conf
             >;
 
-            template<class Sm>
-            using exception_handler =
-                typename Configuration::template exception_handler<Sm>
-            ;
+            using exception_handler = typename Configuration::exception_handler;
 
-            template<class Sm>
             using state_transition_hook_set =
-                typename Configuration::template state_transition_hook_set<Sm>
+                typename Configuration::state_transition_hook_set
             ;
 
             static constexpr auto enable_in_state_internal_transitions =

@@ -7,6 +7,7 @@
 #ifndef AWESM_SIMPLE_SM_CONFIGURATION_HPP
 #define AWESM_SIMPLE_SM_CONFIGURATION_HPP
 
+#include "sm_ref.hpp"
 #include <exception>
 
 namespace awesm
@@ -14,11 +15,10 @@ namespace awesm
 
 struct simple_sm_configuration
 {
-    template<class Sm>
     class exception_handler
     {
         public:
-            template<class Context>
+            template<class Sm, class Context>
             exception_handler(Sm& m, Context& /*ctx*/):
                 sm_(m)
             {
@@ -30,7 +30,7 @@ struct simple_sm_configuration
             }
 
         private:
-            Sm& sm_;
+            sm_ref<std::exception_ptr> sm_;
     };
 
     struct pre_transition_event_handler
@@ -50,10 +50,9 @@ struct simple_sm_configuration
         //void on_event(const Event&);
     };
 
-    template<class Sm>
     struct state_transition_hook_set
     {
-        template<class Context>
+        template<class Sm, class Context>
         state_transition_hook_set(Sm& /*machine*/, Context& /*ctx*/)
         {
         }

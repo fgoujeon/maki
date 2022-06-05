@@ -10,6 +10,9 @@
 
 namespace
 {
+    struct sm_configuration;
+    using sm_t = awesm::simple_sm<sm_configuration>;
+
     struct context
     {
         std::string out;
@@ -44,7 +47,6 @@ namespace
             awesm::row<states::on,  events::button_press, states::off>
         >;
 
-        template<class Sm>
         struct state_transition_hook_set
         {
             template<class SourceState, class Event, class TargetState>
@@ -61,12 +63,10 @@ namespace
                 ctx.out += std::string{SourceState::name} + "->" + TargetState::name + ";";
             }
 
-            Sm& simple_sm;
+            sm_t& simple_sm;
             context& ctx;
         };
     };
-
-    using sm_t = awesm::simple_sm<sm_configuration>;
 }
 
 TEST_CASE("state_transition_hook_set")

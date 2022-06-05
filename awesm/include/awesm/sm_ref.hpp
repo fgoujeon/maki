@@ -7,7 +7,7 @@
 #ifndef AWESM_SM_REF_HPP
 #define AWESM_SM_REF_HPP
 
-#include "sm.hpp"
+#include "sm_fwd.hpp"
 #include "detail/type_list.hpp"
 #include "detail/tlu.hpp"
 

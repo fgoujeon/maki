@@ -92,6 +92,8 @@ TEST_CASE("guard operators")
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
+    sm.start();
+
     SECTION("and")
     {
        sm.process_event(events::stop{});

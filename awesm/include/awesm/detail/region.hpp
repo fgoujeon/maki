@@ -16,6 +16,7 @@
 #include "any_container.hpp"
 #include "ignore_unused.hpp"
 #include "event_processing_type.hpp"
+#include "null_state.hpp"
 #include "tlu/apply.hpp"
 #include <type_traits>
 
@@ -57,12 +58,7 @@ class region
                 state_tuple_t,
                 State
             >;
-            return given_state_index == active_state_index_;
-        }
-
-        void reset()
-        {
-            active_state_index_ = 0;
+            return active_state_index_ == given_state_index;
         }
 
         template<class Event>
@@ -111,7 +107,7 @@ class region
         using action_tuple_t = typename transition_table_digest_t::action_tuple;
         using guard_tuple_t = typename transition_table_digest_t::guard_tuple;
 
-        using initial_state_t = detail::tlu::at<state_tuple_t, 0>;
+        using initial_state_t = detail::tlu::at<state_tuple_t, 1>; //0 being null_state
 
         /*
         Calling detail::resolve_transition_table<> isn't free. We need
@@ -148,32 +144,26 @@ class region
             }
 
             auto processed = true;
-            if constexpr(ProcessingType == detail::event_processing_type::event)
+            if constexpr(ProcessingType == detail::event_processing_type::start)
             {
-                processed = process_event_in_transition_table_once(event);
-            }
-            else if constexpr(ProcessingType == detail::event_processing_type::start)
-            {
-                safe_call
+                using fake_row = row<null_state, Event, initial_state_t>;
+                processed = transition_table_row_event_processor<fake_row>::process
                 (
-                    [&]
-                    {
-                        detail::call_on_entry
-                        (
-                            &states_.get(static_cast<initial_state_t*>(nullptr)),
-                            &event,
-                            0
-                        );
-                    }
+                    *this,
+                    &event
                 );
             }
             else if constexpr(ProcessingType == detail::event_processing_type::stop)
             {
-                detail::tlu::apply
+                processed = detail::tlu::apply
                 <
                     state_tuple_t,
                     stop_helper
                 >::call(*this, event);
+            }
+            else if constexpr(ProcessingType == detail::event_processing_type::event)
+            {
+                processed = process_event_in_transition_table_once(event);
             }
 
             //Anonymous transitions
@@ -389,32 +379,21 @@ class region
         struct stop_helper
         {
             template<class Event>
-            static void call(region& reg, const Event& event)
+            static bool call(region& reg, const Event& event)
             {
-                (reg.call_on_exit_of_active_state<States>(&event) || ...);
+                return (reg.stop_2<States>(&event) || ...);
             }
         };
 
         template<class State, class Event>
-        bool call_on_exit_of_active_state(const Event* pevent)
+        bool stop_2(const Event* pevent)
         {
-            if(is_active_state<State>())
-            {
-                safe_call
-                (
-                    [&]
-                    {
-                        detail::call_on_exit
-                        (
-                            &states_.get(static_cast<State*>(nullptr)),
-                            pevent,
-                            0
-                        );
-                    }
-                );
-                return true;
-            }
-            return false;
+            using fake_row = row<State, Event, null_state>;
+            return transition_table_row_event_processor<fake_row>::process
+            (
+                *this,
+                pevent
+            );
         }
 
         /*

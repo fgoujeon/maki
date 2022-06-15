@@ -79,6 +79,8 @@ TEST_CASE("internal transition")
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
+    sm.start();
+
     for(auto i = 0; i < 10; ++i)
         sm.process_event(events::next_state{});
     REQUIRE(sm.is_active_state<states::benchmarking>());

@@ -51,6 +51,8 @@ TEST_CASE("sm_ref")
     auto sm_ref = sm_ref_t{*psm_ref_temp};
     psm_ref_temp.reset();
 
+    sm.start();
+
     REQUIRE(sm.is_active_state<states::off>());
 
     sm_ref.process_event(events::on_button_press{});

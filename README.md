@@ -149,6 +149,14 @@ namespace states
         }
 
         /*
+        Accordingly to the previous comment, this function is called for events
+        whose type isn't button::push_event.
+        */
+        void on_entry()
+        {
+        }
+
+        /*
         Optionally, state types can define a set of on_event() functions.
         Whenever the state machine processes an event, it calls the on_event()
         function of the active state by passing it the event (provided this
@@ -322,6 +330,9 @@ int main()
     state transitions.
     */
     auto sm = sm_t{ctx};
+
+    //The state machine must be started.
+    sm.start();
 
 #if TESTING
     auto simulate_push = [&](const int duration_ms)

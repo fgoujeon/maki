@@ -118,7 +118,11 @@ TEST_CASE("recursive process_event")
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
+    sm.start();
+    REQUIRE(ctx.output == "s0::on_entry;");
+
     //Indirectly process s1_to_s2_request and s2_to_s0_request
+    ctx.output.clear();
     sm.process_event(events::s0_to_s1_request{});
     REQUIRE
     (

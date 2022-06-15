@@ -105,7 +105,6 @@ namespace
 
                 void on_entry()
                 {
-                    subsm_.reset();
                     subsm_.start();
                 }
 
@@ -153,6 +152,8 @@ TEST_CASE("composite_state")
 {
     auto ctx = context{};
     auto sm = sm_t{ctx};
+
+    sm.start();
 
     REQUIRE(sm.is_active_state<states::off>());
     REQUIRE(ctx.current_led_color == led_color::off);

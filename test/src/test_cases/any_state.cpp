@@ -44,6 +44,8 @@ TEST_CASE("any state")
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
+    sm.start();
+
     sm.process_event(events::stop_button_press{});
     sm.process_event(events::error{});
     REQUIRE(sm.is_active_state<states::failed>());

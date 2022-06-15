@@ -45,6 +45,8 @@ TEST_CASE("anonymous transition")
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
+    sm.start();
+
     sm.process_event(events::go_on{});
     REQUIRE(sm.is_active_state<states::s2>());
 

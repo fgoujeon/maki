@@ -15,6 +15,7 @@
 #include "alternative_lazy.hpp"
 #include "any_container.hpp"
 #include "ignore_unused.hpp"
+#include "event_processing_type.hpp"
 #include "tlu/apply.hpp"
 #include <type_traits>
 
@@ -67,18 +68,7 @@ class region
         template<class Event>
         void start(const Event& event)
         {
-            safe_call
-            (
-                [&]
-                {
-                    detail::call_on_entry
-                    (
-                        &states_.get(static_cast<initial_state_t*>(nullptr)),
-                        &event,
-                        0
-                    );
-                }
-            );
+            process_event_2<detail::event_processing_type::start>(event);
         }
 
         void start()
@@ -89,11 +79,7 @@ class region
         template<class Event>
         void stop(const Event& event)
         {
-            return detail::tlu::apply
-            <
-                state_tuple_t,
-                stop_helper
-            >::call(*this, event);
+            process_event_2<detail::event_processing_type::stop>(event);
         }
 
         void stop()
@@ -104,25 +90,7 @@ class region
         template<class Event>
         void process_event(const Event& event)
         {
-            if constexpr(PrivateConfiguration::enable_in_state_internal_transitions)
-            {
-                process_event_in_active_state(event);
-            }
-
-            const bool processed = process_event_in_transition_table_once(event);
-
-            //Anonymous transitions
-            if constexpr(transition_table_digest_t::has_none_events)
-            {
-                if(processed)
-                {
-                    while(process_event_in_transition_table_once(none{})){}
-                }
-            }
-            else
-            {
-                detail::ignore_unused(processed);
-            }
+            process_event_2<detail::event_processing_type::event>(event);
         }
 
     private:
@@ -170,6 +138,57 @@ class region
             resolved_transition_table_holder,
             unresolved_transition_table_holder
         >;
+
+        template<detail::event_processing_type ProcessingType, class Event>
+        void process_event_2(const Event& event)
+        {
+            if constexpr(PrivateConfiguration::enable_in_state_internal_transitions)
+            {
+                process_event_in_active_state(event);
+            }
+
+            auto processed = true;
+            if constexpr(ProcessingType == detail::event_processing_type::event)
+            {
+                processed = process_event_in_transition_table_once(event);
+            }
+            else if constexpr(ProcessingType == detail::event_processing_type::start)
+            {
+                safe_call
+                (
+                    [&]
+                    {
+                        detail::call_on_entry
+                        (
+                            &states_.get(static_cast<initial_state_t*>(nullptr)),
+                            &event,
+                            0
+                        );
+                    }
+                );
+            }
+            else if constexpr(ProcessingType == detail::event_processing_type::stop)
+            {
+                detail::tlu::apply
+                <
+                    state_tuple_t,
+                    stop_helper
+                >::call(*this, event);
+            }
+
+            //Anonymous transitions
+            if constexpr(transition_table_digest_t::has_none_events)
+            {
+                if(processed)
+                {
+                    while(process_event_in_transition_table_once(none{})){}
+                }
+            }
+            else
+            {
+                detail::ignore_unused(processed);
+            }
+        }
 
         //Used to call client code
         template<class F>

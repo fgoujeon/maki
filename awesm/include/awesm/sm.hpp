@@ -9,6 +9,7 @@
 
 #include "sm_configuration.hpp"
 #include "subsm.hpp"
+#include "detail/event_processing_type.hpp"
 #include "detail/alternative_lazy.hpp"
 #include "detail/any_container.hpp"
 #include <queue>
@@ -75,59 +76,29 @@ class sm
         template<class Event>
         void start(const Event& event)
         {
-            subsm_.start(event);
+            process_event_2<detail::event_processing_type::start>(event);
         }
 
         void start()
         {
-            subsm_.start();
+            start(none{});
         }
 
         template<class Event>
         void stop(const Event& event)
         {
-            subsm_.stop(event);
+            process_event_2<detail::event_processing_type::stop>(event);
         }
 
         void stop()
         {
-            subsm_.stop();
+            stop(none{});
         }
 
         template<class Event>
         void process_event(const Event& event)
         {
-            if constexpr(Configuration::enable_run_to_completion)
-            {
-                //Queue event processing in case of recursive call
-                if(processing_event_)
-                {
-                    safe_call //copy constructor might throw
-                    (
-                        [&]
-                        {
-                            queued_event_processings_.emplace(*this, event);
-                        }
-                    );
-                    return;
-                }
-
-                processing_event_ = true;
-                auto _ = detail::false_at_destruction_setter{processing_event_};
-
-                process_event_once(event);
-
-                //Process deferred event processings
-                while(!queued_event_processings_.empty())
-                {
-                    queued_event_processings_.front()();
-                    queued_event_processings_.pop();
-                }
-            }
-            else
-            {
-                process_event_once(event);
-            }
+            process_event_2<detail::event_processing_type::event>(event);
         }
 
     private:
@@ -154,15 +125,20 @@ class sm
         class event_processing
         {
             public:
-                template<class Event>
-                event_processing(sm& machine, const Event& event):
+                template<class Event, detail::event_processing_type ProcessingType>
+                event_processing
+                (
+                    sm& machine,
+                    const Event& event,
+                    std::integral_constant<detail::event_processing_type, ProcessingType> /*unused*/
+                ):
                     sm_(machine),
                     event_(event),
                     pprocess_event_
                     (
                         [](sm& machine, const event_storage_t& event)
                         {
-                            machine.process_event_once(event.get<Event>());
+                            machine.process_event_once<ProcessingType>(event.get<Event>());
                         }
                     )
                 {
@@ -205,6 +181,51 @@ class sm
             empty_holder
         >;
 
+        template<detail::event_processing_type ProcessingType, class Event>
+        void process_event_2(const Event& event)
+        {
+            if constexpr(Configuration::enable_run_to_completion)
+            {
+                //Queue event processing in case of recursive call
+                if(processing_event_)
+                {
+                    safe_call //copy constructor might throw
+                    (
+                        [&]
+                        {
+                            queued_event_processings_.emplace
+                            (
+                                *this,
+                                event,
+                                std::integral_constant
+                                <
+                                    detail::event_processing_type,
+                                    ProcessingType
+                                >{}
+                            );
+                        }
+                    );
+                    return;
+                }
+
+                processing_event_ = true;
+                auto _ = detail::false_at_destruction_setter{processing_event_};
+
+                process_event_once<ProcessingType>(event);
+
+                //Process deferred event processings
+                while(!queued_event_processings_.empty())
+                {
+                    queued_event_processings_.front()();
+                    queued_event_processings_.pop();
+                }
+            }
+            else
+            {
+                process_event_once<ProcessingType>(event);
+            }
+        }
+
         //Used to call client code
         template<class F>
         void safe_call(F&& f)
@@ -219,22 +240,36 @@ class sm
             }
         }
 
-        template<class Event>
+        template<detail::event_processing_type ProcessingType, class Event>
         void process_event_once(const Event& event)
         {
-            safe_call
-            (
-                [&]
-                {
-                    detail::call_on_event
-                    (
-                        &pre_transition_event_handler_,
-                        &event
-                    );
-                }
-            );
+            if constexpr(ProcessingType == detail::event_processing_type::event)
+            {
+                safe_call
+                (
+                    [&]
+                    {
+                        detail::call_on_event
+                        (
+                            &pre_transition_event_handler_,
+                            &event
+                        );
+                    }
+                );
+            }
 
-            subsm_.process_event(event);
+            if constexpr(ProcessingType == detail::event_processing_type::start)
+            {
+                subsm_.start(event);
+            }
+            else if constexpr(ProcessingType == detail::event_processing_type::stop)
+            {
+                subsm_.stop(event);
+            }
+            else
+            {
+                subsm_.process_event(event);
+            }
         }
 
         subsm_t subsm_;

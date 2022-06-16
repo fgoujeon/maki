@@ -73,17 +73,6 @@ class subsm
             return regions_.template get<RegionIndex>().template is_active_state<State>();
         }
 
-        void reset()
-        {
-            regions_.for_each
-            (
-                [&](auto& reg)
-                {
-                    reg.reset();
-                }
-            );
-        }
-
         template<class Event>
         void start(const Event& event)
         {

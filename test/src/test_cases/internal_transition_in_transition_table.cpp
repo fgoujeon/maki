@@ -92,11 +92,15 @@ namespace
     using sm_t = awesm::simple_sm<sm_configuration>;
 }
 
-TEST_CASE("internal transition in transition table")
+TEST_CASE("internal_transition_in_transition_table")
 {
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
+    sm.start();
+    REQUIRE(ctx.out == "idle::on_entry;");
+
+    ctx.out.clear();
     sm.process_event(events::power_button_press{});
     REQUIRE(ctx.out == "idle::on_event;idle::on_exit;running::on_entry;");
 

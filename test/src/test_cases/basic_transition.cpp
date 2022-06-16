@@ -43,6 +43,9 @@ TEST_CASE("basic transition")
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
+    REQUIRE(sm.is_active_state<awesm::detail::null_state>());
+
+    sm.start();
     REQUIRE(sm.is_active_state<states::off>());
 
     sm.process_event(events::button_press{});

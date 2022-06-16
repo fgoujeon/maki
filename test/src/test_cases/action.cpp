@@ -65,6 +65,8 @@ TEST_CASE("action")
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
+    sm.start();
+
     sm.process_event(events::button_press{});
     REQUIRE(sm.is_active_state<states::on>());
     REQUIRE(ctx.i == 1);

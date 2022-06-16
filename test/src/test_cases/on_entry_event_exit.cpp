@@ -86,6 +86,8 @@ TEST_CASE("on_entry_event_exit")
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
+    sm.start();
+
     REQUIRE(sm.is_active_state<states::idle>());
     REQUIRE(ctx.hello == "");
     REQUIRE(ctx.dog == "");

@@ -109,9 +109,12 @@ TEST_CASE("orthogonal_regions")
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
+    sm.start();
     REQUIRE(sm.is_active_state<states::off0, 0>());
     REQUIRE(sm.is_active_state<states::off1, 1>());
+    REQUIRE(ctx.out == "before_transition;after_transition;before_transition;after_transition;");
 
+    ctx.out.clear();
     sm.process_event(events::button_press{});
     REQUIRE(sm.is_active_state<states::on0, 0>());
     REQUIRE(sm.is_active_state<states::on1, 1>());

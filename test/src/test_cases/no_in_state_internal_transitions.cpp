@@ -60,6 +60,8 @@ TEST_CASE("no_in_state_internal_transitions")
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
+    sm.start();
+
     //Shall have no effect
     sm.process_event(events::internal_transition{});
     REQUIRE(ctx.i == 0);

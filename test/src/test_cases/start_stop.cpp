@@ -17,31 +17,31 @@ namespace
 
     namespace states
     {
-        struct on
+        struct s0
         {
             void on_entry()
             {
-                ctx.out += "on::on_entry;";
+                ctx.out += "s0::on_entry;";
             }
 
             void on_exit()
             {
-                ctx.out += "on::on_exit;";
+                ctx.out += "s0::on_exit;";
             }
 
             context& ctx;
         };
 
-        struct off
+        struct s1
         {
             void on_entry()
             {
-                ctx.out += "off::on_entry;";
+                ctx.out += "s1::on_entry;";
             }
 
             void on_exit()
             {
-                ctx.out += "off::on_exit;";
+                ctx.out += "s1::on_exit;";
             }
 
             context& ctx;
@@ -57,8 +57,8 @@ namespace
     {
         using transition_table = awesm::transition_table
         <
-            awesm::row<states::off, events::button_press, states::on>,
-            awesm::row<states::on,  events::button_press, states::off>
+            awesm::row<states::s0, awesm::none,          states::s1>,
+            awesm::row<states::s1, events::button_press, states::s0>
         >;
     };
 
@@ -70,19 +70,15 @@ TEST_CASE("start_stop")
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
+    REQUIRE(sm.is_active_state<awesm::detail::null_state>());
     REQUIRE(ctx.out == "");
 
     sm.start();
-    REQUIRE(sm.is_active_state<states::off>());
-    REQUIRE(ctx.out == "off::on_entry;");
-
-    ctx.out.clear();
-    sm.process_event(events::button_press{});
-    REQUIRE(sm.is_active_state<states::on>());
-    REQUIRE(ctx.out == "off::on_exit;on::on_entry;");
+    REQUIRE(sm.is_active_state<states::s1>());
+    REQUIRE(ctx.out == "s0::on_entry;s0::on_exit;s1::on_entry;");
 
     ctx.out.clear();
     sm.stop();
-    REQUIRE(sm.is_active_state<states::on>());
-    REQUIRE(ctx.out == "on::on_exit;");
+    REQUIRE(sm.is_active_state<awesm::detail::null_state>());
+    REQUIRE(ctx.out == "s1::on_exit;");
 }

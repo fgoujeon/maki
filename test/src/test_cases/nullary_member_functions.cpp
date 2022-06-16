@@ -107,6 +107,8 @@ TEST_CASE("nullary_member_functions")
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
+    sm.start();
+
     ctx.out.clear();
     sm.process_event(events::e1{});
     REQUIRE(ctx.out == "check(e1);execute(e1);on_entry(e1);");

@@ -20,15 +20,8 @@ namespace
 
     namespace states
     {
-        struct on
-        {
-            static constexpr auto name = "on";
-        };
-
-        struct off
-        {
-            static constexpr auto name = "off";
-        };
+        struct on{};
+        struct off{};
     }
 
     namespace events
@@ -37,6 +30,23 @@ namespace
         {
             int pressure = 0;
         };
+    }
+
+    template<class State>
+    std::string get_state_name()
+    {
+        if constexpr(std::is_same_v<State, states::on>)
+        {
+            return "on";
+        }
+        else if constexpr(std::is_same_v<State, states::off>)
+        {
+            return "off";
+        }
+        else if constexpr(std::is_same_v<State, awesm::detail::null_state>)
+        {
+            return "null";
+        }
     }
 
     struct sm_configuration: awesm::simple_sm_configuration
@@ -52,7 +62,7 @@ namespace
             template<class SourceState, class Event, class TargetState>
             void before_transition(const Event& event)
             {
-                ctx.out += std::string{SourceState::name} + "->" + TargetState::name + "...;";
+                ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + "...;";
                 ctx.out += std::to_string(event.pressure) + ";";
             }
 
@@ -60,7 +70,7 @@ namespace
             void after_transition(const Event& event)
             {
                 ctx.out += std::to_string(event.pressure) + ";";
-                ctx.out += std::string{SourceState::name} + "->" + TargetState::name + ";";
+                ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + ";";
             }
 
             sm_t& simple_sm;
@@ -74,8 +84,11 @@ TEST_CASE("state_transition_hook_set")
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
+    sm.start(events::button_press{0});
     REQUIRE(sm.is_active_state<states::off>());
+    REQUIRE(ctx.out == "null->off...;0;0;null->off;");
 
+    ctx.out.clear();
     sm.process_event(events::button_press{1});
     REQUIRE(sm.is_active_state<states::on>());
     REQUIRE(ctx.out == "off->on...;1;1;off->on;");

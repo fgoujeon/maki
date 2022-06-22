@@ -53,7 +53,7 @@ namespace
         struct button_press{};
     }
 
-    struct sm_configuration: awesm::simple_sm_configuration
+    struct sm_configuration
     {
         using transition_table = awesm::transition_table
         <

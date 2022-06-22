@@ -9,9 +9,6 @@
 
 #include "sm_fwd.hpp"
 #include "region_configuration_list.hpp"
-#include "region_configuration.hpp"
-#include "sm_configuration.hpp"
-#include "simple_sm_configuration.hpp"
 #include "detail/type_list.hpp"
 
 namespace awesm
@@ -19,43 +16,35 @@ namespace awesm
 
 namespace detail
 {
-    template<class Configuration>
-    struct simple_sm_to_sm_configuration_helper
+    template<class MainConfiguration>
+    struct simple_sm_conf_to_sm_conf_helper
     {
-        struct region_conf: region_configuration
+        struct region_conf
         {
-            using transition_table =
-                typename Configuration::transition_table
-            ;
+            using transition_table = typename MainConfiguration::transition_table;
         };
 
-        struct type: sm_configuration
+        struct type
         {
             using region_configurations = region_configuration_list
             <
                 region_conf
             >;
-
-            using exception_handler = typename Configuration::exception_handler;
-
-            using state_transition_hook_set =
-                typename Configuration::state_transition_hook_set
-            ;
-
-            static constexpr auto enable_in_state_internal_transitions =
-                Configuration::enable_in_state_internal_transitions
-            ;
         };
     };
 
-    template<class Configuration>
-    using simple_sm_to_sm_configuration =
-        typename simple_sm_to_sm_configuration_helper<Configuration>::type
+    template<class MainConfiguration>
+    using simple_sm_conf_to_sm_conf =
+        typename simple_sm_conf_to_sm_conf_helper<MainConfiguration>::type
     ;
 }
 
-template<class Configuration>
-using simple_sm = sm<detail::simple_sm_to_sm_configuration<Configuration>>;
+template<class MainConfiguration, class... Options>
+using simple_sm = sm
+<
+    detail::simple_sm_conf_to_sm_conf<MainConfiguration>,
+    Options...
+>;
 
 } //namespace
 

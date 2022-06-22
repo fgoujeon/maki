@@ -7,8 +7,8 @@
 #ifndef AWESM_DETAIL_REGION_HPP
 #define AWESM_DETAIL_REGION_HPP
 
-#include "../region_configuration.hpp"
 #include "../none.hpp"
+#include "sm_configuration.hpp"
 #include "call_member.hpp"
 #include "resolve_transition_table.hpp"
 #include "transition_table_digest.hpp"
@@ -23,23 +23,16 @@
 namespace awesm::detail
 {
 
-template<class Configuration, class PrivateConfiguration>
+template<class MainConfiguration, class... Options>
 class region
 {
     public:
-        static_assert
-        (
-            std::is_base_of_v<awesm::region_configuration, Configuration>,
-            "Given configuration type must inherit from awesm::region_configuration."
-        );
-
         template<class Sm, class Context>
         explicit region(Sm& sm, Context& context):
             states_(sm, context),
             actions_(sm, context),
             guards_(sm, context),
-            exception_handler_{sm, context},
-            state_transition_hook_set_{sm, context}
+            conf_(sm, context)
         {
         }
 
@@ -90,15 +83,18 @@ class region
         }
 
     private:
-        using unresolved_transition_table_t =
-            typename Configuration::transition_table
-        ;
-        using exception_handler_t =
-            typename PrivateConfiguration::exception_handler
-        ;
-        using state_transition_hook_set_t =
-            typename PrivateConfiguration::state_transition_hook_set
-        ;
+        using unresolved_transition_table_t = typename MainConfiguration::transition_table;
+
+        using configuration_t = sm_configuration
+        <
+            sm_options::detail::defaults::after_state_transition,
+            sm_options::detail::defaults::before_state_transition,
+            sm_options::detail::defaults::in_state_internal_transitions,
+            sm_options::detail::defaults::on_event,
+            sm_options::detail::defaults::on_exception,
+            sm_options::detail::defaults::run_to_completion,
+            Options...
+        >;
 
         using transition_table_digest_t =
             detail::transition_table_digest<unresolved_transition_table_t>
@@ -138,7 +134,7 @@ class region
         template<detail::event_processing_type ProcessingType, class Event>
         void process_event_2(const Event& event)
         {
-            if constexpr(PrivateConfiguration::enable_in_state_internal_transitions)
+            if constexpr(configuration_t::has_in_state_internal_transitions())
             {
                 process_event_in_active_state(event);
             }
@@ -190,7 +186,7 @@ class region
             }
             catch(...)
             {
-                exception_handler_.on_exception(std::current_exception());
+                conf_.on_exception(std::current_exception());
             }
         }
 
@@ -204,7 +200,7 @@ class region
             }
             catch(...)
             {
-                exception_handler_.on_exception(std::current_exception());
+                conf_.on_exception(std::current_exception());
                 return false;
             }
         }
@@ -291,7 +287,7 @@ class region
 
                 if constexpr(!is_internal_transition)
                 {
-                    state_transition_hook_set_.template before_transition
+                    conf_.template before_state_transition
                     <
                         source_state_t,
                         Event,
@@ -330,7 +326,7 @@ class region
                         0
                     );
 
-                    state_transition_hook_set_.template after_transition
+                    conf_.template after_state_transition
                     <
                         source_state_t,
                         Event,
@@ -450,8 +446,7 @@ class region
         state_tuple_t states_;
         action_tuple_t actions_;
         guard_tuple_t guards_;
-        exception_handler_t exception_handler_;
-        state_transition_hook_set_t state_transition_hook_set_;
+        configuration_t conf_;
 
         int active_state_index_ = 0;
 };

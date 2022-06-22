@@ -24,18 +24,20 @@ namespace
         struct button_press{};
     }
 
-    struct sm_configuration: awesm::simple_sm_configuration
+    struct sm_configuration
     {
         using transition_table = awesm::transition_table
         <
             awesm::row<states::off, events::button_press, states::on>,
             awesm::row<states::on,  events::button_press, states::off>
         >;
-
-        static constexpr auto enable_run_to_completion = false;
     };
 
-    using sm_t = awesm::simple_sm<sm_configuration>;
+    using sm_t = awesm::simple_sm
+    <
+        sm_configuration,
+        awesm::sm_options::run_to_completion<false>
+    >;
 }
 
 TEST_CASE("basic transition")

@@ -10,9 +10,6 @@
 
 namespace
 {
-    struct sm_configuration;
-    using sm_t = awesm::simple_sm<sm_configuration>;
-
     struct context
     {
         std::string out;
@@ -22,14 +19,6 @@ namespace
     {
         struct on{};
         struct off{};
-    }
-
-    namespace events
-    {
-        struct button_press
-        {
-            int pressure = 0;
-        };
     }
 
     template<class State>
@@ -49,33 +38,54 @@ namespace
         }
     }
 
-    struct sm_configuration: awesm::simple_sm_configuration
+    struct sm_configuration;
+
+    struct sm_before_state_transition
+    {
+        template<class SourceState, class Event, class TargetState>
+        void before_state_transition(const Event& event)
+        {
+            ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + "...;";
+            ctx.out += std::to_string(event.pressure) + ";";
+        }
+
+        context& ctx;
+    };
+
+    struct sm_after_state_transition
+    {
+        template<class SourceState, class Event, class TargetState>
+        void after_state_transition(const Event& event)
+        {
+            ctx.out += std::to_string(event.pressure) + ";";
+            ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + ";";
+        }
+
+        context& ctx;
+    };
+
+    using sm_t = awesm::simple_sm
+    <
+        sm_configuration,
+        awesm::sm_options::before_state_transition<sm_before_state_transition>,
+        awesm::sm_options::after_state_transition<sm_after_state_transition>
+    >;
+
+    namespace events
+    {
+        struct button_press
+        {
+            int pressure = 0;
+        };
+    }
+
+    struct sm_configuration
     {
         using transition_table = awesm::transition_table
         <
             awesm::row<states::off, events::button_press, states::on>,
             awesm::row<states::on,  events::button_press, states::off>
         >;
-
-        struct state_transition_hook_set
-        {
-            template<class SourceState, class Event, class TargetState>
-            void before_transition(const Event& event)
-            {
-                ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + "...;";
-                ctx.out += std::to_string(event.pressure) + ";";
-            }
-
-            template<class SourceState, class Event, class TargetState>
-            void after_transition(const Event& event)
-            {
-                ctx.out += std::to_string(event.pressure) + ";";
-                ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + ";";
-            }
-
-            sm_t& simple_sm;
-            context& ctx;
-        };
     };
 }
 

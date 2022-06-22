@@ -121,7 +121,7 @@ namespace
                 }
 
             private:
-                struct subsm_configuration: awesm::simple_subsm_configuration
+                struct subsm_configuration
                 {
                     using transition_table = awesm::transition_table
                     <
@@ -138,7 +138,7 @@ namespace
         };
     }
 
-    struct sm_configuration: awesm::simple_sm_configuration
+    struct sm_configuration
     {
         using transition_table = awesm::transition_table
         <

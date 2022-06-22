@@ -68,7 +68,7 @@ namespace
         using can_access_state3 = awesm::not_<guards::cant_access_state3>;
     }
 
-    struct sm_configuration: awesm::simple_sm_configuration
+    struct sm_configuration
     {
         using transition_table = awesm::transition_table
         <

@@ -7,8 +7,8 @@
 #ifndef AWESM_SUBSM_HPP
 #define AWESM_SUBSM_HPP
 
-#include "subsm_configuration.hpp"
 #include "detail/region.hpp"
+#include "detail/sm_configuration.hpp"
 #include <type_traits>
 
 namespace awesm
@@ -16,48 +16,36 @@ namespace awesm
 
 namespace detail
 {
-    template<class SubsmConfiguration, class RegionConfList>
-    struct subsm_configuration_to_region_tuple_helper;
+    template<class RegionConfigurationList, class... Options>
+    struct region_tuple_helper;
 
-    template<class SubsmConfiguration, template<class...> class RegionConfList, class... RegionConfs>
-    struct subsm_configuration_to_region_tuple_helper<SubsmConfiguration, RegionConfList<RegionConfs...>>
+    template<template<class...> class RegionConfigurationList, class... RegionConfs, class... Options>
+    struct region_tuple_helper<RegionConfigurationList<RegionConfs...>, Options...>
     {
-        struct region_private_configuration
-        {
-            using exception_handler = typename SubsmConfiguration::exception_handler;
-            using state_transition_hook_set = typename SubsmConfiguration::state_transition_hook_set;
-            static constexpr auto enable_in_state_internal_transitions = SubsmConfiguration::enable_in_state_internal_transitions;
-        };
-
         using type = sm_object_holder_tuple
         <
-            region<RegionConfs, region_private_configuration>...
+            region<RegionConfs, Options...>...
         >;
     };
 
-    template<class SubsmConfiguration>
-    using subsm_configuration_to_region_tuple =
-        typename subsm_configuration_to_region_tuple_helper
+    template<class RegionConfigurationList, class... Options>
+    using region_tuple =
+        typename region_tuple_helper
         <
-            SubsmConfiguration,
-            typename SubsmConfiguration::region_configurations
+            RegionConfigurationList,
+            Options...
         >::type
     ;
 }
 
-template<class Configuration>
+template<class MainConfiguration, class... Options>
 class subsm
 {
     public:
-        static_assert
-        (
-            std::is_base_of_v<subsm_configuration, Configuration>,
-            "Given configuration type must inherit from awesm::subsm_configuration."
-        );
-
         template<class Sm, class Context>
         explicit subsm(Sm& top_level_sm, Context& context):
-            regions_{top_level_sm, context}
+            regions_{top_level_sm, context},
+            conf_(top_level_sm, context)
         {
         }
 
@@ -132,12 +120,25 @@ class subsm
         }
 
     private:
-        using region_tuple_t = detail::subsm_configuration_to_region_tuple
+        using region_tuple_t = detail::region_tuple
         <
-            Configuration
+            typename MainConfiguration::region_configurations,
+            Options...
+        >;
+
+        using configuration_t = detail::sm_configuration
+        <
+            sm_options::detail::defaults::after_state_transition,
+            sm_options::detail::defaults::before_state_transition,
+            sm_options::detail::defaults::in_state_internal_transitions,
+            sm_options::detail::defaults::on_event,
+            sm_options::detail::defaults::on_exception,
+            sm_options::detail::defaults::run_to_completion,
+            Options...
         >;
 
         region_tuple_t regions_;
+        configuration_t conf_;
 };
 
 } //namespace

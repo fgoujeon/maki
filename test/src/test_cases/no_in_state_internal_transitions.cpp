@@ -42,17 +42,19 @@ namespace
         };
     }
 
-    struct sm_configuration: awesm::simple_sm_configuration
+    struct sm_configuration
     {
         using transition_table = awesm::transition_table
         <
             awesm::row<states::single, events::self_transition, states::single>
         >;
-
-        static constexpr auto enable_in_state_internal_transitions = false;
     };
 
-    using sm_t = awesm::simple_sm<sm_configuration>;
+    using sm_t = awesm::simple_sm
+    <
+        sm_configuration,
+        awesm::sm_options::in_state_internal_transitions<false>
+    >;
 }
 
 TEST_CASE("no_in_state_internal_transitions")

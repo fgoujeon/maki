@@ -10,7 +10,7 @@
 namespace awesm
 {
 
-template<class Configuration>
+template<class RegionConfigurationList, class... Options>
 class sm;
 
 } //namespace

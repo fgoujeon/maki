@@ -15,43 +15,35 @@ namespace awesm
 
 namespace detail
 {
-    template<class Configuration>
-    struct simple_subsm_to_subsm_configuration_helper
+    template<class TransitionTable>
+    struct simple_subsm_conf_to_subsm_conf_helper
     {
-        struct region_conf: region_configuration
+        struct region_conf
         {
-            using transition_table =
-                typename Configuration::transition_table
-            ;
+            using transition_table = TransitionTable;
         };
 
-        struct type: subsm_configuration
+        struct type
         {
-            using region_configurations = region_configuration_list
-            <
-                region_conf
-            >;
-
-            using exception_handler = typename Configuration::exception_handler;
-
-            using state_transition_hook_set =
-                typename Configuration::state_transition_hook_set
-            ;
-
-            static constexpr auto enable_in_state_internal_transitions =
-                Configuration::enable_in_state_internal_transitions
-            ;
+            using region_configurations = region_configuration_list<region_conf>;
         };
     };
 
-    template<class Configuration>
-    using simple_subsm_to_subsm_configuration =
-        typename simple_subsm_to_subsm_configuration_helper<Configuration>::type
+    template<class TransitionTable>
+    using simple_subsm_conf_to_subsm_conf =
+        typename simple_subsm_conf_to_subsm_conf_helper<TransitionTable>::type
     ;
 }
 
-template<class Configuration>
-using simple_subsm = subsm<detail::simple_subsm_to_subsm_configuration<Configuration>>;
+template<class MainConfiguration, class... Options>
+using simple_subsm = subsm
+<
+    detail::simple_subsm_conf_to_subsm_conf
+    <
+        typename MainConfiguration::transition_table
+    >,
+    Options...
+>;
 
 }
 

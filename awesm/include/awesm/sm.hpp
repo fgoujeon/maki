@@ -7,8 +7,8 @@
 #ifndef AWESM_SM_HPP
 #define AWESM_SM_HPP
 
-#include "sm_configuration.hpp"
 #include "subsm.hpp"
+#include "detail/sm_configuration.hpp"
 #include "detail/event_processing_type.hpp"
 #include "detail/alternative_lazy.hpp"
 #include "detail/any_container.hpp"
@@ -43,21 +43,14 @@ namespace detail
     };
 }
 
-template<class Configuration>
+template<class MainConfiguration, class... Options>
 class sm
 {
     public:
-        static_assert
-        (
-            std::is_base_of_v<sm_configuration, Configuration>,
-            "Given configuration type must inherit from awesm::sm_configuration."
-        );
-
         template<class Context>
         explicit sm(Context& context):
-            subsm_{*this, context},
-            exception_handler_{*this, context},
-            pre_transition_event_handler_{*this, context}
+            conf_(*this, context),
+            subsm_{*this, context}
         {
         }
 
@@ -102,25 +95,18 @@ class sm
         }
 
     private:
-        using exception_handler_t =
-            typename Configuration::exception_handler
-        ;
-        using pre_transition_event_handler_t =
-            typename Configuration::pre_transition_event_handler
-        ;
-        using state_transition_hook_set_t =
-            typename Configuration::state_transition_hook_set
-        ;
+        using configuration_t = detail::sm_configuration
+        <
+            sm_options::detail::defaults::after_state_transition,
+            sm_options::detail::defaults::before_state_transition,
+            sm_options::detail::defaults::in_state_internal_transitions,
+            sm_options::detail::defaults::on_event,
+            sm_options::detail::defaults::on_exception,
+            sm_options::detail::defaults::run_to_completion,
+            Options...
+        >;
 
-        struct subsm_conf: subsm_configuration
-        {
-            using region_configurations = typename Configuration::region_configurations;
-            using exception_handler = exception_handler_t;
-            using state_transition_hook_set = state_transition_hook_set_t;
-            static constexpr auto enable_in_state_internal_transitions = Configuration::enable_in_state_internal_transitions;
-        };
-
-        using subsm_t = subsm<subsm_conf>;
+        using subsm_t = subsm<MainConfiguration, Options...>;
 
         class event_processing
         {
@@ -176,7 +162,7 @@ class sm
         };
         using queued_event_processing_storage_t = detail::alternative_lazy
         <
-            Configuration::enable_run_to_completion,
+            configuration_t::has_run_to_completion(),
             queue_holder,
             empty_holder
         >;
@@ -184,7 +170,7 @@ class sm
         template<detail::event_processing_type ProcessingType, class Event>
         void process_event_2(const Event& event)
         {
-            if constexpr(Configuration::enable_run_to_completion)
+            if constexpr(configuration_t::has_run_to_completion())
             {
                 //Queue event processing in case of recursive call
                 if(processing_event_)
@@ -236,7 +222,7 @@ class sm
             }
             catch(...)
             {
-                exception_handler_.on_exception(std::current_exception());
+                conf_.on_exception(std::current_exception());
             }
         }
 
@@ -249,11 +235,7 @@ class sm
                 (
                     [&]
                     {
-                        detail::call_on_event
-                        (
-                            &pre_transition_event_handler_,
-                            &event
-                        );
+                        conf_.on_event(&event);
                     }
                 );
             }
@@ -272,10 +254,8 @@ class sm
             }
         }
 
+        configuration_t conf_;
         subsm_t subsm_;
-
-        exception_handler_t exception_handler_;
-        pre_transition_event_handler_t pre_transition_event_handler_;
 
         bool processing_event_ = false;
         queued_event_processing_storage_t queued_event_processings_;

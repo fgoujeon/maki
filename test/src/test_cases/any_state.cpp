@@ -25,7 +25,7 @@ namespace
         struct error{};
     }
 
-    struct sm_conf: awesm::simple_sm_configuration
+    struct sm_conf
     {
         using transition_table = awesm::transition_table
         <

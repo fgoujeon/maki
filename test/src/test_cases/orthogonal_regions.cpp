@@ -9,13 +9,59 @@
 
 namespace
 {
-    struct sm_configuration;
-    using sm_t = awesm::sm<sm_configuration>;
-
     struct context
     {
         std::string out;
     };
+
+    struct sm_configuration;
+
+    struct sm_on_exception
+    {
+        void on_exception(const std::exception_ptr& e)
+        {
+            try
+            {
+                std::rethrow_exception(e);
+            }
+            catch(const std::exception& e)
+            {
+                ctx.out += std::string{"on_exception:"} + e.what() + ";";
+            }
+        }
+
+        context& ctx;
+    };
+
+    struct sm_before_state_transition
+    {
+        template<class SourceState, class Event, class TargetState>
+        void before_state_transition(const Event& /*event*/)
+        {
+            ctx.out += "before_state_transition;";
+        }
+
+        context& ctx;
+    };
+
+    struct sm_after_state_transition
+    {
+        template<class SourceState, class Event, class TargetState>
+        void after_state_transition(const Event& /*event*/)
+        {
+            ctx.out += "after_state_transition;";
+        }
+
+        context& ctx;
+    };
+
+    using sm_t = awesm::sm
+    <
+        sm_configuration,
+        awesm::sm_options::on_exception<sm_on_exception>,
+        awesm::sm_options::before_state_transition<sm_before_state_transition>,
+        awesm::sm_options::after_state_transition<sm_after_state_transition>
+    >;
 
     namespace events
     {
@@ -42,7 +88,7 @@ namespace
         };
     }
 
-    struct region_conf_0: awesm::region_configuration
+    struct region_conf_0
     {
         using transition_table = awesm::transition_table
         <
@@ -50,7 +96,7 @@ namespace
         >;
     };
 
-    struct region_conf_1: awesm::region_configuration
+    struct region_conf_1
     {
         using transition_table = awesm::transition_table
         <
@@ -58,49 +104,13 @@ namespace
         >;
     };
 
-    struct sm_configuration: awesm::sm_configuration
+    struct sm_configuration
     {
         using region_configurations = awesm::region_configuration_list
         <
             region_conf_0,
             region_conf_1
         >;
-
-        struct exception_handler
-        {
-            void on_exception(const std::exception_ptr& e)
-            {
-                try
-                {
-                    std::rethrow_exception(e);
-                }
-                catch(const std::exception& e)
-                {
-                    ctx.out += std::string{"on_exception:"} + e.what() + ";";
-                }
-            }
-
-            sm_t& sm;
-            context& ctx;
-        };
-
-        struct state_transition_hook_set
-        {
-            template<class SourceState, class Event, class TargetState>
-            void before_transition(const Event& /*event*/)
-            {
-                ctx.out += "before_transition;";
-            }
-
-            template<class SourceState, class Event, class TargetState>
-            void after_transition(const Event& /*event*/)
-            {
-                ctx.out += "after_transition;";
-            }
-
-            sm_t& sm;
-            context& ctx;
-        };
     };
 }
 
@@ -112,13 +122,13 @@ TEST_CASE("orthogonal_regions")
     sm.start();
     REQUIRE(sm.is_active_state<states::off0, 0>());
     REQUIRE(sm.is_active_state<states::off1, 1>());
-    REQUIRE(ctx.out == "before_transition;after_transition;before_transition;after_transition;");
+    REQUIRE(ctx.out == "before_state_transition;after_state_transition;before_state_transition;after_state_transition;");
 
     ctx.out.clear();
     sm.process_event(events::button_press{});
     REQUIRE(sm.is_active_state<states::on0, 0>());
     REQUIRE(sm.is_active_state<states::on1, 1>());
-    REQUIRE(ctx.out == "before_transition;after_transition;before_transition;after_transition;");
+    REQUIRE(ctx.out == "before_state_transition;after_state_transition;before_state_transition;after_state_transition;");
 
     ctx.out.clear();
     sm.process_event(events::exception_request{});

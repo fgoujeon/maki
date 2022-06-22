@@ -227,7 +227,7 @@ using button_push = button::push_event;
 using awesm::row;
 using awesm::any_but;
 
-struct sm_configuration: awesm::simple_sm_configuration
+struct sm_configuration
 {
     /*
     This is the transition table. This is where we define the actions that must

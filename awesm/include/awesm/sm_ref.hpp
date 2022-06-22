@@ -23,14 +23,14 @@ namespace detail
     class sm_ref_impl<Event, Events...>: sm_ref_impl<Events...>
     {
         public:
-            template<class SmConfiguration>
-            sm_ref_impl(sm<SmConfiguration>& machine):
+            template<class SmMainConfiguration, class... SmOptions>
+            sm_ref_impl(sm<SmMainConfiguration, SmOptions...>& machine):
                 sm_ref_impl<Events...>{machine},
                 pprocess_event_
                 {
                     [](void* const vpsm, const Event& event)
                     {
-                        using sm_t = sm<SmConfiguration>;
+                        using sm_t = sm<SmMainConfiguration, SmOptions...>;
                         const auto psm = reinterpret_cast<sm_t*>(vpsm); //NOLINT
                         psm->process_event(event);
                     }
@@ -56,8 +56,8 @@ namespace detail
     class sm_ref_impl<>
     {
         public:
-            template<class SmConfiguration>
-            sm_ref_impl(sm<SmConfiguration>& machine):
+            template<class SmMainConfiguration, class... SmOptions>
+            sm_ref_impl(sm<SmMainConfiguration, SmOptions...>& machine):
                 vpsm_(&machine)
             {
             }
@@ -85,8 +85,8 @@ template<class... Events>
 class sm_ref
 {
     public:
-        template<class SmConfiguration>
-        sm_ref(sm<SmConfiguration>& machine):
+        template<class SmMainConfiguration, class... SmOptions>
+        sm_ref(sm<SmMainConfiguration, SmOptions...>& machine):
             impl_{machine}
         {
         }

@@ -173,21 +173,6 @@ class region
             }
         }
 
-        //Used to call client code
-        template<class SmConfiguration, class F>
-        bool safe_call_or_false(SmConfiguration& sm_conf, F&& f)
-        {
-            try
-            {
-                return f();
-            }
-            catch(...)
-            {
-                sm_conf.on_exception(std::current_exception());
-                return false;
-            }
-        }
-
         //Try and trigger one transition
         template<class SmConfiguration, class Event>
         bool process_event_in_transition_table_once(SmConfiguration& sm_conf, const Event& event)
@@ -330,7 +315,8 @@ class region
             }
             else
             {
-                return safe_call_or_false
+                auto processed = false;
+                safe_call
                 (
                     sm_conf,
                     [&]
@@ -344,13 +330,14 @@ class region
                             )
                         )
                         {
-                            return false;
+                            return;
                         }
 
+                        processed = true;
                         do_transition(0);
-                        return true;
                     }
                 );
+                return processed;
             }
         }
 

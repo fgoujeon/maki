@@ -38,7 +38,7 @@ namespace
         }
     }
 
-    struct sm_configuration;
+    struct sm_transition_table;
 
     struct sm_before_state_transition
     {
@@ -66,7 +66,7 @@ namespace
 
     using sm_t = awesm::simple_sm
     <
-        sm_configuration,
+        sm_transition_table,
         awesm::sm_options::before_state_transition<sm_before_state_transition>,
         awesm::sm_options::after_state_transition<sm_after_state_transition>
     >;
@@ -79,9 +79,9 @@ namespace
         };
     }
 
-    struct sm_configuration
+    struct sm_transition_table
     {
-        using transition_table = awesm::transition_table
+        using type = awesm::transition_table
         <
             awesm::row<states::off, events::button_press, states::on>,
             awesm::row<states::on,  events::button_press, states::off>

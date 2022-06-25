@@ -39,28 +39,28 @@ namespace
         };
     }
 
-    struct region_conf_0
+    struct region_0_transition_table
     {
-        using transition_table = awesm::transition_table
+        using type = awesm::transition_table
         <
             awesm::row<states::off0, events::button_press, states::on0>
         >;
     };
 
-    struct region_conf_1
+    struct region_1_transition_table
     {
-        using transition_table = awesm::transition_table
+        using type = awesm::transition_table
         <
             awesm::row<states::off1, events::button_press, states::on1>
         >;
     };
 
-    struct sm_configuration
+    struct sm_region_conf_list
     {
-        using region_configurations = awesm::region_configuration_list
+        using type = awesm::region_configuration_list
         <
-            region_conf_0,
-            region_conf_1
+            region_0_transition_table,
+            region_1_transition_table
         >;
     };
 
@@ -105,7 +105,7 @@ namespace
 
     using sm_t = awesm::sm
     <
-        sm_configuration,
+        sm_region_conf_list,
         awesm::sm_options::on_exception<sm_on_exception>,
         awesm::sm_options::before_state_transition<sm_before_state_transition>,
         awesm::sm_options::after_state_transition<sm_after_state_transition>

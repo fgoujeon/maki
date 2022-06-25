@@ -68,9 +68,9 @@ namespace
         using can_access_state3 = awesm::not_<guards::cant_access_state3>;
     }
 
-    struct sm_configuration
+    struct sm_transition_table
     {
-        using transition_table = awesm::transition_table
+        using type = awesm::transition_table
         <
             awesm::row<states::idle, events::start, states::state0, awesm::none, guards::can_access_state0>,
             awesm::row<states::idle, events::start, states::state1, awesm::none, guards::can_access_state1>,
@@ -84,7 +84,7 @@ namespace
         >;
     };
 
-    using sm_t = awesm::simple_sm<sm_configuration>;
+    using sm_t = awesm::simple_sm<sm_transition_table>;
 }
 
 TEST_CASE("guard operators")

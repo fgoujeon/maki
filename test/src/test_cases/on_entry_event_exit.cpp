@@ -68,9 +68,9 @@ namespace
         };
     }
 
-    struct sm_configuration
+    struct sm_transition_table
     {
-        using transition_table = awesm::transition_table
+        using type = awesm::transition_table
         <
             awesm::row<states::idle,    events::next_language_request, states::english>,
             awesm::row<states::english, events::next_language_request, states::french>,
@@ -78,7 +78,7 @@ namespace
         >;
     };
 
-    using sm_t = awesm::simple_sm<sm_configuration>;
+    using sm_t = awesm::simple_sm<sm_transition_table>;
 }
 
 TEST_CASE("on_entry_event_exit")

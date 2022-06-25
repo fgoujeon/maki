@@ -9,40 +9,34 @@
 
 #include "sm_fwd.hpp"
 #include "region_configuration_list.hpp"
-#include "detail/type_list.hpp"
 
 namespace awesm
 {
 
 namespace detail
 {
-    template<class MainConfiguration>
+    template<class TransitionTableHolder>
     struct simple_sm_conf_to_sm_conf_helper
     {
-        struct region_conf
+        struct region_conf_list
         {
-            using transition_table = typename MainConfiguration::transition_table;
-        };
-
-        struct type
-        {
-            using region_configurations = region_configuration_list
+            using type = region_configuration_list
             <
-                region_conf
+                TransitionTableHolder
             >;
         };
     };
 
-    template<class MainConfiguration>
+    template<class TransitionTableHolder>
     using simple_sm_conf_to_sm_conf =
-        typename simple_sm_conf_to_sm_conf_helper<MainConfiguration>::type
+        typename simple_sm_conf_to_sm_conf_helper<TransitionTableHolder>::region_conf_list
     ;
 }
 
-template<class MainConfiguration, class... Options>
+template<class TransitionTableHolder, class... Options>
 using simple_sm = sm
 <
-    detail::simple_sm_conf_to_sm_conf<MainConfiguration>,
+    detail::simple_sm_conf_to_sm_conf<TransitionTableHolder>,
     Options...
 >;
 

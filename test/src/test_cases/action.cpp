@@ -48,16 +48,16 @@ namespace
         };
     }
 
-    struct sm_conf
+    struct sm_transition_table
     {
-        using transition_table = awesm::transition_table
+        using type = awesm::transition_table
         <
             awesm::row<states::off, events::button_press, states::on,  actions::beep>,
             awesm::row<states::on,  events::button_press, states::off, actions::boop>
         >;
     };
 
-    using sm_t = awesm::simple_sm<sm_conf>;
+    using sm_t = awesm::simple_sm<sm_transition_table>;
 }
 
 TEST_CASE("action")

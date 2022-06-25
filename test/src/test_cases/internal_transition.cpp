@@ -52,9 +52,9 @@ namespace
         };
     }
 
-    struct sm_configuration
+    struct sm_transition_table
     {
-        using transition_table = awesm::transition_table
+        using type = awesm::transition_table
         <
             awesm::row<states::state0, events::next_state, states::state1>,
             awesm::row<states::state1, events::next_state, states::state2>,
@@ -71,7 +71,7 @@ namespace
 
     using sm_t = awesm::simple_sm
     <
-        sm_configuration,
+        sm_transition_table,
         awesm::sm_options::run_to_completion<false>
     >;
 }

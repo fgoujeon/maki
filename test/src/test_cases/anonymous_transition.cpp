@@ -25,9 +25,9 @@ namespace
         struct s4{};
     };
 
-    struct sm_conf
+    struct sm_transition_table
     {
-        using transition_table = awesm::transition_table
+        using type = awesm::transition_table
         <
             awesm::row<states::s0, events::go_on, states::s1>,
             awesm::row<states::s1, awesm::none,   states::s2>,
@@ -37,7 +37,7 @@ namespace
         >;
     };
 
-    using sm_t = awesm::simple_sm<sm_conf>;
+    using sm_t = awesm::simple_sm<sm_transition_table>;
 }
 
 TEST_CASE("anonymous transition")

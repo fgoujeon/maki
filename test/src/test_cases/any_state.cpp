@@ -25,9 +25,9 @@ namespace
         struct error{};
     }
 
-    struct sm_conf
+    struct sm_transition_table
     {
-        using transition_table = awesm::transition_table
+        using type = awesm::transition_table
         <
             awesm::row<states::idle,    events::start_button_press, states::running>,
             awesm::row<states::running, events::stop_button_press,  states::idle>,
@@ -36,7 +36,7 @@ namespace
         >;
     };
 
-    using sm_t = awesm::simple_sm<sm_conf>;
+    using sm_t = awesm::simple_sm<sm_transition_table>;
 }
 
 TEST_CASE("any state")

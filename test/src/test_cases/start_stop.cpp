@@ -53,16 +53,16 @@ namespace
         struct button_press{};
     }
 
-    struct sm_configuration
+    struct sm_transition_table
     {
-        using transition_table = awesm::transition_table
+        using type = awesm::transition_table
         <
             awesm::row<states::s0, awesm::none,          states::s1>,
             awesm::row<states::s1, events::button_press, states::s0>
         >;
     };
 
-    using sm_t = awesm::simple_sm<sm_configuration>;
+    using sm_t = awesm::simple_sm<sm_transition_table>;
 }
 
 TEST_CASE("start_stop")

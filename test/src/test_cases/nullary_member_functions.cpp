@@ -88,9 +88,9 @@ namespace
         context& ctx;
     };
 
-    struct sm_configuration
+    struct sm_transition_table
     {
-        using transition_table = awesm::transition_table
+        using type = awesm::transition_table
         <
             awesm::row<states::off, events::e1, states::on,  action, guard>,
             awesm::row<states::off, events::e2, states::on,  action, guard>,
@@ -99,7 +99,7 @@ namespace
         >;
     };
 
-    using sm_t = awesm::simple_sm<sm_configuration>;
+    using sm_t = awesm::simple_sm<sm_transition_table>;
 }
 
 TEST_CASE("nullary_member_functions")

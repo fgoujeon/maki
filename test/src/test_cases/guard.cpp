@@ -57,9 +57,9 @@ namespace
         };
     }
 
-    struct sm_configuration
+    struct sm_transition_table
     {
-        using transition_table = awesm::transition_table
+        using type = awesm::transition_table
         <
             awesm::row<states::off, events::button_press, states::on,  awesm::none, guards::has_power>,
             awesm::row<states::on,  events::button_press, states::off, awesm::none, guards::always_false>,
@@ -67,7 +67,7 @@ namespace
         >;
     };
 
-    using sm_t = awesm::simple_sm<sm_configuration>;
+    using sm_t = awesm::simple_sm<sm_transition_table>;
 }
 
 TEST_CASE("guard")

@@ -9,8 +9,8 @@
 
 namespace
 {
-    struct sm_configuration;
-    using sm_t = awesm::simple_sm<sm_configuration>;
+    struct sm_transition_table;
+    using sm_t = awesm::simple_sm<sm_transition_table>;
 
     enum class led_color
     {
@@ -123,9 +123,9 @@ namespace
                 }
 
             private:
-                struct subsm_configuration
+                struct subsm_transition_table
                 {
-                    using transition_table = awesm::transition_table
+                    using type = awesm::transition_table
                     <
                         awesm::row<states::emitting_red,   events::color_button_press, states::emitting_green>,
                         awesm::row<states::emitting_green, events::color_button_press, states::emitting_blue>,
@@ -133,16 +133,16 @@ namespace
                     >;
                 };
 
-                using subsm_t = awesm::simple_subsm<subsm_configuration>;
+                using subsm_t = awesm::simple_subsm<subsm_transition_table>;
 
                 subsm_t subsm_;
                 context& ctx_;
         };
     }
 
-    struct sm_configuration
+    struct sm_transition_table
     {
-        using transition_table = awesm::transition_table
+        using type = awesm::transition_table
         <
             awesm::row<states::off, events::power_button_press, states::on>,
             awesm::row<states::on,  events::power_button_press, states::off>

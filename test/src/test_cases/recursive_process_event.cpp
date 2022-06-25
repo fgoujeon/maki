@@ -8,8 +8,8 @@
 
 namespace
 {
-    struct sm_configuration;
-    using sm_t = awesm::simple_sm<sm_configuration>;
+    struct sm_transition_table;
+    using sm_t = awesm::simple_sm<sm_transition_table>;
 }
 
 #include <awesm.hpp>
@@ -102,9 +102,9 @@ namespace
         };
     }
 
-    struct sm_configuration
+    struct sm_transition_table
     {
-        using transition_table = awesm::transition_table
+        using type = awesm::transition_table
         <
             awesm::row<states::s0, events::s0_to_s1_request, states::s1, actions::s0_to_s1>,
             awesm::row<states::s1, events::s1_to_s2_request, states::s2, actions::s1_to_s2>,

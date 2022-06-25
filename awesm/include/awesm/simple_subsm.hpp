@@ -15,33 +15,25 @@ namespace awesm
 
 namespace detail
 {
-    template<class TransitionTable>
+    template<class TransitionTableHolder>
     struct simple_subsm_conf_to_subsm_conf_helper
     {
-        struct region_conf
+        struct region_conf_list
         {
-            using transition_table = TransitionTable;
-        };
-
-        struct type
-        {
-            using region_configurations = region_configuration_list<region_conf>;
+            using type = region_configuration_list<TransitionTableHolder>;
         };
     };
 
-    template<class TransitionTable>
+    template<class TransitionTableHolder>
     using simple_subsm_conf_to_subsm_conf =
-        typename simple_subsm_conf_to_subsm_conf_helper<TransitionTable>::type
+        typename simple_subsm_conf_to_subsm_conf_helper<TransitionTableHolder>::region_conf_list
     ;
 }
 
-template<class MainConfiguration, class... Options>
+template<class TransitionTableHolder, class... Options>
 using simple_subsm = subsm
 <
-    detail::simple_subsm_conf_to_subsm_conf
-    <
-        typename MainConfiguration::transition_table
-    >,
+    detail::simple_subsm_conf_to_subsm_conf<TransitionTableHolder>,
     Options...
 >;
 

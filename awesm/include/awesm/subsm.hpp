@@ -8,6 +8,7 @@
 #define AWESM_SUBSM_HPP
 
 #include "detail/region.hpp"
+#include "region_configuration_list.hpp"
 #include <type_traits>
 
 namespace awesm
@@ -18,8 +19,8 @@ namespace detail
     template<class RegionConfigurationList, class... Options>
     struct region_tuple_helper;
 
-    template<template<class...> class RegionConfigurationList, class... RegionConfs, class... Options>
-    struct region_tuple_helper<RegionConfigurationList<RegionConfs...>, Options...>
+    template<class... RegionConfs, class... Options>
+    struct region_tuple_helper<region_configuration_list<RegionConfs...>, Options...>
     {
         using type = sm_object_holder_tuple
         <
@@ -37,7 +38,7 @@ namespace detail
     ;
 }
 
-template<class MainConfiguration, class... Options>
+template<class RegionConfListHolder, class... Options>
 class subsm
 {
     public:
@@ -98,7 +99,7 @@ class subsm
     private:
         using region_tuple_t = detail::region_tuple
         <
-            typename MainConfiguration::region_configurations,
+            typename RegionConfListHolder::type,
             Options...
         >;
 

@@ -66,26 +66,16 @@ class sm
             return subsm_.template is_active_state<State, RegionIndex>();
         }
 
-        template<class Event>
-        void start(const Event& event)
+        template<class Event = none>
+        void start(const Event& event = {})
         {
             process_event_2<detail::event_processing_type::start>(event);
         }
 
-        void start()
-        {
-            start(none{});
-        }
-
-        template<class Event>
-        void stop(const Event& event)
+        template<class Event = none>
+        void stop(const Event& event = {})
         {
             process_event_2<detail::event_processing_type::stop>(event);
-        }
-
-        void stop()
-        {
-            stop(none{});
         }
 
         template<class Event>
@@ -242,15 +232,15 @@ class sm
 
             if constexpr(ProcessingType == detail::event_processing_type::start)
             {
-                subsm_.start(event);
+                subsm_.start(conf_, event);
             }
             else if constexpr(ProcessingType == detail::event_processing_type::stop)
             {
-                subsm_.stop(event);
+                subsm_.stop(conf_, event);
             }
             else
             {
-                subsm_.process_event(event);
+                subsm_.process_event(conf_, event);
             }
         }
 

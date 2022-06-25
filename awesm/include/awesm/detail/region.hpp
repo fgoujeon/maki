@@ -8,7 +8,6 @@
 #define AWESM_DETAIL_REGION_HPP
 
 #include "../none.hpp"
-#include "sm_configuration.hpp"
 #include "call_member.hpp"
 #include "resolve_transition_table.hpp"
 #include "transition_table_digest.hpp"
@@ -53,28 +52,16 @@ class region
             return active_state_index_ == given_state_index;
         }
 
-        template<class SmConfiguration, class Event>
-        void start(SmConfiguration& sm_conf, const Event& event)
+        template<class SmConfiguration, class Event = none>
+        void start(SmConfiguration& sm_conf, const Event& event = {})
         {
             process_event_2<detail::event_processing_type::start>(sm_conf, event);
         }
 
-        template<class SmConfiguration>
-        void start(SmConfiguration& sm_conf)
-        {
-            start(sm_conf, none{});
-        }
-
-        template<class SmConfiguration, class Event>
-        void stop(SmConfiguration& sm_conf, const Event& event)
+        template<class SmConfiguration, class Event = none>
+        void stop(SmConfiguration& sm_conf, const Event& event = {})
         {
             process_event_2<detail::event_processing_type::stop>(sm_conf, event);
-        }
-
-        template<class SmConfiguration>
-        void stop(SmConfiguration& sm_conf)
-        {
-            stop(sm_conf, none{});
         }
 
         template<class SmConfiguration, class Event>
@@ -289,6 +276,7 @@ class region
                     detail::call_on_exit
                     (
                         &states_.get(static_cast<source_state_t*>(nullptr)),
+                        &sm_conf,
                         &event,
                         0
                     );
@@ -314,6 +302,7 @@ class region
                     detail::call_on_entry
                     (
                         &states_.get(static_cast<target_state_t*>(nullptr)),
+                        &sm_conf,
                         &event,
                         0
                     );
@@ -407,7 +396,7 @@ class region
             template<class SmConfiguration, class Event>
             static void process(region& reg, SmConfiguration& sm_conf, const Event& event)
             {
-                (reg.process_event_in_state<States>(sm_conf, &event) || ...);
+                (reg.process_event_in_state<States>(&sm_conf, &event) || ...);
             }
         };
 
@@ -415,7 +404,30 @@ class region
         template<class State, class SmConfiguration, class Event>
         auto process_event_in_state
         (
-            SmConfiguration& sm_conf,
+            SmConfiguration* psm_conf,
+            const Event* pevent
+        ) -> decltype(std::declval<State>().on_event(*psm_conf, *pevent), bool())
+        {
+            if(is_active_state<State>())
+            {
+                safe_call
+                (
+                    *psm_conf,
+                    [&]
+                    {
+                        states_.get(static_cast<State*>(nullptr)).on_event(*psm_conf, *pevent);
+                    }
+                );
+                return true;
+            }
+            return false;
+        }
+
+        //Processes internal events against one state
+        template<class State, class SmConfiguration, class Event>
+        auto process_event_in_state
+        (
+            SmConfiguration* psm_conf,
             const Event* pevent
         ) -> decltype(std::declval<State>().on_event(*pevent), bool())
         {
@@ -423,7 +435,7 @@ class region
             {
                 safe_call
                 (
-                    sm_conf,
+                    *psm_conf,
                     [&]
                     {
                         states_.get(static_cast<State*>(nullptr)).on_event(*pevent);
@@ -434,8 +446,12 @@ class region
             return false;
         }
 
-        template<class State, class SmConfiguration>
-        bool process_event_in_state(SmConfiguration& /*sm_conf*/, const void* /*pevent*/)
+        template<class State>
+        bool process_event_in_state
+        (
+            void* /*psm_conf*/,
+            const void* /*pevent*/
+        )
         {
             return false;
         }

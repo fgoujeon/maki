@@ -14,55 +14,6 @@ namespace
         std::string out;
     };
 
-    struct sm_configuration;
-
-    struct sm_on_exception
-    {
-        void on_exception(const std::exception_ptr& e)
-        {
-            try
-            {
-                std::rethrow_exception(e);
-            }
-            catch(const std::exception& e)
-            {
-                ctx.out += std::string{"on_exception:"} + e.what() + ";";
-            }
-        }
-
-        context& ctx;
-    };
-
-    struct sm_before_state_transition
-    {
-        template<class SourceState, class Event, class TargetState>
-        void before_state_transition(const Event& /*event*/)
-        {
-            ctx.out += "before_state_transition;";
-        }
-
-        context& ctx;
-    };
-
-    struct sm_after_state_transition
-    {
-        template<class SourceState, class Event, class TargetState>
-        void after_state_transition(const Event& /*event*/)
-        {
-            ctx.out += "after_state_transition;";
-        }
-
-        context& ctx;
-    };
-
-    using sm_t = awesm::sm
-    <
-        sm_configuration,
-        awesm::sm_options::on_exception<sm_on_exception>,
-        awesm::sm_options::before_state_transition<sm_before_state_transition>,
-        awesm::sm_options::after_state_transition<sm_after_state_transition>
-    >;
-
     namespace events
     {
         struct button_press
@@ -112,6 +63,53 @@ namespace
             region_conf_1
         >;
     };
+
+    struct sm_on_exception
+    {
+        void on_exception(const std::exception_ptr& e)
+        {
+            try
+            {
+                std::rethrow_exception(e);
+            }
+            catch(const std::exception& e)
+            {
+                ctx.out += std::string{"on_exception:"} + e.what() + ";";
+            }
+        }
+
+        context& ctx;
+    };
+
+    struct sm_before_state_transition
+    {
+        template<class SourceState, class Event, class TargetState>
+        void before_state_transition(const Event& /*event*/)
+        {
+            ctx.out += "before_state_transition;";
+        }
+
+        context& ctx;
+    };
+
+    struct sm_after_state_transition
+    {
+        template<class SourceState, class Event, class TargetState>
+        void after_state_transition(const Event& /*event*/)
+        {
+            ctx.out += "after_state_transition;";
+        }
+
+        context& ctx;
+    };
+
+    using sm_t = awesm::sm
+    <
+        sm_configuration,
+        awesm::sm_options::on_exception<sm_on_exception>,
+        awesm::sm_options::before_state_transition<sm_before_state_transition>,
+        awesm::sm_options::after_state_transition<sm_after_state_transition>
+    >;
 }
 
 TEST_CASE("orthogonal_regions")

@@ -31,8 +31,7 @@ class region
         explicit region(Sm& sm, Context& context):
             states_(sm, context),
             actions_(sm, context),
-            guards_(sm, context),
-            conf_(sm, context)
+            guards_(sm, context)
         {
         }
 
@@ -54,47 +53,38 @@ class region
             return active_state_index_ == given_state_index;
         }
 
-        template<class Event>
-        void start(const Event& event)
+        template<class SmConfiguration, class Event>
+        void start(SmConfiguration& sm_conf, const Event& event)
         {
-            process_event_2<detail::event_processing_type::start>(event);
+            process_event_2<detail::event_processing_type::start>(sm_conf, event);
         }
 
-        void start()
+        template<class SmConfiguration>
+        void start(SmConfiguration& sm_conf)
         {
-            start(none{});
+            start(sm_conf, none{});
         }
 
-        template<class Event>
-        void stop(const Event& event)
+        template<class SmConfiguration, class Event>
+        void stop(SmConfiguration& sm_conf, const Event& event)
         {
-            process_event_2<detail::event_processing_type::stop>(event);
+            process_event_2<detail::event_processing_type::stop>(sm_conf, event);
         }
 
-        void stop()
+        template<class SmConfiguration>
+        void stop(SmConfiguration& sm_conf)
         {
-            stop(none{});
+            stop(sm_conf, none{});
         }
 
-        template<class Event>
-        void process_event(const Event& event)
+        template<class SmConfiguration, class Event>
+        void process_event(SmConfiguration& sm_conf, const Event& event)
         {
-            process_event_2<detail::event_processing_type::event>(event);
+            process_event_2<detail::event_processing_type::event>(sm_conf, event);
         }
 
     private:
         using unresolved_transition_table_t = typename MainConfiguration::transition_table;
-
-        using configuration_t = sm_configuration
-        <
-            sm_options::detail::defaults::after_state_transition,
-            sm_options::detail::defaults::before_state_transition,
-            sm_options::detail::defaults::in_state_internal_transitions,
-            sm_options::detail::defaults::on_event,
-            sm_options::detail::defaults::on_exception,
-            sm_options::detail::defaults::run_to_completion,
-            Options...
-        >;
 
         using transition_table_digest_t =
             detail::transition_table_digest<unresolved_transition_table_t>
@@ -131,12 +121,17 @@ class region
             unresolved_transition_table_holder
         >;
 
-        template<detail::event_processing_type ProcessingType, class Event>
-        void process_event_2(const Event& event)
+        template
+        <
+            detail::event_processing_type ProcessingType,
+            class SmConfiguration,
+            class Event
+        >
+        void process_event_2(SmConfiguration& sm_conf, const Event& event)
         {
-            if constexpr(configuration_t::has_in_state_internal_transitions())
+            if constexpr(SmConfiguration::has_in_state_internal_transitions())
             {
-                process_event_in_active_state(event);
+                process_event_in_active_state(sm_conf, event);
             }
 
             auto processed = true;
@@ -146,6 +141,7 @@ class region
                 processed = transition_table_row_event_processor<fake_row>::process
                 (
                     *this,
+                    &sm_conf,
                     &event
                 );
             }
@@ -155,11 +151,11 @@ class region
                 <
                     state_tuple_t,
                     stop_helper
-                >::call(*this, event);
+                >::call(*this, sm_conf, event);
             }
             else if constexpr(ProcessingType == detail::event_processing_type::event)
             {
-                processed = process_event_in_transition_table_once(event);
+                processed = process_event_in_transition_table_once(sm_conf, event);
             }
 
             //Anonymous transitions
@@ -167,7 +163,7 @@ class region
             {
                 if(processed)
                 {
-                    while(process_event_in_transition_table_once(none{})){}
+                    while(process_event_in_transition_table_once(sm_conf, none{})){}
                 }
             }
             else
@@ -177,8 +173,8 @@ class region
         }
 
         //Used to call client code
-        template<class F>
-        void safe_call(F&& f)
+        template<class SmConfiguration, class F>
+        void safe_call(SmConfiguration& sm_conf, F&& f)
         {
             try
             {
@@ -186,13 +182,13 @@ class region
             }
             catch(...)
             {
-                conf_.on_exception(std::current_exception());
+                sm_conf.on_exception(std::current_exception());
             }
         }
 
         //Used to call client code
-        template<class F>
-        bool safe_call_or_false(F&& f)
+        template<class SmConfiguration, class F>
+        bool safe_call_or_false(SmConfiguration& sm_conf, F&& f)
         {
             try
             {
@@ -200,33 +196,34 @@ class region
             }
             catch(...)
             {
-                conf_.on_exception(std::current_exception());
+                sm_conf.on_exception(std::current_exception());
                 return false;
             }
         }
 
         //Try and trigger one transition
-        template<class Event>
-        bool process_event_in_transition_table_once(const Event& event)
+        template<class SmConfiguration, class Event>
+        bool process_event_in_transition_table_once(SmConfiguration& sm_conf, const Event& event)
         {
             return detail::tlu::apply
             <
                 transition_table_t,
                 transition_table_event_processor
-            >::process(*this, event);
+            >::process(*this, sm_conf, event);
         }
 
         template<class... Rows>
         struct transition_table_event_processor
         {
-            template<class Event>
-            static bool process(region& reg, const Event& event)
+            template<class SmConfiguration, class Event>
+            static bool process(region& reg, SmConfiguration& sm_conf, const Event& event)
             {
                 return
                 (
                     transition_table_row_event_processor<Rows>::process
                     (
                         reg,
+                        &sm_conf,
                         &event
                     ) || ...
                 );
@@ -237,36 +234,31 @@ class region
         template<class Row>
         struct transition_table_row_event_processor
         {
+            template<class SmConfiguration>
             static bool process
             (
                 region& reg,
+                SmConfiguration* psm_conf,
                 const typename Row::event_type* const pevent
             )
             {
-                return reg.process_event_in_row<Row>(*pevent);
+                return reg.process_event_in_row<Row>(*psm_conf, *pevent);
             }
 
             /*
-            This void* trick allows for shorter build times.
-
-            This alternative implementation takes more time to build:
-                template<class Event>
-                static bool process(sm&, const Event&)
-                {
-                    return false;
-                }
-
+            This void* trick allows for shorter build times because we save a
+            template instantiation.
             Using an if-constexpr in the process() function above is worse as
             well.
             */
-            static bool process(region& /*reg*/, const void* /*pevent*/)
+            static bool process(region& /*reg*/, void* /*psm_conf*/, const void* /*pevent*/)
             {
                 return false;
             }
         };
 
-        template<class Row, class Event>
-        bool process_event_in_row(const Event& event)
+        template<class Row, class SmConfiguration, class Event>
+        bool process_event_in_row(SmConfiguration& sm_conf, const Event& event)
         {
             using source_state_t = typename Row::source_state_type;
             using target_state_t = typename Row::target_state_type;
@@ -287,7 +279,7 @@ class region
 
                 if constexpr(!is_internal_transition)
                 {
-                    conf_.template before_state_transition
+                    sm_conf.template before_state_transition
                     <
                         source_state_t,
                         Event,
@@ -326,7 +318,7 @@ class region
                         0
                     );
 
-                    conf_.template after_state_transition
+                    sm_conf.template after_state_transition
                     <
                         source_state_t,
                         Event,
@@ -339,6 +331,7 @@ class region
             {
                 safe_call
                 (
+                    sm_conf,
                     [&]
                     {
                         do_transition(0);
@@ -350,6 +343,7 @@ class region
             {
                 return safe_call_or_false
                 (
+                    sm_conf,
                     [&]
                     {
                         if
@@ -374,20 +368,21 @@ class region
         template<class... States>
         struct stop_helper
         {
-            template<class Event>
-            static bool call(region& reg, const Event& event)
+            template<class SmConfiguration, class Event>
+            static bool call(region& reg, SmConfiguration& sm_conf, const Event& event)
             {
-                return (reg.stop_2<States>(&event) || ...);
+                return (reg.stop_2<States>(sm_conf, &event) || ...);
             }
         };
 
-        template<class State, class Event>
-        bool stop_2(const Event* pevent)
+        template<class State, class SmConfiguration, class Event>
+        bool stop_2(SmConfiguration& sm_conf, const Event* pevent)
         {
             using fake_row = row<State, Event, null_state>;
             return transition_table_row_event_processor<fake_row>::process
             (
                 *this,
+                &sm_conf,
                 pevent
             );
         }
@@ -395,31 +390,32 @@ class region
         /*
         Call active_state.on_event(event)
         */
-        template<class Event>
-        void process_event_in_active_state(const Event& event)
+        template<class SmConfiguration, class Event>
+        void process_event_in_active_state(SmConfiguration& sm_conf, const Event& event)
         {
             return detail::tlu::apply
             <
                 state_tuple_t,
                 active_state_event_processor
-            >::process(*this, event);
+            >::process(*this, sm_conf, event);
         }
 
         //Processes internal events against all states
         template<class... States>
         struct active_state_event_processor
         {
-            template<class Event>
-            static void process(region& reg, const Event& event)
+            template<class SmConfiguration, class Event>
+            static void process(region& reg, SmConfiguration& sm_conf, const Event& event)
             {
-                (reg.process_event_in_state<States>(&event) || ...);
+                (reg.process_event_in_state<States>(sm_conf, &event) || ...);
             }
         };
 
         //Processes internal events against one state
-        template<class State, class Event>
+        template<class State, class SmConfiguration, class Event>
         auto process_event_in_state
         (
+            SmConfiguration& sm_conf,
             const Event* pevent
         ) -> decltype(std::declval<State>().on_event(*pevent), bool())
         {
@@ -427,6 +423,7 @@ class region
             {
                 safe_call
                 (
+                    sm_conf,
                     [&]
                     {
                         states_.get(static_cast<State*>(nullptr)).on_event(*pevent);
@@ -437,8 +434,8 @@ class region
             return false;
         }
 
-        template<class State>
-        bool process_event_in_state(const void* /*pevent*/)
+        template<class State, class SmConfiguration>
+        bool process_event_in_state(SmConfiguration& /*sm_conf*/, const void* /*pevent*/)
         {
             return false;
         }
@@ -446,7 +443,6 @@ class region
         state_tuple_t states_;
         action_tuple_t actions_;
         guard_tuple_t guards_;
-        configuration_t conf_;
 
         int active_state_index_ = 0;
 };

@@ -68,7 +68,7 @@ class subsm
             (
                 [&](auto& reg)
                 {
-                    reg.start(event);
+                    reg.start(conf_, event);
                 }
             );
         }
@@ -79,7 +79,7 @@ class subsm
             (
                 [&](auto& reg)
                 {
-                    reg.start();
+                    reg.start(conf_);
                 }
             );
         }
@@ -91,7 +91,7 @@ class subsm
             (
                 [&](auto& reg)
                 {
-                    reg.stop(event);
+                    reg.stop(conf_, event);
                 }
             );
         }
@@ -102,7 +102,7 @@ class subsm
             (
                 [&](auto& reg)
                 {
-                    reg.stop();
+                    reg.stop(conf_);
                 }
             );
         }
@@ -114,7 +114,7 @@ class subsm
             (
                 [&](auto& reg)
                 {
-                    reg.process_event(event);
+                    reg.process_event(conf_, event);
                 }
             );
         }

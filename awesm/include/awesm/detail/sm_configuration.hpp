@@ -47,7 +47,7 @@ class sm_configuration: private Options...
             (
                 sm_options::detail::tags::after_state_transition{},
                 static_cast<SourceState*>(nullptr),
-                event,
+                &event,
                 static_cast<TargetState*>(nullptr),
                 0
             );
@@ -60,7 +60,7 @@ class sm_configuration: private Options...
             (
                 sm_options::detail::tags::before_state_transition{},
                 static_cast<SourceState*>(nullptr),
-                event,
+                &event,
                 static_cast<TargetState*>(nullptr),
                 0
             );

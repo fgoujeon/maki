@@ -26,13 +26,12 @@ namespace detail::defaults
         {
         }
 
-        template<class SourceState, class Event, class TargetState>
         void call
         (
-            tags::before_state_transition /*tag*/,
-            SourceState* /*tag*/,
-            const Event& /*event*/,
-            TargetState* /*tag*/,
+            tags::before_state_transition /*action_tag*/,
+            void* /*source_state_tag*/,
+            const void* /*pevent*/,
+            void* /*target_state_tag*/,
             long /*priority*/
         )
         {
@@ -53,14 +52,14 @@ class before_state_transition
         template<class SourceState, class Event, class TargetState>
         void call
         (
-            detail::tags::before_state_transition /*tag*/,
-            SourceState* /*tag*/,
-            const Event& event,
-            TargetState* /*tag*/,
+            detail::tags::before_state_transition /*action_tag*/,
+            SourceState* /*source_state_tag*/,
+            const Event* pevent,
+            TargetState* /*target_state_tag*/,
             int /*priority*/
         )
         {
-            impl_.object.template before_state_transition<SourceState, Event, TargetState>(event);
+            impl_.object.template before_state_transition<SourceState, Event, TargetState>(*pevent);
         }
 
     private:

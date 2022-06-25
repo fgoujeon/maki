@@ -24,8 +24,7 @@ namespace detail::defaults
         {
         }
 
-        template<class Event>
-        void call(tags::on_event /*tag*/, const Event& /*event*/, long /*priority*/)
+        void call(tags::on_event /*tag*/, const void* /*pevent*/, long /*priority*/)
         {
         }
     };
@@ -41,9 +40,9 @@ class on_event
         }
 
         template<class Event>
-        void call(detail::tags::on_event /*tag*/, const Event& event, int /*priority*/)
+        void call(detail::tags::on_event /*tag*/, const Event* pevent, int /*priority*/)
         {
-            impl_.on_event(event);
+            impl_.on_event(*pevent);
         }
 
     private:

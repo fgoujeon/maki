@@ -50,10 +50,9 @@ class on_exception
         {
         }
 
-        template<class Event>
-        void call(detail::tags::on_exception /*tag*/, const Event& event, int /*priority*/)
+        void call(detail::tags::on_exception /*tag*/, const std::exception_ptr& eptr, int /*priority*/)
         {
-            impl_.object.on_exception(event);
+            impl_.object.on_exception(eptr);
         }
 
     private:

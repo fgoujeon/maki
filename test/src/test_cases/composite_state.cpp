@@ -103,20 +103,22 @@ namespace
                 {
                 }
 
-                void on_entry()
+                template<class SmConfiguration, class Event>
+                void on_entry(SmConfiguration& sm_conf, const Event& event)
                 {
-                    subsm_.start();
+                    subsm_.start(sm_conf, event);
                 }
 
-                template<class Event>
-                void on_event(const Event& event)
+                template<class SmConfiguration, class Event>
+                void on_event(SmConfiguration& sm_conf, const Event& event)
                 {
-                    subsm_.process_event(event);
+                    subsm_.process_event(sm_conf, event);
                 }
 
-                void on_exit()
+                template<class SmConfiguration, class Event>
+                void on_exit(SmConfiguration& sm_conf, const Event& event)
                 {
-                    subsm_.stop();
+                    subsm_.stop(sm_conf, event);
                     ctx_.current_led_color = led_color::off;
                 }
 

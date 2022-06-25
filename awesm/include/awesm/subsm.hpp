@@ -8,7 +8,6 @@
 #define AWESM_SUBSM_HPP
 
 #include "detail/region.hpp"
-#include "detail/sm_configuration.hpp"
 #include <type_traits>
 
 namespace awesm
@@ -44,8 +43,7 @@ class subsm
     public:
         template<class Sm, class Context>
         explicit subsm(Sm& top_level_sm, Context& context):
-            regions_{top_level_sm, context},
-            conf_(top_level_sm, context)
+            regions_{top_level_sm, context}
         {
         }
 
@@ -61,60 +59,38 @@ class subsm
             return regions_.template get<RegionIndex>().template is_active_state<State>();
         }
 
-        template<class Event>
-        void start(const Event& event)
+        template<class SmConfiguration, class Event = none>
+        void start(SmConfiguration& sm_conf, const Event& event = {})
         {
             regions_.for_each
             (
                 [&](auto& reg)
                 {
-                    reg.start(event);
+                    reg.start(sm_conf, event);
                 }
             );
         }
 
-        void start()
+        template<class SmConfiguration, class Event = none>
+        void stop(SmConfiguration& sm_conf, const Event& event = {})
         {
             regions_.for_each
             (
                 [&](auto& reg)
                 {
-                    reg.start();
+                    reg.stop(sm_conf, event);
                 }
             );
         }
 
-        template<class Event>
-        void stop(const Event& event)
+        template<class SmConfiguration, class Event>
+        void process_event(SmConfiguration& sm_conf, const Event& event)
         {
             regions_.for_each
             (
                 [&](auto& reg)
                 {
-                    reg.stop(event);
-                }
-            );
-        }
-
-        void stop()
-        {
-            regions_.for_each
-            (
-                [&](auto& reg)
-                {
-                    reg.stop();
-                }
-            );
-        }
-
-        template<class Event>
-        void process_event(const Event& event)
-        {
-            regions_.for_each
-            (
-                [&](auto& reg)
-                {
-                    reg.process_event(event);
+                    reg.process_event(sm_conf, event);
                 }
             );
         }
@@ -126,19 +102,7 @@ class subsm
             Options...
         >;
 
-        using configuration_t = detail::sm_configuration
-        <
-            sm_options::detail::defaults::after_state_transition,
-            sm_options::detail::defaults::before_state_transition,
-            sm_options::detail::defaults::in_state_internal_transitions,
-            sm_options::detail::defaults::on_event,
-            sm_options::detail::defaults::on_exception,
-            sm_options::detail::defaults::run_to_completion,
-            Options...
-        >;
-
         region_tuple_t regions_;
-        configuration_t conf_;
 };
 
 } //namespace

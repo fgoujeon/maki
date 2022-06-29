@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm.hpp>
-#include <catch2/catch_all.hpp>
+#include "common/catch.hpp"
 
 namespace
 {

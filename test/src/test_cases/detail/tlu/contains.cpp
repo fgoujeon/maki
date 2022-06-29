@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm/detail/tlu/contains.hpp>
-#include <catch2/catch_all.hpp>
+#include "../../common/catch.hpp"
 #include <tuple>
 
 TEST_CASE("detail::tlu::contains")

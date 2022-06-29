@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm/detail/any_container.hpp>
-#include <catch2/catch_all.hpp>
+#include "../common/catch.hpp"
 #include <array>
 
 namespace

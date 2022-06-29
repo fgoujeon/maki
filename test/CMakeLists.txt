@@ -20,8 +20,31 @@ target_link_libraries(
     ${TARGET}
     PRIVATE
         awesm
-        Catch2::Catch2WithMain
 )
+
+if(TARGET Catch2::Catch2WithMain) #v3
+    target_compile_definitions(
+        ${TARGET}
+        PRIVATE
+            AWESM_CATCH2_VERSION=3
+    )
+    target_link_libraries(
+        ${TARGET}
+        PRIVATE
+            Catch2::Catch2WithMain
+    )
+else() #v2
+    target_compile_definitions(
+        ${TARGET}
+        PRIVATE
+            AWESM_CATCH2_VERSION=2
+    )
+    target_link_libraries(
+        ${TARGET}
+        PRIVATE
+            Catch2::Catch2
+    )
+endif()
 
 add_test(
     NAME ${TARGET}

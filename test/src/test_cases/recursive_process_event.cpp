@@ -13,7 +13,7 @@ namespace
 }
 
 #include <awesm.hpp>
-#include <catch2/catch_all.hpp>
+#include "common/catch.hpp"
 
 namespace
 {

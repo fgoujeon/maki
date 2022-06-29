@@ -5,6 +5,8 @@
 # AweSM
 AweSM is a C++17 finite-state machine library.
 
+**This library is still in early development stage: it is functional and tested, but its API is subject to change.**
+
 ## Features
 AweSM implements the following key features:
 

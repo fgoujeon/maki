@@ -20,7 +20,7 @@ target_link_libraries(
     ${TARGET}
     PRIVATE
         awesm
-        Catch2::Catch2
+        Catch2::Catch2WithMain
 )
 
 add_test(

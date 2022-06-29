@@ -11,7 +11,7 @@ project(awesm)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 if(AWESM_BUILD_TEST)
-    find_package(Catch2 2.10 REQUIRED)
+    find_package(Catch2 3.0 REQUIRED)
 endif()
 
 option(AWESM_BUILD_EXAMPLES "Build example executables" OFF)

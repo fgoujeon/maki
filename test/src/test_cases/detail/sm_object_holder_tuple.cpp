@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm/detail/sm_object_holder_tuple.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 namespace
 {

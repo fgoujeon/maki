@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm/detail/any_container.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <array>
 
 namespace
@@ -53,7 +53,7 @@ namespace
         }
     };
 
-    const auto big_array = big_array_t{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    const auto big_array = big_array_t{{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}};
     const auto number = static_cast<char>(42);
 }
 

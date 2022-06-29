@@ -5,11 +5,19 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <string>
 
 namespace
 {
+    namespace events
+    {
+        struct button_press
+        {
+            int pressure = 0;
+        };
+    }
+
     struct context
     {
         std::string out;
@@ -38,7 +46,14 @@ namespace
         }
     }
 
-    struct sm_transition_table;
+    struct sm_transition_table
+    {
+        using type = awesm::transition_table
+        <
+            awesm::row<states::off, events::button_press, states::on>,
+            awesm::row<states::on,  events::button_press, states::off>
+        >;
+    };
 
     struct sm_before_state_transition
     {
@@ -70,23 +85,6 @@ namespace
         awesm::sm_options::before_state_transition<sm_before_state_transition>,
         awesm::sm_options::after_state_transition<sm_after_state_transition>
     >;
-
-    namespace events
-    {
-        struct button_press
-        {
-            int pressure = 0;
-        };
-    }
-
-    struct sm_transition_table
-    {
-        using type = awesm::transition_table
-        <
-            awesm::row<states::off, events::button_press, states::on>,
-            awesm::row<states::on,  events::button_press, states::off>
-        >;
-    };
 }
 
 TEST_CASE("state_transition_hook_set")

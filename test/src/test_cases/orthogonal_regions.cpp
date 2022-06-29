@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 namespace
 {
@@ -66,11 +66,11 @@ namespace
 
     struct sm_on_exception
     {
-        void on_exception(const std::exception_ptr& e)
+        void on_exception(const std::exception_ptr& eptr)
         {
             try
             {
-                std::rethrow_exception(e);
+                std::rethrow_exception(eptr);
             }
             catch(const std::exception& e)
             {

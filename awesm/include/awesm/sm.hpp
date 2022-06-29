@@ -112,9 +112,9 @@ class sm
                     event_(event),
                     pprocess_event_
                     (
-                        [](sm& machine, const event_storage_t& event)
+                        [](sm& m, const event_storage_t& evt)
                         {
-                            machine.process_event_once<ProcessingType>(event.get<Event>());
+                            m.process_event_once<ProcessingType>(evt.get<Event>());
                         }
                     )
                 {

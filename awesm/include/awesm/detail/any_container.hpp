@@ -29,14 +29,14 @@ class any_container
         explicit any_container
         (
             const Object& obj,
-            std::enable_if_t<sizeof(Object) <= StaticStorageSize>* = nullptr
+            std::enable_if_t<sizeof(Object) <= StaticStorageSize>* /*pvoid*/ = nullptr
         ):
             pobj_(new(static_storage_) Object{obj}),
             pdelete_
             (
                 [](const void* pobj)
                 {
-                    reinterpret_cast<const Object*>(pobj)->~Object();
+                    reinterpret_cast<const Object*>(pobj)->~Object(); //NOLINT
                 }
             )
         {
@@ -46,14 +46,14 @@ class any_container
         explicit any_container
         (
             const Object& obj,
-            std::enable_if_t<(sizeof(Object) > StaticStorageSize)>* = nullptr
+            std::enable_if_t<(sizeof(Object) > StaticStorageSize)>* /*pvoid*/ = nullptr
         ):
             pobj_(new Object{obj}),
             pdelete_
             (
                 [](const void* pobj)
                 {
-                    delete reinterpret_cast<const Object*>(pobj);
+                    delete reinterpret_cast<const Object*>(pobj); //NOLINT
                 }
             )
         {
@@ -73,11 +73,11 @@ class any_container
         template<class T>
         const T& get() const
         {
-            return *reinterpret_cast<const T*>(pobj_);
+            return *reinterpret_cast<const T*>(pobj_); //NOLINT
         }
 
     private:
-        char static_storage_[StaticStorageSize]; //small object optimization
+        char static_storage_[StaticStorageSize]; //NOLINT, small object optimization
         const void* pobj_ = nullptr;
         void(*pdelete_)(const void*) = nullptr;
 };

@@ -12,7 +12,7 @@ namespace awesm::detail
 
 //Used to silence "Unused parameter" warnings
 template<class... Args>
-void ignore_unused(const Args&...)
+void ignore_unused(const Args&... /*unused*/)
 {
 }
 

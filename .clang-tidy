@@ -153,7 +153,7 @@ CheckOptions:
   - key:             bugprone-reserved-identifier.AllowedIdentifiers
     value:           ''
   - key:             cppcoreguidelines-pro-type-member-init.IgnoreArrays
-    value:           'false'
+    value:           'true'
   - key:             readability-else-after-return.WarnOnUnfixable
     value:           'true'
   - key:             cppcoreguidelines-avoid-magic-numbers.IgnoredFloatingPointValues

@@ -33,12 +33,12 @@ class sm_object_holder_tuple<T, Ts...>: public sm_object_holder_tuple<Ts...>
 
         using sm_object_holder_tuple<Ts...>::get;
 
-        T& get(T*)
+        T& get(T* /*tag*/)
         {
             return obj_.object;
         }
 
-        const T& get(T*) const
+        const T& get(T* /*tag*/) const
         {
             return obj_.object;
         }
@@ -47,18 +47,26 @@ class sm_object_holder_tuple<T, Ts...>: public sm_object_holder_tuple<Ts...>
         auto& get()
         {
             if constexpr(Index == 0)
+            {
                 return obj_.object;
+            }
             else
+            {
                 return sm_object_holder_tuple<Ts...>::template get<Index - 1>();
+            }
         }
 
         template<int Index>
         const auto& get() const
         {
             if constexpr(Index == 0)
+            {
                 return obj_.object;
+            }
             else
+            {
                 return sm_object_holder_tuple<Ts...>::template get<Index - 1>();
+            }
         }
 
         template<class F>
@@ -84,7 +92,7 @@ class sm_object_holder_tuple<>
 {
     public:
         template<class Sm, class Context>
-        sm_object_holder_tuple(Sm&, Context&)
+        sm_object_holder_tuple(Sm& /*machine*/, Context& /*ctx*/)
         {
         }
 

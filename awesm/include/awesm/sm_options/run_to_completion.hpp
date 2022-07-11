@@ -24,7 +24,7 @@ namespace detail::defaults
         {
         }
 
-        static constexpr bool call(tags::run_to_completion /*tag*/, long)
+        static constexpr bool call(tags::run_to_completion /*tag*/, long /*priority*/)
         {
             return true;
         }
@@ -40,7 +40,7 @@ class run_to_completion
         {
         }
 
-        static constexpr bool call(detail::tags::run_to_completion /*tag*/, int)
+        static constexpr bool call(detail::tags::run_to_completion /*tag*/, int /*priority*/)
         {
             return Enabled;
         }

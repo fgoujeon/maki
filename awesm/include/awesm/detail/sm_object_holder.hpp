@@ -15,13 +15,13 @@ namespace awesm::detail
 namespace sm_object_holder_detail
 {
     template<class T, class... Args>
-    constexpr auto is_brace_constructible_impl(int) -> decltype(T{std::declval<Args>()...}, bool())
+    constexpr auto is_brace_constructible_impl(int /*priority*/) -> decltype(T{std::declval<Args>()...}, bool())
     {
         return true;
     }
 
     template<class T, class... Args>
-    constexpr bool is_brace_constructible_impl(long)
+    constexpr bool is_brace_constructible_impl(long /*priority*/)
     {
         return false;
     }
@@ -52,7 +52,7 @@ struct sm_object_holder
         std::enable_if_t
         <
             sm_object_holder_detail::is_brace_constructible<U, Sm&, Context&>
-        >* = nullptr
+        >* /*pvoid*/ = nullptr
     ):
         object{machine, ctx}
     {
@@ -61,12 +61,12 @@ struct sm_object_holder
     template<class Sm, class Context, class U = T>
     sm_object_holder
     (
-        Sm&,
+        Sm& /*machine*/,
         Context& ctx,
         std::enable_if_t
         <
             sm_object_holder_detail::is_brace_constructible<U, Context&>
-        >* = nullptr
+        >* /*pvoid*/ = nullptr
     ):
         object{ctx}
     {
@@ -75,9 +75,9 @@ struct sm_object_holder
     template<class Sm, class Context, class U = T>
     sm_object_holder
     (
-        Sm&,
-        Context&,
-        std::enable_if_t<std::is_default_constructible_v<U>>* = nullptr
+        Sm& /*machine*/,
+        Context& /*ctx*/,
+        std::enable_if_t<std::is_default_constructible_v<U>>* /*pvoid*/ = nullptr
     )
     {
     }

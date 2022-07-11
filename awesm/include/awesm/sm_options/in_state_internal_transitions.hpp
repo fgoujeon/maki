@@ -24,7 +24,7 @@ namespace detail::defaults
         {
         }
 
-        static constexpr bool call(tags::in_state_internal_transitions /*tag*/, long)
+        static constexpr bool call(tags::in_state_internal_transitions /*tag*/, long /*priority*/)
         {
             return true;
         }
@@ -40,7 +40,7 @@ class in_state_internal_transitions
         {
         }
 
-        static constexpr bool call(detail::tags::in_state_internal_transitions /*tag*/, int)
+        static constexpr bool call(detail::tags::in_state_internal_transitions /*tag*/, int /*priority*/)
         {
             return Enabled;
         }

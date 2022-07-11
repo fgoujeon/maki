@@ -60,6 +60,12 @@ class sm
         sm& operator=(sm&&) = delete;
         ~sm() = default;
 
+        template<int RegionIndex = 0>
+        const auto& get_region() const
+        {
+            return subsm_.template get_region<RegionIndex>();
+        }
+
         template<class State, int RegionIndex = 0>
         [[nodiscard]] bool is_active_state() const
         {

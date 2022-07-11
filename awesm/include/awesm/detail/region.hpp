@@ -253,10 +253,11 @@ class region
                 {
                     sm_conf.template before_state_transition
                     <
+                        region,
                         source_state_t,
                         Event,
                         target_state_t
-                    >(event);
+                    >(*this, event);
 
                     detail::call_on_exit
                     (
@@ -294,10 +295,11 @@ class region
 
                     sm_conf.template after_state_transition
                     <
+                        region,
                         source_state_t,
                         Event,
                         target_state_t
-                    >(event);
+                    >(*this, event);
                 }
             };
 

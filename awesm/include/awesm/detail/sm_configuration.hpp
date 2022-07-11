@@ -40,12 +40,13 @@ class sm_configuration: private Options...
             );
         }
 
-        template<class SourceState, class Event, class TargetState>
-        void after_state_transition(const Event& event)
+        template<class Region, class SourceState, class Event, class TargetState>
+        void after_state_transition(const Region& region, const Event& event)
         {
             call
             (
                 sm_options::detail::tags::after_state_transition{},
+                &region,
                 static_cast<SourceState*>(nullptr),
                 &event,
                 static_cast<TargetState*>(nullptr),
@@ -53,12 +54,13 @@ class sm_configuration: private Options...
             );
         }
 
-        template<class SourceState, class Event, class TargetState>
-        void before_state_transition(const Event& event)
+        template<class Region, class SourceState, class Event, class TargetState>
+        void before_state_transition(const Region& region, const Event& event)
         {
             call
             (
                 sm_options::detail::tags::before_state_transition{},
+                &region,
                 static_cast<SourceState*>(nullptr),
                 &event,
                 static_cast<TargetState*>(nullptr),

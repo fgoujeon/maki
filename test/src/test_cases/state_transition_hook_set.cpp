@@ -57,8 +57,8 @@ namespace
 
     struct sm_before_state_transition
     {
-        template<class SourceState, class Event, class TargetState>
-        void before_state_transition(const Event& event)
+        template<class Region, class SourceState, class Event, class TargetState>
+        void before_state_transition(const Region& /*region*/, const Event& event)
         {
             ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + "...;";
             ctx.out += std::to_string(event.pressure) + ";";
@@ -69,8 +69,8 @@ namespace
 
     struct sm_after_state_transition
     {
-        template<class SourceState, class Event, class TargetState>
-        void after_state_transition(const Event& event)
+        template<class Region, class SourceState, class Event, class TargetState>
+        void after_state_transition(const Region& /*region*/, const Event& event)
         {
             ctx.out += std::to_string(event.pressure) + ";";
             ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + ";";

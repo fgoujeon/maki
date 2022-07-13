@@ -55,27 +55,31 @@ namespace
         >;
     };
 
+    struct sm_before_state_transition;
+    struct sm_after_state_transition;
+
+    using sm_t = awesm::simple_sm
+    <
+        sm_transition_table,
+        awesm::sm_options::before_state_transition<sm_before_state_transition>,
+        awesm::sm_options::after_state_transition<sm_after_state_transition>
+    >;
+
     struct sm_before_state_transition
     {
         template<class Region, class SourceState, class Event, class TargetState>
-        void before_state_transition(const Region& /*region*/, const Event& event)
-        {
-            ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + "...;";
-            ctx.out += std::to_string(event.pressure) + ";";
-        }
+        void before_state_transition(const Region& /*region*/, const Event& event);
 
+        sm_t& sm;
         context& ctx;
     };
 
     struct sm_after_state_transition
     {
         template<class Region, class SourceState, class Event, class TargetState>
-        void after_state_transition(const Region& /*region*/, const Event& event)
-        {
-            ctx.out += std::to_string(event.pressure) + ";";
-            ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + ";";
-        }
+        void after_state_transition(const Region& /*region*/, const Event& event);
 
+        sm_t& sm;
         context& ctx;
     };
 
@@ -85,6 +89,26 @@ namespace
         awesm::sm_options::before_state_transition<sm_before_state_transition>,
         awesm::sm_options::after_state_transition<sm_after_state_transition>
     >;
+
+    template<class Region, class SourceState, class Event, class TargetState>
+    void sm_before_state_transition::before_state_transition(const Region& /*region*/, const Event& event)
+    {
+        using main_region_t = std::decay_t<decltype(sm.get_region<0>())>;
+        static_assert(std::is_same_v<Region, main_region_t>);
+
+        ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + "...;";
+        ctx.out += std::to_string(event.pressure) + ";";
+    }
+
+    template<class Region, class SourceState, class Event, class TargetState>
+    void sm_after_state_transition::after_state_transition(const Region& /*region*/, const Event& event)
+    {
+        using main_region_t = std::decay_t<decltype(sm.get_region<0>())>;
+        static_assert(std::is_same_v<Region, main_region_t>);
+
+        ctx.out += std::to_string(event.pressure) + ";";
+        ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + ";";
+    }
 }
 
 TEST_CASE("state_transition_hook_set")

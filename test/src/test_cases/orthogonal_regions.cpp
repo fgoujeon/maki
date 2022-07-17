@@ -39,28 +39,28 @@ namespace
         };
     }
 
-    struct region_0_transition_table
-    {
-        using type = awesm::transition_table
+    using region_0_t = awesm::region
+    <
+        awesm::transition_table
         <
             awesm::row<states::off0, events::button_press, states::on0>
-        >;
-    };
+        >
+    >;
 
-    struct region_1_transition_table
-    {
-        using type = awesm::transition_table
+    using region_1_t = awesm::region
+    <
+        awesm::transition_table
         <
             awesm::row<states::off1, events::button_press, states::on1>
-        >;
-    };
+        >
+    >;
 
-    struct sm_region_conf_list
+    struct sm_region_list
     {
-        using type = awesm::region_configuration_list
+        using type = awesm::region_list
         <
-            region_0_transition_table,
-            region_1_transition_table
+            region_0_t,
+            region_1_t
         >;
     };
 
@@ -70,7 +70,7 @@ namespace
 
     using sm_t = awesm::sm
     <
-        sm_region_conf_list,
+        sm_region_list,
         awesm::sm_options::on_exception<sm_on_exception>,
         awesm::sm_options::before_state_transition<sm_before_state_transition>,
         awesm::sm_options::after_state_transition<sm_after_state_transition>
@@ -111,20 +111,9 @@ namespace
         context& ctx;
     };
 
-    using sm_t = awesm::sm
-    <
-        sm_region_conf_list,
-        awesm::sm_options::on_exception<sm_on_exception>,
-        awesm::sm_options::before_state_transition<sm_before_state_transition>,
-        awesm::sm_options::after_state_transition<sm_after_state_transition>
-    >;
-
     template<class Region, class SourceState, class Event, class TargetState>
     void sm_before_state_transition::before_state_transition(const Region& /*region*/, const Event& /*event*/)
     {
-        using region_0_t = std::decay_t<decltype(sm.get_region<0>())>;
-        using region_1_t = std::decay_t<decltype(sm.get_region<1>())>;
-
         if constexpr(std::is_same_v<Region, region_0_t>)
         {
             ctx.out += "before_state_transition[0];";
@@ -138,9 +127,6 @@ namespace
     template<class Region, class SourceState, class Event, class TargetState>
     void sm_after_state_transition::after_state_transition(const Region& /*region*/, const Event& /*event*/)
     {
-        using region_0_t = std::decay_t<decltype(sm.get_region<0>())>;
-        using region_1_t = std::decay_t<decltype(sm.get_region<1>())>;
-
         if constexpr(std::is_same_v<Region, region_0_t>)
         {
             ctx.out += "after_state_transition[0];";

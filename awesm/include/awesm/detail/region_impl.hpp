@@ -22,7 +22,7 @@
 namespace awesm::detail
 {
 
-template<class Derived, class TransitionTableHolder>
+template<class Derived, class TransitionTable>
 class region_impl
 {
     public:
@@ -71,7 +71,7 @@ class region_impl
         }
 
     private:
-        using unresolved_transition_table_t = typename TransitionTableHolder::type;
+        using unresolved_transition_table_t = TransitionTable;
 
         using transition_table_digest_t =
             detail::transition_table_digest<unresolved_transition_table_t>

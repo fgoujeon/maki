@@ -9,7 +9,7 @@
 
 #include "region.hpp"
 #include "detail/region_impl.hpp"
-#include "region_configuration_list.hpp"
+#include "region_list.hpp"
 #include <type_traits>
 
 namespace awesm
@@ -17,28 +17,20 @@ namespace awesm
 
 namespace detail
 {
-    template<class RegionConfigurationList>
+    template<class RegionList>
     struct region_tuple_helper;
 
-    template<class... RegionConfs>
-    struct region_tuple_helper<region_configuration_list<RegionConfs...>>
+    template<class... Regions>
+    struct region_tuple_helper<region_list<Regions...>>
     {
-        using type = sm_object_holder_tuple
-        <
-            region<RegionConfs>...
-        >;
+        using type = sm_object_holder_tuple<Regions...>;
     };
 
-    template<class RegionConfigurationList>
-    using region_tuple =
-        typename region_tuple_helper
-        <
-            RegionConfigurationList
-        >::type
-    ;
+    template<class RegionList>
+    using region_tuple = typename region_tuple_helper<RegionList>::type;
 }
 
-template<class RegionConfListHolder>
+template<class RegionListHolder>
 class subsm
 {
     public:
@@ -105,7 +97,7 @@ class subsm
     private:
         using region_tuple_t = detail::region_tuple
         <
-            typename RegionConfListHolder::type
+            typename RegionListHolder::type
         >;
 
         region_tuple_t regions_;

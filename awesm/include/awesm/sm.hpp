@@ -43,7 +43,7 @@ namespace detail
     };
 }
 
-template<class RegionConfListHolder, class... Options>
+template<class RegionListHolder, class... Options>
 class sm
 {
     public:
@@ -102,7 +102,7 @@ class sm
             Options...
         >;
 
-        using subsm_t = subsm<RegionConfListHolder>;
+        using subsm_t = subsm<RegionListHolder>;
 
         class event_processing
         {

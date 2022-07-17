@@ -8,32 +8,24 @@
 #define AWESM_SIMPLE_SUBSM_HPP
 
 #include "subsm.hpp"
-#include "region_configuration_list.hpp"
+#include "region_list.hpp"
 
 namespace awesm
 {
 
 namespace detail
 {
-    template<class TransitionTableHolder>
-    struct simple_subsm_conf_to_subsm_conf_helper
+    template<class TransitionTable>
+    struct tt_to_region_list_holder
     {
-        struct region_conf_list
-        {
-            using type = region_configuration_list<TransitionTableHolder>;
-        };
+        using type = region_list<region<TransitionTable>>;
     };
-
-    template<class TransitionTableHolder>
-    using simple_subsm_conf_to_subsm_conf =
-        typename simple_subsm_conf_to_subsm_conf_helper<TransitionTableHolder>::region_conf_list
-    ;
 }
 
 template<class TransitionTableHolder>
 using simple_subsm = subsm
 <
-    detail::simple_subsm_conf_to_subsm_conf<TransitionTableHolder>
+    detail::tt_to_region_list_holder<typename TransitionTableHolder::type>
 >;
 
 }

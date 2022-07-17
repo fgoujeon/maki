@@ -8,35 +8,30 @@
 #define AWESM_SIMPLE_SM_FWD_HPP
 
 #include "sm_fwd.hpp"
-#include "region_configuration_list.hpp"
+#include "region_list.hpp"
 
 namespace awesm
 {
 
+template<class TransitionTableHolder>
+class region;
+
 namespace detail
 {
     template<class TransitionTableHolder>
-    struct simple_sm_conf_to_sm_conf_helper
+    struct tt_table_to_region_list_holder
     {
-        struct region_conf_list
-        {
-            using type = region_configuration_list
-            <
-                TransitionTableHolder
-            >;
-        };
+        using type = region_list
+        <
+            region<typename TransitionTableHolder::type>
+        >;
     };
-
-    template<class TransitionTableHolder>
-    using simple_sm_conf_to_sm_conf =
-        typename simple_sm_conf_to_sm_conf_helper<TransitionTableHolder>::region_conf_list
-    ;
 }
 
 template<class TransitionTableHolder, class... Options>
 using simple_sm = sm
 <
-    detail::simple_sm_conf_to_sm_conf<TransitionTableHolder>,
+    detail::tt_table_to_region_list_holder<TransitionTableHolder>,
     Options...
 >;
 

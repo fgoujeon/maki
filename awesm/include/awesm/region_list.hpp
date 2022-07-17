@@ -4,14 +4,14 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_REGION_CONFIGURATION_LIST_HPP
-#define AWESM_REGION_CONFIGURATION_LIST_HPP
+#ifndef AWESM_REGION_LIST_HPP
+#define AWESM_REGION_LIST_HPP
 
 namespace awesm
 {
 
 template<class... Ts>
-struct region_configuration_list{};
+struct region_list{};
 
 } //namespace
 

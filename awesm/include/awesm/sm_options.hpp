@@ -8,6 +8,7 @@
 #define AWESM_SM_OPTIONS_HPP
 
 #include "sm_options/after_state_transition.hpp"
+#include "sm_options/before_entry.hpp"
 #include "sm_options/before_state_transition.hpp"
 #include "sm_options/in_state_internal_transitions.hpp"
 #include "sm_options/on_event.hpp"

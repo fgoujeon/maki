@@ -94,6 +94,7 @@ class sm
         using configuration_t = detail::sm_configuration
         <
             sm_options::detail::defaults::after_state_transition,
+            sm_options::detail::defaults::before_entry,
             sm_options::detail::defaults::before_state_transition,
             sm_options::detail::defaults::in_state_internal_transitions,
             sm_options::detail::defaults::on_event,

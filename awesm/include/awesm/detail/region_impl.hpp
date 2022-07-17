@@ -285,6 +285,14 @@ class region_impl
 
                 if constexpr(!is_internal_transition)
                 {
+                    sm_conf.template before_entry
+                    <
+                        Derived,
+                        source_state_t,
+                        Event,
+                        target_state_t
+                    >(cself(), event);
+
                     detail::call_on_entry
                     (
                         &states_.get(static_cast<target_state_t*>(nullptr)),

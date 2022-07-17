@@ -45,8 +45,8 @@ class after_state_transition
 {
     public:
         template<class Sm, class Context>
-        after_state_transition(Sm& m, Context& ctx):
-            impl_(m, ctx)
+        after_state_transition(Sm& mach, Context& ctx):
+            impl_(mach, ctx)
         {
         }
 

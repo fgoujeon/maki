@@ -17,8 +17,8 @@ class sm_configuration: private Options...
 {
     public:
         template<class Sm, class Context>
-        sm_configuration(Sm& m, Context& ctx):
-            Options(m, ctx)...
+        sm_configuration(Sm& mach, Context& ctx):
+            Options(mach, ctx)...
         {
         }
 

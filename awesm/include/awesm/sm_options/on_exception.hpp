@@ -25,8 +25,8 @@ namespace detail::defaults
     {
         public:
             template<class Sm, class Context>
-            on_exception(Sm& m, Context& /*ctx*/):
-                sm_(m)
+            on_exception(Sm& mach, Context& /*ctx*/):
+                sm_(mach)
             {
             }
 
@@ -45,8 +45,8 @@ class on_exception
 {
     public:
         template<class Sm, class Context>
-        on_exception(Sm& m, Context& ctx):
-            impl_(m, ctx)
+        on_exception(Sm& mach, Context& ctx):
+            impl_(mach, ctx)
         {
         }
 

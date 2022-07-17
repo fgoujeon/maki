@@ -45,8 +45,8 @@ class before_entry
 {
     public:
         template<class Sm, class Context>
-        before_entry(Sm& m, Context& ctx):
-            impl_(m, ctx)
+        before_entry(Sm& mach, Context& ctx):
+            impl_(mach, ctx)
         {
         }
 

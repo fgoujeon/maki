@@ -23,8 +23,8 @@ namespace detail
     class false_at_destruction_setter
     {
         public:
-            false_at_destruction_setter(bool& b):
-                b_(b)
+            false_at_destruction_setter(bool& boolean):
+                b_(boolean)
             {
             }
 
@@ -119,9 +119,9 @@ class sm
                     event_(event),
                     pprocess_event_
                     (
-                        [](sm& m, const event_storage_t& evt)
+                        [](sm& mach, const event_storage_t& evt)
                         {
-                            m.process_event_once<ProcessingType>(evt.get<Event>());
+                            mach.process_event_once<ProcessingType>(evt.get<Event>());
                         }
                     )
                 {
@@ -192,7 +192,7 @@ class sm
                 }
 
                 processing_event_ = true;
-                auto _ = detail::false_at_destruction_setter{processing_event_};
+                auto setter = detail::false_at_destruction_setter{processing_event_};
 
                 process_event_once<ProcessingType>(event);
 
@@ -211,11 +211,11 @@ class sm
 
         //Used to call client code
         template<class F>
-        void safe_call(F&& f)
+        void safe_call(F&& callback)
         {
             try
             {
-                f();
+                callback();
             }
             catch(...)
             {

@@ -27,10 +27,10 @@ class region_impl
 {
     public:
         template<class Sm, class Context>
-        explicit region_impl(Sm& sm, Context& context):
-            states_(sm, context),
-            actions_(sm, context),
-            guards_(sm, context)
+        explicit region_impl(Sm& mach, Context& context):
+            states_(mach, context),
+            actions_(mach, context),
+            guards_(mach, context)
         {
         }
 
@@ -161,11 +161,11 @@ class region_impl
 
         //Used to call client code
         template<class SmConfiguration, class F>
-        void safe_call(SmConfiguration& sm_conf, F&& f)
+        void safe_call(SmConfiguration& sm_conf, F&& fun)
         {
             try
             {
-                f();
+                fun();
             }
             catch(...)
             {

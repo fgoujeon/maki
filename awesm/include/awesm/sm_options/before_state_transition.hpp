@@ -45,8 +45,8 @@ class before_state_transition
 {
     public:
         template<class Sm, class Context>
-        before_state_transition(Sm& m, Context& ctx):
-            impl_(m, ctx)
+        before_state_transition(Sm& mach, Context& ctx):
+            impl_(mach, ctx)
         {
         }
 

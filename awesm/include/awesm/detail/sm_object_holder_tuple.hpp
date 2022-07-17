@@ -70,17 +70,17 @@ class sm_object_holder_tuple<T, Ts...>: public sm_object_holder_tuple<Ts...>
         }
 
         template<class F>
-        void for_each(F&& f)
+        void for_each(F&& callback)
         {
-            f(obj_.object);
-            sm_object_holder_tuple<Ts...>::for_each(f);
+            callback(obj_.object);
+            sm_object_holder_tuple<Ts...>::for_each(callback);
         }
 
         template<class F>
-        void for_each(F&& f) const
+        void for_each(F&& callback) const
         {
-            f(obj_.object);
-            sm_object_holder_tuple<Ts...>::for_each(f);
+            callback(obj_.object);
+            sm_object_holder_tuple<Ts...>::for_each(callback);
         }
 
     private:

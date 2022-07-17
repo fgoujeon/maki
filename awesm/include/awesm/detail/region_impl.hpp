@@ -22,7 +22,7 @@
 namespace awesm::detail
 {
 
-template<class Derived, class TransitionTableHolder, class... Options>
+template<class Derived, class TransitionTableHolder>
 class region_impl
 {
     public:

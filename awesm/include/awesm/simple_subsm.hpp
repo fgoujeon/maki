@@ -30,11 +30,10 @@ namespace detail
     ;
 }
 
-template<class TransitionTableHolder, class... Options>
+template<class TransitionTableHolder>
 using simple_subsm = subsm
 <
-    detail::simple_subsm_conf_to_subsm_conf<TransitionTableHolder>,
-    Options...
+    detail::simple_subsm_conf_to_subsm_conf<TransitionTableHolder>
 >;
 
 }

@@ -102,7 +102,7 @@ class sm
             Options...
         >;
 
-        using subsm_t = subsm<RegionConfListHolder, Options...>;
+        using subsm_t = subsm<RegionConfListHolder>;
 
         class event_processing
         {

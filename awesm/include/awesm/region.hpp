@@ -12,23 +12,22 @@
 namespace awesm
 {
 
-template<class TransitionTableHolder, class... Options>
+template<class TransitionTableHolder>
 class region:
     private detail::region_impl
     <
-        region<TransitionTableHolder, Options...>,
-        TransitionTableHolder,
-        Options...
+        region<TransitionTableHolder>,
+        TransitionTableHolder
     >
 {
     private:
-        template<class RegionConfListHolder2, class... Options2>
+        template<class RegionConfListHolder2>
         friend class subsm;
 
-        template<class Derived, class RegionConfListHolder2, class... Options2>
+        template<class Derived, class RegionConfListHolder2>
         friend class detail::region_impl;
 
-        using detail::region_impl<region, TransitionTableHolder, Options...>::region_impl;
+        using detail::region_impl<region, TransitionTableHolder>::region_impl;
 };
 
 } //namespace

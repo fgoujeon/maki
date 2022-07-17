@@ -64,6 +64,18 @@ namespace
         >;
     };
 
+    struct sm_on_exception;
+    struct sm_before_state_transition;
+    struct sm_after_state_transition;
+
+    using sm_t = awesm::sm
+    <
+        sm_region_conf_list,
+        awesm::sm_options::on_exception<sm_on_exception>,
+        awesm::sm_options::before_state_transition<sm_before_state_transition>,
+        awesm::sm_options::after_state_transition<sm_after_state_transition>
+    >;
+
     struct sm_on_exception
     {
         void on_exception(const std::exception_ptr& eptr)
@@ -83,23 +95,19 @@ namespace
 
     struct sm_before_state_transition
     {
-        template<class SourceState, class Event, class TargetState>
-        void before_state_transition(const Event& /*event*/)
-        {
-            ctx.out += "before_state_transition;";
-        }
+        template<class Region, class SourceState, class Event, class TargetState>
+        void before_state_transition(const Region& /*region*/, const Event& /*event*/);
 
+        sm_t& sm;
         context& ctx;
     };
 
     struct sm_after_state_transition
     {
-        template<class SourceState, class Event, class TargetState>
-        void after_state_transition(const Event& /*event*/)
-        {
-            ctx.out += "after_state_transition;";
-        }
+        template<class Region, class SourceState, class Event, class TargetState>
+        void after_state_transition(const Region& /*region*/, const Event& /*event*/);
 
+        sm_t& sm;
         context& ctx;
     };
 
@@ -110,6 +118,38 @@ namespace
         awesm::sm_options::before_state_transition<sm_before_state_transition>,
         awesm::sm_options::after_state_transition<sm_after_state_transition>
     >;
+
+    template<class Region, class SourceState, class Event, class TargetState>
+    void sm_before_state_transition::before_state_transition(const Region& /*region*/, const Event& /*event*/)
+    {
+        using region_0_t = std::decay_t<decltype(sm.get_region<0>())>;
+        using region_1_t = std::decay_t<decltype(sm.get_region<1>())>;
+
+        if constexpr(std::is_same_v<Region, region_0_t>)
+        {
+            ctx.out += "before_state_transition[0];";
+        }
+        else if constexpr(std::is_same_v<Region, region_1_t>)
+        {
+            ctx.out += "before_state_transition[1];";
+        }
+    }
+
+    template<class Region, class SourceState, class Event, class TargetState>
+    void sm_after_state_transition::after_state_transition(const Region& /*region*/, const Event& /*event*/)
+    {
+        using region_0_t = std::decay_t<decltype(sm.get_region<0>())>;
+        using region_1_t = std::decay_t<decltype(sm.get_region<1>())>;
+
+        if constexpr(std::is_same_v<Region, region_0_t>)
+        {
+            ctx.out += "after_state_transition[0];";
+        }
+        else if constexpr(std::is_same_v<Region, region_1_t>)
+        {
+            ctx.out += "after_state_transition[1];";
+        }
+    }
 }
 
 TEST_CASE("orthogonal_regions")
@@ -120,13 +160,13 @@ TEST_CASE("orthogonal_regions")
     sm.start();
     REQUIRE(sm.is_active_state<states::off0, 0>());
     REQUIRE(sm.is_active_state<states::off1, 1>());
-    REQUIRE(ctx.out == "before_state_transition;after_state_transition;before_state_transition;after_state_transition;");
+    REQUIRE(ctx.out == "before_state_transition[0];after_state_transition[0];before_state_transition[1];after_state_transition[1];");
 
     ctx.out.clear();
     sm.process_event(events::button_press{});
     REQUIRE(sm.is_active_state<states::on0, 0>());
     REQUIRE(sm.is_active_state<states::on1, 1>());
-    REQUIRE(ctx.out == "before_state_transition;after_state_transition;before_state_transition;after_state_transition;");
+    REQUIRE(ctx.out == "before_state_transition[0];after_state_transition[0];before_state_transition[1];after_state_transition[1];");
 
     ctx.out.clear();
     sm.process_event(events::exception_request{});

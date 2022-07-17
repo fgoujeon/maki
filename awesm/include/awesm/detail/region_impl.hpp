@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_DETAIL_REGION_HPP
-#define AWESM_DETAIL_REGION_HPP
+#ifndef AWESM_DETAIL_REGION_IMPL_HPP
+#define AWESM_DETAIL_REGION_IMPL_HPP
 
 #include "../none.hpp"
 #include "call_member.hpp"
@@ -22,23 +22,23 @@
 namespace awesm::detail
 {
 
-template<class TransitionTableHolder, class... Options>
-class region
+template<class Derived, class TransitionTableHolder, class... Options>
+class region_impl
 {
     public:
         template<class Sm, class Context>
-        explicit region(Sm& sm, Context& context):
+        explicit region_impl(Sm& sm, Context& context):
             states_(sm, context),
             actions_(sm, context),
             guards_(sm, context)
         {
         }
 
-        region(const region&) = delete;
-        region(region&&) = delete;
-        region& operator=(const region&) = delete;
-        region& operator=(region&&) = delete;
-        ~region() = default;
+        region_impl(const region_impl&) = delete;
+        region_impl(region_impl&&) = delete;
+        region_impl& operator=(const region_impl&) = delete;
+        region_impl& operator=(region_impl&&) = delete;
+        ~region_impl() = default;
 
         //Check whether the given State is the active state type
         template<class State>
@@ -188,7 +188,7 @@ class region
         struct transition_table_event_processor
         {
             template<class SmConfiguration, class Event>
-            static bool process(region& reg, SmConfiguration& sm_conf, const Event& event)
+            static bool process(region_impl& reg, SmConfiguration& sm_conf, const Event& event)
             {
                 return
                 (
@@ -209,7 +209,7 @@ class region
             template<class SmConfiguration>
             static bool process
             (
-                region& reg,
+                region_impl& reg,
                 SmConfiguration* psm_conf,
                 const typename Row::event_type* const pevent
             )
@@ -223,7 +223,7 @@ class region
             Using an if-constexpr in the process() function above is worse as
             well.
             */
-            static bool process(region& /*reg*/, void* /*psm_conf*/, const void* /*pevent*/)
+            static bool process(region_impl& /*reg*/, void* /*psm_conf*/, const void* /*pevent*/)
             {
                 return false;
             }
@@ -253,10 +253,11 @@ class region
                 {
                     sm_conf.template before_state_transition
                     <
+                        Derived,
                         source_state_t,
                         Event,
                         target_state_t
-                    >(event);
+                    >(cself(), event);
 
                     detail::call_on_exit
                     (
@@ -294,10 +295,11 @@ class region
 
                     sm_conf.template after_state_transition
                     <
+                        Derived,
                         source_state_t,
                         Event,
                         target_state_t
-                    >(event);
+                    >(cself(), event);
                 }
             };
 
@@ -345,7 +347,7 @@ class region
         struct stop_helper
         {
             template<class SmConfiguration, class Event>
-            static bool call(region& reg, SmConfiguration& sm_conf, const Event& event)
+            static bool call(region_impl& reg, SmConfiguration& sm_conf, const Event& event)
             {
                 return (reg.stop_2<States>(sm_conf, &event) || ...);
             }
@@ -381,7 +383,7 @@ class region
         struct active_state_event_processor
         {
             template<class SmConfiguration, class Event>
-            static void process(region& reg, SmConfiguration& sm_conf, const Event& event)
+            static void process(region_impl& reg, SmConfiguration& sm_conf, const Event& event)
             {
                 (reg.process_event_in_state<States>(&sm_conf, &event) || ...);
             }
@@ -441,6 +443,11 @@ class region
         )
         {
             return false;
+        }
+
+        const Derived& cself() const
+        {
+            return static_cast<const Derived&>(*this);
         }
 
         state_tuple_t states_;

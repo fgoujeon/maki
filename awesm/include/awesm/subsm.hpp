@@ -7,7 +7,8 @@
 #ifndef AWESM_SUBSM_HPP
 #define AWESM_SUBSM_HPP
 
-#include "detail/region.hpp"
+#include "region.hpp"
+#include "detail/region_impl.hpp"
 #include "region_configuration_list.hpp"
 #include <type_traits>
 
@@ -53,6 +54,12 @@ class subsm
         subsm& operator=(const subsm&) = delete;
         subsm& operator=(subsm&&) = delete;
         ~subsm() = default;
+
+        template<int RegionIndex = 0>
+        const auto& get_region() const
+        {
+            return regions_.template get<RegionIndex>();
+        }
 
         template<class State, int RegionIndex = 0>
         [[nodiscard]] bool is_active_state() const

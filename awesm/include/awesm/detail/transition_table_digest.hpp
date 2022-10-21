@@ -59,20 +59,23 @@ namespace transition_table_digest_detail
     using to_tuple = typename to_tuple_helper<TList>::type;
 
     template<class TList, class U>
-    using push_back_unique_if_not_pattern = tlu::push_back_if
+    using push_back_unique_if_not_none = tlu::push_back_if
     <
         TList,
         U,
         (
             !tlu::contains<TList, U> &&
-            !std::is_base_of_v<type_pattern, U> &&
             !std::is_same_v<U, none>
         )
     >;
 
+    template<class TransitionTable>
+    using initial_state_t = typename tlu::at<TransitionTable, 0>::source_state_type;
+
+    template<class InitialState>
     struct initial_digest
     {
-        using state_tuple = type_list<null_state>;
+        using state_tuple = type_list<null_state, InitialState>;
         using action_tuple = type_list<>;
         using guard_tuple = type_list<>;
         static constexpr auto has_source_state_patterns = false;
@@ -82,23 +85,19 @@ namespace transition_table_digest_detail
     template<class Digest, class Row>
     struct add_row_to_digest
     {
-        using state_tuple = push_back_unique_if_not_pattern
+        using state_tuple = push_back_unique_if_not_none
         <
-            push_back_unique_if_not_pattern
-            <
-                typename Digest::state_tuple,
-                typename Row::source_state_type
-            >,
+            typename Digest::state_tuple,
             typename Row::target_state_type
         >;
 
-        using action_tuple = push_back_unique_if_not_pattern
+        using action_tuple = push_back_unique_if_not_none
         <
             typename Digest::action_tuple,
             typename Row::action_type
         >;
 
-        using guard_tuple = push_back_unique_if_not_pattern
+        using guard_tuple = push_back_unique_if_not_none
         <
             typename Digest::guard_tuple,
             typename Row::guard_type
@@ -124,7 +123,7 @@ namespace transition_table_digest_detail
     <
         TransitionTable,
         add_row_to_digest,
-        initial_digest
+        initial_digest<initial_state_t<TransitionTable>>
     >;
 }
 

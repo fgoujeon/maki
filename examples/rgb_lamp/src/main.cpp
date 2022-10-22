@@ -108,10 +108,8 @@ namespace states
         }
 
         /*
-        Optionally, state types can define a set of on_event() functions.
         Whenever the state machine processes an event, it calls the on_event()
-        function of the active state by passing it the event (provided this
-        function exists).
+        function of the active state by passing it the event.
         The state machine does this call just before processing the event in the
         transition table.
         */
@@ -120,6 +118,13 @@ namespace states
             std::cout << "Received a ";
             std::cout << event.duration_ms;
             std::cout << " millisecond push in off state\n";
+        }
+
+        /*
+        We ignore all other events.
+        */
+        void on_event(awesm::whatever)
+        {
         }
 
         /*

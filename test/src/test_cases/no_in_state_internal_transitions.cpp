@@ -34,6 +34,10 @@ namespace
                 ++ctx.i;
             }
 
+            void on_event(awesm::whatever)
+            {
+            }
+
             void on_exit()
             {
             }

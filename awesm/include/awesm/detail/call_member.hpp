@@ -66,25 +66,6 @@ void call_on_entry(State* /*pstate*/, void* /*psm_conf*/, const void* /*pevent*/
 }
 
 template<class State, class SmConfiguration, class Event>
-auto call_on_event(State* pstate, SmConfiguration* psm_conf, const Event* pevent) ->
-    decltype(pstate->on_event(*pevent))
-{
-    pstate->on_event(*psm_conf, *pevent);
-}
-
-template<class State, class Event>
-auto call_on_event(State* pstate, void* /*psm_conf*/, const Event* pevent) ->
-    decltype(pstate->on_event(*pevent))
-{
-    pstate->on_event(*pevent);
-}
-
-inline void call_on_event(void* /*pstate*/, void* /*psm_conf*/, const void* /*pevent*/)
-{
-    //state::on_event() is optional
-}
-
-template<class State, class SmConfiguration, class Event>
 auto call_on_exit(State* pstate, SmConfiguration* psm_conf, const Event* pevent, int /*dummy*/) ->
     decltype(pstate->on_exit(*psm_conf, *pevent))
 {

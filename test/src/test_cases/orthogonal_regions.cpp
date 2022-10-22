@@ -32,10 +32,24 @@ namespace
         struct on0{};
         struct on1
         {
+            void on_entry(awesm::whatever)
+            {
+            }
+
             void on_event(const events::exception_request&)
             {
                 throw std::runtime_error{"exception"};
             }
+
+            void on_event(awesm::whatever)
+            {
+            }
+
+            void on_exit(awesm::whatever)
+            {
+            }
+
+            int dummy = 0;
         };
     }
 

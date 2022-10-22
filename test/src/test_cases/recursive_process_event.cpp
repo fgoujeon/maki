@@ -38,6 +38,10 @@ namespace
                 ctx.output += "s0::on_entry;";
             }
 
+            void on_event(awesm::whatever)
+            {
+            }
+
             void on_exit()
             {
                 ctx.output += "s0::on_exit;";
@@ -53,6 +57,10 @@ namespace
                 ctx.output += "s1::on_entry;";
             }
 
+            void on_event(awesm::whatever)
+            {
+            }
+
             void on_exit()
             {
                 ctx.output += "s1::on_exit;";
@@ -66,6 +74,10 @@ namespace
             void on_entry()
             {
                 ctx.output += "s2::on_entry;";
+            }
+
+            void on_event(awesm::whatever)
+            {
             }
 
             void on_exit()

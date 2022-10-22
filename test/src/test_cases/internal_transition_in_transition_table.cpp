@@ -30,8 +30,7 @@ namespace
                 ctx.out += "idle::on_entry;";
             }
 
-            template<class Event>
-            void on_event(const Event&)
+            void on_event(awesm::whatever)
             {
                 ctx.out += "idle::on_event;";
             }
@@ -51,8 +50,7 @@ namespace
                 ctx.out += "running::on_entry;";
             }
 
-            template<class Event>
-            void on_event(const Event&)
+            void on_event(awesm::whatever)
             {
                 ctx.out += "running::on_event;";
             }

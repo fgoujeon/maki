@@ -44,6 +44,10 @@ namespace
                 ++ctx.side_effect;
             }
 
+            void on_event(awesm::whatever)
+            {
+            }
+
             void on_exit()
             {
             }

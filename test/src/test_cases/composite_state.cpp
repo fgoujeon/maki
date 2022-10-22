@@ -42,6 +42,10 @@ namespace
                 ctx.current_led_color = led_color::red;
             }
 
+            void on_event(awesm::whatever)
+            {
+            }
+
             void on_exit()
             {
             }
@@ -57,6 +61,10 @@ namespace
                 ctx.current_led_color = led_color::green;
             }
 
+            void on_event(awesm::whatever)
+            {
+            }
+
             void on_exit()
             {
             }
@@ -70,6 +78,10 @@ namespace
             void on_entry()
             {
                 ctx.current_led_color = led_color::blue;
+            }
+
+            void on_event(awesm::whatever)
+            {
             }
 
             void on_exit()
@@ -94,8 +106,7 @@ namespace
             {
             }
 
-            template<class Event>
-            void on_event(const Event& /*event*/)
+            void on_event(awesm::whatever)
             {
             }
 

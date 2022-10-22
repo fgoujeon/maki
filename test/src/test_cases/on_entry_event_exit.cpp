@@ -39,6 +39,10 @@ namespace
                 ctx.dog = "dog";
             }
 
+            void on_event(awesm::whatever)
+            {
+            }
+
             void on_exit()
             {
                 ctx.goodbye = "goodbye";
@@ -57,6 +61,10 @@ namespace
             void on_event(const events::say_dog&)
             {
                 ctx.dog = "chien";
+            }
+
+            void on_event(awesm::whatever)
+            {
             }
 
             void on_exit()

@@ -14,6 +14,7 @@
 #include "any_container.hpp"
 #include "ignore_unused.hpp"
 #include "event_processing_type.hpp"
+#include "type_traits.hpp"
 #include "../none.hpp"
 #include "../null_state.hpp"
 #include "tlu/apply.hpp"
@@ -399,63 +400,41 @@ class region_impl
             template<class SmConfiguration, class Event>
             static void process(region_impl& reg, SmConfiguration& sm_conf, const Event& event)
             {
-                (reg.process_event_in_state<States>(&sm_conf, &event) || ...);
+                (reg.process_event_in_state<States>(sm_conf, event) || ...);
             }
         };
 
-        //Processes internal events against one state
+        //Processes given event in given state
         template<class State, class SmConfiguration, class Event>
         auto process_event_in_state
         (
-            SmConfiguration* psm_conf,
-            const Event* pevent
-        ) -> decltype(std::declval<State>().on_event(*psm_conf, *pevent), bool())
-        {
-            if(is_active_state<State>())
-            {
-                safe_call
-                (
-                    *psm_conf,
-                    [&]
-                    {
-                        states_.get(static_cast<State*>(nullptr)).on_event(*psm_conf, *pevent);
-                    }
-                );
-                return true;
-            }
-            return false;
-        }
-
-        //Processes internal events against one state
-        template<class State, class SmConfiguration, class Event>
-        auto process_event_in_state
-        (
-            SmConfiguration* psm_conf,
-            const Event* pevent
-        ) -> decltype(std::declval<State>().on_event(*pevent), bool())
-        {
-            if(is_active_state<State>())
-            {
-                safe_call
-                (
-                    *psm_conf,
-                    [&]
-                    {
-                        states_.get(static_cast<State*>(nullptr)).on_event(*pevent);
-                    }
-                );
-                return true;
-            }
-            return false;
-        }
-
-        template<class State>
-        bool process_event_in_state
-        (
-            void* /*psm_conf*/,
-            const void* /*pevent*/
+            SmConfiguration& sm_conf,
+            const Event& event
         )
         {
+            if(is_active_state<State>())
+            {
+                safe_call
+                (
+                    sm_conf,
+                    [&]
+                    {
+                        if constexpr(is_composite_state_v<State>)
+                        {
+                            states_.get(static_cast<State*>(nullptr)).on_event(sm_conf, event);
+                        }
+                        else if constexpr(std::is_empty_v<State>)
+                        {
+                            //nothing
+                        }
+                        else
+                        {
+                            states_.get(static_cast<State*>(nullptr)).on_event(event);
+                        }
+                    }
+                );
+                return true;
+            }
             return false;
         }
 

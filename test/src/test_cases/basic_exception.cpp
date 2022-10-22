@@ -29,6 +29,10 @@ namespace
                 ctx.out += "off::on_entry;";
             }
 
+            void on_event(awesm::whatever)
+            {
+            }
+
             void on_exit()
             {
                 ctx.out += "off::on_exit;";
@@ -48,6 +52,10 @@ namespace
             void on_entry()
             {
                 ctx.out += "on::on_entry;";
+            }
+
+            void on_event(awesm::whatever)
+            {
             }
 
             void on_exit()

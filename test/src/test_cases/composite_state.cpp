@@ -37,7 +37,7 @@ namespace
 
         struct emitting_red
         {
-            void on_entry()
+            void on_entry(awesm::whatever)
             {
                 ctx.current_led_color = led_color::red;
             }
@@ -46,7 +46,7 @@ namespace
             {
             }
 
-            void on_exit()
+            void on_exit(awesm::whatever)
             {
             }
 
@@ -56,7 +56,7 @@ namespace
 
         struct emitting_green
         {
-            void on_entry()
+            void on_entry(awesm::whatever)
             {
                 ctx.current_led_color = led_color::green;
             }
@@ -65,7 +65,7 @@ namespace
             {
             }
 
-            void on_exit()
+            void on_exit(awesm::whatever)
             {
             }
 
@@ -75,7 +75,7 @@ namespace
 
         struct emitting_blue
         {
-            void on_entry()
+            void on_entry(awesm::whatever)
             {
                 ctx.current_led_color = led_color::blue;
             }
@@ -84,7 +84,7 @@ namespace
             {
             }
 
-            void on_exit()
+            void on_exit(awesm::whatever)
             {
             }
 
@@ -101,8 +101,7 @@ namespace
 
         struct on_def
         {
-            template<class Event>
-            void on_entry(const Event& /*event*/)
+            void on_entry(awesm::whatever)
             {
             }
 
@@ -110,8 +109,7 @@ namespace
             {
             }
 
-            template<class Event>
-            void on_exit(const Event& /*event*/)
+            void on_exit(awesm::whatever)
             {
                 ctx.current_led_color = led_color::off;
             }

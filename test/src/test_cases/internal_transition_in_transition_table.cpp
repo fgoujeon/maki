@@ -25,7 +25,7 @@ namespace
     {
         struct idle
         {
-            void on_entry()
+            void on_entry(awesm::whatever)
             {
                 ctx.out += "idle::on_entry;";
             }
@@ -35,7 +35,7 @@ namespace
                 ctx.out += "idle::on_event;";
             }
 
-            void on_exit()
+            void on_exit(awesm::whatever)
             {
                 ctx.out += "idle::on_exit;";
             }
@@ -45,7 +45,7 @@ namespace
 
         struct running
         {
-            void on_entry()
+            void on_entry(awesm::whatever)
             {
                 ctx.out += "running::on_entry;";
             }
@@ -55,7 +55,7 @@ namespace
                 ctx.out += "running::on_event;";
             }
 
-            void on_exit()
+            void on_exit(awesm::whatever)
             {
                 ctx.out += "running::on_exit;";
             }

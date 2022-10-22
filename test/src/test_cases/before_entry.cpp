@@ -24,7 +24,7 @@ namespace
     {
         struct off
         {
-            void on_entry()
+            void on_entry(awesm::whatever)
             {
                 ctx.out += "off::on_entry;";
             }
@@ -33,7 +33,7 @@ namespace
             {
             }
 
-            void on_exit()
+            void on_exit(awesm::whatever)
             {
                 ctx.out += "off::on_exit;";
             }
@@ -43,7 +43,7 @@ namespace
 
         struct on
         {
-            void on_entry()
+            void on_entry(awesm::whatever)
             {
                 ctx.out += "on::on_entry;";
             }
@@ -52,7 +52,7 @@ namespace
             {
             }
 
-            void on_exit()
+            void on_exit(awesm::whatever)
             {
                 ctx.out += "on::on_exit;";
             }

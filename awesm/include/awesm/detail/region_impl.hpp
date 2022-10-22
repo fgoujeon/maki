@@ -268,10 +268,9 @@ class region_impl
 
                     detail::call_on_exit
                     (
-                        &states_.get(static_cast<source_state_t*>(nullptr)),
-                        &sm_conf,
-                        &event,
-                        0
+                        states_.get(static_cast<source_state_t*>(nullptr)),
+                        sm_conf,
+                        event
                     );
 
                     active_state_index_ = detail::tlu::get_index
@@ -302,10 +301,9 @@ class region_impl
 
                     detail::call_on_entry
                     (
-                        &states_.get(static_cast<target_state_t*>(nullptr)),
-                        &sm_conf,
-                        &event,
-                        0
+                        states_.get(static_cast<target_state_t*>(nullptr)),
+                        sm_conf,
+                        event
                     );
 
                     sm_conf.template after_state_transition

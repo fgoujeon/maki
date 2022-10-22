@@ -8,6 +8,7 @@
 #define AWESM_DETAIL_CALL_MEMBER_HPP
 
 #include "ignore_unused.hpp"
+#include "type_traits.hpp"
 #include <type_traits>
 #include <utility>
 
@@ -20,95 +21,37 @@ We use this trick so that int overloads take precedence over long ones.
 */
 
 template<class State, class SmConfiguration, class Event>
-auto call_on_entry(State* pstate, SmConfiguration* psm_conf, const Event* pevent, int /*dummy*/) ->
-    decltype(pstate->on_entry(*psm_conf, *pevent))
+auto call_on_entry(State& state, SmConfiguration& sm_conf, const Event& event)
 {
-    static_assert
-    (
-        !std::is_empty_v<State>,
-        "Empty state types can't have on_entry() functions"
-    );
-    pstate->on_entry(*psm_conf, *pevent);
-}
-
-template<class State, class Event>
-auto call_on_entry(State* pstate, void* /*psm_conf*/, const Event* pevent, int /*dummy*/) ->
-    decltype(pstate->on_entry(*pevent))
-{
-    static_assert
-    (
-        !std::is_empty_v<State>,
-        "Empty state types can't have on_entry() functions"
-    );
-    pstate->on_entry(*pevent);
-}
-
-template<class State>
-auto call_on_entry(State* pstate, void* /*psm_conf*/, const void* /*pevent*/, int /*dummy*/) ->
-    decltype(pstate->on_entry())
-{
-    static_assert
-    (
-        !std::is_empty_v<State>,
-        "Empty state types can't have on_entry() functions"
-    );
-    pstate->on_entry();
-}
-
-template<class State>
-void call_on_entry(State* /*pstate*/, void* /*psm_conf*/, const void* /*pevent*/, long /*dummy*/)
-{
-    static_assert
-    (
-        std::is_empty_v<State>,
-        "No on_entry(event) or on_entry() found in non-empty state type"
-    );
+    if constexpr(is_composite_state_v<State>)
+    {
+        state.on_entry(sm_conf, event);
+    }
+    else if constexpr(std::is_empty_v<State>)
+    {
+        //nothing
+    }
+    else
+    {
+        state.on_entry(event);
+    }
 }
 
 template<class State, class SmConfiguration, class Event>
-auto call_on_exit(State* pstate, SmConfiguration* psm_conf, const Event* pevent, int /*dummy*/) ->
-    decltype(pstate->on_exit(*psm_conf, *pevent))
+auto call_on_exit(State& state, SmConfiguration& sm_conf, const Event& event)
 {
-    static_assert
-    (
-        !std::is_empty_v<State>,
-        "Empty state types can't have on_exit() functions"
-    );
-    pstate->on_exit(*psm_conf, *pevent);
-}
-
-template<class State, class Event>
-auto call_on_exit(State* pstate, void* /*psm_conf*/, const Event* pevent, int /*dummy*/) ->
-    decltype(pstate->on_exit(*pevent))
-{
-    static_assert
-    (
-        !std::is_empty_v<State>,
-        "Empty state types can't have on_exit() functions"
-    );
-    pstate->on_exit(*pevent);
-}
-
-template<class State>
-auto call_on_exit(State* pstate, void* /*psm_conf*/, const void* /*pevent*/, int /*dummy*/) ->
-    decltype(pstate->on_exit())
-{
-    static_assert
-    (
-        !std::is_empty_v<State>,
-        "Empty state types can't have on_exit() functions"
-    );
-    pstate->on_exit();
-}
-
-template<class State>
-void call_on_exit(State* /*pstate*/, void* /*psm_conf*/, const void* /*pevent*/, long /*dummy*/)
-{
-    static_assert
-    (
-        std::is_empty_v<State>,
-        "No on_exit(event) or on_exit() found in non-empty state type"
-    );
+    if constexpr(is_composite_state_v<State>)
+    {
+        state.on_exit(sm_conf, event);
+    }
+    else if constexpr(std::is_empty_v<State>)
+    {
+        //nothing
+    }
+    else
+    {
+        state.on_exit(event);
+    }
 }
 
 template<class Action, class Event>

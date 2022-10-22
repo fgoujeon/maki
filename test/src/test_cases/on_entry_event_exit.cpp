@@ -29,7 +29,7 @@ namespace
 
         struct english
         {
-            void on_entry()
+            void on_entry(awesm::whatever)
             {
                 ctx.hello = "hello";
             }
@@ -43,7 +43,7 @@ namespace
             {
             }
 
-            void on_exit()
+            void on_exit(awesm::whatever)
             {
                 ctx.goodbye = "goodbye";
             }
@@ -53,7 +53,7 @@ namespace
 
         struct french
         {
-            void on_entry()
+            void on_entry(awesm::whatever)
             {
                 ctx.hello = "bonjour";
             }
@@ -67,7 +67,7 @@ namespace
             {
             }
 
-            void on_exit()
+            void on_exit(awesm::whatever)
             {
                 ctx.goodbye = "au revoir";
             }

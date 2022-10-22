@@ -37,7 +37,7 @@ namespace
                 ctx.out += "on_entry(e1);";
             }
 
-            void on_entry()
+            void on_entry(awesm::whatever)
             {
                 ctx.out += "on_entry();";
             }
@@ -51,7 +51,7 @@ namespace
                 ctx.out += "on_exit(e1);";
             }
 
-            void on_exit()
+            void on_exit(awesm::whatever)
             {
                 ctx.out += "on_exit();";
             }

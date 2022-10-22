@@ -87,11 +87,8 @@ namespace states
     {
         /*
         Whenever an state machine enters a state, it calls the on_entry()
-        function of that state. It tries to do so using the following
-        statements, in that order, until it finds a valid one:
-            state.on_entry(event);
-            state.on_entry();
-        If no valid statement is found, a build error occurs.
+        function of that state by passing it the event that caused the state
+        transition.
         */
         void on_entry(const button::push_event& event)
         {
@@ -100,10 +97,9 @@ namespace states
         }
 
         /*
-        Accordingly to the previous comment, this function is called for events
-        whose type isn't button::push_event.
+        We ignore all other events.
         */
-        void on_entry()
+        void on_entry(awesm::whatever)
         {
         }
 
@@ -129,10 +125,9 @@ namespace states
 
         /*
         Whenever a state machine exits a state, it calls the on_exit() function
-        of that state. It uses the same mechanism as the one used for
-        on_entry().
+        of that state by passing it the event that caused the state transition.
         */
-        void on_exit()
+        void on_exit(awesm::whatever)
         {
         }
 

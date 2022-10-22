@@ -35,7 +35,7 @@ namespace
 
         struct benchmarking
         {
-            void on_entry()
+            void on_entry(awesm::whatever)
             {
             }
 
@@ -48,7 +48,7 @@ namespace
             {
             }
 
-            void on_exit()
+            void on_exit(awesm::whatever)
             {
             }
 

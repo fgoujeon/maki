@@ -4,55 +4,48 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_SUBSM_HPP
-#define AWESM_SUBSM_HPP
+#ifndef AWESM_DETAIL_REGION_TUPLE_HPP
+#define AWESM_DETAIL_REGION_TUPLE_HPP
 
-#include "region.hpp"
-#include "detail/region_impl.hpp"
-#include "region_list.hpp"
+#include "../region.hpp"
+#include "../region_list.hpp"
 #include <type_traits>
 
-namespace awesm
+namespace awesm::detail
 {
 
-namespace detail
-{
-    template<class RegionList>
-    struct region_tuple_helper;
+template<class RegionList>
+class region_tuple;
 
-    template<class... Regions>
-    struct region_tuple_helper<region_list<Regions...>>
-    {
-        using type = sm_object_holder_tuple<Regions...>;
-    };
-
-    template<class RegionList>
-    using region_tuple = typename region_tuple_helper<RegionList>::type;
-}
-
-template<class RegionListHolder>
-class subsm
+template<class... Regions>
+class region_tuple<region_list<Regions...>>
 {
     public:
         template<class Sm, class Context>
-        explicit subsm(Sm& top_level_sm, Context& context):
+        explicit region_tuple(Sm& top_level_sm, Context& context):
             regions_{top_level_sm, context}
         {
         }
 
-        subsm(const subsm&) = delete;
-        subsm(subsm&&) = delete;
-        subsm& operator=(const subsm&) = delete;
-        subsm& operator=(subsm&&) = delete;
-        ~subsm() = default;
+        region_tuple(const region_tuple&) = delete;
+        region_tuple(region_tuple&&) = delete;
+        region_tuple& operator=(const region_tuple&) = delete;
+        region_tuple& operator=(region_tuple&&) = delete;
+        ~region_tuple() = default;
 
-        template<int RegionIndex = 0>
+        template<int RegionIndex>
         const auto& get_region() const
         {
             return regions_.template get<RegionIndex>();
         }
 
-        template<class State, int RegionIndex = 0>
+        template<class State, int RegionIndex>
+        const auto& get_state() const
+        {
+            return get_region<RegionIndex>().template get_state<State>();
+        }
+
+        template<class State, int RegionIndex>
         [[nodiscard]] bool is_active_state() const
         {
             return regions_.template get<RegionIndex>().template is_active_state<State>();
@@ -95,12 +88,7 @@ class subsm
         }
 
     private:
-        using region_tuple_t = detail::region_tuple
-        <
-            typename RegionListHolder::type
-        >;
-
-        region_tuple_t regions_;
+        sm_object_holder_tuple<Regions...> regions_;
 };
 
 } //namespace

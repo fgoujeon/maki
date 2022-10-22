@@ -282,11 +282,7 @@ class region_impl
 
                 if constexpr(!std::is_same_v<action_t, none>)
                 {
-                    detail::call_execute
-                    (
-                        &actions_.get(static_cast<action_t*>(nullptr)),
-                        &event
-                    );
+                    actions_.get(static_cast<action_t*>(nullptr)).execute(event);
                 }
 
                 if constexpr(!is_internal_transition)
@@ -336,14 +332,7 @@ class region_impl
                     sm_conf,
                     [&]
                     {
-                        if
-                        (
-                            !detail::call_check
-                            (
-                                &guards_.get(static_cast<guard_t*>(nullptr)),
-                                &event
-                            )
-                        )
+                        if(!guards_.get(static_cast<guard_t*>(nullptr)).check(event))
                         {
                             return;
                         }

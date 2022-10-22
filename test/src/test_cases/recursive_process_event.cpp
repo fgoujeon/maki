@@ -93,7 +93,7 @@ namespace
     {
         struct s0_to_s1
         {
-            void execute()
+            void execute(awesm::whatever)
             {
                 machine.process_event(events::s1_to_s2_request{});
             }
@@ -104,7 +104,7 @@ namespace
 
         struct s1_to_s2
         {
-            void execute()
+            void execute(awesm::whatever)
             {
                 machine.process_event(events::s2_to_s0_request{});
             }

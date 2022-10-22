@@ -71,7 +71,7 @@ namespace
     {
         struct unreachable
         {
-            void execute()
+            void execute(awesm::whatever)
             {
                 ctx.out += "unreachable;";
             }

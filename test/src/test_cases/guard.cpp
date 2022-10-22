@@ -32,7 +32,7 @@ namespace
     {
         struct has_power
         {
-            bool check()
+            bool check(awesm::whatever)
             {
                 return ctx.has_power;
             }

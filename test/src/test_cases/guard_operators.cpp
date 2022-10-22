@@ -44,7 +44,7 @@ namespace
 #define GUARD(NAME) \
     struct NAME \
     { \
-        bool check() const \
+        bool check(awesm::whatever) const \
         { \
             return ctx.NAME; \
         } \

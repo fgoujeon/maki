@@ -164,7 +164,7 @@ namespace actions
             action.execute();
         If no valid statement is found, a build error occurs.
         */
-        void execute()
+        void execute(awesm::whatever)
         {
             ctx.led.set_color(rgb_led::color::off);
         }
@@ -176,7 +176,7 @@ namespace actions
     template<auto Color>
     struct turn_light_tpl
     {
-        void execute()
+        void execute(awesm::whatever)
         {
             ctx.led.set_color(Color);
         }

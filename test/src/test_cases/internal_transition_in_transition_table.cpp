@@ -68,7 +68,7 @@ namespace
     {
         struct beep
         {
-            void execute()
+            void execute(awesm::whatever)
             {
                 ctx.out += "beep;";
             }

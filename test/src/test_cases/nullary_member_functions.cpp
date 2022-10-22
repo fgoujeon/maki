@@ -67,7 +67,7 @@ namespace
             ctx.out += "execute(e1);";
         }
 
-        void execute()
+        void execute(awesm::whatever)
         {
             ctx.out += "execute();";
         }
@@ -83,7 +83,7 @@ namespace
             return true;
         }
 
-        bool check()
+        bool check(awesm::whatever)
         {
             ctx.out += "check();";
             return true;

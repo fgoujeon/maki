@@ -54,34 +54,6 @@ auto call_on_exit(State& state, SmConfiguration& sm_conf, const Event& event)
     }
 }
 
-template<class Action, class Event>
-auto call_execute(Action* paction, const Event* pevent) ->
-    decltype(paction->execute(*pevent))
-{
-    paction->execute(*pevent);
-}
-
-template<class Action>
-auto call_execute(Action* paction, const void* /*pevent*/) ->
-    decltype(paction->execute())
-{
-    paction->execute();
-}
-
-template<class Guard, class Event>
-auto call_check(Guard* pguard, const Event* pevent) ->
-    decltype(pguard->check(*pevent))
-{
-    return pguard->check(*pevent);
-}
-
-template<class Guard>
-auto call_check(Guard* pguard, const void* /*pevent*/) ->
-    decltype(pguard->check())
-{
-    return pguard->check();
-}
-
 } //namespace
 
 #endif

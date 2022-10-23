@@ -295,13 +295,16 @@ class region
 
                 if constexpr(!is_internal_transition)
                 {
-                    mach.conf_.template before_entry
-                    <
-                        Index,
-                        source_state_t,
-                        Event,
-                        target_state_t
-                    >(event);
+                    if constexpr(tlu::contains<typename Sm::configuration_t, sm_options::before_entry>)
+                    {
+                        mach.def_.get_object().template before_entry
+                        <
+                            Index,
+                            source_state_t,
+                            Event,
+                            target_state_t
+                        >(event);
+                    }
 
                     detail::call_on_entry
                     (

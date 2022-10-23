@@ -41,20 +41,6 @@ class completed_sm_configuration: private Options...
             );
         }
 
-        template<int RegionIndex, class SourceState, class Event, class TargetState>
-        void before_entry(const Event& event)
-        {
-            call
-            (
-                sm_options::detail::tags::before_entry{},
-                std::integral_constant<int, RegionIndex>{},
-                static_cast<SourceState*>(nullptr),
-                &event,
-                static_cast<TargetState*>(nullptr),
-                0
-            );
-        }
-
         void on_exception(const std::exception_ptr& eptr)
         {
             call(sm_options::detail::tags::on_exception{}, eptr, 0);
@@ -67,7 +53,6 @@ class completed_sm_configuration: private Options...
 template<class... Options>
 using sm_configuration = completed_sm_configuration
 <
-    sm_options::detail::defaults::before_entry,
     sm_options::detail::defaults::in_state_internal_transitions,
     sm_options::detail::defaults::on_exception,
     sm_options::detail::defaults::run_to_completion,

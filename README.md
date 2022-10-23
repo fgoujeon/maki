@@ -305,6 +305,10 @@ using sm_transition_table = awesm::transition_table
     row<any_but<off>,   button_push, off,            turn_light_off,    is_long_push>
 >;
 
+/*
+We have to define this struct to define our state machine. Here we just specify
+the transition table, but we can put many options in it.
+*/
 struct sm_def
 {
     using conf = awesm::sm_conf<sm_transition_table>;

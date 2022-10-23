@@ -31,7 +31,7 @@ class and_
             (
                 detail::call_check
                 (
-                    &guards_.template get<Guards>(),
+                    &detail::get<Guards>(guards_),
                     &event
                 ) && ...
             );
@@ -58,7 +58,7 @@ class or_
             (
                 detail::call_check
                 (
-                    &guards_.template get<Guards>(),
+                    &detail::get<Guards>(guards_),
                     &event
                 ) || ...
             );
@@ -85,7 +85,7 @@ class xor_
             (
                 detail::call_check
                 (
-                    &guards_.template get<Guards>(),
+                    &detail::get<Guards>(guards_),
                     &event
                 ) != ...
             );

@@ -29,48 +29,61 @@ class sm_object_holder_tuple: private sm_object_holder<Ts>...
         {
         }
 
-        template<class T>
-        T& get()
-        {
-            return sm_object_holder<T>::object;
-        }
+    private:
+        template<class T2, class... T2s>
+        friend T2& get(sm_object_holder_tuple<T2s...>&);
 
-        template<class T>
-        const T& get() const
-        {
-            return sm_object_holder<T>::object;
-        }
+        template<class T2, class... T2s>
+        friend const T2& get(const sm_object_holder_tuple<T2s...>&);
 
-        template<int Index>
-        auto& get()
-        {
-            using sm_object_holder_type_list_t = type_list<sm_object_holder<Ts>...>;
-            using sm_object_holder_t = tlu::at<sm_object_holder_type_list_t, Index>;
-            using object_t = typename sm_object_holder_t::object_t;
-            return get<object_t>();
-        }
+        template<int Index, class... T2s>
+        friend auto& get(sm_object_holder_tuple<T2s...>&);
 
-        template<int Index>
-        const auto& get() const
-        {
-            using sm_object_holder_type_list_t = type_list<sm_object_holder<Ts>...>;
-            using sm_object_holder_t = tlu::at<sm_object_holder_type_list_t, Index>;
-            using object_t = typename sm_object_holder_t::object_t;
-            return get<object_t>();
-        }
-
-        template<class F>
-        void for_each(F&& callback)
-        {
-            (callback(get<Ts>()), ...);
-        }
-
-        template<class F>
-        void for_each(F&& callback) const
-        {
-            (callback(get<Ts>()), ...);
-        }
+        template<int Index, class... T2s>
+        friend const auto& get(const sm_object_holder_tuple<T2s...>&);
 };
+
+template<class T, class... Ts>
+T& get(sm_object_holder_tuple<Ts...>& tuple)
+{
+    return static_cast<sm_object_holder<T>&>(tuple).object;
+}
+
+template<class T, class... Ts>
+const T& get(const sm_object_holder_tuple<Ts...>& tuple)
+{
+    return static_cast<const sm_object_holder<T>&>(tuple).object;
+}
+
+template<int Index, class... Ts>
+auto& get(sm_object_holder_tuple<Ts...>& tuple)
+{
+    using sm_object_holder_type_list_t = type_list<sm_object_holder<Ts>...>;
+    using sm_object_holder_t = tlu::at<sm_object_holder_type_list_t, Index>;
+    using object_t = typename sm_object_holder_t::object_t;
+    return get<object_t>(tuple);
+}
+
+template<int Index, class... Ts>
+const auto& get(const sm_object_holder_tuple<Ts...>& tuple)
+{
+    using sm_object_holder_type_list_t = type_list<sm_object_holder<Ts>...>;
+    using sm_object_holder_t = tlu::at<sm_object_holder_type_list_t, Index>;
+    using object_t = typename sm_object_holder_t::object_t;
+    return get<object_t>(tuple);
+}
+
+template<class F, class... Ts>
+void for_each(sm_object_holder_tuple<Ts...>& tuple, F&& callback)
+{
+    (callback(get<Ts>(tuple)), ...);
+}
+
+template<class F, class... Ts>
+void for_each(const sm_object_holder_tuple<Ts...>& tuple, F&& callback)
+{
+    (callback(get<Ts>(tuple)), ...);
+}
 
 } //namespace
 

@@ -26,8 +26,8 @@ TEST_CASE("detail::make_tuple")
 {
     auto data = 42;
     auto tuple = type_tuple{data, data /*ignored*/};
-    auto& obj0 = tuple.template get<type0>();
-    auto& obj1 = tuple.template get<type1>();
+    auto& obj0 = awesm::detail::get<type0>(tuple);
+    auto& obj1 = awesm::detail::get<type1>(tuple);
 
     REQUIRE(&obj0.data == &data);
     REQUIRE(&obj1.data == &data);

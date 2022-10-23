@@ -8,7 +8,6 @@
 #define AWESM_SM_OPTIONS_HPP
 
 #include "sm_options/in_state_internal_transitions.hpp"
-#include "sm_options/run_to_completion.hpp"
 
 namespace awesm::sm_options
 {
@@ -46,6 +45,20 @@ struct before_state_transition
     //Dummy
     template<class Sm, class Context>
     before_state_transition(Sm& /*sm*/, Context& /*ctx*/)
+    {
+    }
+
+    //Dummy
+    void call()
+    {
+    }
+};
+
+struct disable_run_to_completion
+{
+    //Dummy
+    template<class Sm, class Context>
+    disable_run_to_completion(Sm& /*sm*/, Context& /*ctx*/)
     {
     }
 

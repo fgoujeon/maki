@@ -158,15 +158,15 @@ class sm
         };
         using queued_event_processing_storage_t = detail::alternative_lazy
         <
-            configuration_t::has_run_to_completion(),
-            queue_holder,
-            empty_holder
+            detail::tlu::contains<configuration_t, sm_options::disable_run_to_completion>,
+            empty_holder,
+            queue_holder
         >;
 
         template<detail::event_processing_type ProcessingType, class Event>
         void process_event_2(const Event& event)
         {
-            if constexpr(configuration_t::has_run_to_completion())
+            if constexpr(!detail::tlu::contains<configuration_t, sm_options::disable_run_to_completion>)
             {
                 //Queue event processing in case of recursive call
                 if(processing_event_)

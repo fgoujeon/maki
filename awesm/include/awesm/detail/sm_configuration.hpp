@@ -32,15 +32,6 @@ class completed_sm_configuration: private Options...
             );
         }
 
-        static constexpr bool has_run_to_completion()
-        {
-            return call
-            (
-                sm_options::detail::tags::run_to_completion{},
-                0
-            );
-        }
-
     private:
         using Options::call...;
 };
@@ -49,7 +40,6 @@ template<class... Options>
 using sm_configuration = completed_sm_configuration
 <
     sm_options::detail::defaults::in_state_internal_transitions,
-    sm_options::detail::defaults::run_to_completion,
     Options...
 >;
 

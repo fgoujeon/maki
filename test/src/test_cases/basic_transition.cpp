@@ -38,7 +38,7 @@ namespace
     using sm_t = awesm::sm
     <
         sm_def,
-        awesm::sm_options::run_to_completion<false>
+        awesm::sm_options::disable_run_to_completion
     >;
 }
 

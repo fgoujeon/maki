@@ -22,9 +22,6 @@
 namespace awesm::detail
 {
 
-template<class RegionListHolder>
-class region_tuple;
-
 template<int Index, class TransitionTable>
 class region
 {

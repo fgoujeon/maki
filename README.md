@@ -41,7 +41,7 @@ The expected behavior is:
 
 This behavior can be expressed with the following transition table:
 ```c++
-using transition_table = awesm::transition_table
+using sm_transition_table = awesm::transition_table
 <
     //  source_state,   event,       target_state,   action,            guard
     row<off,            button_push, emitting_white, turn_light_white>,
@@ -278,34 +278,36 @@ using button_push = button::push_event;
 using awesm::row;
 using awesm::any_but;
 
-struct sm_transition_table
+/*
+This is the transition table. This is where we define the actions that must
+be executed depending on the active state and the event we receive.
+Basically, whenever awesm::sm::process_event() is called, AweSM iterates
+over the rows of this table until it finds a match, i.e. when:
+- 'source_state' is the currently active state (or is awesm::any);
+- 'event' is the type of the processed event;
+- and the 'guard' returns true (or is awesm::none).
+When a match is found, AweSM:
+- exits 'source_state';
+- marks 'target_state' as the new active state;
+- executes the 'action';
+- enters 'target_state'.
+The initial active state of the state machine is the first state encountered
+in the transition table ('off', is our case).
+*/
+using sm_transition_table = awesm::transition_table
+<
+    //  source_state,   event,       target_state,   action,            guard
+    row<off,            button_push, emitting_white, turn_light_white>,
+    row<emitting_white, button_push, emitting_red,   turn_light_red,    is_short_push>,
+    row<emitting_red,   button_push, emitting_green, turn_light_green,  is_short_push>,
+    row<emitting_green, button_push, emitting_blue,  turn_light_blue,   is_short_push>,
+    row<emitting_blue,  button_push, emitting_white, turn_light_white,  is_short_push>,
+    row<any_but<off>,   button_push, off,            turn_light_off,    is_long_push>
+>;
+
+struct sm_def
 {
-    /*
-    This is the transition table. This is where we define the actions that must
-    be executed depending on the active state and the event we receive.
-    Basically, whenever awesm::sm::process_event() is called, AweSM iterates
-    over the rows of this table until it finds a match, i.e. when:
-    - 'source_state' is the currently active state (or is awesm::any);
-    - 'event' is the type of the processed event;
-    - and the 'guard' returns true (or is awesm::none).
-    When a match is found, AweSM:
-    - exits 'source_state';
-    - marks 'target_state' as the new active state;
-    - executes the 'action';
-    - enters 'target_state'.
-    The initial active state of the state machine is the first state encountered
-    in the transition table ('off', is our case).
-    */
-    using transition_table = awesm::transition_table
-    <
-        //  source_state,   event,       target_state,   action,            guard
-        row<off,            button_push, emitting_white, turn_light_white>,
-        row<emitting_white, button_push, emitting_red,   turn_light_red,    is_short_push>,
-        row<emitting_red,   button_push, emitting_green, turn_light_green,  is_short_push>,
-        row<emitting_green, button_push, emitting_blue,  turn_light_blue,   is_short_push>,
-        row<emitting_blue,  button_push, emitting_white, turn_light_white,  is_short_push>,
-        row<any_but<off>,   button_push, off,            turn_light_off,    is_long_push>
-    >;
+    using transition_tables = awesm::transition_table_list<sm_transition_table>;
 };
 
 /*

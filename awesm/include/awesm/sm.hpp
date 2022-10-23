@@ -97,6 +97,10 @@ class sm
         }
 
     private:
+        //Let regions access configuration
+        template<int Index, class TransitionTable>
+        friend class detail::region;
+
         using configuration_t = detail::sm_configuration
         <
             sm_options::detail::defaults::after_state_transition,
@@ -243,15 +247,15 @@ class sm
 
             if constexpr(ProcessingType == detail::event_processing_type::start)
             {
-                region_tuple_.start(conf_, event);
+                region_tuple_.start(*this, event);
             }
             else if constexpr(ProcessingType == detail::event_processing_type::stop)
             {
-                region_tuple_.stop(conf_, event);
+                region_tuple_.stop(*this, event);
             }
             else
             {
-                region_tuple_.process_event(conf_, event);
+                region_tuple_.process_event(*this, event);
             }
         }
 

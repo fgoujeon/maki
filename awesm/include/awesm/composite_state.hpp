@@ -30,24 +30,24 @@ class composite_state
             return region_tuple_.template is_active_state<State, RegionIndex>();
         }
 
-        template<class SmConfiguration, class Event>
-        void on_entry(SmConfiguration& sm_conf, const Event& event)
+        template<class Sm, class Event>
+        void on_entry(Sm& mach, const Event& event)
         {
             def_.get_object().on_entry(event);
-            region_tuple_.start(sm_conf, event);
+            region_tuple_.start(mach, event);
         }
 
-        template<class SmConfiguration, class Event>
-        void on_event(SmConfiguration& sm_conf, const Event& event)
+        template<class Sm, class Event>
+        void on_event(Sm& mach, const Event& event)
         {
-            region_tuple_.process_event(sm_conf, event);
+            region_tuple_.process_event(mach, event);
             def_.get_object().on_event(event);
         }
 
-        template<class SmConfiguration, class Event>
-        void on_exit(SmConfiguration& sm_conf, const Event& event)
+        template<class Sm, class Event>
+        void on_exit(Sm& mach, const Event& event)
         {
-            region_tuple_.stop(sm_conf, event);
+            region_tuple_.stop(mach, event);
             def_.get_object().on_exit(event);
         }
 

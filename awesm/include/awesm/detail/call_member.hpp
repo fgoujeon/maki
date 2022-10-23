@@ -19,20 +19,20 @@ A 0 must be passed to int and long dummy parameters.
 We use this trick so that int overloads take precedence over long ones.
 */
 
-template<class State, class SmConfiguration, class Event>
-auto call_on_entry(State* pstate, SmConfiguration* psm_conf, const Event* pevent, int /*dummy*/) ->
-    decltype(pstate->on_entry(*psm_conf, *pevent))
+template<class State, class Sm, class Event>
+auto call_on_entry(State* pstate, Sm* pmach, const Event* pevent, int /*dummy*/) ->
+    decltype(pstate->on_entry(*pmach, *pevent))
 {
     static_assert
     (
         !std::is_empty_v<State>,
         "Empty state types can't have on_entry() functions"
     );
-    pstate->on_entry(*psm_conf, *pevent);
+    pstate->on_entry(*pmach, *pevent);
 }
 
 template<class State, class Event>
-auto call_on_entry(State* pstate, void* /*psm_conf*/, const Event* pevent, int /*dummy*/) ->
+auto call_on_entry(State* pstate, void* /*pmach*/, const Event* pevent, int /*dummy*/) ->
     decltype(pstate->on_entry(*pevent))
 {
     static_assert
@@ -44,7 +44,7 @@ auto call_on_entry(State* pstate, void* /*psm_conf*/, const Event* pevent, int /
 }
 
 template<class State>
-auto call_on_entry(State* pstate, void* /*psm_conf*/, const void* /*pevent*/, int /*dummy*/) ->
+auto call_on_entry(State* pstate, void* /*pmach*/, const void* /*pevent*/, int /*dummy*/) ->
     decltype(pstate->on_entry())
 {
     static_assert
@@ -56,7 +56,7 @@ auto call_on_entry(State* pstate, void* /*psm_conf*/, const void* /*pevent*/, in
 }
 
 template<class State>
-void call_on_entry(State* /*pstate*/, void* /*psm_conf*/, const void* /*pevent*/, long /*dummy*/)
+void call_on_entry(State* /*pstate*/, void* /*pmach*/, const void* /*pevent*/, long /*dummy*/)
 {
     static_assert
     (
@@ -65,39 +65,39 @@ void call_on_entry(State* /*pstate*/, void* /*psm_conf*/, const void* /*pevent*/
     );
 }
 
-template<class State, class SmConfiguration, class Event>
-auto call_on_event(State* pstate, SmConfiguration* psm_conf, const Event* pevent) ->
+template<class State, class Sm, class Event>
+auto call_on_event(State* pstate, Sm* pmach, const Event* pevent) ->
     decltype(pstate->on_event(*pevent))
 {
-    pstate->on_event(*psm_conf, *pevent);
+    pstate->on_event(*pmach, *pevent);
 }
 
 template<class State, class Event>
-auto call_on_event(State* pstate, void* /*psm_conf*/, const Event* pevent) ->
+auto call_on_event(State* pstate, void* /*pmach*/, const Event* pevent) ->
     decltype(pstate->on_event(*pevent))
 {
     pstate->on_event(*pevent);
 }
 
-inline void call_on_event(void* /*pstate*/, void* /*psm_conf*/, const void* /*pevent*/)
+inline void call_on_event(void* /*pstate*/, void* /*pmach*/, const void* /*pevent*/)
 {
     //state::on_event() is optional
 }
 
 template<class State, class SmConfiguration, class Event>
-auto call_on_exit(State* pstate, SmConfiguration* psm_conf, const Event* pevent, int /*dummy*/) ->
-    decltype(pstate->on_exit(*psm_conf, *pevent))
+auto call_on_exit(State* pstate, SmConfiguration* pmach, const Event* pevent, int /*dummy*/) ->
+    decltype(pstate->on_exit(*pmach, *pevent))
 {
     static_assert
     (
         !std::is_empty_v<State>,
         "Empty state types can't have on_exit() functions"
     );
-    pstate->on_exit(*psm_conf, *pevent);
+    pstate->on_exit(*pmach, *pevent);
 }
 
 template<class State, class Event>
-auto call_on_exit(State* pstate, void* /*psm_conf*/, const Event* pevent, int /*dummy*/) ->
+auto call_on_exit(State* pstate, void* /*pmach*/, const Event* pevent, int /*dummy*/) ->
     decltype(pstate->on_exit(*pevent))
 {
     static_assert
@@ -109,7 +109,7 @@ auto call_on_exit(State* pstate, void* /*psm_conf*/, const Event* pevent, int /*
 }
 
 template<class State>
-auto call_on_exit(State* pstate, void* /*psm_conf*/, const void* /*pevent*/, int /*dummy*/) ->
+auto call_on_exit(State* pstate, void* /*pmach*/, const void* /*pevent*/, int /*dummy*/) ->
     decltype(pstate->on_exit())
 {
     static_assert
@@ -121,7 +121,7 @@ auto call_on_exit(State* pstate, void* /*psm_conf*/, const void* /*pevent*/, int
 }
 
 template<class State>
-void call_on_exit(State* /*pstate*/, void* /*psm_conf*/, const void* /*pevent*/, long /*dummy*/)
+void call_on_exit(State* /*pstate*/, void* /*pmach*/, const void* /*pevent*/, long /*dummy*/)
 {
     static_assert
     (

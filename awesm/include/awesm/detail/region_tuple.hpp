@@ -65,41 +65,41 @@ class region_tuple<transition_table_list<TransitionTables...>>
             return get<RegionIndex>(regions_).template is_active_state<State>();
         }
 
-        template<class SmConfiguration, class Event = none>
-        void start(SmConfiguration& sm_conf, const Event& event = {})
+        template<class Sm, class Event = none>
+        void start(Sm& mach, const Event& event = {})
         {
             for_each
             (
                 regions_,
                 [&](auto& reg)
                 {
-                    reg.start(sm_conf, event);
+                    reg.start(mach, event);
                 }
             );
         }
 
-        template<class SmConfiguration, class Event = none>
-        void stop(SmConfiguration& sm_conf, const Event& event = {})
+        template<class Sm, class Event = none>
+        void stop(Sm& mach, const Event& event = {})
         {
             for_each
             (
                 regions_,
                 [&](auto& reg)
                 {
-                    reg.stop(sm_conf, event);
+                    reg.stop(mach, event);
                 }
             );
         }
 
-        template<class SmConfiguration, class Event>
-        void process_event(SmConfiguration& sm_conf, const Event& event)
+        template<class Sm, class Event>
+        void process_event(Sm& mach, const Event& event)
         {
             for_each
             (
                 regions_,
                 [&](auto& reg)
                 {
-                    reg.process_event(sm_conf, event);
+                    reg.process_event(mach, event);
                 }
             );
         }

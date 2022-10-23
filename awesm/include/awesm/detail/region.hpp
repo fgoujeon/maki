@@ -402,7 +402,14 @@ class region
             template<class SmConfiguration, class Event>
             static void process(region& reg, SmConfiguration& sm_conf, const Event& event)
             {
-                (reg.process_event_in_state<States>(&sm_conf, &event) || ...);
+                (
+                    reg.process_event_in_state
+                    (
+                        &reg.states_.get(static_cast<States*>(nullptr)),
+                        &sm_conf,
+                        &event
+                    ) || ...
+                );
             }
         };
 
@@ -410,6 +417,7 @@ class region
         template<class State, class SmConfiguration, class Event>
         auto process_event_in_state
         (
+            State* pstate,
             SmConfiguration* psm_conf,
             const Event* pevent
         ) -> decltype(std::declval<State>().on_event(*psm_conf, *pevent), bool())
@@ -421,7 +429,7 @@ class region
                     *psm_conf,
                     [&]
                     {
-                        states_.get(static_cast<State*>(nullptr)).on_event(*psm_conf, *pevent);
+                        pstate->on_event(*psm_conf, *pevent);
                     }
                 );
                 return true;
@@ -433,6 +441,7 @@ class region
         template<class State, class SmConfiguration, class Event>
         auto process_event_in_state
         (
+            State* pstate,
             SmConfiguration* psm_conf,
             const Event* pevent
         ) -> decltype(std::declval<State>().on_event(*pevent), bool())
@@ -444,7 +453,7 @@ class region
                     *psm_conf,
                     [&]
                     {
-                        states_.get(static_cast<State*>(nullptr)).on_event(*pevent);
+                        pstate->on_event(*pevent);
                     }
                 );
                 return true;
@@ -452,9 +461,9 @@ class region
             return false;
         }
 
-        template<class State>
         bool process_event_in_state
         (
+            void* /*pstate*/,
             void* /*psm_conf*/,
             const void* /*pevent*/
         )

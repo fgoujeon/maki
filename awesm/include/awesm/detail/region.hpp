@@ -166,20 +166,6 @@ class region
             }
         }
 
-        //Used to call client code
-        template<class Sm, class F>
-        void safe_call(Sm& mach, F&& fun)
-        {
-            try
-            {
-                fun();
-            }
-            catch(...)
-            {
-                mach.conf_.on_exception(std::current_exception());
-            }
-        }
-
         //Try and trigger one transition
         template<class Sm, class Event>
         bool process_event_in_transition_table_once(Sm& mach, const Event& event)
@@ -329,9 +315,8 @@ class region
 
             if constexpr(std::is_same_v<guard_t, none>)
             {
-                safe_call
+                mach.safe_call
                 (
-                    mach,
                     [&]
                     {
                         do_transition(0);
@@ -342,9 +327,8 @@ class region
             else
             {
                 auto processed = false;
-                safe_call
+                mach.safe_call
                 (
-                    mach,
                     [&]
                     {
                         if
@@ -431,9 +415,8 @@ class region
         {
             if(is_active_state<State>())
             {
-                safe_call
+                pmach->safe_call
                 (
-                    *pmach,
                     [&]
                     {
                         pstate->on_event(*pmach, *pevent);
@@ -455,9 +438,8 @@ class region
         {
             if(is_active_state<State>())
             {
-                safe_call
+                pmach->safe_call
                 (
-                    *pmach,
                     [&]
                     {
                         pstate->on_event(*pevent);

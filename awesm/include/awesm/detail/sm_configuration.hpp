@@ -41,11 +41,6 @@ class completed_sm_configuration: private Options...
             );
         }
 
-        void on_exception(const std::exception_ptr& eptr)
-        {
-            call(sm_options::detail::tags::on_exception{}, eptr, 0);
-        }
-
     private:
         using Options::call...;
 };
@@ -54,7 +49,6 @@ template<class... Options>
 using sm_configuration = completed_sm_configuration
 <
     sm_options::detail::defaults::in_state_internal_transitions,
-    sm_options::detail::defaults::on_exception,
     sm_options::detail::defaults::run_to_completion,
     Options...
 >;

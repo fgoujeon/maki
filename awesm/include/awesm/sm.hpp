@@ -218,7 +218,14 @@ class sm
             }
             catch(...)
             {
-                conf_.on_exception(std::current_exception());
+                if constexpr(detail::tlu::contains<configuration_t, sm_options::on_exception>)
+                {
+                    def_.get_object().on_exception(std::current_exception());
+                }
+                else
+                {
+                    process_event(std::current_exception());
+                }
             }
         }
 
@@ -235,7 +242,7 @@ class sm
                 (
                     [&]
                     {
-                        conf_.on_event(&event);
+                        def_.on_event(&event);
                     }
                 );
             }

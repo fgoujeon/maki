@@ -8,7 +8,6 @@
 #define AWESM_SM_OPTIONS_HPP
 
 #include "sm_options/in_state_internal_transitions.hpp"
-#include "sm_options/on_exception.hpp"
 #include "sm_options/run_to_completion.hpp"
 
 namespace awesm::sm_options
@@ -61,6 +60,20 @@ struct on_event
     //Dummy
     template<class Sm, class Context>
     on_event(Sm& /*sm*/, Context& /*ctx*/)
+    {
+    }
+
+    //Dummy
+    void call()
+    {
+    }
+};
+
+struct on_exception
+{
+    //Dummy
+    template<class Sm, class Context>
+    on_exception(Sm& /*sm*/, Context& /*ctx*/)
     {
     }
 

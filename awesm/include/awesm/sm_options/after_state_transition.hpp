@@ -62,7 +62,7 @@ class after_state_transition
             int /*priority*/
         )
         {
-            impl_.object.template after_state_transition<RegionIndex, SourceState, Event, TargetState>
+            impl_.get_object().template after_state_transition<RegionIndex, SourceState, Event, TargetState>
             (
                 *pevent
             );

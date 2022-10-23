@@ -31,7 +31,7 @@ class and_
             (
                 detail::call_check
                 (
-                    &guards_.get(static_cast<Guards*>(nullptr)),
+                    &detail::get<Guards>(guards_),
                     &event
                 ) && ...
             );
@@ -58,7 +58,7 @@ class or_
             (
                 detail::call_check
                 (
-                    &guards_.get(static_cast<Guards*>(nullptr)),
+                    &detail::get<Guards>(guards_),
                     &event
                 ) || ...
             );
@@ -85,7 +85,7 @@ class xor_
             (
                 detail::call_check
                 (
-                    &guards_.get(static_cast<Guards*>(nullptr)),
+                    &detail::get<Guards>(guards_),
                     &event
                 ) != ...
             );
@@ -108,7 +108,7 @@ class not_
         template<class Event>
         bool check(const Event& event)
         {
-            return !detail::call_check(&guard_.object, &event);
+            return !detail::call_check(&guard_.get_object(), &event);
         }
 
     private:

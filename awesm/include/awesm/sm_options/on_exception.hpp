@@ -52,7 +52,7 @@ class on_exception
 
         void call(detail::tags::on_exception /*tag*/, const std::exception_ptr& eptr, int /*priority*/)
         {
-            impl_.object.on_exception(eptr);
+            impl_.get_object().on_exception(eptr);
         }
 
     private:

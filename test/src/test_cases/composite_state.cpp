@@ -89,6 +89,8 @@ namespace
 
         struct on_def
         {
+            using transition_tables = awesm::transition_table_list<on_transition_table>;
+
             template<class Event>
             void on_entry(const Event& /*event*/)
             {
@@ -108,7 +110,7 @@ namespace
             context& ctx;
         };
 
-        using on = awesm::composite_state<on_def, on_transition_table>;
+        using on = awesm::composite_state<on_def>;
     }
 
     using sm_transition_table = awesm::transition_table

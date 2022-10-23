@@ -33,7 +33,7 @@ class composite_state
         template<class SmConfiguration, class Event>
         void on_entry(SmConfiguration& sm_conf, const Event& event)
         {
-            def_.object.on_entry(event);
+            def_.get_object().on_entry(event);
             region_tuple_.start(sm_conf, event);
         }
 
@@ -41,14 +41,14 @@ class composite_state
         void on_event(SmConfiguration& sm_conf, const Event& event)
         {
             region_tuple_.process_event(sm_conf, event);
-            def_.object.on_event(event);
+            def_.get_object().on_event(event);
         }
 
         template<class SmConfiguration, class Event>
         void on_exit(SmConfiguration& sm_conf, const Event& event)
         {
             region_tuple_.stop(sm_conf, event);
-            def_.object.on_exit(event);
+            def_.get_object().on_exit(event);
         }
 
     private:

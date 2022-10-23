@@ -108,7 +108,7 @@ class not_
         template<class Event>
         bool check(const Event& event)
         {
-            return !detail::call_check(&guard_.object, &event);
+            return !detail::call_check(&guard_.get_object(), &event);
         }
 
     private:

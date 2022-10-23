@@ -42,49 +42,58 @@ use a function such as make_sm_object<T>(context). We need this wrapper to
 construct the objects.
 */
 template<class T>
-struct sm_object_holder
+class sm_object_holder: private T
 {
-    using object_t = T;
+    public:
+        using object_t = T;
 
-    template<class Sm, class Context, class U = T>
-    sm_object_holder
-    (
-        Sm& machine,
-        Context& ctx,
-        std::enable_if_t
-        <
-            sm_object_holder_detail::is_brace_constructible<U, Sm&, Context&>
-        >* /*pvoid*/ = nullptr
-    ):
-        object{machine, ctx}
-    {
-    }
+        template<class Sm, class Context, class U = T>
+        sm_object_holder
+        (
+            Sm& machine,
+            Context& ctx,
+            std::enable_if_t
+            <
+                sm_object_holder_detail::is_brace_constructible<U, Sm&, Context&>
+            >* /*pvoid*/ = nullptr
+        ):
+            T{machine, ctx}
+        {
+        }
 
-    template<class Sm, class Context, class U = T>
-    sm_object_holder
-    (
-        Sm& /*machine*/,
-        Context& ctx,
-        std::enable_if_t
-        <
-            sm_object_holder_detail::is_brace_constructible<U, Context&>
-        >* /*pvoid*/ = nullptr
-    ):
-        object{ctx}
-    {
-    }
+        template<class Sm, class Context, class U = T>
+        sm_object_holder
+        (
+            Sm& /*machine*/,
+            Context& ctx,
+            std::enable_if_t
+            <
+                sm_object_holder_detail::is_brace_constructible<U, Context&>
+            >* /*pvoid*/ = nullptr
+        ):
+            T{ctx}
+        {
+        }
 
-    template<class Sm, class Context, class U = T>
-    sm_object_holder
-    (
-        Sm& /*machine*/,
-        Context& /*ctx*/,
-        std::enable_if_t<std::is_default_constructible_v<U>>* /*pvoid*/ = nullptr
-    )
-    {
-    }
+        template<class Sm, class Context, class U = T>
+        sm_object_holder
+        (
+            Sm& /*machine*/,
+            Context& /*ctx*/,
+            std::enable_if_t<std::is_default_constructible_v<U>>* /*pvoid*/ = nullptr
+        )
+        {
+        }
 
-    T object;
+        object_t& get_object()
+        {
+            return *this;
+        }
+
+        const object_t& get_object() const
+        {
+            return *this;
+        }
 };
 
 } //namespace

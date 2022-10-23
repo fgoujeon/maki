@@ -46,13 +46,13 @@ class sm_object_holder_tuple: private sm_object_holder<Ts>...
 template<class T, class... Ts>
 T& get(sm_object_holder_tuple<Ts...>& tuple)
 {
-    return static_cast<sm_object_holder<T>&>(tuple).object;
+    return static_cast<sm_object_holder<T>&>(tuple).get_object();
 }
 
 template<class T, class... Ts>
 const T& get(const sm_object_holder_tuple<Ts...>& tuple)
 {
-    return static_cast<const sm_object_holder<T>&>(tuple).object;
+    return static_cast<const sm_object_holder<T>&>(tuple).get_object();
 }
 
 template<int Index, class... Ts>

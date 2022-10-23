@@ -62,7 +62,7 @@ class before_entry
             int /*priority*/
         )
         {
-            impl_.object.template before_entry<RegionIndex, SourceState, Event, TargetState>
+            impl_.get_object().template before_entry<RegionIndex, SourceState, Event, TargetState>
             (
                 *pevent
             );

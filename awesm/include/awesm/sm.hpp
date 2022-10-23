@@ -59,12 +59,6 @@ class sm
         sm& operator=(sm&&) = delete;
         ~sm() = default;
 
-        template<int RegionIndex = 0>
-        const auto& get_region() const
-        {
-            return region_tuple_.template get_region<RegionIndex>();
-        }
-
         template<class State, int RegionIndex = 0>
         const auto& get_state() const
         {

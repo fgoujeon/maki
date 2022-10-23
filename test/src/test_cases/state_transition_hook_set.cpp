@@ -70,7 +70,13 @@ namespace
     struct sm_before_state_transition
     {
         template<int RegionIndex, class SourceState, class Event, class TargetState>
-        void before_state_transition(const Event& event);
+        void before_state_transition(const Event& event)
+        {
+            static_assert(RegionIndex == 0);
+
+            ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + "...;";
+            ctx.out += std::to_string(event.pressure) + ";";
+        }
 
         sm_t& sm;
         context& ctx;
@@ -79,36 +85,17 @@ namespace
     struct sm_after_state_transition
     {
         template<int RegionIndex, class SourceState, class Event, class TargetState>
-        void after_state_transition(const Event& event);
+        void after_state_transition(const Event& event)
+        {
+            static_assert(RegionIndex == 0);
+
+            ctx.out += std::to_string(event.pressure) + ";";
+            ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + ";";
+        }
 
         sm_t& sm;
         context& ctx;
     };
-
-    using sm_t = awesm::sm
-    <
-        sm_def,
-        awesm::sm_options::before_state_transition<sm_before_state_transition>,
-        awesm::sm_options::after_state_transition<sm_after_state_transition>
-    >;
-
-    template<int RegionIndex, class SourceState, class Event, class TargetState>
-    void sm_before_state_transition::before_state_transition(const Event& event)
-    {
-        static_assert(RegionIndex == 0);
-
-        ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + "...;";
-        ctx.out += std::to_string(event.pressure) + ";";
-    }
-
-    template<int RegionIndex, class SourceState, class Event, class TargetState>
-    void sm_after_state_transition::after_state_transition(const Event& event)
-    {
-        static_assert(RegionIndex == 0);
-
-        ctx.out += std::to_string(event.pressure) + ";";
-        ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + ";";
-    }
 }
 
 TEST_CASE("state_transition_hook_set")

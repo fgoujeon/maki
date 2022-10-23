@@ -86,7 +86,10 @@ namespace
     struct sm_before_state_transition
     {
         template<int RegionIndex, class SourceState, class Event, class TargetState>
-        void before_state_transition(const Event& /*event*/);
+        void before_state_transition(const Event& /*event*/)
+        {
+            ctx.out += "before_state_transition[" + std::to_string(RegionIndex) + "];";
+        }
 
         sm_t& sm;
         context& ctx;
@@ -95,23 +98,14 @@ namespace
     struct sm_after_state_transition
     {
         template<int RegionIndex, class SourceState, class Event, class TargetState>
-        void after_state_transition(const Event& /*event*/);
+        void after_state_transition(const Event& /*event*/)
+        {
+            ctx.out += "after_state_transition[" + std::to_string(RegionIndex) + "];";
+        }
 
         sm_t& sm;
         context& ctx;
     };
-
-    template<int RegionIndex, class SourceState, class Event, class TargetState>
-    void sm_before_state_transition::before_state_transition(const Event& /*event*/)
-    {
-        ctx.out += "before_state_transition[" + std::to_string(RegionIndex) + "];";
-    }
-
-    template<int RegionIndex, class SourceState, class Event, class TargetState>
-    void sm_after_state_transition::after_state_transition(const Event& /*event*/)
-    {
-        ctx.out += "after_state_transition[" + std::to_string(RegionIndex) + "];";
-    }
 }
 
 TEST_CASE("orthogonal_regions")

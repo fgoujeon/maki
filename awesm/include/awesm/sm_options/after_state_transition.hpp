@@ -30,7 +30,7 @@ namespace detail::defaults
         void call
         (
             tags::after_state_transition /*action_tag*/,
-            std::integral_constant<int, RegionIndex>,
+            std::integral_constant<int, RegionIndex> /*index*/,
             void* /*source_state_tag*/,
             const void* /*pevent*/,
             void* /*target_state_tag*/,
@@ -55,7 +55,7 @@ class after_state_transition
         void call
         (
             detail::tags::after_state_transition /*action_tag*/,
-            std::integral_constant<int, RegionIndex>,
+            std::integral_constant<int, RegionIndex> /*index*/,
             SourceState* /*source_state_tag*/,
             const Event* pevent,
             TargetState* /*target_state_tag*/,

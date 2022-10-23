@@ -7,7 +7,6 @@
 #ifndef AWESM_SM_OPTIONS_HPP
 #define AWESM_SM_OPTIONS_HPP
 
-#include "sm_options/after_state_transition.hpp"
 #include "sm_options/before_entry.hpp"
 #include "sm_options/in_state_internal_transitions.hpp"
 #include "sm_options/on_event.hpp"
@@ -16,6 +15,20 @@
 
 namespace awesm::sm_options
 {
+
+struct after_state_transition
+{
+    //Dummy
+    template<class Sm, class Context>
+    after_state_transition(Sm& /*sm*/, Context& /*ctx*/)
+    {
+    }
+
+    //Dummy
+    void call()
+    {
+    }
+};
 
 struct before_state_transition
 {

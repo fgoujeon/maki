@@ -311,13 +311,16 @@ class region
                         0
                     );
 
-                    mach.conf_.template after_state_transition
-                    <
-                        Index,
-                        source_state_t,
-                        Event,
-                        target_state_t
-                    >(event);
+                    if constexpr(tlu::contains<typename Sm::configuration_t, sm_options::after_state_transition>)
+                    {
+                        mach.def_.get_object().template after_state_transition
+                        <
+                            Index,
+                            source_state_t,
+                            Event,
+                            target_state_t
+                        >(event);
+                    }
                 }
             };
 

@@ -59,18 +59,23 @@ namespace
             ctx.out += "before_state_transition[" + std::to_string(RegionIndex) + "];";
         }
 
+        template<int RegionIndex, class SourceState, class Event, class TargetState>
+        void after_state_transition(const Event& /*event*/)
+        {
+            ctx.out += "after_state_transition[" + std::to_string(RegionIndex) + "];";
+        }
+
         context& ctx;
     };
 
     struct sm_on_exception;
-    struct sm_after_state_transition;
 
     using sm_t = awesm::sm
     <
         sm_def,
         awesm::sm_options::on_exception<sm_on_exception>,
         awesm::sm_options::before_state_transition,
-        awesm::sm_options::after_state_transition<sm_after_state_transition>
+        awesm::sm_options::after_state_transition
     >;
 
     struct sm_on_exception
@@ -87,18 +92,6 @@ namespace
             }
         }
 
-        context& ctx;
-    };
-
-    struct sm_after_state_transition
-    {
-        template<int RegionIndex, class SourceState, class Event, class TargetState>
-        void after_state_transition(const Event& /*event*/)
-        {
-            ctx.out += "after_state_transition[" + std::to_string(RegionIndex) + "];";
-        }
-
-        sm_t& sm;
         context& ctx;
     };
 }

@@ -14,25 +14,25 @@
 namespace awesm::detail
 {
 
-template<class RegionIndexSequence, class... TransitionTables>
+template<class SmConfiguration, class RegionIndexSequence, class... TransitionTables>
 struct region_holder_tuple;
 
-template<int... RegionIndexes, class... TransitionTables>
-struct region_holder_tuple<std::integer_sequence<int, RegionIndexes...>, TransitionTables...>
+template<class SmConfiguration, int... RegionIndexes, class... TransitionTables>
+struct region_holder_tuple<SmConfiguration, std::integer_sequence<int, RegionIndexes...>, TransitionTables...>
 {
-    using type = sm_object_holder_tuple<region<RegionIndexes, TransitionTables>...>;
+    using type = sm_object_holder_tuple<region<SmConfiguration, RegionIndexes, TransitionTables>...>;
 };
 
-template<class RegionIndexSequence, class... TransitionTables>
+template<class SmConfiguration, class RegionIndexSequence, class... TransitionTables>
 using region_holder_tuple_t =
-    typename region_holder_tuple<RegionIndexSequence, TransitionTables...>::type
+    typename region_holder_tuple<SmConfiguration, RegionIndexSequence, TransitionTables...>::type
 ;
 
-template<class TransitionTableList>
+template<class SmConfiguration, class TransitionTableList>
 class region_tuple;
 
-template<class... TransitionTables>
-class region_tuple<transition_table_list<TransitionTables...>>
+template<class SmConfiguration, class... TransitionTables>
+class region_tuple<SmConfiguration, transition_table_list<TransitionTables...>>
 {
     public:
         template<class Sm, class Context>
@@ -106,7 +106,7 @@ class region_tuple<transition_table_list<TransitionTables...>>
 
     private:
         using region_indexes = std::make_integer_sequence<int, sizeof...(TransitionTables)>;
-        region_holder_tuple_t<region_indexes, TransitionTables...> regions_;
+        region_holder_tuple_t<SmConfiguration, region_indexes, TransitionTables...> regions_;
 };
 
 } //namespace

@@ -22,12 +22,13 @@
 namespace awesm::detail
 {
 
-template<int Index, class TransitionTable>
+template<class SmConfiguration, int Index, class TransitionTable>
 class region
 {
     public:
         template<class Sm, class Context>
         explicit region(Sm& mach, Context& context):
+            sm_conf_(mach.conf_),
             states_(mach, context),
             actions_(mach, context),
             guards_(mach, context)
@@ -167,7 +168,7 @@ class region
 
         //Used to call client code
         template<class Sm, class F>
-        void safe_call(Sm& mach, F&& fun)
+        void safe_call(Sm& /*mach*/, F&& fun)
         {
             try
             {
@@ -175,7 +176,7 @@ class region
             }
             catch(...)
             {
-                mach.conf_.on_exception(std::current_exception());
+                sm_conf_.on_exception(std::current_exception());
             }
         }
 
@@ -257,7 +258,7 @@ class region
 
                 if constexpr(!is_internal_transition)
                 {
-                    mach.conf_.template before_state_transition
+                    sm_conf_.template before_state_transition
                     <
                         Index,
                         source_state_t,
@@ -291,7 +292,7 @@ class region
 
                 if constexpr(!is_internal_transition)
                 {
-                    mach.conf_.template before_entry
+                    sm_conf_.template before_entry
                     <
                         Index,
                         source_state_t,
@@ -307,7 +308,7 @@ class region
                         0
                     );
 
-                    mach.conf_.template after_state_transition
+                    sm_conf_.template after_state_transition
                     <
                         Index,
                         source_state_t,
@@ -467,6 +468,8 @@ class region
         {
             return false;
         }
+
+        SmConfiguration& sm_conf_;
 
         state_tuple_t states_;
         action_tuple_t actions_;

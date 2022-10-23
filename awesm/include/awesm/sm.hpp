@@ -250,7 +250,7 @@ class sm
         }
 
         configuration_t conf_;
-        detail::region_tuple<typename Def::transition_tables> region_tuple_;
+        detail::region_tuple<configuration_t, typename Def::transition_tables> region_tuple_;
 
         bool processing_event_ = false;
         queued_event_processing_storage_t queued_event_processings_;

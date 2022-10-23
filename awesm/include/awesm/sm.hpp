@@ -216,14 +216,19 @@ class sm
             }
             catch(...)
             {
-                if constexpr(detail::tlu::contains<option_list_t, sm_options::on_exception>)
-                {
-                    def_.get_object().on_exception(std::current_exception());
-                }
-                else
-                {
-                    process_event(std::current_exception());
-                }
+                process_exception(std::current_exception());
+            }
+        }
+
+        void process_exception(const std::exception_ptr& eptr)
+        {
+            if constexpr(detail::tlu::contains<option_list_t, sm_options::on_exception>)
+            {
+                def_.get_object().on_exception(eptr);
+            }
+            else
+            {
+                process_event(eptr);
             }
         }
 

@@ -7,6 +7,7 @@
 #ifndef AWESM_DETAIL_SM_CONFIGURATION_HPP
 #define AWESM_DETAIL_SM_CONFIGURATION_HPP
 
+#include "sm_object_holder.hpp"
 #include "../sm_options.hpp"
 
 namespace awesm::detail
@@ -68,20 +69,6 @@ class completed_sm_configuration: private Options...
             );
         }
 
-        template<int RegionIndex, class SourceState, class Event, class TargetState>
-        void before_state_transition(const Event& event)
-        {
-            call
-            (
-                sm_options::detail::tags::before_state_transition{},
-                std::integral_constant<int, RegionIndex>{},
-                static_cast<SourceState*>(nullptr),
-                &event,
-                static_cast<TargetState*>(nullptr),
-                0
-            );
-        }
-
         template<class Event>
         auto on_event(const Event* pevent) ->
             decltype(call(sm_options::detail::tags::on_event{}, *pevent, 0))
@@ -107,7 +94,6 @@ using sm_configuration = completed_sm_configuration
 <
     sm_options::detail::defaults::after_state_transition,
     sm_options::detail::defaults::before_entry,
-    sm_options::detail::defaults::before_state_transition,
     sm_options::detail::defaults::in_state_internal_transitions,
     sm_options::detail::defaults::on_event,
     sm_options::detail::defaults::on_exception,

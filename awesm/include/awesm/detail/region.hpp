@@ -7,6 +7,7 @@
 #ifndef AWESM_DETAIL_REGION_HPP
 #define AWESM_DETAIL_REGION_HPP
 
+#include "../sm_options.hpp"
 #include "../none.hpp"
 #include "../null_state.hpp"
 #include "call_member.hpp"
@@ -257,13 +258,16 @@ class region
 
                 if constexpr(!is_internal_transition)
                 {
-                    mach.conf_.template before_state_transition
-                    <
-                        Index,
-                        source_state_t,
-                        Event,
-                        target_state_t
-                    >(event);
+                    if constexpr(tlu::contains<typename Sm::configuration_t, sm_options::before_state_transition>)
+                    {
+                        mach.def_.get_object().template before_state_transition
+                        <
+                            Index,
+                            source_state_t,
+                            Event,
+                            target_state_t
+                        >(event);
+                    }
 
                     detail::call_on_exit
                     (

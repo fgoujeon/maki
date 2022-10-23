@@ -9,10 +9,28 @@
 
 #include "sm_options/after_state_transition.hpp"
 #include "sm_options/before_entry.hpp"
-#include "sm_options/before_state_transition.hpp"
 #include "sm_options/in_state_internal_transitions.hpp"
 #include "sm_options/on_event.hpp"
 #include "sm_options/on_exception.hpp"
 #include "sm_options/run_to_completion.hpp"
+
+namespace awesm::sm_options
+{
+
+struct before_state_transition
+{
+    //Dummy
+    template<class Sm, class Context>
+    before_state_transition(Sm& /*sm*/, Context& /*ctx*/)
+    {
+    }
+
+    //Dummy
+    void call()
+    {
+    }
+};
+
+} //namespace
 
 #endif

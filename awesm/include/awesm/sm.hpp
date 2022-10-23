@@ -49,6 +49,7 @@ class sm
     public:
         template<class Context>
         explicit sm(Context& context):
+            def_(*this, context),
             conf_(*this, context),
             region_tuple_{*this, context}
         {
@@ -249,6 +250,7 @@ class sm
             }
         }
 
+        detail::sm_object_holder<Def> def_;
         configuration_t conf_;
         detail::region_tuple<typename Def::transition_tables> region_tuple_;
 

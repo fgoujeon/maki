@@ -55,20 +55,7 @@ namespace
     struct sm_def
     {
         using transition_tables = awesm::transition_table_list<sm_transition_table>;
-    };
 
-    struct sm_before_state_transition;
-    struct sm_after_state_transition;
-
-    using sm_t = awesm::sm
-    <
-        sm_def,
-        awesm::sm_options::before_state_transition<sm_before_state_transition>,
-        awesm::sm_options::after_state_transition<sm_after_state_transition>
-    >;
-
-    struct sm_before_state_transition
-    {
         template<int RegionIndex, class SourceState, class Event, class TargetState>
         void before_state_transition(const Event& event)
         {
@@ -78,9 +65,17 @@ namespace
             ctx.out += std::to_string(event.pressure) + ";";
         }
 
-        sm_t& sm;
         context& ctx;
     };
+
+    struct sm_after_state_transition;
+
+    using sm_t = awesm::sm
+    <
+        sm_def,
+        awesm::sm_options::before_state_transition,
+        awesm::sm_options::after_state_transition<sm_after_state_transition>
+    >;
 
     struct sm_after_state_transition
     {

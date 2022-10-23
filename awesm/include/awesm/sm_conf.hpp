@@ -7,13 +7,21 @@
 #ifndef AWESM_SM_CONF_HPP
 #define AWESM_SM_CONF_HPP
 
+#include "transition_table_list.hpp"
+
 namespace awesm
 {
 
-template<class TransitionTableList, class... Options>
+template<class TransitionTable, class... Options>
 struct sm_conf
 {
-    using transition_table_list_t = TransitionTableList;
+    using transition_table_list_t = transition_table_list<TransitionTable>;
+};
+
+template<class... TransitionTables, class... Options>
+struct sm_conf<transition_table_list<TransitionTables...>, Options...>
+{
+    using transition_table_list_t = transition_table_list<TransitionTables...>;
 };
 
 } //namespace

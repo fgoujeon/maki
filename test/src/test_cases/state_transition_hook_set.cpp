@@ -56,7 +56,7 @@ namespace
     {
         using conf = awesm::sm_conf
         <
-            awesm::transition_table_list<sm_transition_table>,
+            sm_transition_table,
             awesm::sm_options::before_state_transition,
             awesm::sm_options::after_state_transition
         >;
@@ -83,12 +83,6 @@ namespace
     };
 
     using sm_t = awesm::sm<sm_def>;
-
-    struct sm_after_state_transition
-    {
-        sm_t& sm;
-        context& ctx;
-    };
 }
 
 TEST_CASE("state_transition_hook_set")

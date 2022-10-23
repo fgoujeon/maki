@@ -51,7 +51,7 @@ namespace
     {
         using conf = awesm::sm_conf
         <
-            awesm::transition_table_list<sm_transition_table>,
+            sm_transition_table,
             awesm::sm_options::disable_in_state_internal_transitions
         >;
     };

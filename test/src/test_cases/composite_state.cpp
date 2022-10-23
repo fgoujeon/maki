@@ -108,7 +108,7 @@ namespace
             context& ctx;
         };
 
-        using on = awesm::simple_composite_state<on_def, on_transition_table>;
+        using on = awesm::composite_state<on_def, on_transition_table>;
     }
 
     using sm_transition_table = awesm::transition_table

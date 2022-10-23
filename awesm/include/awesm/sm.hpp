@@ -8,7 +8,6 @@
 #define AWESM_SM_HPP
 
 #include "detail/region_tuple.hpp"
-#include "detail/sm_configuration.hpp"
 #include "detail/event_processing_type.hpp"
 #include "detail/alternative_lazy.hpp"
 #include "detail/any_container.hpp"
@@ -50,7 +49,6 @@ class sm
         template<class Context>
         explicit sm(Context& context):
             def_(*this, context),
-            conf_(*this, context),
             region_tuple_{*this, context}
         {
         }
@@ -98,11 +96,11 @@ class sm
         }
 
     private:
-        //Let regions access configuration
+        //Let regions access definition and option list
         template<int Index, class TransitionTable>
         friend class detail::region;
 
-        using configuration_t = detail::sm_configuration<Options...>;
+        using option_list_t = detail::type_list<Options...>;
 
         class event_processing
         {
@@ -158,7 +156,7 @@ class sm
         };
         using queued_event_processing_storage_t = detail::alternative_lazy
         <
-            detail::tlu::contains<configuration_t, sm_options::disable_run_to_completion>,
+            detail::tlu::contains<option_list_t, sm_options::disable_run_to_completion>,
             empty_holder,
             queue_holder
         >;
@@ -166,7 +164,7 @@ class sm
         template<detail::event_processing_type ProcessingType, class Event>
         void process_event_2(const Event& event)
         {
-            if constexpr(!detail::tlu::contains<configuration_t, sm_options::disable_run_to_completion>)
+            if constexpr(!detail::tlu::contains<option_list_t, sm_options::disable_run_to_completion>)
             {
                 //Queue event processing in case of recursive call
                 if(processing_event_)
@@ -218,7 +216,7 @@ class sm
             }
             catch(...)
             {
-                if constexpr(detail::tlu::contains<configuration_t, sm_options::on_exception>)
+                if constexpr(detail::tlu::contains<option_list_t, sm_options::on_exception>)
                 {
                     def_.get_object().on_exception(std::current_exception());
                 }
@@ -235,7 +233,7 @@ class sm
             if constexpr
             (
                 ProcessingType == detail::event_processing_type::event &&
-                detail::tlu::contains<configuration_t, sm_options::on_event>
+                detail::tlu::contains<option_list_t, sm_options::on_event>
             )
             {
                 safe_call
@@ -262,7 +260,6 @@ class sm
         }
 
         detail::sm_object_holder<Def> def_;
-        configuration_t conf_;
         detail::region_tuple<typename Def::transition_tables> region_tuple_;
 
         bool processing_event_ = false;

@@ -10,103 +10,13 @@
 namespace awesm::sm_options
 {
 
-struct after_state_transition
-{
-    //Dummy
-    template<class Sm, class Context>
-    after_state_transition(Sm& /*sm*/, Context& /*ctx*/)
-    {
-    }
-
-    //Dummy
-    void call()
-    {
-    }
-};
-
-struct before_entry
-{
-    //Dummy
-    template<class Sm, class Context>
-    before_entry(Sm& /*sm*/, Context& /*ctx*/)
-    {
-    }
-
-    //Dummy
-    void call()
-    {
-    }
-};
-
-struct before_state_transition
-{
-    //Dummy
-    template<class Sm, class Context>
-    before_state_transition(Sm& /*sm*/, Context& /*ctx*/)
-    {
-    }
-
-    //Dummy
-    void call()
-    {
-    }
-};
-
-struct disable_run_to_completion
-{
-    //Dummy
-    template<class Sm, class Context>
-    disable_run_to_completion(Sm& /*sm*/, Context& /*ctx*/)
-    {
-    }
-
-    //Dummy
-    void call()
-    {
-    }
-};
-
-struct disable_in_state_internal_transitions
-{
-    //Dummy
-    template<class Sm, class Context>
-    disable_in_state_internal_transitions(Sm& /*sm*/, Context& /*ctx*/)
-    {
-    }
-
-    //Dummy
-    void call()
-    {
-    }
-};
-
-struct on_event
-{
-    //Dummy
-    template<class Sm, class Context>
-    on_event(Sm& /*sm*/, Context& /*ctx*/)
-    {
-    }
-
-    //Dummy
-    void call()
-    {
-    }
-};
-
-struct on_exception
-{
-    //Dummy
-    template<class Sm, class Context>
-    on_exception(Sm& /*sm*/, Context& /*ctx*/)
-    {
-    }
-
-    //Dummy
-    void call()
-    {
-    }
-};
+struct after_state_transition{};
+struct before_entry{};
+struct before_state_transition{};
+struct disable_run_to_completion{};
+struct disable_in_state_internal_transitions{};
+struct on_event{};
+struct on_exception{};
 
 } //namespace
 

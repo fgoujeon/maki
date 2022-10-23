@@ -4,29 +4,26 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_REGION_HPP
-#define AWESM_REGION_HPP
+#ifndef AWESM_DETAIL_REGION_HPP
+#define AWESM_DETAIL_REGION_HPP
 
-#include "none.hpp"
-#include "null_state.hpp"
-#include "detail/call_member.hpp"
-#include "detail/resolve_transition_table.hpp"
-#include "detail/transition_table_digest.hpp"
-#include "detail/alternative_lazy.hpp"
-#include "detail/any_container.hpp"
-#include "detail/ignore_unused.hpp"
-#include "detail/event_processing_type.hpp"
-#include "detail/tlu/apply.hpp"
+#include "../none.hpp"
+#include "../null_state.hpp"
+#include "call_member.hpp"
+#include "resolve_transition_table.hpp"
+#include "transition_table_digest.hpp"
+#include "alternative_lazy.hpp"
+#include "any_container.hpp"
+#include "ignore_unused.hpp"
+#include "event_processing_type.hpp"
+#include "tlu/apply.hpp"
 #include <type_traits>
 
-namespace awesm
+namespace awesm::detail
 {
 
-namespace detail
-{
-    template<class RegionListHolder>
-    class region_tuple;
-}
+template<class RegionListHolder>
+class region_tuple;
 
 template<int Index, class TransitionTable>
 class region

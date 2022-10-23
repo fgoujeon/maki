@@ -7,7 +7,7 @@
 #ifndef AWESM_DETAIL_REGION_TUPLE_HPP
 #define AWESM_DETAIL_REGION_TUPLE_HPP
 
-#include "../region.hpp"
+#include "region.hpp"
 #include "../transition_table_list.hpp"
 #include <type_traits>
 

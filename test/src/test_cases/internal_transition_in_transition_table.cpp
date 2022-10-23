@@ -79,17 +79,19 @@ namespace
         };
     };
 
-    struct sm_transition_table
+    using sm_transition_table = awesm::transition_table
+    <
+        awesm::row<states::idle,    events::power_button_press, states::running>,
+        awesm::row<states::running, events::power_button_press, states::idle>,
+        awesm::row<states::running, events::beep_button_press,  awesm::none,      actions::beep>
+    >;
+
+    struct sm_def
     {
-        using type = awesm::transition_table
-        <
-            awesm::row<states::idle,    events::power_button_press, states::running>,
-            awesm::row<states::running, events::power_button_press, states::idle>,
-            awesm::row<states::running, events::beep_button_press,  awesm::none,      actions::beep>
-        >;
+        using transition_tables = awesm::transition_table_list<sm_transition_table>;
     };
 
-    using sm_t = awesm::simple_sm<sm_transition_table>;
+    using sm_t = awesm::sm<sm_def>;
 }
 
 TEST_CASE("internal_transition_in_transition_table")

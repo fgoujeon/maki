@@ -9,8 +9,8 @@
 
 namespace
 {
-    struct sm_transition_table;
-    using sm_t = awesm::simple_sm<sm_transition_table>;
+    struct sm_def;
+    using sm_t = awesm::sm<sm_def>;
 
     enum class led_color
     {
@@ -111,13 +111,15 @@ namespace
         using on = awesm::simple_composite_state<on_def, on_transition_table>;
     }
 
-    struct sm_transition_table
+    using sm_transition_table = awesm::transition_table
+    <
+        awesm::row<states::off, events::power_button_press, states::on>,
+        awesm::row<states::on,  events::power_button_press, states::off>
+    >;
+
+    struct sm_def
     {
-        using type = awesm::transition_table
-        <
-            awesm::row<states::off, events::power_button_press, states::on>,
-            awesm::row<states::on,  events::power_button_press, states::off>
-        >;
+        using transition_tables = awesm::transition_table_list<sm_transition_table>;
     };
 }
 

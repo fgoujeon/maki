@@ -46,21 +46,23 @@ namespace
         }
     }
 
-    struct sm_transition_table
+    using sm_transition_table = awesm::transition_table
+    <
+        awesm::row<states::off, events::button_press, states::on>,
+        awesm::row<states::on,  events::button_press, states::off>
+    >;
+
+    struct sm_def
     {
-        using type = awesm::transition_table
-        <
-            awesm::row<states::off, events::button_press, states::on>,
-            awesm::row<states::on,  events::button_press, states::off>
-        >;
+        using transition_tables = awesm::transition_table_list<sm_transition_table>;
     };
 
     struct sm_before_state_transition;
     struct sm_after_state_transition;
 
-    using sm_t = awesm::simple_sm
+    using sm_t = awesm::sm
     <
-        sm_transition_table,
+        sm_def,
         awesm::sm_options::before_state_transition<sm_before_state_transition>,
         awesm::sm_options::after_state_transition<sm_after_state_transition>
     >;
@@ -83,9 +85,9 @@ namespace
         context& ctx;
     };
 
-    using sm_t = awesm::simple_sm
+    using sm_t = awesm::sm
     <
-        sm_transition_table,
+        sm_def,
         awesm::sm_options::before_state_transition<sm_before_state_transition>,
         awesm::sm_options::after_state_transition<sm_after_state_transition>
     >;

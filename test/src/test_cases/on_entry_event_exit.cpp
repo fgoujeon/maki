@@ -68,17 +68,19 @@ namespace
         };
     }
 
-    struct sm_transition_table
+    using sm_transition_table = awesm::transition_table
+    <
+        awesm::row<states::idle,    events::next_language_request, states::english>,
+        awesm::row<states::english, events::next_language_request, states::french>,
+        awesm::row<states::french,  events::next_language_request, states::idle>
+    >;
+
+    struct sm_def
     {
-        using type = awesm::transition_table
-        <
-            awesm::row<states::idle,    events::next_language_request, states::english>,
-            awesm::row<states::english, events::next_language_request, states::french>,
-            awesm::row<states::french,  events::next_language_request, states::idle>
-        >;
+        using transition_tables = awesm::transition_table_list<sm_transition_table>;
     };
 
-    using sm_t = awesm::simple_sm<sm_transition_table>;
+    using sm_t = awesm::sm<sm_def>;
 }
 
 TEST_CASE("on_entry_event_exit")

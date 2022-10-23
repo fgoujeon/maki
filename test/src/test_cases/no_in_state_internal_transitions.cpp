@@ -42,17 +42,19 @@ namespace
         };
     }
 
-    struct sm_transition_table
+    using sm_transition_table = awesm::transition_table
+    <
+        awesm::row<states::single, events::self_transition, states::single>
+    >;
+
+    struct sm_def
     {
-        using type = awesm::transition_table
-        <
-            awesm::row<states::single, events::self_transition, states::single>
-        >;
+        using transition_tables = awesm::transition_table_list<sm_transition_table>;
     };
 
-    using sm_t = awesm::simple_sm
+    using sm_t = awesm::sm
     <
-        sm_transition_table,
+        sm_def,
         awesm::sm_options::in_state_internal_transitions<false>
     >;
 }

@@ -88,18 +88,20 @@ namespace
         context& ctx;
     };
 
-    struct sm_transition_table
+    using sm_transition_table = awesm::transition_table
+    <
+        awesm::row<states::off, events::e1, states::on,  action, guard>,
+        awesm::row<states::off, events::e2, states::on,  action, guard>,
+        awesm::row<states::on,  events::e1, states::off, action, guard>,
+        awesm::row<states::on,  events::e2, states::off, action, guard>
+    >;
+
+    struct sm_def
     {
-        using type = awesm::transition_table
-        <
-            awesm::row<states::off, events::e1, states::on,  action, guard>,
-            awesm::row<states::off, events::e2, states::on,  action, guard>,
-            awesm::row<states::on,  events::e1, states::off, action, guard>,
-            awesm::row<states::on,  events::e2, states::off, action, guard>
-        >;
+        using transition_tables = awesm::transition_table_list<sm_transition_table>;
     };
 
-    using sm_t = awesm::simple_sm<sm_transition_table>;
+    using sm_t = awesm::sm<sm_def>;
 }
 
 TEST_CASE("nullary_member_functions")

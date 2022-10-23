@@ -64,8 +64,8 @@ namespace
 
     struct sm_before_entry
     {
-        template<class Region, class SourceState, class Event, class TargetState>
-        void before_entry(const Region& /*region*/, const Event& /*event*/)
+        template<int RegionIndex, class SourceState, class Event, class TargetState>
+        void before_entry(const Event& /*event*/)
         {
             if constexpr(std::is_same_v<TargetState, states::off>)
             {

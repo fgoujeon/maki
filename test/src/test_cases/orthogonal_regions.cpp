@@ -41,6 +41,7 @@ namespace
 
     using region_0_t = awesm::region
     <
+        0,
         awesm::transition_table
         <
             awesm::row<states::off0, events::button_press, states::on0>
@@ -49,6 +50,7 @@ namespace
 
     using region_1_t = awesm::region
     <
+        1,
         awesm::transition_table
         <
             awesm::row<states::off1, events::button_press, states::on1>
@@ -95,8 +97,8 @@ namespace
 
     struct sm_before_state_transition
     {
-        template<class Region, class SourceState, class Event, class TargetState>
-        void before_state_transition(const Region& /*region*/, const Event& /*event*/);
+        template<int RegionIndex, class SourceState, class Event, class TargetState>
+        void before_state_transition(const Event& /*event*/);
 
         sm_t& sm;
         context& ctx;
@@ -104,37 +106,23 @@ namespace
 
     struct sm_after_state_transition
     {
-        template<class Region, class SourceState, class Event, class TargetState>
-        void after_state_transition(const Region& /*region*/, const Event& /*event*/);
+        template<int RegionIndex, class SourceState, class Event, class TargetState>
+        void after_state_transition(const Event& /*event*/);
 
         sm_t& sm;
         context& ctx;
     };
 
-    template<class Region, class SourceState, class Event, class TargetState>
-    void sm_before_state_transition::before_state_transition(const Region& /*region*/, const Event& /*event*/)
+    template<int RegionIndex, class SourceState, class Event, class TargetState>
+    void sm_before_state_transition::before_state_transition(const Event& /*event*/)
     {
-        if constexpr(std::is_same_v<Region, region_0_t>)
-        {
-            ctx.out += "before_state_transition[0];";
-        }
-        else if constexpr(std::is_same_v<Region, region_1_t>)
-        {
-            ctx.out += "before_state_transition[1];";
-        }
+        ctx.out += "before_state_transition[" + std::to_string(RegionIndex) + "];";
     }
 
-    template<class Region, class SourceState, class Event, class TargetState>
-    void sm_after_state_transition::after_state_transition(const Region& /*region*/, const Event& /*event*/)
+    template<int RegionIndex, class SourceState, class Event, class TargetState>
+    void sm_after_state_transition::after_state_transition(const Event& /*event*/)
     {
-        if constexpr(std::is_same_v<Region, region_0_t>)
-        {
-            ctx.out += "after_state_transition[0];";
-        }
-        else if constexpr(std::is_same_v<Region, region_1_t>)
-        {
-            ctx.out += "after_state_transition[1];";
-        }
+        ctx.out += "after_state_transition[" + std::to_string(RegionIndex) + "];";
     }
 }
 

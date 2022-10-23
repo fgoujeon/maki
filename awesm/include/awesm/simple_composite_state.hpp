@@ -17,7 +17,7 @@ template<class Definition, class TransitionTable>
 using simple_composite_state = composite_state
 <
     Definition,
-    region_list<region<TransitionTable>>
+    region_list<region<0, TransitionTable>>
 >;
 
 } //namespace

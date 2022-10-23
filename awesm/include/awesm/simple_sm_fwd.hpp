@@ -13,7 +13,7 @@
 namespace awesm
 {
 
-template<class TransitionTableHolder>
+template<int Index, class TransitionTableHolder>
 class region;
 
 namespace detail
@@ -23,7 +23,7 @@ namespace detail
     {
         using type = region_list
         <
-            region<typename TransitionTableHolder::type>
+            region<0, typename TransitionTableHolder::type>
         >;
     };
 }

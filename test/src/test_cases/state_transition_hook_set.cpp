@@ -67,8 +67,8 @@ namespace
 
     struct sm_before_state_transition
     {
-        template<class Region, class SourceState, class Event, class TargetState>
-        void before_state_transition(const Region& /*region*/, const Event& event);
+        template<int RegionIndex, class SourceState, class Event, class TargetState>
+        void before_state_transition(const Event& event);
 
         sm_t& sm;
         context& ctx;
@@ -76,8 +76,8 @@ namespace
 
     struct sm_after_state_transition
     {
-        template<class Region, class SourceState, class Event, class TargetState>
-        void after_state_transition(const Region& /*region*/, const Event& event);
+        template<int RegionIndex, class SourceState, class Event, class TargetState>
+        void after_state_transition(const Event& event);
 
         sm_t& sm;
         context& ctx;
@@ -90,21 +90,19 @@ namespace
         awesm::sm_options::after_state_transition<sm_after_state_transition>
     >;
 
-    template<class Region, class SourceState, class Event, class TargetState>
-    void sm_before_state_transition::before_state_transition(const Region& /*region*/, const Event& event)
+    template<int RegionIndex, class SourceState, class Event, class TargetState>
+    void sm_before_state_transition::before_state_transition(const Event& event)
     {
-        using main_region_t = std::decay_t<decltype(sm.get_region<0>())>;
-        static_assert(std::is_same_v<Region, main_region_t>);
+        static_assert(RegionIndex == 0);
 
         ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + "...;";
         ctx.out += std::to_string(event.pressure) + ";";
     }
 
-    template<class Region, class SourceState, class Event, class TargetState>
-    void sm_after_state_transition::after_state_transition(const Region& /*region*/, const Event& event)
+    template<int RegionIndex, class SourceState, class Event, class TargetState>
+    void sm_after_state_transition::after_state_transition(const Event& event)
     {
-        using main_region_t = std::decay_t<decltype(sm.get_region<0>())>;
-        static_assert(std::is_same_v<Region, main_region_t>);
+        static_assert(RegionIndex == 0);
 
         ctx.out += std::to_string(event.pressure) + ";";
         ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + ";";

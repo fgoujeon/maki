@@ -28,7 +28,7 @@ namespace detail
     class region_tuple;
 }
 
-template<class TransitionTable>
+template<int Index, class TransitionTable>
 class region
 {
     public:
@@ -265,11 +265,11 @@ class region
                 {
                     sm_conf.template before_state_transition
                     <
-                        region,
+                        Index,
                         source_state_t,
                         Event,
                         target_state_t
-                    >(*this, event);
+                    >(event);
 
                     detail::call_on_exit
                     (
@@ -299,11 +299,11 @@ class region
                 {
                     sm_conf.template before_entry
                     <
-                        region,
+                        Index,
                         source_state_t,
                         Event,
                         target_state_t
-                    >(*this, event);
+                    >(event);
 
                     detail::call_on_entry
                     (
@@ -315,11 +315,11 @@ class region
 
                     sm_conf.template after_state_transition
                     <
-                        region,
+                        Index,
                         source_state_t,
                         Event,
                         target_state_t
-                    >(*this, event);
+                    >(event);
                 }
             };
 

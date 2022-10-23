@@ -7,8 +7,6 @@
 #ifndef AWESM_SM_OPTIONS_HPP
 #define AWESM_SM_OPTIONS_HPP
 
-#include "sm_options/in_state_internal_transitions.hpp"
-
 namespace awesm::sm_options
 {
 
@@ -59,6 +57,20 @@ struct disable_run_to_completion
     //Dummy
     template<class Sm, class Context>
     disable_run_to_completion(Sm& /*sm*/, Context& /*ctx*/)
+    {
+    }
+
+    //Dummy
+    void call()
+    {
+    }
+};
+
+struct disable_in_state_internal_transitions
+{
+    //Dummy
+    template<class Sm, class Context>
+    disable_in_state_internal_transitions(Sm& /*sm*/, Context& /*ctx*/)
     {
     }
 

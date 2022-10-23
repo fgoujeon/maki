@@ -55,7 +55,7 @@ namespace
     using sm_t = awesm::sm
     <
         sm_def,
-        awesm::sm_options::in_state_internal_transitions<false>
+        awesm::sm_options::disable_in_state_internal_transitions
     >;
 }
 

@@ -123,7 +123,7 @@ class region
         >
         void process_event_2(Sm& mach, const Event& event)
         {
-            if constexpr(Sm::configuration_t::has_in_state_internal_transitions())
+            if constexpr(!tlu::contains<typename Sm::configuration_t, sm_options::disable_in_state_internal_transitions>)
             {
                 process_event_in_active_state(mach, event);
             }

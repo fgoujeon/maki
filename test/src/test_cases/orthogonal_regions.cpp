@@ -52,22 +52,19 @@ namespace
                 awesm::row<states::off1, events::button_press, states::on1>
             >
         >;
-    };
 
-    struct sm_on_exception;
-    struct sm_before_state_transition;
-    struct sm_after_state_transition;
+        template<int RegionIndex, class SourceState, class Event, class TargetState>
+        void before_state_transition(const Event& /*event*/)
+        {
+            ctx.out += "before_state_transition[" + std::to_string(RegionIndex) + "];";
+        }
 
-    using sm_t = awesm::sm
-    <
-        sm_def,
-        awesm::sm_options::on_exception<sm_on_exception>,
-        awesm::sm_options::before_state_transition<sm_before_state_transition>,
-        awesm::sm_options::after_state_transition<sm_after_state_transition>
-    >;
+        template<int RegionIndex, class SourceState, class Event, class TargetState>
+        void after_state_transition(const Event& /*event*/)
+        {
+            ctx.out += "after_state_transition[" + std::to_string(RegionIndex) + "];";
+        }
 
-    struct sm_on_exception
-    {
         void on_exception(const std::exception_ptr& eptr)
         {
             try
@@ -83,29 +80,13 @@ namespace
         context& ctx;
     };
 
-    struct sm_before_state_transition
-    {
-        template<int RegionIndex, class SourceState, class Event, class TargetState>
-        void before_state_transition(const Event& /*event*/)
-        {
-            ctx.out += "before_state_transition[" + std::to_string(RegionIndex) + "];";
-        }
-
-        sm_t& sm;
-        context& ctx;
-    };
-
-    struct sm_after_state_transition
-    {
-        template<int RegionIndex, class SourceState, class Event, class TargetState>
-        void after_state_transition(const Event& /*event*/)
-        {
-            ctx.out += "after_state_transition[" + std::to_string(RegionIndex) + "];";
-        }
-
-        sm_t& sm;
-        context& ctx;
-    };
+    using sm_t = awesm::sm
+    <
+        sm_def,
+        awesm::sm_options::on_exception,
+        awesm::sm_options::before_state_transition,
+        awesm::sm_options::after_state_transition
+    >;
 }
 
 TEST_CASE("orthogonal_regions")

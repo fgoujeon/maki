@@ -7,6 +7,7 @@
 #ifndef AWESM_DETAIL_REGION_HPP
 #define AWESM_DETAIL_REGION_HPP
 
+#include "../sm_options.hpp"
 #include "../none.hpp"
 #include "../null_state.hpp"
 #include "call_member.hpp"
@@ -122,7 +123,7 @@ class region
         >
         void process_event_2(Sm& mach, const Event& event)
         {
-            if constexpr(Sm::configuration_t::has_in_state_internal_transitions())
+            if constexpr(!tlu::contains<typename Sm::option_list_t, sm_options::disable_in_state_internal_transitions>)
             {
                 process_event_in_active_state(mach, event);
             }
@@ -162,20 +163,6 @@ class region
             else
             {
                 detail::ignore_unused(processed);
-            }
-        }
-
-        //Used to call client code
-        template<class Sm, class F>
-        void safe_call(Sm& mach, F&& fun)
-        {
-            try
-            {
-                fun();
-            }
-            catch(...)
-            {
-                mach.conf_.on_exception(std::current_exception());
             }
         }
 
@@ -257,13 +244,16 @@ class region
 
                 if constexpr(!is_internal_transition)
                 {
-                    mach.conf_.template before_state_transition
-                    <
-                        Index,
-                        source_state_t,
-                        Event,
-                        target_state_t
-                    >(event);
+                    if constexpr(tlu::contains<typename Sm::option_list_t, sm_options::before_state_transition>)
+                    {
+                        mach.def_.get_object().template before_state_transition
+                        <
+                            Index,
+                            source_state_t,
+                            Event,
+                            target_state_t
+                        >(event);
+                    }
 
                     detail::call_on_exit
                     (
@@ -291,13 +281,16 @@ class region
 
                 if constexpr(!is_internal_transition)
                 {
-                    mach.conf_.template before_entry
-                    <
-                        Index,
-                        source_state_t,
-                        Event,
-                        target_state_t
-                    >(event);
+                    if constexpr(tlu::contains<typename Sm::option_list_t, sm_options::before_entry>)
+                    {
+                        mach.def_.get_object().template before_entry
+                        <
+                            Index,
+                            source_state_t,
+                            Event,
+                            target_state_t
+                        >(event);
+                    }
 
                     detail::call_on_entry
                     (
@@ -307,21 +300,23 @@ class region
                         0
                     );
 
-                    mach.conf_.template after_state_transition
-                    <
-                        Index,
-                        source_state_t,
-                        Event,
-                        target_state_t
-                    >(event);
+                    if constexpr(tlu::contains<typename Sm::option_list_t, sm_options::after_state_transition>)
+                    {
+                        mach.def_.get_object().template after_state_transition
+                        <
+                            Index,
+                            source_state_t,
+                            Event,
+                            target_state_t
+                        >(event);
+                    }
                 }
             };
 
             if constexpr(std::is_same_v<guard_t, none>)
             {
-                safe_call
+                mach.safe_call
                 (
-                    mach,
                     [&]
                     {
                         do_transition(0);
@@ -332,9 +327,8 @@ class region
             else
             {
                 auto processed = false;
-                safe_call
+                mach.safe_call
                 (
-                    mach,
                     [&]
                     {
                         if
@@ -421,9 +415,8 @@ class region
         {
             if(is_active_state<State>())
             {
-                safe_call
+                pmach->safe_call
                 (
-                    *pmach,
                     [&]
                     {
                         pstate->on_event(*pmach, *pevent);
@@ -445,9 +438,8 @@ class region
         {
             if(is_active_state<State>())
             {
-                safe_call
+                pmach->safe_call
                 (
-                    *pmach,
                     [&]
                     {
                         pstate->on_event(*pevent);

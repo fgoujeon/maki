@@ -7,12 +7,17 @@
 #ifndef AWESM_SM_OPTIONS_HPP
 #define AWESM_SM_OPTIONS_HPP
 
-#include "sm_options/after_state_transition.hpp"
-#include "sm_options/before_entry.hpp"
-#include "sm_options/before_state_transition.hpp"
-#include "sm_options/in_state_internal_transitions.hpp"
-#include "sm_options/on_event.hpp"
-#include "sm_options/on_exception.hpp"
-#include "sm_options/run_to_completion.hpp"
+namespace awesm::sm_options
+{
+
+struct after_state_transition{};
+struct before_entry{};
+struct before_state_transition{};
+struct disable_run_to_completion{};
+struct disable_in_state_internal_transitions{};
+struct on_event{};
+struct on_exception{};
+
+} //namespace
 
 #endif

@@ -58,7 +58,7 @@ class region
         template<class State>
         const auto& get_state() const
         {
-            return states_.get(static_cast<State*>(nullptr));
+            return states_.template get<State>();
         }
 
         template<class SmConfiguration, class Event = none>
@@ -270,7 +270,7 @@ class region
 
                     detail::call_on_exit
                     (
-                        &states_.get(static_cast<source_state_t*>(nullptr)),
+                        &states_.template get<source_state_t>(),
                         &sm_conf,
                         &event,
                         0
@@ -287,7 +287,7 @@ class region
                 {
                     detail::call_execute
                     (
-                        &actions_.get(static_cast<action_t*>(nullptr)),
+                        &actions_.template get<action_t>(),
                         &event
                     );
                 }
@@ -304,7 +304,7 @@ class region
 
                     detail::call_on_entry
                     (
-                        &states_.get(static_cast<target_state_t*>(nullptr)),
+                        &states_.template get<target_state_t>(),
                         &sm_conf,
                         &event,
                         0
@@ -344,7 +344,7 @@ class region
                         (
                             !detail::call_check
                             (
-                                &guards_.get(static_cast<guard_t*>(nullptr)),
+                                &guards_.template get<guard_t>(),
                                 &event
                             )
                         )
@@ -405,7 +405,7 @@ class region
                 (
                     reg.process_event_in_state
                     (
-                        &reg.states_.get(static_cast<States*>(nullptr)),
+                        &reg.states_.template get<States>(),
                         &sm_conf,
                         &event
                     ) || ...

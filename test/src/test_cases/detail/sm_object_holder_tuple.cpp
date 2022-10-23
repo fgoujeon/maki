@@ -26,8 +26,8 @@ TEST_CASE("detail::make_tuple")
 {
     auto data = 42;
     auto tuple = type_tuple{data, data /*ignored*/};
-    auto& obj0 = tuple.get(static_cast<type0*>(nullptr));
-    auto& obj1 = tuple.get(static_cast<type1*>(nullptr));
+    auto& obj0 = tuple.template get<type0>();
+    auto& obj1 = tuple.template get<type1>();
 
     REQUIRE(&obj0.data == &data);
     REQUIRE(&obj1.data == &data);

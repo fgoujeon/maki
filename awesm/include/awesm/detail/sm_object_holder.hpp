@@ -44,6 +44,8 @@ construct the objects.
 template<class T>
 struct sm_object_holder
 {
+    using object_t = T;
+
     template<class Sm, class Context, class U = T>
     sm_object_holder
     (

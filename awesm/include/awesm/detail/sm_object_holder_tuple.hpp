@@ -8,6 +8,8 @@
 #define AWESM_DETAIL_SM_OBJECT_HOLDER_TUPLE_HPP
 
 #include "sm_object_holder.hpp"
+#include "type_list.hpp"
+#include "tlu.hpp"
 
 namespace awesm::detail
 {
@@ -18,91 +20,55 @@ Using this instead of std::tuple improves build time.
 */
 
 template<class... Ts>
-class sm_object_holder_tuple;
-
-template<class T, class... Ts>
-class sm_object_holder_tuple<T, Ts...>: public sm_object_holder_tuple<Ts...>
+class sm_object_holder_tuple: private sm_object_holder<Ts>...
 {
     public:
         template<class Sm, class Context>
         sm_object_holder_tuple(Sm& machine, Context& ctx):
-            sm_object_holder_tuple<Ts...>(machine, ctx),
-            obj_{machine, ctx}
+            sm_object_holder<Ts>(machine, ctx)...
         {
         }
 
-        using sm_object_holder_tuple<Ts...>::get;
-
-        T& get(T* /*tag*/)
+        template<class T>
+        T& get()
         {
-            return obj_.object;
+            return sm_object_holder<T>::object;
         }
 
-        const T& get(T* /*tag*/) const
+        template<class T>
+        const T& get() const
         {
-            return obj_.object;
+            return sm_object_holder<T>::object;
         }
 
         template<int Index>
         auto& get()
         {
-            if constexpr(Index == 0)
-            {
-                return obj_.object;
-            }
-            else
-            {
-                return sm_object_holder_tuple<Ts...>::template get<Index - 1>();
-            }
+            using sm_object_holder_type_list_t = type_list<sm_object_holder<Ts>...>;
+            using sm_object_holder_t = tlu::at<sm_object_holder_type_list_t, Index>;
+            using object_t = typename sm_object_holder_t::object_t;
+            return get<object_t>();
         }
 
         template<int Index>
         const auto& get() const
         {
-            if constexpr(Index == 0)
-            {
-                return obj_.object;
-            }
-            else
-            {
-                return sm_object_holder_tuple<Ts...>::template get<Index - 1>();
-            }
+            using sm_object_holder_type_list_t = type_list<sm_object_holder<Ts>...>;
+            using sm_object_holder_t = tlu::at<sm_object_holder_type_list_t, Index>;
+            using object_t = typename sm_object_holder_t::object_t;
+            return get<object_t>();
         }
 
         template<class F>
         void for_each(F&& callback)
         {
-            callback(obj_.object);
-            sm_object_holder_tuple<Ts...>::for_each(callback);
+            (callback(get<Ts>()), ...);
         }
 
         template<class F>
         void for_each(F&& callback) const
         {
-            callback(obj_.object);
-            sm_object_holder_tuple<Ts...>::for_each(callback);
-        }
-
-    private:
-        sm_object_holder<T> obj_;
-};
-
-template<>
-class sm_object_holder_tuple<>
-{
-    public:
-        template<class Sm, class Context>
-        sm_object_holder_tuple(Sm& /*machine*/, Context& /*ctx*/)
-        {
-        }
-
-        void get() const
-        {
-        }
-
-        template<class F>
-        void for_each(F&& /*f*/) const
-        {
+            (callback(get<Ts>()), ...);
         }
 };
 

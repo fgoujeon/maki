@@ -30,6 +30,11 @@ class composite_state
             return region_tuple_.template is_active_state<State, RegionIndex>();
         }
 
+        [[nodiscard]] bool is_running() const
+        {
+            return !is_active_state<detail::null_state>();
+        }
+
         template<class Sm, class Event>
         void on_entry(Sm& mach, const Event& event)
         {

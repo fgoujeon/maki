@@ -9,7 +9,7 @@
 
 #include "../sm_options.hpp"
 #include "../none.hpp"
-#include "../null_state.hpp"
+#include "null_state.hpp"
 #include "call_member.hpp"
 #include "resolve_transition_table.hpp"
 #include "transition_table_digest.hpp"

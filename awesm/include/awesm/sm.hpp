@@ -71,6 +71,11 @@ class sm
             return region_tuple_.template get_state<State, RegionIndex>();
         }
 
+        [[nodiscard]] bool is_running() const
+        {
+            return !is_active_state<detail::null_state>();
+        }
+
         template<class State, int RegionIndex = 0>
         [[nodiscard]] bool is_active_state() const
         {

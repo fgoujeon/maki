@@ -7,7 +7,6 @@
 #include "awesm/composite_state.hpp"
 #include "awesm/guard_operators.hpp"
 #include "awesm/none.hpp"
-#include "awesm/null_state.hpp"
 #include "awesm/row.hpp"
 #include "awesm/sm.hpp"
 #include "awesm/sm_ref.hpp"

@@ -133,7 +133,7 @@ TEST_CASE("composite_state")
     sm.start();
 
     REQUIRE(sm.is_active_state<states::off>());
-    REQUIRE(sm.get_state<states::on>().is_active_state<awesm::null_state>());
+    REQUIRE(!sm.get_state<states::on>().is_running());
     REQUIRE(ctx.current_led_color == led_color::off);
 
     sm.process_event(events::power_button_press{});

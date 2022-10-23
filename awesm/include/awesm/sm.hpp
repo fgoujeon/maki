@@ -225,7 +225,11 @@ class sm
         template<detail::event_processing_type ProcessingType, class Event>
         void process_event_once(const Event& event)
         {
-            if constexpr(ProcessingType == detail::event_processing_type::event)
+            if constexpr
+            (
+                ProcessingType == detail::event_processing_type::event &&
+                detail::tlu::contains<configuration_t, sm_options::on_event>
+            )
             {
                 safe_call
                 (

@@ -9,7 +9,6 @@
 
 #include "sm_options/before_entry.hpp"
 #include "sm_options/in_state_internal_transitions.hpp"
-#include "sm_options/on_event.hpp"
 #include "sm_options/on_exception.hpp"
 #include "sm_options/run_to_completion.hpp"
 
@@ -35,6 +34,20 @@ struct before_state_transition
     //Dummy
     template<class Sm, class Context>
     before_state_transition(Sm& /*sm*/, Context& /*ctx*/)
+    {
+    }
+
+    //Dummy
+    void call()
+    {
+    }
+};
+
+struct on_event
+{
+    //Dummy
+    template<class Sm, class Context>
+    on_event(Sm& /*sm*/, Context& /*ctx*/)
     {
     }
 

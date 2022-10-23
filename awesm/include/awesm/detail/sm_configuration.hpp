@@ -55,17 +55,6 @@ class completed_sm_configuration: private Options...
             );
         }
 
-        template<class Event>
-        auto on_event(const Event* pevent) ->
-            decltype(call(sm_options::detail::tags::on_event{}, *pevent, 0))
-        {
-            call(sm_options::detail::tags::on_event{}, *pevent, 0);
-        }
-
-        void on_event(const void* /*pevent*/)
-        {
-        }
-
         void on_exception(const std::exception_ptr& eptr)
         {
             call(sm_options::detail::tags::on_exception{}, eptr, 0);
@@ -80,7 +69,6 @@ using sm_configuration = completed_sm_configuration
 <
     sm_options::detail::defaults::before_entry,
     sm_options::detail::defaults::in_state_internal_transitions,
-    sm_options::detail::defaults::on_event,
     sm_options::detail::defaults::on_exception,
     sm_options::detail::defaults::run_to_completion,
     Options...

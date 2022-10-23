@@ -25,18 +25,20 @@ namespace
         struct off_button_press{};
     }
 
-    struct sm_transition_table
+    using sm_transition_table = awesm::transition_table
+    <
+        awesm::row<states::off, events::on_button_press,  states::on>,
+        awesm::row<states::on,  events::off_button_press, states::off>
+    >;
+
+    struct sm_def
     {
-        using type = awesm::transition_table
-        <
-            awesm::row<states::off, events::on_button_press,  states::on>,
-            awesm::row<states::on,  events::off_button_press, states::off>
-        >;
+        using transition_tables = awesm::transition_table_list<sm_transition_table>;
     };
 
-    using sm_t = awesm::simple_sm
+    using sm_t = awesm::sm
     <
-        sm_transition_table,
+        sm_def,
         awesm::sm_options::run_to_completion<false>
     >;
 }

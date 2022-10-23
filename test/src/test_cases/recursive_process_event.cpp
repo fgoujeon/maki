@@ -4,19 +4,14 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#include <awesm/simple_sm_fwd.hpp>
-
-namespace
-{
-    struct sm_transition_table;
-    using sm_t = awesm::simple_sm<sm_transition_table>;
-}
-
 #include <awesm.hpp>
 #include "common/catch.hpp"
 
 namespace
 {
+    struct sm_def;
+    using sm_t = awesm::sm<sm_def>;
+
     struct context
     {
         std::string output;
@@ -102,14 +97,16 @@ namespace
         };
     }
 
-    struct sm_transition_table
+    using sm_transition_table = awesm::transition_table
+    <
+        awesm::row<states::s0, events::s0_to_s1_request, states::s1, actions::s0_to_s1>,
+        awesm::row<states::s1, events::s1_to_s2_request, states::s2, actions::s1_to_s2>,
+        awesm::row<states::s2, events::s2_to_s0_request, states::s0>
+    >;
+
+    struct sm_def
     {
-        using type = awesm::transition_table
-        <
-            awesm::row<states::s0, events::s0_to_s1_request, states::s1, actions::s0_to_s1>,
-            awesm::row<states::s1, events::s1_to_s2_request, states::s2, actions::s1_to_s2>,
-            awesm::row<states::s2, events::s2_to_s0_request, states::s0>
-        >;
+        using transition_tables = awesm::transition_table_list<sm_transition_table>;
     };
 }
 

@@ -53,19 +53,21 @@ namespace
         };
     }
 
-    struct sm_transition_table
+    using sm_transition_table = awesm::transition_table
+    <
+        awesm::row<states::off, events::button_push, states::on>,
+        awesm::row<states::on,  events::button_push, states::off>
+    >;
+
+    struct sm_def
     {
-        using type = awesm::transition_table
-        <
-            awesm::row<states::off, events::button_push, states::on>,
-            awesm::row<states::on,  events::button_push, states::off>
-        >;
+        using transition_tables = awesm::transition_table_list<sm_transition_table>;
     };
 
     struct sm_before_entry
     {
-        template<class Region, class SourceState, class Event, class TargetState>
-        void before_entry(const Region& /*region*/, const Event& /*event*/)
+        template<int RegionIndex, class SourceState, class Event, class TargetState>
+        void before_entry(const Event& /*event*/)
         {
             if constexpr(std::is_same_v<TargetState, states::off>)
             {
@@ -80,9 +82,9 @@ namespace
         context& ctx;
     };
 
-    using sm_t = awesm::simple_sm
+    using sm_t = awesm::sm
     <
-        sm_transition_table,
+        sm_def,
         awesm::sm_options::before_entry<sm_before_entry>
     >;
 }

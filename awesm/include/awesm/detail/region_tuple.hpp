@@ -8,17 +8,31 @@
 #define AWESM_DETAIL_REGION_TUPLE_HPP
 
 #include "../region.hpp"
-#include "../region_list.hpp"
+#include "../transition_table_list.hpp"
 #include <type_traits>
 
 namespace awesm::detail
 {
 
-template<class RegionList>
+template<class RegionIndexSequence, class... TransitionTables>
+struct region_holder_tuple;
+
+template<int... RegionIndexes, class... TransitionTables>
+struct region_holder_tuple<std::integer_sequence<int, RegionIndexes...>, TransitionTables...>
+{
+    using type = sm_object_holder_tuple<region<RegionIndexes, TransitionTables>...>;
+};
+
+template<class RegionIndexSequence, class... TransitionTables>
+using region_holder_tuple_t =
+    typename region_holder_tuple<RegionIndexSequence, TransitionTables...>::type
+;
+
+template<class TransitionTableList>
 class region_tuple;
 
-template<class... Regions>
-class region_tuple<region_list<Regions...>>
+template<class... TransitionTables>
+class region_tuple<transition_table_list<TransitionTables...>>
 {
     public:
         template<class Sm, class Context>
@@ -88,7 +102,8 @@ class region_tuple<region_list<Regions...>>
         }
 
     private:
-        sm_object_holder_tuple<Regions...> regions_;
+        using region_indexes = std::make_integer_sequence<int, sizeof...(TransitionTables)>;
+        region_holder_tuple_t<region_indexes, TransitionTables...> regions_;
 };
 
 } //namespace

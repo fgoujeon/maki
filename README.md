@@ -296,7 +296,7 @@ struct sm_transition_table
     The initial active state of the state machine is the first state encountered
     in the transition table ('off', is our case).
     */
-    using type = awesm::transition_table
+    using transition_table = awesm::transition_table
     <
         //  source_state,   event,       target_state,   action,            guard
         row<off,            button_push, emitting_white, turn_light_white>,
@@ -313,7 +313,7 @@ We finally have our state machine.
 Note that we can pass a configuration struct as second template argument to fine
 tune the behavior of our state machine.
 */
-using sm_t = awesm::simple_sm<sm_transition_table>;
+using sm_t = awesm::sm<sm_def>;
 
 int main()
 {

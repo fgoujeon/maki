@@ -68,23 +68,25 @@ namespace
         using can_access_state3 = awesm::not_<guards::cant_access_state3>;
     }
 
-    struct sm_transition_table
-    {
-        using type = awesm::transition_table
-        <
-            awesm::row<states::idle, events::start, states::state0, awesm::none, guards::can_access_state0>,
-            awesm::row<states::idle, events::start, states::state1, awesm::none, guards::can_access_state1>,
-            awesm::row<states::idle, events::start, states::state2, awesm::none, guards::can_access_state2>,
-            awesm::row<states::idle, events::start, states::state3, awesm::none, guards::can_access_state3>,
+    using sm_transition_table = awesm::transition_table
+    <
+        awesm::row<states::idle, events::start, states::state0, awesm::none, guards::can_access_state0>,
+        awesm::row<states::idle, events::start, states::state1, awesm::none, guards::can_access_state1>,
+        awesm::row<states::idle, events::start, states::state2, awesm::none, guards::can_access_state2>,
+        awesm::row<states::idle, events::start, states::state3, awesm::none, guards::can_access_state3>,
 
-            awesm::row<states::state0, events::stop, states::idle>,
-            awesm::row<states::state1, events::stop, states::idle>,
-            awesm::row<states::state2, events::stop, states::idle>,
-            awesm::row<states::state3, events::stop, states::idle>
-        >;
+        awesm::row<states::state0, events::stop, states::idle>,
+        awesm::row<states::state1, events::stop, states::idle>,
+        awesm::row<states::state2, events::stop, states::idle>,
+        awesm::row<states::state3, events::stop, states::idle>
+    >;
+
+    struct sm_def
+    {
+        using transition_tables = awesm::transition_table_list<sm_transition_table>;
     };
 
-    using sm_t = awesm::simple_sm<sm_transition_table>;
+    using sm_t = awesm::sm<sm_def>;
 }
 
 TEST_CASE("guard operators")

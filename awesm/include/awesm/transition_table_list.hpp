@@ -4,10 +4,15 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_SIMPLE_SM_HPP
-#define AWESM_SIMPLE_SM_HPP
+#ifndef AWESM_TRANSITION_TABLE_LIST_HPP
+#define AWESM_TRANSITION_TABLE_LIST_HPP
 
-#include "simple_sm_fwd.hpp"
-#include "sm.hpp"
+namespace awesm
+{
+
+template<class... Ts>
+struct transition_table_list{};
+
+} //namespace
 
 #endif

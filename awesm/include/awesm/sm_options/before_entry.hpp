@@ -26,10 +26,11 @@ namespace detail::defaults
         {
         }
 
+        template<int RegionIndex>
         void call
         (
             tags::before_entry /*action_tag*/,
-            const void* /*pregion*/,
+            std::integral_constant<int, RegionIndex> /*index*/,
             void* /*source_state_tag*/,
             const void* /*pevent*/,
             void* /*target_state_tag*/,
@@ -50,20 +51,19 @@ class before_entry
         {
         }
 
-        template<class Region, class SourceState, class Event, class TargetState>
+        template<int RegionIndex, class SourceState, class Event, class TargetState>
         void call
         (
             detail::tags::before_entry /*action_tag*/,
-            const Region* pregion,
+            std::integral_constant<int, RegionIndex> /*index*/,
             SourceState* /*source_state_tag*/,
             const Event* pevent,
             TargetState* /*target_state_tag*/,
             int /*priority*/
         )
         {
-            impl_.object.template before_entry<Region, SourceState, Event, TargetState>
+            impl_.object.template before_entry<RegionIndex, SourceState, Event, TargetState>
             (
-                *pregion,
                 *pevent
             );
         }

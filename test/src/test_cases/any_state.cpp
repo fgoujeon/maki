@@ -25,18 +25,20 @@ namespace
         struct error{};
     }
 
-    struct sm_transition_table
+    using sm_transition_table = awesm::transition_table
+    <
+        awesm::row<states::idle,    events::start_button_press, states::running>,
+        awesm::row<states::running, events::stop_button_press,  states::idle>,
+        awesm::row<states::failed,  events::stop_button_press,  states::idle>,
+        awesm::row<awesm::any,      events::error,              states::failed>
+    >;
+
+    struct sm_def
     {
-        using type = awesm::transition_table
-        <
-            awesm::row<states::idle,    events::start_button_press, states::running>,
-            awesm::row<states::running, events::stop_button_press,  states::idle>,
-            awesm::row<states::failed,  events::stop_button_press,  states::idle>,
-            awesm::row<awesm::any,      events::error,              states::failed>
-        >;
+        using transition_tables = awesm::transition_table_list<sm_transition_table>;
     };
 
-    using sm_t = awesm::simple_sm<sm_transition_table>;
+    using sm_t = awesm::sm<sm_def>;
 }
 
 TEST_CASE("any state")

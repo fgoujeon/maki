@@ -57,17 +57,19 @@ namespace
         };
     }
 
-    struct sm_transition_table
+    using sm_transition_table = awesm::transition_table
+    <
+        awesm::row<states::off, events::button_press, states::on,  awesm::none, guards::has_power>,
+        awesm::row<states::on,  events::button_press, states::off, awesm::none, guards::always_false>,
+        awesm::row<states::on,  events::button_press, states::off, awesm::none, guards::is_pressing_hard>
+    >;
+
+    struct sm_def
     {
-        using type = awesm::transition_table
-        <
-            awesm::row<states::off, events::button_press, states::on,  awesm::none, guards::has_power>,
-            awesm::row<states::on,  events::button_press, states::off, awesm::none, guards::always_false>,
-            awesm::row<states::on,  events::button_press, states::off, awesm::none, guards::is_pressing_hard>
-        >;
+        using transition_tables = awesm::transition_table_list<sm_transition_table>;
     };
 
-    using sm_t = awesm::simple_sm<sm_transition_table>;
+    using sm_t = awesm::sm<sm_def>;
 }
 
 TEST_CASE("guard")

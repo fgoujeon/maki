@@ -25,19 +25,21 @@ namespace
         struct s4{};
     };
 
-    struct sm_transition_table
+    using sm_transition_table = awesm::transition_table
+    <
+        awesm::row<states::s0, events::go_on, states::s1>,
+        awesm::row<states::s1, awesm::none,   states::s2>,
+        awesm::row<states::s2, events::go_on, states::s3>,
+        awesm::row<states::s3, awesm::none,   states::s4>,
+        awesm::row<states::s4, awesm::none,   states::s0>
+    >;
+
+    struct sm_def
     {
-        using type = awesm::transition_table
-        <
-            awesm::row<states::s0, events::go_on, states::s1>,
-            awesm::row<states::s1, awesm::none,   states::s2>,
-            awesm::row<states::s2, events::go_on, states::s3>,
-            awesm::row<states::s3, awesm::none,   states::s4>,
-            awesm::row<states::s4, awesm::none,   states::s0>
-        >;
+        using transition_tables = awesm::transition_table_list<sm_transition_table>;
     };
 
-    using sm_t = awesm::simple_sm<sm_transition_table>;
+    using sm_t = awesm::sm<sm_def>;
 }
 
 TEST_CASE("anonymous transition")

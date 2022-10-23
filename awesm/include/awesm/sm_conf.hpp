@@ -4,14 +4,17 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_SM_FWD_HPP
-#define AWESM_SM_FWD_HPP
+#ifndef AWESM_SM_CONF_HPP
+#define AWESM_SM_CONF_HPP
 
 namespace awesm
 {
 
-template<class Def>
-class sm;
+template<class TransitionTableList, class... Options>
+struct sm_conf
+{
+    using transition_table_list_t = TransitionTableList;
+};
 
 } //namespace
 

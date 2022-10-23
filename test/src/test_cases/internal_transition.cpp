@@ -68,14 +68,14 @@ namespace
 
     struct sm_def
     {
-        using transition_tables = awesm::transition_table_list<sm_transition_table>;
+        using conf = awesm::sm_conf
+        <
+            awesm::transition_table_list<sm_transition_table>,
+            awesm::sm_options::disable_run_to_completion
+        >;
     };
 
-    using sm_t = awesm::sm
-    <
-        sm_def,
-        awesm::sm_options::disable_run_to_completion
-    >;
+    using sm_t = awesm::sm<sm_def>;
 }
 
 TEST_CASE("internal transition")

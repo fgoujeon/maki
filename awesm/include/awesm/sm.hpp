@@ -7,6 +7,7 @@
 #ifndef AWESM_SM_HPP
 #define AWESM_SM_HPP
 
+#include "sm_conf.hpp"
 #include "detail/region_tuple.hpp"
 #include "detail/event_processing_type.hpp"
 #include "detail/alternative_lazy.hpp"
@@ -42,7 +43,7 @@ namespace detail
     };
 }
 
-template<class Def, class... Options>
+template<class Def>
 class sm
 {
     public:
@@ -99,7 +100,8 @@ class sm
         template<int Index, class TransitionTable>
         friend class detail::region;
 
-        using option_list_t = detail::type_list<Options...>;
+        using conf_t = typename Def::conf;
+        using transition_table_list_t = typename conf_t::transition_table_list_t;
 
         class event_processing
         {
@@ -155,7 +157,7 @@ class sm
         };
         using queued_event_processing_storage_t = detail::alternative_lazy
         <
-            detail::tlu::contains<option_list_t, sm_options::disable_run_to_completion>,
+            detail::tlu::contains<conf_t, sm_options::disable_run_to_completion>,
             empty_holder,
             queue_holder
         >;
@@ -163,7 +165,7 @@ class sm
         template<detail::event_processing_type ProcessingType, class Event>
         void process_event_2(const Event& event)
         {
-            if constexpr(!detail::tlu::contains<option_list_t, sm_options::disable_run_to_completion>)
+            if constexpr(!detail::tlu::contains<conf_t, sm_options::disable_run_to_completion>)
             {
                 //Queue event processing in case of recursive call
                 if(processing_event_)
@@ -221,7 +223,7 @@ class sm
 
         void process_exception(const std::exception_ptr& eptr)
         {
-            if constexpr(detail::tlu::contains<option_list_t, sm_options::on_exception>)
+            if constexpr(detail::tlu::contains<conf_t, sm_options::on_exception>)
             {
                 def_.get_object().on_exception(eptr);
             }
@@ -237,7 +239,7 @@ class sm
             if constexpr
             (
                 ProcessingType == detail::event_processing_type::event &&
-                detail::tlu::contains<option_list_t, sm_options::on_event>
+                detail::tlu::contains<conf_t, sm_options::on_event>
             )
             {
                 safe_call
@@ -264,7 +266,7 @@ class sm
         }
 
         detail::sm_object_holder<Def> def_;
-        detail::region_tuple<typename Def::transition_tables> region_tuple_;
+        detail::region_tuple<transition_table_list_t> region_tuple_;
 
         bool processing_event_ = false;
         queued_event_processing_storage_t queued_event_processings_;

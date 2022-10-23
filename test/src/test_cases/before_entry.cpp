@@ -61,7 +61,11 @@ namespace
 
     struct sm_def
     {
-        using transition_tables = awesm::transition_table_list<sm_transition_table>;
+        using conf = awesm::sm_conf
+        <
+            awesm::transition_table_list<sm_transition_table>,
+            awesm::sm_options::before_entry
+        >;
 
         template<int RegionIndex, class SourceState, class Event, class TargetState>
         void before_entry(const Event& /*event*/)
@@ -79,11 +83,7 @@ namespace
         context& ctx;
     };
 
-    using sm_t = awesm::sm
-    <
-        sm_def,
-        awesm::sm_options::before_entry
-    >;
+    using sm_t = awesm::sm<sm_def>;
 }
 
 TEST_CASE("before_entry")

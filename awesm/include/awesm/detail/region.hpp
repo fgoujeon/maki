@@ -123,7 +123,7 @@ class region
         >
         void process_event_2(Sm& mach, const Event& event)
         {
-            if constexpr(!tlu::contains<typename Sm::option_list_t, sm_options::disable_in_state_internal_transitions>)
+            if constexpr(!tlu::contains<typename Sm::conf_t, sm_options::disable_in_state_internal_transitions>)
             {
                 process_event_in_active_state(mach, event);
             }
@@ -258,7 +258,7 @@ class region
 
                 if constexpr(!is_internal_transition)
                 {
-                    if constexpr(tlu::contains<typename Sm::option_list_t, sm_options::before_state_transition>)
+                    if constexpr(tlu::contains<typename Sm::conf_t, sm_options::before_state_transition>)
                     {
                         mach.def_.get_object().template before_state_transition
                         <
@@ -295,7 +295,7 @@ class region
 
                 if constexpr(!is_internal_transition)
                 {
-                    if constexpr(tlu::contains<typename Sm::option_list_t, sm_options::before_entry>)
+                    if constexpr(tlu::contains<typename Sm::conf_t, sm_options::before_entry>)
                     {
                         mach.def_.get_object().template before_entry
                         <
@@ -314,7 +314,7 @@ class region
                         0
                     );
 
-                    if constexpr(tlu::contains<typename Sm::option_list_t, sm_options::after_state_transition>)
+                    if constexpr(tlu::contains<typename Sm::conf_t, sm_options::after_state_transition>)
                     {
                         mach.def_.get_object().template after_state_transition
                         <

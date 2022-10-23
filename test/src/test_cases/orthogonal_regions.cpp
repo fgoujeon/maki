@@ -41,16 +41,22 @@ namespace
 
     struct sm_def
     {
-        using transition_tables = awesm::transition_table_list
+        using conf = awesm::sm_conf
         <
-            awesm::transition_table
+            awesm::transition_table_list
             <
-                awesm::row<states::off0, events::button_press, states::on0>
+                awesm::transition_table
+                <
+                    awesm::row<states::off0, events::button_press, states::on0>
+                >,
+                awesm::transition_table
+                <
+                    awesm::row<states::off1, events::button_press, states::on1>
+                >
             >,
-            awesm::transition_table
-            <
-                awesm::row<states::off1, events::button_press, states::on1>
-            >
+            awesm::sm_options::on_exception,
+            awesm::sm_options::before_state_transition,
+            awesm::sm_options::after_state_transition
         >;
 
         template<int RegionIndex, class SourceState, class Event, class TargetState>
@@ -80,13 +86,7 @@ namespace
         context& ctx;
     };
 
-    using sm_t = awesm::sm
-    <
-        sm_def,
-        awesm::sm_options::on_exception,
-        awesm::sm_options::before_state_transition,
-        awesm::sm_options::after_state_transition
-    >;
+    using sm_t = awesm::sm<sm_def>;
 }
 
 TEST_CASE("orthogonal_regions")

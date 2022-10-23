@@ -13,11 +13,11 @@ namespace awesm::detail
 {
 
 template<class... Options>
-class sm_configuration: private Options...
+class completed_sm_configuration: private Options...
 {
     public:
         template<class Sm, class Context>
-        sm_configuration(Sm& mach, Context& ctx):
+        completed_sm_configuration(Sm& mach, Context& ctx):
             Options(mach, ctx)...
         {
         }
@@ -101,6 +101,19 @@ class sm_configuration: private Options...
     private:
         using Options::call...;
 };
+
+template<class... Options>
+using sm_configuration = completed_sm_configuration
+<
+    sm_options::detail::defaults::after_state_transition,
+    sm_options::detail::defaults::before_entry,
+    sm_options::detail::defaults::before_state_transition,
+    sm_options::detail::defaults::in_state_internal_transitions,
+    sm_options::detail::defaults::on_event,
+    sm_options::detail::defaults::on_exception,
+    sm_options::detail::defaults::run_to_completion,
+    Options...
+>;
 
 } //namespace
 

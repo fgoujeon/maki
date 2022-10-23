@@ -101,17 +101,7 @@ class sm
         template<int Index, class TransitionTable>
         friend class detail::region;
 
-        using configuration_t = detail::sm_configuration
-        <
-            sm_options::detail::defaults::after_state_transition,
-            sm_options::detail::defaults::before_entry,
-            sm_options::detail::defaults::before_state_transition,
-            sm_options::detail::defaults::in_state_internal_transitions,
-            sm_options::detail::defaults::on_event,
-            sm_options::detail::defaults::on_exception,
-            sm_options::detail::defaults::run_to_completion,
-            Options...
-        >;
+        using configuration_t = detail::sm_configuration<Options...>;
 
         class event_processing
         {

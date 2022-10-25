@@ -20,7 +20,15 @@ namespace
 
     namespace events
     {
-        struct button_press{};
+        struct button_press
+        {
+            std::string data;
+        };
+
+        struct internal
+        {
+            std::string data;
+        };
     }
 
     namespace states
@@ -29,14 +37,19 @@ namespace
 
         struct on_0
         {
-            void on_entry()
+            void on_entry(const events::button_press& event)
             {
-                ctx.out += "2";
+                ctx.out += event.data + "2";
             }
 
-            void on_exit()
+            void on_event(const events::internal& event)
             {
-                ctx.out += "1";
+                ctx.out += event.data + "1";
+            }
+
+            void on_exit(const events::button_press& event)
+            {
+                ctx.out += event.data + "1";
             }
 
             context& ctx;
@@ -51,10 +64,9 @@ namespace
         {
             using transition_tables = awesm::transition_table_list<on_transition_table>;
 
-            template<class Event>
-            void on_entry(const Event& /*event*/)
+            void on_entry(const events::button_press& event)
             {
-                ctx.out += "1";
+                ctx.out += event.data + "1";
             }
 
             template<class Event>
@@ -62,10 +74,14 @@ namespace
             {
             }
 
-            template<class Event>
-            void on_exit(const Event& /*event*/)
+            void on_event(const events::internal& event)
             {
-                ctx.out += "2";
+                ctx.out += event.data + "2";
+            }
+
+            void on_exit(const events::button_press& event)
+            {
+                ctx.out += event.data + "2";
             }
 
             context& ctx;
@@ -86,17 +102,21 @@ namespace
     };
 }
 
-TEST_CASE("composite_state_entry_exit")
+TEST_CASE("composite_state_on_xxx")
 {
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
     sm.start();
 
-    sm.process_event(events::button_press{});
-    REQUIRE(ctx.out == "12");
+    sm.process_event(events::button_press{"a"});
+    REQUIRE(ctx.out == "a1a2");
 
     ctx.out.clear();
-    sm.process_event(events::button_press{});
-    REQUIRE(ctx.out == "12");
+    sm.process_event(events::internal{"b"});
+    REQUIRE(ctx.out == "b1b2");
+
+    ctx.out.clear();
+    sm.process_event(events::button_press{"c"});
+    REQUIRE(ctx.out == "c1c2");
 }

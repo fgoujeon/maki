@@ -246,7 +246,7 @@ class sm
                 (
                     [&]
                     {
-                        def_.on_event(&event);
+                        def_.get_object().on_event(event);
                     }
                 );
             }

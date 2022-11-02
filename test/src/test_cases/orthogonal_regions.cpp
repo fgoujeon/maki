@@ -59,16 +59,18 @@ namespace
             awesm::sm_options::after_state_transition
         >;
 
-        template<int RegionIndex, class SourceState, class Event, class TargetState>
+        template<class RegionPath, class SourceState, class Event, class TargetState>
         void before_state_transition(const Event& /*event*/)
         {
-            ctx.out += "before_state_transition[" + std::to_string(RegionIndex) + "];";
+            constexpr auto region_index = awesm::detail::tlu::at<RegionPath, 0>::region_index;
+            ctx.out += "before_state_transition[" + std::to_string(region_index) + "];";
         }
 
-        template<int RegionIndex, class SourceState, class Event, class TargetState>
+        template<class RegionPath, class SourceState, class Event, class TargetState>
         void after_state_transition(const Event& /*event*/)
         {
-            ctx.out += "after_state_transition[" + std::to_string(RegionIndex) + "];";
+            constexpr auto region_index = awesm::detail::tlu::at<RegionPath, 0>::region_index;
+            ctx.out += "after_state_transition[" + std::to_string(region_index) + "];";
         }
 
         void on_exception(const std::exception_ptr& eptr)

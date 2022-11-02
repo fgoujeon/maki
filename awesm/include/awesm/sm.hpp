@@ -12,6 +12,7 @@
 #include "detail/event_processing_type.hpp"
 #include "detail/alternative_lazy.hpp"
 #include "detail/any_container.hpp"
+#include "detail/sm_path.hpp"
 #include <queue>
 #include <type_traits>
 
@@ -102,6 +103,8 @@ class sm
 
         using conf_t = typename Def::conf;
         using transition_table_list_t = typename conf_t::transition_table_list_t;
+
+        using path_t = detail::sm_path<region_path<>, sm>;
 
         class event_processing
         {
@@ -253,15 +256,15 @@ class sm
 
             if constexpr(ProcessingType == detail::event_processing_type::start)
             {
-                region_tuple_.start(*this, event);
+                region_tuple_.template start<path_t>(*this, event);
             }
             else if constexpr(ProcessingType == detail::event_processing_type::stop)
             {
-                region_tuple_.stop(*this, event);
+                region_tuple_.template stop<path_t>(*this, event);
             }
             else
             {
-                region_tuple_.process_event(*this, event);
+                region_tuple_.template process_event<path_t>(*this, event);
             }
         }
 

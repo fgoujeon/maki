@@ -9,6 +9,7 @@
 
 #include "detail/region_tuple.hpp"
 #include "detail/sm_object_holder.hpp"
+#include "detail/sm_path.hpp"
 
 namespace awesm
 {
@@ -35,24 +36,27 @@ class composite_state
             return !is_active_state<detail::null_state>();
         }
 
-        template<class Sm, class Event>
+        template<class RegionPath, class Sm, class Event>
         void on_entry(Sm& mach, const Event& event)
         {
+            using sm_path_t = detail::sm_path<RegionPath, composite_state>;
             def_.get_object().on_entry(event);
-            region_tuple_.start(mach, event);
+            region_tuple_.template start<sm_path_t>(mach, event);
         }
 
-        template<class Sm, class Event>
+        template<class RegionPath, class Sm, class Event>
         void on_event(Sm& mach, const Event& event)
         {
-            region_tuple_.process_event(mach, event);
+            using sm_path_t = detail::sm_path<RegionPath, composite_state>;
+            region_tuple_.template process_event<sm_path_t>(mach, event);
             def_.get_object().on_event(event);
         }
 
-        template<class Sm, class Event>
+        template<class RegionPath, class Sm, class Event>
         void on_exit(Sm& mach, const Event& event)
         {
-            region_tuple_.stop(mach, event);
+            using sm_path_t = detail::sm_path<RegionPath, composite_state>;
+            region_tuple_.template stop<sm_path_t>(mach, event);
             def_.get_object().on_exit(event);
         }
 

@@ -65,7 +65,7 @@ class region_tuple<transition_table_list<TransitionTables...>>
             return get<RegionIndex>(regions_).template is_active_state<State>();
         }
 
-        template<class Sm, class Event = none>
+        template<class ParentSmPath, class Sm, class Event = none>
         void start(Sm& mach, const Event& event = {})
         {
             for_each
@@ -73,12 +73,12 @@ class region_tuple<transition_table_list<TransitionTables...>>
                 regions_,
                 [&](auto& reg)
                 {
-                    reg.start(mach, event);
+                    reg.template start<ParentSmPath>(mach, event);
                 }
             );
         }
 
-        template<class Sm, class Event = none>
+        template<class ParentSmPath, class Sm, class Event = none>
         void stop(Sm& mach, const Event& event = {})
         {
             for_each
@@ -86,12 +86,12 @@ class region_tuple<transition_table_list<TransitionTables...>>
                 regions_,
                 [&](auto& reg)
                 {
-                    reg.stop(mach, event);
+                    reg.template stop<ParentSmPath>(mach, event);
                 }
             );
         }
 
-        template<class Sm, class Event>
+        template<class ParentSmPath, class Sm, class Event>
         void process_event(Sm& mach, const Event& event)
         {
             for_each
@@ -99,7 +99,7 @@ class region_tuple<transition_table_list<TransitionTables...>>
                 regions_,
                 [&](auto& reg)
                 {
-                    reg.process_event(mach, event);
+                    reg.template process_event<ParentSmPath>(mach, event);
                 }
             );
         }

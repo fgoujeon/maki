@@ -52,6 +52,10 @@ namespace
         awesm::row<states::on,  events::button_press, states::off>
     >;
 
+    struct sm_def;
+
+    using sm_t = awesm::sm<sm_def>;
+
     struct sm_def
     {
         using conf = awesm::sm_conf
@@ -61,19 +65,19 @@ namespace
             awesm::sm_options::after_state_transition
         >;
 
-        template<int RegionIndex, class SourceState, class Event, class TargetState>
+        template<class RegionPath, class SourceState, class Event, class TargetState>
         void before_state_transition(const Event& event)
         {
-            static_assert(RegionIndex == 0);
+            static_assert(std::is_same_v<RegionPath, awesm::region_path<awesm::region_path_element<sm_t, 0>>>);
 
             ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + "...;";
             ctx.out += std::to_string(event.pressure) + ";";
         }
 
-        template<int RegionIndex, class SourceState, class Event, class TargetState>
+        template<class RegionPath, class SourceState, class Event, class TargetState>
         void after_state_transition(const Event& event)
         {
-            static_assert(RegionIndex == 0);
+            static_assert(std::is_same_v<RegionPath, awesm::region_path<awesm::region_path_element<sm_t, 0>>>);
 
             ctx.out += std::to_string(event.pressure) + ";";
             ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + ";";
@@ -81,8 +85,6 @@ namespace
 
         context& ctx;
     };
-
-    using sm_t = awesm::sm<sm_def>;
 }
 
 TEST_CASE("state_transition_hook_set")

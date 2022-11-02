@@ -59,6 +59,10 @@ namespace
         awesm::row<states::on,  events::button_push, states::off>
     >;
 
+    struct sm_def;
+
+    using sm_t = awesm::sm<sm_def>;
+
     struct sm_def
     {
         using conf = awesm::sm_conf
@@ -67,9 +71,11 @@ namespace
             awesm::sm_options::before_entry
         >;
 
-        template<int RegionIndex, class SourceState, class Event, class TargetState>
+        template<class RegionPath, class SourceState, class Event, class TargetState>
         void before_entry(const Event& /*event*/)
         {
+            static_assert(std::is_same_v<RegionPath, awesm::region_path<awesm::region_path_element<sm_t, 0>>>);
+
             if constexpr(std::is_same_v<TargetState, states::off>)
             {
                 ctx.out += "off::before_entry;";
@@ -82,8 +88,6 @@ namespace
 
         context& ctx;
     };
-
-    using sm_t = awesm::sm<sm_def>;
 }
 
 TEST_CASE("before_entry")

@@ -19,19 +19,19 @@ A 0 must be passed to int and long dummy parameters.
 We use this trick so that int overloads take precedence over long ones.
 */
 
-template<class State, class Sm, class Event>
+template<class RegionPath, class State, class Sm, class Event>
 auto call_on_entry(State* pstate, Sm* pmach, const Event* pevent, int /*dummy*/) ->
-    decltype(pstate->on_entry(*pmach, *pevent))
+    decltype(pstate->template on_entry<RegionPath>(*pmach, *pevent))
 {
     static_assert
     (
         !std::is_empty_v<State>,
         "Empty state types can't have on_entry() functions"
     );
-    pstate->on_entry(*pmach, *pevent);
+    pstate->template on_entry<RegionPath>(*pmach, *pevent);
 }
 
-template<class State, class Event>
+template<class RegionPath, class State, class Event>
 auto call_on_entry(State* pstate, void* /*pmach*/, const Event* pevent, int /*dummy*/) ->
     decltype(pstate->on_entry(*pevent))
 {
@@ -43,7 +43,7 @@ auto call_on_entry(State* pstate, void* /*pmach*/, const Event* pevent, int /*du
     pstate->on_entry(*pevent);
 }
 
-template<class State>
+template<class RegionPath, class State>
 auto call_on_entry(State* pstate, void* /*pmach*/, const void* /*pevent*/, int /*dummy*/) ->
     decltype(pstate->on_entry())
 {
@@ -55,7 +55,7 @@ auto call_on_entry(State* pstate, void* /*pmach*/, const void* /*pevent*/, int /
     pstate->on_entry();
 }
 
-template<class State>
+template<class RegionPath, class State>
 void call_on_entry(State* /*pstate*/, void* /*pmach*/, const void* /*pevent*/, long /*dummy*/)
 {
     static_assert
@@ -65,38 +65,19 @@ void call_on_entry(State* /*pstate*/, void* /*pmach*/, const void* /*pevent*/, l
     );
 }
 
-template<class State, class Sm, class Event>
-auto call_on_event(State* pstate, Sm* pmach, const Event* pevent) ->
-    decltype(pstate->on_event(*pevent))
-{
-    pstate->on_event(*pmach, *pevent);
-}
-
-template<class State, class Event>
-auto call_on_event(State* pstate, void* /*pmach*/, const Event* pevent) ->
-    decltype(pstate->on_event(*pevent))
-{
-    pstate->on_event(*pevent);
-}
-
-inline void call_on_event(void* /*pstate*/, void* /*pmach*/, const void* /*pevent*/)
-{
-    //state::on_event() is optional
-}
-
-template<class State, class SmConfiguration, class Event>
-auto call_on_exit(State* pstate, SmConfiguration* pmach, const Event* pevent, int /*dummy*/) ->
-    decltype(pstate->on_exit(*pmach, *pevent))
+template<class RegionPath, class State, class Sm, class Event>
+auto call_on_exit(State* pstate, Sm* pmach, const Event* pevent, int /*dummy*/) ->
+    decltype(pstate->template on_exit<RegionPath>(*pmach, *pevent))
 {
     static_assert
     (
         !std::is_empty_v<State>,
         "Empty state types can't have on_exit() functions"
     );
-    pstate->on_exit(*pmach, *pevent);
+    pstate->template on_exit<RegionPath>(*pmach, *pevent);
 }
 
-template<class State, class Event>
+template<class RegionPath, class State, class Event>
 auto call_on_exit(State* pstate, void* /*pmach*/, const Event* pevent, int /*dummy*/) ->
     decltype(pstate->on_exit(*pevent))
 {
@@ -108,7 +89,7 @@ auto call_on_exit(State* pstate, void* /*pmach*/, const Event* pevent, int /*dum
     pstate->on_exit(*pevent);
 }
 
-template<class State>
+template<class RegionPath, class State>
 auto call_on_exit(State* pstate, void* /*pmach*/, const void* /*pevent*/, int /*dummy*/) ->
     decltype(pstate->on_exit())
 {
@@ -120,7 +101,7 @@ auto call_on_exit(State* pstate, void* /*pmach*/, const void* /*pevent*/, int /*
     pstate->on_exit();
 }
 
-template<class State>
+template<class RegionPath, class State>
 void call_on_exit(State* /*pstate*/, void* /*pmach*/, const void* /*pevent*/, long /*dummy*/)
 {
     static_assert

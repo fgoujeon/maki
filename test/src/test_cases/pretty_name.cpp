@@ -17,10 +17,10 @@ namespace pretty_name_ns
 
 TEST_CASE("pretty_name")
 {
-    REQUIRE(awesm::pretty_name<pretty_name_ns::test> == "pretty_name_ns::test");
+    REQUIRE(awesm::pretty_name<pretty_name_ns::test> == "test");
     REQUIRE
     (
         awesm::pretty_name<pretty_name_ns::templ<int, pretty_name_ns::test>> ==
-        "pretty_name_ns::templ<int, pretty_name_ns::test>"
+        "templ"
     );
 }

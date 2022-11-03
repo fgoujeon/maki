@@ -29,4 +29,4 @@ build:
   project: $(APPVEYOR_BUILD_FOLDER)\$(APPVEYOR_PROJECT_NAME).sln
 
 test_script:
-  - ctest -C %CONFIGURATION%
+  - ctest --verbose -C %CONFIGURATION%

@@ -14,7 +14,10 @@ namespace awesm
 {
 
 template<class T>
-constexpr auto pretty_name = detail::decayed_type_name<T>;
+auto get_pretty_name()
+{
+    return detail::get_decayed_type_name<T>();
+}
 
 } //namespace
 

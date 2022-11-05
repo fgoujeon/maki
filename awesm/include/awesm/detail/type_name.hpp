@@ -15,7 +15,7 @@ namespace awesm::detail
 namespace type_name_detail
 {
     template<class T>
-    constexpr std::string_view function_name()
+    std::string_view function_name()
     {
 #ifdef _MSC_VER
         return static_cast<const char*>(__FUNCSIG__);
@@ -30,7 +30,7 @@ namespace type_name_detail
         int suffix_size = 0;
     };
 
-    constexpr type_name_format get_type_name_format()
+    inline type_name_format get_type_name_format()
     {
         const auto int_name = std::string_view{"int"};
         const auto int_function_name = function_name<int>();
@@ -43,10 +43,10 @@ namespace type_name_detail
         };
     }
 
-    constexpr auto format = get_type_name_format();
+    inline const auto format = get_type_name_format();
 
     template<class T>
-    constexpr std::string_view get_type_name()
+    std::string_view get_type_name()
     {
         const auto fn_name = function_name<T>();
         return fn_name.substr
@@ -58,12 +58,12 @@ namespace type_name_detail
 
     //Extract "e" from e.g. a::b<c,d>::e<f::g>
     template<class T>
-    constexpr std::string_view get_decayed_type_name()
+    std::string_view get_decayed_type_name()
     {
-        const auto type_name = get_type_name<T>();
-        const auto type_name_size = static_cast<int>(type_name.size());
+        const auto tname = get_type_name<T>();
+        const auto tname_size = static_cast<int>(tname.size());
 
-        auto current_index = type_name_size - 1;
+        auto current_index = tname_size - 1;
 
         //Find end index
         const auto end_index = [&]
@@ -71,7 +71,7 @@ namespace type_name_detail
             auto template_level = 0;
             for(; current_index >= 0; --current_index)
             {
-                switch(type_name[current_index])
+                switch(tname[current_index])
                 {
                     case '<':
                         --template_level;
@@ -94,7 +94,7 @@ namespace type_name_detail
         {
             for(; current_index >= 1; --current_index)
             {
-                if(type_name[current_index - 1] == ':')
+                if(tname[current_index - 1] == ':')
                 {
                     return current_index;
                 }
@@ -102,15 +102,23 @@ namespace type_name_detail
             return 0;
         }();
 
-        return type_name.substr(start_index, end_index - start_index + 1);
+        return tname.substr(start_index, end_index - start_index + 1);
     }
 }
 
 template<class T>
-constexpr auto type_name = type_name_detail::get_type_name<T>();
+auto get_type_name()
+{
+    static const auto name = type_name_detail::get_type_name<T>();
+    return name;
+}
 
 template<class T>
-constexpr auto decayed_type_name = type_name_detail::get_decayed_type_name<T>();
+auto get_decayed_type_name()
+{
+    static const auto name = type_name_detail::get_decayed_type_name<T>();
+    return name;
+}
 
 } //namespace
 

@@ -12,15 +12,15 @@ namespace pretty_name_ns
     struct test{};
 
     template<class T, class U>
-    struct templ{};
+    class templ{};
 }
 
 TEST_CASE("pretty_name")
 {
-    REQUIRE(awesm::pretty_name<pretty_name_ns::test> == "test");
+    REQUIRE(awesm::get_pretty_name<pretty_name_ns::test>() == "test");
     REQUIRE
     (
-        awesm::pretty_name<pretty_name_ns::templ<int, pretty_name_ns::test>> ==
+        awesm::get_pretty_name<pretty_name_ns::templ<int, pretty_name_ns::test>>() ==
         "templ"
     );
 }

@@ -9,6 +9,7 @@
 
 #include "../sm_options.hpp"
 #include "../null.hpp"
+#include "state_traits.hpp"
 #include "sm_path.hpp"
 #include "null_state.hpp"
 #include "call_member.hpp"
@@ -427,9 +428,9 @@ class region
                     (
                         reg.process_event_in_state<RegionPath>
                         (
-                            &get<States>(reg.states_),
-                            &mach,
-                            &event
+                            get<States>(reg.states_),
+                            mach,
+                            event
                         ) || ...
                     );
                 }
@@ -438,60 +439,28 @@ class region
 
         //Processes internal events against one state
         template<class RegionPath, class State, class Sm, class Event>
-        auto process_event_in_state
-        (
-            State* pstate,
-            Sm* pmach,
-            const Event* pevent
-        ) -> decltype(std::declval<State>().template on_event<RegionPath>(*pmach, *pevent), bool())
-        {
-            if(is_active_state<State>())
-            {
-                safe_call
-                (
-                    *pmach,
-                    [&]
-                    {
-                        pstate->template on_event<RegionPath>(*pmach, *pevent);
-                    }
-                );
-                return true;
-            }
-            return false;
-        }
-
-        //Processes internal events against one state
-        template<class RegionPath, class State, class Sm, class Event>
-        auto process_event_in_state
-        (
-            State* pstate,
-            Sm* pmach,
-            const Event* pevent
-        ) -> decltype(std::declval<State>().on_event(*pevent), bool())
-        {
-            if(is_active_state<State>())
-            {
-                safe_call
-                (
-                    *pmach,
-                    [&]
-                    {
-                        pstate->on_event(*pevent);
-                    }
-                );
-                return true;
-            }
-            return false;
-        }
-
-        template<class RegionPath>
         bool process_event_in_state
         (
-            void* /*pstate*/,
-            void* /*pmach*/,
-            const void* /*pevent*/
+            State& state,
+            Sm& mach,
+            const Event& event
         )
         {
+            if constexpr(state_traits::requires_on_event_v<State, Event>)
+            {
+                if(is_active_state<State>())
+                {
+                    safe_call
+                    (
+                        mach,
+                        [&]
+                        {
+                            call_on_event<RegionPath>(state, mach, event);
+                        }
+                    );
+                    return true;
+                }
+            }
             return false;
         }
 

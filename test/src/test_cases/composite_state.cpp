@@ -37,6 +37,8 @@ namespace
 
         struct emitting_red
         {
+            using conf = awesm::state_conf<>;
+
             void on_entry()
             {
                 ctx.current_led_color = led_color::red;
@@ -52,6 +54,8 @@ namespace
 
         struct emitting_green
         {
+            using conf = awesm::state_conf<>;
+
             void on_entry()
             {
                 ctx.current_led_color = led_color::green;
@@ -67,6 +71,8 @@ namespace
 
         struct emitting_blue
         {
+            using conf = awesm::state_conf<>;
+
             void on_entry()
             {
                 ctx.current_led_color = led_color::blue;

@@ -7,14 +7,19 @@
 #ifndef AWESM_DETAIL_NULL_STATE_HPP
 #define AWESM_DETAIL_NULL_STATE_HPP
 
+#include "../state_conf.hpp"
+
 namespace awesm::detail
 {
 
 /*
-Represents the initial state of a state machine or region, i.e. the state before
-start() and after stop().
+Represents the initial state of any region, i.e. the state before start() and
+after stop().
 */
-struct null_state{};
+struct null_state
+{
+    using conf = state_conf<>;
+};
 
 } //namespace
 

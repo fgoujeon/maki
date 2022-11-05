@@ -85,6 +85,11 @@ namespace states
     */
     struct off
     {
+        using conf = awesm::state_conf
+        <
+            awesm::state_options::on_event_any_of<button::push_event>
+        >;
+
         /*
         Whenever an state machine enters a state, it calls the on_entry()
         function of that state. It tries to do so using the following
@@ -137,10 +142,10 @@ namespace states
     /*
     Empty state types are not required to implement on_entry() and on_exit().
     */
-    struct emitting_white{};
-    struct emitting_red{};
-    struct emitting_green{};
-    struct emitting_blue{};
+    struct emitting_white { using conf = awesm::state_conf<>; };
+    struct emitting_red { using conf = awesm::state_conf<>; };
+    struct emitting_green { using conf = awesm::state_conf<>; };
+    struct emitting_blue { using conf = awesm::state_conf<>; };
 }
 
 /*

@@ -25,6 +25,8 @@ namespace
     {
         struct single
         {
+            using conf = awesm::state_conf<>;
+
             void on_entry()
             {
             }

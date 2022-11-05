@@ -37,6 +37,11 @@ namespace
 
         struct on_0
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_event_any_of<events::internal>
+            >;
+
             void on_entry(const events::button_press& event)
             {
                 ctx.out += event.data + "2";

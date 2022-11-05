@@ -28,6 +28,8 @@ namespace
     {
         struct s0
         {
+            using conf = awesm::state_conf<>;
+
             void on_entry()
             {
                 ctx.output += "s0::on_entry;";
@@ -43,6 +45,8 @@ namespace
 
         struct s1
         {
+            using conf = awesm::state_conf<>;
+
             void on_entry()
             {
                 ctx.output += "s1::on_entry;";
@@ -58,6 +62,8 @@ namespace
 
         struct s2
         {
+            using conf = awesm::state_conf<>;
+
             void on_entry()
             {
                 ctx.output += "s2::on_entry;";

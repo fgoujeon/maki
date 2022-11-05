@@ -13,10 +13,10 @@
 
 namespace
 {
-    EMPTY_STATE(state0);
-    EMPTY_STATE(state1);
-    EMPTY_STATE(state2);
-    EMPTY_STATE(state3);
+    struct state0{};
+    struct state1{};
+    struct state2{};
+    struct state3{};
 
     struct event0{};
     struct event1{};

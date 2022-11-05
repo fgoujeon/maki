@@ -29,6 +29,11 @@ namespace
 
         struct english
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_event_any_of<events::say_dog>
+            >;
+
             void on_entry()
             {
                 ctx.hello = "hello";
@@ -49,6 +54,11 @@ namespace
 
         struct french
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_event_any_of<events::say_dog>
+            >;
+
             void on_entry()
             {
                 ctx.hello = "bonjour";

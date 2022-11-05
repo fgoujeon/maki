@@ -7,6 +7,7 @@
 #ifndef AWESM_COMPOSITE_STATE_HPP
 #define AWESM_COMPOSITE_STATE_HPP
 
+#include "state_conf.hpp"
 #include "detail/region_tuple.hpp"
 #include "detail/sm_object_holder.hpp"
 #include "detail/sm_path.hpp"
@@ -18,6 +19,11 @@ template<class Definition>
 class composite_state
 {
     public:
+        using conf = state_conf
+        <
+            state_options::on_event_any
+        >;
+
         template<class Sm, class Context>
         composite_state(Sm& mach, Context& ctx):
             def_(mach, ctx),

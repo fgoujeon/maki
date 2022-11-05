@@ -27,6 +27,11 @@ namespace
     {
         struct off
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_event_any_of<events::button_press>
+            >;
+
             void on_entry()
             {
             }
@@ -45,6 +50,11 @@ namespace
 
         struct on
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_event_any_of<events::button_press>
+            >;
+
             void on_entry()
             {
             }

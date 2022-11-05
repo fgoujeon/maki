@@ -32,6 +32,8 @@ namespace
 
         struct on
         {
+            using conf = awesm::state_conf<>;
+
             void on_entry(const events::e1&)
             {
                 ctx.out += "on_entry(e1);";

@@ -8,6 +8,9 @@
 #define COMMON_EMPTY_STATE_HPP
 
 #define EMPTY_STATE(name) \
-    struct name{}
+    struct name \
+    { \
+        using conf = awesm::state_conf<>; \
+    }
 
 #endif

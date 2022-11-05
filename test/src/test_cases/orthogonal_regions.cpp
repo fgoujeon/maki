@@ -32,6 +32,11 @@ namespace
         EMPTY_STATE(on0);
         struct on1
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_event_any_of<events::exception_request>
+            >;
+
             void on_event(const events::exception_request&)
             {
                 throw std::runtime_error{"exception"};

@@ -66,6 +66,28 @@ void call_on_entry(State* /*pstate*/, void* /*pmach*/, const void* /*pevent*/, l
 }
 
 template<class RegionPath, class State, class Sm, class Event>
+auto call_on_event
+(
+    State& state,
+    Sm& mach,
+    const Event& event
+) -> decltype(std::declval<State>().template on_event<RegionPath>(mach, event), void())
+{
+    state.template on_event<RegionPath>(mach, event);
+}
+
+template<class RegionPath, class State, class Sm, class Event>
+auto call_on_event
+(
+    State& state,
+    Sm& /*mach*/,
+    const Event& event
+) -> decltype(std::declval<State>().on_event(event), void())
+{
+    state.on_event(event);
+}
+
+template<class RegionPath, class State, class Sm, class Event>
 auto call_on_exit(State* pstate, Sm* pmach, const Event* pevent, int /*dummy*/) ->
     decltype(pstate->template on_exit<RegionPath>(*pmach, *pevent))
 {

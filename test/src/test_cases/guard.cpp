@@ -59,9 +59,9 @@ namespace
 
     using sm_transition_table = awesm::transition_table
     <
-        awesm::row<states::off, events::button_press, states::on,  awesm::none, guards::has_power>,
-        awesm::row<states::on,  events::button_press, states::off, awesm::none, guards::always_false>,
-        awesm::row<states::on,  events::button_press, states::off, awesm::none, guards::is_pressing_hard>
+        awesm::row<states::off, events::button_press, states::on,  awesm::null, guards::has_power>,
+        awesm::row<states::on,  events::button_press, states::off, awesm::null, guards::always_false>,
+        awesm::row<states::on,  events::button_press, states::off, awesm::null, guards::is_pressing_hard>
     >;
 
     struct sm_def

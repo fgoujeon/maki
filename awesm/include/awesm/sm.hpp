@@ -78,13 +78,13 @@ class sm
             return region_tuple_.template is_active_state<State, RegionIndex>();
         }
 
-        template<class Event = none>
+        template<class Event = null>
         void start(const Event& event = {})
         {
             process_event_2<detail::event_processing_type::start>(event);
         }
 
-        template<class Event = none>
+        template<class Event = null>
         void stop(const Event& event = {})
         {
             process_event_2<detail::event_processing_type::stop>(event);

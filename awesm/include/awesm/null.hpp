@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_NONE_HPP
-#define AWESM_NONE_HPP
+#ifndef AWESM_NULL_HPP
+#define AWESM_NULL_HPP
 
 namespace awesm
 {
@@ -17,7 +17,7 @@ Represents either:
 - an action that does nothing;
 - a guard that always returns true.
 */
-struct none{};
+struct null{};
 
 } //namespace
 

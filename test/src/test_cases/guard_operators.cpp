@@ -70,10 +70,10 @@ namespace
 
     using sm_transition_table = awesm::transition_table
     <
-        awesm::row<states::idle, events::start, states::state0, awesm::none, guards::can_access_state0>,
-        awesm::row<states::idle, events::start, states::state1, awesm::none, guards::can_access_state1>,
-        awesm::row<states::idle, events::start, states::state2, awesm::none, guards::can_access_state2>,
-        awesm::row<states::idle, events::start, states::state3, awesm::none, guards::can_access_state3>,
+        awesm::row<states::idle, events::start, states::state0, awesm::null, guards::can_access_state0>,
+        awesm::row<states::idle, events::start, states::state1, awesm::null, guards::can_access_state1>,
+        awesm::row<states::idle, events::start, states::state2, awesm::null, guards::can_access_state2>,
+        awesm::row<states::idle, events::start, states::state3, awesm::null, guards::can_access_state3>,
 
         awesm::row<states::state0, events::stop, states::idle>,
         awesm::row<states::state1, events::stop, states::idle>,

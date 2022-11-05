@@ -7,7 +7,7 @@
 #ifndef AWESM_ROW_HPP
 #define AWESM_ROW_HPP
 
-#include "none.hpp"
+#include "null.hpp"
 
 namespace awesm
 {
@@ -17,8 +17,8 @@ template
     class SourceState,
     class Event,
     class TargetState,
-    class Action = none,
-    class Guard = none
+    class Action = null,
+    class Guard = null
 >
 struct row
 {

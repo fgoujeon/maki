@@ -6,7 +6,7 @@
 
 #include <awesm/row.hpp>
 #include <awesm/transition_table.hpp>
-#include <awesm/none.hpp>
+#include <awesm/null.hpp>
 #include <awesm/detail/transition_table_digest.hpp>
 #include <awesm/detail/sm_object_holder_tuple.hpp>
 #include "../common/catch.hpp"
@@ -32,7 +32,7 @@ namespace
     using transition_table = awesm::transition_table
     <
         awesm::row<state0,     event0, state1>,
-        awesm::row<state1,     event1, state2, awesm::none, guard0>,
+        awesm::row<state1,     event1, state2, awesm::null, guard0>,
         awesm::row<state2,     event2, state3, action0>,
         awesm::row<state3,     event3, state0, action1,     guard1>,
         awesm::row<awesm::any, event3, state0>

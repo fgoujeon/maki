@@ -234,7 +234,7 @@ Basically, whenever awesm::sm::process_event() is called, AweSM iterates
 over the rows of this table until it finds a match, i.e. when:
 - 'source_state' is the currently active state (or is awesm::any);
 - 'event' is the type of the processed event;
-- and the 'guard' returns true (or is awesm::none).
+- and the 'guard' returns true (or is awesm::null).
 When a match is found, AweSM:
 - exits 'source_state';
 - marks 'target_state' as the new active state;

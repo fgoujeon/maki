@@ -8,7 +8,7 @@
 #define AWESM_DETAIL_REGION_HPP
 
 #include "../sm_options.hpp"
-#include "../none.hpp"
+#include "../null.hpp"
 #include "sm_path.hpp"
 #include "null_state.hpp"
 #include "call_member.hpp"
@@ -60,13 +60,13 @@ class region
             return get<State>(states_);
         }
 
-        template<class SmPath, class Sm, class Event = none>
+        template<class SmPath, class Sm, class Event = null>
         void start(Sm& mach, const Event& event = {})
         {
             process_event_2<SmPath, detail::event_processing_type::start>(mach, event);
         }
 
-        template<class SmPath, class Sm, class Event = none>
+        template<class SmPath, class Sm, class Event = null>
         void stop(Sm& mach, const Event& event = {})
         {
             process_event_2<SmPath, detail::event_processing_type::stop>(mach, event);
@@ -161,7 +161,7 @@ class region
             {
                 if(processed)
                 {
-                    while(process_event_in_transition_table_once<region_path_t>(mach, none{})){}
+                    while(process_event_in_transition_table_once<region_path_t>(mach, null{})){}
                 }
             }
             else
@@ -261,7 +261,7 @@ class region
             const auto do_transition = [&](auto /*dummy*/)
             {
                 constexpr auto is_internal_transition =
-                    std::is_same_v<target_state_t, none>
+                    std::is_same_v<target_state_t, null>
                 ;
 
                 if constexpr(!is_internal_transition)
@@ -292,7 +292,7 @@ class region
                     >;
                 }
 
-                if constexpr(!std::is_same_v<action_t, none>)
+                if constexpr(!std::is_same_v<action_t, null>)
                 {
                     detail::call_execute
                     (
@@ -335,7 +335,7 @@ class region
                 }
             };
 
-            if constexpr(std::is_same_v<guard_t, none>)
+            if constexpr(std::is_same_v<guard_t, null>)
             {
                 safe_call
                 (

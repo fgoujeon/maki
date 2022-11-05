@@ -12,7 +12,7 @@
 #include "sm_object_holder_tuple.hpp"
 #include "null_state.hpp"
 #include "../type_patterns.hpp"
-#include "../none.hpp"
+#include "../null.hpp"
 #include "../transition_table.hpp"
 #include <type_traits>
 
@@ -27,7 +27,7 @@ For example, the following digest type...:
     using transition_table = awesm::transition_table
     <
         awesm::row<state0, event0, state1>,
-        awesm::row<state1, event1, state2, awesm::none, guard0>,
+        awesm::row<state1, event1, state2, awesm::null, guard0>,
         awesm::row<state2, event2, state3, action0>,
         awesm::row<state3, event3, state0, action1,     guard1>
     >;
@@ -65,7 +65,7 @@ namespace transition_table_digest_detail
         U,
         (
             !tlu::contains<TList, U> &&
-            !std::is_same_v<U, none>
+            !std::is_same_v<U, null>
         )
     >;
 
@@ -110,7 +110,7 @@ namespace transition_table_digest_detail
 
         static constexpr auto has_none_events =
             Digest::has_none_events ||
-            std::is_same_v<typename Row::event_type, none>
+            std::is_same_v<typename Row::event_type, null>
         ;
     };
 

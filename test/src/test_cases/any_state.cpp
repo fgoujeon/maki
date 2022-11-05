@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm.hpp>
-#include "common/catch.hpp"
+#include "common.hpp"
 
 namespace
 {
@@ -13,9 +13,9 @@ namespace
 
     namespace states
     {
-        struct idle{};
-        struct running{};
-        struct failed{};
+        EMPTY_STATE(idle);
+        EMPTY_STATE(running);
+        EMPTY_STATE(failed);
     }
 
     namespace events

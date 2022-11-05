@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm.hpp>
-#include "common/catch.hpp"
+#include "common.hpp"
 
 namespace
 {
@@ -18,11 +18,11 @@ namespace
 
     struct states
     {
-        struct s0{};
-        struct s1{};
-        struct s2{};
-        struct s3{};
-        struct s4{};
+        EMPTY_STATE(s0);
+        EMPTY_STATE(s1);
+        EMPTY_STATE(s2);
+        EMPTY_STATE(s3);
+        EMPTY_STATE(s4);
     };
 
     using sm_transition_table = awesm::transition_table

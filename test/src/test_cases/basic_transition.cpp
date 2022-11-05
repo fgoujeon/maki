@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm.hpp>
-#include "common/catch.hpp"
+#include "common.hpp"
 
 namespace
 {
@@ -15,8 +15,8 @@ namespace
 
     namespace states
     {
-        struct on{};
-        struct off{};
+        EMPTY_STATE(on);
+        EMPTY_STATE(off);
     }
 
     namespace events

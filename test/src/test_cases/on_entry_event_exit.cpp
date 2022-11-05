@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm.hpp>
-#include "common/catch.hpp"
+#include "common.hpp"
 #include <string>
 
 namespace
@@ -25,7 +25,7 @@ namespace
 
     namespace states
     {
-        struct idle{};
+        EMPTY_STATE(idle);
 
         struct english
         {

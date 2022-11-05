@@ -21,6 +21,14 @@ namespace state_options
 
     template<class... Ts>
     using on_event_any_of = on_event<any_of<Ts...>>;
+
+    template<class TypePattern>
+    struct on_exit{};
+
+    using on_exit_any = on_exit<any>;
+
+    template<class... Ts>
+    using on_exit_any_of = on_exit<any_of<Ts...>>;
 }
 
 template<class... Options>

@@ -12,49 +12,55 @@
 namespace awesm::detail::state_traits
 {
 
-template<class... Options>
-struct event_option_pattern;
+#define AWESM_DETAIL_STATE_TRAITS_REQUIRES_ON_XXX(xxx) \
+    template<class... Options> \
+    struct xxx##_option_pattern; \
+ \
+    template<class Option, class... Options> \
+    struct xxx##_option_pattern<Option, Options...> \
+    { \
+        using type = typename xxx##_option_pattern<Options...>::type; \
+    }; \
+ \
+    template<class TypePattern, class... Options> \
+    struct xxx##_option_pattern<state_options::on_##xxx<TypePattern>, Options...> \
+    { \
+        using type = TypePattern; \
+    }; \
+ \
+    template<> \
+    struct xxx##_option_pattern<> \
+    { \
+        using type = any_of<>; \
+    }; \
+ \
+    template<class Conf, class Event> \
+    struct requires_on_##xxx##_conf; \
+ \
+    template<class... Options, class Event> \
+    struct requires_on_##xxx##_conf<state_conf<Options...>, Event> \
+    { \
+        using pattern_t = typename xxx##_option_pattern<Options...>::type; \
+        static constexpr auto value = pattern_t::template matches<Event>; \
+    }; \
+ \
+    template<class State, class Event> \
+    struct requires_on_##xxx \
+    { \
+        static constexpr auto value = requires_on_##xxx##_conf \
+        < \
+            typename State::conf, \
+            Event \
+        >::value; \
+    }; \
+ \
+    template<class State, class Event> \
+    constexpr auto requires_on_##xxx##_v = requires_on_##xxx<State, Event>::value;
 
-template<class Option, class... Options>
-struct event_option_pattern<Option, Options...>
-{
-    using type = typename event_option_pattern<Options...>::type;
-};
+AWESM_DETAIL_STATE_TRAITS_REQUIRES_ON_XXX(event)
+AWESM_DETAIL_STATE_TRAITS_REQUIRES_ON_XXX(exit)
 
-template<class TypePattern, class... Options>
-struct event_option_pattern<state_options::on_event<TypePattern>, Options...>
-{
-    using type = TypePattern;
-};
-
-template<>
-struct event_option_pattern<>
-{
-    using type = any_of<>;
-};
-
-template<class Conf, class Event>
-struct requires_on_event_conf;
-
-template<class... Options, class Event>
-struct requires_on_event_conf<state_conf<Options...>, Event>
-{
-    using pattern_t = typename event_option_pattern<Options...>::type;
-    static constexpr auto value = pattern_t::template matches<Event>;
-};
-
-template<class State, class Event>
-struct requires_on_event
-{
-    static constexpr auto value = requires_on_event_conf
-    <
-        typename State::conf,
-        Event
-    >::value;
-};
-
-template<class State, class Event>
-constexpr auto requires_on_event_v = requires_on_event<State, Event>::value;
+#undef AWESM_DETAIL_STATE_TRAITS_REQUIRES_ON_XXX
 
 } //namespace
 

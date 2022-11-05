@@ -278,13 +278,15 @@ class region
                         >(event);
                     }
 
-                    detail::call_on_exit<RegionPath>
-                    (
-                        &get<source_state_t>(states_),
-                        &mach,
-                        &event,
-                        0
-                    );
+                    if constexpr(state_traits::requires_on_exit_v<source_state_t, Event>)
+                    {
+                        detail::call_on_exit<RegionPath>
+                        (
+                            &get<source_state_t>(states_),
+                            &mach,
+                            &event
+                        );
+                    }
 
                     active_state_index_ = detail::tlu::get_index
                     <

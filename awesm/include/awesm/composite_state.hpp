@@ -21,7 +21,8 @@ class composite_state
     public:
         using conf = state_conf
         <
-            state_options::on_event_any
+            state_options::on_event_any,
+            state_options::on_exit_any
         >;
 
         template<class Sm, class Context>

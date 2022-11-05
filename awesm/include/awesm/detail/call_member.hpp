@@ -88,49 +88,24 @@ auto call_on_event
 }
 
 template<class RegionPath, class State, class Sm, class Event>
-auto call_on_exit(State* pstate, Sm* pmach, const Event* pevent, int /*dummy*/) ->
+auto call_on_exit(State* pstate, Sm* pmach, const Event* pevent) ->
     decltype(pstate->template on_exit<RegionPath>(*pmach, *pevent))
 {
-    static_assert
-    (
-        !std::is_empty_v<State>,
-        "Empty state types can't have on_exit() functions"
-    );
     pstate->template on_exit<RegionPath>(*pmach, *pevent);
 }
 
 template<class RegionPath, class State, class Event>
-auto call_on_exit(State* pstate, void* /*pmach*/, const Event* pevent, int /*dummy*/) ->
+auto call_on_exit(State* pstate, void* /*pmach*/, const Event* pevent) ->
     decltype(pstate->on_exit(*pevent))
 {
-    static_assert
-    (
-        !std::is_empty_v<State>,
-        "Empty state types can't have on_exit() functions"
-    );
     pstate->on_exit(*pevent);
 }
 
 template<class RegionPath, class State>
-auto call_on_exit(State* pstate, void* /*pmach*/, const void* /*pevent*/, int /*dummy*/) ->
+auto call_on_exit(State* pstate, void* /*pmach*/, const void* /*pevent*/) ->
     decltype(pstate->on_exit())
 {
-    static_assert
-    (
-        !std::is_empty_v<State>,
-        "Empty state types can't have on_exit() functions"
-    );
     pstate->on_exit();
-}
-
-template<class RegionPath, class State>
-void call_on_exit(State* /*pstate*/, void* /*pmach*/, const void* /*pevent*/, long /*dummy*/)
-{
-    static_assert
-    (
-        std::is_empty_v<State>,
-        "No on_exit(event) or on_exit() found in non-empty state type"
-    );
 }
 
 template<class Action, class Event>

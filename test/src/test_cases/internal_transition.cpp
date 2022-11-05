@@ -49,10 +49,6 @@ namespace
                 ++ctx.side_effect;
             }
 
-            void on_exit()
-            {
-            }
-
             context& ctx;
         };
     }

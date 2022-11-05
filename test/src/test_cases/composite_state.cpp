@@ -44,10 +44,6 @@ namespace
                 ctx.current_led_color = led_color::red;
             }
 
-            void on_exit()
-            {
-            }
-
             sm_t& sm;
             context& ctx;
         };
@@ -61,10 +57,6 @@ namespace
                 ctx.current_led_color = led_color::green;
             }
 
-            void on_exit()
-            {
-            }
-
             sm_t& sm;
             context& ctx;
         };
@@ -76,10 +68,6 @@ namespace
             void on_entry()
             {
                 ctx.current_led_color = led_color::blue;
-            }
-
-            void on_exit()
-            {
             }
 
             sm_t& sm;

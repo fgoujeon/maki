@@ -28,7 +28,10 @@ namespace
     {
         struct s0
         {
-            using conf = awesm::state_conf<>;
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_exit_any
+            >;
 
             void on_entry()
             {
@@ -45,7 +48,10 @@ namespace
 
         struct s1
         {
-            using conf = awesm::state_conf<>;
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_exit_any
+            >;
 
             void on_entry()
             {
@@ -62,7 +68,10 @@ namespace
 
         struct s2
         {
-            using conf = awesm::state_conf<>;
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_exit_any
+            >;
 
             void on_entry()
             {

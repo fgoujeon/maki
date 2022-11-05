@@ -32,7 +32,10 @@ namespace
 
         struct on
         {
-            using conf = awesm::state_conf<>;
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_exit_any
+            >;
 
             void on_entry(const events::e1&)
             {

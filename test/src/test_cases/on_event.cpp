@@ -29,7 +29,8 @@ namespace
         {
             using conf = awesm::state_conf
             <
-                awesm::state_options::on_event_any_of<events::button_press>
+                awesm::state_options::on_event_any_of<events::button_press>,
+                awesm::state_options::on_exit_any
             >;
 
             void on_entry()

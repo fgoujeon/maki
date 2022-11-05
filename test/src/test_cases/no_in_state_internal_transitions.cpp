@@ -36,10 +36,6 @@ namespace
                 ++ctx.i;
             }
 
-            void on_exit()
-            {
-            }
-
             context& ctx;
         };
     }

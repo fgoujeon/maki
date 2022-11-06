@@ -127,45 +127,60 @@ States are classes.
 namespace states
 {
     /*
-    A state class is required to implement the on_entry() and on_exit()
-    functions described below.
-    Also, it must be either constructible with a reference to the context or
-    default-constructible. Since AweSM instantiates its states using aggregate
-    initialization, an explicit constructor isn't necessary. Declaring a public
-    member variable like below is enough.
+    A state class must be constructible with one of the following expressions:
+        auto state = state_type{machine, context};
+        auto state = state_type{context};
+        auto state = state_type{};
     */
     struct off
     {
         /*
-        Whenever an state machine enters a state, it calls the on_entry()
-        function of that state. It tries to do so using the following
-        statements, in that order, until it finds a valid one:
-            state.on_entry(event);
-            state.on_entry();
-        If no valid statement is found, a build error occurs.
+        A state class must define a conf subtype.
         */
+        using conf = awesm::state_conf
+        <
+            /*
+            With this option, we require the state machine to call an on_entry()
+            function whenever it enters our state.
+            One of these expressions must be valid:
+                state.on_entry(event);
+                state.on_entry();
+            Where `event` is the event that caused the state transition.
+            */
+            awesm::state_options::on_entry_any,
+
+            /*
+            Here, we require the state machine to call an on_event() function
+            whenever it processed an event while our state is active. We also
+            indicate that we want it to do so only when the type of the said
+            event is button::push_event.
+            This expression must be valid:
+                state.on_event(event);
+            */
+            awesm::state_options::on_event_any_of<button::push_event>,
+
+            /*
+            Finally, we want the state machine to call on_exit() whenever it
+            exits our state.
+            One of these expressions must be valid:
+                state.on_exit(event);
+                state.on_exit();
+            Where `event` is the event that caused the state transition.
+            */
+            awesm::state_options::on_exit_any
+        >;
+
         void on_entry(const button::push_event& event)
         {
             std::cout << "Turned off after a ";
             std::cout << event.duration_ms << " millisecond push\n";
         }
 
-        /*
-        Accordingly to the previous comment, this function is called for events
-        whose type isn't button::push_event.
-        */
-        void on_entry()
+        void on_entry(const awesm::null& /*event*/)
         {
+            std::cout << "Started state machine\n";
         }
 
-        /*
-        Optionally, state types can define a set of on_event() functions.
-        Whenever the state machine processes an event, it calls the on_event()
-        function of the active state by passing it the event (provided this
-        function exists).
-        The state machine does this call just before processing the event in the
-        transition table.
-        */
         void on_event(const button::push_event& event)
         {
             std::cout << "Received a ";
@@ -173,25 +188,21 @@ namespace states
             std::cout << " millisecond push in off state\n";
         }
 
-        /*
-        Whenever a state machine exits a state, it calls the on_exit() function
-        of that state. It uses the same mechanism as the one used for
-        on_entry().
-        */
         void on_exit()
         {
+            std::cout << "Turned on\n";
         }
 
         context& ctx;
     };
 
     /*
-    Empty state types are not required to implement on_entry() and on_exit().
+    These are minimal valid state classes.
     */
-    struct emitting_white{};
-    struct emitting_red{};
-    struct emitting_green{};
-    struct emitting_blue{};
+    struct emitting_white { using conf = awesm::state_conf<>; };
+    struct emitting_red { using conf = awesm::state_conf<>; };
+    struct emitting_green { using conf = awesm::state_conf<>; };
+    struct emitting_blue { using conf = awesm::state_conf<>; };
 }
 
 /*
@@ -202,18 +213,20 @@ namespace actions
     /*
     An action class is required to implement the execute() function described
     below.
-    Also, just like state classes, action classes must be either constructible
-    with a reference to the context or default-constructible.
+    Also, just like state classes, action classes must be constructible with one
+    of the following expressions:
+        auto action = action_type{machine, context};
+        auto action = action_type{context};
+        auto action = action_type{};
     */
     struct turn_light_off
     {
         /*
         Whenever a state machine executes an action, it calls the execute()
-        function of that action. It tries to do so using the following
-        statements, in that order, until it finds a valid one:
+        function of that action.
+        One of these expressions must be valid:
             action.execute(event);
             action.execute();
-        If no valid statement is found, a build error occurs.
         */
         void execute()
         {
@@ -245,20 +258,21 @@ Guards are classes.
 namespace guards
 {
     /*
-    A guard class is required to implement the check() function described
-    below.
-    Also, just like state classes, guard classes must be either constructible
-    with a reference to the context or default-constructible.
+    A guard class is required to implement the check() function described below.
+    Also, just like state classes, guard classes must be constructible with one
+    of the following expressions:
+        auto guard = guard_type{machine, context};
+        auto guard = guard_type{context};
+        auto guard = guard_type{};
     */
     struct is_long_push
     {
         /*
         Whenever a state machine checks a guard, it calls the check() function
-        of that guard. It tries to do so using the following statements, in that
-        order, until it finds a valid one:
+        of that guard.
+        One of these expressions must be valid:
             guard.check(event);
             guard.check();
-        If no valid statement is found, a build error occurs.
         */
         bool check(const button::push_event& event)
         {
@@ -266,7 +280,7 @@ namespace guards
         }
     };
 
-    //We can use guard operators to combine our guards.
+    //We can use guard operators to compose guards.
     using is_short_push = awesm::not_<is_long_push>;
 }
 
@@ -279,8 +293,8 @@ using awesm::row;
 using awesm::any_but;
 
 /*
-This is the transition table. This is where we define the actions that must
-be executed depending on the active state and the event we receive.
+This is the transition table. This is where we define the actions that must be
+executed depending on the active state and the event we receive.
 Basically, whenever awesm::sm::process_event() is called, AweSM iterates
 over the rows of this table until it finds a match, i.e. when:
 - 'source_state' is the currently active state (or is awesm::any);
@@ -291,8 +305,8 @@ When a match is found, AweSM:
 - marks 'target_state' as the new active state;
 - executes the 'action';
 - enters 'target_state'.
-The initial active state of the state machine is the first state encountered
-in the transition table ('off', is our case).
+The initial active state of the state machine is the first state encountered in
+the transition table ('off', is our case).
 */
 using sm_transition_table = awesm::transition_table
 <

@@ -35,6 +35,7 @@ namespace sm_object_holder_detail
 /*
 SM objects are states, actions and guards.
 All SM objects can be constructed with one of these statements:
+    auto obj = object_type{machine, context};
     auto obj = object_type{context};
     auto obj = object_type{};
 Since we don't want to require SM objects to be copyable or movable, we can't

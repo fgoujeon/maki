@@ -317,13 +317,15 @@ class region
                         >(event);
                     }
 
-                    detail::call_on_entry<RegionPath>
-                    (
-                        &get<target_state_t>(states_),
-                        &mach,
-                        &event,
-                        0
-                    );
+                    if constexpr(state_traits::requires_on_entry_v<target_state_t, Event>)
+                    {
+                        detail::call_on_entry<RegionPath>
+                        (
+                            &get<target_state_t>(states_),
+                            &mach,
+                            &event
+                        );
+                    }
 
                     if constexpr(tlu::contains<typename Sm::conf_t, sm_options::after_state_transition>)
                     {

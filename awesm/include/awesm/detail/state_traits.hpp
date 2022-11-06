@@ -25,6 +25,13 @@ constexpr bool requires_on_xxx_conf(void* /*tag*/)
 }
 
 template<class State, class Event>
+constexpr auto requires_on_entry_v = requires_on_xxx_conf
+<
+    state_options::on_entry,
+    Event
+>(static_cast<typename State::conf*>(nullptr));
+
+template<class State, class Event>
 constexpr auto requires_on_event_v = requires_on_xxx_conf
 <
     state_options::on_event,

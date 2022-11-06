@@ -31,6 +31,7 @@ namespace
         {
             using conf = awesm::state_conf
             <
+                awesm::state_options::on_entry_any,
                 awesm::state_options::on_event_any_of<events::say_dog>,
                 awesm::state_options::on_exit_any
             >;
@@ -57,6 +58,7 @@ namespace
         {
             using conf = awesm::state_conf
             <
+                awesm::state_options::on_entry_any,
                 awesm::state_options::on_event_any_of<events::say_dog>,
                 awesm::state_options::on_exit_any
             >;

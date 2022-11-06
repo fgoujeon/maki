@@ -29,21 +29,12 @@ namespace
         {
             using conf = awesm::state_conf
             <
-                awesm::state_options::on_event_any_of<events::button_press>,
-                awesm::state_options::on_exit_any
+                awesm::state_options::on_event_any_of<events::button_press>
             >;
-
-            void on_entry()
-            {
-            }
 
             void on_event(const events::button_press& event)
             {
                 ctx.out += event.data + "2;";
-            }
-
-            void on_exit()
-            {
             }
 
             context& ctx;
@@ -56,17 +47,9 @@ namespace
                 awesm::state_options::on_event_any_of<events::button_press>
             >;
 
-            void on_entry()
-            {
-            }
-
             void on_event(const events::button_press& /*event*/)
             {
                 ctx.out += "_";
-            }
-
-            void on_exit()
-            {
             }
 
             context& ctx;

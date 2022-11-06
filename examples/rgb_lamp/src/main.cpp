@@ -87,6 +87,7 @@ namespace states
     {
         using conf = awesm::state_conf
         <
+            awesm::state_options::on_entry_any_of<button::push_event>,
             awesm::state_options::on_event_any_of<button::push_event>
         >;
 
@@ -102,14 +103,6 @@ namespace states
         {
             std::cout << "Turned off after a ";
             std::cout << event.duration_ms << " millisecond push\n";
-        }
-
-        /*
-        Accordingly to the previous comment, this function is called for events
-        whose type isn't button::push_event.
-        */
-        void on_entry()
-        {
         }
 
         /*

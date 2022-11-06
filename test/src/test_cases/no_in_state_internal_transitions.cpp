@@ -25,11 +25,10 @@ namespace
     {
         struct single
         {
-            using conf = awesm::state_conf<>;
-
-            void on_entry()
-            {
-            }
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_event<events::internal_transition>
+            >;
 
             void on_event(const events::internal_transition&)
             {

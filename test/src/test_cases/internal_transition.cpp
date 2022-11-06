@@ -40,10 +40,6 @@ namespace
                 awesm::state_options::on_event_any_of<events::internal_transition>
             >;
 
-            void on_entry()
-            {
-            }
-
             void on_event(const events::internal_transition&)
             {
                 ++ctx.side_effect;

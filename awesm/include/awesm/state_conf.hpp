@@ -15,6 +15,14 @@ namespace awesm
 namespace state_options
 {
     template<class TypePattern>
+    struct on_entry{};
+
+    using on_entry_any = on_entry<any>;
+
+    template<class... Ts>
+    using on_entry_any_of = on_entry<any_of<Ts...>>;
+
+    template<class TypePattern>
     struct on_event{};
 
     using on_event_any = on_event<any>;

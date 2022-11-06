@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm.hpp>
-#include "common/catch.hpp"
+#include "common.hpp"
 
 namespace
 {
@@ -25,17 +25,14 @@ namespace
     {
         struct single
         {
-            void on_entry()
-            {
-            }
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_event<events::internal_transition>
+            >;
 
             void on_event(const events::internal_transition&)
             {
                 ++ctx.i;
-            }
-
-            void on_exit()
-            {
             }
 
             context& ctx;

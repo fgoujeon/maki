@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm.hpp>
-#include "common/catch.hpp"
+#include "common.hpp"
 
 namespace
 {
@@ -28,6 +28,12 @@ namespace
     {
         struct s0
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_entry_any,
+                awesm::state_options::on_exit_any
+            >;
+
             void on_entry()
             {
                 ctx.output += "s0::on_entry;";
@@ -43,6 +49,12 @@ namespace
 
         struct s1
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_entry_any,
+                awesm::state_options::on_exit_any
+            >;
+
             void on_entry()
             {
                 ctx.output += "s1::on_entry;";
@@ -58,6 +70,12 @@ namespace
 
         struct s2
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_entry_any,
+                awesm::state_options::on_exit_any
+            >;
+
             void on_entry()
             {
                 ctx.output += "s2::on_entry;";

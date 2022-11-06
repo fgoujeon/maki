@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm.hpp>
-#include "common/catch.hpp"
+#include "common.hpp"
 #include <string>
 
 namespace
@@ -28,10 +28,16 @@ namespace
 
     namespace states
     {
-        struct off{};
+        EMPTY_STATE(off);
 
         struct on
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_entry_any,
+                awesm::state_options::on_exit_any
+            >;
+
             void on_entry(const events::e1&)
             {
                 ctx.out += "on_entry(e1);";

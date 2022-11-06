@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm.hpp>
-#include "common/catch.hpp"
+#include "common.hpp"
 
 namespace
 {
@@ -33,17 +33,18 @@ namespace
 
     namespace states
     {
-        struct off{};
+        EMPTY_STATE(off);
 
         struct emitting_red
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_entry_any
+            >;
+
             void on_entry()
             {
                 ctx.current_led_color = led_color::red;
-            }
-
-            void on_exit()
-            {
             }
 
             sm_t& sm;
@@ -52,13 +53,14 @@ namespace
 
         struct emitting_green
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_entry_any
+            >;
+
             void on_entry()
             {
                 ctx.current_led_color = led_color::green;
-            }
-
-            void on_exit()
-            {
             }
 
             sm_t& sm;
@@ -67,13 +69,14 @@ namespace
 
         struct emitting_blue
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_entry_any
+            >;
+
             void on_entry()
             {
                 ctx.current_led_color = led_color::blue;
-            }
-
-            void on_exit()
-            {
             }
 
             sm_t& sm;

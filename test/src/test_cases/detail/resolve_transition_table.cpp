@@ -5,15 +5,15 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm.hpp>
-#include "../common/catch.hpp"
+#include "../common.hpp"
 
 namespace
 {
     struct context{};
 
-    struct state0{};
-    struct state1{};
-    struct state2{};
+    EMPTY_STATE(state0);
+    EMPTY_STATE(state1);
+    EMPTY_STATE(state2);
     struct state3
     {
         int i;

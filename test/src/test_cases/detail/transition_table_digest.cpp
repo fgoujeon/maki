@@ -9,7 +9,7 @@
 #include <awesm/null.hpp>
 #include <awesm/detail/transition_table_digest.hpp>
 #include <awesm/detail/sm_object_holder_tuple.hpp>
-#include "../common/catch.hpp"
+#include "../common.hpp"
 
 namespace
 {

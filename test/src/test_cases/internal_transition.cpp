@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm.hpp>
-#include "common/catch.hpp"
+#include "common.hpp"
 
 namespace
 {
@@ -22,30 +22,27 @@ namespace
 
     namespace states
     {
-        struct state0{};
-        struct state1{};
-        struct state2{};
-        struct state3{};
-        struct state4{};
-        struct state5{};
-        struct state6{};
-        struct state7{};
-        struct state8{};
-        struct state9{};
+        EMPTY_STATE(state0);
+        EMPTY_STATE(state1);
+        EMPTY_STATE(state2);
+        EMPTY_STATE(state3);
+        EMPTY_STATE(state4);
+        EMPTY_STATE(state5);
+        EMPTY_STATE(state6);
+        EMPTY_STATE(state7);
+        EMPTY_STATE(state8);
+        EMPTY_STATE(state9);
 
         struct benchmarking
         {
-            void on_entry()
-            {
-            }
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_event_any_of<events::internal_transition>
+            >;
 
             void on_event(const events::internal_transition&)
             {
                 ++ctx.side_effect;
-            }
-
-            void on_exit()
-            {
             }
 
             context& ctx;

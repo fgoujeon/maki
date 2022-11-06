@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm/detail/tlu/get_index.hpp>
-#include "../../common/catch.hpp"
+#include "../../common.hpp"
 #include <tuple>
 
 TEST_CASE("detail::tlu::get_index")

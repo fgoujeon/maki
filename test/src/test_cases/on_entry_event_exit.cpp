@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm.hpp>
-#include "common/catch.hpp"
+#include "common.hpp"
 #include <string>
 
 namespace
@@ -25,10 +25,17 @@ namespace
 
     namespace states
     {
-        struct idle{};
+        EMPTY_STATE(idle);
 
         struct english
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_entry_any,
+                awesm::state_options::on_event_any_of<events::say_dog>,
+                awesm::state_options::on_exit_any
+            >;
+
             void on_entry()
             {
                 ctx.hello = "hello";
@@ -49,6 +56,13 @@ namespace
 
         struct french
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_entry_any,
+                awesm::state_options::on_event_any_of<events::say_dog>,
+                awesm::state_options::on_exit_any
+            >;
+
             void on_entry()
             {
                 ctx.hello = "bonjour";

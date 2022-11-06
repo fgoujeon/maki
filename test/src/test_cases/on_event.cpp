@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm.hpp>
-#include "common/catch.hpp"
+#include "common.hpp"
 #include <string>
 
 namespace
@@ -27,17 +27,14 @@ namespace
     {
         struct off
         {
-            void on_entry()
-            {
-            }
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_event_any_of<events::button_press>
+            >;
 
             void on_event(const events::button_press& event)
             {
                 ctx.out += event.data + "2;";
-            }
-
-            void on_exit()
-            {
             }
 
             context& ctx;
@@ -45,17 +42,14 @@ namespace
 
         struct on
         {
-            void on_entry()
-            {
-            }
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_event_any_of<events::button_press>
+            >;
 
             void on_event(const events::button_press& /*event*/)
             {
                 ctx.out += "_";
-            }
-
-            void on_exit()
-            {
             }
 
             context& ctx;

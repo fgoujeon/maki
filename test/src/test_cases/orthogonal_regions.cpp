@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm.hpp>
-#include "common/catch.hpp"
+#include "common.hpp"
 
 namespace
 {
@@ -27,11 +27,16 @@ namespace
 
     namespace states
     {
-        struct off0{};
-        struct off1{};
-        struct on0{};
+        EMPTY_STATE(off0);
+        EMPTY_STATE(off1);
+        EMPTY_STATE(on0);
         struct on1
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_event_any_of<events::exception_request>
+            >;
+
             void on_event(const events::exception_request&)
             {
                 throw std::runtime_error{"exception"};

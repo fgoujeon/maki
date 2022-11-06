@@ -5,7 +5,7 @@
 //Official repository: https://github.com/fgoujeon/awesm
 
 #include <awesm.hpp>
-#include "common/catch.hpp"
+#include "common.hpp"
 #include <string>
 
 namespace
@@ -25,6 +25,13 @@ namespace
     {
         struct idle
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_entry_any,
+                awesm::state_options::on_event_any,
+                awesm::state_options::on_exit_any
+            >;
+
             void on_entry()
             {
                 ctx.out += "idle::on_entry;";
@@ -46,6 +53,13 @@ namespace
 
         struct running
         {
+            using conf = awesm::state_conf
+            <
+                awesm::state_options::on_entry_any,
+                awesm::state_options::on_event_any,
+                awesm::state_options::on_exit_any
+            >;
+
             void on_entry()
             {
                 ctx.out += "running::on_entry;";

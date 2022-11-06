@@ -12,55 +12,31 @@
 namespace awesm::detail::state_traits
 {
 
-#define AWESM_DETAIL_STATE_TRAITS_REQUIRES_ON_XXX(xxx) \
-    template<class... Options> \
-    struct xxx##_option_pattern; \
- \
-    template<class Option, class... Options> \
-    struct xxx##_option_pattern<Option, Options...> \
-    { \
-        using type = typename xxx##_option_pattern<Options...>::type; \
-    }; \
- \
-    template<class TypePattern, class... Options> \
-    struct xxx##_option_pattern<state_options::on_##xxx<TypePattern>, Options...> \
-    { \
-        using type = TypePattern; \
-    }; \
- \
-    template<> \
-    struct xxx##_option_pattern<> \
-    { \
-        using type = any_of<>; \
-    }; \
- \
-    template<class Conf, class Event> \
-    struct requires_on_##xxx##_conf; \
- \
-    template<class... Options, class Event> \
-    struct requires_on_##xxx##_conf<state_conf<Options...>, Event> \
-    { \
-        using pattern_t = typename xxx##_option_pattern<Options...>::type; \
-        static constexpr auto value = pattern_t::template matches<Event>; \
-    }; \
- \
-    template<class State, class Event> \
-    struct requires_on_##xxx \
-    { \
-        static constexpr auto value = requires_on_##xxx##_conf \
-        < \
-            typename State::conf, \
-            Event \
-        >::value; \
-    }; \
- \
-    template<class State, class Event> \
-    constexpr auto requires_on_##xxx##_v = requires_on_##xxx<State, Event>::value;
+template<template<class> class Option, class Event, class TypePattern>
+constexpr bool requires_on_xxx_conf(Option<TypePattern>* /*tag*/)
+{
+    return TypePattern::template matches<Event>;
+}
 
-AWESM_DETAIL_STATE_TRAITS_REQUIRES_ON_XXX(event)
-AWESM_DETAIL_STATE_TRAITS_REQUIRES_ON_XXX(exit)
+template<template<class> class Option, class Event>
+constexpr bool requires_on_xxx_conf(void* /*tag*/)
+{
+    return false;
+}
 
-#undef AWESM_DETAIL_STATE_TRAITS_REQUIRES_ON_XXX
+template<class State, class Event>
+constexpr auto requires_on_event_v = requires_on_xxx_conf
+<
+    state_options::on_event,
+    Event
+>(static_cast<typename State::conf*>(nullptr));
+
+template<class State, class Event>
+constexpr auto requires_on_exit_v = requires_on_xxx_conf
+<
+    state_options::on_exit,
+    Event
+>(static_cast<typename State::conf*>(nullptr));
 
 } //namespace
 

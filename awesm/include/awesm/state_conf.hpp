@@ -32,7 +32,7 @@ namespace state_options
 }
 
 template<class... Options>
-struct state_conf
+struct state_conf: Options...
 {
 };
 

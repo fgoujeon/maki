@@ -249,8 +249,6 @@ class region
         bool process_event_in_row(Sm& mach, const Event& event)
         {
             using source_state_t = typename Row::source_state_type;
-            using target_state_t = typename Row::target_state_type;
-            using action_t       = typename Row::action_type;
             using guard_t        = typename Row::guard_type;
 
             //Make sure the transition source state is the active state
@@ -259,87 +257,6 @@ class region
                 return false;
             }
 
-            const auto do_transition = [&](auto /*dummy*/)
-            {
-                constexpr auto is_internal_transition =
-                    std::is_same_v<target_state_t, null>
-                ;
-
-                if constexpr(!is_internal_transition)
-                {
-                    if constexpr(tlu::contains<typename Sm::conf_t, sm_options::before_state_transition>)
-                    {
-                        mach.def_.get_object().template before_state_transition
-                        <
-                            RegionPath,
-                            source_state_t,
-                            Event,
-                            target_state_t
-                        >(event);
-                    }
-
-                    if constexpr(state_traits::requires_on_exit_v<source_state_t, Event>)
-                    {
-                        detail::call_on_exit<RegionPath>
-                        (
-                            &get<source_state_t>(states_),
-                            &mach,
-                            &event
-                        );
-                    }
-
-                    active_state_index_ = detail::tlu::get_index
-                    <
-                        state_tuple_t,
-                        target_state_t
-                    >;
-                }
-
-                if constexpr(!std::is_same_v<action_t, null>)
-                {
-                    detail::call_execute
-                    (
-                        &get<action_t>(actions_),
-                        &event
-                    );
-                }
-
-                if constexpr(!is_internal_transition)
-                {
-                    if constexpr(tlu::contains<typename Sm::conf_t, sm_options::before_entry>)
-                    {
-                        mach.def_.get_object().template before_entry
-                        <
-                            RegionPath,
-                            source_state_t,
-                            Event,
-                            target_state_t
-                        >(event);
-                    }
-
-                    if constexpr(state_traits::requires_on_entry_v<target_state_t, Event>)
-                    {
-                        detail::call_on_entry<RegionPath>
-                        (
-                            &get<target_state_t>(states_),
-                            &mach,
-                            &event
-                        );
-                    }
-
-                    if constexpr(tlu::contains<typename Sm::conf_t, sm_options::after_state_transition>)
-                    {
-                        mach.def_.get_object().template after_state_transition
-                        <
-                            RegionPath,
-                            source_state_t,
-                            Event,
-                            target_state_t
-                        >(event);
-                    }
-                }
-            };
-
             if constexpr(std::is_same_v<guard_t, null>)
             {
                 safe_call
@@ -347,7 +264,7 @@ class region
                     mach,
                     [&]
                     {
-                        do_transition(0);
+                        process_event_in_row_2<RegionPath, Row>(mach, event);
                     }
                 );
                 return true;
@@ -373,10 +290,103 @@ class region
                         }
 
                         processed = true;
-                        do_transition(0);
+                        process_event_in_row_2<RegionPath, Row>(mach, event);
                     }
                 );
                 return processed;
+            }
+        }
+
+        template<class RegionPath, class Row, class Sm, class Event>
+        void process_event_in_row_2(Sm& mach, const Event& event)
+        {
+            using source_state_t = typename Row::source_state_type;
+            using target_state_t = typename Row::target_state_type;
+            using action_t       = typename Row::action_type;
+
+            //VS2017 is stupid
+            detail::ignore_unused(mach, event);
+
+            constexpr auto is_internal_transition =
+                std::is_same_v<target_state_t, null>
+            ;
+
+            if constexpr(!is_internal_transition)
+            {
+                if constexpr(tlu::contains<typename Sm::conf_t, sm_options::before_state_transition>)
+                {
+                    mach.def_.get_object().template before_state_transition
+                    <
+                        RegionPath,
+                        source_state_t,
+                        Event,
+                        target_state_t
+                    >(event);
+                }
+
+                if constexpr(state_traits::requires_on_exit_v<source_state_t, Event>)
+                {
+                    detail::call_on_exit<RegionPath>
+                    (
+                        &get<source_state_t>(states_),
+                        &mach,
+                        &event
+                    );
+                }
+
+                active_state_index_ = detail::tlu::get_index
+                <
+                    state_tuple_t,
+                    target_state_t
+                >;
+            }
+
+            if constexpr(!std::is_same_v<action_t, null>)
+            {
+                detail::call_execute
+                (
+                    &get<action_t>(actions_),
+                    &event
+                );
+            }
+
+            if constexpr(!is_internal_transition)
+            {
+                if constexpr(tlu::contains<typename Sm::conf_t, sm_options::before_entry>)
+                {
+                    mach.def_.get_object().template before_entry
+                    <
+                        RegionPath,
+                        source_state_t,
+                        Event,
+                        target_state_t
+                    >(event);
+                }
+
+                if constexpr
+                (
+                    !is_internal_transition && //VS2017 is stupid
+                    state_traits::requires_on_entry_v<target_state_t, Event>
+                )
+                {
+                    detail::call_on_entry<RegionPath>
+                    (
+                        &get<target_state_t>(states_),
+                        &mach,
+                        &event
+                    );
+                }
+
+                if constexpr(tlu::contains<typename Sm::conf_t, sm_options::after_state_transition>)
+                {
+                    mach.def_.get_object().template after_state_transition
+                    <
+                        RegionPath,
+                        source_state_t,
+                        Event,
+                        target_state_t
+                    >(event);
+                }
             }
         }
 
@@ -450,6 +460,9 @@ class region
             const Event& event
         )
         {
+            //VS2017 is stupid
+            detail::ignore_unused(state, mach, event);
+
             if constexpr(state_traits::requires_on_event_v<State, Event>)
             {
                 if(is_active_state<State>())

@@ -128,10 +128,7 @@ class region
         {
             using region_path_t = make_region_path_t<SmPath, Index>;
 
-            if constexpr(!tlu::contains<typename Sm::conf_t, sm_options::disable_in_state_internal_transitions>)
-            {
-                process_event_in_active_state<region_path_t>(mach, event);
-            }
+            process_event_in_active_state<region_path_t>(mach, event);
 
             auto processed = true;
             if constexpr(ProcessingType == detail::event_processing_type::start)

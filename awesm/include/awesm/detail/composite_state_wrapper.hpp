@@ -28,7 +28,6 @@ class composite_state_wrapper
 
         template<class Context>
         composite_state_wrapper(Sm& mach, Context& ctx):
-            mach_(mach),
             state_(mach, ctx),
             region_tuple_(mach, ctx)
         {
@@ -46,26 +45,26 @@ class composite_state_wrapper
         }
 
         template<class RegionPath, class Event>
-        void on_entry(Sm& mach, const Event& event)
+        void on_entry(const Event& event)
         {
             using sm_path_t = detail::sm_path<RegionPath, composite_state_wrapper>;
             state_.get_object().on_entry(event);
-            region_tuple_.template start<sm_path_t>(mach, event);
+            region_tuple_.template start<sm_path_t>(event);
         }
 
         template<class RegionPath, class Event>
-        void on_event(Sm& mach, const Event& event)
+        void on_event(const Event& event)
         {
             using sm_path_t = detail::sm_path<RegionPath, composite_state_wrapper>;
-            region_tuple_.template process_event<sm_path_t>(mach, event);
+            region_tuple_.template process_event<sm_path_t>(event);
             state_.get_object().on_event(event);
         }
 
         template<class RegionPath, class Event>
-        void on_exit(Sm& mach, const Event& event)
+        void on_exit(const Event& event)
         {
             using sm_path_t = detail::sm_path<RegionPath, composite_state_wrapper>;
-            region_tuple_.template stop<sm_path_t>(mach, event);
+            region_tuple_.template stop<sm_path_t>(event);
             state_.get_object().on_exit(event);
         }
 
@@ -73,7 +72,6 @@ class composite_state_wrapper
         using conf_t = typename WrappedState::conf;
         using transition_table_list_t = typename conf_t::transition_table_list_t;
 
-        Sm& mach_;
         detail::sm_object_holder<WrappedState> state_;
         detail::region_tuple<Sm, transition_table_list_t> region_tuple_;
 };

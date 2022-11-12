@@ -41,15 +41,15 @@ constexpr bool is_valid(const F& /*f*/, long /*low_overload_priority*/)
     return false;
 }
 
-template<class RegionPath, class State, class Sm, class Event>
-void call_on_entry(State& state, Sm& mach, const Event& event)
+template<class RegionPath, class State, class Event>
+void call_on_entry(State& state, const Event& event)
 {
     //VS2017 is stupid
-    detail::ignore_unused(mach, event);
+    detail::ignore_unused(event);
 
     if constexpr(is_composite_state_wrapper<State>::value)
     {
-        state.template on_entry<RegionPath>(mach, event);
+        state.template on_entry<RegionPath>(event);
     }
     else if constexpr
     (
@@ -70,15 +70,12 @@ void call_on_entry(State& state, Sm& mach, const Event& event)
     }
 }
 
-template<class RegionPath, class State, class Sm, class Event>
-void call_on_event(State& state, Sm& mach, const Event& event)
+template<class RegionPath, class State, class Event>
+void call_on_event(State& state, const Event& event)
 {
-    //VS2017 is stupid
-    detail::ignore_unused(mach);
-
     if constexpr(is_composite_state_wrapper<State>::value)
     {
-        state.template on_event<RegionPath>(mach, event);
+        state.template on_event<RegionPath>(event);
     }
     else
     {
@@ -86,15 +83,15 @@ void call_on_event(State& state, Sm& mach, const Event& event)
     }
 }
 
-template<class RegionPath, class State, class Sm, class Event>
-void call_on_exit(State& state, Sm& mach, const Event& event)
+template<class RegionPath, class State, class Event>
+void call_on_exit(State& state, const Event& event)
 {
     //VS2017 is stupid
-    detail::ignore_unused(mach, event);
+    detail::ignore_unused(event);
 
     if constexpr(is_composite_state_wrapper<State>::value)
     {
-        state.template on_exit<RegionPath>(mach, event);
+        state.template on_exit<RegionPath>(event);
     }
     else if constexpr
     (

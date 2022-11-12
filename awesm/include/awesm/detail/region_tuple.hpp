@@ -66,40 +66,40 @@ class region_tuple<Sm, transition_table_list<TransitionTables...>>
         }
 
         template<class ParentSmPath, class Event>
-        void start(Sm& mach, const Event& event)
+        void start(const Event& event)
         {
             for_each
             (
                 regions_,
                 [&](auto& reg)
                 {
-                    reg.template start<ParentSmPath>(mach, event);
+                    reg.template start<ParentSmPath>(event);
                 }
             );
         }
 
         template<class ParentSmPath, class Event>
-        void stop(Sm& mach, const Event& event)
+        void stop(const Event& event)
         {
             for_each
             (
                 regions_,
                 [&](auto& reg)
                 {
-                    reg.template stop<ParentSmPath>(mach, event);
+                    reg.template stop<ParentSmPath>(event);
                 }
             );
         }
 
         template<class ParentSmPath, class Event>
-        void process_event(Sm& mach, const Event& event)
+        void process_event(const Event& event)
         {
             for_each
             (
                 regions_,
                 [&](auto& reg)
                 {
-                    reg.template process_event<ParentSmPath>(mach, event);
+                    reg.template process_event<ParentSmPath>(event);
                 }
             );
         }

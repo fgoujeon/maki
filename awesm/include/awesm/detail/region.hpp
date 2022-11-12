@@ -31,6 +31,7 @@ class region
     public:
         template<class Context>
         explicit region(Sm& mach, Context& context):
+            mach_(mach),
             states_(mach, context),
             actions_(mach, context),
             guards_(mach, context)
@@ -62,21 +63,21 @@ class region
         }
 
         template<class SmPath, class Event>
-        void start(Sm& mach, const Event& event)
+        void start(const Event& event)
         {
-            process_event_2<SmPath, detail::event_processing_type::start>(mach, event);
+            process_event_2<SmPath, detail::event_processing_type::start>(event);
         }
 
         template<class SmPath, class Event>
-        void stop(Sm& mach, const Event& event)
+        void stop(const Event& event)
         {
-            process_event_2<SmPath, detail::event_processing_type::stop>(mach, event);
+            process_event_2<SmPath, detail::event_processing_type::stop>(event);
         }
 
         template<class SmPath, class Event>
-        void process_event(Sm& mach, const Event& event)
+        void process_event(const Event& event)
         {
-            process_event_2<SmPath, detail::event_processing_type::event>(mach, event);
+            process_event_2<SmPath, detail::event_processing_type::event>(event);
         }
 
     private:
@@ -123,11 +124,11 @@ class region
             detail::event_processing_type ProcessingType,
             class Event
         >
-        void process_event_2(Sm& mach, const Event& event)
+        void process_event_2(const Event& event)
         {
             using region_path_t = make_region_path_t<SmPath, Index>;
 
-            process_event_in_active_state<region_path_t>(mach, event);
+            process_event_in_active_state<region_path_t>(event);
 
             auto processed = true;
             if constexpr(ProcessingType == detail::event_processing_type::start)
@@ -135,7 +136,6 @@ class region
                 using fake_row = row<null_state, Event, initial_state_t>;
                 processed = process_event_in_row_if_event_matches<region_path_t, fake_row>
                 (
-                    mach,
                     event
                 );
             }
@@ -145,11 +145,11 @@ class region
                 <
                     state_tuple_t,
                     stop_helper_holder<region_path_t>::template stop_helper
-                >::call(*this, mach, event);
+                >::call(*this, event);
             }
             else if constexpr(ProcessingType == detail::event_processing_type::event)
             {
-                processed = process_event_in_transition_table_once<region_path_t>(mach, event);
+                processed = process_event_in_transition_table_once<region_path_t>(event);
             }
 
             //Anonymous transitions
@@ -157,7 +157,7 @@ class region
             {
                 if(processed)
                 {
-                    while(process_event_in_transition_table_once<region_path_t>(mach, null_event{})){}
+                    while(process_event_in_transition_table_once<region_path_t>(null_event{})){}
                 }
             }
             else
@@ -168,7 +168,7 @@ class region
 
         //Used to call client code
         template<class F>
-        void safe_call(Sm& mach, F&& callback)
+        void safe_call(F&& callback)
         {
             try
             {
@@ -176,19 +176,19 @@ class region
             }
             catch(...)
             {
-                mach.process_exception(std::current_exception());
+                mach_.process_exception(std::current_exception());
             }
         }
 
         //Try and trigger one transition
         template<class RegionPath, class Event>
-        bool process_event_in_transition_table_once(Sm& mach, const Event& event)
+        bool process_event_in_transition_table_once(const Event& event)
         {
             return detail::tlu::apply
             <
                 transition_table_t,
                 transition_table_event_processor_holder<RegionPath>::template transition_table_event_processor
-            >::process(*this, mach, event);
+            >::process(*this, event);
         }
 
         template<class RegionPath>
@@ -198,13 +198,12 @@ class region
             struct transition_table_event_processor
             {
                 template<class Event>
-                static bool process(region& reg, Sm& mach, const Event& event)
+                static bool process(region& reg, const Event& event)
                 {
                     return
                     (
                         reg.process_event_in_row_if_event_matches<RegionPath, Rows>
                         (
-                            mach,
                             event
                         ) || ...
                     );
@@ -213,7 +212,7 @@ class region
         };
 
         template<class RegionPath, class Row, class Event>
-        bool process_event_in_row_if_event_matches(Sm& mach, const Event& event)
+        bool process_event_in_row_if_event_matches(const Event& event)
         {
             using row_event_type = typename Row::event_type;
 
@@ -227,18 +226,18 @@ class region
 
             if constexpr(event_matches)
             {
-                return process_event_in_row<RegionPath, Row>(mach, event);
+                return process_event_in_row<RegionPath, Row>(event);
             }
             else
             {
                 //VS2017 is stupid
-                detail::ignore_unused(mach, event);
+                detail::ignore_unused(event);
                 return false;
             }
         }
 
         template<class RegionPath, class Row, class Event>
-        bool process_event_in_row(Sm& mach, const Event& event)
+        bool process_event_in_row(const Event& event)
         {
             using source_state_t = typename Row::source_state_type;
             using guard_t        = typename Row::guard_type;
@@ -253,10 +252,9 @@ class region
             {
                 safe_call
                 (
-                    mach,
                     [&]
                     {
-                        process_event_in_row_2<RegionPath, Row>(mach, event);
+                        process_event_in_row_2<RegionPath, Row>(event);
                     }
                 );
                 return true;
@@ -266,7 +264,6 @@ class region
                 auto processed = false;
                 safe_call
                 (
-                    mach,
                     [&]
                     {
                         if
@@ -282,7 +279,7 @@ class region
                         }
 
                         processed = true;
-                        process_event_in_row_2<RegionPath, Row>(mach, event);
+                        process_event_in_row_2<RegionPath, Row>(event);
                     }
                 );
                 return processed;
@@ -290,14 +287,14 @@ class region
         }
 
         template<class RegionPath, class Row, class Event>
-        void process_event_in_row_2(Sm& mach, const Event& event)
+        void process_event_in_row_2(const Event& event)
         {
             using source_state_t = typename Row::source_state_type;
             using target_state_t = typename Row::target_state_type;
             using action_t       = typename Row::action_type;
 
             //VS2017 is stupid
-            detail::ignore_unused(mach, event);
+            detail::ignore_unused(event);
 
             constexpr auto is_internal_transition =
                 std::is_void_v<target_state_t>
@@ -307,7 +304,7 @@ class region
             {
                 if constexpr(tlu::contains<typename Sm::conf_t, sm_options::before_state_transition>)
                 {
-                    mach.def_.get_object().template before_state_transition
+                    mach_.def_.get_object().template before_state_transition
                     <
                         RegionPath,
                         source_state_t,
@@ -321,7 +318,6 @@ class region
                     detail::call_on_exit<RegionPath>
                     (
                         get<state_wrapper_t<Sm, source_state_t>>(states_),
-                        mach,
                         event
                     );
                 }
@@ -346,7 +342,7 @@ class region
             {
                 if constexpr(tlu::contains<typename Sm::conf_t, sm_options::before_entry>)
                 {
-                    mach.def_.get_object().template before_entry
+                    mach_.def_.get_object().template before_entry
                     <
                         RegionPath,
                         source_state_t,
@@ -364,14 +360,13 @@ class region
                     detail::call_on_entry<RegionPath>
                     (
                         get<state_wrapper_t<Sm, target_state_t>>(states_),
-                        mach,
                         event
                     );
                 }
 
                 if constexpr(tlu::contains<typename Sm::conf_t, sm_options::after_state_transition>)
                 {
-                    mach.def_.get_object().template after_state_transition
+                    mach_.def_.get_object().template after_state_transition
                     <
                         RegionPath,
                         source_state_t,
@@ -389,20 +384,19 @@ class region
             struct stop_helper
             {
                 template<class Event>
-                static bool call(region& reg, Sm& mach, const Event& event)
+                static bool call(region& reg, const Event& event)
                 {
-                    return (reg.stop_2<RegionPath, States>(mach, &event) || ...);
+                    return (reg.stop_2<RegionPath, States>(&event) || ...);
                 }
             };
         };
 
         template<class RegionPath, class State, class Event>
-        bool stop_2(Sm& mach, const Event* pevent)
+        bool stop_2(const Event* pevent)
         {
             using fake_row = row<State, Event, null_state>;
             return process_event_in_row_if_event_matches<RegionPath, fake_row>
             (
-                mach,
                 *pevent
             );
         }
@@ -411,13 +405,13 @@ class region
         Call active_state.on_event(event)
         */
         template<class RegionPath, class Event>
-        void process_event_in_active_state(Sm& mach, const Event& event)
+        void process_event_in_active_state(const Event& event)
         {
             return detail::tlu::apply
             <
                 state_tuple_t,
                 active_state_event_processor_holder<RegionPath>::template active_state_event_processor
-            >::process(*this, mach, event);
+            >::process(*this, event);
         }
 
         //Processes internal events against all states
@@ -428,13 +422,12 @@ class region
             struct active_state_event_processor
             {
                 template<class Event>
-                static void process(region& reg, Sm& mach, const Event& event)
+                static void process(region& reg, const Event& event)
                 {
                     (
                         reg.process_event_in_state<RegionPath>
                         (
                             get<States>(reg.states_),
-                            mach,
                             event
                         ) || ...
                     );
@@ -447,12 +440,11 @@ class region
         bool process_event_in_state
         (
             State& state,
-            Sm& mach,
             const Event& event
         )
         {
             //VS2017 is stupid
-            detail::ignore_unused(state, mach, event);
+            detail::ignore_unused(state, event);
 
             if constexpr(state_traits::requires_on_event_v<State, Event>)
             {
@@ -460,10 +452,9 @@ class region
                 {
                     safe_call
                     (
-                        mach,
                         [&]
                         {
-                            call_on_event<RegionPath>(state, mach, event);
+                            call_on_event<RegionPath>(state, event);
                         }
                     );
                     return true;
@@ -472,6 +463,7 @@ class region
             return false;
         }
 
+        Sm& mach_;
         state_tuple_t states_;
         action_tuple_t actions_;
         guard_tuple_t guards_;

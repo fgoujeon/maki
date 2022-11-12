@@ -258,15 +258,15 @@ class sm
 
             if constexpr(ProcessingType == detail::event_processing_type::start)
             {
-                region_tuple_.template start<path_t>(*this, event);
+                region_tuple_.template start<path_t>(event);
             }
             else if constexpr(ProcessingType == detail::event_processing_type::stop)
             {
-                region_tuple_.template stop<path_t>(*this, event);
+                region_tuple_.template stop<path_t>(event);
             }
             else
             {
-                region_tuple_.template process_event<path_t>(*this, event);
+                region_tuple_.template process_event<path_t>(event);
             }
         }
 

@@ -15,7 +15,7 @@
 namespace awesm
 {
 
-template<class Definition>
+template<class Def>
 class composite_state
 {
     public:
@@ -69,8 +69,11 @@ class composite_state
         }
 
     private:
-        detail::sm_object_holder<Definition> def_;
-        detail::region_tuple<typename Definition::transition_tables> region_tuple_;
+        using conf_t = typename Def::conf;
+        using transition_table_list_t = typename conf_t::transition_table_list_t;
+
+        detail::sm_object_holder<Def> def_;
+        detail::region_tuple<transition_table_list_t> region_tuple_;
 };
 
 } //namespace

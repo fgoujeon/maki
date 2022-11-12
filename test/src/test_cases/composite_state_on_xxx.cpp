@@ -69,7 +69,10 @@ namespace
 
         struct on_def
         {
-            using transition_tables = awesm::transition_table_list<on_transition_table>;
+            using conf = awesm::composite_state_conf
+            <
+                on_transition_table
+            >;
 
             void on_entry(const events::button_press& event)
             {

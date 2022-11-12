@@ -49,6 +49,9 @@ constexpr bool is_valid(const F& /*f*/, long /*low_overload_priority*/)
 template<class RegionPath, class State, class Sm, class Event>
 void call_on_entry(State& state, Sm& mach, const Event& event)
 {
+    //VS2017 is stupid
+    detail::ignore_unused(mach, event);
+
     if constexpr(is_composite_state<State>::value)
     {
         state.template on_entry<RegionPath>(mach, event);
@@ -75,6 +78,9 @@ void call_on_entry(State& state, Sm& mach, const Event& event)
 template<class RegionPath, class State, class Sm, class Event>
 void call_on_event(State& state, Sm& mach, const Event& event)
 {
+    //VS2017 is stupid
+    detail::ignore_unused(mach);
+
     if constexpr(is_composite_state<State>::value)
     {
         state.template on_event<RegionPath>(mach, event);
@@ -88,6 +94,9 @@ void call_on_event(State& state, Sm& mach, const Event& event)
 template<class RegionPath, class State, class Sm, class Event>
 void call_on_exit(State& state, Sm& mach, const Event& event)
 {
+    //VS2017 is stupid
+    detail::ignore_unused(mach, event);
+
     if constexpr(is_composite_state<State>::value)
     {
         state.template on_exit<RegionPath>(mach, event);

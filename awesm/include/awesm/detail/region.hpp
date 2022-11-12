@@ -61,14 +61,14 @@ class region
             return get<State>(states_);
         }
 
-        template<class SmPath, class Sm, class Event = null>
-        void start(Sm& mach, const Event& event = {})
+        template<class SmPath, class Sm, class Event>
+        void start(Sm& mach, const Event& event)
         {
             process_event_2<SmPath, detail::event_processing_type::start>(mach, event);
         }
 
-        template<class SmPath, class Sm, class Event = null>
-        void stop(Sm& mach, const Event& event = {})
+        template<class SmPath, class Sm, class Event>
+        void stop(Sm& mach, const Event& event)
         {
             process_event_2<SmPath, detail::event_processing_type::stop>(mach, event);
         }

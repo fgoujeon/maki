@@ -14,7 +14,7 @@
 namespace awesm::detail
 {
 
-template<class WrappedState>
+template<class Sm, class WrappedState>
 class composite_state_wrapper;
 
 template<class T>
@@ -23,8 +23,8 @@ struct is_composite_state_wrapper
     static constexpr auto value = false;
 };
 
-template<class WrappedState>
-struct is_composite_state_wrapper<composite_state_wrapper<WrappedState>>
+template<class Sm, class WrappedState>
+struct is_composite_state_wrapper<composite_state_wrapper<Sm, WrappedState>>
 {
     static constexpr auto value = true;
 };

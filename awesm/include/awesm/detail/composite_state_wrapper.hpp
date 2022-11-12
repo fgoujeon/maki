@@ -15,7 +15,7 @@
 namespace awesm::detail
 {
 
-template<class WrappedState>
+template<class Sm, class WrappedState>
 class composite_state_wrapper
 {
     public:
@@ -26,8 +26,9 @@ class composite_state_wrapper
             state_options::on_exit_any
         >;
 
-        template<class Sm, class Context>
+        template<class Context>
         composite_state_wrapper(Sm& mach, Context& ctx):
+            mach_(mach),
             state_(mach, ctx),
             region_tuple_(mach, ctx)
         {
@@ -44,7 +45,7 @@ class composite_state_wrapper
             return !is_active_state<detail::null_state>();
         }
 
-        template<class RegionPath, class Sm, class Event>
+        template<class RegionPath, class Event>
         void on_entry(Sm& mach, const Event& event)
         {
             using sm_path_t = detail::sm_path<RegionPath, composite_state_wrapper>;
@@ -52,7 +53,7 @@ class composite_state_wrapper
             region_tuple_.template start<sm_path_t>(mach, event);
         }
 
-        template<class RegionPath, class Sm, class Event>
+        template<class RegionPath, class Event>
         void on_event(Sm& mach, const Event& event)
         {
             using sm_path_t = detail::sm_path<RegionPath, composite_state_wrapper>;
@@ -60,7 +61,7 @@ class composite_state_wrapper
             state_.get_object().on_event(event);
         }
 
-        template<class RegionPath, class Sm, class Event>
+        template<class RegionPath, class Event>
         void on_exit(Sm& mach, const Event& event)
         {
             using sm_path_t = detail::sm_path<RegionPath, composite_state_wrapper>;
@@ -72,8 +73,9 @@ class composite_state_wrapper
         using conf_t = typename WrappedState::conf;
         using transition_table_list_t = typename conf_t::transition_table_list_t;
 
+        Sm& mach_;
         detail::sm_object_holder<WrappedState> state_;
-        detail::region_tuple<transition_table_list_t> region_tuple_;
+        detail::region_tuple<Sm, transition_table_list_t> region_tuple_;
 };
 
 } //namespace

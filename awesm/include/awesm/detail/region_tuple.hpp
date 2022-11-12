@@ -14,28 +14,28 @@
 namespace awesm::detail
 {
 
-template<class RegionIndexSequence, class... TransitionTables>
+template<class Sm, class RegionIndexSequence, class... TransitionTables>
 struct region_holder_tuple;
 
-template<int... RegionIndexes, class... TransitionTables>
-struct region_holder_tuple<std::integer_sequence<int, RegionIndexes...>, TransitionTables...>
+template<class Sm, int... RegionIndexes, class... TransitionTables>
+struct region_holder_tuple<Sm, std::integer_sequence<int, RegionIndexes...>, TransitionTables...>
 {
-    using type = sm_object_holder_tuple<region<RegionIndexes, TransitionTables>...>;
+    using type = sm_object_holder_tuple<region<Sm, RegionIndexes, TransitionTables>...>;
 };
 
-template<class RegionIndexSequence, class... TransitionTables>
+template<class Sm, class RegionIndexSequence, class... TransitionTables>
 using region_holder_tuple_t =
-    typename region_holder_tuple<RegionIndexSequence, TransitionTables...>::type
+    typename region_holder_tuple<Sm, RegionIndexSequence, TransitionTables...>::type
 ;
 
-template<class TransitionTableList>
+template<class Sm, class TransitionTableList>
 class region_tuple;
 
-template<class... TransitionTables>
-class region_tuple<transition_table_list<TransitionTables...>>
+template<class Sm, class... TransitionTables>
+class region_tuple<Sm, transition_table_list<TransitionTables...>>
 {
     public:
-        template<class Sm, class Context>
+        template<class Context>
         explicit region_tuple(Sm& top_level_sm, Context& context):
             regions_{top_level_sm, context}
         {
@@ -65,7 +65,7 @@ class region_tuple<transition_table_list<TransitionTables...>>
             return get<RegionIndex>(regions_).template is_active_state<State>();
         }
 
-        template<class ParentSmPath, class Sm, class Event>
+        template<class ParentSmPath, class Event>
         void start(Sm& mach, const Event& event)
         {
             for_each
@@ -78,7 +78,7 @@ class region_tuple<transition_table_list<TransitionTables...>>
             );
         }
 
-        template<class ParentSmPath, class Sm, class Event>
+        template<class ParentSmPath, class Event>
         void stop(Sm& mach, const Event& event)
         {
             for_each
@@ -91,7 +91,7 @@ class region_tuple<transition_table_list<TransitionTables...>>
             );
         }
 
-        template<class ParentSmPath, class Sm, class Event>
+        template<class ParentSmPath, class Event>
         void process_event(Sm& mach, const Event& event)
         {
             for_each
@@ -106,7 +106,7 @@ class region_tuple<transition_table_list<TransitionTables...>>
 
     private:
         using region_indexes = std::make_integer_sequence<int, sizeof...(TransitionTables)>;
-        region_holder_tuple_t<region_indexes, TransitionTables...> regions_;
+        region_holder_tuple_t<Sm, region_indexes, TransitionTables...> regions_;
 };
 
 } //namespace

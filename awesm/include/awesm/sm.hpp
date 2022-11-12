@@ -271,7 +271,7 @@ class sm
         }
 
         detail::sm_object_holder<Def> def_;
-        detail::region_tuple<transition_table_list_t> region_tuple_;
+        detail::region_tuple<sm, transition_table_list_t> region_tuple_;
 
         bool processing_event_ = false;
         queued_event_processing_storage_t queued_event_processings_;

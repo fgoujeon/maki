@@ -37,7 +37,9 @@ namespace
         awesm::row<awesm::any, event3, state0>
     >;
 
-    using digest = awesm::detail::transition_table_digest<transition_table>;
+    struct sm{};
+
+    using digest = awesm::detail::transition_table_digest<sm, transition_table>;
 
     using action_tuple = awesm::detail::sm_object_holder_tuple<action0, action1>;
     using guard_tuple = awesm::detail::sm_object_holder_tuple<guard0, guard1>;

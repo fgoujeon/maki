@@ -13,8 +13,8 @@ AweSM implements the following key features:
 * **transition tables**, featuring:
   * **actions**;
   * **guards**;
-  * **internal transitions**, aka transitions to `null` state;
-  * **completion transitions**, aka anonymous transitions, aka transitions through `null` event;
+  * **internal transitions**, aka transitions to `void` state;
+  * **completion transitions**, aka anonymous transitions, aka transitions through `void` event;
   * source state **pattern matching** with `any`, `any_of`, `any_but`, `any_if` and `any_if_not`;
 * **states as classes**, featuring:
   * **entry/exit actions**, aka `on_entry()` and `on_exit()` member functions;
@@ -176,7 +176,7 @@ namespace states
             std::cout << event.duration_ms << " millisecond push\n";
         }
 
-        void on_entry(const awesm::null& /*event*/)
+        void on_entry(const awesm::null_event& /*event*/)
         {
             std::cout << "Started state machine\n";
         }
@@ -299,7 +299,7 @@ Basically, whenever awesm::sm::process_event() is called, AweSM iterates
 over the rows of this table until it finds a match, i.e. when:
 - 'source_state' is the currently active state (or is awesm::any);
 - 'event' is the type of the processed event;
-- and the 'guard' returns true (or is awesm::null).
+- and the 'guard' returns true (or is void).
 When a match is found, AweSM:
 - exits 'source_state';
 - marks 'target_state' as the new active state;

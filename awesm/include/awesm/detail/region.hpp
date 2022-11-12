@@ -232,6 +232,8 @@ class region
             }
             else
             {
+                //VS2017 is stupid
+                detail::ignore_unused(mach, event);
                 return false;
             }
         }

@@ -18,7 +18,7 @@ struct composite_state_conf;
 namespace awesm::detail
 {
 
-template<class Sm, class WrappedState>
+template<class Sm, class RegionPath, class WrappedState>
 class composite_state_wrapper;
 
 template<class T>
@@ -48,23 +48,23 @@ struct is_composite_state<void>
 template<class T>
 constexpr auto is_composite_state_v = is_composite_state<T>::value;
 
-template<class Sm, class State, bool IsCompositeState>
+template<class Sm, class RegionPath, class State, bool IsCompositeState>
 struct state_wrapper_helper;
 
-template<class Sm, class State>
-struct state_wrapper_helper<Sm, State, false>
+template<class Sm, class RegionPath, class State>
+struct state_wrapper_helper<Sm, RegionPath, State, false>
 {
     using type = State;
 };
 
-template<class Sm, class State>
-struct state_wrapper_helper<Sm, State, true>
+template<class Sm, class RegionPath, class State>
+struct state_wrapper_helper<Sm, RegionPath, State, true>
 {
-    using type = composite_state_wrapper<Sm, State>;
+    using type = composite_state_wrapper<Sm, RegionPath, State>;
 };
 
-template<class Sm, class State>
-using state_wrapper_t = typename state_wrapper_helper<Sm, State, is_composite_state_v<State>>::type;
+template<class Sm, class RegionPath, class State>
+using state_wrapper_t = typename state_wrapper_helper<Sm, RegionPath, State, is_composite_state_v<State>>::type;
 
 } //namespace
 

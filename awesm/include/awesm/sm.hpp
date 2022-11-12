@@ -258,20 +258,20 @@ class sm
 
             if constexpr(ProcessingType == detail::event_processing_type::start)
             {
-                region_tuple_.template start<path_t>(event);
+                region_tuple_.start(event);
             }
             else if constexpr(ProcessingType == detail::event_processing_type::stop)
             {
-                region_tuple_.template stop<path_t>(event);
+                region_tuple_.stop(event);
             }
             else
             {
-                region_tuple_.template process_event<path_t>(event);
+                region_tuple_.process_event(event);
             }
         }
 
         detail::sm_object_holder<Def> def_;
-        detail::region_tuple<sm, transition_table_list_t> region_tuple_;
+        detail::region_tuple<sm, path_t, transition_table_list_t> region_tuple_;
 
         bool processing_event_ = false;
         queued_event_processing_storage_t queued_event_processings_;

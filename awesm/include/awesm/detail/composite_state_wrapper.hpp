@@ -15,7 +15,7 @@
 namespace awesm::detail
 {
 
-template<class Sm, class WrappedState>
+template<class Sm, class RegionPath, class WrappedState>
 class composite_state_wrapper
 {
     public:
@@ -44,36 +44,34 @@ class composite_state_wrapper
             return !is_active_state<detail::null_state>();
         }
 
-        template<class RegionPath, class Event>
+        template<class Event>
         void on_entry(const Event& event)
         {
-            using sm_path_t = detail::sm_path<RegionPath, composite_state_wrapper>;
             state_.get_object().on_entry(event);
-            region_tuple_.template start<sm_path_t>(event);
+            region_tuple_.start(event);
         }
 
-        template<class RegionPath, class Event>
+        template<class Event>
         void on_event(const Event& event)
         {
-            using sm_path_t = detail::sm_path<RegionPath, composite_state_wrapper>;
-            region_tuple_.template process_event<sm_path_t>(event);
+            region_tuple_.process_event(event);
             state_.get_object().on_event(event);
         }
 
-        template<class RegionPath, class Event>
+        template<class Event>
         void on_exit(const Event& event)
         {
-            using sm_path_t = detail::sm_path<RegionPath, composite_state_wrapper>;
-            region_tuple_.template stop<sm_path_t>(event);
+            region_tuple_.stop(event);
             state_.get_object().on_exit(event);
         }
 
     private:
         using conf_t = typename WrappedState::conf;
         using transition_table_list_t = typename conf_t::transition_table_list_t;
+        using sm_path_t = detail::sm_path<RegionPath, composite_state_wrapper>;
 
         detail::sm_object_holder<WrappedState> state_;
-        detail::region_tuple<Sm, transition_table_list_t> region_tuple_;
+        detail::region_tuple<Sm, sm_path_t, transition_table_list_t> region_tuple_;
 };
 
 } //namespace

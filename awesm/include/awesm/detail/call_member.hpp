@@ -14,21 +14,6 @@
 namespace awesm::detail
 {
 
-template<class Sm, class WrappedState>
-class composite_state_wrapper;
-
-template<class T>
-struct is_composite_state_wrapper
-{
-    static constexpr auto value = false;
-};
-
-template<class Sm, class WrappedState>
-struct is_composite_state_wrapper<composite_state_wrapper<Sm, WrappedState>>
-{
-    static constexpr auto value = true;
-};
-
 template<class T, class F>
 constexpr auto is_valid(const F& /*f*/, int /*high_overload_priority*/) -> decltype(std::declval<F>()(std::declval<T>()), bool())
 {
@@ -41,17 +26,13 @@ constexpr bool is_valid(const F& /*f*/, long /*low_overload_priority*/)
     return false;
 }
 
-template<class RegionPath, class State, class Event>
+template<class State, class Event>
 void call_on_entry(State& state, const Event& event)
 {
     //VS2017 is stupid
     detail::ignore_unused(event);
 
-    if constexpr(is_composite_state_wrapper<State>::value)
-    {
-        state.template on_entry<RegionPath>(event);
-    }
-    else if constexpr
+    if constexpr
     (
         is_valid<State&>
         (
@@ -70,30 +51,19 @@ void call_on_entry(State& state, const Event& event)
     }
 }
 
-template<class RegionPath, class State, class Event>
+template<class State, class Event>
 void call_on_event(State& state, const Event& event)
 {
-    if constexpr(is_composite_state_wrapper<State>::value)
-    {
-        state.template on_event<RegionPath>(event);
-    }
-    else
-    {
-        state.on_event(event);
-    }
+    state.on_event(event);
 }
 
-template<class RegionPath, class State, class Event>
+template<class State, class Event>
 void call_on_exit(State& state, const Event& event)
 {
     //VS2017 is stupid
     detail::ignore_unused(event);
 
-    if constexpr(is_composite_state_wrapper<State>::value)
-    {
-        state.template on_exit<RegionPath>(event);
-    }
-    else if constexpr
+    if constexpr
     (
         is_valid<State&>
         (

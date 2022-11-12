@@ -100,7 +100,7 @@ class sm
 
     private:
         //Let regions access definition and option list
-        template<int Index, class TransitionTable>
+        template<class Sm, class RegionPath, class TransitionTable>
         friend class detail::region;
 
         using conf_t = typename Def::conf;

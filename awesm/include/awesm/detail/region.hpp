@@ -254,7 +254,7 @@ class region
                 return false;
             }
 
-            if constexpr(std::is_same_v<guard_t, null>)
+            if constexpr(std::is_void_v<guard_t>)
             {
                 safe_call
                 (
@@ -305,7 +305,7 @@ class region
             detail::ignore_unused(mach, event);
 
             constexpr auto is_internal_transition =
-                std::is_same_v<target_state_t, null>
+                std::is_void_v<target_state_t>
             ;
 
             if constexpr(!is_internal_transition)
@@ -338,7 +338,7 @@ class region
                 >;
             }
 
-            if constexpr(!std::is_same_v<action_t, null>)
+            if constexpr(!std::is_void_v<action_t>)
             {
                 detail::call_execute
                 (

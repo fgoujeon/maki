@@ -32,9 +32,9 @@ namespace
     using transition_table = awesm::transition_table
     <
         awesm::row<state0,     event0, state1>,
-        awesm::row<state1,     event1, state2, awesm::null, guard0>,
+        awesm::row<state1,     event1, state2, void,     guard0>,
         awesm::row<state2,     event2, state3, action0>,
-        awesm::row<state3,     event3, state0, action1,     guard1>,
+        awesm::row<state3,     event3, state0, action1,  guard1>,
         awesm::row<awesm::any, event3, state0>
     >;
 

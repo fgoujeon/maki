@@ -7,7 +7,7 @@
 #ifndef AWESM_DETAIL_REGION_HPP
 #define AWESM_DETAIL_REGION_HPP
 
-#include "../sm_options.hpp"
+#include "../sm_conf.hpp"
 #include "../null.hpp"
 #include "state_traits.hpp"
 #include "sm_path.hpp"

@@ -12,6 +12,16 @@
 namespace awesm
 {
 
+namespace sm_options
+{
+    struct after_state_transition{};
+    struct before_entry{};
+    struct before_state_transition{};
+    struct disable_run_to_completion{};
+    struct on_event{};
+    struct on_exception{};
+}
+
 template<class TransitionTable, class... Options>
 struct sm_conf
 {

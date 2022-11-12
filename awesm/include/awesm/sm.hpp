@@ -9,6 +9,7 @@
 
 #include "sm_conf.hpp"
 #include "null_event.hpp"
+#include "detail/composite_state_wrapper.hpp"
 #include "detail/region_tuple.hpp"
 #include "detail/event_processing_type.hpp"
 #include "detail/alternative_lazy.hpp"

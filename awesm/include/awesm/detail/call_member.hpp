@@ -11,25 +11,20 @@
 #include <type_traits>
 #include <utility>
 
-namespace awesm
-{
-
-template<class Definition>
-class composite_state;
-
-} //namespace
-
 namespace awesm::detail
 {
 
+template<class WrappedState>
+class composite_state_wrapper;
+
 template<class T>
-struct is_composite_state
+struct is_composite_state_wrapper
 {
     static constexpr auto value = false;
 };
 
-template<class Definition>
-struct is_composite_state<composite_state<Definition>>
+template<class WrappedState>
+struct is_composite_state_wrapper<composite_state_wrapper<WrappedState>>
 {
     static constexpr auto value = true;
 };
@@ -52,7 +47,7 @@ void call_on_entry(State& state, Sm& mach, const Event& event)
     //VS2017 is stupid
     detail::ignore_unused(mach, event);
 
-    if constexpr(is_composite_state<State>::value)
+    if constexpr(is_composite_state_wrapper<State>::value)
     {
         state.template on_entry<RegionPath>(mach, event);
     }
@@ -81,7 +76,7 @@ void call_on_event(State& state, Sm& mach, const Event& event)
     //VS2017 is stupid
     detail::ignore_unused(mach);
 
-    if constexpr(is_composite_state<State>::value)
+    if constexpr(is_composite_state_wrapper<State>::value)
     {
         state.template on_event<RegionPath>(mach, event);
     }
@@ -97,7 +92,7 @@ void call_on_exit(State& state, Sm& mach, const Event& event)
     //VS2017 is stupid
     detail::ignore_unused(mach, event);
 
-    if constexpr(is_composite_state<State>::value)
+    if constexpr(is_composite_state_wrapper<State>::value)
     {
         state.template on_exit<RegionPath>(mach, event);
     }

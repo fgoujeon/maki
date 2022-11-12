@@ -4,19 +4,19 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_COMPOSITE_STATE_HPP
-#define AWESM_COMPOSITE_STATE_HPP
+#ifndef AWESM_DETAIL_COMPOSITE_STATE_WRAPPER_HPP
+#define AWESM_DETAIL_COMPOSITE_STATE_WRAPPER_HPP
 
-#include "state_conf.hpp"
-#include "detail/region_tuple.hpp"
-#include "detail/sm_object_holder.hpp"
-#include "detail/sm_path.hpp"
+#include "../state_conf.hpp"
+#include "region_tuple.hpp"
+#include "sm_object_holder.hpp"
+#include "sm_path.hpp"
 
-namespace awesm
+namespace awesm::detail
 {
 
-template<class Def>
-class composite_state
+template<class WrappedState>
+class composite_state_wrapper
 {
     public:
         using conf = state_conf
@@ -27,8 +27,8 @@ class composite_state
         >;
 
         template<class Sm, class Context>
-        composite_state(Sm& mach, Context& ctx):
-            def_(mach, ctx),
+        composite_state_wrapper(Sm& mach, Context& ctx):
+            state_(mach, ctx),
             region_tuple_(mach, ctx)
         {
         }
@@ -47,32 +47,32 @@ class composite_state
         template<class RegionPath, class Sm, class Event>
         void on_entry(Sm& mach, const Event& event)
         {
-            using sm_path_t = detail::sm_path<RegionPath, composite_state>;
-            def_.get_object().on_entry(event);
+            using sm_path_t = detail::sm_path<RegionPath, composite_state_wrapper>;
+            state_.get_object().on_entry(event);
             region_tuple_.template start<sm_path_t>(mach, event);
         }
 
         template<class RegionPath, class Sm, class Event>
         void on_event(Sm& mach, const Event& event)
         {
-            using sm_path_t = detail::sm_path<RegionPath, composite_state>;
+            using sm_path_t = detail::sm_path<RegionPath, composite_state_wrapper>;
             region_tuple_.template process_event<sm_path_t>(mach, event);
-            def_.get_object().on_event(event);
+            state_.get_object().on_event(event);
         }
 
         template<class RegionPath, class Sm, class Event>
         void on_exit(Sm& mach, const Event& event)
         {
-            using sm_path_t = detail::sm_path<RegionPath, composite_state>;
+            using sm_path_t = detail::sm_path<RegionPath, composite_state_wrapper>;
             region_tuple_.template stop<sm_path_t>(mach, event);
-            def_.get_object().on_exit(event);
+            state_.get_object().on_exit(event);
         }
 
     private:
-        using conf_t = typename Def::conf;
+        using conf_t = typename WrappedState::conf;
         using transition_table_list_t = typename conf_t::transition_table_list_t;
 
-        detail::sm_object_holder<Def> def_;
+        detail::sm_object_holder<WrappedState> state_;
         detail::region_tuple<transition_table_list_t> region_tuple_;
 };
 

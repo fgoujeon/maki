@@ -11,6 +11,7 @@
 #include "type_list.hpp"
 #include "sm_object_holder_tuple.hpp"
 #include "null_state.hpp"
+#include "state_wrapper.hpp"
 #include "../type_patterns.hpp"
 #include "../transition_table.hpp"
 #include <type_traits>
@@ -62,10 +63,7 @@ namespace transition_table_digest_detail
     <
         TList,
         U,
-        (
-            !tlu::contains<TList, U> &&
-            !std::is_void_v<U>
-        )
+        (!tlu::contains<TList, U> && !std::is_void_v<U>)
     >;
 
     template<class TransitionTable>
@@ -87,7 +85,7 @@ namespace transition_table_digest_detail
         using state_tuple = push_back_unique_if_not_void
         <
             typename Digest::state_tuple,
-            typename Row::target_state_type
+            state_wrapper_t<typename Row::target_state_type>
         >;
 
         using action_tuple = push_back_unique_if_not_void

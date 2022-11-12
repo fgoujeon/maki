@@ -50,7 +50,7 @@ class region
             constexpr auto given_state_index = detail::tlu::get_index
             <
                 state_tuple_t,
-                State
+                state_wrapper_t<State>
             >;
             return active_state_index_ == given_state_index;
         }
@@ -58,7 +58,7 @@ class region
         template<class State>
         const auto& get_state() const
         {
-            return get<State>(states_);
+            return get<state_wrapper_t<State>>(states_);
         }
 
         template<class SmPath, class Sm, class Event>
@@ -317,11 +317,11 @@ class region
                     >(event);
                 }
 
-                if constexpr(state_traits::requires_on_exit_v<source_state_t, Event>)
+                if constexpr(state_traits::requires_on_exit_v<state_wrapper_t<source_state_t>, Event>)
                 {
                     detail::call_on_exit<RegionPath>
                     (
-                        get<source_state_t>(states_),
+                        get<state_wrapper_t<source_state_t>>(states_),
                         mach,
                         event
                     );
@@ -330,7 +330,7 @@ class region
                 active_state_index_ = detail::tlu::get_index
                 <
                     state_tuple_t,
-                    target_state_t
+                    state_wrapper_t<target_state_t>
                 >;
             }
 
@@ -359,12 +359,12 @@ class region
                 if constexpr
                 (
                     !is_internal_transition && //VS2017 is stupid
-                    state_traits::requires_on_entry_v<target_state_t, Event>
+                    state_traits::requires_on_entry_v<state_wrapper_t<target_state_t>, Event>
                 )
                 {
                     detail::call_on_entry<RegionPath>
                     (
-                        get<target_state_t>(states_),
+                        get<state_wrapper_t<target_state_t>>(states_),
                         mach,
                         event
                     );

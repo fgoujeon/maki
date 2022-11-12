@@ -8,7 +8,7 @@
 #define AWESM_DETAIL_REGION_HPP
 
 #include "../sm_conf.hpp"
-#include "../null.hpp"
+#include "../null_event.hpp"
 #include "state_traits.hpp"
 #include "sm_path.hpp"
 #include "null_state.hpp"
@@ -61,14 +61,14 @@ class region
             return get<State>(states_);
         }
 
-        template<class SmPath, class Sm, class Event = null>
-        void start(Sm& mach, const Event& event = {})
+        template<class SmPath, class Sm, class Event>
+        void start(Sm& mach, const Event& event)
         {
             process_event_2<SmPath, detail::event_processing_type::start>(mach, event);
         }
 
-        template<class SmPath, class Sm, class Event = null>
-        void stop(Sm& mach, const Event& event = {})
+        template<class SmPath, class Sm, class Event>
+        void stop(Sm& mach, const Event& event)
         {
             process_event_2<SmPath, detail::event_processing_type::stop>(mach, event);
         }
@@ -134,11 +134,10 @@ class region
             if constexpr(ProcessingType == detail::event_processing_type::start)
             {
                 using fake_row = row<null_state, Event, initial_state_t>;
-                processed = transition_table_row_event_processor<region_path_t, fake_row>::process
+                processed = process_event_in_row_if_event_matches<region_path_t, fake_row>
                 (
-                    *this,
-                    &mach,
-                    &event
+                    mach,
+                    event
                 );
             }
             else if constexpr(ProcessingType == detail::event_processing_type::stop)
@@ -155,11 +154,11 @@ class region
             }
 
             //Anonymous transitions
-            if constexpr(transition_table_digest_t::has_none_events)
+            if constexpr(transition_table_digest_t::has_void_events)
             {
                 if(processed)
                 {
-                    while(process_event_in_transition_table_once<region_path_t>(mach, null{})){}
+                    while(process_event_in_transition_table_once<region_path_t>(mach, null_event{})){}
                 }
             }
             else
@@ -204,43 +203,38 @@ class region
                 {
                     return
                     (
-                        transition_table_row_event_processor<RegionPath, Rows>::process
+                        reg.process_event_in_row_if_event_matches<RegionPath, Rows>
                         (
-                            reg,
-                            &mach,
-                            &event
+                            mach,
+                            event
                         ) || ...
                     );
                 }
             };
         };
 
-        //Processes events against one row of the (resolved) transition table
-        template<class RegionPath, class Row>
-        struct transition_table_row_event_processor
+        template<class RegionPath, class Row, class Sm, class Event>
+        bool process_event_in_row_if_event_matches(Sm& mach, const Event& event)
         {
-            template<class Sm>
-            static bool process
-            (
-                region& reg,
-                Sm* pmach,
-                const typename Row::event_type* const pevent
-            )
-            {
-                return reg.process_event_in_row<RegionPath, Row>(*pmach, *pevent);
-            }
+            using row_event_type = typename Row::event_type;
 
-            /*
-            This void* trick allows for shorter build times because we save a
-            template instantiation.
-            Using an if-constexpr in the process() function above is worse as
-            well.
-            */
-            static bool process(region& /*reg*/, void* /*psm_conf*/, const void* /*pevent*/)
+            constexpr auto event_matches =
+                std::is_same_v<Event, row_event_type> ||
+                (
+                    std::is_same_v<Event, null_event> &&
+                    std::is_void_v<row_event_type>
+                )
+            ;
+
+            if constexpr(event_matches)
+            {
+                return process_event_in_row<RegionPath, Row>(mach, event);
+            }
+            else
             {
                 return false;
             }
-        };
+        }
 
         template<class RegionPath, class Row, class Sm, class Event>
         bool process_event_in_row(Sm& mach, const Event& event)
@@ -254,7 +248,7 @@ class region
                 return false;
             }
 
-            if constexpr(std::is_same_v<guard_t, null>)
+            if constexpr(std::is_void_v<guard_t>)
             {
                 safe_call
                 (
@@ -305,7 +299,7 @@ class region
             detail::ignore_unused(mach, event);
 
             constexpr auto is_internal_transition =
-                std::is_same_v<target_state_t, null>
+                std::is_void_v<target_state_t>
             ;
 
             if constexpr(!is_internal_transition)
@@ -338,7 +332,7 @@ class region
                 >;
             }
 
-            if constexpr(!std::is_same_v<action_t, null>)
+            if constexpr(!std::is_void_v<action_t>)
             {
                 detail::call_execute
                 (
@@ -405,11 +399,10 @@ class region
         bool stop_2(Sm& mach, const Event* pevent)
         {
             using fake_row = row<State, Event, null_state>;
-            return transition_table_row_event_processor<RegionPath, fake_row>::process
+            return process_event_in_row_if_event_matches<RegionPath, fake_row>
             (
-                *this,
-                &mach,
-                pevent
+                mach,
+                *pevent
             );
         }
 

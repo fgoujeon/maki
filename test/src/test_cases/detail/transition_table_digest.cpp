@@ -6,7 +6,6 @@
 
 #include <awesm/row.hpp>
 #include <awesm/transition_table.hpp>
-#include <awesm/null.hpp>
 #include <awesm/detail/transition_table_digest.hpp>
 #include <awesm/detail/sm_object_holder_tuple.hpp>
 #include "../common.hpp"
@@ -32,9 +31,9 @@ namespace
     using transition_table = awesm::transition_table
     <
         awesm::row<state0,     event0, state1>,
-        awesm::row<state1,     event1, state2, awesm::null, guard0>,
+        awesm::row<state1,     event1, state2, void,     guard0>,
         awesm::row<state2,     event2, state3, action0>,
-        awesm::row<state3,     event3, state0, action1,     guard1>,
+        awesm::row<state3,     event3, state0, action1,  guard1>,
         awesm::row<awesm::any, event3, state0>
     >;
 
@@ -51,5 +50,5 @@ TEST_CASE("detail::transition_table_digest")
     REQUIRE(std::is_same_v<digest::guard_tuple, guard_tuple>);
     REQUIRE(std::is_same_v<digest::state_tuple, state_tuple>);
     REQUIRE(digest::has_source_state_patterns);
-    REQUIRE(!digest::has_none_events);
+    REQUIRE(!digest::has_void_events);
 }

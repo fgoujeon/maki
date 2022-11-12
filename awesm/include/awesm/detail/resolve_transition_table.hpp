@@ -95,7 +95,18 @@ namespace resolve_transition_table_detail
     struct add_row_without_pattern_holder
     {
         template<class = void>
-        using type = tlu::push_back<TransitionTable, Row>;
+        using type = tlu::push_back
+        <
+            TransitionTable,
+            row
+            <
+                typename Row::source_state_type,
+                typename Row::event_type,
+                typename Row::target_state_type,
+                typename Row::action_type,
+                typename Row::guard_type
+            >
+        >;
     };
 
     //We need a holder to pass StateTypeList

@@ -11,6 +11,7 @@
 #include "type_list.hpp"
 #include "sm_object_holder_tuple.hpp"
 #include "null_state.hpp"
+#include "state_wrapper.hpp"
 #include "../type_patterns.hpp"
 #include "../transition_table.hpp"
 #include <type_traits>
@@ -62,18 +63,17 @@ namespace transition_table_digest_detail
     <
         TList,
         U,
-        (
-            !tlu::contains<TList, U> &&
-            !std::is_void_v<U>
-        )
+        (!tlu::contains<TList, U> && !std::is_void_v<U>)
     >;
 
     template<class TransitionTable>
     using initial_state_t = typename tlu::at<TransitionTable, 0>::source_state_type;
 
-    template<class InitialState>
+    template<class Sm, class RegionPath, class InitialState>
     struct initial_digest
     {
+        using sm_t = Sm;
+        using region_path_t = RegionPath;
         using state_tuple = type_list<null_state, InitialState>;
         using action_tuple = type_list<>;
         using guard_tuple = type_list<>;
@@ -84,10 +84,14 @@ namespace transition_table_digest_detail
     template<class Digest, class Row>
     struct add_row_to_digest
     {
+        using sm_t = typename Digest::sm_t;
+
+        using region_path_t = typename Digest::region_path_t;
+
         using state_tuple = push_back_unique_if_not_void
         <
             typename Digest::state_tuple,
-            typename Row::target_state_type
+            state_wrapper_t<sm_t, region_path_t, typename Row::target_state_type>
         >;
 
         using action_tuple = push_back_unique_if_not_void
@@ -117,21 +121,23 @@ namespace transition_table_digest_detail
     First step with type_list instead of awesm::detail::sm_object_holder_tuple,
     so that we don't instantiate intermediate tuples.
     */
-    template<class TransitionTable>
+    template<class Sm, class RegionPath, class TransitionTable>
     using digest_with_type_lists = tlu::left_fold
     <
         TransitionTable,
         add_row_to_digest,
-        initial_digest<initial_state_t<TransitionTable>>
+        initial_digest<Sm, RegionPath, initial_state_t<TransitionTable>>
     >;
 }
 
-template<class TransitionTable>
+template<class Sm, class RegionPath, class TransitionTable>
 class transition_table_digest
 {
     private:
         using digest_t = transition_table_digest_detail::digest_with_type_lists
         <
+            Sm,
+            RegionPath,
             TransitionTable
         >;
 

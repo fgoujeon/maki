@@ -6,16 +6,17 @@
 
 #include <awesm/row.hpp>
 #include <awesm/transition_table.hpp>
+#include <awesm/region_path.hpp>
 #include <awesm/detail/transition_table_digest.hpp>
 #include <awesm/detail/sm_object_holder_tuple.hpp>
 #include "../common.hpp"
 
 namespace
 {
-    struct state0{};
-    struct state1{};
-    struct state2{};
-    struct state3{};
+    EMPTY_STATE(state0);
+    EMPTY_STATE(state1);
+    EMPTY_STATE(state2);
+    EMPTY_STATE(state3);
 
     struct event0{};
     struct event1{};
@@ -37,7 +38,10 @@ namespace
         awesm::row<awesm::any, event3, state0>
     >;
 
-    using digest = awesm::detail::transition_table_digest<transition_table>;
+    struct sm{};
+    using region_path = awesm::region_path<awesm::region_path_element<sm, 0>>;
+
+    using digest = awesm::detail::transition_table_digest<sm, region_path, transition_table>;
 
     using action_tuple = awesm::detail::sm_object_holder_tuple<action0, action1>;
     using guard_tuple = awesm::detail::sm_object_holder_tuple<guard0, guard1>;

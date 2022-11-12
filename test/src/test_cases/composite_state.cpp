@@ -90,7 +90,7 @@ namespace
             awesm::row<states::emitting_blue,  events::color_button_press, states::emitting_red>
         >;
 
-        struct on_def
+        struct on
         {
             using conf = awesm::composite_state_conf
             <
@@ -115,8 +115,6 @@ namespace
 
             context& ctx;
         };
-
-        using on = awesm::composite_state<on_def>;
     }
 
     using sm_transition_table = awesm::transition_table

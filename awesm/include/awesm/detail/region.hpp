@@ -311,7 +311,7 @@ class region
                     detail::call_on_exit
                     (
                         get<state_wrapper_t<Sm, RegionPath, source_state_t>>(states_),
-                        event
+                        &event
                     );
                 }
 
@@ -353,7 +353,7 @@ class region
                     detail::call_on_entry
                     (
                         get<state_wrapper_t<Sm, RegionPath, target_state_t>>(states_),
-                        event
+                        &event
                     );
                 }
 

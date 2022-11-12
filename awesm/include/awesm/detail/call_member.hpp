@@ -14,41 +14,18 @@
 namespace awesm::detail
 {
 
-template<class T, class F>
-constexpr auto is_valid(const F& /*f*/, int /*high_overload_priority*/) -> decltype(std::declval<F>()(std::declval<T>()), bool())
-{
-    return true;
-}
-
-template<class T, class F>
-constexpr bool is_valid(const F& /*f*/, long /*low_overload_priority*/)
-{
-    return false;
-}
-
 template<class State, class Event>
-void call_on_entry(State& state, const Event& event)
+auto call_on_entry(State& state, const Event* pevent) ->
+    decltype(state.on_entry(*pevent))
 {
-    //VS2017 is stupid
-    detail::ignore_unused(event);
+    state.on_entry(*pevent);
+}
 
-    if constexpr
-    (
-        is_valid<State&>
-        (
-            [](auto& state) -> decltype(state.on_entry(std::declval<const Event&>()))
-            {
-            },
-            0
-        )
-    )
-    {
-        state.on_entry(event);
-    }
-    else
-    {
-        state.on_entry();
-    }
+template<class State>
+auto call_on_entry(State& state, const void* /*pevent*/) ->
+    decltype(state.on_entry())
+{
+    state.on_entry();
 }
 
 template<class State, class Event>
@@ -58,28 +35,17 @@ void call_on_event(State& state, const Event& event)
 }
 
 template<class State, class Event>
-void call_on_exit(State& state, const Event& event)
+auto call_on_exit(State& state, const Event* pevent) ->
+    decltype(state.on_exit(*pevent))
 {
-    //VS2017 is stupid
-    detail::ignore_unused(event);
+    state.on_exit(*pevent);
+}
 
-    if constexpr
-    (
-        is_valid<State&>
-        (
-            [](auto& state) -> decltype(state.on_exit(std::declval<const Event&>()))
-            {
-            },
-            0
-        )
-    )
-    {
-        state.on_exit(event);
-    }
-    else
-    {
-        state.on_exit();
-    }
+template<class State>
+auto call_on_exit(State& state, const void* /*pevent*/) ->
+    decltype(state.on_exit())
+{
+    state.on_exit();
 }
 
 template<class Action, class Event>

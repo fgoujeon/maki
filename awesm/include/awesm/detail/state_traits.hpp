@@ -7,6 +7,7 @@
 #ifndef AWESM_DETAIL_STATE_TRAITS_HPP
 #define AWESM_DETAIL_STATE_TRAITS_HPP
 
+#include "tlu.hpp"
 #include "../state_conf.hpp"
 
 namespace awesm::detail::state_traits
@@ -25,11 +26,9 @@ constexpr bool requires_on_xxx_conf(void* /*tag*/)
 }
 
 template<class State, class Event>
-constexpr auto requires_on_entry_v = requires_on_xxx_conf
-<
-    state_options::on_entry,
-    Event
->(static_cast<typename State::conf*>(nullptr));
+constexpr auto requires_on_entry_v =
+    tlu::contains<typename State::conf, state_options::on_entry_any>
+;
 
 template<class State, class Event>
 constexpr auto requires_on_event_v = requires_on_xxx_conf
@@ -39,11 +38,9 @@ constexpr auto requires_on_event_v = requires_on_xxx_conf
 >(static_cast<typename State::conf*>(nullptr));
 
 template<class State, class Event>
-constexpr auto requires_on_exit_v = requires_on_xxx_conf
-<
-    state_options::on_exit,
-    Event
->(static_cast<typename State::conf*>(nullptr));
+constexpr auto requires_on_exit_v =
+    tlu::contains<typename State::conf, state_options::on_exit_any>
+;
 
 } //namespace
 

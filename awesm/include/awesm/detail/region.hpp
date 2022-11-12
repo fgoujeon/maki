@@ -325,9 +325,9 @@ class region
                 {
                     detail::call_on_exit<RegionPath>
                     (
-                        &get<source_state_t>(states_),
-                        &mach,
-                        &event
+                        get<source_state_t>(states_),
+                        mach,
+                        event
                     );
                 }
 
@@ -368,9 +368,9 @@ class region
                 {
                     detail::call_on_entry<RegionPath>
                     (
-                        &get<target_state_t>(states_),
-                        &mach,
-                        &event
+                        get<target_state_t>(states_),
+                        mach,
+                        event
                     );
                 }
 

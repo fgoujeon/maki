@@ -11,71 +11,104 @@
 #include <type_traits>
 #include <utility>
 
+namespace awesm
+{
+
+template<class Definition>
+class composite_state;
+
+} //namespace
+
 namespace awesm::detail
 {
 
-template<class RegionPath, class State, class Sm, class Event>
-auto call_on_entry(State* pstate, Sm* pmach, const Event* pevent) ->
-    decltype(pstate->template on_entry<RegionPath>(*pmach, *pevent))
+template<class T>
+struct is_composite_state
 {
-    pstate->template on_entry<RegionPath>(*pmach, *pevent);
+    static constexpr auto value = false;
+};
+
+template<class Definition>
+struct is_composite_state<composite_state<Definition>>
+{
+    static constexpr auto value = true;
+};
+
+template<class T, class F>
+constexpr auto is_valid(const F& /*f*/, int /*high_overload_priority*/) -> decltype(std::declval<F>()(std::declval<T>()), bool())
+{
+    return true;
 }
 
-template<class RegionPath, class State, class Event>
-auto call_on_entry(State* pstate, void* /*pmach*/, const Event* pevent) ->
-    decltype(pstate->on_entry(*pevent))
+template<class T, class F>
+constexpr bool is_valid(const F& /*f*/, long /*low_overload_priority*/)
 {
-    pstate->on_entry(*pevent);
-}
-
-template<class RegionPath, class State>
-auto call_on_entry(State* pstate, void* /*pmach*/, const void* /*pevent*/) ->
-    decltype(pstate->on_entry())
-{
-    pstate->on_entry();
-}
-
-template<class RegionPath, class State, class Sm, class Event>
-auto call_on_event
-(
-    State& state,
-    Sm& mach,
-    const Event& event
-) -> decltype(std::declval<State>().template on_event<RegionPath>(mach, event), void())
-{
-    state.template on_event<RegionPath>(mach, event);
+    return false;
 }
 
 template<class RegionPath, class State, class Sm, class Event>
-auto call_on_event
-(
-    State& state,
-    Sm& /*mach*/,
-    const Event& event
-) -> decltype(std::declval<State>().on_event(event), void())
+void call_on_entry(State& state, Sm& mach, const Event& event)
 {
-    state.on_event(event);
+    if constexpr(is_composite_state<State>::value)
+    {
+        state.template on_entry<RegionPath>(mach, event);
+    }
+    else if constexpr
+    (
+        is_valid<State&>
+        (
+            [](auto& state) -> decltype(state.on_entry(std::declval<const Event&>()))
+            {
+            },
+            0
+        )
+    )
+    {
+        state.on_entry(event);
+    }
+    else
+    {
+        state.on_entry();
+    }
 }
 
 template<class RegionPath, class State, class Sm, class Event>
-auto call_on_exit(State* pstate, Sm* pmach, const Event* pevent) ->
-    decltype(pstate->template on_exit<RegionPath>(*pmach, *pevent))
+void call_on_event(State& state, Sm& mach, const Event& event)
 {
-    pstate->template on_exit<RegionPath>(*pmach, *pevent);
+    if constexpr(is_composite_state<State>::value)
+    {
+        state.template on_event<RegionPath>(mach, event);
+    }
+    else
+    {
+        state.on_event(event);
+    }
 }
 
-template<class RegionPath, class State, class Event>
-auto call_on_exit(State* pstate, void* /*pmach*/, const Event* pevent) ->
-    decltype(pstate->on_exit(*pevent))
+template<class RegionPath, class State, class Sm, class Event>
+void call_on_exit(State& state, Sm& mach, const Event& event)
 {
-    pstate->on_exit(*pevent);
-}
-
-template<class RegionPath, class State>
-auto call_on_exit(State* pstate, void* /*pmach*/, const void* /*pevent*/) ->
-    decltype(pstate->on_exit())
-{
-    pstate->on_exit();
+    if constexpr(is_composite_state<State>::value)
+    {
+        state.template on_exit<RegionPath>(mach, event);
+    }
+    else if constexpr
+    (
+        is_valid<State&>
+        (
+            [](auto& state) -> decltype(state.on_exit(std::declval<const Event&>()))
+            {
+            },
+            0
+        )
+    )
+    {
+        state.on_exit(event);
+    }
+    else
+    {
+        state.on_exit();
+    }
 }
 
 template<class Action, class Event>

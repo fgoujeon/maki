@@ -223,7 +223,6 @@ class region
             }
             else
             {
-                //VS2017 is stupid
                 detail::ignore_unused(event);
                 return false;
             }
@@ -286,7 +285,6 @@ class region
             using target_state_t = typename Row::target_state_type;
             using action_t       = typename Row::action_type;
 
-            //VS2017 is stupid
             detail::ignore_unused(event);
 
             constexpr auto is_internal_transition =
@@ -346,7 +344,7 @@ class region
 
                 if constexpr
                 (
-                    !is_internal_transition && //VS2017 is stupid
+                    !is_internal_transition && //for VS2017
                     state_traits::requires_on_entry_v<state_wrapper_t<Sm, RegionPath, target_state_t>, Event>
                 )
                 {
@@ -428,7 +426,6 @@ class region
             const Event& event
         )
         {
-            //VS2017 is stupid
             detail::ignore_unused(state, event);
 
             if constexpr(state_traits::requires_on_event_v<State, Event>)

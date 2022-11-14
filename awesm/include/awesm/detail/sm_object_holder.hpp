@@ -43,7 +43,7 @@ use a function such as make_sm_object<T>(context). We need this wrapper to
 construct the objects.
 */
 template<class T>
-class sm_object_holder: private T
+class sm_object_holder: public T
 {
     public:
         using object_t = T;
@@ -84,16 +84,6 @@ class sm_object_holder: private T
             std::enable_if_t<std::is_default_constructible_v<U>>* /*pvoid*/ = nullptr
         )
         {
-        }
-
-        object_t& get_object()
-        {
-            return *this;
-        }
-
-        const object_t& get_object() const
-        {
-            return *this;
         }
 };
 

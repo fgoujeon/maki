@@ -230,7 +230,7 @@ class sm
         {
             if constexpr(detail::tlu::contains<conf_t, sm_options::on_exception>)
             {
-                def_.get_object().on_exception(eptr);
+                def_.on_exception(eptr);
             }
             else
             {
@@ -251,7 +251,7 @@ class sm
                 (
                     [&]
                     {
-                        def_.get_object().on_event(event);
+                        def_.on_event(event);
                     }
                 );
             }

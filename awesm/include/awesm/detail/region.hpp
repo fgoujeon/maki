@@ -269,7 +269,7 @@ class region
             {
                 if constexpr(tlu::contains<typename Sm::conf_t, sm_options::before_state_transition>)
                 {
-                    mach_.def_.get_object().template before_state_transition
+                    mach_.def_.template before_state_transition
                     <
                         RegionPath,
                         source_state_t,
@@ -307,7 +307,7 @@ class region
             {
                 if constexpr(tlu::contains<typename Sm::conf_t, sm_options::before_entry>)
                 {
-                    mach_.def_.get_object().template before_entry
+                    mach_.def_.template before_entry
                     <
                         RegionPath,
                         source_state_t,
@@ -331,7 +331,7 @@ class region
 
                 if constexpr(tlu::contains<typename Sm::conf_t, sm_options::after_state_transition>)
                 {
-                    mach_.def_.get_object().template after_state_transition
+                    mach_.def_.template after_state_transition
                     <
                         RegionPath,
                         source_state_t,

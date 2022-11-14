@@ -47,7 +47,7 @@ class composite_state_wrapper
         template<class Event>
         void on_entry(const Event& event)
         {
-            state_.get_object().on_entry(event);
+            state_.on_entry(event);
             region_tuple_.start(event);
         }
 
@@ -55,14 +55,14 @@ class composite_state_wrapper
         void on_event(const Event& event)
         {
             region_tuple_.process_event(event);
-            state_.get_object().on_event(event);
+            state_.on_event(event);
         }
 
         template<class Event>
         void on_exit(const Event& event)
         {
             region_tuple_.stop(event);
-            state_.get_object().on_exit(event);
+            state_.on_exit(event);
         }
 
     private:

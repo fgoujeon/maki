@@ -20,7 +20,8 @@ AweSM implements the following key features:
   * **entry/exit actions**, aka `on_entry()` and `on_exit()` member functions;
   * **internal transition actions**, aka `on_event()` member function;
 * **run-to-completion**, the guarantee that the processing of an event won't be interrupted, even if we ask to handle other events in the process;
-* **orthogonal regions**.
+* **orthogonal regions**;
+* **composite states**.
 
 Besides its features, AweSM:
 

@@ -68,14 +68,14 @@ class region
             using fake_row = row<null_state, Event, initial_state_t>;
             if constexpr(transition_table_digest_t::has_null_events)
             {
-                if(process_event_in_row_if_event_matches<fake_row>(event))
+                if(process_event_in_row_if_event_matches<fake_row>(&event))
                 {
                     do_anonymous_transitions();
                 }
             }
             else
             {
-                process_event_in_row_if_event_matches<fake_row>(event);
+                process_event_in_row_if_event_matches<fake_row>(&event);
             }
         }
 
@@ -180,26 +180,32 @@ class region
                 (
                     reg.process_event_in_row_if_event_matches<Rows>
                     (
-                        event
+                        &event
                     ) || ...
                 );
             }
         };
 
         template<class Row, class Event>
-        bool process_event_in_row_if_event_matches(const Event& event)
+        bool process_event_in_row_if_event_matches
+        (
+            const Event* pevent,
+            std::enable_if_t
+            <
+                std::is_same_v<Event, typename Row::event_type>
+            >* /*ignored*/ = nullptr
+        )
         {
-            using row_event_type = typename Row::event_type;
+            return process_event_in_row<Row>(*pevent);
+        }
 
-            if constexpr(std::is_same_v<Event, row_event_type>)
-            {
-                return process_event_in_row<Row>(event);
-            }
-            else
-            {
-                detail::ignore_unused(event);
-                return false;
-            }
+        template<class Row>
+        constexpr bool process_event_in_row_if_event_matches
+        (
+            const void* /*pevent*/
+        )
+        {
+            return false;
         }
 
         template<class Row, class Event>
@@ -358,7 +364,7 @@ class region
             using fake_row = row<State, Event, null_state>;
             return process_event_in_row_if_event_matches<fake_row>
             (
-                *pevent
+                pevent
             );
         }
 

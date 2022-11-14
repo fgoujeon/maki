@@ -126,7 +126,17 @@ namespace transition_table_digest_detail
     <
         TransitionTable,
         add_row_to_digest,
-        initial_digest<Sm, RegionPath, initial_state_t<TransitionTable>>
+        initial_digest
+        <
+            Sm,
+            RegionPath,
+            state_wrapper_t
+            <
+                Sm,
+                RegionPath,
+                initial_state_t<TransitionTable>
+            >
+        >
     >;
 }
 

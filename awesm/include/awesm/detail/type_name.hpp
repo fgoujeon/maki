@@ -49,11 +49,16 @@ namespace type_name_detail
         };
     }
 
-    inline const auto format = get_type_name_format();
+    inline type_name_format get_type_name_format_cached()
+    {
+        static const auto format = get_type_name_format();
+        return format;
+    }
 
     template<class T>
     std::string_view get_type_name()
     {
+        const auto& format = get_type_name_format_cached();
         const auto fn_name = function_name<T>();
         return fn_name.substr
         (

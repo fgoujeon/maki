@@ -14,6 +14,8 @@ namespace awesm::detail
 
 namespace type_name_detail
 {
+    using sv_size_t = std::string_view::size_type;
+
     template<class T>
     std::string_view function_name()
     {
@@ -35,7 +37,11 @@ namespace type_name_detail
         const auto int_name = std::string_view{"int"};
         const auto int_function_name = function_name<int>();
         const auto prefix_size = static_cast<int>(int_function_name.find(int_name));
-        const auto suffix_size = static_cast<int>(int_function_name.size() - prefix_size - int_name.size());
+        const auto suffix_size =
+            static_cast<int>(int_function_name.size()) -
+            prefix_size -
+            static_cast<int>(int_name.size())
+        ;
         return type_name_format
         {
             prefix_size,
@@ -51,8 +57,8 @@ namespace type_name_detail
         const auto fn_name = function_name<T>();
         return fn_name.substr
         (
-            format.prefix_size,
-            fn_name.size() - format.prefix_size - format.suffix_size
+            static_cast<sv_size_t>(format.prefix_size),
+            fn_name.size() - static_cast<sv_size_t>(format.prefix_size) - static_cast<sv_size_t>(format.suffix_size)
         );
     }
 
@@ -71,7 +77,7 @@ namespace type_name_detail
             auto template_level = 0;
             for(; current_index >= 0; --current_index)
             {
-                switch(tname[current_index])
+                switch(tname[static_cast<sv_size_t>(current_index)])
                 {
                     case '<':
                         --template_level;
@@ -94,7 +100,7 @@ namespace type_name_detail
         {
             for(; current_index >= 1; --current_index)
             {
-                if(tname[current_index - 1] == ':')
+                if(tname[static_cast<sv_size_t>(current_index - 1)] == ':')
                 {
                     return current_index;
                 }
@@ -102,7 +108,11 @@ namespace type_name_detail
             return 0;
         }();
 
-        return tname.substr(start_index, end_index - start_index + 1);
+        return tname.substr
+        (
+            static_cast<sv_size_t>(start_index),
+            static_cast<sv_size_t>(end_index - start_index + 1)
+        );
     }
 }
 

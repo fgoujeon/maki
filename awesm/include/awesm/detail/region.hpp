@@ -385,9 +385,8 @@ class region
                 (
                     reg.process_event_in_state
                     (
-                        get<States>(reg.states_),
-                        event,
-                        0
+                        &get<States>(reg.states_),
+                        &event
                     ) || ...
                 );
             }
@@ -397,9 +396,8 @@ class region
         template<class State, class Event>
         bool process_event_in_state
         (
-            State& state,
-            const Event& event,
-            int /*high_overload_priority*/,
+            State* pstate,
+            const Event* pevent,
             std::enable_if_t
             <
                 state_traits::requires_on_event_v<State, Event>
@@ -412,7 +410,7 @@ class region
                 (
                     [&]
                     {
-                        call_on_event(state, event);
+                        call_on_event(*pstate, *pevent);
                     }
                 );
                 return true;
@@ -420,12 +418,10 @@ class region
             return false;
         }
 
-        template<class State, class Event>
         constexpr bool process_event_in_state
         (
-            State& /*state*/,
-            const Event& /*event*/,
-            long /*low_overload_priority*/
+            void* /*pstate*/,
+            const void* /*pevent*/
         )
         {
             return false;

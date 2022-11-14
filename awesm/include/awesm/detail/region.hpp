@@ -386,7 +386,8 @@ class region
                     reg.process_event_in_state
                     (
                         get<States>(reg.states_),
-                        event
+                        event,
+                        0
                     ) || ...
                 );
             }
@@ -397,25 +398,36 @@ class region
         bool process_event_in_state
         (
             State& state,
-            const Event& event
+            const Event& event,
+            int /*high_overload_priority*/,
+            std::enable_if_t
+            <
+                state_traits::requires_on_event_v<State, Event>
+            >* /*ignored*/ = nullptr
         )
         {
-            detail::ignore_unused(state, event);
-
-            if constexpr(state_traits::requires_on_event_v<State, Event>)
+            if(is_active_state<State>())
             {
-                if(is_active_state<State>())
-                {
-                    safe_call
-                    (
-                        [&]
-                        {
-                            call_on_event(state, event);
-                        }
-                    );
-                    return true;
-                }
+                safe_call
+                (
+                    [&]
+                    {
+                        call_on_event(state, event);
+                    }
+                );
+                return true;
             }
+            return false;
+        }
+
+        template<class State, class Event>
+        constexpr bool process_event_in_state
+        (
+            State& /*state*/,
+            const Event& /*event*/,
+            long /*low_overload_priority*/
+        )
+        {
             return false;
         }
 

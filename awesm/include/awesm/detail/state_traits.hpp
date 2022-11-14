@@ -25,7 +25,7 @@ constexpr bool requires_on_xxx_conf(void* /*tag*/)
     return false;
 }
 
-template<class State, class Event>
+template<class State>
 constexpr auto requires_on_entry_v =
     tlu::contains<typename State::conf, state_options::on_entry_any>
 ;
@@ -37,7 +37,7 @@ constexpr auto requires_on_event_v = requires_on_xxx_conf
     Event
 >(static_cast<typename State::conf*>(nullptr));
 
-template<class State, class Event>
+template<class State>
 constexpr auto requires_on_exit_v =
     tlu::contains<typename State::conf, state_options::on_exit_any>
 ;

@@ -278,7 +278,7 @@ class region
                     >(event);
                 }
 
-                if constexpr(state_traits::requires_on_exit_v<state_wrapper_t<Sm, RegionPath, source_state_t>, Event>)
+                if constexpr(state_traits::requires_on_exit_v<state_wrapper_t<Sm, RegionPath, source_state_t>>)
                 {
                     detail::call_on_exit
                     (
@@ -319,7 +319,7 @@ class region
                 if constexpr
                 (
                     !is_internal_transition && //for VS2017
-                    state_traits::requires_on_entry_v<state_wrapper_t<Sm, RegionPath, target_state_t>, Event>
+                    state_traits::requires_on_entry_v<state_wrapper_t<Sm, RegionPath, target_state_t>>
                 )
                 {
                     detail::call_on_entry

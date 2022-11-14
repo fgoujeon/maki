@@ -65,19 +65,41 @@ class region
         template<class Event>
         void start(const Event& event)
         {
-            process_event_2<detail::event_processing_type::start>(event);
+            using fake_row = row<null_state, Event, initial_state_t>;
+            if constexpr(transition_table_digest_t::has_void_events)
+            {
+                if(process_event_in_row_if_event_matches<fake_row>(event))
+                {
+                    do_anonymous_transitions();
+                }
+            }
+            else
+            {
+                process_event_in_row_if_event_matches<fake_row>(event);
+            }
         }
 
         template<class Event>
         void stop(const Event& event)
         {
-            process_event_2<detail::event_processing_type::stop>(event);
+            detail::tlu::apply<state_tuple_t, stop_helper>::call(*this, event);
         }
 
         template<class Event>
         void process_event(const Event& event)
         {
-            process_event_2<detail::event_processing_type::event>(event);
+            process_event_in_active_state(event);
+            if constexpr(transition_table_digest_t::has_void_events)
+            {
+                if(process_event_in_transition_table_once(event))
+                {
+                    do_anonymous_transitions();
+                }
+            }
+            else
+            {
+                process_event_in_transition_table_once(event);
+            }
         }
 
     private:
@@ -118,49 +140,9 @@ class region
             unresolved_transition_table_holder
         >;
 
-        template
-        <
-            detail::event_processing_type ProcessingType,
-            class Event
-        >
-        void process_event_2(const Event& event)
+        void do_anonymous_transitions()
         {
-            process_event_in_active_state(event);
-
-            auto processed = true;
-            if constexpr(ProcessingType == detail::event_processing_type::start)
-            {
-                using fake_row = row<null_state, Event, initial_state_t>;
-                processed = process_event_in_row_if_event_matches<fake_row>
-                (
-                    event
-                );
-            }
-            else if constexpr(ProcessingType == detail::event_processing_type::stop)
-            {
-                processed = detail::tlu::apply
-                <
-                    state_tuple_t,
-                    stop_helper
-                >::call(*this, event);
-            }
-            else if constexpr(ProcessingType == detail::event_processing_type::event)
-            {
-                processed = process_event_in_transition_table_once(event);
-            }
-
-            //Anonymous transitions
-            if constexpr(transition_table_digest_t::has_void_events)
-            {
-                if(processed)
-                {
-                    while(process_event_in_transition_table_once(null_event{})){}
-                }
-            }
-            else
-            {
-                detail::ignore_unused(processed);
-            }
+            while(process_event_in_transition_table_once(null_event{})){}
         }
 
         //Used to call client code

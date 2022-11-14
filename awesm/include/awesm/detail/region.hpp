@@ -394,7 +394,7 @@ class region
         template<class Event>
         void process_event_in_active_state(const Event& event)
         {
-            return detail::tlu::apply
+            detail::tlu::apply
             <
                 state_tuple_t,
                 active_state_event_processor

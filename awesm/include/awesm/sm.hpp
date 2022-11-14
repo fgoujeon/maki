@@ -8,7 +8,7 @@
 #define AWESM_SM_HPP
 
 #include "sm_conf.hpp"
-#include "null_event.hpp"
+#include "null.hpp"
 #include "detail/composite_state_wrapper.hpp"
 #include "detail/region_tuple.hpp"
 #include "detail/event_processing_type.hpp"
@@ -80,13 +80,13 @@ class sm
             return region_tuple_.template is_active_state<State, RegionIndex>();
         }
 
-        template<class Event = null_event>
+        template<class Event = null>
         void start(const Event& event = {})
         {
             process_event_2<detail::event_processing_type::start>(event);
         }
 
-        template<class Event = null_event>
+        template<class Event = null>
         void stop(const Event& event = {})
         {
             process_event_2<detail::event_processing_type::stop>(event);

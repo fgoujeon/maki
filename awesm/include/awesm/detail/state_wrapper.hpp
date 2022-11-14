@@ -7,6 +7,8 @@
 #ifndef AWESM_DETAIL_STATE_WRAPPER_HPP
 #define AWESM_DETAIL_STATE_WRAPPER_HPP
 
+#include "../null.hpp"
+
 namespace awesm
 {
 
@@ -40,7 +42,7 @@ struct is_composite_state
 };
 
 template<>
-struct is_composite_state<void>
+struct is_composite_state<null>
 {
     static constexpr auto value = false;
 };

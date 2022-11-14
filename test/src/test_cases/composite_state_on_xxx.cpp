@@ -64,7 +64,7 @@ namespace
 
         using on_transition_table = awesm::transition_table
         <
-            awesm::row<states::on_0, events::button_press, void>
+            awesm::row<states::on_0, events::button_press, awesm::null>
         >;
 
         struct on

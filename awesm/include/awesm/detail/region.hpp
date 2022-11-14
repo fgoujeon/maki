@@ -8,7 +8,7 @@
 #define AWESM_DETAIL_REGION_HPP
 
 #include "../sm_conf.hpp"
-#include "../null_event.hpp"
+#include "../null.hpp"
 #include "state_traits.hpp"
 #include "sm_path.hpp"
 #include "null_state.hpp"
@@ -66,7 +66,7 @@ class region
         void start(const Event& event)
         {
             using fake_row = row<null_state, Event, initial_state_t>;
-            if constexpr(transition_table_digest_t::has_void_events)
+            if constexpr(transition_table_digest_t::has_null_events)
             {
                 if(process_event_in_row_if_event_matches<fake_row>(event))
                 {
@@ -89,7 +89,7 @@ class region
         void process_event(const Event& event)
         {
             process_event_in_active_state(event);
-            if constexpr(transition_table_digest_t::has_void_events)
+            if constexpr(transition_table_digest_t::has_null_events)
             {
                 if(process_event_in_transition_table_once(event))
                 {
@@ -142,7 +142,7 @@ class region
 
         void do_anonymous_transitions()
         {
-            while(process_event_in_transition_table_once(null_event{})){}
+            while(process_event_in_transition_table_once(null{})){}
         }
 
         //Used to call client code
@@ -191,15 +191,7 @@ class region
         {
             using row_event_type = typename Row::event_type;
 
-            constexpr auto event_matches =
-                std::is_same_v<Event, row_event_type> ||
-                (
-                    std::is_same_v<Event, null_event> &&
-                    std::is_void_v<row_event_type>
-                )
-            ;
-
-            if constexpr(event_matches)
+            if constexpr(std::is_same_v<Event, row_event_type>)
             {
                 return process_event_in_row<Row>(event);
             }
@@ -222,7 +214,7 @@ class region
                 return false;
             }
 
-            if constexpr(std::is_void_v<guard_t>)
+            if constexpr(std::is_same_v<guard_t, null>)
             {
                 safe_call
                 (
@@ -270,7 +262,7 @@ class region
             detail::ignore_unused(event);
 
             constexpr auto is_internal_transition =
-                std::is_void_v<target_state_t>
+                std::is_same_v<target_state_t, null>
             ;
 
             if constexpr(!is_internal_transition)
@@ -302,7 +294,7 @@ class region
                 >;
             }
 
-            if constexpr(!std::is_void_v<action_t>)
+            if constexpr(!std::is_same_v<action_t, null>)
             {
                 detail::call_execute
                 (

@@ -97,7 +97,7 @@ namespace
     <
         awesm::row<states::idle,    events::power_button_press, states::running>,
         awesm::row<states::running, events::power_button_press, states::idle>,
-        awesm::row<states::running, events::beep_button_press,  void,             actions::beep>
+        awesm::row<states::running, events::beep_button_press,  awesm::null,      actions::beep>
     >;
 
     struct sm_def

@@ -6,7 +6,7 @@
 
 #include "awesm/composite_state_conf.hpp"
 #include "awesm/guard_operators.hpp"
-#include "awesm/null_event.hpp"
+#include "awesm/null.hpp"
 #include "awesm/pretty_name.hpp"
 #include "awesm/region_path.hpp"
 #include "awesm/row.hpp"

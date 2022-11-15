@@ -25,11 +25,11 @@ class button
 
         button(const event_handler& /*eh*/)
         {
-            //Low-level stuff...
+            //--snip--
         }
 
     private:
-        //Low-level stuff...
+        //--snip--
 };
 
 //This class drives the RGB LED.
@@ -53,12 +53,12 @@ class rgb_led
         void set_color(const color c)
         {
             color_ = c;
-            //Low-level stuff...
+            //--snip--
         }
 
     private:
         color color_ = color::off;
-        //Low-level stuff...
+        //--snip--
 };
 
 /*
@@ -71,7 +71,7 @@ struct context
 };
 
 /*
-States are classes.
+States are represented by classes.
 */
 namespace states
 {
@@ -155,18 +155,17 @@ namespace states
 }
 
 /*
-Actions are classes.
+An action is a function (or lambda) called when a state transition is performed.
 */
 namespace actions
 {
     /*
-    An action class is required to implement the execute() function described
-    below.
-    Also, just like state classes, action classes must be constructible with one
-    of the following expressions:
-        auto action = action_type{machine, context};
-        auto action = action_type{context};
-        auto action = action_type{};
+    One of the following expressions must be valid:
+        action(machine, context, event);
+        action(context, event);
+        action(event);
+        action(context);
+        action();
     */
     void turn_light_off(context& ctx)
     {
@@ -175,7 +174,7 @@ namespace actions
 
     //We can of course factorize with a template.
     template<auto Color>
-    constexpr auto turn_light_tpl = [](context& ctx)
+    void turn_light_tpl(context& ctx)
     {
         ctx.led.set_color(Color);
     };
@@ -186,17 +185,18 @@ namespace actions
 }
 
 /*
-Guards are classes.
+A guard is a function (or lambda) called to check that a state transition can
+be performed.
 */
 namespace guards
 {
     /*
-    A guard class is required to implement the check() function described below.
-    Also, just like state classes, guard classes must be constructible with one
-    of the following expressions:
-        auto guard = guard_type{machine, context};
-        auto guard = guard_type{context};
-        auto guard = guard_type{};
+    One of the following expressions must be valid:
+        guard(machine, context, event);
+        guard(context, event);
+        guard(event);
+        guard(context);
+        guard();
     */
     bool is_long_push(const button::push_event& event)
     {

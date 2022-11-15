@@ -224,7 +224,7 @@ class region
                 {
                     if
                     (
-                        !detail::call_guard<Row::guard>
+                        !detail::call_action_or_guard<Row::guard>
                         (
                             &mach_,
                             &ctx_,
@@ -283,7 +283,7 @@ class region
                 >;
             }
 
-            detail::call_action<Row::action>
+            detail::call_action_or_guard<Row::action>
             (
                 &mach_,
                 &ctx_,

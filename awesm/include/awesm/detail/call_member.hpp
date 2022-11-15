@@ -48,74 +48,39 @@ auto call_on_exit(State& state, const void* /*pevent*/) ->
     state.on_exit();
 }
 
-template<class Action, class Event>
-auto call_execute(Action* paction, const Event* pevent) ->
-    decltype(paction->execute(*pevent))
+template<const auto& Fn, class Sm, class Context, class Event>
+auto call_action_or_guard(Sm* pmach, Context* pctx, const Event* pevent) ->
+    decltype(Fn(*pmach, *pctx, *pevent))
 {
-    paction->execute(*pevent);
+    return Fn(*pmach, *pctx, *pevent);
 }
 
-template<class Action>
-auto call_execute(Action* paction, const void* /*pevent*/) ->
-    decltype(paction->execute())
+template<const auto& Fn, class Context, class Event>
+auto call_action_or_guard(void* /*pmach*/, Context* pctx, const Event* pevent) ->
+    decltype(Fn(*pctx, *pevent))
 {
-    paction->execute();
+    return Fn(*pctx, *pevent);
 }
 
-template<const auto& Action, class Sm, class Context, class Event>
-auto call_action(Sm* pmach, Context* pctx, const Event* pevent) ->
-    decltype(Action(*pmach, *pctx, *pevent))
+template<const auto& Fn, class Context>
+auto call_action_or_guard(void* /*pmach*/, Context* pctx, const void* /*pevent*/) ->
+    decltype(Fn(*pctx))
 {
-    Action(*pmach, *pctx, *pevent);
+    return Fn(*pctx);
 }
 
-template<const auto& Action, class Context>
-auto call_action(void* /*pmach*/, Context* pctx, const void* /*pevent*/) ->
-    decltype(Action(*pctx))
+template<const auto& Fn, class Event>
+auto call_action_or_guard(void* /*pmach*/, void* /*pctx*/, const Event* pevent) ->
+    decltype(Fn(*pevent))
 {
-    Action(*pctx);
+    return Fn(*pevent);
 }
 
-template<const auto& Action, class Event>
-auto call_action(void* /*pmach*/, void* /*pctx*/, const Event* pevent) ->
-    decltype(Action(*pevent))
+template<const auto& Fn>
+auto call_action_or_guard(void* /*pmach*/, void* /*pctx*/, const void* /*pevent*/) ->
+    decltype(Fn())
 {
-    Action(*pevent);
-}
-
-template<const auto& Action>
-auto call_action(void* /*pmach*/, void* /*pctx*/, const void* /*pevent*/) ->
-    decltype(Action())
-{
-    Action();
-}
-
-template<const auto& Guard, class Sm, class Context, class Event>
-auto call_guard(Sm* pmach, Context* pctx, const Event* pevent) ->
-    decltype(Guard(*pmach, *pctx, *pevent))
-{
-    return Guard(*pmach, *pctx, *pevent);
-}
-
-template<const auto& Guard, class Context>
-auto call_guard(void* /*pmach*/, Context* pctx, const void* /*pevent*/) ->
-    decltype(Guard(*pctx))
-{
-    return Guard(*pctx);
-}
-
-template<const auto& Guard, class Event>
-auto call_guard(void* /*pmach*/, void* /*pctx*/, const Event* pevent) ->
-    decltype(Guard(*pevent))
-{
-    return Guard(*pevent);
-}
-
-template<const auto& Guard>
-auto call_guard(void* /*pmach*/, void* /*pctx*/, const void* /*pevent*/) ->
-    decltype(Guard())
-{
-    return Guard();
+    return Fn();
 }
 
 } //namespace

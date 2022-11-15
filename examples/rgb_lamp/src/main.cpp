@@ -168,37 +168,21 @@ namespace actions
         auto action = action_type{context};
         auto action = action_type{};
     */
-    struct turn_light_off
+    void turn_light_off(context& ctx)
     {
-        /*
-        Whenever a state machine executes an action, it calls the execute()
-        function of that action.
-        One of these expressions must be valid:
-            action.execute(event);
-            action.execute();
-        */
-        void execute()
-        {
-            ctx.led.set_color(rgb_led::color::off);
-        }
-
-        context& ctx;
-    };
+        ctx.led.set_color(rgb_led::color::off);
+    }
 
     //We can of course factorize with a template.
     template<auto Color>
-    struct turn_light_tpl
+    constexpr auto turn_light_tpl = [](context& ctx)
     {
-        void execute()
-        {
-            ctx.led.set_color(Color);
-        }
-        context& ctx;
+        ctx.led.set_color(Color);
     };
-    using turn_light_white = turn_light_tpl<rgb_led::color::white>;
-    using turn_light_red   = turn_light_tpl<rgb_led::color::red>;
-    using turn_light_green = turn_light_tpl<rgb_led::color::green>;
-    using turn_light_blue  = turn_light_tpl<rgb_led::color::blue>;
+    constexpr auto turn_light_white = turn_light_tpl<rgb_led::color::white>;
+    constexpr auto turn_light_red   = turn_light_tpl<rgb_led::color::red>;
+    constexpr auto turn_light_green = turn_light_tpl<rgb_led::color::green>;
+    constexpr auto turn_light_blue  = turn_light_tpl<rgb_led::color::blue>;
 }
 
 /*
@@ -214,23 +198,13 @@ namespace guards
         auto guard = guard_type{context};
         auto guard = guard_type{};
     */
-    struct is_long_push
+    bool is_long_push(const button::push_event& event)
     {
-        /*
-        Whenever a state machine checks a guard, it calls the check() function
-        of that guard.
-        One of these expressions must be valid:
-            guard.check(event);
-            guard.check();
-        */
-        bool check(const button::push_event& event)
-        {
-            return event.duration_ms > 1000;
-        }
-    };
+        return event.duration_ms > 1000;
+    }
 
     //We can use guard operators to compose guards.
-    using is_short_push = awesm::not_<is_long_push>;
+    constexpr auto is_short_push = awesm::not_<is_long_push>;
 }
 
 //Allow shorter names in transition table
@@ -274,7 +248,7 @@ the transition table, but we can put many options in it.
 */
 struct sm_def
 {
-    using conf = awesm::sm_conf<sm_transition_table>;
+    using conf = awesm::sm_conf<sm_transition_table, context>;
 };
 
 /*

@@ -23,18 +23,18 @@ namespace
     struct event2{};
     struct event3{};
 
-    struct action0{};
-    struct action1{};
+    void action0(){}
+    void action1(){}
 
-    struct guard0{};
-    struct guard1{};
+    bool guard0(){return true;};
+    bool guard1(){return true;};
 
     using transition_table = awesm::transition_table
     <
         awesm::row<state0,     event0, state1>,
-        awesm::row<state1,     event1, state2, awesm::null, guard0>,
+        awesm::row<state1,     event1, state2, awesm::null_action, guard0>,
         awesm::row<state2,     event2, state3, action0>,
-        awesm::row<state3,     event3, state0, action1,     guard1>,
+        awesm::row<state3,     event3, state0, action1,            guard1>,
         awesm::row<awesm::any, event3, state0>
     >;
 
@@ -43,15 +43,11 @@ namespace
 
     using digest = awesm::detail::transition_table_digest<sm, region_path, transition_table>;
 
-    using action_tuple = awesm::detail::sm_object_holder_tuple<action0, action1>;
-    using guard_tuple = awesm::detail::sm_object_holder_tuple<guard0, guard1>;
     using state_tuple = awesm::detail::sm_object_holder_tuple<awesm::detail::null_state, state0, state1, state2, state3>;
 }
 
 TEST_CASE("detail::transition_table_digest")
 {
-    REQUIRE(std::is_same_v<digest::action_tuple, action_tuple>);
-    REQUIRE(std::is_same_v<digest::guard_tuple, guard_tuple>);
     REQUIRE(std::is_same_v<digest::state_tuple, state_tuple>);
     REQUIRE(digest::has_source_state_patterns);
     REQUIRE(!digest::has_null_events);

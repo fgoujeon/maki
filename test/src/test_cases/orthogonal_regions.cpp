@@ -59,6 +59,7 @@ namespace
                     awesm::row<states::off1, events::button_press, states::on1>
                 >
             >,
+            context,
             awesm::sm_options::on_exception,
             awesm::sm_options::before_state_transition,
             awesm::sm_options::after_state_transition

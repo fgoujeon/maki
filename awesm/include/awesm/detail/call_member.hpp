@@ -62,18 +62,60 @@ auto call_execute(Action* paction, const void* /*pevent*/) ->
     paction->execute();
 }
 
-template<class Guard, class Event>
-auto call_check(Guard* pguard, const Event* pevent) ->
-    decltype(pguard->check(*pevent))
+template<const auto& Action, class Sm, class Context, class Event>
+auto call_action(Sm* pmach, Context* pctx, const Event* pevent) ->
+    decltype(Action(*pmach, *pctx, *pevent))
 {
-    return pguard->check(*pevent);
+    Action(*pmach, *pctx, *pevent);
 }
 
-template<class Guard>
-auto call_check(Guard* pguard, const void* /*pevent*/) ->
-    decltype(pguard->check())
+template<const auto& Action, class Context>
+auto call_action(void* /*pmach*/, Context* pctx, const void* /*pevent*/) ->
+    decltype(Action(*pctx))
 {
-    return pguard->check();
+    Action(*pctx);
+}
+
+template<const auto& Action, class Event>
+auto call_action(void* /*pmach*/, void* /*pctx*/, const Event* pevent) ->
+    decltype(Action(*pevent))
+{
+    Action(*pevent);
+}
+
+template<const auto& Action>
+auto call_action(void* /*pmach*/, void* /*pctx*/, const void* /*pevent*/) ->
+    decltype(Action())
+{
+    Action();
+}
+
+template<const auto& Guard, class Sm, class Context, class Event>
+auto call_guard(Sm* pmach, Context* pctx, const Event* pevent) ->
+    decltype(Guard(*pmach, *pctx, *pevent))
+{
+    return Guard(*pmach, *pctx, *pevent);
+}
+
+template<const auto& Guard, class Context>
+auto call_guard(void* /*pmach*/, Context* pctx, const void* /*pevent*/) ->
+    decltype(Guard(*pctx))
+{
+    return Guard(*pctx);
+}
+
+template<const auto& Guard, class Event>
+auto call_guard(void* /*pmach*/, void* /*pctx*/, const Event* pevent) ->
+    decltype(Guard(*pevent))
+{
+    return Guard(*pevent);
+}
+
+template<const auto& Guard>
+auto call_guard(void* /*pmach*/, void* /*pctx*/, const void* /*pevent*/) ->
+    decltype(Guard())
+{
+    return Guard();
 }
 
 } //namespace

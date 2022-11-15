@@ -27,25 +27,15 @@ namespace
 
     namespace actions
     {
-        struct beep
+        void beep(context& ctx)
         {
-            void execute(const events::button_press&)
-            {
-                ctx.i = 1;
-            }
+            ctx.i = 1;
+        }
 
-            context& ctx;
-        };
-
-        struct boop
+        void boop(context& ctx)
         {
-            void execute(const events::button_press&)
-            {
-                ctx.i = 0;
-            }
-
-            context& ctx;
-        };
+            ctx.i = 0;
+        }
     }
 
     using sm_transition_table = awesm::transition_table
@@ -56,7 +46,7 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf<sm_transition_table>;
+        using conf = awesm::sm_conf<sm_transition_table, context>;
     };
 
     using sm_t = awesm::sm<sm_def>;

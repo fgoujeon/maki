@@ -67,8 +67,8 @@ namespace resolve_transition_table_detail
                     SourceState,
                     typename RowWithPattern::event_type,
                     typename RowWithPattern::target_state_type,
-                    typename RowWithPattern::action_type,
-                    typename RowWithPattern::guard_type
+                    RowWithPattern::action,
+                    RowWithPattern::guard
                 >
             >,
             TransitionTable
@@ -103,8 +103,8 @@ namespace resolve_transition_table_detail
                 typename Row::source_state_type,
                 typename Row::event_type,
                 typename Row::target_state_type,
-                typename Row::action_type,
-                typename Row::guard_type
+                Row::action,
+                Row::guard
             >
         >;
     };

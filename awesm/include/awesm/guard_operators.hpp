@@ -14,105 +14,28 @@
 namespace awesm
 {
 
-template<class... Guards>
-class and_
+template<const auto&... Guards>
+constexpr auto and_ = [](auto& mach, auto& ctx, const auto& event)
 {
-    public:
-        template<class Sm, class Context>
-        and_(Sm& machine, Context& context):
-            guards_(machine, context)
-        {
-        }
-
-        template<class Event>
-        bool check(const Event& event)
-        {
-            return
-            (
-                detail::call_check
-                (
-                    &detail::get<Guards>(guards_),
-                    &event
-                ) && ...
-            );
-        }
-
-    private:
-        detail::sm_object_holder_tuple<Guards...> guards_;
+    return (detail::call_guard<Guards>(&mach, &ctx, &event) && ...);
 };
 
-template<class... Guards>
-class or_
+template<const auto&... Guards>
+constexpr auto or_ = [](auto& mach, auto& ctx, const auto& event)
 {
-    public:
-        template<class Sm, class Context>
-        or_(Sm& machine, Context& context):
-            guards_(machine, context)
-        {
-        }
-
-        template<class Event>
-        bool check(const Event& event)
-        {
-            return
-            (
-                detail::call_check
-                (
-                    &detail::get<Guards>(guards_),
-                    &event
-                ) || ...
-            );
-        }
-
-    private:
-        detail::sm_object_holder_tuple<Guards...> guards_;
+    return (detail::call_guard<Guards>(&mach, &ctx, &event) || ...);
 };
 
-template<class... Guards>
-class xor_
+template<const auto&... Guards>
+constexpr auto xor_ = [](auto& mach, auto& ctx, const auto& event)
 {
-    public:
-        template<class Sm, class Context>
-        xor_(Sm& machine, Context& context):
-            guards_(machine, context)
-        {
-        }
-
-        template<class Event>
-        bool check(const Event& event)
-        {
-            return
-            (
-                detail::call_check
-                (
-                    &detail::get<Guards>(guards_),
-                    &event
-                ) != ...
-            );
-        }
-
-    private:
-        detail::sm_object_holder_tuple<Guards...> guards_;
+    return (detail::call_guard<Guards>(&mach, &ctx, &event) != ...);
 };
 
-template<class Guard>
-class not_
+template<const auto& Guard>
+constexpr auto not_ = [](auto& mach, auto& ctx, const auto& event)
 {
-    public:
-        template<class Sm, class Context>
-        not_(Sm& machine, Context& context):
-            guard_{machine, context}
-        {
-        }
-
-        template<class Event>
-        bool check(const Event& event)
-        {
-            return !detail::call_check(&guard_, &event);
-        }
-
-    private:
-        detail::sm_object_holder<Guard> guard_;
+    return !detail::call_guard<Guard>(&mach, &ctx, &event);
 };
 
 } //namespace

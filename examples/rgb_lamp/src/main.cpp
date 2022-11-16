@@ -163,9 +163,7 @@ namespace actions
     One of the following expressions must be valid:
         action(machine, context, event);
         action(context, event);
-        action(event);
         action(context);
-        action();
     */
     void turn_light_off(context& ctx)
     {
@@ -194,11 +192,9 @@ namespace guards
     One of the following expressions must be valid:
         guard(machine, context, event);
         guard(context, event);
-        guard(event);
         guard(context);
-        guard();
     */
-    bool is_long_push(const button::push_event& event)
+    bool is_long_push(context& /*ctx*/, const button::push_event& event)
     {
         return event.duration_ms > 1000;
     }

@@ -69,20 +69,6 @@ auto call_action_or_guard(void* /*pmach*/, Context* pctx, const void* /*pevent*/
     return Fn(*pctx);
 }
 
-template<const auto& Fn, class Event>
-auto call_action_or_guard(void* /*pmach*/, void* /*pctx*/, const Event* pevent) ->
-    decltype(Fn(*pevent))
-{
-    return Fn(*pevent);
-}
-
-template<const auto& Fn>
-auto call_action_or_guard(void* /*pmach*/, void* /*pctx*/, const void* /*pevent*/) ->
-    decltype(Fn())
-{
-    return Fn();
-}
-
 } //namespace
 
 #endif

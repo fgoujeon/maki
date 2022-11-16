@@ -35,12 +35,12 @@ namespace
             return ctx.has_power;
         }
 
-        bool is_pressing_hard(const events::button_press& event)
+        bool is_pressing_hard(context& /*ctx*/, const events::button_press& event)
         {
             return event.hard;
         }
 
-        bool always_false()
+        bool always_false(context& /*ctx*/)
         {
             return false;
         }

@@ -12,14 +12,14 @@
 namespace awesm
 {
 
-inline void null_action()
+constexpr auto null_action = [](auto& /*ctx*/)
 {
-}
+};
 
-inline bool null_guard()
+constexpr auto null_guard = [](auto& /*ctx*/)
 {
     return true;
-}
+};
 
 template
 <
@@ -34,8 +34,16 @@ struct row
     using source_state_type = SourceState;
     using event_type = Event;
     using target_state_type = TargetState;
-    static constexpr const auto& action = Action;
-    static constexpr const auto& guard = Guard;
+
+    static constexpr const auto& get_action()
+    {
+        return Action;
+    }
+
+    static constexpr const auto& get_guard()
+    {
+        return Guard;
+    }
 };
 
 } //namespace

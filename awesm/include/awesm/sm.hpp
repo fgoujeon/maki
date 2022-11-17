@@ -21,31 +21,6 @@
 namespace awesm
 {
 
-namespace detail
-{
-    class false_at_destruction_setter
-    {
-        public:
-            false_at_destruction_setter(bool& boolean):
-                b_(boolean)
-            {
-            }
-
-            false_at_destruction_setter(const false_at_destruction_setter&) = delete;
-            false_at_destruction_setter(false_at_destruction_setter&&) = delete;
-            false_at_destruction_setter& operator=(const false_at_destruction_setter&) = delete;
-            false_at_destruction_setter& operator=(false_at_destruction_setter&&) = delete;
-
-            ~false_at_destruction_setter()
-            {
-                b_ = false;
-            }
-
-        private:
-            bool& b_;
-    };
-}
-
 template<class Def>
 class sm
 {
@@ -196,16 +171,17 @@ class sm
                 }
 
                 processing_event_ = true;
-                auto setter = detail::false_at_destruction_setter{processing_event_};
 
                 process_event_once<ProcessingType>(event);
 
-                //Process deferred event processings
+                //Process queued event processings
                 while(!queued_event_processings_.empty())
                 {
                     queued_event_processings_.front()();
                     queued_event_processings_.pop();
                 }
+
+                processing_event_ = false;
             }
             else
             {

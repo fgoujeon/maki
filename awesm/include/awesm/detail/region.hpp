@@ -112,30 +112,11 @@ class region
 
         using initial_state_t = detail::tlu::at<state_tuple_t, 1>; //0 being null_state
 
-        /*
-        Calling detail::resolve_transition_table<> isn't free. We need
-        alternative_lazy to avoid the call when it's unnecessary (i.e. when
-        there's no pattern-source-state in the transition table).
-        */
-        struct unresolved_transition_table_holder
-        {
-            template<class = void>
-            using type = unresolved_transition_table_t;
-        };
-        struct resolved_transition_table_holder
-        {
-            template<class = void>
-            using type = detail::resolve_transition_table
-            <
-                unresolved_transition_table_t,
-                state_tuple_t
-            >;
-        };
-        using transition_table_t = detail::alternative_lazy
+        using transition_table_t = detail::resolve_transition_table_t
         <
-            transition_table_digest_t::has_source_state_patterns,
-            resolved_transition_table_holder,
-            unresolved_transition_table_holder
+            unresolved_transition_table_t,
+            state_tuple_t,
+            transition_table_digest_t::has_source_state_patterns
         >;
 
         void do_anonymous_transitions()

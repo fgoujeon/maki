@@ -115,13 +115,33 @@ namespace resolve_transition_table_detail
     };
 }
 
+template<class TransitionTable, class StateTypeList, bool HasSourceStatePatterns>
+struct resolve_transition_table;
+
 template<class TransitionTable, class StateTypeList>
-using resolve_transition_table = tlu::left_fold
+struct resolve_transition_table<TransitionTable, StateTypeList, true>
+{
+    using type = tlu::left_fold
+    <
+        TransitionTable,
+        resolve_transition_table_detail::add_row_holder<StateTypeList>::template type,
+        transition_table<>
+    >;
+};
+
+template<class TransitionTable, class StateTypeList>
+struct resolve_transition_table<TransitionTable, StateTypeList, false>
+{
+    using type = TransitionTable;
+};
+
+template<class TransitionTable, class StateTypeList, bool HasSourceStatePatterns>
+using resolve_transition_table_t = typename resolve_transition_table
 <
     TransitionTable,
-    resolve_transition_table_detail::add_row_holder<StateTypeList>::template type,
-    transition_table<>
->;
+    StateTypeList,
+    HasSourceStatePatterns
+>::type;
 
 } //namespace
 

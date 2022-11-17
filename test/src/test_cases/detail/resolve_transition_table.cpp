@@ -76,10 +76,11 @@ TEST_CASE("detail::resolve_transition_table")
     >;
 
     using resolved_transition_table_t =
-        awesm::detail::resolve_transition_table
+        awesm::detail::resolve_transition_table_t
         <
             transition_table,
-            std::tuple<state0, state1, state2, state3>
+            std::tuple<state0, state1, state2, state3>,
+            true
         >
     ;
 

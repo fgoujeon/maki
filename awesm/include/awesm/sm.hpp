@@ -25,8 +25,8 @@ template<class Def>
 class sm
 {
     public:
-        using context_t = typename Def::conf::context_t;
         using conf = typename Def::conf;
+        using context_t = typename conf::context_t;
 
         explicit sm(context_t& context):
             def_(*this, context),

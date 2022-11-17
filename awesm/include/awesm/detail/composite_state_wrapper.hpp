@@ -71,10 +71,12 @@ class composite_state_wrapper
             return awesm::get_pretty_name<WrappedState>();
         }
 
+        static constexpr auto region_count = WrappedState::conf::region_count;
+
     private:
         using conf_t = typename WrappedState::conf;
         using transition_table_list_t = typename conf_t::transition_table_list_t;
-        using sm_path_t = detail::sm_path<RegionPath, composite_state_wrapper>;
+        using sm_path_t = detail::sm_path<RegionPath, WrappedState>;
 
         detail::sm_object_holder<WrappedState> state_;
         detail::region_tuple<Sm, sm_path_t, transition_table_list_t> region_tuple_;

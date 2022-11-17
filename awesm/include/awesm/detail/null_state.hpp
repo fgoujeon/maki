@@ -18,7 +18,15 @@ after stop().
 */
 struct null_state
 {
-    using conf = state_conf<>;
+    using conf = state_conf
+    <
+        state_options::get_pretty_name
+    >;
+
+    static constexpr auto get_pretty_name()
+    {
+        return "null";
+    }
 };
 
 } //namespace

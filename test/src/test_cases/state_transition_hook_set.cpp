@@ -29,23 +29,6 @@ namespace
         EMPTY_STATE(off);
     }
 
-    template<class State>
-    std::string get_state_name()
-    {
-        if constexpr(std::is_same_v<State, states::on>)
-        {
-            return "on";
-        }
-        else if constexpr(std::is_same_v<State, states::off>)
-        {
-            return "off";
-        }
-        else if constexpr(std::is_same_v<State, awesm::detail::null_state>)
-        {
-            return "null";
-        }
-    }
-
     using sm_transition_table = awesm::transition_table
     <
         awesm::row<states::off, events::button_press, states::on>,
@@ -63,7 +46,8 @@ namespace
             sm_transition_table,
             context,
             awesm::sm_options::before_state_transition,
-            awesm::sm_options::after_state_transition
+            awesm::sm_options::after_state_transition,
+            awesm::sm_options::get_pretty_name
         >;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>
@@ -71,7 +55,14 @@ namespace
         {
             static_assert(std::is_same_v<RegionPath, awesm::region_path<awesm::region_path_element<sm_t, 0>>>);
 
-            ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + "...;";
+            ctx.out += "Transition in ";
+            ctx.out += RegionPath::get_pretty_name();
+            ctx.out += ": ";
+            ctx.out += awesm::get_pretty_name<SourceState>();
+            ctx.out += " -> ";
+            ctx.out += awesm::get_pretty_name<TargetState>();
+            ctx.out += "...;";
+
             ctx.out += std::to_string(event.pressure) + ";";
         }
 
@@ -81,7 +72,19 @@ namespace
             static_assert(std::is_same_v<RegionPath, awesm::region_path<awesm::region_path_element<sm_t, 0>>>);
 
             ctx.out += std::to_string(event.pressure) + ";";
-            ctx.out += get_state_name<SourceState>() + "->" + get_state_name<TargetState>() + ";";
+
+            ctx.out += "Transition in ";
+            ctx.out += RegionPath::get_pretty_name();
+            ctx.out += ": ";
+            ctx.out += awesm::get_pretty_name<SourceState>();
+            ctx.out += " -> ";
+            ctx.out += awesm::get_pretty_name<TargetState>();
+            ctx.out += ";";
+        }
+
+        static constexpr auto get_pretty_name()
+        {
+            return "main_sm";
         }
 
         context& ctx;
@@ -95,15 +98,33 @@ TEST_CASE("state_transition_hook_set")
 
     sm.start(events::button_press{0});
     REQUIRE(sm.is_active_state<states::off>());
-    REQUIRE(ctx.out == "null->off...;0;0;null->off;");
+    REQUIRE
+    (
+        ctx.out ==
+        "Transition in main_sm: null -> off...;"
+        "0;0;"
+        "Transition in main_sm: null -> off;"
+    );
 
     ctx.out.clear();
     sm.process_event(events::button_press{1});
     REQUIRE(sm.is_active_state<states::on>());
-    REQUIRE(ctx.out == "off->on...;1;1;off->on;");
+    REQUIRE
+    (
+        ctx.out ==
+        "Transition in main_sm: off -> on...;"
+        "1;1;"
+        "Transition in main_sm: off -> on;"
+    );
 
     ctx.out.clear();
     sm.process_event(events::button_press{2});
     REQUIRE(sm.is_active_state<states::off>());
-    REQUIRE(ctx.out == "on->off...;2;2;on->off;");
+    REQUIRE
+    (
+        ctx.out ==
+        "Transition in main_sm: on -> off...;"
+        "2;2;"
+        "Transition in main_sm: on -> off;"
+    );
 }

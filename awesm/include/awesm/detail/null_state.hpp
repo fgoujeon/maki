@@ -18,7 +18,7 @@ after stop().
 */
 struct null_state
 {
-    using conf = state_conf
+    using conf_t = state_conf
     <
         state_options::get_pretty_name
     >;

@@ -25,8 +25,8 @@ template<class Def>
 class sm
 {
     public:
-        using conf = typename Def::conf;
-        using context_t = typename conf::context_t;
+        using conf_t = typename Def::conf_t;
+        using context_t = typename conf_t::context_t;
 
         explicit sm(context_t& context):
             def_(*this, context),
@@ -85,7 +85,6 @@ class sm
         template<class Sm, class RegionPath, class TransitionTable>
         friend class detail::region;
 
-        using conf_t = typename Def::conf;
         using transition_table_list_t = typename conf_t::transition_table_list_t;
 
         using path_t = detail::sm_path<region_path<>, sm>;

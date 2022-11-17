@@ -38,7 +38,7 @@ struct is_composite_state_conf<composite_state_conf<TransitionTable, Options...>
 template<class T>
 struct is_composite_state
 {
-    static constexpr auto value = is_composite_state_conf<typename T::conf>::value;
+    static constexpr auto value = is_composite_state_conf<typename T::conf_t>::value;
 };
 
 template<>

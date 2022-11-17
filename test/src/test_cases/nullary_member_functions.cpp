@@ -32,7 +32,7 @@ namespace
 
         struct on
         {
-            using conf = awesm::state_conf
+            using conf_t = awesm::state_conf
             <
                 awesm::state_options::on_entry_any,
                 awesm::state_options::on_exit_any
@@ -99,7 +99,7 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf<sm_transition_table, context>;
+        using conf_t = awesm::sm_conf<sm_transition_table, context>;
     };
 
     using sm_t = awesm::sm<sm_def>;

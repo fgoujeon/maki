@@ -24,7 +24,7 @@ struct region_path_element
         auto str = std::string{};
         str += awesm::get_pretty_name<sm_t>();
 
-        if constexpr(sm_t::conf::region_count > 1)
+        if constexpr(sm_t::conf_t::region_count > 1)
         {
             str += "[";
             str += std::to_string(region_index_v);

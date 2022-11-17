@@ -19,7 +19,7 @@ template<class Sm, class RegionPath, class WrappedState>
 class composite_state_wrapper
 {
     public:
-        using conf = state_conf
+        using conf_t = state_conf
         <
             state_options::on_entry_any,
             state_options::on_event_any,
@@ -71,11 +71,9 @@ class composite_state_wrapper
             return awesm::get_pretty_name<WrappedState>();
         }
 
-        static constexpr auto region_count = WrappedState::conf::region_count;
-
     private:
-        using conf_t = typename WrappedState::conf;
-        using transition_table_list_t = typename conf_t::transition_table_list_t;
+        using wrapped_conf_t = typename WrappedState::conf_t;
+        using transition_table_list_t = typename wrapped_conf_t::transition_table_list_t;
         using sm_path_t = detail::sm_path<RegionPath, WrappedState>;
 
         detail::sm_object_holder<WrappedState> state_;

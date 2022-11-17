@@ -48,32 +48,25 @@ auto call_on_exit(State& state, const void* /*pevent*/) ->
     state.on_exit();
 }
 
-template<class Action, class Event>
-auto call_execute(Action* paction, const Event* pevent) ->
-    decltype(paction->execute(*pevent))
+template<const auto& Fn, class Sm, class Context, class Event>
+auto call_action_or_guard(Sm* pmach, Context* pctx, const Event* pevent) ->
+    decltype(Fn(*pmach, *pctx, *pevent))
 {
-    paction->execute(*pevent);
+    return Fn(*pmach, *pctx, *pevent);
 }
 
-template<class Action>
-auto call_execute(Action* paction, const void* /*pevent*/) ->
-    decltype(paction->execute())
+template<const auto& Fn, class Context, class Event>
+auto call_action_or_guard(void* /*pmach*/, Context* pctx, const Event* pevent) ->
+    decltype(Fn(*pctx, *pevent))
 {
-    paction->execute();
+    return Fn(*pctx, *pevent);
 }
 
-template<class Guard, class Event>
-auto call_check(Guard* pguard, const Event* pevent) ->
-    decltype(pguard->check(*pevent))
+template<const auto& Fn, class Context>
+auto call_action_or_guard(void* /*pmach*/, Context* pctx, const void* /*pevent*/) ->
+    decltype(Fn(*pctx))
 {
-    return pguard->check(*pevent);
-}
-
-template<class Guard>
-auto call_check(Guard* pguard, const void* /*pevent*/) ->
-    decltype(pguard->check())
-{
-    return pguard->check();
+    return Fn(*pctx);
 }
 
 } //namespace

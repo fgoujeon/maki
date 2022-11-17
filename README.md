@@ -77,11 +77,11 @@ class button
 
         button(const event_handler& /*eh*/)
         {
-            //Low-level stuff...
+            //--snip--
         }
 
     private:
-        //Low-level stuff...
+        //--snip--
 };
 
 //This class drives the RGB LED.
@@ -105,12 +105,12 @@ class rgb_led
         void set_color(const color c)
         {
             color_ = c;
-            //Low-level stuff...
+            //--snip--
         }
 
     private:
         color color_ = color::off;
-        //Low-level stuff...
+        //--snip--
 };
 
 /*
@@ -123,7 +123,7 @@ struct context
 };
 
 /*
-States are classes.
+States are represented by classes.
 */
 namespace states
 {
@@ -207,82 +207,52 @@ namespace states
 }
 
 /*
-Actions are classes.
+An action is a function (or lambda) called when a state transition is performed.
 */
 namespace actions
 {
     /*
-    An action class is required to implement the execute() function described
-    below.
-    Also, just like state classes, action classes must be constructible with one
-    of the following expressions:
-        auto action = action_type{machine, context};
-        auto action = action_type{context};
-        auto action = action_type{};
+    One of the following expressions must be valid:
+        action(machine, context, event);
+        action(context, event);
+        action(context);
     */
-    struct turn_light_off
+    void turn_light_off(context& ctx)
     {
-        /*
-        Whenever a state machine executes an action, it calls the execute()
-        function of that action.
-        One of these expressions must be valid:
-            action.execute(event);
-            action.execute();
-        */
-        void execute()
-        {
-            ctx.led.set_color(rgb_led::color::off);
-        }
-
-        context& ctx;
-    };
+        ctx.led.set_color(rgb_led::color::off);
+    }
 
     //We can of course factorize with a template.
     template<auto Color>
-    struct turn_light_tpl
+    void turn_light_tpl(context& ctx)
     {
-        void execute()
-        {
-            ctx.led.set_color(Color);
-        }
-        context& ctx;
+        ctx.led.set_color(Color);
     };
-    using turn_light_white = turn_light_tpl<rgb_led::color::white>;
-    using turn_light_red   = turn_light_tpl<rgb_led::color::red>;
-    using turn_light_green = turn_light_tpl<rgb_led::color::green>;
-    using turn_light_blue  = turn_light_tpl<rgb_led::color::blue>;
+    constexpr auto turn_light_white = turn_light_tpl<rgb_led::color::white>;
+    constexpr auto turn_light_red   = turn_light_tpl<rgb_led::color::red>;
+    constexpr auto turn_light_green = turn_light_tpl<rgb_led::color::green>;
+    constexpr auto turn_light_blue  = turn_light_tpl<rgb_led::color::blue>;
 }
 
 /*
-Guards are classes.
+A guard is a function (or lambda) called to check that a state transition can
+be performed.
 */
 namespace guards
 {
     /*
-    A guard class is required to implement the check() function described below.
-    Also, just like state classes, guard classes must be constructible with one
-    of the following expressions:
-        auto guard = guard_type{machine, context};
-        auto guard = guard_type{context};
-        auto guard = guard_type{};
+    One of the following expressions must be valid:
+        guard(machine, context, event);
+        guard(context, event);
+        guard(context);
     */
-    struct is_long_push
+    bool is_long_push(context& /*ctx*/, const button::push_event& event)
     {
-        /*
-        Whenever a state machine checks a guard, it calls the check() function
-        of that guard.
-        One of these expressions must be valid:
-            guard.check(event);
-            guard.check();
-        */
-        bool check(const button::push_event& event)
-        {
-            return event.duration_ms > 1000;
-        }
-    };
+        return event.duration_ms > 1000;
+    }
 
     //We can use guard operators to compose guards.
-    using is_short_push = awesm::not_<is_long_push>;
+    constexpr auto is_short_push = awesm::not_<is_long_push>;
 }
 
 //Allow shorter names in transition table
@@ -326,7 +296,7 @@ the transition table, but we can put many options in it.
 */
 struct sm_def
 {
-    using conf = awesm::sm_conf<sm_transition_table>;
+    using conf = awesm::sm_conf<sm_transition_table, context>;
 };
 
 /*

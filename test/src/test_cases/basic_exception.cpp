@@ -73,15 +73,10 @@ namespace
 
     namespace actions
     {
-        struct unreachable
+        void unreachable(context& ctx)
         {
-            void execute()
-            {
-                ctx.out += "unreachable;";
-            }
-
-            context& ctx;
-        };
+            ctx.out += "unreachable;";
+        }
     }
 
     using sm_transition_table = awesm::transition_table
@@ -93,7 +88,7 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf<sm_transition_table>;
+        using conf = awesm::sm_conf<sm_transition_table, context>;
     };
 
     using sm_t = awesm::sm<sm_def>;

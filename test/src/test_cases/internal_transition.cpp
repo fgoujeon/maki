@@ -68,6 +68,7 @@ namespace
         using conf = awesm::sm_conf
         <
             sm_transition_table,
+            context,
             awesm::sm_options::disable_run_to_completion
         >;
     };

@@ -92,26 +92,24 @@ namespace
 
     namespace actions
     {
-        struct s0_to_s1
+        constexpr auto s0_to_s1 = []
+        (
+            awesm::sm_ref<events::s1_to_s2_request> mach,
+            context& /*ctx*/,
+            const auto& /*event*/
+        )
         {
-            void execute()
-            {
-                machine.process_event(events::s1_to_s2_request{});
-            }
-
-            awesm::sm_ref<events::s1_to_s2_request> machine;
-            context& ctx;
+            mach.process_event(events::s1_to_s2_request{});
         };
 
-        struct s1_to_s2
+        constexpr auto s1_to_s2 = []
+        (
+            awesm::sm_ref<events::s2_to_s0_request> mach,
+            context& /*ctx*/,
+            const auto& /*event*/
+        )
         {
-            void execute()
-            {
-                machine.process_event(events::s2_to_s0_request{});
-            }
-
-            awesm::sm_ref<events::s2_to_s0_request> machine;
-            context& ctx;
+            mach.process_event(events::s2_to_s0_request{});
         };
     }
 
@@ -124,7 +122,7 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf<sm_transition_table>;
+        using conf = awesm::sm_conf<sm_transition_table, context>;
     };
 }
 

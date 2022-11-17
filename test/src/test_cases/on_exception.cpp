@@ -88,7 +88,7 @@ namespace
 
     struct default_sm_def
     {
-        using conf = awesm::sm_conf<sm_transition_table>;
+        using conf = awesm::sm_conf<sm_transition_table, context>;
     };
 
     using default_sm_t = awesm::sm<default_sm_def>;
@@ -98,6 +98,7 @@ namespace
         using conf = awesm::sm_conf
         <
             sm_transition_table,
+            context,
             awesm::sm_options::on_exception
         >;
 

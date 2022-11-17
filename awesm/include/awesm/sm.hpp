@@ -50,8 +50,9 @@ template<class Def>
 class sm
 {
     public:
-        template<class Context>
-        explicit sm(Context& context):
+        using context_t = typename Def::conf::context_t;
+
+        explicit sm(context_t& context):
             def_(*this, context),
             region_tuple_{*this, context}
         {

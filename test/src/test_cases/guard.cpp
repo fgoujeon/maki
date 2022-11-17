@@ -30,43 +30,32 @@ namespace
 
     namespace guards
     {
-        struct has_power
+        bool has_power(context& ctx)
         {
-            bool check()
-            {
-                return ctx.has_power;
-            }
+            return ctx.has_power;
+        }
 
-            context& ctx;
-        };
-
-        struct is_pressing_hard
+        bool is_pressing_hard(context& /*ctx*/, const events::button_press& event)
         {
-            bool check(const events::button_press& event)
-            {
-                return event.hard;
-            }
-        };
+            return event.hard;
+        }
 
-        struct always_false
+        bool always_false(context& /*ctx*/)
         {
-            bool check(const events::button_press&)
-            {
-                return false;
-            }
-        };
+            return false;
+        }
     }
 
     using sm_transition_table = awesm::transition_table
     <
-        awesm::row<states::off, events::button_press, states::on,  awesm::null, guards::has_power>,
-        awesm::row<states::on,  events::button_press, states::off, awesm::null, guards::always_false>,
-        awesm::row<states::on,  events::button_press, states::off, awesm::null, guards::is_pressing_hard>
+        awesm::row<states::off, events::button_press, states::on,  awesm::null_action, guards::has_power>,
+        awesm::row<states::on,  events::button_press, states::off, awesm::null_action, guards::always_false>,
+        awesm::row<states::on,  events::button_press, states::off, awesm::null_action, guards::is_pressing_hard>
     >;
 
     struct sm_def
     {
-        using conf = awesm::sm_conf<sm_transition_table>;
+        using conf = awesm::sm_conf<sm_transition_table, context>;
     };
 
     using sm_t = awesm::sm<sm_def>;

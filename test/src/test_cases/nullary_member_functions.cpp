@@ -62,36 +62,31 @@ namespace
         };
     }
 
-    struct action
+    constexpr auto action = [](auto& /*sm*/, context& ctx, const auto& event)
     {
-        void execute(const events::e1&)
+        using event_t = std::decay_t<decltype(event)>;
+        if constexpr(std::is_same_v<event_t, events::e1>)
         {
             ctx.out += "execute(e1);";
         }
-
-        void execute()
+        else
         {
             ctx.out += "execute();";
         }
-
-        context& ctx;
     };
 
-    struct guard
+    constexpr auto guard = [](auto& /*sm*/, context& ctx, const auto& event)
     {
-        bool check(const events::e1&)
+        using event_t = std::decay_t<decltype(event)>;
+        if constexpr(std::is_same_v<event_t, events::e1>)
         {
             ctx.out += "check(e1);";
-            return true;
         }
-
-        bool check()
+        else
         {
             ctx.out += "check();";
-            return true;
         }
-
-        context& ctx;
+        return true;
     };
 
     using sm_transition_table = awesm::transition_table
@@ -104,7 +99,7 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf<sm_transition_table>;
+        using conf = awesm::sm_conf<sm_transition_table, context>;
     };
 
     using sm_t = awesm::sm<sm_def>;

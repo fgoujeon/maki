@@ -42,15 +42,10 @@ namespace
     {
 
 #define GUARD(NAME) \
-    struct NAME \
+    bool NAME(context& ctx) \
     { \
-        bool check() const \
-        { \
-            return ctx.NAME; \
-        } \
- \
-        context& ctx; \
-    };
+        return ctx.NAME; \
+    }
 
         GUARD(can_access_state0_0);
         GUARD(can_access_state0_1);
@@ -62,18 +57,18 @@ namespace
 
 #undef GUARD
 
-        using can_access_state0 = awesm::and_<guards::can_access_state0_0, guards::can_access_state0_1>;
-        using can_access_state1 = awesm::or_<guards::can_access_state1_0, guards::can_access_state1_1>;
-        using can_access_state2 = awesm::xor_<guards::can_access_state2_0, guards::can_access_state2_1>;
-        using can_access_state3 = awesm::not_<guards::cant_access_state3>;
+        constexpr auto can_access_state0 = awesm::and_<guards::can_access_state0_0, guards::can_access_state0_1>;
+        constexpr auto can_access_state1 = awesm::or_<guards::can_access_state1_0, guards::can_access_state1_1>;
+        constexpr auto can_access_state2 = awesm::xor_<guards::can_access_state2_0, guards::can_access_state2_1>;
+        constexpr auto can_access_state3 = awesm::not_<guards::cant_access_state3>;
     }
 
     using sm_transition_table = awesm::transition_table
     <
-        awesm::row<states::idle, events::start, states::state0, awesm::null, guards::can_access_state0>,
-        awesm::row<states::idle, events::start, states::state1, awesm::null, guards::can_access_state1>,
-        awesm::row<states::idle, events::start, states::state2, awesm::null, guards::can_access_state2>,
-        awesm::row<states::idle, events::start, states::state3, awesm::null, guards::can_access_state3>,
+        awesm::row<states::idle, events::start, states::state0, awesm::null_action, guards::can_access_state0>,
+        awesm::row<states::idle, events::start, states::state1, awesm::null_action, guards::can_access_state1>,
+        awesm::row<states::idle, events::start, states::state2, awesm::null_action, guards::can_access_state2>,
+        awesm::row<states::idle, events::start, states::state3, awesm::null_action, guards::can_access_state3>,
 
         awesm::row<states::state0, events::stop, states::idle>,
         awesm::row<states::state1, events::stop, states::idle>,
@@ -83,7 +78,7 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf<sm_transition_table>;
+        using conf = awesm::sm_conf<sm_transition_table, context>;
     };
 
     using sm_t = awesm::sm<sm_def>;

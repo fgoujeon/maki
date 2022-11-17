@@ -22,16 +22,18 @@ namespace sm_options
     struct on_exception{};
 }
 
-template<class TransitionTable, class... Options>
+template<class TransitionTable, class Context, class... Options>
 struct sm_conf
 {
     using transition_table_list_t = transition_table_list<TransitionTable>;
+    using context_t = Context;
 };
 
-template<class... TransitionTables, class... Options>
-struct sm_conf<transition_table_list<TransitionTables...>, Options...>
+template<class... TransitionTables, class Context, class... Options>
+struct sm_conf<transition_table_list<TransitionTables...>, Context, Options...>
 {
     using transition_table_list_t = transition_table_list<TransitionTables...>;
+    using context_t = Context;
 };
 
 } //namespace

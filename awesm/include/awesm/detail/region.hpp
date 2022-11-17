@@ -29,12 +29,12 @@ template<class Sm, class RegionPath, class TransitionTable>
 class region
 {
     public:
-        template<class Context>
-        explicit region(Sm& mach, Context& context):
+        using context_t = typename Sm::context_t;
+
+        explicit region(Sm& mach, context_t& ctx):
             mach_(mach),
-            states_(mach, context),
-            actions_(mach, context),
-            guards_(mach, context)
+            ctx_(ctx),
+            states_(mach, ctx)
         {
         }
 
@@ -109,8 +109,6 @@ class region
             detail::transition_table_digest<Sm, RegionPath, unresolved_transition_table_t>
         ;
         using state_tuple_t = typename transition_table_digest_t::state_tuple;
-        using action_tuple_t = typename transition_table_digest_t::action_tuple;
-        using guard_tuple_t = typename transition_table_digest_t::guard_tuple;
 
         using initial_state_t = detail::tlu::at<state_tuple_t, 1>; //0 being null_state
 
@@ -212,7 +210,6 @@ class region
         bool process_event_in_row(const Event& event)
         {
             using source_state_t = typename Row::source_state_type;
-            using guard_t        = typename Row::guard_type;
 
             //Make sure the transition source state is the active state
             if(!is_active_state<source_state_t>())
@@ -220,42 +217,30 @@ class region
                 return false;
             }
 
-            if constexpr(std::is_same_v<guard_t, null>)
-            {
-                safe_call
-                (
-                    [&]
-                    {
-                        process_event_in_row_2<Row>(event);
-                    }
-                );
-                return true;
-            }
-            else
-            {
-                auto processed = false;
-                safe_call
-                (
-                    [&]
-                    {
-                        if
+            static constexpr const auto& row_guard = Row::get_guard();
+            auto processed = false;
+            safe_call
+            (
+                [&]
+                {
+                    if
+                    (
+                        !detail::call_action_or_guard<row_guard>
                         (
-                            !detail::call_check
-                            (
-                                &get<guard_t>(guards_),
-                                &event
-                            )
+                            &mach_,
+                            &ctx_,
+                            &event
                         )
-                        {
-                            return;
-                        }
-
-                        processed = true;
-                        process_event_in_row_2<Row>(event);
+                    )
+                    {
+                        return;
                     }
-                );
-                return processed;
-            }
+
+                    processed = true;
+                    process_event_in_row_2<Row>(event);
+                }
+            );
+            return processed;
         }
 
         template<class Row, class Event>
@@ -263,7 +248,6 @@ class region
         {
             using source_state_t = typename Row::source_state_type;
             using target_state_t = typename Row::target_state_type;
-            using action_t       = typename Row::action_type;
 
             detail::ignore_unused(event);
 
@@ -300,14 +284,13 @@ class region
                 >;
             }
 
-            if constexpr(!std::is_same_v<action_t, null>)
-            {
-                detail::call_execute
-                (
-                    &get<action_t>(actions_),
-                    &event
-                );
-            }
+            static constexpr const auto& row_action = Row::get_action();
+            detail::call_action_or_guard<row_action>
+            (
+                &mach_,
+                &ctx_,
+                &event
+            );
 
             if constexpr(!is_internal_transition)
             {
@@ -434,9 +417,8 @@ class region
         }
 
         Sm& mach_;
+        context_t& ctx_;
         state_tuple_t states_;
-        action_tuple_t actions_;
-        guard_tuple_t guards_;
 
         int active_state_index_ = 0;
 };

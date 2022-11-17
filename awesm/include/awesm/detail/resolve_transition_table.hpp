@@ -53,23 +53,19 @@ For example, the following resolved_transition_table_t type...:
 namespace resolve_transition_table_detail
 {
     template<class RowWithPattern>
-    struct add_resolved_row_holder
+    struct add_resolved_row_holder;
+
+    template<class SourceState, class Event, class TargetState, const auto& Action, const auto& Guard>
+    struct add_resolved_row_holder<row<SourceState, Event, TargetState, Action, Guard>>
     {
-        template<class TransitionTable, class SourceState>
+        template<class TransitionTable, class State>
         using type = alternative
         <
-            RowWithPattern::source_state_type::template matches<SourceState>,
+            SourceState::template matches<State>,
             tlu::push_back
             <
                 TransitionTable,
-                row
-                <
-                    SourceState,
-                    typename RowWithPattern::event_type,
-                    typename RowWithPattern::target_state_type,
-                    typename RowWithPattern::action_type,
-                    typename RowWithPattern::guard_type
-                >
+                row<State, Event, TargetState, Action, Guard>
             >,
             TransitionTable
         >;
@@ -95,18 +91,7 @@ namespace resolve_transition_table_detail
     struct add_row_without_pattern_holder
     {
         template<class = void>
-        using type = tlu::push_back
-        <
-            TransitionTable,
-            row
-            <
-                typename Row::source_state_type,
-                typename Row::event_type,
-                typename Row::target_state_type,
-                typename Row::action_type,
-                typename Row::guard_type
-            >
-        >;
+        using type = tlu::push_back<TransitionTable, Row>;
     };
 
     //We need a holder to pass StateTypeList

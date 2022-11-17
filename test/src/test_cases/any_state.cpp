@@ -37,7 +37,8 @@ namespace
     {
         using conf = awesm::sm_conf
         <
-            sm_transition_table
+            sm_transition_table,
+            context
         >;
     };
 

@@ -37,8 +37,6 @@ For example, the following digest type...:
     struct digest
     {
         using state_tuple = awesm::detail::sm_object_holder_tuple<awesm::null_state, state0, state1, state2, state3>;
-        using action_tuple = awesm::detail::sm_object_holder_tuple<action0, action1>;
-        using guard_tuple = awesm::detail::sm_object_holder_tuple<guard0, guard1>;
         static constexpr auto has_source_state_patterns = false;
         static constexpr auto has_null_events = false;
     };
@@ -75,8 +73,6 @@ namespace transition_table_digest_detail
         using sm_t = Sm;
         using region_path_t = RegionPath;
         using state_tuple = type_list<null_state, InitialState>;
-        using action_tuple = type_list<>;
-        using guard_tuple = type_list<>;
         static constexpr auto has_source_state_patterns = false;
         static constexpr auto has_null_events = false;
     };
@@ -92,18 +88,6 @@ namespace transition_table_digest_detail
         <
             typename Digest::state_tuple,
             state_wrapper_t<sm_t, region_path_t, typename Row::target_state_type>
-        >;
-
-        using action_tuple = push_back_unique_if_not_null
-        <
-            typename Digest::action_tuple,
-            typename Row::action_type
-        >;
-
-        using guard_tuple = push_back_unique_if_not_null
-        <
-            typename Digest::guard_tuple,
-            typename Row::guard_type
         >;
 
         static constexpr auto has_source_state_patterns =
@@ -155,16 +139,6 @@ class transition_table_digest
         using state_tuple = transition_table_digest_detail::to_tuple
         <
             typename digest_t::state_tuple
-        >;
-
-        using action_tuple = transition_table_digest_detail::to_tuple
-        <
-            typename digest_t::action_tuple
-        >;
-
-        using guard_tuple = transition_table_digest_detail::to_tuple
-        <
-            typename digest_t::guard_tuple
         >;
 
         static constexpr auto has_source_state_patterns = digest_t::has_source_state_patterns;

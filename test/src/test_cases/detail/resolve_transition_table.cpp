@@ -23,41 +23,32 @@ namespace
     struct event1{};
     struct event2{};
 
-    struct action0
+    void action0()
     {
-        void execute(){}
-        context& ctx;
-    };
+    }
 
-    struct action1
+    void action1()
     {
-        void execute(){}
-        context& ctx;
-    };
+    }
 
-    struct action2
+    void action2()
     {
-        void execute(){}
-        context& ctx;
-    };
+    }
 
-    struct guard0
+    bool guard0()
     {
-        bool check(){return true;}
-        context& ctx;
-    };
+        return true;
+    }
 
-    struct guard1
+    bool guard1()
     {
-        bool check(){return true;}
-        context& ctx;
-    };
+        return true;
+    }
 
-    struct guard2
+    bool guard2()
     {
-        bool check(){return true;}
-        context& ctx;
-    };
+        return true;
+    }
 }
 
 TEST_CASE("detail::resolve_transition_table")

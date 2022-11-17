@@ -61,6 +61,7 @@ namespace
         using conf = awesm::sm_conf
         <
             sm_transition_table,
+            context,
             awesm::sm_options::before_state_transition,
             awesm::sm_options::after_state_transition
         >;

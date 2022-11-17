@@ -23,7 +23,8 @@ class composite_state_wrapper
         <
             state_options::on_entry_any,
             state_options::on_event_any,
-            state_options::on_exit_any
+            state_options::on_exit_any,
+            state_options::get_pretty_name
         >;
 
         template<class Context>
@@ -63,6 +64,11 @@ class composite_state_wrapper
         {
             region_tuple_.stop(event);
             state_.on_exit(event);
+        }
+
+        static decltype(auto) get_pretty_name()
+        {
+            return awesm::get_pretty_name<WrappedState>();
         }
 
     private:

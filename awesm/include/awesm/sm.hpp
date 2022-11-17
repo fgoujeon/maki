@@ -26,6 +26,7 @@ class sm
 {
     public:
         using context_t = typename Def::conf::context_t;
+        using conf = typename Def::conf;
 
         explicit sm(context_t& context):
             def_(*this, context),
@@ -72,6 +73,11 @@ class sm
         void process_event(const Event& event)
         {
             process_event_2<detail::event_processing_type::event>(event);
+        }
+
+        static decltype(auto) get_pretty_name()
+        {
+            return awesm::get_pretty_name<Def>();
         }
 
     private:

@@ -8,6 +8,7 @@
 #define AWESM_SM_CONF_HPP
 
 #include "transition_table_list.hpp"
+#include "pretty_name.hpp"
 
 namespace awesm
 {
@@ -20,6 +21,7 @@ namespace sm_options
     struct disable_run_to_completion{};
     struct on_event{};
     struct on_exception{};
+    using get_pretty_name = detail::get_pretty_name_option;
 }
 
 template<class TransitionTable, class Context, class... Options>

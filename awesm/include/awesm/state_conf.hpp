@@ -8,6 +8,7 @@
 #define AWESM_STATE_CONF_HPP
 
 #include "type_patterns.hpp"
+#include "pretty_name.hpp"
 
 namespace awesm
 {
@@ -25,6 +26,8 @@ namespace state_options
     using on_event_any_of = on_event<any_of<Ts...>>;
 
     struct on_exit_any{};
+
+    using get_pretty_name = detail::get_pretty_name_option;
 }
 
 template<class... Options>

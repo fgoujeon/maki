@@ -171,7 +171,7 @@ class region
             const Event* pevent,
             std::enable_if_t
             <
-                std::is_same_v<Event, typename Row::event_type>
+                std::is_same_v<Event, typename Row::event_t>
             >* /*ignored*/ = nullptr
         )
         {
@@ -190,7 +190,7 @@ class region
         template<class Row, class Event>
         bool process_event_in_row(const Event& event)
         {
-            using source_state_t = typename Row::source_state_type;
+            using source_state_t = typename Row::source_state_t;
 
             //Make sure the transition source state is the active state
             if(!is_active_state<source_state_t>())
@@ -227,8 +227,8 @@ class region
         template<class Row, class Event>
         void process_event_in_row_2(const Event& event)
         {
-            using source_state_t = typename Row::source_state_type;
-            using target_state_t = typename Row::target_state_type;
+            using source_state_t = typename Row::source_state_t;
+            using target_state_t = typename Row::target_state_t;
 
             detail::ignore_unused(event);
 

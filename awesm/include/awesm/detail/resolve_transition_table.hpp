@@ -101,14 +101,14 @@ namespace resolve_transition_table_detail
         /*
         Return TransitionTable with added rows.
         Added rows are either:
-        - Row as is if Row::source_state_type isn't a pattern;
+        - Row as is if Row::source_state_t isn't a pattern;
         - n resolved rows otherwise (n being the number of states that match the
           pattern).
         */
         template<class TransitionTable, class Row>
         using type = alternative_lazy
         <
-            std::is_base_of_v<type_pattern, typename Row::source_state_type>,
+            std::is_base_of_v<type_pattern, typename Row::source_state_t>,
             add_row_with_pattern_holder<TransitionTable, Row, StateTypeList>,
             add_row_without_pattern_holder<TransitionTable, Row>
         >;

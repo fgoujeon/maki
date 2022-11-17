@@ -65,7 +65,7 @@ namespace transition_table_digest_detail
     >;
 
     template<class TransitionTable>
-    using initial_state_t = typename tlu::at<TransitionTable, 0>::source_state_type;
+    using initial_state_t = typename tlu::at<TransitionTable, 0>::source_state_t;
 
     template<class Sm, class RegionPath, class InitialState>
     struct initial_digest
@@ -87,17 +87,17 @@ namespace transition_table_digest_detail
         using state_tuple = push_back_unique_if_not_null
         <
             typename Digest::state_tuple,
-            state_wrapper_t<sm_t, region_path_t, typename Row::target_state_type>
+            state_wrapper_t<sm_t, region_path_t, typename Row::target_state_t>
         >;
 
         static constexpr auto has_source_state_patterns =
             Digest::has_source_state_patterns ||
-            std::is_base_of_v<type_pattern, typename Row::source_state_type>
+            std::is_base_of_v<type_pattern, typename Row::source_state_t>
         ;
 
         static constexpr auto has_null_events =
             Digest::has_null_events ||
-            std::is_same_v<typename Row::event_type, null>
+            std::is_same_v<typename Row::event_t, null>
         ;
     };
 

@@ -13,16 +13,41 @@ jobs:
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-22.04
 
+    defaults:
+      run:
+        shell: bash
+
+    strategy:
+      matrix:
+        config:
+          - { compiler: g++,     version: 10, build_type: Release, cppstd: 17 }
+          - { compiler: g++,     version: 11, build_type: Debug,   cppstd: 20 }
+          - { compiler: g++,     version: 12, build_type: Release, cppstd: 20 }
+            #- { compiler: clang++, version: 10, build_type: Debug,   cppstd: 17 }
+            #- { compiler: clang++, version: 12, build_type: Debug,   cppstd: 17 }
+            #- { compiler: clang++, version: 15, build_type: Release, cppstd: 20 }
+
+    name: "${{matrix.config.compiler}} ${{matrix.config.version}} (C++${{matrix.config.cppstd}}, ${{matrix.config.build_type}})"
+
     steps:
     - uses: actions/checkout@v3
+
+    - name: Install g++-12
+      if: matrix.config.compiler == 'g++' && matrix.config.version == 12
+      run: sudo apt install -y g++-12
 
     - name: Install catch2
       run: sudo apt install -y catch2
 
     - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DAWESM_BUILD_TEST=1 -DAWESM_BUILD_EXAMPLES=1 -DAWESM_FORCE_CATCH2_V2=1
+      run: |
+        cmake \
+          -B ${{github.workspace}}/build \
+          -DCMAKE_CXX_COMPILER=${{matrix.config.compiler}}-${{matrix.config.version}} \
+          -DCMAKE_BUILD_TYPE=${{matrix.config.build_type}} \
+          -DAWESM_BUILD_TEST=1 \
+          -DAWESM_BUILD_EXAMPLES=1 \
+          -DAWESM_FORCE_CATCH2_V2=1
 
     - name: Build
       # Build your program with the given configuration

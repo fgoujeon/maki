@@ -227,7 +227,7 @@ namespace actions
     void turn_light_tpl(context& ctx)
     {
         ctx.led.set_color(Color);
-    };
+    }
     constexpr auto turn_light_white = turn_light_tpl<rgb_led::color::white>;
     constexpr auto turn_light_red   = turn_light_tpl<rgb_led::color::red>;
     constexpr auto turn_light_green = turn_light_tpl<rgb_led::color::green>;

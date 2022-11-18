@@ -22,7 +22,7 @@ target_link_libraries(
         awesm
 )
 
-if(TARGET Catch2::Catch2WithMain) #v3
+if(TARGET Catch2::Catch2WithMain AND NOT AWESM_FORCE_CATCH2_V2) #v3
     target_compile_definitions(
         ${TARGET}
         PRIVATE

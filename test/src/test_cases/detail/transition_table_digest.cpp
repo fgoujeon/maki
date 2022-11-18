@@ -26,8 +26,8 @@ namespace
     void action0(){}
     void action1(){}
 
-    bool guard0(){return true;};
-    bool guard1(){return true;};
+    bool guard0(){return true;}
+    bool guard1(){return true;}
 
     using transition_table = awesm::transition_table
     <

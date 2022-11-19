@@ -86,7 +86,7 @@ namespace
         {
             ctx.out += "beep;";
         }
-    };
+    }
 
     using sm_transition_table = awesm::transition_table
     <

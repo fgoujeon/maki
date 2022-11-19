@@ -47,13 +47,13 @@ namespace
         return ctx.NAME; \
     }
 
-        GUARD(can_access_state0_0);
-        GUARD(can_access_state0_1);
-        GUARD(can_access_state1_0);
-        GUARD(can_access_state1_1);
-        GUARD(can_access_state2_0);
-        GUARD(can_access_state2_1);
-        GUARD(cant_access_state3);
+        GUARD(can_access_state0_0)
+        GUARD(can_access_state0_1)
+        GUARD(can_access_state1_0)
+        GUARD(can_access_state1_1)
+        GUARD(can_access_state2_0)
+        GUARD(can_access_state2_1)
+        GUARD(cant_access_state3)
 
 #undef GUARD
 

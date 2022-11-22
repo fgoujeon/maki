@@ -24,7 +24,7 @@ jobs:
           - { compiler: g++,     version: 11, build_type: Debug,   cppstd: 20 }
           - { compiler: g++,     version: 12, build_type: Release, cppstd: 20 }
             #- { compiler: clang++, version: 11, build_type: Debug,   cppstd: 17 }
-            #- { compiler: clang++, version: 12, build_type: Debug,   cppstd: 17 }
+          - { compiler: clang++, version: 12, build_type: Debug,   cppstd: 17 }
           - { compiler: clang++, version: 13, build_type: Release, cppstd: 17 }
           - { compiler: clang++, version: 14, build_type: Debug,   cppstd: 17 }
 

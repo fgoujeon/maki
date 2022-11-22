@@ -18,6 +18,12 @@ function(awesm_target_common_options TARGET)
             PRIVATE
                 -Wall -Wextra -Wsign-conversion -pedantic -Werror
         )
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        target_compile_options(
+            ${TARGET}
+            PRIVATE
+                -Wall -Wextra -Wsign-conversion -pedantic -Werror
+        )
     elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         target_compile_options(
             ${TARGET}

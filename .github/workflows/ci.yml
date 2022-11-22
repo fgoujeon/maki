@@ -23,9 +23,10 @@ jobs:
           - { compiler: g++,     version: 10, build_type: Release, cppstd: 17 }
           - { compiler: g++,     version: 11, build_type: Debug,   cppstd: 20 }
           - { compiler: g++,     version: 12, build_type: Release, cppstd: 20 }
-            #- { compiler: clang++, version: 10, build_type: Debug,   cppstd: 17 }
+            #- { compiler: clang++, version: 11, build_type: Debug,   cppstd: 17 }
             #- { compiler: clang++, version: 12, build_type: Debug,   cppstd: 17 }
-            #- { compiler: clang++, version: 15, build_type: Release, cppstd: 20 }
+          - { compiler: clang++, version: 13, build_type: Release, cppstd: 17 }
+          - { compiler: clang++, version: 14, build_type: Debug,   cppstd: 17 }
 
     name: "${{matrix.config.compiler}} ${{matrix.config.version}} (C++${{matrix.config.cppstd}}, ${{matrix.config.build_type}})"
 
@@ -35,6 +36,10 @@ jobs:
     - name: Install g++-12
       if: matrix.config.compiler == 'g++' && matrix.config.version == 12
       run: sudo apt install -y g++-12
+
+    - name: Install clang
+      if: matrix.config.compiler == 'clang++'
+      run: sudo apt install -y clang-${{matrix.config.version}}
 
     - name: Install catch2
       run: sudo apt install -y catch2

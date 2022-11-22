@@ -105,7 +105,7 @@ class sm
                     (
                         [](sm& mach, const event_storage_t& evt)
                         {
-                            mach.process_event_once<ProcessingType>(evt.get<Event>());
+                            mach.process_event_once<ProcessingType>(evt.template get<Event>());
                         }
                     )
                 {

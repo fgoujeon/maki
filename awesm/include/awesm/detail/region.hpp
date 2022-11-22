@@ -198,7 +198,6 @@ class region
                 return false;
             }
 
-            static constexpr const auto& row_guard = Row::get_guard();
             auto processed = false;
             safe_call
             (
@@ -206,8 +205,9 @@ class region
                 {
                     if
                     (
-                        !detail::call_action_or_guard<row_guard>
+                        !detail::call_action_or_guard
                         (
+                            Row::get_guard(),
                             &mach_,
                             &ctx_,
                             &event
@@ -265,9 +265,9 @@ class region
                 >;
             }
 
-            static constexpr const auto& row_action = Row::get_action();
-            detail::call_action_or_guard<row_action>
+            detail::call_action_or_guard
             (
+                Row::get_action(),
                 &mach_,
                 &ctx_,
                 &event

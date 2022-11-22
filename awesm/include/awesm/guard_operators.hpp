@@ -15,25 +15,25 @@ namespace awesm
 template<const auto&... Guards>
 constexpr auto and_ = [](auto& mach, auto& ctx, const auto& event)
 {
-    return (detail::call_action_or_guard<Guards>(&mach, &ctx, &event) && ...);
+    return (detail::call_action_or_guard(Guards, &mach, &ctx, &event) && ...);
 };
 
 template<const auto&... Guards>
 constexpr auto or_ = [](auto& mach, auto& ctx, const auto& event)
 {
-    return (detail::call_action_or_guard<Guards>(&mach, &ctx, &event) || ...);
+    return (detail::call_action_or_guard(Guards, &mach, &ctx, &event) || ...);
 };
 
 template<const auto&... Guards>
 constexpr auto xor_ = [](auto& mach, auto& ctx, const auto& event)
 {
-    return (detail::call_action_or_guard<Guards>(&mach, &ctx, &event) != ...);
+    return (detail::call_action_or_guard(Guards, &mach, &ctx, &event) != ...);
 };
 
 template<const auto& Guard>
 constexpr auto not_ = [](auto& mach, auto& ctx, const auto& event)
 {
-    return !detail::call_action_or_guard<Guard>(&mach, &ctx, &event);
+    return !detail::call_action_or_guard(Guard, &mach, &ctx, &event);
 };
 
 } //namespace

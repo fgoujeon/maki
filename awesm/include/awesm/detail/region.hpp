@@ -235,7 +235,7 @@ class region
             using source_state_t = typename Row::source_state_t;
             using target_state_t = typename Row::target_state_t;
 
-            detail::ignore_unused(event);
+            ignore_unused(event);
 
             constexpr auto is_internal_transition =
                 std::is_same_v<target_state_t, null>
@@ -380,6 +380,10 @@ class region
                     );
                     return true;
                 }
+            }
+            else
+            {
+                ignore_unused(event);
             }
             return false;
         }

@@ -20,6 +20,24 @@ struct sm_path
     using sm_t = SmOrCompositeState;
 };
 
+template<class SmPath>
+struct sm_path_to_sm;
+
+template<class SmOrCompositeState>
+struct sm_path_to_sm<sm_path<region_path<>, SmOrCompositeState>>
+{
+    using type = SmOrCompositeState;
+};
+
+template<class RegionPath, class SmOrCompositeState>
+struct sm_path_to_sm<sm_path<RegionPath, SmOrCompositeState>>
+{
+    using type = region_path_to_sm_t<RegionPath>;
+};
+
+template<class SmPath>
+using sm_path_to_sm_t = typename sm_path_to_sm<SmPath>::type;
+
 template<class SmPath, int RegionIndex>
 struct make_region_path
 {

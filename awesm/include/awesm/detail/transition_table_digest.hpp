@@ -44,20 +44,20 @@ For example, the following digest type...:
 
 namespace transition_table_digest_detail
 {
-    template<class Sm, class RegionPath, class TList>
+    template<class RegionPath, class TList>
     struct to_tuple_helper;
 
-    template<class Sm, class RegionPath, template<class...> class TList, class... Ts>
-    struct to_tuple_helper<Sm, RegionPath, TList<Ts...>>
+    template<class RegionPath, template<class...> class TList, class... Ts>
+    struct to_tuple_helper<RegionPath, TList<Ts...>>
     {
         using type = awesm::detail::sm_object_holder_tuple
         <
-            state_wrapper_t<Sm, RegionPath, Ts>...
+            state_wrapper_t<RegionPath, Ts>...
         >;
     };
 
-    template<class Sm, class RegionPath, class TList>
-    using to_tuple = typename to_tuple_helper<Sm, RegionPath, TList>::type;
+    template<class RegionPath, class TList>
+    using to_tuple = typename to_tuple_helper<RegionPath, TList>::type;
 
     template<class TList, class U>
     using push_back_unique_if_not_null = tlu::push_back_if
@@ -111,7 +111,7 @@ namespace transition_table_digest_detail
     >;
 }
 
-template<class Sm, class RegionPath, class TransitionTable>
+template<class RegionPath, class TransitionTable>
 class transition_table_digest
 {
     private:
@@ -124,7 +124,6 @@ class transition_table_digest
         using state_tuple = typename digest_t::state_tuple;
         using wrapped_state_holder_tuple = transition_table_digest_detail::to_tuple
         <
-            Sm,
             RegionPath,
             state_tuple
         >;

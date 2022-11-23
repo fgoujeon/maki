@@ -15,10 +15,12 @@
 namespace awesm::detail
 {
 
-template<class Sm, class RegionPath, class WrappedState>
+template<class RegionPath, class WrappedState>
 class composite_state_wrapper
 {
     public:
+        using sm_t = region_path_to_sm_t<RegionPath>;
+
         using conf_t = state_conf
         <
             state_options::on_entry_any,
@@ -28,7 +30,7 @@ class composite_state_wrapper
         >;
 
         template<class Context>
-        composite_state_wrapper(Sm& mach, Context& ctx):
+        composite_state_wrapper(sm_t& mach, Context& ctx):
             state_(mach, ctx),
             region_tuple_(mach, ctx)
         {
@@ -77,7 +79,7 @@ class composite_state_wrapper
         using sm_path_t = detail::sm_path<RegionPath, WrappedState>;
 
         detail::sm_object_holder<WrappedState> state_;
-        detail::region_tuple<Sm, sm_path_t, transition_table_list_t> region_tuple_;
+        detail::region_tuple<sm_path_t, transition_table_list_t> region_tuple_;
 };
 
 } //namespace

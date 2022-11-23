@@ -25,13 +25,15 @@
 namespace awesm::detail
 {
 
-template<class Sm, class RegionPath, class TransitionTable>
+template<class RegionPath, class TransitionTable>
 class region
 {
     public:
-        using context_t = typename Sm::context_t;
+        using sm_t = region_path_to_sm_t<RegionPath>;
+        using context_t = typename sm_t::context_t;
+        using conf_t = typename sm_t::conf_t;
 
-        explicit region(Sm& mach, context_t& ctx):
+        explicit region(sm_t& mach, context_t& ctx):
             mach_(mach),
             ctx_(ctx),
             states_(mach, ctx)
@@ -59,7 +61,7 @@ class region
         template<class State>
         const auto& get_state() const
         {
-            return get<state_wrapper_t<Sm, RegionPath, State>>(states_);
+            return get<state_wrapper_t<RegionPath, State>>(states_);
         }
 
         template<class Event>
@@ -106,7 +108,7 @@ class region
         using unresolved_transition_table_t = TransitionTable;
 
         using transition_table_digest_t =
-            detail::transition_table_digest<Sm, RegionPath, unresolved_transition_table_t>
+            detail::transition_table_digest<RegionPath, unresolved_transition_table_t>
         ;
         using state_tuple_t = typename transition_table_digest_t::state_tuple;
         using wrapped_state_holder_tuple_t =
@@ -241,7 +243,7 @@ class region
 
             if constexpr(!is_internal_transition)
             {
-                if constexpr(tlu::contains<typename Sm::conf_t, sm_options::before_state_transition>)
+                if constexpr(tlu::contains<conf_t, sm_options::before_state_transition>)
                 {
                     mach_.def_.template before_state_transition
                     <
@@ -252,11 +254,11 @@ class region
                     >(event);
                 }
 
-                if constexpr(state_traits::requires_on_exit_v<state_wrapper_t<Sm, RegionPath, source_state_t>>)
+                if constexpr(state_traits::requires_on_exit_v<state_wrapper_t<RegionPath, source_state_t>>)
                 {
                     detail::call_on_exit
                     (
-                        get<state_wrapper_t<Sm, RegionPath, source_state_t>>(states_),
+                        get<state_wrapper_t<RegionPath, source_state_t>>(states_),
                         &event
                     );
                 }
@@ -278,7 +280,7 @@ class region
 
             if constexpr(!is_internal_transition)
             {
-                if constexpr(tlu::contains<typename Sm::conf_t, sm_options::before_entry>)
+                if constexpr(tlu::contains<conf_t, sm_options::before_entry>)
                 {
                     mach_.def_.template before_entry
                     <
@@ -292,17 +294,17 @@ class region
                 if constexpr
                 (
                     !is_internal_transition && //for VS2017
-                    state_traits::requires_on_entry_v<state_wrapper_t<Sm, RegionPath, target_state_t>>
+                    state_traits::requires_on_entry_v<state_wrapper_t<RegionPath, target_state_t>>
                 )
                 {
                     detail::call_on_entry
                     (
-                        get<state_wrapper_t<Sm, RegionPath, target_state_t>>(states_),
+                        get<state_wrapper_t<RegionPath, target_state_t>>(states_),
                         &event
                     );
                 }
 
-                if constexpr(tlu::contains<typename Sm::conf_t, sm_options::after_state_transition>)
+                if constexpr(tlu::contains<conf_t, sm_options::after_state_transition>)
                 {
                     mach_.def_.template after_state_transition
                     <
@@ -363,7 +365,7 @@ class region
         template<class State, class Event>
         bool process_event_in_state(const Event& event)
         {
-            using wrapped_state_t = state_wrapper_t<Sm, RegionPath, State>;
+            using wrapped_state_t = state_wrapper_t<RegionPath, State>;
             if constexpr(state_traits::requires_on_event_v<wrapped_state_t, Event>)
             {
                 auto& state = get<wrapped_state_t>(states_);
@@ -382,7 +384,7 @@ class region
             return false;
         }
 
-        Sm& mach_;
+        sm_t& mach_;
         context_t& ctx_;
         wrapped_state_holder_tuple_t states_;
 

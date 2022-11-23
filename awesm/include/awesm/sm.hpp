@@ -82,12 +82,10 @@ class sm
 
     private:
         //Let regions access definition and option list
-        template<class Sm, class RegionPath, class TransitionTable>
+        template<class RegionPath, class TransitionTable>
         friend class detail::region;
 
         using transition_table_list_t = typename conf_t::transition_table_list_t;
-
-        using path_t = detail::sm_path<region_path<>, sm>;
 
         class event_processing
         {
@@ -253,7 +251,12 @@ class sm
         }
 
         detail::sm_object_holder<Def> def_;
-        detail::region_tuple<sm, path_t, transition_table_list_t> region_tuple_;
+
+        detail::region_tuple
+        <
+            detail::sm_path<region_path<>, sm>,
+            transition_table_list_t
+        > region_tuple_;
 
         bool processing_event_ = false;
         queued_event_processing_storage_t queued_event_processings_;

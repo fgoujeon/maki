@@ -14,30 +14,32 @@
 namespace awesm::detail
 {
 
-template<class Sm, class SmPath, class RegionIndexSequence, class... TransitionTables>
+template<class SmPath, class RegionIndexSequence, class... TransitionTables>
 struct region_holder_tuple;
 
-template<class Sm, class SmPath, int... RegionIndexes, class... TransitionTables>
-struct region_holder_tuple<Sm, SmPath, std::integer_sequence<int, RegionIndexes...>, TransitionTables...>
+template<class SmPath, int... RegionIndexes, class... TransitionTables>
+struct region_holder_tuple<SmPath, std::integer_sequence<int, RegionIndexes...>, TransitionTables...>
 {
-    using type = sm_object_holder_tuple<region<Sm, make_region_path_t<SmPath, RegionIndexes>, TransitionTables>...>;
+    using type = sm_object_holder_tuple<region<make_region_path_t<SmPath, RegionIndexes>, TransitionTables>...>;
 };
 
-template<class Sm, class SmPath, class RegionIndexSequence, class... TransitionTables>
+template<class SmPath, class RegionIndexSequence, class... TransitionTables>
 using region_holder_tuple_t =
-    typename region_holder_tuple<Sm, SmPath, RegionIndexSequence, TransitionTables...>::type
+    typename region_holder_tuple<SmPath, RegionIndexSequence, TransitionTables...>::type
 ;
 
-template<class Sm, class SmPath, class TransitionTableList>
+template<class SmPath, class TransitionTableList>
 class region_tuple;
 
-template<class Sm, class SmPath, class... TransitionTables>
-class region_tuple<Sm, SmPath, transition_table_list<TransitionTables...>>
+template<class SmPath, class... TransitionTables>
+class region_tuple<SmPath, transition_table_list<TransitionTables...>>
 {
     public:
+        using sm_t = sm_path_to_sm_t<SmPath>;
+
         template<class Context>
-        explicit region_tuple(Sm& top_level_sm, Context& context):
-            regions_{top_level_sm, context}
+        explicit region_tuple(sm_t& mach, Context& context):
+            regions_{mach, context}
         {
         }
 
@@ -110,7 +112,7 @@ class region_tuple<Sm, SmPath, transition_table_list<TransitionTables...>>
             int,
             static_cast<int>(sizeof...(TransitionTables))
         >;
-        region_holder_tuple_t<Sm, SmPath, region_indexes, TransitionTables...> regions_;
+        region_holder_tuple_t<SmPath, region_indexes, TransitionTables...> regions_;
 };
 
 } //namespace

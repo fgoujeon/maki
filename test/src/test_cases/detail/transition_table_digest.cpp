@@ -41,7 +41,7 @@ namespace
     struct sm{};
     using region_path = awesm::region_path<awesm::region_path_element<sm, 0>>;
 
-    using digest = awesm::detail::transition_table_digest<sm, region_path, transition_table>;
+    using digest = awesm::detail::transition_table_digest<region_path, transition_table>;
 
     using state_tuple = awesm::detail::type_list<awesm::detail::null_state, state0, state1, state2, state3>;
 }

@@ -53,6 +53,21 @@ struct region_path
     }
 };
 
+namespace detail
+{
+    template<class RegionPath>
+    struct region_path_to_sm;
+
+    template<class Elem, class... Elems>
+    struct region_path_to_sm<region_path<Elem, Elems...>>
+    {
+        using type = typename Elem::sm_t;
+    };
+
+    template<class RegionPath>
+    using region_path_to_sm_t = typename region_path_to_sm<RegionPath>::type;
+}
+
 } //namespace
 
 #endif

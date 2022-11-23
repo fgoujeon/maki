@@ -20,35 +20,35 @@ namespace detail
 struct any: detail::type_pattern
 {
     template<class T>
-    static constexpr auto matches = true;
+    static constexpr bool matches = true;
 };
 
 template<template<class> class Predicate>
 struct any_if: detail::type_pattern
 {
     template<class T>
-    static constexpr auto matches = Predicate<T>::value;
+    static constexpr bool matches = Predicate<T>::value;
 };
 
 template<template<class> class Predicate>
 struct any_if_not: detail::type_pattern
 {
     template<class T>
-    static constexpr auto matches = !Predicate<T>::value;
+    static constexpr bool matches = !Predicate<T>::value;
 };
 
 template<class... Ts>
 struct any_of: detail::type_pattern
 {
     template<class T>
-    static constexpr auto matches = (std::is_same_v<T, Ts> || ...);
+    static constexpr bool matches = (std::is_same_v<T, Ts> || ...);
 };
 
 template<class... Ts>
 struct any_but: detail::type_pattern
 {
     template<class T>
-    static constexpr auto matches = !(std::is_same_v<T, Ts> || ...);
+    static constexpr bool matches = !(std::is_same_v<T, Ts> || ...);
 };
 
 } //namespace

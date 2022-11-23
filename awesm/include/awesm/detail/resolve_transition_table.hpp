@@ -52,6 +52,7 @@ For example, the following resolved_transition_table_t type...:
 
 namespace resolve_transition_table_detail
 {
+#ifdef _MSC_VER
     template<class RowWithPattern>
     struct add_resolved_row_holder;
 
@@ -70,6 +71,30 @@ namespace resolve_transition_table_detail
             TransitionTable
         >;
     };
+#else
+    template<class RowWithPattern>
+    struct add_resolved_row_holder
+    {
+        template<class TransitionTable, class State>
+        using type = alternative
+        <
+            RowWithPattern::source_state_t::template matches<State>,
+            tlu::push_back
+            <
+                TransitionTable,
+                row
+                <
+                    State,
+                    typename RowWithPattern::event_t,
+                    typename RowWithPattern::target_state_t,
+                    RowWithPattern::get_action(),
+                    RowWithPattern::get_guard()
+                >
+            >,
+            TransitionTable
+        >;
+    };
+#endif
 
     /*
     Return TransitionTable with n new rows, n being the number of matching

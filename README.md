@@ -1,4 +1,5 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/1jvbol4cwrfivd3y/branch/master?svg=true)](https://ci.appveyor.com/project/fgoujeon/awesm/branch/master)
+[![Windows Build status](https://ci.appveyor.com/api/projects/status/1jvbol4cwrfivd3y/branch/master?svg=true)](https://ci.appveyor.com/project/fgoujeon/awesm/branch/master)
+[![Linux build status](https://github.com/fgoujeon/awesm/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/fgoujeon/awesm/actions/workflows/ci.yml)
 
 ---
 

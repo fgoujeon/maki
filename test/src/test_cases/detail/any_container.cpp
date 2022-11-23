@@ -19,16 +19,21 @@ namespace
     {
         int i = 0;
 
-        void* operator new(size_t size)
+        static void* operator new(size_t size)
         {
             ++new_operator_call_count;
             return ::operator new(size);
         }
 
         template<class Storage>
-        void* operator new(size_t size, Storage& storage)
+        static void* operator new(size_t size, Storage& storage)
         {
             return ::operator new(size, storage);
+        }
+
+        static void operator delete(void* ptr)
+        {
+            ::operator delete(ptr);
         }
 
         ~small_struct()
@@ -41,10 +46,15 @@ namespace
     {
         big_array_t numbers;
 
-        void* operator new(size_t size)
+        static void* operator new(size_t size)
         {
             ++new_operator_call_count;
             return ::operator new(size);
+        }
+
+        static void operator delete(void* ptr)
+        {
+            ::operator delete(ptr);
         }
 
         ~big_struct()

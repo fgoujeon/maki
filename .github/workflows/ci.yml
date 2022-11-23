@@ -1,4 +1,4 @@
-name: CMake
+name: GCC & Clang
 
 on: [push, pull_request]
 

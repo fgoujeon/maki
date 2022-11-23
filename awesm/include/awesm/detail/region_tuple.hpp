@@ -105,7 +105,11 @@ class region_tuple<Sm, SmPath, transition_table_list<TransitionTables...>>
         }
 
     private:
-        using region_indexes = std::make_integer_sequence<int, sizeof...(TransitionTables)>;
+        using region_indexes = std::make_integer_sequence
+        <
+            int,
+            static_cast<int>(sizeof...(TransitionTables))
+        >;
         region_holder_tuple_t<Sm, SmPath, region_indexes, TransitionTables...> regions_;
 };
 

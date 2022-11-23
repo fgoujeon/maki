@@ -51,7 +51,7 @@ class region
             constexpr auto given_state_index = detail::tlu::get_index
             <
                 state_tuple_t,
-                state_wrapper_t<Sm, RegionPath, State>
+                State
             >;
             return active_state_index_ == given_state_index;
         }
@@ -109,6 +109,9 @@ class region
             detail::transition_table_digest<Sm, RegionPath, unresolved_transition_table_t>
         ;
         using state_tuple_t = typename transition_table_digest_t::state_tuple;
+        using wrapped_state_holder_tuple_t =
+            typename transition_table_digest_t::wrapped_state_holder_tuple
+        ;
 
         using initial_state_t = detail::tlu::at<state_tuple_t, 1>; //0 being null_state
 
@@ -261,7 +264,7 @@ class region
                 active_state_index_ = detail::tlu::get_index
                 <
                     state_tuple_t,
-                    state_wrapper_t<Sm, RegionPath, target_state_t>
+                    target_state_t
                 >;
             }
 
@@ -352,54 +355,36 @@ class region
             template<class Event>
             static void process(region& reg, const Event& event)
             {
-                (
-                    reg.process_event_in_state
-                    (
-                        &get<States>(reg.states_),
-                        &event
-                    ) || ...
-                );
+                (reg.process_event_in_state<States>(event) || ...);
             }
         };
 
         //Processes internal events against one state
         template<class State, class Event>
-        bool process_event_in_state
-        (
-            State* pstate,
-            const Event* pevent,
-            std::enable_if_t
-            <
-                state_traits::requires_on_event_v<State, Event>
-            >* /*ignored*/ = nullptr
-        )
+        bool process_event_in_state(const Event& event)
         {
-            if(is_active_state<State>())
+            using wrapped_state_t = state_wrapper_t<Sm, RegionPath, State>;
+            if constexpr(state_traits::requires_on_event_v<wrapped_state_t, Event>)
             {
-                safe_call
-                (
-                    [&]
-                    {
-                        call_on_event(*pstate, *pevent);
-                    }
-                );
-                return true;
+                auto& state = get<wrapped_state_t>(states_);
+                if(is_active_state<State>())
+                {
+                    safe_call
+                    (
+                        [&]
+                        {
+                            call_on_event(state, event);
+                        }
+                    );
+                    return true;
+                }
             }
-            return false;
-        }
-
-        constexpr bool process_event_in_state
-        (
-            void* /*pstate*/,
-            const void* /*pevent*/
-        )
-        {
             return false;
         }
 
         Sm& mach_;
         context_t& ctx_;
-        state_tuple_t states_;
+        wrapped_state_holder_tuple_t states_;
 
         int active_state_index_ = 0;
 };

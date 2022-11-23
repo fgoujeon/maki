@@ -43,7 +43,7 @@ namespace
 
     using digest = awesm::detail::transition_table_digest<sm, region_path, transition_table>;
 
-    using state_tuple = awesm::detail::sm_object_holder_tuple<awesm::detail::null_state, state0, state1, state2, state3>;
+    using state_tuple = awesm::detail::type_list<awesm::detail::null_state, state0, state1, state2, state3>;
 }
 
 TEST_CASE("detail::transition_table_digest")

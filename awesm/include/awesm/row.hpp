@@ -14,7 +14,7 @@ namespace awesm
 
 namespace detail
 {
-    struct null_action_t
+    struct noop_t
     {
         template<class Context>
         void operator()(Context& /*ctx*/) const
@@ -32,7 +32,7 @@ namespace detail
     };
 }
 
-constexpr inline auto null_action = detail::null_action_t{};
+constexpr inline auto noop = detail::noop_t{};
 constexpr inline auto null_guard = detail::null_guard_t{};
 
 template
@@ -40,7 +40,7 @@ template
     class SourceState,
     class Event,
     class TargetState,
-    const auto& Action = null_action,
+    const auto& Action = noop,
     const auto& Guard = null_guard
 >
 struct row

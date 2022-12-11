@@ -12,14 +12,28 @@
 namespace awesm
 {
 
-constexpr auto null_action = [](auto& /*ctx*/)
+namespace detail
 {
-};
+    struct null_action_t
+    {
+        template<class Context>
+        void operator()(Context& /*ctx*/) const
+        {
+        }
+    };
 
-constexpr auto null_guard = [](auto& /*ctx*/)
-{
-    return true;
-};
+    struct null_guard_t
+    {
+        template<class Context>
+        bool operator()(Context& /*ctx*/) const
+        {
+            return true;
+        }
+    };
+}
+
+constexpr inline auto null_action = detail::null_action_t{};
+constexpr inline auto null_guard = detail::null_guard_t{};
 
 template
 <

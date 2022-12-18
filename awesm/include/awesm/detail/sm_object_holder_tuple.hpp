@@ -85,6 +85,18 @@ void for_each(const sm_object_holder_tuple<Ts...>& tuple, F&& callback)
     (callback(get<Ts>(tuple)), ...);
 }
 
+template<class Tuple>
+struct tuple_size;
+
+template<class... Ts>
+struct tuple_size<sm_object_holder_tuple<Ts...>>
+{
+    static constexpr auto value = static_cast<int>(sizeof...(Ts));
+};
+
+template<class Tuple>
+constexpr inline auto tuple_size_v = tuple_size<Tuple>::value;
+
 } //namespace
 
 #endif

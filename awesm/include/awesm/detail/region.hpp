@@ -25,6 +25,28 @@
 namespace awesm::detail
 {
 
+template<class IntegerSequence>
+struct compile_switch_helper;
+
+template<int... Is>
+struct compile_switch_helper<std::integer_sequence<int, Is...>>
+{
+    template<class F>
+    static void call(const int i, const F& f)
+    {
+        (
+            (i == Is && (f(std::integral_constant<int, Is>{}), true)) ||
+            ...
+        );
+    }
+};
+
+template<class IntegerSequence, class F>
+void compile_switch(const int i, const F& f)
+{
+    compile_switch_helper<IntegerSequence>::call(i, f);
+}
+
 template<class RegionPath, class TransitionTable>
 class region
 {
@@ -343,49 +365,26 @@ class region
         template<class Event>
         void process_event_in_active_state(const Event& event)
         {
-            detail::tlu::apply
-            <
-                state_tuple_t,
-                active_state_event_processor
-            >::process(*this, event);
-        }
-
-        //Processes internal events against all states
-        template<class... States>
-        struct active_state_event_processor
-        {
-            template<class Event>
-            static void process(region& reg, const Event& event)
-            {
-                (reg.process_event_in_state<States>(event) || ...);
-            }
-        };
-
-        //Processes internal events against one state
-        template<class State, class Event>
-        bool process_event_in_state(const Event& event)
-        {
-            using wrapped_state_t = state_wrapper_t<RegionPath, State>;
-            if constexpr(state_traits::requires_on_event_v<wrapped_state_t, Event>)
-            {
-                auto& state = get<wrapped_state_t>(states_);
-                if(is_active_state<State>())
+            constexpr auto state_count = tuple_size_v<wrapped_state_holder_tuple_t>;
+            compile_switch<std::make_integer_sequence<int, state_count>>
+            (
+                active_state_index_,
+                [this, &event](const auto state_index)
                 {
-                    safe_call
-                    (
-                        [&]
-                        {
-                            call_on_event(state, event);
-                        }
-                    );
-                    return true;
+                    auto& state = get<state_index>(states_);
+                    using state_t = std::remove_reference_t<decltype(state)>;
+                    if constexpr(state_traits::requires_on_event_v<state_t, Event>)
+                    {
+                        safe_call
+                        (
+                            [&]
+                            {
+                                call_on_event(state, event);
+                            }
+                        );
+                    }
                 }
-            }
-            else
-            {
-                ignore_unused(event);
-            }
-            return false;
+            );
         }
 
         sm_t& mach_;

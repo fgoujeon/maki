@@ -161,12 +161,12 @@ class region
             detail::tlu::apply
             <
                 transition_table_t,
-                transition_table_event_processor
+                process_event_in_transition_table_helper
             >::process(*this, event);
         }
 
         template<class Row, class... Rows>
-        struct transition_table_event_processor
+        struct process_event_in_transition_table_helper
         {
             template<class Event>
             static void process(region& reg, const Event& event)
@@ -181,7 +181,7 @@ class region
 
                 if constexpr(sizeof...(Rows) != 0)
                 {
-                    transition_table_event_processor<Rows...>::process(reg, event);
+                    process_event_in_transition_table_helper<Rows...>::process(reg, event);
                 }
             }
         };
@@ -327,47 +327,39 @@ class region
             detail::tlu::apply
             <
                 state_tuple_t,
-                active_state_event_processor
+                process_event_in_active_state_helper
             >::process(*this, event);
         }
 
-        //Processes internal events against all states
-        template<class... States>
-        struct active_state_event_processor
+        template<class State, class... States>
+        struct process_event_in_active_state_helper
         {
             template<class Event>
             static void process(region& reg, const Event& event)
             {
-                (reg.process_event_in_state<States>(event) || ...);
-            }
-        };
-
-        //Processes internal events against one state
-        template<class State, class Event>
-        bool process_event_in_state(const Event& event)
-        {
-            using wrapped_state_t = state_wrapper_t<RegionPath, State>;
-            if constexpr(state_traits::requires_on_event_v<wrapped_state_t, Event>)
-            {
-                auto& state = get<wrapped_state_t>(states_);
-                if(is_active_state<State>())
+                using wrapped_state_t = state_wrapper_t<RegionPath, State>;
+                if constexpr(state_traits::requires_on_event_v<wrapped_state_t, Event>)
                 {
-                    safe_call
-                    (
-                        [&]
-                        {
-                            call_on_event(state, event);
-                        }
-                    );
-                    return true;
+                    auto& state = get<wrapped_state_t>(reg.states_);
+                    if(reg.is_active_state<State>())
+                    {
+                        reg.safe_call
+                        (
+                            [&]
+                            {
+                                call_on_event(state, event);
+                            }
+                        );
+                        return;
+                    }
+                }
+
+                if constexpr(sizeof...(States) != 0)
+                {
+                    process_event_in_active_state_helper<States...>::process(reg, event);
                 }
             }
-            else
-            {
-                ignore_unused(event);
-            }
-            return false;
-        }
+        };
 
         sm_t& mach_;
         context_t& ctx_;

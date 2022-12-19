@@ -165,47 +165,30 @@ class region
             >::process(*this, event);
         }
 
-        template<class... Rows>
+        template<class Row, class... Rows>
         struct transition_table_event_processor
         {
             template<class Event>
             static void process(region& reg, const Event& event)
             {
-                (
-                    reg.try_processing_event_in_row<Rows>
-                    (
-                        &event
-                    ) || ...
-                );
+                if constexpr(std::is_same_v<Event, typename Row::event_t>)
+                {
+                    if(reg.try_processing_event_in_row<Row>(event))
+                    {
+                        return;
+                    }
+                }
+
+                if constexpr(sizeof...(Rows) != 0)
+                {
+                    transition_table_event_processor<Rows...>::process(reg, event);
+                }
             }
         };
 
-        //Check event type
-        template<class Row, class Event>
-        bool try_processing_event_in_row
-        (
-            const Event* pevent,
-            std::enable_if_t
-            <
-                std::is_same_v<Event, typename Row::event_t>
-            >* /*ignored*/ = nullptr
-        )
-        {
-            return try_processing_event_in_row_2<Row>(*pevent);
-        }
-
-        template<class Row>
-        constexpr bool try_processing_event_in_row
-        (
-            const void* /*pevent*/
-        )
-        {
-            return false;
-        }
-
         //Check active state and guard
         template<class Row, class Event>
-        bool try_processing_event_in_row_2(const Event& event)
+        bool try_processing_event_in_row(const Event& event)
         {
             using source_state_t = typename Row::source_state_t;
 

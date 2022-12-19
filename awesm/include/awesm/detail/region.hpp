@@ -67,21 +67,36 @@ class region
         template<class Event>
         void start(const Event& event)
         {
-            using fake_row = row<null_state, Event, initial_state_t>;
-            try_processing_event_in_row_2<fake_row>(event);
+            if(is_active_state<null_state>())
+            {
+                safe_call
+                (
+                    [&]
+                    {
+                        using fake_row = row<null_state, Event, initial_state_t>;
+                        process_event_in_row<fake_row>(event);
+                    }
+                );
+            }
         }
 
         template<class Event>
         void stop(const Event& event)
         {
-            detail::tlu::apply<state_tuple_t, stop_helper>::call(*this, event);
+            safe_call
+            (
+                [&]
+                {
+                    detail::tlu::apply<state_tuple_t, stop_helper>::call(*this, event);
+                }
+            );
         }
 
         template<class Event>
         void process_event(const Event& event)
         {
             process_event_in_active_state(event);
-            process_event_in_transition_table_once(event);
+            process_event_in_transition_table(event);
         }
 
     private:
@@ -131,13 +146,17 @@ class region
         template<class State, class Event>
         bool stop_2(const Event& event)
         {
-            using fake_row = row<State, Event, null_state>;
-            return try_processing_event_in_row_2<fake_row>(event);
+            if(is_active_state<State>())
+            {
+                using fake_row = row<State, Event, null_state>;
+                process_event_in_row<fake_row>(event);
+                return true;
+            }
+            return false;
         }
 
-        //Try and trigger one transition
         template<class Event>
-        void process_event_in_transition_table_once(const Event& event)
+        void process_event_in_transition_table(const Event& event)
         {
             detail::tlu::apply
             <
@@ -161,6 +180,7 @@ class region
             }
         };
 
+        //Check event type
         template<class Row, class Event>
         bool try_processing_event_in_row
         (
@@ -183,6 +203,7 @@ class region
             return false;
         }
 
+        //Check active state and guard
         template<class Row, class Event>
         bool try_processing_event_in_row_2(const Event& event)
         {
@@ -309,7 +330,7 @@ class region
                 //Anonymous transition
                 if constexpr(transition_table_digest_t::has_null_events)
                 {
-                    process_event_in_transition_table_once(null{});
+                    process_event_in_transition_table(null{});
                 }
             }
         }

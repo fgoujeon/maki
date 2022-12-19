@@ -68,17 +68,7 @@ class region
         void start(const Event& event)
         {
             using fake_row = row<null_state, Event, initial_state_t>;
-            if constexpr(transition_table_digest_t::has_null_events)
-            {
-                if(process_event_in_row_if_event_matches<fake_row>(&event))
-                {
-                    do_anonymous_transitions();
-                }
-            }
-            else
-            {
-                process_event_in_row_if_event_matches<fake_row>(&event);
-            }
+            try_processing_event_in_row_2<fake_row>(event);
         }
 
         template<class Event>
@@ -91,17 +81,7 @@ class region
         void process_event(const Event& event)
         {
             process_event_in_active_state(event);
-            if constexpr(transition_table_digest_t::has_null_events)
-            {
-                if(process_event_in_transition_table_once(event))
-                {
-                    do_anonymous_transitions();
-                }
-            }
-            else
-            {
-                process_event_in_transition_table_once(event);
-            }
+            process_event_in_transition_table_once(event);
         }
 
     private:
@@ -124,11 +104,6 @@ class region
             transition_table_digest_t::has_source_state_patterns
         >;
 
-        void do_anonymous_transitions()
-        {
-            while(process_event_in_transition_table_once(null{})){}
-        }
-
         //Used to call client code
         template<class F>
         void safe_call(F&& callback)
@@ -143,11 +118,28 @@ class region
             }
         }
 
+        template<class... States>
+        struct stop_helper
+        {
+            template<class Event>
+            static void call(region& reg, const Event& event)
+            {
+                (reg.stop_2<States>(event) || ...);
+            }
+        };
+
+        template<class State, class Event>
+        bool stop_2(const Event& event)
+        {
+            using fake_row = row<State, Event, null_state>;
+            return try_processing_event_in_row_2<fake_row>(event);
+        }
+
         //Try and trigger one transition
         template<class Event>
-        bool process_event_in_transition_table_once(const Event& event)
+        void process_event_in_transition_table_once(const Event& event)
         {
-            return detail::tlu::apply
+            detail::tlu::apply
             <
                 transition_table_t,
                 transition_table_event_processor
@@ -158,11 +150,10 @@ class region
         struct transition_table_event_processor
         {
             template<class Event>
-            static bool process(region& reg, const Event& event)
+            static void process(region& reg, const Event& event)
             {
-                return
                 (
-                    reg.process_event_in_row_if_event_matches<Rows>
+                    reg.try_processing_event_in_row<Rows>
                     (
                         &event
                     ) || ...
@@ -171,7 +162,7 @@ class region
         };
 
         template<class Row, class Event>
-        bool process_event_in_row_if_event_matches
+        bool try_processing_event_in_row
         (
             const Event* pevent,
             std::enable_if_t
@@ -180,11 +171,11 @@ class region
             >* /*ignored*/ = nullptr
         )
         {
-            return process_event_in_row<Row>(*pevent);
+            return try_processing_event_in_row_2<Row>(*pevent);
         }
 
         template<class Row>
-        constexpr bool process_event_in_row_if_event_matches
+        constexpr bool try_processing_event_in_row
         (
             const void* /*pevent*/
         )
@@ -193,7 +184,7 @@ class region
         }
 
         template<class Row, class Event>
-        bool process_event_in_row(const Event& event)
+        bool try_processing_event_in_row_2(const Event& event)
         {
             using source_state_t = typename Row::source_state_t;
 
@@ -223,14 +214,14 @@ class region
                     }
 
                     processed = true;
-                    process_event_in_row_2<Row>(event);
+                    process_event_in_row<Row>(event);
                 }
             );
             return processed;
         }
 
         template<class Row, class Event>
-        void process_event_in_row_2(const Event& event)
+        void process_event_in_row(const Event& event)
         {
             using source_state_t = typename Row::source_state_t;
             using target_state_t = typename Row::target_state_t;
@@ -314,27 +305,13 @@ class region
                         target_state_t
                     >(event);
                 }
-            }
-        }
 
-        template<class... States>
-        struct stop_helper
-        {
-            template<class Event>
-            static bool call(region& reg, const Event& event)
-            {
-                return (reg.stop_2<States>(&event) || ...);
+                //Anonymous transition
+                if constexpr(transition_table_digest_t::has_null_events)
+                {
+                    process_event_in_transition_table_once(null{});
+                }
             }
-        };
-
-        template<class State, class Event>
-        bool stop_2(const Event* pevent)
-        {
-            using fake_row = row<State, Event, null_state>;
-            return process_event_in_row_if_event_matches<fake_row>
-            (
-                pevent
-            );
         }
 
         /*

@@ -67,7 +67,7 @@ namespace
 
     using sm_transition_table = awesm::transition_table
     <
-        awesm::row<states::s0, awesm::null,          states::s1>,
+        awesm::row<states::s0, awesm::events::comp,  states::s1>,
         awesm::row<states::s1, events::button_press, states::s0>
     >;
 

@@ -14,6 +14,7 @@
 #include "state_wrapper.hpp"
 #include "../type_patterns.hpp"
 #include "../transition_table.hpp"
+#include "../events.hpp"
 #include <type_traits>
 
 namespace awesm::detail
@@ -38,7 +39,7 @@ For example, the following digest type...:
     {
         using state_tuple = awesm::detail::type_list<awesm::null_state, state0, state1, state2, state3>;
         static constexpr auto has_source_state_patterns = false;
-        static constexpr auto has_null_events = false;
+        static constexpr auto has_comp_events = false;
     };
 */
 
@@ -75,7 +76,7 @@ namespace transition_table_digest_detail
     {
         using state_tuple = type_list<null_state, InitialState>;
         static constexpr auto has_source_state_patterns = false;
-        static constexpr auto has_null_events = false;
+        static constexpr auto has_comp_events = false;
     };
 
     template<class Digest, class Row>
@@ -92,9 +93,9 @@ namespace transition_table_digest_detail
             std::is_base_of_v<type_pattern, typename Row::source_state_t>
         ;
 
-        static constexpr auto has_null_events =
-            Digest::has_null_events ||
-            std::is_same_v<typename Row::event_t, null>
+        static constexpr auto has_comp_events =
+            Digest::has_comp_events ||
+            std::is_same_v<typename Row::event_t, awesm::events::comp>
         ;
     };
 
@@ -129,7 +130,7 @@ class transition_table_digest
         >;
 
         static constexpr auto has_source_state_patterns = digest_t::has_source_state_patterns;
-        static constexpr auto has_null_events = digest_t::has_null_events;
+        static constexpr auto has_comp_events = digest_t::has_comp_events;
 };
 
 } //namespace

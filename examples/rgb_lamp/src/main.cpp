@@ -125,7 +125,7 @@ namespace states
             std::cout << event.duration_ms << " millisecond push\n";
         }
 
-        void on_entry(const awesm::null& /*event*/)
+        void on_entry(const awesm::events::start& /*event*/)
         {
             std::cout << "Started state machine\n";
         }

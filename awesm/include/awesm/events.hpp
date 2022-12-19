@@ -4,16 +4,20 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_NULL_HPP
-#define AWESM_NULL_HPP
+#ifndef AWESM_EVENTS_HPP
+#define AWESM_EVENTS_HPP
 
-namespace awesm
+namespace awesm::events
 {
 
-/*
-Represents a null target state (for internal transitions in transition table).
-*/
-struct null{};
+//Default event sent to sm::start()
+struct start{};
+
+//Default event sent to sm::stop()
+struct stop{};
+
+//State transition completion
+struct comp{};
 
 } //namespace
 

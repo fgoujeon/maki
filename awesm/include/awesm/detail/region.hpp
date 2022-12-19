@@ -67,29 +67,14 @@ class region
         template<class Event>
         void start(const Event& event)
         {
-            if(is_active_state<null_state>())
-            {
-                safe_call
-                (
-                    [&]
-                    {
-                        using fake_row = row<null_state, Event, initial_state_t>;
-                        process_event_in_row<fake_row>(event);
-                    }
-                );
-            }
+            using fake_row = row<null_state, Event, initial_state_t>;
+            try_processing_event_in_row<fake_row>(event);
         }
 
         template<class Event>
         void stop(const Event& event)
         {
-            safe_call
-            (
-                [&]
-                {
-                    detail::tlu::apply<state_tuple_t, stop_helper>::call(*this, event);
-                }
-            );
+            detail::tlu::apply<state_tuple_t, stop_helper>::call(*this, event);
         }
 
         template<class Event>
@@ -146,13 +131,8 @@ class region
         template<class State, class Event>
         bool stop_2(const Event& event)
         {
-            if(is_active_state<State>())
-            {
-                using fake_row = row<State, Event, null_state>;
-                process_event_in_row<fake_row>(event);
-                return true;
-            }
-            return false;
+            using fake_row = row<State, Event, null_state>;
+            return try_processing_event_in_row<fake_row>(event);
         }
 
         template<class Event>

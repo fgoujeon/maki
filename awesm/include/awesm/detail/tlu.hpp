@@ -9,6 +9,7 @@
 #include "tlu/apply.hpp"
 #include "tlu/at.hpp"
 #include "tlu/contains.hpp"
+#include "tlu/filter.hpp"
 #include "tlu/get_index.hpp"
 #include "tlu/left_fold.hpp"
 #include "tlu/push_back.hpp"

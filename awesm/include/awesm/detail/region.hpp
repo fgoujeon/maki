@@ -373,39 +373,29 @@ class region
         template<class Event>
         void process_event_in_active_state(const Event& event)
         {
-            detail::tlu::apply
+            make_jump_table
             <
-                state_tuple_t,
-                process_event_in_active_state_helper
-            >::process(*this, event);
+                process_event_in_active_state_helper,
+                std::make_integer_sequence<int, tlu::size_v<state_tuple_t>>
+            >::call(active_state_index_, *this, event);
         }
 
-        template<class State, class... States>
+        template<int StateIndex>
         struct process_event_in_active_state_helper
         {
             template<class Event>
-            static void process(region& self, const Event& event)
+            static void call(region& self, const Event& event)
             {
-                using wrapped_state_t = state_wrapper_t<RegionPath, State>;
-                if constexpr(state_traits::requires_on_event_v<wrapped_state_t, Event>)
+                using state_t = tlu::at<wrapped_state_holder_tuple_t, StateIndex>;
+                if constexpr(state_traits::requires_on_event_v<state_t, Event>)
                 {
-                    auto& state = get<wrapped_state_t>(self.states_);
-                    if(self.is_active_state<State>())
-                    {
-                        self.safe_call
-                        (
-                            [&]
-                            {
-                                call_on_event(state, event);
-                            }
-                        );
-                        return;
-                    }
-                }
-
-                if constexpr(sizeof...(States) != 0)
-                {
-                    process_event_in_active_state_helper<States...>::process(self, event);
+                    self.safe_call
+                    (
+                        [&]
+                        {
+                            call_on_event(get<state_t>(self.states_), event);
+                        }
+                    );
                 }
             }
         };

@@ -13,7 +13,7 @@
 namespace awesm::detail
 {
 
-namespace filter_transition_table_by_event_detail
+namespace transition_table_filters_detail
 {
     template<class Event>
     struct for_event
@@ -24,13 +24,30 @@ namespace filter_transition_table_by_event_detail
             static constexpr auto value = std::is_same_v<Event, typename Row::event_t>;
         };
     };
+
+    template<class State>
+    struct for_state
+    {
+        template<class Row>
+        struct has_given_source_state
+        {
+            static constexpr auto value = std::is_same_v<State, typename Row::source_state_t>;
+        };
+    };
 }
 
 template<class TransitionTable, class Event>
 using filter_transition_table_by_event = tlu::filter
 <
     TransitionTable,
-    filter_transition_table_by_event_detail::for_event<Event>::template has_given_event
+    transition_table_filters_detail::for_event<Event>::template has_given_event
+>;
+
+template<class TransitionTable, class State>
+using filter_transition_table_by_source_state = tlu::filter
+<
+    TransitionTable,
+    transition_table_filters_detail::for_state<State>::template has_given_source_state
 >;
 
 } //namespace

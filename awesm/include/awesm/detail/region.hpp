@@ -26,6 +26,22 @@
 namespace awesm::detail
 {
 
+template<template<int> class F, class IntegerSequence>
+struct make_jump_table;
+
+template<template<int> class F, int... Values>
+struct make_jump_table<F, std::integer_sequence<int, Values...>>
+{
+    template<class Arg0, class Arg1>
+    static void call(const int value, Arg0& arg0, Arg1& arg1)
+    {
+        ignore_unused
+        (
+            (value == Values ? (F<Values>::call(arg0, arg1), 0) : 0)...
+        );
+    }
+};
+
 template<class RegionPath, class TransitionTable>
 class region
 {
@@ -68,14 +84,29 @@ class region
         template<class Event>
         void start(const Event& event)
         {
-            using fake_row = row<null_state, Event, initial_state_t>;
-            try_processing_event_in_row<fake_row>(event);
+            if(is_active_state<null_state>())
+            {
+                safe_call
+                (
+                    [&]
+                    {
+                        using fake_row = row<null_state, Event, initial_state_t>;
+                        process_event_in_row<fake_row>(event);
+                    }
+                );
+            }
         }
 
         template<class Event>
         void stop(const Event& event)
         {
-            detail::tlu::apply<state_tuple_t, stop_helper>::call(*this, event);
+            safe_call
+            (
+                [&]
+                {
+                    detail::tlu::apply<state_tuple_t, stop_helper>::call(*this, event);
+                }
+            );
         }
 
         template<class Event>
@@ -123,81 +154,123 @@ class region
         struct stop_helper
         {
             template<class Event>
-            static void call(region& reg, const Event& event)
+            static void call(region& self, const Event& event)
             {
-                (reg.stop_2<States>(event) || ...);
+                (self.stop_2<States>(event) || ...);
             }
         };
 
         template<class State, class Event>
         bool stop_2(const Event& event)
         {
-            using fake_row = row<State, Event, null_state>;
-            return try_processing_event_in_row<fake_row>(event);
+            if(is_active_state<State>())
+            {
+                using fake_row = row<State, Event, null_state>;
+                process_event_in_row<fake_row>(event);
+                return true;
+            }
+            return false;
         }
 
         template<class Event>
         void process_event_in_transition_table(const Event& event)
         {
-            using filtered_transition_table_t = filter_transition_table_by_event
+            make_jump_table
+            <
+                process_event_in_transition_table_2,
+                std::make_integer_sequence<int, tlu::size_v<state_tuple_t>>
+            >::call(active_state_index_, *this, event);
+        }
+
+        template<int StateIndex>
+        struct process_event_in_transition_table_2
+        {
+            template<class Event>
+            static void call(region& self, const Event& event)
+            {
+                using state_t = tlu::at<state_tuple_t, StateIndex>;
+                for_state<state_t>::process_event_in_transition_table(self, event);
+            }
+        };
+
+        template<class... Rows>
+        struct for_state_helper
+        {
+            template<class TransitionTable2, class Event>
+            static void process(region& self, const Event& event)
+            {
+                using filtered_transition_table_t = filter_transition_table_by_event
+                <
+                    TransitionTable2,
+                    Event
+                >;
+
+                detail::tlu::apply
+                <
+                    filtered_transition_table_t,
+                    process_event_in_transition_table_helper
+                >::process(self, event);
+            }
+        };
+
+        template<class State>
+        struct for_state
+        {
+            using state_transition_table_t = filter_transition_table_by_source_state
             <
                 transition_table_t,
-                Event
+                State
             >;
 
-            detail::tlu::apply
+            using helper = detail::tlu::apply
             <
-                filtered_transition_table_t,
-                process_event_in_transition_table_helper
-            >::process(*this, event);
-        }
+                state_transition_table_t,
+                for_state_helper
+            >;
+
+            template<class Event>
+            static void process_event_in_transition_table(region& self, const Event& event)
+            {
+                self.safe_call
+                (
+                    [&]
+                    {
+                        helper::template process<state_transition_table_t>(self, event);
+                    }
+                );
+            }
+        };
 
         template<class... Rows>
         struct process_event_in_transition_table_helper
         {
             template<class Event>
-            static void process(region& reg, const Event& event)
+            static void process(region& self, const Event& event)
             {
-                ignore_unused((reg.try_processing_event_in_row<Rows>(event) || ...));
+                ignore_unused((self.try_processing_event_in_row<Rows>(event) || ...));
             }
         };
 
-        //Check active state and guard
+        //Check guard
         template<class Row, class Event>
         bool try_processing_event_in_row(const Event& event)
         {
-            using source_state_t = typename Row::source_state_t;
-
-            //Make sure the transition source state is the active state
-            if(!is_active_state<source_state_t>())
+            if
+            (
+                detail::call_action_or_guard
+                (
+                    Row::get_guard(),
+                    &mach_,
+                    &ctx_,
+                    &event
+                )
+            )
             {
-                return false;
+                process_event_in_row<Row>(event);
+                return true;
             }
 
-            auto processed = false;
-            safe_call
-            (
-                [&]
-                {
-                    if
-                    (
-                        !detail::call_action_or_guard
-                        (
-                            Row::get_guard(),
-                            &mach_,
-                            &ctx_,
-                            &event
-                        )
-                    )
-                    {
-                        return;
-                    }
-
-                    processed = true;
-                    process_event_in_row<Row>(event);
-                }
-            );
-            return processed;
+            return false;
         }
 
         template<class Row, class Event>
@@ -311,15 +384,15 @@ class region
         struct process_event_in_active_state_helper
         {
             template<class Event>
-            static void process(region& reg, const Event& event)
+            static void process(region& self, const Event& event)
             {
                 using wrapped_state_t = state_wrapper_t<RegionPath, State>;
                 if constexpr(state_traits::requires_on_event_v<wrapped_state_t, Event>)
                 {
-                    auto& state = get<wrapped_state_t>(reg.states_);
-                    if(reg.is_active_state<State>())
+                    auto& state = get<wrapped_state_t>(self.states_);
+                    if(self.is_active_state<State>())
                     {
-                        reg.safe_call
+                        self.safe_call
                         (
                             [&]
                             {
@@ -332,7 +405,7 @@ class region
 
                 if constexpr(sizeof...(States) != 0)
                 {
-                    process_event_in_active_state_helper<States...>::process(reg, event);
+                    process_event_in_active_state_helper<States...>::process(self, event);
                 }
             }
         };

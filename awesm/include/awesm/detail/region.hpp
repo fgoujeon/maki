@@ -15,6 +15,7 @@
 #include "call_member.hpp"
 #include "resolve_transition_table.hpp"
 #include "transition_table_digest.hpp"
+#include "transition_table_filters.hpp"
 #include "alternative_lazy.hpp"
 #include "any_container.hpp"
 #include "ignore_unused.hpp"
@@ -138,31 +139,26 @@ class region
         template<class Event>
         void process_event_in_transition_table(const Event& event)
         {
-            detail::tlu::apply
+            using filtered_transition_table_t = filter_transition_table_by_event
             <
                 transition_table_t,
+                Event
+            >;
+
+            detail::tlu::apply
+            <
+                filtered_transition_table_t,
                 process_event_in_transition_table_helper
             >::process(*this, event);
         }
 
-        template<class Row, class... Rows>
+        template<class... Rows>
         struct process_event_in_transition_table_helper
         {
             template<class Event>
             static void process(region& reg, const Event& event)
             {
-                if constexpr(std::is_same_v<Event, typename Row::event_t>)
-                {
-                    if(reg.try_processing_event_in_row<Row>(event))
-                    {
-                        return;
-                    }
-                }
-
-                if constexpr(sizeof...(Rows) != 0)
-                {
-                    process_event_in_transition_table_helper<Rows...>::process(reg, event);
-                }
+                ignore_unused((reg.try_processing_event_in_row<Rows>(event) || ...));
             }
         };
 

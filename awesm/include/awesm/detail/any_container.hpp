@@ -70,15 +70,21 @@ class any_container
         void operator=(const any_container&) = delete;
         void operator=(any_container&& other) = delete;
 
-        template<class T>
-        const T& get() const
+        [[nodiscard]]
+        void* get()
         {
-            return *reinterpret_cast<const T*>(pobj_); //NOLINT
+            return pobj_;
+        }
+
+        [[nodiscard]]
+        const void* get() const
+        {
+            return pobj_;
         }
 
     private:
         char static_storage_[StaticStorageSize]; //NOLINT, small object optimization
-        const void* pobj_ = nullptr;
+        void* pobj_ = nullptr;
         void(*pdelete_)(const void*) = nullptr;
 };
 

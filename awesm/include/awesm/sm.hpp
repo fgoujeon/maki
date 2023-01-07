@@ -87,25 +87,22 @@ class sm
 
         using transition_table_list_t = typename conf_t::transition_table_list_t;
 
+        //For queued events
         class event_processing
         {
             public:
-                template<class Event, detail::event_processing_type ProcessingType>
+                using process_fn_ptr_t = void(*)(sm&, const void* /*pevent*/);
+
+                template<class Event>
                 event_processing
                 (
                     sm& machine,
                     const Event& event,
-                    std::integral_constant<detail::event_processing_type, ProcessingType> /*unused*/
+                    const process_fn_ptr_t pprocess_event
                 ):
                     sm_(machine),
                     event_(event),
-                    pprocess_event_
-                    (
-                        [](sm& mach, const event_storage_t& evt)
-                        {
-                            mach.process_event_once<ProcessingType>(evt.template get<Event>());
-                        }
-                    )
+                    pprocess_event_(pprocess_event)
                 {
                 }
 
@@ -115,9 +112,9 @@ class sm
                 event_processing& operator=(const event_processing&) = delete;
                 event_processing& operator=(event_processing&&) = delete;
 
-                void operator()()
+                void operator()() const
                 {
-                    (*pprocess_event_)(sm_, event_);
+                    (*pprocess_event_)(sm_, event_.get());
                 }
 
             private:
@@ -126,7 +123,7 @@ class sm
 
                 sm& sm_;
                 event_storage_t event_;
-                void(*pprocess_event_)(sm&, const event_storage_t&) = nullptr;
+                process_fn_ptr_t pprocess_event_ = nullptr;
         };
 
         struct queue_holder
@@ -162,11 +159,11 @@ class sm
                             (
                                 *this,
                                 event,
-                                std::integral_constant
-                                <
-                                    detail::event_processing_type,
-                                    ProcessingType
-                                >{}
+                                [](sm& self, const void* pevent)
+                                {
+                                    const Event& event = *reinterpret_cast<const Event*>(pevent); //NOLINT
+                                    self.process_event_once<ProcessingType>(event);
+                                }
                             );
                         }
                     );

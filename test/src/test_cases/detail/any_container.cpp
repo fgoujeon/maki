@@ -65,6 +65,12 @@ namespace
 
     const auto big_array = big_array_t{{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}};
     const auto number = static_cast<char>(42);
+
+    template<class T, auto Size>
+    const T& get_as(const awesm::detail::any_container<Size>& ac)
+    {
+        return *reinterpret_cast<const T*>(ac.get());
+    }
 }
 
 TEST_CASE("detail::any_container")
@@ -87,11 +93,11 @@ TEST_CASE("detail::any_container")
 
         delete psmall;
         REQUIRE(destructor_call_count == 1);
-        REQUIRE(small_any.get<small_struct>().i == number);
+        REQUIRE(get_as<small_struct>(small_any).i == number);
 
         delete pbig;
         REQUIRE(destructor_call_count == 2);
-        REQUIRE(big_any.get<big_struct>().numbers == big_array);
+        REQUIRE(get_as<big_struct>(big_any).numbers == big_array);
     }
 
     REQUIRE(destructor_call_count == 4);

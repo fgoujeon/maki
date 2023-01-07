@@ -96,11 +96,9 @@ class sm
                 template<class Event>
                 event_processing
                 (
-                    sm& machine,
                     const Event& event,
                     const process_fn_ptr_t pprocess_event
                 ):
-                    sm_(machine),
                     event_(event),
                     pprocess_event_(pprocess_event)
                 {
@@ -112,16 +110,15 @@ class sm
                 event_processing& operator=(const event_processing&) = delete;
                 event_processing& operator=(event_processing&&) = delete;
 
-                void operator()() const
+                void operator()(sm& machine) const
                 {
-                    (*pprocess_event_)(sm_, event_.get());
+                    (*pprocess_event_)(machine, event_.get());
                 }
 
             private:
                 static constexpr auto small_event_size = 16;
                 using event_storage_t = detail::any_container<small_event_size>;
 
-                sm& sm_;
                 event_storage_t event_;
                 process_fn_ptr_t pprocess_event_ = nullptr;
         };
@@ -148,7 +145,7 @@ class sm
         {
             if constexpr(!detail::tlu::contains<conf_t, sm_options::disable_run_to_completion>)
             {
-                //Queue event processing in case of recursive call
+                //Queue event in case of recursive call
                 if(processing_event_)
                 {
                     safe_call //copy constructor might throw
@@ -157,7 +154,6 @@ class sm
                         {
                             queued_event_processings_.emplace
                             (
-                                *this,
                                 event,
                                 [](sm& self, const void* pevent)
                                 {
@@ -174,10 +170,10 @@ class sm
 
                 process_event_once<ProcessingType>(event);
 
-                //Process queued event processings
+                //Process queued events, if any
                 while(!queued_event_processings_.empty())
                 {
-                    queued_event_processings_.front()();
+                    queued_event_processings_.front()(*this);
                     queued_event_processings_.pop();
                 }
 

@@ -145,44 +145,58 @@ class sm
         {
             if constexpr(!detail::tlu::contains<conf_t, sm_options::disable_run_to_completion>)
             {
-                //Queue event in case of recursive call
-                if(processing_event_)
+                if(!processing_event_) //If call is not recursive
                 {
-                    safe_call //copy constructor might throw
-                    (
-                        [&]
-                        {
-                            queued_event_processings_.emplace
-                            (
-                                event,
-                                [](sm& self, const void* pevent)
-                                {
-                                    const Event& event = *reinterpret_cast<const Event*>(pevent); //NOLINT
-                                    self.process_event_once<ProcessingType>(event);
-                                }
-                            );
-                        }
-                    );
-                    return;
+                    processing_event_ = true;
+
+                    process_event_once<ProcessingType>(event);
+
+                    //Process queued events, if any
+                    while(!queued_event_processings_.empty())
+                    {
+                        queued_event_processings_.front()(*this);
+                        queued_event_processings_.pop();
+                    }
+
+                    processing_event_ = false;
                 }
-
-                processing_event_ = true;
-
-                process_event_once<ProcessingType>(event);
-
-                //Process queued events, if any
-                while(!queued_event_processings_.empty())
+                else
                 {
-                    queued_event_processings_.front()(*this);
-                    queued_event_processings_.pop();
+                    //Queue event in case of recursive call
+                    if constexpr(std::is_nothrow_copy_constructible_v<Event>)
+                    {
+                        queue_event<ProcessingType>(event);
+                    }
+                    else
+                    {
+                        safe_call //event copy constructor might throw
+                        (
+                            [&]
+                            {
+                                queue_event<ProcessingType>(event);
+                            }
+                        );
+                    }
                 }
-
-                processing_event_ = false;
             }
             else
             {
                 process_event_once<ProcessingType>(event);
             }
+        }
+
+        template<detail::event_processing_type ProcessingType, class Event>
+        void queue_event(const Event& event)
+        {
+            queued_event_processings_.emplace
+            (
+                event,
+                [](sm& self, const void* pevent)
+                {
+                    const Event& event = *reinterpret_cast<const Event*>(pevent); //NOLINT
+                    self.process_event_once<ProcessingType>(event);
+                }
+            );
         }
 
         //Used to call client code

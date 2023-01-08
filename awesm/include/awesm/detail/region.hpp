@@ -122,9 +122,9 @@ class region
         struct stop_helper
         {
             template<class Event>
-            static void call(region& reg, const Event& event)
+            static void call(region& self, const Event& event)
             {
-                (reg.stop_2<States>(event) || ...);
+                (self.stop_2<States>(event) || ...);
             }
         };
 
@@ -149,11 +149,11 @@ class region
         struct process_event_in_transition_table_helper
         {
             template<class Event>
-            static void process(region& reg, const Event& event)
+            static void process(region& self, const Event& event)
             {
                 if constexpr(std::is_same_v<Event, typename Row::event_t>)
                 {
-                    if(reg.try_processing_event_in_row<Row>(event))
+                    if(self.try_processing_event_in_row<Row>(event))
                     {
                         return;
                     }
@@ -161,7 +161,7 @@ class region
 
                 if constexpr(sizeof...(Rows) != 0)
                 {
-                    process_event_in_transition_table_helper<Rows...>::process(reg, event);
+                    process_event_in_transition_table_helper<Rows...>::process(self, event);
                 }
             }
         };
@@ -315,15 +315,15 @@ class region
         struct process_event_in_active_state_helper
         {
             template<class Event>
-            static void process(region& reg, const Event& event)
+            static void process(region& self, const Event& event)
             {
                 using wrapped_state_t = state_wrapper_t<RegionPath, State>;
                 if constexpr(state_traits::requires_on_event_v<wrapped_state_t, Event>)
                 {
-                    auto& state = get<wrapped_state_t>(reg.states_);
-                    if(reg.is_active_state<State>())
+                    auto& state = get<wrapped_state_t>(self.states_);
+                    if(self.is_active_state<State>())
                     {
-                        reg.safe_call
+                        self.safe_call
                         (
                             [&]
                             {
@@ -336,7 +336,7 @@ class region
 
                 if constexpr(sizeof...(States) != 0)
                 {
-                    process_event_in_active_state_helper<States...>::process(reg, event);
+                    process_event_in_active_state_helper<States...>::process(self, event);
                 }
             }
         };

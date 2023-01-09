@@ -11,15 +11,25 @@
 #include "null.hpp"
 #include "detail/composite_state_wrapper.hpp"
 #include "detail/region_tuple.hpp"
-#include "detail/event_processing_type.hpp"
 #include "detail/alternative_lazy.hpp"
 #include "detail/any_container.hpp"
 #include "detail/sm_path.hpp"
+#include "detail/type_tag.hpp"
 #include <queue>
 #include <type_traits>
 
 namespace awesm
 {
+
+namespace detail
+{
+    enum class sm_operation
+    {
+        start,
+        stop,
+        process_event
+    };
+}
 
 template<class Def>
 class sm
@@ -60,19 +70,19 @@ class sm
         template<class Event = events::start>
         void start(const Event& event = {})
         {
-            process_event_2<detail::event_processing_type::start>(event);
+            process_event_2<detail::sm_operation::start>(event);
         }
 
         template<class Event = events::stop>
         void stop(const Event& event = {})
         {
-            process_event_2<detail::event_processing_type::stop>(event);
+            process_event_2<detail::sm_operation::stop>(event);
         }
 
         template<class Event>
         void process_event(const Event& event)
         {
-            process_event_2<detail::event_processing_type::event>(event);
+            process_event_2<detail::sm_operation::process_event>(event);
         }
 
         static decltype(auto) get_pretty_name()
@@ -87,60 +97,41 @@ class sm
 
         using transition_table_list_t = typename conf_t::transition_table_list_t;
 
-        //For queued events
-        class event_processing
+        template<detail::sm_operation Operation>
+        struct any_event_visitor
         {
-            public:
-                using process_fn_ptr_t = void(*)(sm&, const void* /*pevent*/);
-
-                template<class Event>
-                event_processing
-                (
-                    const Event& event,
-                    const process_fn_ptr_t pprocess_event
-                ):
-                    event_(event),
-                    pprocess_event_(pprocess_event)
-                {
-                }
-
-                event_processing(const event_processing&) = delete;
-                event_processing(event_processing&&) = delete;
-                ~event_processing() = default;
-                event_processing& operator=(const event_processing&) = delete;
-                event_processing& operator=(event_processing&&) = delete;
-
-                void operator()(sm& machine) const
-                {
-                    (*pprocess_event_)(machine, event_.get());
-                }
-
-            private:
-                static constexpr auto small_event_size = 16;
-                using event_storage_t = detail::any_container<small_event_size>;
-
-                event_storage_t event_;
-                process_fn_ptr_t pprocess_event_ = nullptr;
+            template<class Event>
+            static void call(const Event& event, sm& self)
+            {
+                self.process_event_once<Operation>(event);
+            }
         };
 
-        struct queue_holder
+        struct any_event_queue_holder
         {
+            static constexpr auto small_event_size = 16;
+            using any_event_t = detail::any_container
+            <
+                sm&,
+                small_event_size
+            >;
+
             template<class = void>
-            using type = std::queue<event_processing>;
+            using type = std::queue<any_event_t>;
         };
         struct empty_holder
         {
             template<class = void>
             struct type{};
         };
-        using queued_event_processing_storage_t = detail::alternative_lazy
+        using any_event_queue_t = detail::alternative_lazy
         <
             detail::tlu::contains<conf_t, sm_options::disable_run_to_completion>,
             empty_holder,
-            queue_holder
+            any_event_queue_holder
         >;
 
-        template<detail::event_processing_type ProcessingType, class Event>
+        template<detail::sm_operation Operation, class Event>
         void process_event_2(const Event& event)
         {
             if constexpr(!detail::tlu::contains<conf_t, sm_options::disable_run_to_completion>)
@@ -149,13 +140,13 @@ class sm
                 {
                     processing_event_ = true;
 
-                    process_event_once<ProcessingType>(event);
+                    process_event_once<Operation>(event);
 
                     //Process queued events, if any
-                    while(!queued_event_processings_.empty())
+                    while(!event_queue_.empty())
                     {
-                        queued_event_processings_.front()(*this);
-                        queued_event_processings_.pop();
+                        event_queue_.front().visit(*this);
+                        event_queue_.pop();
                     }
 
                     processing_event_ = false;
@@ -165,7 +156,7 @@ class sm
                     //Queue event in case of recursive call
                     if constexpr(std::is_nothrow_copy_constructible_v<Event>)
                     {
-                        queue_event<ProcessingType>(event);
+                        queue_event<Operation>(event);
                     }
                     else
                     {
@@ -173,7 +164,7 @@ class sm
                         (
                             [&]
                             {
-                                queue_event<ProcessingType>(event);
+                                queue_event<Operation>(event);
                             }
                         );
                     }
@@ -181,21 +172,17 @@ class sm
             }
             else
             {
-                process_event_once<ProcessingType>(event);
+                process_event_once<Operation>(event);
             }
         }
 
-        template<detail::event_processing_type ProcessingType, class Event>
+        template<detail::sm_operation Operation, class Event>
         void queue_event(const Event& event)
         {
-            queued_event_processings_.emplace
+            event_queue_.emplace
             (
                 event,
-                [](sm& self, const void* pevent)
-                {
-                    const Event& event = *reinterpret_cast<const Event*>(pevent); //NOLINT
-                    self.process_event_once<ProcessingType>(event);
-                }
+                detail::type_tag<any_event_visitor<Operation>>{}
             );
         }
 
@@ -225,12 +212,12 @@ class sm
             }
         }
 
-        template<detail::event_processing_type ProcessingType, class Event>
+        template<detail::sm_operation Operation, class Event>
         void process_event_once(const Event& event)
         {
             if constexpr
             (
-                ProcessingType == detail::event_processing_type::event &&
+                Operation == detail::sm_operation::process_event &&
                 detail::tlu::contains<conf_t, sm_options::on_event>
             )
             {
@@ -243,11 +230,11 @@ class sm
                 );
             }
 
-            if constexpr(ProcessingType == detail::event_processing_type::start)
+            if constexpr(Operation == detail::sm_operation::start)
             {
                 region_tuple_.start(event);
             }
-            else if constexpr(ProcessingType == detail::event_processing_type::stop)
+            else if constexpr(Operation == detail::sm_operation::stop)
             {
                 region_tuple_.stop(event);
             }
@@ -266,7 +253,7 @@ class sm
         > region_tuple_;
 
         bool processing_event_ = false;
-        queued_event_processing_storage_t queued_event_processings_;
+        any_event_queue_t event_queue_;
 };
 
 } //namespace

@@ -16,11 +16,10 @@
 #include "resolve_transition_table.hpp"
 #include "transition_table_digest.hpp"
 #include "alternative_lazy.hpp"
-#include "any_container.hpp"
 #include "ignore_unused.hpp"
-#include "event_processing_type.hpp"
 #include "tlu/apply.hpp"
 #include <type_traits>
+#include <exception>
 
 namespace awesm::detail
 {

@@ -7,6 +7,7 @@
 #ifndef AWESM_DETAIL_ANY_CONTAINER_HPP
 #define AWESM_DETAIL_ANY_CONTAINER_HPP
 
+#include "type_tag.hpp"
 #include <type_traits>
 #include <memory>
 
@@ -14,24 +15,26 @@ namespace awesm::detail
 {
 
 /*
-A type-unsafe container for an object of any type.
+A type-safe container for an object of any type.
 No dynamic memory allocation happens if the size of the given object is lower
 or equal to StaticStorageSize.
 */
-template<auto StaticStorageSize>
+template<class Arg, int StaticStorageSize>
 class any_container
 {
     public:
-        static_assert(StaticStorageSize > 0);
+        static_assert(StaticStorageSize >= 0);
 
         //small object optimization
-        template<class Object>
-        explicit any_container
-        (
-            const Object& obj,
-            std::enable_if_t<sizeof(Object) <= StaticStorageSize>* /*pvoid*/ = nullptr
-        ):
+        template
+        <
+            class Object,
+            class Visitor,
+            std::enable_if_t<(sizeof(Object) <= StaticStorageSize), bool> = true
+        >
+        explicit any_container(const Object& obj, type_tag<Visitor> /*unused*/):
             pobj_(new(static_storage_) Object{obj}),
+            pvisit_(&visit_impl<Object, Visitor>),
             pdelete_
             (
                 [](const void* pobj)
@@ -42,13 +45,15 @@ class any_container
         {
         }
 
-        template<class Object>
-        explicit any_container
-        (
-            const Object& obj,
-            std::enable_if_t<(sizeof(Object) > StaticStorageSize)>* /*pvoid*/ = nullptr
-        ):
+        template
+        <
+            class Object,
+            class Visitor,
+            std::enable_if_t<(sizeof(Object) > StaticStorageSize), bool> = true
+        >
+        explicit any_container(const Object& obj, type_tag<Visitor> /*unused*/):
             pobj_(new Object{obj}),
+            pvisit_(&visit_impl<Object, Visitor>),
             pdelete_
             (
                 [](const void* pobj)
@@ -64,27 +69,28 @@ class any_container
 
         ~any_container()
         {
-            (*pdelete_)(pobj_);
+            pdelete_(pobj_);
         }
 
         void operator=(const any_container&) = delete;
         void operator=(any_container&& other) = delete;
 
-        [[nodiscard]]
-        void* get()
+        void visit(Arg arg) const
         {
-            return pobj_;
-        }
-
-        [[nodiscard]]
-        const void* get() const
-        {
-            return pobj_;
+            pvisit_(pobj_, arg);
         }
 
     private:
-        char static_storage_[StaticStorageSize]; //NOLINT, small object optimization
+        template<class Object, class Visitor>
+        static void visit_impl(const void* pobj, Arg arg)
+        {
+            const Object& obj = *reinterpret_cast<const Object*>(pobj); //NOLINT
+            Visitor::call(obj, arg);
+        }
+
+        char static_storage_[static_cast<std::size_t>(StaticStorageSize)]; //NOLINT, small object optimization
         void* pobj_ = nullptr;
+        void(*pvisit_)(const void*, Arg) = nullptr;
         void(*pdelete_)(const void*) = nullptr;
 };
 

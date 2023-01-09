@@ -4,17 +4,17 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_DETAIL_EVENT_PROCESSING_TYPE_HPP
-#define AWESM_DETAIL_EVENT_PROCESSING_TYPE_HPP
+#ifndef AWESM_DETAIL_TYPE_TAG_HPP
+#define AWESM_DETAIL_TYPE_TAG_HPP
 
 namespace awesm::detail
 {
 
-enum class event_processing_type
+//A type holder
+template<class T>
+struct type_tag
 {
-    event,
-    start,
-    stop
+    using type = T;
 };
 
 } //namespace

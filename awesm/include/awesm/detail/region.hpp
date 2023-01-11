@@ -162,6 +162,8 @@ class region
                 {
                     process_event_in_transition_table_helper<Rows...>::process(self, event);
                 }
+
+                ignore_unused(self, event);
             }
         };
 
@@ -337,6 +339,8 @@ class region
                 {
                     process_event_in_active_state_helper<States...>::process(self, event);
                 }
+
+                ignore_unused(self, event);
             }
         };
 

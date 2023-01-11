@@ -97,16 +97,6 @@ class sm
 
         using transition_table_list_t = typename conf_t::transition_table_list_t;
 
-        template<detail::sm_operation Operation>
-        struct any_event_visitor
-        {
-            template<class Event>
-            static void call(const Event& event, sm& self)
-            {
-                self.process_event_once<Operation>(event);
-            }
-        };
-
         struct any_event_queue_holder
         {
             static constexpr auto small_event_size = 16;
@@ -185,6 +175,16 @@ class sm
                 detail::type_tag<any_event_visitor<Operation>>{}
             );
         }
+
+        template<detail::sm_operation Operation>
+        struct any_event_visitor
+        {
+            template<class Event>
+            static void call(const Event& event, sm& self)
+            {
+                self.process_event_once<Operation>(event);
+            }
+        };
 
         //Used to call client code
         template<class F>

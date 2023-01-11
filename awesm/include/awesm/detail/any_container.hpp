@@ -19,12 +19,10 @@ A type-safe container for an object of any type.
 No dynamic memory allocation happens if the size of the given object is lower
 or equal to StaticStorageSize.
 */
-template<class Arg, int StaticStorageSize>
+template<class Arg, std::size_t StaticStorageSize>
 class any_container
 {
     public:
-        static_assert(StaticStorageSize >= 0);
-
         //small object optimization
         template
         <
@@ -88,7 +86,7 @@ class any_container
             Visitor::call(obj, arg);
         }
 
-        char static_storage_[static_cast<std::size_t>(StaticStorageSize)]; //NOLINT, small object optimization
+        char static_storage_[StaticStorageSize]; //NOLINT, small object optimization
         void* pobj_ = nullptr;
         void(*pvisit_)(const void*, Arg) = nullptr;
         void(*pdelete_)(const void*) = nullptr;

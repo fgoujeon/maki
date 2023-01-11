@@ -36,11 +36,18 @@ namespace detail
         return T::get_pretty_name();
     }
 
-    template<class T>
+    template
+    <
+        class T,
+        std::enable_if_t
+        <
+            tlu::contains<typename T::conf, get_pretty_name_option>,
+            bool
+        > = true
+    >
     static decltype(auto) get_pretty_name_impl
     (
-        char /*medium_overload_priority*/,
-        std::enable_if_t<tlu::contains<typename T::conf, get_pretty_name_option>>* /*unused*/ = nullptr
+        char /*medium_overload_priority*/
     )
     {
         return T::get_pretty_name();

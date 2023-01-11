@@ -48,41 +48,50 @@ class sm_object_holder: public T
     public:
         using object_t = T;
 
-        template<class Sm, class Context, class U = T>
-        sm_object_holder
-        (
-            Sm& machine,
-            Context& ctx,
+        template
+        <
+            class Sm,
+            class Context,
+            class U = T,
             std::enable_if_t
             <
-                sm_object_holder_detail::is_brace_constructible<U, Sm&, Context&>
-            >* /*pvoid*/ = nullptr
-        ):
+                sm_object_holder_detail::is_brace_constructible<U, Sm&, Context&>,
+                bool
+            > = true
+        >
+        sm_object_holder(Sm& machine, Context& ctx):
             T{machine, ctx}
         {
         }
 
-        template<class Sm, class Context, class U = T>
-        sm_object_holder
-        (
-            Sm& /*machine*/,
-            Context& ctx,
+        template
+        <
+            class Sm,
+            class Context,
+            class U = T,
             std::enable_if_t
             <
-                sm_object_holder_detail::is_brace_constructible<U, Context&>
-            >* /*pvoid*/ = nullptr
-        ):
+                sm_object_holder_detail::is_brace_constructible<U, Context&>,
+                bool
+            > = true
+        >
+        sm_object_holder(Sm& /*machine*/, Context& ctx):
             T{ctx}
         {
         }
 
-        template<class Sm, class Context, class U = T>
-        sm_object_holder
-        (
-            Sm& /*machine*/,
-            Context& /*ctx*/,
-            std::enable_if_t<std::is_default_constructible_v<U>>* /*pvoid*/ = nullptr
-        )
+        template
+        <
+            class Sm,
+            class Context,
+            class U = T,
+            std::enable_if_t
+            <
+                std::is_default_constructible_v<U>,
+                bool
+            > = true
+        >
+        sm_object_holder(Sm& /*machine*/, Context& /*ctx*/)
         {
         }
 };

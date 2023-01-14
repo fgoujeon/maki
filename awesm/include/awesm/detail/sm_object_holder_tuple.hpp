@@ -73,18 +73,6 @@ const auto& get(const sm_object_holder_tuple<Ts...>& tuple)
     return get<object_t>(tuple);
 }
 
-template<class F, class... Ts>
-void for_each(sm_object_holder_tuple<Ts...>& tuple, F&& callback)
-{
-    (callback(get<Ts>(tuple)), ...);
-}
-
-template<class F, class... Ts>
-void for_each(const sm_object_holder_tuple<Ts...>& tuple, F&& callback)
-{
-    (callback(get<Ts>(tuple)), ...);
-}
-
 } //namespace
 
 #endif

@@ -8,6 +8,7 @@
 #define AWESM_DETAIL_REGION_TUPLE_HPP
 
 #include "region.hpp"
+#include "tuple.hpp"
 #include "../transition_table_list.hpp"
 #include <type_traits>
 
@@ -20,7 +21,7 @@ struct region_holder_tuple;
 template<class SmPath, int... RegionIndexes, class... TransitionTables>
 struct region_holder_tuple<SmPath, std::integer_sequence<int, RegionIndexes...>, TransitionTables...>
 {
-    using type = sm_object_holder_tuple<region<make_region_path_t<SmPath, RegionIndexes>, TransitionTables>...>;
+    using type = tuple<region<make_region_path_t<SmPath, RegionIndexes>, TransitionTables>...>;
 };
 
 template<class SmPath, class RegionIndexSequence, class... TransitionTables>

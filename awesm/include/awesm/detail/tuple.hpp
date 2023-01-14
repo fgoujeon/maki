@@ -23,9 +23,9 @@ template<class... Ts>
 class tuple: private Ts...
 {
     public:
-        template<class... Args>
-        explicit tuple(Args&&... args):
-            Ts(args...)...
+        template<class Arg>
+        explicit tuple(Arg& arg):
+            Ts(arg)...
         {
         }
 

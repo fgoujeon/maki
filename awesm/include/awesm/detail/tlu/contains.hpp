@@ -58,7 +58,7 @@ namespace contains_detail
 }
 
 template<class TList, class U>
-constexpr bool contains =
+constexpr bool contains_v =
     contains_detail::contains_in_type_list<U, TList>::value
 ;
 

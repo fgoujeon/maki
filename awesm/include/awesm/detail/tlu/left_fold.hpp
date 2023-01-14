@@ -10,14 +10,6 @@
 namespace awesm::detail::tlu
 {
 
-/*
-left_fold applies a left fold on the given type list.
-
-Operation must be a metafunction whose parameters are:
-- a type list;
-- a type.
-*/
-
 namespace left_fold_detail
 {
     template
@@ -54,32 +46,39 @@ namespace left_fold_detail
     {
         using type = InitialTypeList;
     };
-
-    template
-    <
-        class TList,
-        template<class, class> class Operation,
-        class InitialTypeList
-    >
-    struct fold_on_list;
-
-    template
-    <
-        template<class...> class TList,
-        template<class, class> class Operation,
-        class InitialTypeList,
-        class... Ts
-    >
-    struct fold_on_list<TList<Ts...>, Operation, InitialTypeList>
-    {
-        using type = typename fold_on_pack
-        <
-            Operation,
-            InitialTypeList,
-            Ts...
-        >::type;
-    };
 }
+
+/*
+left_fold applies a left fold on the given type list.
+
+Operation must be a metafunction whose parameters are:
+- a type list;
+- a type.
+*/
+template
+<
+    class TList,
+    template<class, class> class Operation,
+    class InitialTypeList
+>
+struct left_fold;
+
+template
+<
+    template<class...> class TList,
+    template<class, class> class Operation,
+    class InitialTypeList,
+    class... Ts
+>
+struct left_fold<TList<Ts...>, Operation, InitialTypeList>
+{
+    using type = typename left_fold_detail::fold_on_pack
+    <
+        Operation,
+        InitialTypeList,
+        Ts...
+    >::type;
+};
 
 template
 <
@@ -87,12 +86,7 @@ template
     template<class, class> class Operation,
     class InitialTypeList
 >
-using left_fold = typename left_fold_detail::fold_on_list
-<
-    TList,
-    Operation,
-    InitialTypeList
->::type;
+using left_fold_t = typename left_fold<TList, Operation, InitialTypeList>::type;
 
 } //namespace
 

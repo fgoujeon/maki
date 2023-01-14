@@ -27,7 +27,7 @@ TEST_CASE("detail::tlu::left_fold")
 {
     using type_list_t = std::tuple<char, short, int, long>;
 
-    using result_t = awesm::detail::tlu::left_fold
+    using result_t = awesm::detail::tlu::left_fold_t
     <
         type_list_t,
         push_back_twice,

@@ -11,6 +11,6 @@
 TEST_CASE("detail::tlu::contains")
 {
     using type_list = std::tuple<char, short, int, long>;
-    REQUIRE(awesm::detail::tlu::contains<type_list, int>);
-    REQUIRE(!awesm::detail::tlu::contains<type_list, double>);
+    REQUIRE(awesm::detail::tlu::contains_v<type_list, int>);
+    REQUIRE(!awesm::detail::tlu::contains_v<type_list, double>);
 }

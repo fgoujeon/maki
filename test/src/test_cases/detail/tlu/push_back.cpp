@@ -11,7 +11,7 @@
 TEST_CASE("detail::tlu::push_back")
 {
     using typelist = std::tuple<char, short, int>;
-    using typelist2 = awesm::detail::tlu::push_back<typelist, long>;
+    using typelist2 = awesm::detail::tlu::push_back_t<typelist, long>;
 
     using expected_typelist2 = std::tuple<char, short, int, long>;
     REQUIRE(std::is_same_v<typelist2, expected_typelist2>);

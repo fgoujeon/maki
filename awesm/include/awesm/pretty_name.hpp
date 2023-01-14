@@ -41,7 +41,7 @@ namespace detail
         class T,
         std::enable_if_t
         <
-            tlu::contains<typename T::conf, get_pretty_name_option>,
+            tlu::contains_v<typename T::conf, get_pretty_name_option>,
             bool
         > = true
     >

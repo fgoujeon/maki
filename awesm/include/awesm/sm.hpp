@@ -116,7 +116,7 @@ class sm
         };
         using any_event_queue_type = detail::alternative_lazy
         <
-            detail::tlu::contains<conf_type, sm_options::disable_run_to_completion>,
+            detail::tlu::contains_v<conf_type, sm_options::disable_run_to_completion>,
             empty_holder,
             any_event_queue_holder
         >;
@@ -124,7 +124,7 @@ class sm
         template<detail::sm_operation Operation, class Event>
         void process_event_2(const Event& event)
         {
-            if constexpr(!detail::tlu::contains<conf_type, sm_options::disable_run_to_completion>)
+            if constexpr(!detail::tlu::contains_v<conf_type, sm_options::disable_run_to_completion>)
             {
                 if(!processing_event_) //If call is not recursive
                 {
@@ -202,7 +202,7 @@ class sm
 
         void process_exception(const std::exception_ptr& eptr)
         {
-            if constexpr(detail::tlu::contains<conf_type, sm_options::on_exception>)
+            if constexpr(detail::tlu::contains_v<conf_type, sm_options::on_exception>)
             {
                 def_.on_exception(eptr);
             }
@@ -218,7 +218,7 @@ class sm
             if constexpr
             (
                 Operation == detail::sm_operation::process_event &&
-                detail::tlu::contains<conf_type, sm_options::on_event>
+                detail::tlu::contains_v<conf_type, sm_options::on_event>
             )
             {
                 safe_call

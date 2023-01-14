@@ -102,7 +102,7 @@ class sm_ref
         {
             static_assert
             (
-                detail::tlu::contains<detail::type_list<Events...>, Event>,
+                detail::tlu::contains_v<detail::type_list<Events...>, Event>,
                 "Given event type must be part of sm_ref template argument list"
             );
             impl_.process_event(event);

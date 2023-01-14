@@ -49,7 +49,7 @@ class region
         template<class State>
         [[nodiscard]] bool is_active_state() const
         {
-            constexpr auto given_state_index = detail::tlu::get_index
+            constexpr auto given_state_index = detail::tlu::index_of_v
             <
                 state_tuple_type,
                 State
@@ -73,7 +73,7 @@ class region
         template<class Event>
         void stop(const Event& event)
         {
-            detail::tlu::apply<state_tuple_type, stop_helper>::call(*this, event);
+            detail::tlu::apply_t<state_tuple_type, stop_helper>::call(*this, event);
         }
 
         template<class Event>
@@ -94,7 +94,7 @@ class region
             typename transition_table_digest_type::wrapped_state_holder_tuple_type
         ;
 
-        using initial_state_type = detail::tlu::at<state_tuple_type, 1>; //0 being null_state
+        using initial_state_type = detail::tlu::at_t<state_tuple_type, 1>; //0 being null_state
 
         using transition_table_type = detail::resolve_transition_table_t
         <
@@ -137,7 +137,7 @@ class region
         template<class Event>
         void process_event_in_transition_table(const Event& event)
         {
-            detail::tlu::apply
+            detail::tlu::apply_t
             <
                 transition_table_type,
                 process_event_in_transition_table_helper
@@ -219,7 +219,7 @@ class region
 
             if constexpr(!is_internal_transition)
             {
-                if constexpr(tlu::contains<conf_type, sm_options::before_state_transition>)
+                if constexpr(tlu::contains_v<conf_type, sm_options::before_state_transition>)
                 {
                     mach_.def_.template before_state_transition
                     <
@@ -239,7 +239,7 @@ class region
                     );
                 }
 
-                active_state_index_ = detail::tlu::get_index
+                active_state_index_ = detail::tlu::index_of_v
                 <
                     state_tuple_type,
                     target_state_type
@@ -256,7 +256,7 @@ class region
 
             if constexpr(!is_internal_transition)
             {
-                if constexpr(tlu::contains<conf_type, sm_options::before_entry>)
+                if constexpr(tlu::contains_v<conf_type, sm_options::before_entry>)
                 {
                     mach_.def_.template before_entry
                     <
@@ -280,7 +280,7 @@ class region
                     );
                 }
 
-                if constexpr(tlu::contains<conf_type, sm_options::after_state_transition>)
+                if constexpr(tlu::contains_v<conf_type, sm_options::after_state_transition>)
                 {
                     mach_.def_.template after_state_transition
                     <
@@ -305,7 +305,7 @@ class region
         template<class Event>
         void process_event_in_active_state(const Event& event)
         {
-            detail::tlu::apply
+            detail::tlu::apply_t
             <
                 state_tuple_type,
                 process_event_in_active_state_helper

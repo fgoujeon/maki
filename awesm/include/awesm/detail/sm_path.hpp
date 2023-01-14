@@ -41,7 +41,7 @@ using sm_path_to_sm_t = typename sm_path_to_sm<SmPath>::type;
 template<class SmPath, int RegionIndex>
 struct make_region_path
 {
-    using type = tlu::push_back
+    using type = tlu::push_back_t
     <
         typename SmPath::region_path_type,
         region_path_element

@@ -61,15 +61,15 @@ namespace transition_table_digest_detail
     using to_tuple_t = typename to_tuple<RegionPath, TList>::type;
 
     template<class TList, class U>
-    using push_back_unique_if_not_null = tlu::push_back_if
+    using push_back_unique_if_not_null = tlu::push_back_if_t
     <
         TList,
         U,
-        (!tlu::contains<TList, U> && !std::is_same_v<U, null>)
+        (!tlu::contains_v<TList, U> && !std::is_same_v<U, null>)
     >;
 
     template<class TransitionTable>
-    using initial_state_t = typename tlu::at<TransitionTable, 0>::source_state_type;
+    using initial_state_t = typename tlu::at_t<TransitionTable, 0>::source_state_type;
 
     template<class InitialState>
     struct initial_digest
@@ -104,7 +104,7 @@ namespace transition_table_digest_detail
     so that we don't instantiate intermediate tuples.
     */
     template<class TransitionTable>
-    using digest_with_type_lists = tlu::left_fold
+    using digest_with_type_lists = tlu::left_fold_t
     <
         TransitionTable,
         add_row_to_digest,

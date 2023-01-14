@@ -11,24 +11,21 @@ namespace awesm::detail::tlu
 {
 
 /*
-apply<TList, Target> is an alias of Target<Ts...>, where Ts are the types of
+apply_t<TList, Target> is an alias of Target<Ts...>, where Ts are the types of
 TList.
 */
 
-namespace apply_detail
-{
-    template<class TList, template<class...> class Target>
-    struct apply;
+template<class TList, template<class...> class Target>
+struct apply;
 
-    template<template<class...> class Target, template<class...> class TList, class... Ts>
-    struct apply<TList<Ts...>, Target>
-    {
-        using type = Target<Ts...>;
-    };
-}
+template<template<class...> class Target, template<class...> class TList, class... Ts>
+struct apply<TList<Ts...>, Target>
+{
+    using type = Target<Ts...>;
+};
 
 template<class TList, template<class...> class Target>
-using apply = typename apply_detail::apply<TList, Target>::type;
+using apply_t = typename apply<TList, Target>::type;
 
 } //namespace
 

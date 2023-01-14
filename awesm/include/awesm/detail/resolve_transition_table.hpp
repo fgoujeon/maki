@@ -63,7 +63,7 @@ namespace resolve_transition_table_detail
         using type = alternative
         <
             SourceState::template matches<State>,
-            tlu::push_back
+            tlu::push_back_t
             <
                 TransitionTable,
                 row<State, Event, TargetState, Action, Guard>
@@ -79,7 +79,7 @@ namespace resolve_transition_table_detail
         using type = alternative
         <
             RowWithPattern::source_state_type::template matches<State>,
-            tlu::push_back
+            tlu::push_back_t
             <
                 TransitionTable,
                 row
@@ -104,7 +104,7 @@ namespace resolve_transition_table_detail
     struct add_row_with_pattern_holder
     {
         template<class = void>
-        using type = tlu::left_fold
+        using type = tlu::left_fold_t
         <
             StateTypeList,
             add_resolved_row_holder<Row>::template type,
@@ -116,7 +116,7 @@ namespace resolve_transition_table_detail
     struct add_row_without_pattern_holder
     {
         template<class = void>
-        using type = tlu::push_back<TransitionTable, Row>;
+        using type = tlu::push_back_t<TransitionTable, Row>;
     };
 
     //We need a holder to pass StateTypeList
@@ -146,7 +146,7 @@ struct resolve_transition_table;
 template<class TransitionTable, class StateTypeList>
 struct resolve_transition_table<TransitionTable, StateTypeList, true>
 {
-    using type = tlu::left_fold
+    using type = tlu::left_fold_t
     <
         TransitionTable,
         resolve_transition_table_detail::add_row_holder<StateTypeList>::template type,

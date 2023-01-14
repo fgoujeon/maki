@@ -9,7 +9,7 @@
 #include "tlu/apply.hpp"
 #include "tlu/at.hpp"
 #include "tlu/contains.hpp"
-#include "tlu/get_index.hpp"
+#include "tlu/index_of.hpp"
 #include "tlu/left_fold.hpp"
 #include "tlu/push_back.hpp"
 #include "tlu/push_back_if.hpp"

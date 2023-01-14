@@ -48,25 +48,25 @@ auto call_on_exit(State& state, const void* /*pevent*/) ->
     state.on_exit();
 }
 
-template<class Fn, class Sm, class Context, class Event>
-auto call_action_or_guard(const Fn& fun, Sm* pmach, Context* pctx, const Event* pevent) ->
-    decltype(fun(*pmach, *pctx, *pevent))
+template<class Fn, class Sm, class Event>
+auto call_action_or_guard(const Fn& fun, Sm& mach, const Event* pevent) ->
+    decltype(fun(mach, mach.get_context(), *pevent))
 {
-    return fun(*pmach, *pctx, *pevent);
+    return fun(mach, mach.get_context(), *pevent);
 }
 
-template<class Fn, class Context, class Event>
-auto call_action_or_guard(const Fn& fun, void* /*pmach*/, Context* pctx, const Event* pevent) ->
-    decltype(fun(*pctx, *pevent))
+template<class Fn, class Sm, class Event>
+auto call_action_or_guard(const Fn& fun, Sm& mach, const Event* pevent) ->
+    decltype(fun(mach.get_context(), *pevent))
 {
-    return fun(*pctx, *pevent);
+    return fun(mach.get_context(), *pevent);
 }
 
-template<class Fn, class Context>
-auto call_action_or_guard(const Fn& fun, void* /*pmach*/, Context* pctx, const void* /*pevent*/) ->
-    decltype(fun(*pctx))
+template<class Fn, class Sm>
+auto call_action_or_guard(const Fn& fun, Sm& mach, const void* /*pevent*/) ->
+    decltype(fun(mach.get_context()))
 {
-    return fun(*pctx);
+    return fun(mach.get_context());
 }
 
 } //namespace

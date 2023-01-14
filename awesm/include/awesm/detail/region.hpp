@@ -187,8 +187,7 @@ class region
                         !detail::call_action_or_guard
                         (
                             Row::get_guard(),
-                            &mach_,
-                            &mach_.get_context(),
+                            mach_,
                             &event
                         )
                     )
@@ -247,8 +246,7 @@ class region
             detail::call_action_or_guard
             (
                 Row::get_action(),
-                &mach_,
-                &mach_.get_context(),
+                mach_,
                 &event
             );
 

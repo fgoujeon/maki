@@ -51,11 +51,11 @@ class any_container
         {
             if constexpr(sizeof(Object) <= StaticStorageSize)
             {
-                return new(static_storage_) Object{obj};
+                return new(static_storage_) Object{obj}; //NOLINT
             }
             else
             {
-                return new Object{obj};
+                return new Object{obj}; //NOLINT
             }
         }
 

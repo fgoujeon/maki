@@ -8,7 +8,6 @@
 #define AWESM_DETAIL_RESOLVE_TRANSITION_TABLE_HPP
 
 #include "alternative.hpp"
-#include "alternative_lazy.hpp"
 #include "tlu.hpp"
 #include "../row.hpp"
 #include "../type_patterns.hpp"
@@ -60,7 +59,7 @@ namespace resolve_transition_table_detail
     struct add_resolved_row_holder<row<SourceState, Event, TargetState, Action, Guard>>
     {
         template<class TransitionTable, class State>
-        using type = alternative
+        using type = alternative_t
         <
             SourceState::template matches<State>,
             tlu::push_back_t
@@ -76,7 +75,7 @@ namespace resolve_transition_table_detail
     struct add_resolved_row_holder
     {
         template<class TransitionTable, class State>
-        using type = alternative
+        using type = alternative_t
         <
             RowWithPattern::source_state_type::template matches<State>,
             tlu::push_back_t
@@ -103,7 +102,7 @@ namespace resolve_transition_table_detail
     template<class TransitionTable, class Row, class StateTypeList>
     struct add_row_with_pattern_holder
     {
-        template<class = void>
+        template<bool = true> //Dummy template for lazy evaluation
         using type = tlu::left_fold_t
         <
             StateTypeList,
@@ -115,7 +114,7 @@ namespace resolve_transition_table_detail
     template<class TransitionTable, class Row>
     struct add_row_without_pattern_holder
     {
-        template<class = void>
+        template<bool = true> //Dummy template for lazy evaluation
         using type = tlu::push_back_t<TransitionTable, Row>;
     };
 
@@ -131,12 +130,12 @@ namespace resolve_transition_table_detail
           pattern).
         */
         template<class TransitionTable, class Row>
-        using type = alternative_lazy
+        using type = typename alternative_t
         <
             std::is_base_of_v<type_pattern, typename Row::source_state_type>,
             add_row_with_pattern_holder<TransitionTable, Row, StateTypeList>,
             add_row_without_pattern_holder<TransitionTable, Row>
-        >;
+        >::template type<>;
     };
 }
 

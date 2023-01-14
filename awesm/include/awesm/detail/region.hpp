@@ -15,7 +15,6 @@
 #include "call_member.hpp"
 #include "resolve_transition_table.hpp"
 #include "transition_table_digest.hpp"
-#include "alternative_lazy.hpp"
 #include "ignore_unused.hpp"
 #include "tlu/apply.hpp"
 #include <type_traits>

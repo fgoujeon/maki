@@ -11,31 +11,25 @@ namespace awesm::detail
 {
 
 /*
-alternative returns TrueType if given B is true, FalseType otherwise.
+alternative is an alias of TrueType if given B is true, FalseType otherwise.
 */
+template<bool B, class TrueType, class FalseType>
+struct alternative;
 
-namespace alternative_detail
+template<class TrueType, class FalseType>
+struct alternative<true, TrueType, FalseType>
 {
-    template<bool B, class TrueType, class FalseType>
-    struct helper;
+    using type = TrueType;
+};
 
-    template<class TrueType, class FalseType>
-    struct helper<true, TrueType, FalseType>
-    {
-        using type = TrueType;
-    };
-
-    template<class TrueType, class FalseType>
-    struct helper<false, TrueType, FalseType>
-    {
-        using type = FalseType;
-    };
-}
+template<class TrueType, class FalseType>
+struct alternative<false, TrueType, FalseType>
+{
+    using type = FalseType;
+};
 
 template<bool B, class TrueType, class FalseType>
-using alternative =
-    typename alternative_detail::helper<B, TrueType, FalseType>::type
-;
+using alternative_t = typename alternative<B, TrueType, FalseType>::type;
 
 } //namespace
 

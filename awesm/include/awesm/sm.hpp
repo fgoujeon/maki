@@ -11,7 +11,7 @@
 #include "null.hpp"
 #include "detail/composite_state_wrapper.hpp"
 #include "detail/region_tuple.hpp"
-#include "detail/alternative_lazy.hpp"
+#include "detail/alternative.hpp"
 #include "detail/any_container.hpp"
 #include "detail/sm_path.hpp"
 #include "detail/type_tag.hpp"
@@ -106,20 +106,20 @@ class sm
                 small_event_size
             >;
 
-            template<class = void>
+            template<bool = true> //Dummy template for lazy evaluation
             using type = std::queue<any_event_type>;
         };
         struct empty_holder
         {
-            template<class = void>
+            template<bool = true> //Dummy template for lazy evaluation
             struct type{};
         };
-        using any_event_queue_type = detail::alternative_lazy
+        using any_event_queue_type = typename detail::alternative_t
         <
             detail::tlu::contains_v<conf_type, sm_options::disable_run_to_completion>,
             empty_holder,
             any_event_queue_holder
-        >;
+        >::template type<>;
 
         template<detail::sm_operation Operation, class Event>
         void process_event_2(const Event& event)

@@ -8,8 +8,6 @@
 #define AWESM_DETAIL_ANY_CONTAINER_HPP
 
 #include "type_tag.hpp"
-#include <type_traits>
-#include <memory>
 
 namespace awesm::detail
 {
@@ -19,46 +17,15 @@ A type-safe container for an object of any type.
 No dynamic memory allocation happens if the size of the given object is lower
 or equal to StaticStorageSize.
 */
-template<class Arg, std::size_t StaticStorageSize>
+template<class Arg, unsigned int StaticStorageSize>
 class any_container
 {
     public:
-        //small object optimization
-        template
-        <
-            class Object,
-            class Visitor,
-            std::enable_if_t<(sizeof(Object) <= StaticStorageSize), bool> = true
-        >
+        template<class Object, class Visitor>
         explicit any_container(const Object& obj, type_tag<Visitor> /*unused*/):
-            pobj_(new(static_storage_) Object{obj}),
+            pobj_(copy_object(obj)),
             pvisit_(&visit_impl<Object, Visitor>),
-            pdelete_
-            (
-                [](const void* pobj)
-                {
-                    reinterpret_cast<const Object*>(pobj)->~Object(); //NOLINT
-                }
-            )
-        {
-        }
-
-        template
-        <
-            class Object,
-            class Visitor,
-            std::enable_if_t<(sizeof(Object) > StaticStorageSize), bool> = true
-        >
-        explicit any_container(const Object& obj, type_tag<Visitor> /*unused*/):
-            pobj_(new Object{obj}),
-            pvisit_(&visit_impl<Object, Visitor>),
-            pdelete_
-            (
-                [](const void* pobj)
-                {
-                    delete reinterpret_cast<const Object*>(pobj); //NOLINT
-                }
-            )
+            pdelete_(&delete_object<Object>)
         {
         }
 
@@ -79,8 +46,34 @@ class any_container
         }
 
     private:
+        template<class Object>
+        void* copy_object(const Object& obj)
+        {
+            if constexpr(sizeof(Object) <= StaticStorageSize)
+            {
+                return new(static_storage_) Object{obj};
+            }
+            else
+            {
+                return new Object{obj};
+            }
+        }
+
+        template<class Object>
+        static void delete_object(const void* const pobj)
+        {
+            if constexpr(sizeof(Object) <= StaticStorageSize)
+            {
+                reinterpret_cast<const Object*>(pobj)->~Object(); //NOLINT
+            }
+            else
+            {
+                delete reinterpret_cast<const Object*>(pobj); //NOLINT
+            }
+        }
+
         template<class Object, class Visitor>
-        static void visit_impl(const void* pobj, Arg arg)
+        static void visit_impl(const void* const pobj, Arg arg)
         {
             const Object& obj = *reinterpret_cast<const Object*>(pobj); //NOLINT
             Visitor::call(obj, arg);

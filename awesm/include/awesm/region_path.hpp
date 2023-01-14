@@ -17,7 +17,7 @@ template<class SmOrCompositeState, int RegionIndex>
 struct region_path_element
 {
     using sm_type = SmOrCompositeState;
-    static constexpr auto region_index_v = RegionIndex;
+    static constexpr auto region_index = RegionIndex;
 
     static std::string get_pretty_name()
     {
@@ -27,7 +27,7 @@ struct region_path_element
         if constexpr(sm_type::conf_type::region_count > 1)
         {
             str += "[";
-            str += std::to_string(region_index_v);
+            str += std::to_string(region_index);
             str += "]";
         }
 

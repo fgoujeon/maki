@@ -39,8 +39,9 @@ class sm
         using context_type = typename conf_type::context_type;
 
         explicit sm(context_type& context):
+            ctx_(context),
             def_(*this, context),
-            region_tuple_{*this, context}
+            region_tuple_(*this)
         {
         }
 
@@ -49,6 +50,16 @@ class sm
         sm& operator=(const sm&) = delete;
         sm& operator=(sm&&) = delete;
         ~sm() = default;
+
+        context_type& get_context()
+        {
+            return ctx_;
+        }
+
+        const context_type& get_context() const
+        {
+            return ctx_;
+        }
 
         template<class State, int RegionIndex = 0>
         const auto& get_state() const
@@ -243,6 +254,8 @@ class sm
                 region_tuple_.process_event(event);
             }
         }
+
+        context_type& ctx_;
 
         detail::sm_object_holder<Def> def_;
 

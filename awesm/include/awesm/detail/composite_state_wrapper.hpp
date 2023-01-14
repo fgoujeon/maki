@@ -32,7 +32,7 @@ class composite_state_wrapper
         template<class Context>
         composite_state_wrapper(sm_type& mach, Context& ctx):
             state_(mach, ctx),
-            region_tuple_(mach, ctx)
+            region_tuple_(mach)
         {
         }
 

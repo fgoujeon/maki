@@ -31,10 +31,9 @@ class region
         using context_type = typename sm_type::context_type;
         using conf_type = typename sm_type::conf_type;
 
-        explicit region(sm_type& mach, context_type& ctx):
+        explicit region(sm_type& mach):
             mach_(mach),
-            ctx_(ctx),
-            states_(mach, ctx)
+            states_(mach, mach.get_context())
         {
         }
 
@@ -189,7 +188,7 @@ class region
                         (
                             Row::get_guard(),
                             &mach_,
-                            &ctx_,
+                            &mach_.get_context(),
                             &event
                         )
                     )
@@ -249,7 +248,7 @@ class region
             (
                 Row::get_action(),
                 &mach_,
-                &ctx_,
+                &mach_.get_context(),
                 &event
             );
 
@@ -344,7 +343,6 @@ class region
         };
 
         sm_type& mach_;
-        context_type& ctx_;
         wrapped_state_holder_tuple_type states_;
 
         int active_state_index_ = 0;

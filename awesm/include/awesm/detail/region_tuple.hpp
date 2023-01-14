@@ -38,9 +38,8 @@ class region_tuple<SmPath, transition_table_list<TransitionTables...>>
     public:
         using sm_type = sm_path_to_sm_t<SmPath>;
 
-        template<class Context>
-        explicit region_tuple(sm_type& mach, Context& context):
-            regions_{mach, context}
+        explicit region_tuple(sm_type& mach):
+            regions_(mach)
         {
         }
 

@@ -35,12 +35,6 @@ class tuple: private Ts...
 
         template<class T2, class... T2s>
         friend const T2& get(const tuple<T2s...>&);
-
-        template<int Index, class... T2s>
-        friend auto& get(tuple<T2s...>&);
-
-        template<int Index, class... T2s>
-        friend const auto& get(const tuple<T2s...>&);
 };
 
 template<class T, class... Ts>

@@ -35,12 +35,6 @@ class sm_object_holder_tuple: private sm_object_holder<Ts>...
 
         template<class T2, class... T2s>
         friend const T2& get(const sm_object_holder_tuple<T2s...>&);
-
-        template<int Index, class... T2s>
-        friend auto& get(sm_object_holder_tuple<T2s...>&);
-
-        template<int Index, class... T2s>
-        friend const auto& get(const sm_object_holder_tuple<T2s...>&);
 };
 
 template<class T, class... Ts>

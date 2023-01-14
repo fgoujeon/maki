@@ -16,8 +16,8 @@ namespace awesm::detail
 template<class RegionPath, class SmOrCompositeState>
 struct sm_path
 {
-    using region_path_t = RegionPath;
-    using sm_t = SmOrCompositeState;
+    using region_path_type = RegionPath;
+    using sm_type = SmOrCompositeState;
 };
 
 template<class SmPath>
@@ -43,10 +43,10 @@ struct make_region_path
 {
     using type = tlu::push_back
     <
-        typename SmPath::region_path_t,
+        typename SmPath::region_path_type,
         region_path_element
         <
-            typename SmPath::sm_t,
+            typename SmPath::sm_type,
             RegionIndex
         >
     >;

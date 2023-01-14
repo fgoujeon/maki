@@ -21,14 +21,14 @@ namespace composite_state_options
 template<class TransitionTable, class... Options>
 struct composite_state_conf
 {
-    using transition_table_list_t = transition_table_list<TransitionTable>;
+    using transition_table_list_type = transition_table_list<TransitionTable>;
     static constexpr auto region_count = 1;
 };
 
 template<class... TransitionTables, class... Options>
 struct composite_state_conf<transition_table_list<TransitionTables...>, Options...>
 {
-    using transition_table_list_t = transition_table_list<TransitionTables...>;
+    using transition_table_list_type = transition_table_list<TransitionTables...>;
     static constexpr auto region_count = sizeof...(TransitionTables);
 };
 

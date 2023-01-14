@@ -35,10 +35,10 @@ template<class Def>
 class sm
 {
     public:
-        using conf_t = typename Def::conf_t;
-        using context_t = typename conf_t::context_t;
+        using conf_type = typename Def::conf_type;
+        using context_type = typename conf_type::context_type;
 
-        explicit sm(context_t& context):
+        explicit sm(context_type& context):
             def_(*this, context),
             region_tuple_{*this, context}
         {
@@ -95,28 +95,28 @@ class sm
         template<class RegionPath, class TransitionTable>
         friend class detail::region;
 
-        using transition_table_list_t = typename conf_t::transition_table_list_t;
+        using transition_table_list_type = typename conf_type::transition_table_list_type;
 
         struct any_event_queue_holder
         {
             static constexpr auto small_event_size = 16;
-            using any_event_t = detail::any_container
+            using any_event_type = detail::any_container
             <
                 sm&,
                 small_event_size
             >;
 
             template<class = void>
-            using type = std::queue<any_event_t>;
+            using type = std::queue<any_event_type>;
         };
         struct empty_holder
         {
             template<class = void>
             struct type{};
         };
-        using any_event_queue_t = detail::alternative_lazy
+        using any_event_queue_type = detail::alternative_lazy
         <
-            detail::tlu::contains<conf_t, sm_options::disable_run_to_completion>,
+            detail::tlu::contains<conf_type, sm_options::disable_run_to_completion>,
             empty_holder,
             any_event_queue_holder
         >;
@@ -124,7 +124,7 @@ class sm
         template<detail::sm_operation Operation, class Event>
         void process_event_2(const Event& event)
         {
-            if constexpr(!detail::tlu::contains<conf_t, sm_options::disable_run_to_completion>)
+            if constexpr(!detail::tlu::contains<conf_type, sm_options::disable_run_to_completion>)
             {
                 if(!processing_event_) //If call is not recursive
                 {
@@ -202,7 +202,7 @@ class sm
 
         void process_exception(const std::exception_ptr& eptr)
         {
-            if constexpr(detail::tlu::contains<conf_t, sm_options::on_exception>)
+            if constexpr(detail::tlu::contains<conf_type, sm_options::on_exception>)
             {
                 def_.on_exception(eptr);
             }
@@ -218,7 +218,7 @@ class sm
             if constexpr
             (
                 Operation == detail::sm_operation::process_event &&
-                detail::tlu::contains<conf_t, sm_options::on_event>
+                detail::tlu::contains<conf_type, sm_options::on_event>
             )
             {
                 safe_call
@@ -249,11 +249,11 @@ class sm
         detail::region_tuple
         <
             detail::sm_path<region_path<>, sm>,
-            transition_table_list_t
+            transition_table_list_type
         > region_tuple_;
 
         bool processing_event_ = false;
-        any_event_queue_t event_queue_;
+        any_event_queue_type event_queue_;
 };
 
 } //namespace

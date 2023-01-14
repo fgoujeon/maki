@@ -78,15 +78,15 @@ namespace resolve_transition_table_detail
         template<class TransitionTable, class State>
         using type = alternative
         <
-            RowWithPattern::source_state_t::template matches<State>,
+            RowWithPattern::source_state_type::template matches<State>,
             tlu::push_back
             <
                 TransitionTable,
                 row
                 <
                     State,
-                    typename RowWithPattern::event_t,
-                    typename RowWithPattern::target_state_t,
+                    typename RowWithPattern::event_type,
+                    typename RowWithPattern::target_state_type,
                     RowWithPattern::get_action(),
                     RowWithPattern::get_guard()
                 >
@@ -126,14 +126,14 @@ namespace resolve_transition_table_detail
         /*
         Return TransitionTable with added rows.
         Added rows are either:
-        - Row as is if Row::source_state_t isn't a pattern;
+        - Row as is if Row::source_state_type isn't a pattern;
         - n resolved rows otherwise (n being the number of states that match the
           pattern).
         */
         template<class TransitionTable, class Row>
         using type = alternative_lazy
         <
-            std::is_base_of_v<type_pattern, typename Row::source_state_t>,
+            std::is_base_of_v<type_pattern, typename Row::source_state_type>,
             add_row_with_pattern_holder<TransitionTable, Row, StateTypeList>,
             add_row_without_pattern_holder<TransitionTable, Row>
         >;

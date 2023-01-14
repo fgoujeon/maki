@@ -19,9 +19,9 @@ template<class RegionPath, class WrappedState>
 class composite_state_wrapper
 {
     public:
-        using sm_t = region_path_to_sm_t<RegionPath>;
+        using sm_type = region_path_to_sm_t<RegionPath>;
 
-        using conf_t = state_conf
+        using conf_type = state_conf
         <
             state_options::on_entry_any,
             state_options::on_event_any,
@@ -30,7 +30,7 @@ class composite_state_wrapper
         >;
 
         template<class Context>
-        composite_state_wrapper(sm_t& mach, Context& ctx):
+        composite_state_wrapper(sm_type& mach, Context& ctx):
             state_(mach, ctx),
             region_tuple_(mach, ctx)
         {
@@ -74,12 +74,12 @@ class composite_state_wrapper
         }
 
     private:
-        using wrapped_conf_t = typename WrappedState::conf_t;
-        using transition_table_list_t = typename wrapped_conf_t::transition_table_list_t;
-        using sm_path_t = detail::sm_path<RegionPath, WrappedState>;
+        using wrapped_conf_type = typename WrappedState::conf_type;
+        using transition_table_list_type = typename wrapped_conf_type::transition_table_list_type;
+        using sm_path_type = detail::sm_path<RegionPath, WrappedState>;
 
         detail::sm_object_holder<WrappedState> state_;
-        detail::region_tuple<sm_path_t, transition_table_list_t> region_tuple_;
+        detail::region_tuple<sm_path_type, transition_table_list_type> region_tuple_;
 };
 
 } //namespace

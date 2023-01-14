@@ -39,16 +39,17 @@ namespace
     >;
 
     struct sm{};
-    using region_path = awesm::region_path<awesm::region_path_element<sm, 0>>;
 
-    using digest = awesm::detail::transition_table_digest<region_path, transition_table>;
+    using region_path_t = awesm::region_path<awesm::region_path_element<sm, 0>>;
 
-    using state_tuple = awesm::detail::type_list<awesm::detail::null_state, state0, state1, state2, state3>;
+    using digest_t = awesm::detail::transition_table_digest<region_path_t, transition_table>;
+
+    using state_tuple_t = awesm::detail::type_list<awesm::detail::null_state, state0, state1, state2, state3>;
 }
 
 TEST_CASE("detail::transition_table_digest")
 {
-    REQUIRE(std::is_same_v<digest::state_tuple, state_tuple>);
-    REQUIRE(digest::has_source_state_patterns);
-    REQUIRE(!digest::has_comp_events);
+    REQUIRE(std::is_same_v<digest_t::state_tuple_type, state_tuple_t>);
+    REQUIRE(digest_t::has_source_state_patterns);
+    REQUIRE(!digest_t::has_comp_events);
 }

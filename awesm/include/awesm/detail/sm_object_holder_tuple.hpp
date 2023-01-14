@@ -69,7 +69,7 @@ const auto& get(const sm_object_holder_tuple<Ts...>& tuple)
 {
     using sm_object_holder_type_list_t = type_list<sm_object_holder<Ts>...>;
     using sm_object_holder_t = tlu::at<sm_object_holder_type_list_t, Index>;
-    using object_t = typename sm_object_holder_t::object_t;
+    using object_t = typename sm_object_holder_t::object_type;
     return get<object_t>(tuple);
 }
 

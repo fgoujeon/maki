@@ -28,11 +28,11 @@ template<class RegionPath, class TransitionTable>
 class region
 {
     public:
-        using sm_t = region_path_to_sm_t<RegionPath>;
-        using context_t = typename sm_t::context_t;
-        using conf_t = typename sm_t::conf_t;
+        using sm_type = region_path_to_sm_t<RegionPath>;
+        using context_type = typename sm_type::context_type;
+        using conf_type = typename sm_type::conf_type;
 
-        explicit region(sm_t& mach, context_t& ctx):
+        explicit region(sm_type& mach, context_type& ctx):
             mach_(mach),
             ctx_(ctx),
             states_(mach, ctx)
@@ -51,7 +51,7 @@ class region
         {
             constexpr auto given_state_index = detail::tlu::get_index
             <
-                state_tuple_t,
+                state_tuple_type,
                 State
             >;
             return active_state_index_ == given_state_index;
@@ -66,14 +66,14 @@ class region
         template<class Event>
         void start(const Event& event)
         {
-            using fake_row = row<null_state, Event, initial_state_t>;
+            using fake_row = row<null_state, Event, initial_state_type>;
             try_processing_event_in_row<fake_row>(event);
         }
 
         template<class Event>
         void stop(const Event& event)
         {
-            detail::tlu::apply<state_tuple_t, stop_helper>::call(*this, event);
+            detail::tlu::apply<state_tuple_type, stop_helper>::call(*this, event);
         }
 
         template<class Event>
@@ -84,23 +84,23 @@ class region
         }
 
     private:
-        using unresolved_transition_table_t = TransitionTable;
+        using unresolved_transition_table_type = TransitionTable;
 
-        using transition_table_digest_t =
-            detail::transition_table_digest<RegionPath, unresolved_transition_table_t>
+        using transition_table_digest_type =
+            detail::transition_table_digest<RegionPath, unresolved_transition_table_type>
         ;
-        using state_tuple_t = typename transition_table_digest_t::state_tuple;
-        using wrapped_state_holder_tuple_t =
-            typename transition_table_digest_t::wrapped_state_holder_tuple
+        using state_tuple_type = typename transition_table_digest_type::state_tuple_type;
+        using wrapped_state_holder_tuple_type =
+            typename transition_table_digest_type::wrapped_state_holder_tuple_type
         ;
 
-        using initial_state_t = detail::tlu::at<state_tuple_t, 1>; //0 being null_state
+        using initial_state_type = detail::tlu::at<state_tuple_type, 1>; //0 being null_state
 
-        using transition_table_t = detail::resolve_transition_table_t
+        using transition_table_type = detail::resolve_transition_table_t
         <
-            unresolved_transition_table_t,
-            state_tuple_t,
-            transition_table_digest_t::has_source_state_patterns
+            unresolved_transition_table_type,
+            state_tuple_type,
+            transition_table_digest_type::has_source_state_patterns
         >;
 
         //Used to call client code
@@ -139,7 +139,7 @@ class region
         {
             detail::tlu::apply
             <
-                transition_table_t,
+                transition_table_type,
                 process_event_in_transition_table_helper
             >::process(*this, event);
         }
@@ -150,7 +150,7 @@ class region
             template<class Event>
             static void process(region& self, const Event& event)
             {
-                if constexpr(std::is_same_v<Event, typename Row::event_t>)
+                if constexpr(std::is_same_v<Event, typename Row::event_type>)
                 {
                     if(self.try_processing_event_in_row<Row>(event))
                     {
@@ -171,10 +171,10 @@ class region
         template<class Row, class Event>
         bool try_processing_event_in_row(const Event& event)
         {
-            using source_state_t = typename Row::source_state_t;
+            using source_state_type = typename Row::source_state_type;
 
             //Make sure the transition source state is the active state
-            if(!is_active_state<source_state_t>())
+            if(!is_active_state<source_state_type>())
             {
                 return false;
             }
@@ -208,41 +208,41 @@ class region
         template<class Row, class Event>
         void process_event_in_row(const Event& event)
         {
-            using source_state_t = typename Row::source_state_t;
-            using target_state_t = typename Row::target_state_t;
+            using source_state_type = typename Row::source_state_type;
+            using target_state_type = typename Row::target_state_type;
 
             ignore_unused(event);
 
             constexpr auto is_internal_transition =
-                std::is_same_v<target_state_t, null>
+                std::is_same_v<target_state_type, null>
             ;
 
             if constexpr(!is_internal_transition)
             {
-                if constexpr(tlu::contains<conf_t, sm_options::before_state_transition>)
+                if constexpr(tlu::contains<conf_type, sm_options::before_state_transition>)
                 {
                     mach_.def_.template before_state_transition
                     <
                         RegionPath,
-                        source_state_t,
+                        source_state_type,
                         Event,
-                        target_state_t
+                        target_state_type
                     >(event);
                 }
 
-                if constexpr(state_traits::requires_on_exit_v<state_wrapper_t<RegionPath, source_state_t>>)
+                if constexpr(state_traits::requires_on_exit_v<state_wrapper_t<RegionPath, source_state_type>>)
                 {
                     detail::call_on_exit
                     (
-                        get<state_wrapper_t<RegionPath, source_state_t>>(states_),
+                        get<state_wrapper_t<RegionPath, source_state_type>>(states_),
                         &event
                     );
                 }
 
                 active_state_index_ = detail::tlu::get_index
                 <
-                    state_tuple_t,
-                    target_state_t
+                    state_tuple_type,
+                    target_state_type
                 >;
             }
 
@@ -256,43 +256,43 @@ class region
 
             if constexpr(!is_internal_transition)
             {
-                if constexpr(tlu::contains<conf_t, sm_options::before_entry>)
+                if constexpr(tlu::contains<conf_type, sm_options::before_entry>)
                 {
                     mach_.def_.template before_entry
                     <
                         RegionPath,
-                        source_state_t,
+                        source_state_type,
                         Event,
-                        target_state_t
+                        target_state_type
                     >(event);
                 }
 
                 if constexpr
                 (
                     !is_internal_transition && //for VS2017
-                    state_traits::requires_on_entry_v<state_wrapper_t<RegionPath, target_state_t>>
+                    state_traits::requires_on_entry_v<state_wrapper_t<RegionPath, target_state_type>>
                 )
                 {
                     detail::call_on_entry
                     (
-                        get<state_wrapper_t<RegionPath, target_state_t>>(states_),
+                        get<state_wrapper_t<RegionPath, target_state_type>>(states_),
                         &event
                     );
                 }
 
-                if constexpr(tlu::contains<conf_t, sm_options::after_state_transition>)
+                if constexpr(tlu::contains<conf_type, sm_options::after_state_transition>)
                 {
                     mach_.def_.template after_state_transition
                     <
                         RegionPath,
-                        source_state_t,
+                        source_state_type,
                         Event,
-                        target_state_t
+                        target_state_type
                     >(event);
                 }
 
                 //Anonymous transition
-                if constexpr(transition_table_digest_t::has_comp_events)
+                if constexpr(transition_table_digest_type::has_comp_events)
                 {
                     process_event_in_transition_table(events::comp{});
                 }
@@ -307,7 +307,7 @@ class region
         {
             detail::tlu::apply
             <
-                state_tuple_t,
+                state_tuple_type,
                 process_event_in_active_state_helper
             >::process(*this, event);
         }
@@ -344,9 +344,9 @@ class region
             }
         };
 
-        sm_t& mach_;
-        context_t& ctx_;
-        wrapped_state_holder_tuple_t states_;
+        sm_type& mach_;
+        context_type& ctx_;
+        wrapped_state_holder_tuple_type states_;
 
         int active_state_index_ = 0;
 };

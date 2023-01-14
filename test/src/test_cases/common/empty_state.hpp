@@ -10,7 +10,7 @@
 #define EMPTY_STATE(name) \
     struct name \
     { \
-        using conf_t = awesm::state_conf<>; \
+        using conf_type = awesm::state_conf<>; \
     }
 
 #endif

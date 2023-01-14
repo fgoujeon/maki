@@ -45,9 +45,9 @@ template
 >
 struct row
 {
-    using source_state_t = SourceState;
-    using event_t = Event;
-    using target_state_t = TargetState;
+    using source_state_type = SourceState;
+    using event_type = Event;
+    using target_state_type = TargetState;
 
     static constexpr const auto& get_action()
     {

@@ -16,15 +16,15 @@ namespace awesm
 template<class SmOrCompositeState, int RegionIndex>
 struct region_path_element
 {
-    using sm_t = SmOrCompositeState;
+    using sm_type = SmOrCompositeState;
     static constexpr auto region_index_v = RegionIndex;
 
     static std::string get_pretty_name()
     {
         auto str = std::string{};
-        str += awesm::get_pretty_name<sm_t>();
+        str += awesm::get_pretty_name<sm_type>();
 
-        if constexpr(sm_t::conf_t::region_count > 1)
+        if constexpr(sm_type::conf_type::region_count > 1)
         {
             str += "[";
             str += std::to_string(region_index_v);
@@ -61,7 +61,7 @@ namespace detail
     template<class Elem, class... Elems>
     struct region_path_to_sm<region_path<Elem, Elems...>>
     {
-        using type = typename Elem::sm_t;
+        using type = typename Elem::sm_type;
     };
 
     template<class RegionPath>

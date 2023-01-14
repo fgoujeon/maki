@@ -46,7 +46,7 @@ template<class T>
 class sm_object_holder: public T
 {
     public:
-        using object_t = T;
+        using object_type = T;
 
         template
         <

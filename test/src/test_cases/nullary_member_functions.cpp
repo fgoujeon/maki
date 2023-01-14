@@ -32,7 +32,7 @@ namespace
 
         struct on
         {
-            using conf_t = awesm::state_conf
+            using conf_type = awesm::state_conf
             <
                 awesm::state_options::on_entry_any,
                 awesm::state_options::on_exit_any
@@ -64,8 +64,8 @@ namespace
 
     constexpr auto action = [](auto& /*sm*/, context& ctx, const auto& event)
     {
-        using event_t = std::decay_t<decltype(event)>;
-        if constexpr(std::is_same_v<event_t, events::e1>)
+        using event_type = std::decay_t<decltype(event)>;
+        if constexpr(std::is_same_v<event_type, events::e1>)
         {
             ctx.out += "execute(e1);";
         }
@@ -77,8 +77,8 @@ namespace
 
     constexpr auto guard = [](auto& /*sm*/, context& ctx, const auto& event)
     {
-        using event_t = std::decay_t<decltype(event)>;
-        if constexpr(std::is_same_v<event_t, events::e1>)
+        using event_type = std::decay_t<decltype(event)>;
+        if constexpr(std::is_same_v<event_type, events::e1>)
         {
             ctx.out += "check(e1);";
         }
@@ -99,7 +99,7 @@ namespace
 
     struct sm_def
     {
-        using conf_t = awesm::sm_conf<sm_transition_table, context>;
+        using conf_type = awesm::sm_conf<sm_transition_table, context>;
     };
 
     using sm_t = awesm::sm<sm_def>;

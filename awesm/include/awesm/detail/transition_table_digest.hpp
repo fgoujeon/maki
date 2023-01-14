@@ -37,7 +37,7 @@ For example, the following digest type...:
 ... is equivalent to this type:
     struct digest
     {
-        using state_tuple = awesm::detail::type_list<awesm::null_state, state0, state1, state2, state3>;
+        using state_tuple_type = awesm::detail::type_list<awesm::null_state, state0, state1, state2, state3>;
         static constexpr auto has_source_state_patterns = false;
         static constexpr auto has_comp_events = false;
     };
@@ -46,10 +46,10 @@ For example, the following digest type...:
 namespace transition_table_digest_detail
 {
     template<class RegionPath, class TList>
-    struct to_tuple_helper;
+    struct to_tuple;
 
     template<class RegionPath, template<class...> class TList, class... Ts>
-    struct to_tuple_helper<RegionPath, TList<Ts...>>
+    struct to_tuple<RegionPath, TList<Ts...>>
     {
         using type = awesm::detail::sm_object_holder_tuple
         <
@@ -58,7 +58,7 @@ namespace transition_table_digest_detail
     };
 
     template<class RegionPath, class TList>
-    using to_tuple = typename to_tuple_helper<RegionPath, TList>::type;
+    using to_tuple_t = typename to_tuple<RegionPath, TList>::type;
 
     template<class TList, class U>
     using push_back_unique_if_not_null = tlu::push_back_if
@@ -69,12 +69,12 @@ namespace transition_table_digest_detail
     >;
 
     template<class TransitionTable>
-    using initial_state_t = typename tlu::at<TransitionTable, 0>::source_state_t;
+    using initial_state_t = typename tlu::at<TransitionTable, 0>::source_state_type;
 
     template<class InitialState>
     struct initial_digest
     {
-        using state_tuple = type_list<null_state, InitialState>;
+        using state_tuple_type = type_list<null_state, InitialState>;
         static constexpr auto has_source_state_patterns = false;
         static constexpr auto has_comp_events = false;
     };
@@ -82,20 +82,20 @@ namespace transition_table_digest_detail
     template<class Digest, class Row>
     struct add_row_to_digest
     {
-        using state_tuple = push_back_unique_if_not_null
+        using state_tuple_type = push_back_unique_if_not_null
         <
-            typename Digest::state_tuple,
-            typename Row::target_state_t
+            typename Digest::state_tuple_type,
+            typename Row::target_state_type
         >;
 
         static constexpr auto has_source_state_patterns =
             Digest::has_source_state_patterns ||
-            std::is_base_of_v<type_pattern, typename Row::source_state_t>
+            std::is_base_of_v<type_pattern, typename Row::source_state_type>
         ;
 
         static constexpr auto has_comp_events =
             Digest::has_comp_events ||
-            std::is_same_v<typename Row::event_t, awesm::events::comp>
+            std::is_same_v<typename Row::event_type, awesm::events::comp>
         ;
     };
 
@@ -116,21 +116,21 @@ template<class RegionPath, class TransitionTable>
 class transition_table_digest
 {
     private:
-        using digest_t = transition_table_digest_detail::digest_with_type_lists
+        using digest_type = transition_table_digest_detail::digest_with_type_lists
         <
             TransitionTable
         >;
 
     public:
-        using state_tuple = typename digest_t::state_tuple;
-        using wrapped_state_holder_tuple = transition_table_digest_detail::to_tuple
+        using state_tuple_type = typename digest_type::state_tuple_type;
+        using wrapped_state_holder_tuple_type = transition_table_digest_detail::to_tuple_t
         <
             RegionPath,
-            state_tuple
+            state_tuple_type
         >;
 
-        static constexpr auto has_source_state_patterns = digest_t::has_source_state_patterns;
-        static constexpr auto has_comp_events = digest_t::has_comp_events;
+        static constexpr auto has_source_state_patterns = digest_type::has_source_state_patterns;
+        static constexpr auto has_comp_events = digest_type::has_comp_events;
 };
 
 } //namespace

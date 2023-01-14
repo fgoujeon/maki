@@ -27,16 +27,16 @@ namespace sm_options
 template<class TransitionTable, class Context, class... Options>
 struct sm_conf
 {
-    using transition_table_list_t = transition_table_list<TransitionTable>;
-    using context_t = Context;
+    using transition_table_list_type = transition_table_list<TransitionTable>;
+    using context_type = Context;
     static constexpr auto region_count = 1;
 };
 
 template<class... TransitionTables, class Context, class... Options>
 struct sm_conf<transition_table_list<TransitionTables...>, Context, Options...>
 {
-    using transition_table_list_t = transition_table_list<TransitionTables...>;
-    using context_t = Context;
+    using transition_table_list_type = transition_table_list<TransitionTables...>;
+    using context_type = Context;
     static constexpr auto region_count = sizeof...(TransitionTables);
 };
 

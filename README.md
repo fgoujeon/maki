@@ -388,4 +388,4 @@ int main()
 ```
 
 ## Acknowledgements
-AweSM is greatly inspired by Boost.MSM, and more precisely by its functor front-end. Actually, AweSM was born because Boost.MSM was too slow to build large state machines (which is expected for a library that has been written in a time when variadic templates weren't supported by the language).
+AweSM is greatly inspired by Boost.MSM. Actually, AweSM was born because Boost.MSM was too slow to build large state machines (which is expected for a library that has been written in a time when variadic templates weren't supported by the language).

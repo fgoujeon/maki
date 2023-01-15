@@ -65,18 +65,6 @@ const auto& get(const tuple<Ts...>& tuple)
     return get<type_t>(tuple);
 }
 
-template<class F, class... Ts>
-void for_each(tuple<Ts...>& tuple, F&& callback)
-{
-    (callback(get<Ts>(tuple)), ...);
-}
-
-template<class F, class... Ts>
-void for_each(const tuple<Ts...>& tuple, F&& callback)
-{
-    (callback(get<Ts>(tuple)), ...);
-}
-
 } //namespace
 
 #endif

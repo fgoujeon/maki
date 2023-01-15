@@ -102,12 +102,12 @@ class region
         >;
 
         //Used to call client code
-        template<class F>
-        void safe_call(F&& callback)
+        template<class F, class... Args>
+        void safe_call(F&& callback, Args&&... args)
         {
             try
             {
-                callback();
+                callback(std::forward<Args>(args)...);
             }
             catch(...)
             {
@@ -180,14 +180,14 @@ class region
             auto processed = false;
             safe_call
             (
-                [&]
+                [](region& self, const Event& event, bool& processed)
                 {
                     if
                     (
                         !detail::call_action_or_guard
                         (
                             Row::get_guard(),
-                            mach_,
+                            self.mach_,
                             &event
                         )
                     )
@@ -196,8 +196,11 @@ class region
                     }
 
                     processed = true;
-                    process_event_in_row<Row>(event);
-                }
+                    self.process_event_in_row<Row>(event);
+                },
+                *this,
+                event,
+                processed
             );
             return processed;
         }
@@ -322,10 +325,12 @@ class region
                     {
                         self.safe_call
                         (
-                            [&]
+                            [](wrapped_state_t& state, const Event& event)
                             {
                                 call_on_event(state, event);
-                            }
+                            },
+                            state,
+                            event
                         );
                         return;
                     }

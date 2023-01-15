@@ -16,18 +16,25 @@ namespace awesm::detail
 {
 
 template<class SmPath, class RegionIndexSequence, class... TransitionTables>
-struct region_holder_tuple;
+struct tt_list_to_region_tuple;
 
 template<class SmPath, int... RegionIndexes, class... TransitionTables>
-struct region_holder_tuple<SmPath, std::integer_sequence<int, RegionIndexes...>, TransitionTables...>
+struct tt_list_to_region_tuple<SmPath, std::integer_sequence<int, RegionIndexes...>, TransitionTables...>
 {
     using type = tuple<region<make_region_path_t<SmPath, RegionIndexes>, TransitionTables>...>;
 };
 
-template<class SmPath, class RegionIndexSequence, class... TransitionTables>
-using region_holder_tuple_t =
-    typename region_holder_tuple<SmPath, RegionIndexSequence, TransitionTables...>::type
-;
+template<class SmPath, class... TransitionTables>
+using tt_list_to_region_tuple_t = typename tt_list_to_region_tuple
+<
+    SmPath,
+    std::make_integer_sequence
+    <
+        int,
+        static_cast<int>(sizeof...(TransitionTables))
+    >,
+    TransitionTables...
+>::type;
 
 template<class SmPath, class TransitionTableList>
 class region_tuple;
@@ -70,49 +77,73 @@ class region_tuple<SmPath, transition_table_list<TransitionTables...>>
         template<class Event>
         void start(const Event& event)
         {
-            for_each
+            for_each_region
             (
-                regions_,
-                [&](auto& reg)
+                [](auto& reg, const Event& event)
                 {
                     reg.start(event);
-                }
+                },
+                event
             );
         }
 
         template<class Event>
         void stop(const Event& event)
         {
-            for_each
+            for_each_region
             (
-                regions_,
-                [&](auto& reg)
+                [](auto& reg, const Event& event)
                 {
                     reg.stop(event);
-                }
+                },
+                event
             );
         }
 
         template<class Event>
         void process_event(const Event& event)
         {
-            for_each
+            for_each_region
             (
-                regions_,
-                [&](auto& reg)
+                [](auto& reg, const Event& event)
                 {
                     reg.process_event(event);
-                }
+                },
+                event
             );
         }
 
     private:
-        using region_indexes = std::make_integer_sequence
+        template<class F, class Event>
+        void for_each_region(F&& fun, const Event& event)
+        {
+            tlu::apply_t<region_tuple_type, for_each_region_helper>::call
+            (
+                *this,
+                std::forward<F>(fun),
+                event
+            );
+        }
+
+        template<class... Regions>
+        struct for_each_region_helper
+        {
+            template<class F, class Event>
+            static void call(region_tuple& self, F&& fun, const Event& event)
+            {
+                (
+                    fun(get<Regions>(self.regions_), event),
+                    ...
+                );
+            }
+        };
+
+        using region_tuple_type = tt_list_to_region_tuple_t
         <
-            int,
-            static_cast<int>(sizeof...(TransitionTables))
+            SmPath,
+            TransitionTables...
         >;
-        region_holder_tuple_t<SmPath, region_indexes, TransitionTables...> regions_;
+        region_tuple_type regions_;
 };
 
 } //namespace

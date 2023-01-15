@@ -163,10 +163,12 @@ class sm
                     {
                         safe_call //event copy constructor might throw
                         (
-                            [&]
+                            [](sm& self, const Event& event)
                             {
-                                queue_event<Operation>(event);
-                            }
+                                self.queue_event<Operation>(event);
+                            },
+                            *this,
+                            event
                         );
                     }
                 }
@@ -198,12 +200,12 @@ class sm
         };
 
         //Used to call client code
-        template<class F>
-        void safe_call(F&& callback)
+        template<class F, class... Args>
+        void safe_call(F&& callback, Args&&... args)
         {
             try
             {
-                callback();
+                callback(std::forward<Args>(args)...);
             }
             catch(...)
             {
@@ -234,10 +236,12 @@ class sm
             {
                 safe_call
                 (
-                    [&]
+                    [](sm& self, const Event& event)
                     {
-                        def_.on_event(event);
-                    }
+                        self.def_.on_event(event);
+                    },
+                    *this,
+                    event
                 );
             }
 

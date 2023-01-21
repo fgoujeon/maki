@@ -8,10 +8,10 @@
 #define AWESM_DETAIL_REGION_HPP
 
 #include "../sm_conf.hpp"
+#include "../states.hpp"
 #include "../null.hpp"
 #include "state_traits.hpp"
 #include "sm_path.hpp"
-#include "null_state.hpp"
 #include "call_member.hpp"
 #include "resolve_transition_table.hpp"
 #include "transition_table_digest.hpp"
@@ -64,7 +64,7 @@ class region
         template<class Event>
         void start(const Event& event)
         {
-            using fake_row = row<null_state, Event, initial_state_type>;
+            using fake_row = row<states::stopped, Event, initial_state_type>;
             try_processing_event_in_row<fake_row>(event);
         }
 
@@ -92,7 +92,7 @@ class region
             typename transition_table_digest_type::wrapped_state_holder_tuple_type
         ;
 
-        using initial_state_type = detail::tlu::at_t<state_tuple_type, 1>; //0 being null_state
+        using initial_state_type = detail::tlu::at_t<state_tuple_type, 1>; //0 being states::stopped
 
         using transition_table_type = detail::resolve_transition_table_t
         <
@@ -114,7 +114,7 @@ class region
         template<class State, class Event>
         bool stop_2(const Event& event)
         {
-            using fake_row = row<State, Event, null_state>;
+            using fake_row = row<State, Event, states::stopped>;
             return try_processing_event_in_row<fake_row>(event);
         }
 

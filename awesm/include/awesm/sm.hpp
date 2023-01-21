@@ -69,7 +69,7 @@ class sm
 
         [[nodiscard]] bool is_running() const
         {
-            return !is_active_state<detail::null_state>();
+            return !is_active_state<states::stopped>();
         }
 
         template<class State, int RegionIndex = 0>

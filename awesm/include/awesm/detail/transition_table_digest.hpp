@@ -10,8 +10,8 @@
 #include "tlu.hpp"
 #include "type_list.hpp"
 #include "sm_object_holder_tuple.hpp"
-#include "null_state.hpp"
 #include "state_wrapper.hpp"
+#include "../states.hpp"
 #include "../type_patterns.hpp"
 #include "../transition_table.hpp"
 #include "../events.hpp"
@@ -37,7 +37,7 @@ For example, the following digest type...:
 ... is equivalent to this type:
     struct digest
     {
-        using state_tuple_type = awesm::detail::type_list<awesm::null_state, state0, state1, state2, state3>;
+        using state_tuple_type = awesm::detail::type_list<awesm::states::stopped, state0, state1, state2, state3>;
         static constexpr auto has_source_state_patterns = false;
         static constexpr auto has_null_events = false;
     };
@@ -74,7 +74,7 @@ namespace transition_table_digest_detail
     template<class InitialState>
     struct initial_digest
     {
-        using state_tuple_type = type_list<null_state, InitialState>;
+        using state_tuple_type = type_list<states::stopped, InitialState>;
         static constexpr auto has_source_state_patterns = false;
         static constexpr auto has_null_events = false;
     };

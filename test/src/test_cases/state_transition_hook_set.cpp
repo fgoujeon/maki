@@ -101,9 +101,9 @@ TEST_CASE("state_transition_hook_set")
     REQUIRE
     (
         ctx.out ==
-        "Transition in main_sm: null -> off...;"
+        "Transition in main_sm: stopped -> off...;"
         "0;0;"
-        "Transition in main_sm: null -> off;"
+        "Transition in main_sm: stopped -> off;"
     );
 
     ctx.out.clear();

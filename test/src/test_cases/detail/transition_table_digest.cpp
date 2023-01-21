@@ -44,7 +44,7 @@ namespace
 
     using digest_t = awesm::detail::transition_table_digest<region_path_t, transition_table>;
 
-    using state_tuple_t = awesm::detail::type_list<awesm::detail::null_state, state0, state1, state2, state3>;
+    using state_tuple_t = awesm::detail::type_list<awesm::states::stopped, state0, state1, state2, state3>;
 }
 
 TEST_CASE("detail::transition_table_digest")

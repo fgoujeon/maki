@@ -51,5 +51,5 @@ TEST_CASE("detail::transition_table_digest")
 {
     REQUIRE(std::is_same_v<digest_t::state_tuple_type, state_tuple_t>);
     REQUIRE(digest_t::has_source_state_patterns);
-    REQUIRE(!digest_t::has_comp_events);
+    REQUIRE(!digest_t::has_null_events);
 }

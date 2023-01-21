@@ -10,14 +10,11 @@
 namespace awesm::events
 {
 
-//Default event sent to sm::start()
+//Default event sent by sm::start()
 struct start{};
 
-//Default event sent to sm::stop()
+//Default event sent by sm::stop()
 struct stop{};
-
-//State transition completion
-struct comp{};
 
 } //namespace
 

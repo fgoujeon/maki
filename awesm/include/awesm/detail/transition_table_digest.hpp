@@ -39,7 +39,7 @@ For example, the following digest type...:
     {
         using state_tuple_type = awesm::detail::type_list<awesm::null_state, state0, state1, state2, state3>;
         static constexpr auto has_source_state_patterns = false;
-        static constexpr auto has_comp_events = false;
+        static constexpr auto has_null_events = false;
     };
 */
 
@@ -76,7 +76,7 @@ namespace transition_table_digest_detail
     {
         using state_tuple_type = type_list<null_state, InitialState>;
         static constexpr auto has_source_state_patterns = false;
-        static constexpr auto has_comp_events = false;
+        static constexpr auto has_null_events = false;
     };
 
     template<class Digest, class Row>
@@ -93,9 +93,9 @@ namespace transition_table_digest_detail
             std::is_base_of_v<type_pattern, typename Row::source_state_type>
         ;
 
-        static constexpr auto has_comp_events =
-            Digest::has_comp_events ||
-            std::is_same_v<typename Row::event_type, awesm::events::comp>
+        static constexpr auto has_null_events =
+            Digest::has_null_events ||
+            std::is_same_v<typename Row::event_type, null>
         ;
     };
 
@@ -130,7 +130,7 @@ class transition_table_digest
         >;
 
         static constexpr auto has_source_state_patterns = digest_type::has_source_state_patterns;
-        static constexpr auto has_comp_events = digest_type::has_comp_events;
+        static constexpr auto has_null_events = digest_type::has_null_events;
 };
 
 } //namespace

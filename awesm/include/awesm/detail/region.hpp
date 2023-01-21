@@ -291,9 +291,9 @@ class region
                 }
 
                 //Anonymous transition
-                if constexpr(transition_table_digest_type::has_comp_events)
+                if constexpr(transition_table_digest_type::has_null_events)
                 {
-                    process_event_in_transition_table(events::comp{});
+                    process_event_in_transition_table(null{});
                 }
             }
         }

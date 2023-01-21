@@ -15,7 +15,7 @@ AweSM implements the following key features:
   * **actions**;
   * **guards**;
   * **internal transitions**, aka transitions to `null` state;
-  * **completion transitions**, aka anonymous transitions, aka transitions through `awesm::events::comp` event;
+  * **completion transitions**, aka anonymous transitions, aka transitions through `awesm::null` event;
   * source state **pattern matching** with `any`, `any_of`, `any_but`, `any_if` and `any_if_not`;
 * **states as classes**, featuring:
   * **entry/exit actions**, aka `on_entry()` and `on_exit()` member functions;

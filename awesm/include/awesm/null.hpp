@@ -11,7 +11,9 @@ namespace awesm
 {
 
 /*
-Represents a null target state (for internal transitions in transition table).
+Represents either:
+- a null event (for anonymous transitions);
+- a null target state (for internal transitions in transition table).
 */
 struct null{};
 

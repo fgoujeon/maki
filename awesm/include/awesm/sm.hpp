@@ -161,15 +161,14 @@ class sm
                     }
                     else
                     {
-                        safe_call //event copy constructor might throw
-                        (
-                            [](sm& self, const Event& event)
-                            {
-                                self.queue_event<Operation>(event);
-                            },
-                            *this,
-                            event
-                        );
+                        try
+                        {
+                            queue_event<Operation>(event);
+                        }
+                        catch(...)
+                        {
+                            process_exception(std::current_exception());
+                        }
                     }
                 }
             }
@@ -199,20 +198,6 @@ class sm
             }
         };
 
-        //Used to call client code
-        template<class F, class... Args>
-        void safe_call(F&& callback, Args&&... args)
-        {
-            try
-            {
-                callback(std::forward<Args>(args)...);
-            }
-            catch(...)
-            {
-                process_exception(std::current_exception());
-            }
-        }
-
         void process_exception(const std::exception_ptr& eptr)
         {
             if constexpr(detail::tlu::contains_v<conf_type, sm_options::on_exception>)
@@ -228,34 +213,33 @@ class sm
         template<detail::sm_operation Operation, class Event>
         void process_event_once(const Event& event)
         {
-            if constexpr
-            (
-                Operation == detail::sm_operation::process_event &&
-                detail::tlu::contains_v<conf_type, sm_options::on_event>
-            )
+            try
             {
-                safe_call
+                if constexpr
                 (
-                    [](sm& self, const Event& event)
-                    {
-                        self.def_.on_event(event);
-                    },
-                    *this,
-                    event
-                );
-            }
+                    Operation == detail::sm_operation::process_event &&
+                    detail::tlu::contains_v<conf_type, sm_options::on_event>
+                )
+                {
+                    def_.on_event(event);
+                }
 
-            if constexpr(Operation == detail::sm_operation::start)
-            {
-                region_tuple_.start(event);
+                if constexpr(Operation == detail::sm_operation::start)
+                {
+                    region_tuple_.start(event);
+                }
+                else if constexpr(Operation == detail::sm_operation::stop)
+                {
+                    region_tuple_.stop(event);
+                }
+                else
+                {
+                    region_tuple_.process_event(event);
+                }
             }
-            else if constexpr(Operation == detail::sm_operation::stop)
+            catch(...)
             {
-                region_tuple_.stop(event);
-            }
-            else
-            {
-                region_tuple_.process_event(event);
+                process_exception(std::current_exception());
             }
         }
 

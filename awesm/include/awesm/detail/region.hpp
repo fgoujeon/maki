@@ -101,20 +101,6 @@ class region
             transition_table_digest_type::has_source_state_patterns
         >;
 
-        //Used to call client code
-        template<class F, class... Args>
-        void safe_call(F&& callback, Args&&... args)
-        {
-            try
-            {
-                callback(std::forward<Args>(args)...);
-            }
-            catch(...)
-            {
-                mach_.process_exception(std::current_exception());
-            }
-        }
-
         template<class... States>
         struct stop_helper
         {
@@ -177,32 +163,23 @@ class region
                 return false;
             }
 
-            auto processed = false;
-            safe_call
+            //Check guard
+            if
             (
-                [](region& self, const Event& event, bool& processed)
-                {
-                    if
-                    (
-                        !detail::call_action_or_guard
-                        (
-                            Row::get_guard(),
-                            self.mach_,
-                            &event
-                        )
-                    )
-                    {
-                        return;
-                    }
+                !detail::call_action_or_guard
+                (
+                    Row::get_guard(),
+                    mach_,
+                    &event
+                )
+            )
+            {
+                return false;
+            }
 
-                    processed = true;
-                    self.process_event_in_row<Row>(event);
-                },
-                *this,
-                event,
-                processed
-            );
-            return processed;
+            process_event_in_row<Row>(event);
+
+            return true;
         }
 
         template<class Row, class Event>
@@ -323,15 +300,7 @@ class region
                     auto& state = get<wrapped_state_t>(self.states_);
                     if(self.is_active_state<State>())
                     {
-                        self.safe_call
-                        (
-                            [](wrapped_state_t& state, const Event& event)
-                            {
-                                call_on_event(state, event);
-                            },
-                            state,
-                            event
-                        );
+                        call_on_event(state, event);
                         return;
                     }
                 }

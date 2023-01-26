@@ -8,16 +8,20 @@
 #define AWESM_DETAIL_ANY_CONTAINER_HPP
 
 #include "type_tag.hpp"
+#include <cstddef>
 
 namespace awesm::detail
 {
 
 /*
-A type-safe container for an object of any type.
-No dynamic memory allocation happens if the size of the given object is lower
-or equal to StaticStorageSize.
+A type-safe container for an object of any type, with small object optimization.
 */
-template<class Arg, unsigned int StaticStorageSize>
+template
+<
+    class Arg,
+    std::size_t StaticStorageSize,
+    std::size_t StaticStorageAlignment = alignof(std::max_align_t)
+>
 class any_container
 {
     public:
@@ -49,7 +53,7 @@ class any_container
         template<class Object>
         void* copy_object(const Object& obj)
         {
-            if constexpr(sizeof(Object) <= StaticStorageSize)
+            if constexpr(suitable_for_static_storage<Object>())
             {
                 return new(static_storage_) Object{obj}; //NOLINT
             }
@@ -62,7 +66,7 @@ class any_container
         template<class Object>
         static void delete_object(const void* const pobj)
         {
-            if constexpr(sizeof(Object) <= StaticStorageSize)
+            if constexpr(suitable_for_static_storage<Object>())
             {
                 reinterpret_cast<const Object*>(pobj)->~Object(); //NOLINT
             }
@@ -79,7 +83,20 @@ class any_container
             Visitor::call(obj, arg);
         }
 
-        char static_storage_[StaticStorageSize]; //NOLINT, small object optimization
+        template<class Object>
+        static constexpr bool suitable_for_static_storage()
+        {
+            return
+                sizeof(Object) <= StaticStorageSize &&
+                alignof(Object) <= StaticStorageAlignment
+            ;
+        }
+
+        //Storage for small object optimization, properly aligned for an object
+        //whose alignment requirement is less than or equal to
+        //StaticStorageAlignment
+        alignas(StaticStorageAlignment) char static_storage_[StaticStorageSize]; //NOLINT
+
         void* pobj_ = nullptr;
         void(*pvisit_)(const void*, Arg) = nullptr;
         void(*pdelete_)(const void*) = nullptr;

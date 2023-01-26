@@ -164,15 +164,7 @@ class region
             }
 
             //Check guard
-            if
-            (
-                !detail::call_action_or_guard
-                (
-                    Row::get_guard(),
-                    mach_,
-                    &event
-                )
-            )
+            if(!detail::call_action_or_guard(Row::get_guard(), mach_, &event))
             {
                 return false;
             }

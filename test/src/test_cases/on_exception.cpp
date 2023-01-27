@@ -12,6 +12,7 @@ namespace
 {
     struct context
     {
+        int always_zero = 0;
         std::string out;
     };
 
@@ -50,7 +51,11 @@ namespace
             void on_entry()
             {
                 ctx.out += "on::on_entry;";
-                throw std::runtime_error{"test;"};
+
+                if(ctx.always_zero == 0) //We need this to avoid "unreachable code" warnings
+                {
+                    throw std::runtime_error{"test;"};
+                }
             }
 
             void on_event(const std::exception_ptr& eptr)

@@ -102,15 +102,18 @@ TEST_CASE("orthogonal_regions")
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
+    using sm_region_0_path = awesm::region_path<awesm::region_path_element<sm_t, 0>>;
+    using sm_region_1_path = awesm::region_path<awesm::region_path_element<sm_t, 1>>;
+
     sm.start();
-    REQUIRE(sm.is_active_state<states::off0, 0>());
-    REQUIRE(sm.is_active_state<states::off1, 1>());
+    REQUIRE(sm.is_active_state<sm_region_0_path, states::off0>());
+    REQUIRE(sm.is_active_state<sm_region_1_path, states::off1>());
     REQUIRE(ctx.out == "before_state_transition[0];after_state_transition[0];before_state_transition[1];after_state_transition[1];");
 
     ctx.out.clear();
     sm.process_event(events::button_press{});
-    REQUIRE(sm.is_active_state<states::on0, 0>());
-    REQUIRE(sm.is_active_state<states::on1, 1>());
+    REQUIRE(sm.is_active_state<sm_region_0_path, states::on0>());
+    REQUIRE(sm.is_active_state<sm_region_1_path, states::on1>());
     REQUIRE(ctx.out == "before_state_transition[0];after_state_transition[0];before_state_transition[1];after_state_transition[1];");
 
     ctx.out.clear();

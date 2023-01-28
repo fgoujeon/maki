@@ -11,6 +11,8 @@
 #include "tlu/contains.hpp"
 #include "tlu/index_of.hpp"
 #include "tlu/left_fold.hpp"
+#include "tlu/pop_front.hpp"
 #include "tlu/push_back.hpp"
 #include "tlu/push_back_if.hpp"
 #include "tlu/push_back_unique.hpp"
+#include "tlu/size.hpp"

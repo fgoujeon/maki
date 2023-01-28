@@ -14,6 +14,7 @@
 #include "detail/alternative.hpp"
 #include "detail/any_container.hpp"
 #include "detail/sm_path.hpp"
+#include "detail/tlu.hpp"
 #include "detail/type_tag.hpp"
 #include <queue>
 #include <type_traits>
@@ -98,10 +99,24 @@ class sm
             return !is_active_state<states::stopped>();
         }
 
-        template<class State, int RegionIndex = 0>
+        template<class StateRegionPath, class State>
         [[nodiscard]] bool is_active_state() const
         {
-            return region_tuple_.template is_active_state<State, RegionIndex>();
+            static_assert
+            (
+                std::is_same_v
+                <
+                    typename detail::tlu::at_t<StateRegionPath, 0>::sm_type,
+                    sm
+                >
+            );
+            return region_tuple_.template is_active_state<StateRegionPath, State>();
+        }
+
+        template<class State>
+        [[nodiscard]] bool is_active_state() const
+        {
+            return region_tuple_.template is_active_state<State>();
         }
 
         template<class Event = events::start>
@@ -133,6 +148,12 @@ class sm
         friend class detail::region;
 
         using transition_table_list_type = typename conf_type::transition_table_list_type;
+
+        using region_tuple_type = detail::region_tuple
+        <
+            detail::sm_path<region_path<>, sm>,
+            transition_table_list_type
+        >;
 
         struct any_event_queue_holder
         {
@@ -270,15 +291,8 @@ class sm
         }
 
         context_type& ctx_;
-
         detail::sm_object_holder<Def> def_;
-
-        detail::region_tuple
-        <
-            detail::sm_path<region_path<>, sm>,
-            transition_table_list_type
-        > region_tuple_;
-
+        region_tuple_type region_tuple_;
         bool processing_event_ = false;
         any_event_queue_type event_queue_;
 };

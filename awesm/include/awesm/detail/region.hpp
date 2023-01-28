@@ -16,7 +16,7 @@
 #include "resolve_transition_table.hpp"
 #include "transition_table_digest.hpp"
 #include "ignore_unused.hpp"
-#include "tlu/apply.hpp"
+#include "tlu.hpp"
 #include <type_traits>
 #include <exception>
 
@@ -43,7 +43,22 @@ class region
         region& operator=(region&&) = delete;
         ~region() = default;
 
-        //Check whether the given State is the active state type
+        template<class StateRelativeRegionPath, class State>
+        [[nodiscard]] bool is_active_state() const
+        {
+            if constexpr(tlu::size_v<StateRelativeRegionPath> == 0)
+            {
+                return is_active_state<State>();
+            }
+            else
+            {
+                using composite_state_t = typename tlu::at_t<StateRelativeRegionPath, 0>::sm_type;
+                using composite_state_wrapper_t = state_wrapper_t<RegionPath, composite_state_t>;
+                auto& state = get<composite_state_wrapper_t>(states_);
+                return state.template is_active_state<StateRelativeRegionPath, State>();
+            }
+        }
+
         template<class State>
         [[nodiscard]] bool is_active_state() const
         {

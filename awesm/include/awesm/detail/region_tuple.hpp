@@ -68,10 +68,18 @@ class region_tuple<SmPath, transition_table_list<TransitionTables...>>
             return get_region<RegionIndex>().template get_state<State>();
         }
 
-        template<class State, int RegionIndex>
+        template<class StateRegionPath, class State>
         [[nodiscard]] bool is_active_state() const
         {
-            return get<RegionIndex>(regions_).template is_active_state<State>();
+            static constexpr auto region_index = tlu::at_t<StateRegionPath, 0>::region_index;
+            return get<region_index>(regions_).template is_active_state<tlu::pop_front_t<StateRegionPath>, State>();
+        }
+
+        template<class State>
+        [[nodiscard]] bool is_active_state() const
+        {
+            static_assert(sizeof...(TransitionTables) == 1);
+            return get<0>(regions_).template is_active_state<region_path<>, State>();
         }
 
         template<class Event>

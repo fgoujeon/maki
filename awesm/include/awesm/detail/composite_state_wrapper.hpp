@@ -36,10 +36,16 @@ class composite_state_wrapper
         {
         }
 
-        template<class State, int RegionIndex = 0>
+        template<class StateRelativeRegionPath, class State>
         [[nodiscard]] bool is_active_state() const
         {
-            return region_tuple_.template is_active_state<State, RegionIndex>();
+            return region_tuple_.template is_active_state<StateRelativeRegionPath, State>();
+        }
+
+        template<class State>
+        [[nodiscard]] bool is_active_state() const
+        {
+            return region_tuple_.template is_active_state<State>();
         }
 
         [[nodiscard]] bool is_running() const

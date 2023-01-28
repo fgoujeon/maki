@@ -111,10 +111,12 @@ class sm
         struct any_event_queue_holder
         {
             static constexpr auto small_event_size = 16;
+            static constexpr auto small_event_alignment = 8;
             using any_event_type = detail::any_container
             <
                 sm&,
-                small_event_size
+                small_event_size,
+                small_event_alignment
             >;
 
             template<bool = true> //Dummy template for lazy evaluation

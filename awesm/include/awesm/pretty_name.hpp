@@ -9,6 +9,7 @@
 
 #include "detail/type_name.hpp"
 #include "detail/tlu.hpp"
+#include "detail/overload_priority.hpp"
 #include <string_view>
 
 namespace awesm
@@ -19,19 +20,14 @@ namespace detail
     struct get_pretty_name_option{};
 
     template<class T>
-    decltype(auto) get_pretty_name_impl
-    (
-        long /*low_overload_priority*/
-    )
+    decltype(auto) get_pretty_name_impl(overload_priority::low /*ignored*/)
     {
         return get_decayed_type_name<T>();
     }
 
     template<class T>
-    auto get_pretty_name_impl
-    (
-        int /*high_overload_priority*/
-    ) -> decltype(T::get_pretty_name())
+    auto get_pretty_name_impl(overload_priority::high /*ignored*/) ->
+        decltype(T::get_pretty_name())
     {
         return T::get_pretty_name();
     }
@@ -45,10 +41,7 @@ namespace detail
             bool
         > = true
     >
-    static decltype(auto) get_pretty_name_impl
-    (
-        char /*medium_overload_priority*/
-    )
+    static decltype(auto) get_pretty_name_impl(overload_priority::medium /*ignored*/)
     {
         return T::get_pretty_name();
     }
@@ -57,7 +50,7 @@ namespace detail
 template<class T>
 decltype(auto) get_pretty_name()
 {
-    return detail::get_pretty_name_impl<T>(0);
+    return detail::get_pretty_name_impl<T>(detail::overload_priority::probe);
 }
 
 } //namespace

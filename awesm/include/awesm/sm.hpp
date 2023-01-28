@@ -16,6 +16,7 @@
 #include "detail/sm_path.hpp"
 #include "detail/tlu.hpp"
 #include "detail/type_tag.hpp"
+#include "detail/overload_priority.hpp"
 #include <queue>
 #include <type_traits>
 
@@ -32,31 +33,31 @@ namespace detail
     };
 
     template<class SmConf>
-    constexpr auto get_small_event_max_size(int /*ignored*/) ->
-        decltype(SmConf::get_small_event_max_size())
-    {
-        return SmConf::get_small_event_max_size();
-    }
-
-    template<class SmConf>
-    constexpr auto get_small_event_max_alignment_requirement(int /*ignored*/) ->
-        decltype(SmConf::get_small_event_max_alignment_requirement())
-    {
-        return SmConf::get_small_event_max_alignment_requirement();
-    }
-
-    template<class SmConf>
-    constexpr size_t get_small_event_max_size(long /*ignored*/)
+    constexpr size_t get_small_event_max_size(overload_priority::low /*ignored*/)
     {
         constexpr auto default_max = 16;
         return default_max;
     }
 
     template<class SmConf>
-    constexpr size_t get_small_event_max_alignment_requirement(long /*ignored*/)
+    constexpr size_t get_small_event_max_alignment_requirement(overload_priority::low /*ignored*/)
     {
         constexpr auto default_max = 8;
         return default_max;
+    }
+
+    template<class SmConf>
+    constexpr auto get_small_event_max_size(overload_priority::high /*ignored*/) ->
+        decltype(SmConf::get_small_event_max_size())
+    {
+        return SmConf::get_small_event_max_size();
+    }
+
+    template<class SmConf>
+    constexpr auto get_small_event_max_alignment_requirement(overload_priority::high /*ignored*/) ->
+        decltype(SmConf::get_small_event_max_alignment_requirement())
+    {
+        return SmConf::get_small_event_max_alignment_requirement();
     }
 }
 
@@ -163,8 +164,8 @@ class sm
             using any_event_type = detail::any_container
             <
                 sm&,
-                detail::get_small_event_max_size<conf_type>(0),
-                detail::get_small_event_max_alignment_requirement<conf_type>(0)
+                detail::get_small_event_max_size<conf_type>(detail::overload_priority::probe),
+                detail::get_small_event_max_alignment_requirement<conf_type>(detail::overload_priority::probe)
             >;
 
             template<bool = true> //Dummy template for lazy evaluation

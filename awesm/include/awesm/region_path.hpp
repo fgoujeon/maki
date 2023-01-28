@@ -35,6 +35,9 @@ struct region_path_element
     }
 };
 
+template<class... Ts>
+struct region_path;
+
 namespace detail
 {
     template<class RegionPathElement>
@@ -56,12 +59,31 @@ namespace detail
     inline constexpr auto is_valid_region_path_element_v =
         is_valid_region_path_element<RegionPathElement>::value
     ;
+
+    template<class RegionPath, class SmOrCompositeState, int RegionIndex>
+    struct region_path_add;
+
+    template<class... Ts, class SmOrCompositeState, int RegionIndex>
+    struct region_path_add<region_path<Ts...>, SmOrCompositeState, RegionIndex>
+    {
+        using type = region_path<Ts..., region_path_element<SmOrCompositeState, RegionIndex>>;
+    };
+
+    template<class... Ts, class SmOrCompositeState>
+    struct region_path_add<region_path<Ts...>, SmOrCompositeState, -1>
+    {
+        using type = region_path<Ts..., SmOrCompositeState>;
+    };
 }
 
 template<class... Ts>
 struct region_path
 {
     static_assert((detail::is_valid_region_path_element_v<Ts> && ...));
+
+    //RegionIndex MUST be specified for machines or composite states with several regions
+    template<class SmOrCompositeState, int RegionIndex = -1>
+    using add = typename detail::region_path_add<region_path, SmOrCompositeState, RegionIndex>::type;
 
     static std::string get_pretty_name()
     {

@@ -48,13 +48,15 @@ namespace detail
     template<class SmConf>
     constexpr size_t get_small_event_max_size(long /*ignored*/)
     {
-        return 16;
+        constexpr auto default_max = 16;
+        return default_max;
     }
 
     template<class SmConf>
     constexpr size_t get_small_event_max_alignment_requirement(long /*ignored*/)
     {
-        return 8;
+        constexpr auto default_max = 8;
+        return default_max;
     }
 }
 

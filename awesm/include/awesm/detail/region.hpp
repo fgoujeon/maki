@@ -123,8 +123,15 @@ class region
         template<class State, class Event>
         bool stop_2(const Event& event)
         {
-            using fake_row = row<State, Event, states::stopped>;
-            return try_processing_event_in_row<fake_row>(event);
+            if constexpr(std::is_same_v<State, states::stopped>)
+            {
+                return false;
+            }
+            else
+            {
+                using fake_row = row<State, Event, states::stopped>;
+                return try_processing_event_in_row<fake_row>(event);
+            }
         }
 
         template<class Event>

@@ -29,6 +29,32 @@ namespace detail
         stop,
         process_event
     };
+
+    template<class SmConf>
+    constexpr auto get_small_event_max_size(int /*ignored*/) ->
+        decltype(SmConf::get_small_event_max_size())
+    {
+        return SmConf::get_small_event_max_size();
+    }
+
+    template<class SmConf>
+    constexpr auto get_small_event_max_alignment_requirement(int /*ignored*/) ->
+        decltype(SmConf::get_small_event_max_alignment_requirement())
+    {
+        return SmConf::get_small_event_max_alignment_requirement();
+    }
+
+    template<class SmConf>
+    constexpr size_t get_small_event_max_size(long /*ignored*/)
+    {
+        return 16;
+    }
+
+    template<class SmConf>
+    constexpr size_t get_small_event_max_alignment_requirement(long /*ignored*/)
+    {
+        return 8;
+    }
 }
 
 template<class Def>
@@ -110,13 +136,11 @@ class sm
 
         struct any_event_queue_holder
         {
-            static constexpr auto small_event_size = 16;
-            static constexpr auto small_event_alignment = 8;
             using any_event_type = detail::any_container
             <
                 sm&,
-                small_event_size,
-                small_event_alignment
+                detail::get_small_event_max_size<conf_type>(0),
+                detail::get_small_event_max_alignment_requirement<conf_type>(0)
             >;
 
             template<bool = true> //Dummy template for lazy evaluation

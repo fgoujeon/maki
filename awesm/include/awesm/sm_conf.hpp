@@ -21,6 +21,21 @@ namespace sm_options
     struct disable_run_to_completion{};
     struct on_event{};
     struct on_exception{};
+
+    template<size_t MaxSize, size_t MaxAlignmentRequirement>
+    struct small_event_requirements
+    {
+        static constexpr size_t get_small_event_max_size()
+        {
+            return MaxSize;
+        }
+
+        static constexpr size_t get_small_event_max_alignment_requirement()
+        {
+            return MaxAlignmentRequirement;
+        }
+    };
+
     using get_pretty_name = detail::get_pretty_name_option;
 }
 

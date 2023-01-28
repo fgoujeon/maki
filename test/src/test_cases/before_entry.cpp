@@ -87,7 +87,7 @@ namespace
         template<class RegionPath, class SourceState, class Event, class TargetState>
         void before_entry(const Event& /*event*/)
         {
-            static_assert(std::is_same_v<RegionPath, awesm::region_path<awesm::region_path_element<sm_t, 0>>>);
+            static_assert(std::is_same_v<RegionPath, awesm::region_path<>::add<sm_t>>);
 
             if constexpr(std::is_same_v<TargetState, states::off>)
             {

@@ -82,30 +82,17 @@ namespace
 TEST_CASE("region_path")
 {
     {
-        using region_path_t = awesm::region_path
-        <
-            awesm::region_path_element<sm_t, 0>
-        >;
-
+        using region_path_t = awesm::region_path<>::add<sm_t, 0>;
         REQUIRE(awesm::get_pretty_name<region_path_t>() == "main_sm[0]");
     }
 
     {
-        using region_path_t = awesm::region_path
-        <
-            awesm::region_path_element<sm_t, 1>
-        >;
-
+        using region_path_t = awesm::region_path<>::add<sm_t, 1>;
         REQUIRE(awesm::get_pretty_name<region_path_t>() == "main_sm[1]");
     }
 
     {
-        using region_path_t = awesm::region_path
-        <
-            awesm::region_path_element<sm_t, 1>,
-            awesm::region_path_element<states::on1, 0>
-        >;
-
+        using region_path_t = awesm::region_path<>::add<sm_t, 1>::add<states::on1, 0>;
         REQUIRE(region_path_t::get_pretty_name() == "main_sm[1].on_1");
     }
 

@@ -4,15 +4,13 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#include <awesm/row.hpp>
-#include <awesm/transition_table.hpp>
-#include <awesm/region_path.hpp>
-#include <awesm/detail/transition_table_digest.hpp>
-#include <awesm/detail/sm_object_holder_tuple.hpp>
 #include "../common.hpp"
+#include <awesm.hpp>
 
 namespace
 {
+    struct context{};
+
     EMPTY_STATE(state0);
     EMPTY_STATE(state1);
     EMPTY_STATE(state2);
@@ -38,9 +36,18 @@ namespace
         awesm::row<awesm::any, event3, state0>
     >;
 
-    struct sm{};
+    struct sm_def
+    {
+        using conf_type = awesm::sm_conf
+        <
+            transition_table,
+            context
+        >;
+    };
 
-    using region_path_t = awesm::region_path<awesm::region_path_element<sm, 0>>;
+    using sm_t = awesm::sm<sm_def>;
+
+    using region_path_t = awesm::region_path<>::add<sm_t>;
 
     using digest_t = awesm::detail::transition_table_digest<region_path_t, transition_table>;
 

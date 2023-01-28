@@ -7,6 +7,7 @@
 #ifndef AWESM_REGION_PATH_HPP
 #define AWESM_REGION_PATH_HPP
 
+#include "transition_table_list.hpp"
 #include "pretty_name.hpp"
 #include <string>
 
@@ -16,6 +17,8 @@ namespace awesm
 template<class SmOrCompositeState, int RegionIndex>
 struct region_path_element
 {
+    static_assert(RegionIndex >= 0);
+
     using sm_type = SmOrCompositeState;
     static constexpr auto region_index = RegionIndex;
 
@@ -40,26 +43,6 @@ struct region_path;
 
 namespace detail
 {
-    template<class RegionPathElement>
-    struct is_valid_region_path_element
-    {
-        using conf_type = typename RegionPathElement::conf;
-        using transition_table_type_list = detail::tlu::at_t<conf_type, 0>;
-        static constexpr auto region_count = detail::tlu::size_v<transition_table_type_list>;
-        static constexpr auto value = region_count() == 1;
-    };
-
-    template<class SmOrCompositeState, int RegionIndex>
-    struct is_valid_region_path_element<region_path_element<SmOrCompositeState, RegionIndex>>
-    {
-        static constexpr auto value = true;
-    };
-
-    template<class RegionPathElement>
-    inline constexpr auto is_valid_region_path_element_v =
-        is_valid_region_path_element<RegionPathElement>::value
-    ;
-
     template<class RegionPath, class SmOrCompositeState, int RegionIndex>
     struct region_path_add;
 
@@ -72,15 +55,14 @@ namespace detail
     template<class... Ts, class SmOrCompositeState>
     struct region_path_add<region_path<Ts...>, SmOrCompositeState, -1>
     {
-        using type = region_path<Ts..., SmOrCompositeState>;
+        static_assert(SmOrCompositeState::conf_type::region_count == 1);
+        using type = region_path<Ts..., region_path_element<SmOrCompositeState, 0>>;
     };
 }
 
 template<class... Ts>
 struct region_path
 {
-    static_assert((detail::is_valid_region_path_element_v<Ts> && ...));
-
     //RegionIndex MUST be specified for machines or composite states with several regions
     template<class SmOrCompositeState, int RegionIndex = -1>
     using add = typename detail::region_path_add<region_path, SmOrCompositeState, RegionIndex>::type;
@@ -113,24 +95,6 @@ namespace detail
 
     template<class RegionPath>
     using region_path_to_sm_t = typename region_path_to_sm<RegionPath>::type;
-
-    template<class T>
-    struct to_region_path_element
-    {
-        using type = region_path_element<T, 0>;
-    };
-
-    template<class SmOrCompositeState, int RegionIndex>
-    struct to_region_path_element<region_path_element<SmOrCompositeState, RegionIndex>>
-    {
-        using type = region_path_element<SmOrCompositeState, RegionIndex>;
-    };
-
-    template<class T>
-    using to_region_path_element_t = typename to_region_path_element<T>::type;
-
-    template<class RegionPath>
-    using region_path_front_element_t = to_region_path_element_t<tlu::at_t<RegionPath, 0>>;
 }
 
 } //namespace

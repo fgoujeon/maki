@@ -52,7 +52,7 @@ class region
             }
             else
             {
-                using composite_state_t = typename region_path_front_element_t<StateRelativeRegionPath>::sm_type;
+                using composite_state_t = typename tlu::front_t<StateRelativeRegionPath>::sm_type;
                 using composite_state_wrapper_t = state_wrapper_t<RegionPath, composite_state_t>;
                 auto& state = get<composite_state_wrapper_t>(states_);
                 return state.template is_active_state<StateRelativeRegionPath, State>();

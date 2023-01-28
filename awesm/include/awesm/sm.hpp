@@ -106,7 +106,7 @@ class sm
             (
                 std::is_same_v
                 <
-                    typename detail::tlu::at_t<StateRegionPath, 0>::sm_type,
+                    typename detail::region_path_front_element_t<StateRegionPath>::sm_type,
                     sm
                 >
             );

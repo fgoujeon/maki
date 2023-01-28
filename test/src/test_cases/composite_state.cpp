@@ -131,6 +131,8 @@ namespace
 
 TEST_CASE("composite_state")
 {
+    using sm_on_region_path_t = awesm::region_path<sm_t, states::on>;
+
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
@@ -142,7 +144,7 @@ TEST_CASE("composite_state")
 
     sm.process_event(events::power_button_press{});
     REQUIRE(sm.is_active_state<states::on>());
-    REQUIRE(sm.is_active_state<awesm::region_path<awesm::region_path_element<sm_t, 0>, awesm::region_path_element<states::on, 0>>, states::emitting_red>());
+    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::emitting_red>());
     REQUIRE(ctx.current_led_color == led_color::red);
 
     sm.process_event(events::color_button_press{});

@@ -71,7 +71,7 @@ class region_tuple<SmPath, transition_table_list<TransitionTables...>>
         template<class StateRegionPath, class State>
         [[nodiscard]] bool is_active_state() const
         {
-            static constexpr auto region_index = tlu::at_t<StateRegionPath, 0>::region_index;
+            static constexpr auto region_index = region_path_front_element_t<StateRegionPath>::region_index;
             return get<region_index>(regions_).template is_active_state<tlu::pop_front_t<StateRegionPath>, State>();
         }
 

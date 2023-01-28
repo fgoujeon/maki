@@ -35,9 +35,34 @@ struct region_path_element
     }
 };
 
+namespace detail
+{
+    template<class RegionPathElement>
+    struct is_valid_region_path_element
+    {
+        using conf_type = typename RegionPathElement::conf;
+        using transition_table_type_list = detail::tlu::at_t<conf_type, 0>;
+        static constexpr auto region_count = detail::tlu::size_v<transition_table_type_list>;
+        static constexpr auto value = region_count() == 1;
+    };
+
+    template<class SmOrCompositeState, int RegionIndex>
+    struct is_valid_region_path_element<region_path_element<SmOrCompositeState, RegionIndex>>
+    {
+        static constexpr auto value = true;
+    };
+
+    template<class RegionPathElement>
+    inline constexpr auto is_valid_region_path_element_v =
+        is_valid_region_path_element<RegionPathElement>::value
+    ;
+}
+
 template<class... Ts>
 struct region_path
 {
+    static_assert((detail::is_valid_region_path_element_v<Ts> && ...));
+
     static std::string get_pretty_name()
     {
         if constexpr(sizeof...(Ts) == 0)
@@ -66,6 +91,24 @@ namespace detail
 
     template<class RegionPath>
     using region_path_to_sm_t = typename region_path_to_sm<RegionPath>::type;
+
+    template<class T>
+    struct to_region_path_element
+    {
+        using type = region_path_element<T, 0>;
+    };
+
+    template<class SmOrCompositeState, int RegionIndex>
+    struct to_region_path_element<region_path_element<SmOrCompositeState, RegionIndex>>
+    {
+        using type = region_path_element<SmOrCompositeState, RegionIndex>;
+    };
+
+    template<class T>
+    using to_region_path_element_t = typename to_region_path_element<T>::type;
+
+    template<class RegionPath>
+    using region_path_front_element_t = to_region_path_element_t<tlu::at_t<RegionPath, 0>>;
 }
 
 } //namespace

@@ -80,7 +80,7 @@ namespace pretty_name_ns
 
     using wrapped_composite_state = awesm::detail::composite_state_wrapper
     <
-        awesm::region_path<>::add<sm_t, 0>,
+        awesm::make_region_path<sm_t, 0>,
         composite_state
     >;
 }

@@ -53,7 +53,7 @@ namespace
         template<class RegionPath, class SourceState, class Event, class TargetState>
         void before_state_transition(const Event& event)
         {
-            static_assert(std::is_same_v<RegionPath, awesm::region_path<>::add<sm_t, 0>>);
+            static_assert(std::is_same_v<RegionPath, awesm::make_region_path<sm_t, 0>>);
 
             ctx.out += "Transition in ";
             ctx.out += RegionPath::get_pretty_name();
@@ -69,7 +69,7 @@ namespace
         template<class RegionPath, class SourceState, class Event, class TargetState>
         void after_state_transition(const Event& event)
         {
-            static_assert(std::is_same_v<RegionPath, awesm::region_path<>::add<sm_t, 0>>);
+            static_assert(std::is_same_v<RegionPath, awesm::make_region_path<sm_t, 0>>);
 
             ctx.out += std::to_string(event.pressure) + ";";
 

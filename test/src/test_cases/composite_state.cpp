@@ -131,7 +131,7 @@ namespace
 
 TEST_CASE("composite_state")
 {
-    using sm_on_region_path_t = awesm::region_path<>::add<sm_t>::add<states::on>;
+    using sm_on_region_path_t = awesm::make_region_path<sm_t>::add<states::on>;
 
     auto ctx = context{};
     auto sm = sm_t{ctx};

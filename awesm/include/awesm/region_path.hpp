@@ -82,6 +82,10 @@ struct region_path
     }
 };
 
+//RegionIndex MUST be specified for machines with several regions
+template<class Sm, int RegionIndex = -1>
+using make_region_path = region_path<>::add<Sm, RegionIndex>;
+
 namespace detail
 {
     template<class RegionPath>

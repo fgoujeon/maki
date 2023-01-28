@@ -88,12 +88,13 @@ class sm
             return ctx_;
         }
 
-        template<class State, int RegionIndex = 0>
-        const auto& get_state() const
+        template<class RegionPath>
+        [[nodiscard]] bool is_running() const
         {
-            return region_tuple_.template get_state<State, RegionIndex>();
+            return !is_active_state<RegionPath, states::stopped>();
         }
 
+        template<bool Dummy = true>
         [[nodiscard]] bool is_running() const
         {
             return !is_active_state<states::stopped>();

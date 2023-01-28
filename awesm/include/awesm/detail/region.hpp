@@ -70,12 +70,6 @@ class region
             return active_state_index_ == given_state_index;
         }
 
-        template<class State>
-        const auto& get_state() const
-        {
-            return get<state_wrapper_t<RegionPath, State>>(states_);
-        }
-
         template<class Event>
         void start(const Event& event)
         {

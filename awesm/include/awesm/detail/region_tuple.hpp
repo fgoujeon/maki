@@ -56,18 +56,6 @@ class region_tuple<SmPath, transition_table_list<TransitionTables...>>
         region_tuple& operator=(region_tuple&&) = delete;
         ~region_tuple() = default;
 
-        template<int RegionIndex>
-        const auto& get_region() const
-        {
-            return get<RegionIndex>(regions_);
-        }
-
-        template<class State, int RegionIndex>
-        const auto& get_state() const
-        {
-            return get_region<RegionIndex>().template get_state<State>();
-        }
-
         template<class StateRegionPath, class State>
         [[nodiscard]] bool is_active_state() const
         {

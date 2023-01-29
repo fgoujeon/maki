@@ -9,11 +9,13 @@
 
 namespace
 {
-    struct sm_def;
-    using sm_t = awesm::sm<sm_def>;
+    enum class new_operator_type
+    {
+        plain,
+        placement
+    };
 
-    auto plain_new_operator_call_count = 0;
-    auto placement_new_operator_call_count = 0;
+    auto called_new_operator_type = new_operator_type::plain;
 
     struct context
     {
@@ -26,14 +28,14 @@ namespace
 
         static void* operator new(size_t size)
         {
-            ++plain_new_operator_call_count;
+            called_new_operator_type = new_operator_type::plain;
             return ::operator new(size);
         }
 
         template<class Storage>
         static void* operator new(size_t size, Storage& storage)
         {
-            ++placement_new_operator_call_count;
+            called_new_operator_type = new_operator_type::placement;
             return ::operator new(size, storage);
         }
 
@@ -57,7 +59,10 @@ namespace
     };
 
     template<class Event>
-    void process_event(sm_t& sm, context& /*ctx*/, const event_processing_request<Event>& /*event*/);
+    inline constexpr auto process_event = [](auto& sm, context& /*ctx*/, const auto& /*event*/)
+    {
+        sm.process_event(Event{});
+    };
 
     using sm_transition_table = awesm::transition_table
     <
@@ -65,40 +70,62 @@ namespace
         awesm::row<state, event_processing_request<big_event>,   awesm::null, process_event<big_event>>
     >;
 
+    template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
     struct sm_def
     {
         using conf_type = awesm::sm_conf
         <
             sm_transition_table,
             context,
-            awesm::sm_options::small_event_max_size<sizeof(small_event)>,
-            awesm::sm_options::small_event_max_align<alignof(small_event)>
+            awesm::sm_options::small_event_max_size<SmallEventMaxSize>,
+            awesm::sm_options::small_event_max_align<SmallEventMaxAlign>
         >;
     };
 
-    template<class Event>
-    void process_event(sm_t& sm, context& /*ctx*/, const event_processing_request<Event>& /*event*/)
+    template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
+    using sm_t = awesm::sm<sm_def<SmallEventMaxSize, SmallEventMaxAlign>>;
+
+    template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
+    void test
+    (
+        const new_operator_type expected_new_operator_type_for_small_event,
+        const new_operator_type expected_new_operator_type_for_big_event
+    )
     {
-        sm.process_event(Event{});
+        auto ctx = context{};
+        auto sm = sm_t<SmallEventMaxSize, SmallEventMaxAlign>{ctx};
+
+        sm.start();
+
+        sm.process_event(event_processing_request<small_event>{});
+        REQUIRE(called_new_operator_type == expected_new_operator_type_for_small_event);
+
+        sm.process_event(event_processing_request<big_event>{});
+        REQUIRE(called_new_operator_type == expected_new_operator_type_for_big_event);
     }
 }
 
-TEST_CASE("small_event_requirements")
+TEST_CASE("small_event_requirements<1, 1>")
 {
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    test<1, 1>(new_operator_type::plain, new_operator_type::plain);
+}
 
-    sm.start();
+TEST_CASE("small_event_requirements<1, small>")
+{
+    test<1, alignof(small_event)>(new_operator_type::plain, new_operator_type::plain);
+}
 
-    plain_new_operator_call_count = 0;
-    placement_new_operator_call_count = 0;
-    sm.process_event(event_processing_request<small_event>{});
-    REQUIRE(plain_new_operator_call_count == 0);
-    REQUIRE(placement_new_operator_call_count == 1);
+TEST_CASE("small_event_requirements<small, 1>")
+{
+    test<sizeof(small_event), 1>(new_operator_type::plain, new_operator_type::plain);
+}
 
-    plain_new_operator_call_count = 0;
-    placement_new_operator_call_count = 0;
-    sm.process_event(event_processing_request<big_event>{});
-    REQUIRE(plain_new_operator_call_count == 1);
-    REQUIRE(placement_new_operator_call_count == 0);
+TEST_CASE("small_event_requirements<small, small>")
+{
+    test<sizeof(small_event), alignof(small_event)>(new_operator_type::placement, new_operator_type::plain);
+}
+
+TEST_CASE("small_event_requirements<big, big>")
+{
+    test<sizeof(big_event), alignof(big_event)>(new_operator_type::placement, new_operator_type::placement);
 }

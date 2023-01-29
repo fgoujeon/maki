@@ -44,7 +44,7 @@ namespace sm_options
 }
 
 template<class TransitionTable, class Context, class... Options>
-struct sm_conf
+struct sm_conf: Options...
 {
     using transition_table_list_type = transition_table_list<TransitionTable>;
     using context_type = Context;
@@ -52,7 +52,7 @@ struct sm_conf
 };
 
 template<class... TransitionTables, class Context, class... Options>
-struct sm_conf<transition_table_list<TransitionTables...>, Context, Options...>
+struct sm_conf<transition_table_list<TransitionTables...>, Context, Options...>: Options...
 {
     using transition_table_list_type = transition_table_list<TransitionTables...>;
     using context_type = Context;

@@ -7,7 +7,6 @@
 #ifndef AWESM_DETAIL_CALL_MEMBER_HPP
 #define AWESM_DETAIL_CALL_MEMBER_HPP
 
-#include "ignore_unused.hpp"
 #include <type_traits>
 #include <utility>
 

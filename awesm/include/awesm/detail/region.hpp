@@ -15,7 +15,6 @@
 #include "call_member.hpp"
 #include "resolve_transition_table.hpp"
 #include "transition_table_digest.hpp"
-#include "ignore_unused.hpp"
 #include "tlu.hpp"
 #include <type_traits>
 #include <exception>
@@ -121,7 +120,7 @@ class region
         };
 
         template<class State, class Event>
-        bool stop_2(const Event& event)
+        bool stop_2([[maybe_unused]] const Event& event)
         {
             if constexpr(std::is_same_v<State, states::stopped>)
             {
@@ -148,7 +147,11 @@ class region
         struct process_event_in_transition_table_helper
         {
             template<class Event>
-            static void process(region& self, const Event& event)
+            static void process
+            (
+                [[maybe_unused]] region& self,
+                [[maybe_unused]] const Event& event
+            )
             {
                 if constexpr(std::is_same_v<Event, typename Row::event_type>)
                 {
@@ -162,8 +165,6 @@ class region
                 {
                     process_event_in_transition_table_helper<Rows...>::process(self, event);
                 }
-
-                ignore_unused(self, event);
             }
         };
 
@@ -191,12 +192,10 @@ class region
         }
 
         template<class Row, class Event>
-        void process_event_in_row(const Event& event)
+        void process_event_in_row([[maybe_unused]] const Event& event)
         {
             using source_state_type = typename Row::source_state_type;
             using target_state_type = typename Row::target_state_type;
-
-            ignore_unused(event);
 
             constexpr auto is_internal_transition =
                 std::is_same_v<target_state_type, null>
@@ -300,7 +299,11 @@ class region
         struct process_event_in_active_state_helper
         {
             template<class Event>
-            static void process(region& self, const Event& event)
+            static void process
+            (
+                [[maybe_unused]] region& self,
+                [[maybe_unused]] const Event& event
+            )
             {
                 using wrapped_state_t = state_wrapper_t<RegionPath, State>;
                 if constexpr(state_traits::requires_on_event_v<wrapped_state_t, Event>)
@@ -317,8 +320,6 @@ class region
                 {
                     process_event_in_active_state_helper<States...>::process(self, event);
                 }
-
-                ignore_unused(self, event);
             }
         };
 

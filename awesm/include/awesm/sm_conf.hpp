@@ -22,17 +22,21 @@ namespace sm_options
     struct on_event{};
     struct on_exception{};
 
-    template<size_t MaxSize, size_t MaxAlignmentRequirement>
-    struct small_event_requirements
+    template<size_t Value>
+    struct small_event_max_size
     {
         static constexpr size_t get_small_event_max_size()
         {
-            return MaxSize;
+            return Value;
         }
+    };
 
+    template<size_t Value>
+    struct small_event_max_align
+    {
         static constexpr size_t get_small_event_max_alignment_requirement()
         {
-            return MaxAlignmentRequirement;
+            return Value;
         }
     };
 

@@ -71,7 +71,8 @@ namespace
         <
             sm_transition_table,
             context,
-            awesm::sm_options::small_event_requirements<sizeof(small_event), alignof(small_event)>
+            awesm::sm_options::small_event_max_size<sizeof(small_event)>,
+            awesm::sm_options::small_event_max_align<alignof(small_event)>
         >;
     };
 

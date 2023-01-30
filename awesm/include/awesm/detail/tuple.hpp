@@ -7,8 +7,6 @@
 #ifndef AWESM_DETAIL_TUPLE_HPP
 #define AWESM_DETAIL_TUPLE_HPP
 
-#include "sm_object_holder.hpp"
-#include "type_list.hpp"
 #include "tlu.hpp"
 
 namespace awesm::detail
@@ -20,55 +18,45 @@ Using this instead of std::tuple improves build time.
 */
 
 template<class... Ts>
-class tuple: private Ts...
+struct tuple: Ts...
 {
-    public:
-        template<class Arg>
-        explicit tuple(Arg& arg):
-            Ts(arg)...
-        {
-        }
+    template<class Arg>
+    explicit tuple(Arg& arg):
+        Ts(arg)...
+    {
+    }
 
-        template<class Arg0, class Arg1>
-        explicit tuple(Arg0& arg0, Arg1& arg1):
-            Ts(arg0, arg1)...
-        {
-        }
-
-    private:
-        template<class T2, class... T2s>
-        friend T2& get(tuple<T2s...>&);
-
-        template<class T2, class... T2s>
-        friend const T2& get(const tuple<T2s...>&);
+    template<class Arg0, class Arg1>
+    explicit tuple(Arg0& arg0, Arg1& arg1):
+        Ts(arg0, arg1)...
+    {
+    }
 };
 
 template<class T, class... Ts>
-T& get(tuple<Ts...>& tuple)
+T& get(tuple<Ts...>& tpl)
 {
-    return static_cast<T&>(tuple);
+    return static_cast<T&>(tpl);
 }
 
 template<class T, class... Ts>
-const T& get(const tuple<Ts...>& tuple)
+const T& get(const tuple<Ts...>& tpl)
 {
-    return static_cast<const T&>(tuple);
+    return static_cast<const T&>(tpl);
 }
 
 template<int Index, class... Ts>
-auto& get(tuple<Ts...>& tuple)
+auto& get(tuple<Ts...>& tpl)
 {
-    using type_list_t = type_list<Ts...>;
-    using type_t = tlu::at_t<type_list_t, Index>;
-    return get<type_t>(tuple);
+    using type_t = tlu::at_t<tuple<Ts...>, Index>;
+    return get<type_t>(tpl);
 }
 
 template<int Index, class... Ts>
-const auto& get(const tuple<Ts...>& tuple)
+const auto& get(const tuple<Ts...>& tpl)
 {
-    using type_list_t = type_list<Ts...>;
-    using type_t = tlu::at_t<type_list_t, Index>;
-    return get<type_t>(tuple);
+    using type_t = tlu::at_t<tuple<Ts...>, Index>;
+    return get<type_t>(tpl);
 }
 
 } //namespace

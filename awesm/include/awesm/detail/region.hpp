@@ -22,6 +22,24 @@
 namespace awesm::detail
 {
 
+namespace
+{
+    template<class StateList, class State>
+    struct index_of_state
+    {
+        static constexpr auto value = tlu::index_of_v<StateList, State>;
+    };
+
+    template<class StateList>
+    struct index_of_state<StateList, states::stopped>
+    {
+        static constexpr auto value = -1;
+    };
+
+    template<class StateList, class State>
+    inline constexpr auto index_of_state_v = index_of_state<StateList, State>::value;
+}
+
 template<class RegionPath, class TransitionTable>
 class region
 {
@@ -61,7 +79,7 @@ class region
         template<class State>
         [[nodiscard]] bool is_active_state() const
         {
-            constexpr auto given_state_index = detail::tlu::index_of_v
+            constexpr auto given_state_index = index_of_state_v
             <
                 state_tuple_type,
                 State
@@ -100,7 +118,7 @@ class region
             typename transition_table_digest_type::wrapped_state_holder_tuple_type
         ;
 
-        using initial_state_type = detail::tlu::at_t<state_tuple_type, 1>; //0 being states::stopped
+        using initial_state_type = detail::tlu::front_t<state_tuple_type>;
 
         using transition_table_type = detail::resolve_transition_table_t
         <
@@ -223,7 +241,7 @@ class region
                     );
                 }
 
-                active_state_index_ = detail::tlu::index_of_v
+                active_state_index_ = index_of_state_v
                 <
                     state_tuple_type,
                     target_state_type
@@ -326,7 +344,7 @@ class region
         sm_type& mach_;
         wrapped_state_holder_tuple_type states_;
 
-        int active_state_index_ = 0;
+        int active_state_index_ = index_of_state_v<state_tuple_type, states::stopped>;
 };
 
 } //namespace

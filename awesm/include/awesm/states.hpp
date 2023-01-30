@@ -13,7 +13,8 @@ namespace awesm::states
 {
 
 /*
-The initial state of any region, i.e. the state before start() and after stop().
+Represents the initial state of any region, i.e. the state before start() and
+after stop() are called.
 */
 struct stopped
 {

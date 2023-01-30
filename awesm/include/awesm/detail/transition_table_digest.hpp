@@ -45,20 +45,15 @@ For example, the following digest type...:
 
 namespace transition_table_digest_detail
 {
-    template<class RegionPath, class TList>
-    struct to_tuple;
-
-    template<class RegionPath, template<class...> class TList, class... Ts>
-    struct to_tuple<RegionPath, TList<Ts...>>
+    template<class RegionPath>
+    struct state_wrapper_tuple_holder
     {
-        using type = awesm::detail::sm_object_holder_tuple
+        template<class... Ts>
+        using type = sm_object_holder_tuple
         <
             state_wrapper_t<RegionPath, Ts>...
         >;
     };
-
-    template<class RegionPath, class TList>
-    using to_tuple_t = typename to_tuple<RegionPath, TList>::type;
 
     template<class TList, class U>
     using push_back_unique_if_not_null = tlu::push_back_if_t
@@ -123,10 +118,10 @@ class transition_table_digest
 
     public:
         using state_tuple_type = typename digest_type::state_tuple_type;
-        using wrapped_state_holder_tuple_type = transition_table_digest_detail::to_tuple_t
+        using wrapped_state_holder_tuple_type = tlu::apply_t
         <
-            RegionPath,
-            state_tuple_type
+            state_tuple_type,
+            transition_table_digest_detail::state_wrapper_tuple_holder<RegionPath>::template type
         >;
 
         static constexpr auto has_source_state_patterns = digest_type::has_source_state_patterns;

@@ -9,7 +9,8 @@
 
 #include "tlu.hpp"
 #include "type_list.hpp"
-#include "sm_object_holder_tuple.hpp"
+#include "tuple.hpp"
+#include "sm_object_holder.hpp"
 #include "state_wrapper.hpp"
 #include "../states.hpp"
 #include "../type_patterns.hpp"
@@ -49,9 +50,12 @@ namespace transition_table_digest_detail
     struct state_wrapper_tuple_holder
     {
         template<class... Ts>
-        using type = sm_object_holder_tuple
+        using type = tuple
         <
-            state_wrapper_t<RegionPath, Ts>...
+            sm_object_holder
+            <
+                state_wrapper_t<RegionPath, Ts>
+            >...
         >;
     };
 

@@ -29,6 +29,12 @@ class tuple: private Ts...
         {
         }
 
+        template<class Arg0, class Arg1>
+        explicit tuple(Arg0& arg0, Arg1& arg1):
+            Ts(arg0, arg1)...
+        {
+        }
+
     private:
         template<class T2, class... T2s>
         friend T2& get(tuple<T2s...>&);

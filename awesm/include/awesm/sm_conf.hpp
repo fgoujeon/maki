@@ -7,7 +7,8 @@
 #ifndef AWESM_SM_CONF_HPP
 #define AWESM_SM_CONF_HPP
 
-#include "transition_table_list.hpp"
+#include "detail/type_list.hpp"
+#include "transition_table.hpp"
 #include "pretty_name.hpp"
 
 namespace awesm
@@ -43,20 +44,12 @@ namespace sm_options
     using get_pretty_name = detail::get_pretty_name_option;
 }
 
-template<class TransitionTable, class Context, class... Options>
+template<const auto& TransitionTableFn, class Context, class... Options>
 struct sm_conf: Options...
 {
-    using transition_table_list_type = transition_table_list<TransitionTable>;
     using context_type = Context;
-    static constexpr auto region_count = 1;
-};
-
-template<class... TransitionTables, class Context, class... Options>
-struct sm_conf<transition_table_list<TransitionTables...>, Context, Options...>: Options...
-{
-    using transition_table_list_type = transition_table_list<TransitionTables...>;
-    using context_type = Context;
-    static constexpr auto region_count = sizeof...(TransitionTables);
+    using option_type_list = detail::type_list<Options...>;
+    static constexpr auto transition_table_fn = TransitionTableFn;
 };
 
 } //namespace

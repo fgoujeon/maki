@@ -63,18 +63,21 @@ namespace
         constexpr auto can_access_state3 = awesm::not_<guards::cant_access_state3>;
     }
 
-    using sm_transition_table = awesm::transition_table
-    <
-        awesm::row<states::idle, events::start, states::state0, awesm::noop, guards::can_access_state0>,
-        awesm::row<states::idle, events::start, states::state1, awesm::noop, guards::can_access_state1>,
-        awesm::row<states::idle, events::start, states::state2, awesm::noop, guards::can_access_state2>,
-        awesm::row<states::idle, events::start, states::state3, awesm::noop, guards::can_access_state3>,
+    auto sm_transition_table()
+    {
+        return awesm::transition_table
+        <
+            awesm::row<states::idle, events::start, states::state0, awesm::noop, guards::can_access_state0>,
+            awesm::row<states::idle, events::start, states::state1, awesm::noop, guards::can_access_state1>,
+            awesm::row<states::idle, events::start, states::state2, awesm::noop, guards::can_access_state2>,
+            awesm::row<states::idle, events::start, states::state3, awesm::noop, guards::can_access_state3>,
 
-        awesm::row<states::state0, events::stop, states::idle>,
-        awesm::row<states::state1, events::stop, states::idle>,
-        awesm::row<states::state2, events::stop, states::idle>,
-        awesm::row<states::state3, events::stop, states::idle>
-    >;
+            awesm::row<states::state0, events::stop, states::idle>,
+            awesm::row<states::state1, events::stop, states::idle>,
+            awesm::row<states::state2, events::stop, states::idle>,
+            awesm::row<states::state3, events::stop, states::idle>
+        >;
+    }
 
     struct sm_def
     {

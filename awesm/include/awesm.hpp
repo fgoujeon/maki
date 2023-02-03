@@ -18,6 +18,5 @@
 #include "awesm/state_conf.hpp"
 #include "awesm/states.hpp"
 #include "awesm/transition_table.hpp"
-#include "awesm/transition_table_list.hpp"
 #include "awesm/type_patterns.hpp"
 #include "awesm/version.hpp"

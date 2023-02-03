@@ -7,8 +7,9 @@
 #ifndef AWESM_REGION_PATH_HPP
 #define AWESM_REGION_PATH_HPP
 
-#include "transition_table_list.hpp"
+#include "transition_table.hpp"
 #include "pretty_name.hpp"
+#include "detail/sm_conf_traits.hpp"
 #include <string>
 
 namespace awesm
@@ -27,7 +28,7 @@ struct region_path_element
         auto str = std::string{};
         str += awesm::get_pretty_name<sm_type>();
 
-        if constexpr(sm_type::conf_type::region_count > 1)
+        if constexpr(detail::sm_conf_traits::region_count_v<typename sm_type::conf_type> > 1)
         {
             str += "[";
             str += std::to_string(region_index);
@@ -55,7 +56,7 @@ namespace detail
     template<class... Ts, class SmOrCompositeState>
     struct region_path_add<region_path<Ts...>, SmOrCompositeState, -1>
     {
-        static_assert(SmOrCompositeState::conf_type::region_count == 1);
+        static_assert(sm_conf_traits::region_count_v<typename SmOrCompositeState::conf_type> == 1);
         using type = region_path<Ts..., region_path_element<SmOrCompositeState, 0>>;
     };
 }

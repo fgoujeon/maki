@@ -31,14 +31,19 @@ namespace
         EMPTY_STATE(off1);
         EMPTY_STATE(on0);
 
+        auto on1_transition_table()
+        {
+            return awesm::transition_table
+            <
+                awesm::row<states::off0, events::button_press, states::on0>
+            >;
+        }
+
         struct on1
         {
             using conf_type = awesm::composite_state_conf
             <
-                awesm::transition_table
-                <
-                    awesm::row<states::off0, events::button_press, states::on0>
-                >,
+                on1_transition_table,
                 awesm::state_options::get_pretty_name
             >;
 
@@ -49,20 +54,30 @@ namespace
         };
     }
 
+    auto sm_transition_table_0()
+    {
+        return awesm::transition_table
+        <
+            awesm::row<states::off0, events::button_press, states::on0>
+        >;
+    }
+
+    auto sm_transition_table_1()
+    {
+        return awesm::transition_table
+        <
+            awesm::row<states::off1, events::button_press, states::on1>
+        >;
+    }
+
     struct sm_def
     {
         using conf_type = awesm::sm_conf
         <
             awesm::transition_table_list
             <
-                awesm::transition_table
-                <
-                    awesm::row<states::off0, events::button_press, states::on0>
-                >,
-                awesm::transition_table
-                <
-                    awesm::row<states::off1, events::button_press, states::on1>
-                >
+                sm_transition_table_0,
+                sm_transition_table_1
             >,
             context,
             awesm::sm_options::get_pretty_name

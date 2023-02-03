@@ -44,20 +44,30 @@ namespace
         };
     }
 
+    auto region_0_transition_table()
+    {
+        return awesm::transition_table
+        <
+            awesm::row<states::off0, events::button_press, states::on0>
+        >;
+    }
+
+    auto region_1_transition_table()
+    {
+        return awesm::transition_table
+        <
+            awesm::row<states::off1, events::button_press, states::on1>
+        >;
+    }
+
     struct sm_def
     {
         using conf_type = awesm::sm_conf
         <
             awesm::transition_table_list
             <
-                awesm::transition_table
-                <
-                    awesm::row<states::off0, events::button_press, states::on0>
-                >,
-                awesm::transition_table
-                <
-                    awesm::row<states::off1, events::button_press, states::on1>
-                >
+                region_0_transition_table,
+                region_1_transition_table
             >,
             context,
             awesm::sm_options::on_exception,

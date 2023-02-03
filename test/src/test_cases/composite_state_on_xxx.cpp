@@ -62,10 +62,13 @@ namespace
             context& ctx;
         };
 
-        using on_transition_table = awesm::transition_table
-        <
-            awesm::row<states::on_0, events::button_press, awesm::null>
-        >;
+        auto on_transition_table()
+        {
+            return awesm::transition_table
+            <
+                awesm::row<states::on_0, events::button_press, awesm::null>
+            >;
+        }
 
         struct on
         {
@@ -98,11 +101,14 @@ namespace
         };
     }
 
-    using sm_transition_table = awesm::transition_table
-    <
-        awesm::row<states::off, events::button_press, states::on>,
-        awesm::row<states::on,  events::button_press, states::off>
-    >;
+    auto sm_transition_table()
+    {
+        return awesm::transition_table
+        <
+            awesm::row<states::off, events::button_press, states::on>,
+            awesm::row<states::on,  events::button_press, states::off>
+        >;
+    }
 
     struct sm_def
     {

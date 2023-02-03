@@ -53,7 +53,7 @@ namespace
 
 TEST_CASE("detail::resolve_transition_table")
 {
-    using transition_table = awesm::transition_table
+    using transition_table = awesm::transition_table_t
     <
         awesm::row<state0, event0, state1, action0, guard0>,
         awesm::row<state1, event1, state2, action1, guard1>,
@@ -84,7 +84,7 @@ TEST_CASE("detail::resolve_transition_table")
         >
     ;
 
-    using expected_resolved_transition_table_t = awesm::transition_table
+    using expected_resolved_transition_table_t = awesm::transition_table_t
     <
         awesm::row<state0, event0, state1, action0, guard0>,
         awesm::row<state1, event1, state2, action1, guard1>,

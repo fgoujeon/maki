@@ -35,14 +35,19 @@ namespace pretty_name_ns
         }
     };
 
+    auto composite_state_transition_table()
+    {
+        return awesm::transition_table
+        <
+            awesm::row<state, awesm::null, awesm::null>
+        >;
+    }
+
     struct composite_state
     {
         using conf_type = awesm::composite_state_conf
         <
-            awesm::transition_table
-            <
-                awesm::row<state, awesm::null, awesm::null>
-            >,
+            composite_state_transition_table,
             awesm::composite_state_options::get_pretty_name
         >;
 
@@ -56,14 +61,19 @@ namespace pretty_name_ns
     {
     };
 
+    auto sm_transition_table()
+    {
+        return awesm::transition_table
+        <
+            awesm::row<state, awesm::null, awesm::null>
+        >;
+    }
+
     struct sm_def
     {
         using conf_type = awesm::sm_conf
         <
-            awesm::transition_table
-            <
-                awesm::row<state, awesm::null, awesm::null>
-            >,
+            sm_transition_table,
             context,
             awesm::sm_options::get_pretty_name
         >;

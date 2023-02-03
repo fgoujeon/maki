@@ -203,14 +203,6 @@ namespace guards
     constexpr auto is_short_push = awesm::not_<is_long_push>;
 }
 
-//Allow shorter names in transition table
-using namespace states;
-using namespace actions;
-using namespace guards;
-using button_push = button::push_event;
-using awesm::row;
-using awesm::any_but;
-
 /*
 This is the transition table. This is where we define the actions that must be
 executed depending on the active state and the event we receive.
@@ -227,16 +219,26 @@ When a match is found, AweSM:
 The initial active state of the state machine is the first state encountered in
 the transition table ('off', is our case).
 */
-using sm_transition_table = awesm::transition_table
-<
-    //  source_state,   event,       target_state,   action,            guard
-    row<off,            button_push, emitting_white, turn_light_white>,
-    row<emitting_white, button_push, emitting_red,   turn_light_red,    is_short_push>,
-    row<emitting_red,   button_push, emitting_green, turn_light_green,  is_short_push>,
-    row<emitting_green, button_push, emitting_blue,  turn_light_blue,   is_short_push>,
-    row<emitting_blue,  button_push, emitting_white, turn_light_white,  is_short_push>,
-    row<any_but<off>,   button_push, off,            turn_light_off,    is_long_push>
->;
+auto sm_transition_table()
+{
+    using namespace states;
+    using namespace actions;
+    using namespace guards;
+    using button_push = button::push_event;
+    using awesm::row;
+    using awesm::any_but;
+
+    return awesm::transition_table
+    <
+        //  source_state,   event,       target_state,   action,            guard
+        row<off,            button_push, emitting_white, turn_light_white>,
+        row<emitting_white, button_push, emitting_red,   turn_light_red,    is_short_push>,
+        row<emitting_red,   button_push, emitting_green, turn_light_green,  is_short_push>,
+        row<emitting_green, button_push, emitting_blue,  turn_light_blue,   is_short_push>,
+        row<emitting_blue,  button_push, emitting_white, turn_light_white,  is_short_push>,
+        row<any_but<off>,   button_push, off,            turn_light_off,    is_long_push>
+    >;
+}
 
 /*
 We have to define this struct to define our state machine. Here we just specify

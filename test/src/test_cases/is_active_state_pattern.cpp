@@ -40,12 +40,15 @@ namespace
         using not_emitting_red = awesm::any_but<emitting_red>;
         using emitting_red_or_green = awesm::any_of<emitting_red, emitting_green>;
 
-        using on_transition_table = awesm::transition_table
-        <
-            awesm::row<states::emitting_red,   events::color_button_press, states::emitting_green>,
-            awesm::row<states::emitting_green, events::color_button_press, states::emitting_blue>,
-            awesm::row<states::emitting_blue,  events::color_button_press, states::emitting_red>
-        >;
+        auto on_transition_table()
+        {
+            return awesm::transition_table
+            <
+                awesm::row<states::emitting_red,   events::color_button_press, states::emitting_green>,
+                awesm::row<states::emitting_green, events::color_button_press, states::emitting_blue>,
+                awesm::row<states::emitting_blue,  events::color_button_press, states::emitting_red>
+            >;
+        }
 
         struct on
         {
@@ -73,11 +76,14 @@ namespace
         };
     }
 
-    using sm_transition_table = awesm::transition_table
-    <
-        awesm::row<states::off, events::power_button_press, states::on>,
-        awesm::row<states::on,  events::power_button_press, states::off>
-    >;
+    auto sm_transition_table()
+    {
+        return awesm::transition_table
+        <
+            awesm::row<states::off, events::power_button_press, states::on>,
+            awesm::row<states::on,  events::power_button_press, states::off>
+        >;
+    }
 
     struct sm_def
     {

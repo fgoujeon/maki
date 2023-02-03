@@ -82,12 +82,15 @@ namespace
         };
     }
 
-    using sm_transition_table = awesm::transition_table
-    <
-        awesm::row<states::idle,    events::next_language_request, states::english>,
-        awesm::row<states::english, events::next_language_request, states::french>,
-        awesm::row<states::french,  events::next_language_request, states::idle>
-    >;
+    auto sm_transition_table()
+    {
+        return awesm::transition_table
+        <
+            awesm::row<states::idle,    events::next_language_request, states::english>,
+            awesm::row<states::english, events::next_language_request, states::french>,
+            awesm::row<states::french,  events::next_language_request, states::idle>
+        >;
+    }
 
     struct sm_def
     {

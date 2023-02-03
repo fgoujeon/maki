@@ -33,6 +33,7 @@ namespace state_options
 template<class... Options>
 struct state_conf: Options...
 {
+    static constexpr auto is_composite = false;
 };
 
 } //namespace

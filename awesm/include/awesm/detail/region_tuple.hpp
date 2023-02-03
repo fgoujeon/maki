@@ -7,40 +7,52 @@
 #ifndef AWESM_DETAIL_REGION_TUPLE_HPP
 #define AWESM_DETAIL_REGION_TUPLE_HPP
 
+#include "../transition_table.hpp"
 #include "region.hpp"
 #include "tuple.hpp"
-#include "../transition_table_list.hpp"
+#include "clu.hpp"
 #include <type_traits>
 
 namespace awesm::detail
 {
 
-template<class SmPath, class RegionIndexSequence, class... TransitionTables>
+template<class SmPath, class TransitionTableFnList, class RegionIndexSequence>
 struct tt_list_to_region_tuple;
 
-template<class SmPath, int... RegionIndexes, class... TransitionTables>
-struct tt_list_to_region_tuple<SmPath, std::integer_sequence<int, RegionIndexes...>, TransitionTables...>
+template
+<
+    class SmPath,
+    template<auto...> class TransitionTableFnList,
+    auto... TransitionTableFns,
+    int... RegionIndexes
+>
+struct tt_list_to_region_tuple
+<
+    SmPath,
+    TransitionTableFnList<TransitionTableFns...>,
+    std::integer_sequence<int, RegionIndexes...>
+>
 {
-    using type = tuple<region<make_region_path_t<SmPath, RegionIndexes>, TransitionTables>...>;
+    using type = tuple
+    <
+        region
+        <
+            make_region_path_t<SmPath, RegionIndexes>,
+            TransitionTableFns
+        >...
+    >;
 };
 
-template<class SmPath, class... TransitionTables>
+template<class SmPath, class TransitionTableFnList>
 using tt_list_to_region_tuple_t = typename tt_list_to_region_tuple
 <
     SmPath,
-    std::make_integer_sequence
-    <
-        int,
-        static_cast<int>(sizeof...(TransitionTables))
-    >,
-    TransitionTables...
+    TransitionTableFnList,
+    std::make_integer_sequence<int, clu::size_v<TransitionTableFnList>>
 >::type;
 
-template<class SmPath, class TransitionTableList>
-class region_tuple;
-
-template<class SmPath, class... TransitionTables>
-class region_tuple<SmPath, transition_table_list<TransitionTables...>>
+template<class SmPath, class TransitionTableFnList>
+class region_tuple
 {
     public:
         using sm_type = sm_path_to_sm_t<SmPath>;
@@ -66,7 +78,7 @@ class region_tuple<SmPath, transition_table_list<TransitionTables...>>
         template<class State>
         [[nodiscard]] bool is_active_state() const
         {
-            static_assert(sizeof...(TransitionTables) == 1);
+            static_assert(clu::size_v<TransitionTableFnList> == 1);
             return get<0>(regions_).template is_active_state<region_path<>, State>();
         }
 
@@ -137,7 +149,7 @@ class region_tuple<SmPath, transition_table_list<TransitionTables...>>
         using region_tuple_type = tt_list_to_region_tuple_t
         <
             SmPath,
-            TransitionTables...
+            TransitionTableFnList
         >;
         region_tuple_type regions_;
 };

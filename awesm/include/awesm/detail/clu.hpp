@@ -4,15 +4,15 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_TRANSITION_TABLE_LIST_HPP
-#define AWESM_TRANSITION_TABLE_LIST_HPP
+/*
+CLU = Constant List Utility
 
-namespace awesm
-{
+A constant list is an instance of a type template of this form:
+    template<auto... Cs>
+    struct constant_list
+    {
+    };
+*/
 
-template<class... Ts>
-struct transition_table_list{};
-
-} //namespace
-
-#endif
+#include "clu/apply.hpp"
+#include "clu/size.hpp"

@@ -27,14 +27,17 @@ namespace
     bool guard0(){return true;}
     bool guard1(){return true;}
 
-    using transition_table = awesm::transition_table
-    <
-        awesm::row<state0,     event0, state1>,
-        awesm::row<state1,     event1, state2,  awesm::noop, guard0>,
-        awesm::row<state2,     event2, state3,  action0>,
-        awesm::row<state3,     event3, state0,  action1,     guard1>,
-        awesm::row<awesm::any, event3, state0>
-    >;
+    auto transition_table()
+    {
+        return awesm::transition_table
+        <
+            awesm::row<state0,     event0, state1>,
+            awesm::row<state1,     event1, state2,  awesm::noop, guard0>,
+            awesm::row<state2,     event2, state3,  action0>,
+            awesm::row<state3,     event3, state0,  action1,     guard1>,
+            awesm::row<awesm::any, event3, state0>
+        >;
+    }
 
     struct sm_def
     {
@@ -49,7 +52,7 @@ namespace
 
     using region_path_t = awesm::make_region_path<sm_t>;
 
-    using digest_t = awesm::detail::transition_table_digest<region_path_t, transition_table>;
+    using digest_t = awesm::detail::transition_table_digest<region_path_t, decltype(transition_table())>;
 
     using state_tuple_t = awesm::detail::type_list<state0, state1, state2, state3>;
 }

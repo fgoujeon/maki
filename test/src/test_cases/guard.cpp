@@ -46,12 +46,15 @@ namespace
         }
     }
 
-    using sm_transition_table = awesm::transition_table
-    <
-        awesm::row<states::off, events::button_press, states::on,  awesm::noop, guards::has_power>,
-        awesm::row<states::on,  events::button_press, states::off, awesm::noop, guards::always_false>,
-        awesm::row<states::on,  events::button_press, states::off, awesm::noop, guards::is_pressing_hard>
-    >;
+    auto sm_transition_table()
+    {
+        return awesm::transition_table
+        <
+            awesm::row<states::off, events::button_press, states::on,  awesm::noop, guards::has_power>,
+            awesm::row<states::on,  events::button_press, states::off, awesm::noop, guards::always_false>,
+            awesm::row<states::on,  events::button_press, states::off, awesm::noop, guards::is_pressing_hard>
+        >;
+    }
 
     struct sm_def
     {

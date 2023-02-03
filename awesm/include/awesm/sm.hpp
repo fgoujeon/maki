@@ -9,6 +9,7 @@
 
 #include "sm_conf.hpp"
 #include "null.hpp"
+#include "detail/sm_conf_traits.hpp"
 #include "detail/composite_state_wrapper.hpp"
 #include "detail/region_tuple.hpp"
 #include "detail/alternative.hpp"
@@ -148,15 +149,15 @@ class sm
 
     private:
         //Let regions access definition and option list
-        template<class RegionPath, class TransitionTable>
+        template<class RegionPath, auto TransitionTableFnList>
         friend class detail::region;
 
-        using transition_table_list_type = typename conf_type::transition_table_list_type;
+        using option_type_list = typename conf_type::option_type_list;
 
         using region_tuple_type = detail::region_tuple
         <
             detail::sm_path<region_path<>, sm>,
-            transition_table_list_type
+            detail::sm_conf_traits::transition_table_fn_list_t<conf_type>
         >;
 
         struct any_event_queue_holder
@@ -178,7 +179,7 @@ class sm
         };
         using any_event_queue_type = typename detail::alternative_t
         <
-            detail::tlu::contains_v<conf_type, sm_options::disable_run_to_completion>,
+            detail::tlu::contains_v<option_type_list, sm_options::disable_run_to_completion>,
             empty_holder,
             any_event_queue_holder
         >::template type<>;
@@ -186,7 +187,7 @@ class sm
         template<detail::sm_operation Operation, class Event>
         void process_event_2(const Event& event)
         {
-            if constexpr(!detail::tlu::contains_v<conf_type, sm_options::disable_run_to_completion>)
+            if constexpr(!detail::tlu::contains_v<option_type_list, sm_options::disable_run_to_completion>)
             {
                 if(!processing_event_) //If call is not recursive
                 {
@@ -251,7 +252,7 @@ class sm
 
         void process_exception(const std::exception_ptr& eptr)
         {
-            if constexpr(detail::tlu::contains_v<conf_type, sm_options::on_exception>)
+            if constexpr(detail::tlu::contains_v<option_type_list, sm_options::on_exception>)
             {
                 def_.on_exception(eptr);
             }
@@ -269,7 +270,7 @@ class sm
                 if constexpr
                 (
                     Operation == detail::sm_operation::process_event &&
-                    detail::tlu::contains_v<conf_type, sm_options::on_event>
+                    detail::tlu::contains_v<option_type_list, sm_options::on_event>
                 )
                 {
                     def_.on_event(event);

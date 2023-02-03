@@ -89,13 +89,16 @@ namespace
         return true;
     };
 
-    using sm_transition_table = awesm::transition_table
-    <
-        awesm::row<states::off, events::e1, states::on,  action, guard>,
-        awesm::row<states::off, events::e2, states::on,  action, guard>,
-        awesm::row<states::on,  events::e1, states::off, action, guard>,
-        awesm::row<states::on,  events::e2, states::off, action, guard>
-    >;
+    auto sm_transition_table()
+    {
+        return awesm::transition_table
+        <
+            awesm::row<states::off, events::e1, states::on,  action, guard>,
+            awesm::row<states::off, events::e2, states::on,  action, guard>,
+            awesm::row<states::on,  events::e1, states::off, action, guard>,
+            awesm::row<states::on,  events::e2, states::off, action, guard>
+        >;
+    }
 
     struct sm_def
     {

@@ -40,7 +40,7 @@ namespace
     inline constexpr auto index_of_state_v = index_of_state<StateList, State>::value;
 }
 
-template<class RegionPath, class TransitionTable>
+template<class RegionPath, auto TransitionTableFn>
 class region
 {
     public:
@@ -110,7 +110,9 @@ class region
         }
 
     private:
-        using unresolved_transition_table_type = TransitionTable;
+        using option_type_list = typename conf_type::option_type_list;
+
+        using unresolved_transition_table_type = decltype(TransitionTableFn());
 
         using transition_table_digest_type =
             detail::transition_table_digest<RegionPath, unresolved_transition_table_type>
@@ -223,7 +225,7 @@ class region
 
             if constexpr(!is_internal_transition)
             {
-                if constexpr(tlu::contains_v<conf_type, sm_options::before_state_transition>)
+                if constexpr(tlu::contains_v<option_type_list, sm_options::before_state_transition>)
                 {
                     mach_.def_.template before_state_transition
                     <
@@ -259,7 +261,7 @@ class region
 
             if constexpr(!is_internal_transition)
             {
-                if constexpr(tlu::contains_v<conf_type, sm_options::before_entry>)
+                if constexpr(tlu::contains_v<option_type_list, sm_options::before_entry>)
                 {
                     mach_.def_.template before_entry
                     <
@@ -283,7 +285,7 @@ class region
                     );
                 }
 
-                if constexpr(tlu::contains_v<conf_type, sm_options::after_state_transition>)
+                if constexpr(tlu::contains_v<option_type_list, sm_options::after_state_transition>)
                 {
                     mach_.def_.template after_state_transition
                     <
@@ -385,7 +387,10 @@ class region
             {
                 return is_active_state_type<State>();
             }
-            return false;
+            else
+            {
+                return false;
+            }
         }
 
         sm_type& mach_;

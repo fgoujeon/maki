@@ -113,12 +113,15 @@ namespace
         };
     }
 
-    using sm_transition_table = awesm::transition_table
-    <
-        awesm::row<states::s0, events::s0_to_s1_request, states::s1, actions::s0_to_s1>,
-        awesm::row<states::s1, events::s1_to_s2_request, states::s2, actions::s1_to_s2>,
-        awesm::row<states::s2, events::s2_to_s0_request, states::s0>
-    >;
+    auto sm_transition_table()
+    {
+        return awesm::transition_table
+        <
+            awesm::row<states::s0, events::s0_to_s1_request, states::s1, actions::s0_to_s1>,
+            awesm::row<states::s1, events::s1_to_s2_request, states::s2, actions::s1_to_s2>,
+            awesm::row<states::s2, events::s2_to_s0_request, states::s0>
+        >;
+    }
 
     struct sm_def
     {

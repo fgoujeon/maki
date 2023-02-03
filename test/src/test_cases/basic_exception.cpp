@@ -79,12 +79,15 @@ namespace
         }
     }
 
-    using sm_transition_table = awesm::transition_table
-    <
-        awesm::row<states::off, events::button_press, states::on>,
-        awesm::row<states::off, events::button_press, states::on,  actions::unreachable>,
-        awesm::row<states::on,  events::button_press, states::off, actions::unreachable>
-    >;
+    auto sm_transition_table()
+    {
+        return awesm::transition_table
+        <
+            awesm::row<states::off, events::button_press, states::on>,
+            awesm::row<states::off, events::button_press, states::on,  actions::unreachable>,
+            awesm::row<states::on,  events::button_press, states::off, actions::unreachable>
+        >;
+    }
 
     struct sm_def
     {

@@ -26,14 +26,19 @@ namespace
         EMPTY_STATE(s0_sub);
         EMPTY_STATE(s1);
 
+        auto s0_transition_table()
+        {
+            return awesm::transition_table
+            <
+                awesm::row<s0_sub, events::button_press, awesm::null>
+            >;
+        }
+
         struct s0
         {
             using conf_type = awesm::composite_state_conf
             <
-                awesm::transition_table
-                <
-                    awesm::row<s0_sub, events::button_press, awesm::null>
-                >
+                s0_transition_table
             >;
 
             template<class Event>
@@ -56,13 +61,16 @@ namespace
     using any_but_s0_s1 = awesm::any_but<states::s0, states::s1>;
     using any = awesm::any_of<states::s0, states::s1>;
 
-    using sm_transition_table = awesm::transition_table
-    <
-        awesm::row<states::off,   events::button_press,             states::s0>,
-        awesm::row<states::s0,    events::button_press,             states::s1>,
-        awesm::row<any_but_s0_s1, events::off_button_press,         states::off>,
-        awesm::row<any,           events::destruction_button_press, states::off>
-    >;
+    auto sm_transition_table()
+    {
+        return awesm::transition_table
+        <
+            awesm::row<states::off,   events::button_press,             states::s0>,
+            awesm::row<states::s0,    events::button_press,             states::s1>,
+            awesm::row<any_but_s0_s1, events::off_button_press,         states::off>,
+            awesm::row<any,           events::destruction_button_press, states::off>
+        >;
+    }
 
     struct sm_def
     {

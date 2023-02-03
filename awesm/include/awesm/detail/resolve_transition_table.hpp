@@ -149,7 +149,7 @@ struct resolve_transition_table<TransitionTable, StateTypeList, true>
     <
         TransitionTable,
         resolve_transition_table_detail::add_row_holder<StateTypeList>::template type,
-        transition_table<>
+        transition_table_t<>
     >;
 };
 

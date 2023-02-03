@@ -7,48 +7,15 @@
 #ifndef AWESM_DETAIL_STATE_WRAPPER_HPP
 #define AWESM_DETAIL_STATE_WRAPPER_HPP
 
+#include "../state_conf.hpp"
+#include "../composite_state_conf.hpp"
 #include "../null.hpp"
-
-namespace awesm
-{
-
-template<class TransitionTable, class... Options>
-struct composite_state_conf;
-
-} //namespace
 
 namespace awesm::detail
 {
 
 template<class RegionPath, class WrappedState>
 class composite_state_wrapper;
-
-template<class T>
-struct is_composite_state_conf
-{
-    static constexpr auto value = false;
-};
-
-template<class TransitionTable, class... Options>
-struct is_composite_state_conf<composite_state_conf<TransitionTable, Options...>>
-{
-    static constexpr auto value = true;
-};
-
-template<class T>
-struct is_composite_state
-{
-    static constexpr auto value = is_composite_state_conf<typename T::conf_type>::value;
-};
-
-template<>
-struct is_composite_state<null>
-{
-    static constexpr auto value = false;
-};
-
-template<class T>
-constexpr auto is_composite_state_v = is_composite_state<T>::value;
 
 template<class RegionPath, class State, bool IsCompositeState>
 struct state_wrapper_helper;
@@ -66,7 +33,12 @@ struct state_wrapper_helper<RegionPath, State, true>
 };
 
 template<class RegionPath, class State>
-using state_wrapper_t = typename state_wrapper_helper<RegionPath, State, is_composite_state_v<State>>::type;
+using state_wrapper_t = typename state_wrapper_helper
+<
+    RegionPath,
+    State,
+    State::conf_type::is_composite
+>::type;
 
 } //namespace
 

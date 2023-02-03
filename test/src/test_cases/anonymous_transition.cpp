@@ -25,14 +25,17 @@ namespace
         EMPTY_STATE(s4);
     };
 
-    using sm_transition_table = awesm::transition_table
-    <
-        awesm::row<states::s0, events::go_on, states::s1>,
-        awesm::row<states::s1, awesm::null,   states::s2>,
-        awesm::row<states::s2, events::go_on, states::s3>,
-        awesm::row<states::s3, awesm::null,   states::s4>,
-        awesm::row<states::s4, awesm::null,   states::s0>
-    >;
+    auto sm_transition_table()
+    {
+        return awesm::transition_table
+        <
+            awesm::row<states::s0, events::go_on, states::s1>,
+            awesm::row<states::s1, awesm::null,   states::s2>,
+            awesm::row<states::s2, events::go_on, states::s3>,
+            awesm::row<states::s3, awesm::null,   states::s4>,
+            awesm::row<states::s4, awesm::null,   states::s0>
+        >;
+    }
 
     struct sm_def
     {

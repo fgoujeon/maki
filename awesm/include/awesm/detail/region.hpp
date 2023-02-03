@@ -79,12 +79,14 @@ class region
         template<class State>
         [[nodiscard]] bool is_active_state() const
         {
-            constexpr auto given_state_index = index_of_state_v
-            <
-                state_tuple_type,
-                State
-            >;
-            return active_state_index_ == given_state_index;
+            if constexpr(is_type_pattern_v<State>)
+            {
+                return is_active_state_pattern<State>();
+            }
+            else
+            {
+                return is_active_state_type<State>();
+            }
         }
 
         template<class Event>
@@ -193,7 +195,7 @@ class region
             using source_state_type = typename Row::source_state_type;
 
             //Make sure the transition source state is the active state
-            if(!is_active_state<source_state_type>())
+            if(!is_active_state_type<source_state_type>())
             {
                 return false;
             }
@@ -327,7 +329,7 @@ class region
                 if constexpr(state_traits::requires_on_event_v<wrapped_state_t, Event>)
                 {
                     auto& state = get<wrapped_state_t>(self.states_);
-                    if(self.is_active_state<State>())
+                    if(self.is_active_state_type<State>())
                     {
                         call_on_event(state, event);
                         return;
@@ -340,6 +342,51 @@ class region
                 }
             }
         };
+
+        template<class State>
+        [[nodiscard]] bool is_active_state_type() const
+        {
+            constexpr auto given_state_index = index_of_state_v
+            <
+                state_tuple_type,
+                State
+            >;
+            return given_state_index == active_state_index_;
+        }
+
+        template<class StatePattern>
+        [[nodiscard]] bool is_active_state_pattern() const
+        {
+            return tlu::apply_t
+            <
+                tlu::push_back_t<state_tuple_type, states::stopped>,
+                is_active_state_pattern_helper
+            >::template call<StatePattern>(*this);
+        }
+
+        template<class... States>
+        struct is_active_state_pattern_helper
+        {
+            template<class StatePattern>
+            static bool call(const region& self)
+            {
+                return
+                (
+                    self.is_active_state_pattern_2<StatePattern, States>() ||
+                    ...
+                );
+            }
+        };
+
+        template<class StatePattern, class State>
+        [[nodiscard]] bool is_active_state_pattern_2() const
+        {
+            if constexpr(type_pattern_matches<StatePattern, State>())
+            {
+                return is_active_state_type<State>();
+            }
+            return false;
+        }
 
         sm_type& mach_;
         wrapped_state_holder_tuple_type states_;

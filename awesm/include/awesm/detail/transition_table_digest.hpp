@@ -88,7 +88,7 @@ namespace transition_table_digest_detail
 
         static constexpr auto has_source_state_patterns =
             Digest::has_source_state_patterns ||
-            std::is_base_of_v<type_pattern, typename Row::source_state_type>
+            is_type_pattern_v<typename Row::source_state_type>
         ;
 
         static constexpr auto has_null_events =

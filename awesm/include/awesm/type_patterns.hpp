@@ -15,6 +15,22 @@ namespace awesm
 namespace detail
 {
     struct type_pattern{};
+
+    template<class T>
+    constexpr auto is_type_pattern_v = std::is_base_of_v<type_pattern, T>;
+
+    template<class TypePattern, class T>
+    constexpr bool type_pattern_matches()
+    {
+        if constexpr(is_type_pattern_v<TypePattern>)
+        {
+            return TypePattern::template matches<T>;
+        }
+        else
+        {
+            return std::is_same_v<TypePattern, T>;
+        }
+    }
 }
 
 struct any: detail::type_pattern

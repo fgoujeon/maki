@@ -132,7 +132,7 @@ namespace resolve_transition_table_detail
         template<class TransitionTable, class Row>
         using type = typename alternative_t
         <
-            std::is_base_of_v<type_pattern, typename Row::source_state_type>,
+            is_type_pattern_v<typename Row::source_state_type>,
             add_row_with_pattern_holder<TransitionTable, Row, StateTypeList>,
             add_row_without_pattern_holder<TransitionTable, Row>
         >::template type<>;

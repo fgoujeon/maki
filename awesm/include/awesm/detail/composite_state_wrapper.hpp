@@ -32,7 +32,7 @@ class composite_state_wrapper
 
         template<class Context>
         composite_state_wrapper(sm_type& mach, Context& ctx):
-            state_(mach, ctx),
+            state_holder_(mach, ctx),
             region_tuple_(mach)
         {
         }
@@ -57,7 +57,7 @@ class composite_state_wrapper
         template<class Event>
         void on_entry(const Event& event)
         {
-            state_.on_entry(event);
+            state_holder_.get().on_entry(event);
             region_tuple_.start(event);
         }
 
@@ -65,14 +65,14 @@ class composite_state_wrapper
         void on_event(const Event& event)
         {
             region_tuple_.process_event(event);
-            state_.on_event(event);
+            state_holder_.get().on_event(event);
         }
 
         template<class Event>
         void on_exit(const Event& event)
         {
             region_tuple_.stop(event);
-            state_.on_exit(event);
+            state_holder_.get().on_exit(event);
         }
 
         static decltype(auto) get_pretty_name()
@@ -85,7 +85,7 @@ class composite_state_wrapper
         using transition_table_fn_list_type = sm_conf_traits::transition_table_fn_list_t<wrapped_conf_type>;
         using sm_path_type = detail::sm_path<RegionPath, WrappedState>;
 
-        detail::sm_object_holder<WrappedState> state_;
+        detail::sm_object_holder<WrappedState> state_holder_;
         detail::region_tuple<sm_path_type, transition_table_fn_list_type> region_tuple_;
 };
 

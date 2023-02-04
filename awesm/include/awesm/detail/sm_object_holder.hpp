@@ -44,7 +44,7 @@ use a function such as make_sm_object<T>(context). We need this wrapper to
 construct the objects.
 */
 template<class T>
-class sm_object_holder: public T
+class sm_object_holder: private T
 {
     public:
         using object_type = T;
@@ -94,6 +94,16 @@ class sm_object_holder: public T
         >
         sm_object_holder(Sm& /*machine*/, Context& /*ctx*/)
         {
+        }
+
+        T& get()
+        {
+            return static_cast<T&>(*this);
+        }
+
+        const T& get() const
+        {
+            return static_cast<const T&>(*this);
         }
 };
 

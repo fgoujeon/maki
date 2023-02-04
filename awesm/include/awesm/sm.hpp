@@ -71,7 +71,7 @@ class sm
 
         explicit sm(context_type& context):
             ctx_(context),
-            def_(*this, context),
+            def_holder_(*this, context),
             region_tuple_(*this)
         {
         }
@@ -81,6 +81,16 @@ class sm
         sm& operator=(const sm&) = delete;
         sm& operator=(sm&&) = delete;
         ~sm() = default;
+
+        Def& get_def()
+        {
+            return def_holder_.get();
+        }
+
+        const Def& get_def() const
+        {
+            return def_holder_.get();
+        }
 
         context_type& get_context()
         {
@@ -254,7 +264,7 @@ class sm
         {
             if constexpr(detail::tlu::contains_v<option_type_list, sm_options::on_exception>)
             {
-                def_.on_exception(eptr);
+                get_def().on_exception(eptr);
             }
             else
             {
@@ -273,7 +283,7 @@ class sm
                     detail::tlu::contains_v<option_type_list, sm_options::on_event>
                 )
                 {
-                    def_.on_event(event);
+                    get_def().on_event(event);
                 }
 
                 if constexpr(Operation == detail::sm_operation::start)
@@ -296,7 +306,7 @@ class sm
         }
 
         context_type& ctx_;
-        detail::sm_object_holder<Def> def_;
+        detail::sm_object_holder<Def> def_holder_;
         region_tuple_type region_tuple_;
         bool processing_event_ = false;
         any_event_queue_type event_queue_;

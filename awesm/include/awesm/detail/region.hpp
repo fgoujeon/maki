@@ -50,7 +50,7 @@ class region
 
         explicit region(sm_type& mach):
             mach_(mach),
-            states_(mach, mach.get_context())
+            state_holders_(mach, mach.get_context())
         {
         }
 
@@ -71,7 +71,7 @@ class region
             {
                 using composite_state_t = typename tlu::front_t<StateRelativeRegionPath>::sm_type;
                 using composite_state_wrapper_t = state_wrapper_t<RegionPath, composite_state_t>;
-                auto& state = get<composite_state_wrapper_t>(states_);
+                auto& state = get_state<composite_state_wrapper_t>();
                 return state.template is_active_state<StateRelativeRegionPath, State>();
             }
         }
@@ -227,7 +227,7 @@ class region
             {
                 if constexpr(tlu::contains_v<option_type_list, sm_options::before_state_transition>)
                 {
-                    mach_.def_.template before_state_transition
+                    mach_.get_def().template before_state_transition
                     <
                         RegionPath,
                         source_state_type,
@@ -240,7 +240,7 @@ class region
                 {
                     detail::call_on_exit
                     (
-                        get<state_wrapper_t<RegionPath, source_state_type>>(states_),
+                        get_state<state_wrapper_t<RegionPath, source_state_type>>(),
                         &event
                     );
                 }
@@ -263,7 +263,7 @@ class region
             {
                 if constexpr(tlu::contains_v<option_type_list, sm_options::before_entry>)
                 {
-                    mach_.def_.template before_entry
+                    mach_.get_def().template before_entry
                     <
                         RegionPath,
                         source_state_type,
@@ -280,14 +280,14 @@ class region
                 {
                     detail::call_on_entry
                     (
-                        get<state_wrapper_t<RegionPath, target_state_type>>(states_),
+                        get_state<state_wrapper_t<RegionPath, target_state_type>>(),
                         &event
                     );
                 }
 
                 if constexpr(tlu::contains_v<option_type_list, sm_options::after_state_transition>)
                 {
-                    mach_.def_.template after_state_transition
+                    mach_.get_def().template after_state_transition
                     <
                         RegionPath,
                         source_state_type,
@@ -330,7 +330,7 @@ class region
                 using wrapped_state_t = state_wrapper_t<RegionPath, State>;
                 if constexpr(state_traits::requires_on_event_v<wrapped_state_t, Event>)
                 {
-                    auto& state = get<wrapped_state_t>(self.states_);
+                    auto& state = self.get_state<wrapped_state_t>();
                     if(self.is_active_state_type<State>())
                     {
                         call_on_event(state, event);
@@ -393,8 +393,20 @@ class region
             }
         }
 
+        template<class State>
+        auto& get_state()
+        {
+            return get<sm_object_holder<State>>(state_holders_).get();
+        }
+
+        template<class State>
+        const auto& get_state() const
+        {
+            return get<sm_object_holder<State>>(state_holders_).get();
+        }
+
         sm_type& mach_;
-        wrapped_state_holder_tuple_type states_;
+        wrapped_state_holder_tuple_type state_holders_;
 
         int active_state_index_ = index_of_state_v<state_tuple_type, states::stopped>;
 };

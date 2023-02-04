@@ -7,6 +7,7 @@
 #ifndef AWESM_DETAIL_CALL_MEMBER_HPP
 #define AWESM_DETAIL_CALL_MEMBER_HPP
 
+#include "state_traits.hpp"
 #include <type_traits>
 #include <utility>
 
@@ -14,17 +15,26 @@ namespace awesm::detail
 {
 
 template<class State, class Event>
-auto call_on_entry(State& state, const Event* pevent) ->
+auto call_on_entry_impl(State& state, const Event* pevent) ->
     decltype(state.on_entry(*pevent))
 {
     state.on_entry(*pevent);
 }
 
 template<class State>
-auto call_on_entry(State& state, const void* /*pevent*/) ->
+auto call_on_entry_impl(State& state, const void* /*pevent*/) ->
     decltype(state.on_entry())
 {
     state.on_entry();
+}
+
+template<class State, class Event>
+void call_on_entry(State& state, const Event& event)
+{
+    if constexpr(state_traits::requires_on_entry_v<State>)
+    {
+        call_on_entry_impl(state, &event);
+    }
 }
 
 template<class State, class Event>
@@ -34,17 +44,26 @@ void call_on_event(State& state, const Event& event)
 }
 
 template<class State, class Event>
-auto call_on_exit(State& state, const Event* pevent) ->
+auto call_on_exit_impl(State& state, const Event* pevent) ->
     decltype(state.on_exit(*pevent))
 {
     state.on_exit(*pevent);
 }
 
 template<class State>
-auto call_on_exit(State& state, const void* /*pevent*/) ->
+auto call_on_exit_impl(State& state, const void* /*pevent*/) ->
     decltype(state.on_exit())
 {
     state.on_exit();
+}
+
+template<class State, class Event>
+void call_on_exit(State& state, const Event& event)
+{
+    if constexpr(state_traits::requires_on_exit_v<State>)
+    {
+        call_on_exit_impl(state, &event);
+    }
 }
 
 template<class Fn, class Sm, class Event>

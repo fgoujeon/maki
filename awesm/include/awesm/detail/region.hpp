@@ -70,8 +70,7 @@ class region
             else
             {
                 using composite_state_t = typename tlu::front_t<StateRelativeRegionPath>::sm_type;
-                using composite_state_wrapper_t = state_traits::wrap_t<composite_state_t, RegionPath>;
-                auto& state = get_state<composite_state_wrapper_t>();
+                const auto& state = get_state<composite_state_t>();
                 return state.template is_active_state<StateRelativeRegionPath, State>();
             }
         }
@@ -236,12 +235,12 @@ class region
                     >(event);
                 }
 
-                if constexpr(state_traits::requires_on_exit_v<state_traits::wrap_t<source_state_type, RegionPath>>)
+                if constexpr(!std::is_same_v<source_state_type, states::stopped>)
                 {
                     detail::call_on_exit
                     (
-                        get_state<state_traits::wrap_t<source_state_type, RegionPath>>(),
-                        &event
+                        get_state<source_state_type>(),
+                        event
                     );
                 }
 
@@ -272,16 +271,12 @@ class region
                     >(event);
                 }
 
-                if constexpr
-                (
-                    !is_internal_transition && //for VS2017
-                    state_traits::requires_on_entry_v<state_traits::wrap_t<target_state_type, RegionPath>>
-                )
+                if constexpr(!std::is_same_v<target_state_type, states::stopped>)
                 {
                     detail::call_on_entry
                     (
-                        get_state<state_traits::wrap_t<target_state_type, RegionPath>>(),
-                        &event
+                        get_state<target_state_type>(),
+                        event
                     );
                 }
 
@@ -330,7 +325,7 @@ class region
                 using wrapped_state_t = state_traits::wrap_t<State, RegionPath>;
                 if constexpr(state_traits::requires_on_event_v<wrapped_state_t, Event>)
                 {
-                    auto& state = self.get_state<wrapped_state_t>();
+                    auto& state = self.get_state<State>();
                     if(self.is_active_state_type<State>())
                     {
                         call_on_event(state, event);
@@ -396,13 +391,15 @@ class region
         template<class State>
         auto& get_state()
         {
-            return get<sm_object_holder<State>>(state_holders_).get();
+            using wrapped_state_t = state_traits::wrap_t<State, RegionPath>;
+            return get<sm_object_holder<wrapped_state_t>>(state_holders_).get();
         }
 
         template<class State>
         const auto& get_state() const
         {
-            return get<sm_object_holder<State>>(state_holders_).get();
+            using wrapped_state_t = state_traits::wrap_t<State, RegionPath>;
+            return get<sm_object_holder<wrapped_state_t>>(state_holders_).get();
         }
 
         sm_type& mach_;

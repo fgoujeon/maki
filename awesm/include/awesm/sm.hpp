@@ -66,8 +66,8 @@ template<class Def>
 class sm
 {
     public:
-        using conf_type = typename Def::conf_type;
-        using context_type = typename conf_type::context_type;
+        using conf = typename Def::conf;
+        using context_type = typename conf::context_type;
 
         explicit sm(context_type& context):
             ctx_(context),
@@ -158,12 +158,12 @@ class sm
         }
 
     private:
-        using option_type_list = typename conf_type::option_mix_type;
+        using option_type_list = typename conf::option_mix_type;
 
         using region_tuple_type = detail::region_tuple
         <
             detail::sm_path<region_path<>, sm>,
-            detail::sm_conf_traits::transition_table_fn_list_t<conf_type>
+            detail::sm_conf_traits::transition_table_fn_list_t<conf>
         >;
 
         struct any_event_queue_holder
@@ -171,8 +171,8 @@ class sm
             using any_event_type = detail::any_container
             <
                 sm&,
-                detail::get_small_event_max_size<conf_type>(detail::overload_priority::probe),
-                detail::get_small_event_max_alignment_requirement<conf_type>(detail::overload_priority::probe)
+                detail::get_small_event_max_size<conf>(detail::overload_priority::probe),
+                detail::get_small_event_max_alignment_requirement<conf>(detail::overload_priority::probe)
             >;
 
             template<bool = true> //Dummy template for lazy evaluation

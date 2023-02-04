@@ -35,7 +35,7 @@ namespace
 
         struct benchmarking
         {
-            using conf_type = awesm::state_conf
+            using conf = awesm::state_conf
             <
                 awesm::state_options::on_event_any_of<events::internal_transition>
             >;
@@ -68,7 +68,7 @@ namespace
 
     struct sm_def
     {
-        using conf_type = awesm::sm_conf
+        using conf = awesm::sm_conf
         <
             sm_transition_table,
             context,

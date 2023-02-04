@@ -23,7 +23,7 @@ class composite_state_wrapper
     public:
         using sm_type = region_path_to_sm_t<RegionPath>;
 
-        using conf_type = state_conf
+        using conf = state_conf
         <
             state_options::on_entry_any,
             state_options::on_event_any,
@@ -82,7 +82,7 @@ class composite_state_wrapper
         }
 
     private:
-        using wrapped_conf_type = typename WrappedState::conf_type;
+        using wrapped_conf_type = typename WrappedState::conf;
         using transition_table_fn_list_type = sm_conf_traits::transition_table_fn_list_t<wrapped_conf_type>;
         using sm_path_type = detail::sm_path<RegionPath, WrappedState>;
 

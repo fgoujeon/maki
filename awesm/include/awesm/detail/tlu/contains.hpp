@@ -46,21 +46,19 @@ namespace contains_detail
     {
         static constexpr bool value = contains_in_type_pack<U, Ts...>::value;
     };
-
-    template<class U, class TList>
-    struct contains_in_type_list;
-
-    template<class U, template<class...> class TList, class... Ts>
-    struct contains_in_type_list<U, TList<Ts...>>
-    {
-        static constexpr bool value = contains_in_type_pack<U, Ts...>::value;
-    };
 }
 
 template<class TList, class U>
-constexpr bool contains_v =
-    contains_detail::contains_in_type_list<U, TList>::value
-;
+struct contains;
+
+template<template<class...> class TList, class... Ts, class U>
+struct contains<TList<Ts...>, U>
+{
+    static constexpr bool value = contains_detail::contains_in_type_pack<U, Ts...>::value;
+};
+
+template<class TList, class U>
+constexpr bool contains_v = contains<TList, U>::value;
 
 } //namespace
 

@@ -20,13 +20,13 @@ namespace detail
     struct get_pretty_name_option{};
 
     template<class T>
-    decltype(auto) get_pretty_name_impl(overload_priority::low /*ignored*/)
+    decltype(auto) get_pretty_name_impl(overload_priority::low /*unused*/)
     {
         return get_decayed_type_name<T>();
     }
 
     template<class T>
-    auto get_pretty_name_impl(overload_priority::high /*ignored*/) ->
+    auto get_pretty_name_impl(overload_priority::high /*unused*/) ->
         decltype(T::get_pretty_name())
     {
         return T::get_pretty_name();
@@ -37,11 +37,11 @@ namespace detail
         class T,
         std::enable_if_t
         <
-            tlu::contains_v<typename T::conf, get_pretty_name_option>,
+            tlu::contains_v<typename T::conf::option_mix_type, get_pretty_name_option>,
             bool
         > = true
     >
-    static decltype(auto) get_pretty_name_impl(overload_priority::medium /*ignored*/)
+    static decltype(auto) get_pretty_name_impl(overload_priority::medium /*unused*/)
     {
         return T::get_pretty_name();
     }

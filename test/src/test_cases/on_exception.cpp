@@ -20,7 +20,7 @@ namespace
     {
         struct off
         {
-            using conf_type = awesm::state_conf
+            using conf = awesm::state_conf
             <
                 awesm::state_options::on_entry_any,
                 awesm::state_options::on_exit_any
@@ -41,7 +41,7 @@ namespace
 
         struct on
         {
-            using conf_type = awesm::state_conf
+            using conf = awesm::state_conf
             <
                 awesm::state_options::on_entry_any,
                 awesm::state_options::on_event_any_of<std::exception_ptr>,
@@ -96,14 +96,14 @@ namespace
 
     struct default_sm_def
     {
-        using conf_type = awesm::sm_conf<sm_transition_table, context>;
+        using conf = awesm::sm_conf<sm_transition_table, context>;
     };
 
     using default_sm_t = awesm::sm<default_sm_def>;
 
     struct custom_sm_def
     {
-        using conf_type = awesm::sm_conf
+        using conf = awesm::sm_conf
         <
             sm_transition_table,
             context,

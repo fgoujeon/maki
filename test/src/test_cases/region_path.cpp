@@ -41,7 +41,7 @@ namespace
 
         struct on1
         {
-            using conf_type = awesm::composite_state_conf
+            using conf = awesm::composite_state_conf
             <
                 on1_transition_table,
                 awesm::state_options::get_pretty_name
@@ -72,7 +72,7 @@ namespace
 
     struct sm_def
     {
-        using conf_type = awesm::sm_conf
+        using conf = awesm::sm_conf
         <
             awesm::transition_table_list
             <

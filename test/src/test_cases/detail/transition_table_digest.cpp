@@ -41,7 +41,7 @@ namespace
 
     struct sm_def
     {
-        using conf_type = awesm::sm_conf
+        using conf = awesm::sm_conf
         <
             transition_table,
             context

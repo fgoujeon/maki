@@ -36,7 +36,7 @@ namespace
 
         struct s0
         {
-            using conf_type = awesm::composite_state_conf
+            using conf = awesm::composite_state_conf
             <
                 s0_transition_table
             >;
@@ -74,7 +74,7 @@ namespace
 
     struct sm_def
     {
-        using conf_type = awesm::sm_conf<sm_transition_table, context>;
+        using conf = awesm::sm_conf<sm_transition_table, context>;
     };
 
     using sm_t = awesm::sm<sm_def>;

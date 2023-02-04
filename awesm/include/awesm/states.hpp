@@ -18,7 +18,7 @@ after stop() are called.
 */
 struct stopped
 {
-    using conf_type = state_conf<>;
+    using conf = state_conf<>;
 };
 
 } //namespace

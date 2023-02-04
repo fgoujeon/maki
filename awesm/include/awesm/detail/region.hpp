@@ -46,7 +46,7 @@ class region
     public:
         using sm_type = region_path_to_sm_t<RegionPath>;
         using context_type = typename sm_type::context_type;
-        using conf_type = typename sm_type::conf_type;
+        using conf = typename sm_type::conf;
 
         explicit region(sm_type& mach):
             mach_(mach),
@@ -109,7 +109,7 @@ class region
         }
 
     private:
-        using option_type_list = typename conf_type::option_mix_type;
+        using option_type_list = typename conf::option_mix_type;
 
         using unresolved_transition_table_type = decltype(TransitionTableFn());
 

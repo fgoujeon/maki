@@ -24,7 +24,7 @@ namespace pretty_name_ns
 
     struct state
     {
-        using conf_type = awesm::state_conf
+        using conf = awesm::state_conf
         <
             awesm::state_options::get_pretty_name
         >;
@@ -45,7 +45,7 @@ namespace pretty_name_ns
 
     struct composite_state
     {
-        using conf_type = awesm::composite_state_conf
+        using conf = awesm::composite_state_conf
         <
             composite_state_transition_table,
             awesm::composite_state_options::get_pretty_name
@@ -71,7 +71,7 @@ namespace pretty_name_ns
 
     struct sm_def
     {
-        using conf_type = awesm::sm_conf
+        using conf = awesm::sm_conf
         <
             sm_transition_table,
             context,

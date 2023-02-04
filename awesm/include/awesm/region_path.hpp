@@ -28,7 +28,7 @@ struct region_path_element
         auto str = std::string{};
         str += awesm::get_pretty_name<sm_type>();
 
-        if constexpr(detail::sm_conf_traits::region_count_v<typename sm_type::conf_type> > 1)
+        if constexpr(detail::sm_conf_traits::region_count_v<typename sm_type::conf> > 1)
         {
             str += "[";
             str += std::to_string(region_index);
@@ -56,7 +56,7 @@ namespace detail
     template<class... Ts, class SmOrCompositeState>
     struct region_path_add<region_path<Ts...>, SmOrCompositeState, -1>
     {
-        static_assert(sm_conf_traits::region_count_v<typename SmOrCompositeState::conf_type> == 1);
+        static_assert(sm_conf_traits::region_count_v<typename SmOrCompositeState::conf> == 1);
         using type = region_path<Ts..., region_path_element<SmOrCompositeState, 0>>;
     };
 }

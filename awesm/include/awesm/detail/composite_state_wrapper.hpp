@@ -8,6 +8,7 @@
 #define AWESM_DETAIL_COMPOSITE_STATE_WRAPPER_HPP
 
 #include "../state_conf.hpp"
+#include "call_member.hpp"
 #include "region_tuple.hpp"
 #include "sm_object_holder.hpp"
 #include "sm_path.hpp"
@@ -57,7 +58,7 @@ class composite_state_wrapper
         template<class Event>
         void on_entry(const Event& event)
         {
-            state_holder_.get().on_entry(event);
+            call_on_entry(state_holder_.get(), event);
             region_tuple_.start(event);
         }
 
@@ -72,7 +73,7 @@ class composite_state_wrapper
         void on_exit(const Event& event)
         {
             region_tuple_.stop(event);
-            state_holder_.get().on_exit(event);
+            call_on_exit(state_holder_.get(), event);
         }
 
         static decltype(auto) get_pretty_name()

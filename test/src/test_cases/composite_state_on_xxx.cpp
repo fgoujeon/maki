@@ -74,7 +74,9 @@ namespace
         {
             using conf_type = awesm::composite_state_conf
             <
-                on_transition_table
+                on_transition_table,
+                awesm::composite_state_options::on_entry_any,
+                awesm::composite_state_options::on_exit_any
             >;
 
             void on_entry(const events::button_press& event)

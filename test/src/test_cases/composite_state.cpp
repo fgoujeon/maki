@@ -97,21 +97,16 @@ namespace
         {
             using conf_type = awesm::composite_state_conf
             <
-                on_transition_table
+                on_transition_table,
+                awesm::composite_state_options::on_exit_any
             >;
-
-            template<class Event>
-            void on_entry(const Event& /*event*/)
-            {
-            }
 
             template<class Event>
             void on_event(const Event& /*event*/)
             {
             }
 
-            template<class Event>
-            void on_exit(const Event& /*event*/)
+            void on_exit()
             {
                 ctx.current_led_color = led_color::off;
             }

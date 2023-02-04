@@ -158,10 +158,6 @@ class sm
         }
 
     private:
-        //Let regions access definition and option list
-        template<class RegionPath, auto TransitionTableFnList>
-        friend class detail::region;
-
         using option_type_list = typename conf_type::option_type_list;
 
         using region_tuple_type = detail::region_tuple

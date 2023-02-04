@@ -158,7 +158,7 @@ class sm
         }
 
     private:
-        using option_type_list = typename conf_type::option_type_list;
+        using option_type_list = typename conf_type::option_mix_type;
 
         using region_tuple_type = detail::region_tuple
         <

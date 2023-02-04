@@ -66,7 +66,7 @@ class composite_state_wrapper
         void on_event(const Event& event)
         {
             region_tuple_.process_event(event);
-            state_holder_.get().on_event(event);
+            call_on_event(state_holder_.get(), event);
         }
 
         template<class Event>

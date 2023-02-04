@@ -29,7 +29,11 @@ auto call_on_entry_impl(State& state, const void* /*pevent*/) ->
 }
 
 template<class State, class Event>
-void call_on_entry(State& state, const Event& event)
+void call_on_entry
+(
+    [[maybe_unused]] State& state,
+    [[maybe_unused]] const Event& event
+)
 {
     if constexpr(state_traits::requires_on_entry_v<State>)
     {
@@ -38,9 +42,16 @@ void call_on_entry(State& state, const Event& event)
 }
 
 template<class State, class Event>
-void call_on_event(State& state, const Event& event)
+void call_on_event
+(
+    [[maybe_unused]] State& state,
+    [[maybe_unused]] const Event& event
+)
 {
-    state.on_event(event);
+    if constexpr(state_traits::requires_on_event_v<State, Event>)
+    {
+        state.on_event(event);
+    }
 }
 
 template<class State, class Event>
@@ -58,7 +69,11 @@ auto call_on_exit_impl(State& state, const void* /*pevent*/) ->
 }
 
 template<class State, class Event>
-void call_on_exit(State& state, const Event& event)
+void call_on_exit
+(
+    [[maybe_unused]] State& state,
+    [[maybe_unused]] const Event& event
+)
 {
     if constexpr(state_traits::requires_on_exit_v<State>)
     {

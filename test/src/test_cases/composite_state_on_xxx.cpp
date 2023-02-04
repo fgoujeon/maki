@@ -76,17 +76,13 @@ namespace
             <
                 on_transition_table,
                 awesm::composite_state_options::on_entry_any,
+                awesm::composite_state_options::on_event_any_of<events::internal>,
                 awesm::composite_state_options::on_exit_any
             >;
 
             void on_entry(const events::button_press& event)
             {
                 ctx.out += event.data + "1";
-            }
-
-            template<class Event>
-            void on_event(const Event& /*event*/)
-            {
             }
 
             void on_event(const events::internal& event)

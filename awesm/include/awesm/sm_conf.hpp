@@ -7,9 +7,9 @@
 #ifndef AWESM_SM_CONF_HPP
 #define AWESM_SM_CONF_HPP
 
-#include "detail/type_list.hpp"
 #include "transition_table.hpp"
 #include "pretty_name.hpp"
+#include "detail/mix.hpp"
 
 namespace awesm
 {
@@ -48,7 +48,7 @@ template<const auto& TransitionTableFn, class Context, class... Options>
 struct sm_conf: Options...
 {
     using context_type = Context;
-    using option_type_list = detail::type_list<Options...>;
+    using option_mix_type = detail::mix<Options...>;
     static constexpr auto transition_table_fn = TransitionTableFn;
 };
 

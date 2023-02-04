@@ -109,7 +109,7 @@ class region
         }
 
     private:
-        using option_type_list = typename conf_type::option_type_list;
+        using option_type_list = typename conf_type::option_mix_type;
 
         using unresolved_transition_table_type = decltype(TransitionTableFn());
 

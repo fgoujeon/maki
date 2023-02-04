@@ -9,7 +9,7 @@
 
 #include "state_conf.hpp"
 #include "pretty_name.hpp"
-#include "detail/type_list.hpp"
+#include "detail/mix.hpp"
 
 namespace awesm
 {
@@ -17,6 +17,14 @@ namespace awesm
 namespace composite_state_options
 {
     using on_entry_any = state_options::on_entry_any;
+
+    template<class EventPattern>
+    using on_event = state_options::on_event<EventPattern>;
+
+    using on_event_any = state_options::on_event_any;
+
+    template<class... Ts>
+    using on_event_any_of = state_options::on_event_any_of<Ts...>;
 
     using on_exit_any = state_options::on_exit_any;
 
@@ -26,7 +34,7 @@ namespace composite_state_options
 template<const auto& TransitionTableFn, class... Options>
 struct composite_state_conf
 {
-    using option_type_list = detail::type_list<Options...>;
+    using option_mix_type = detail::mix<Options...>;
     static constexpr auto is_composite = true;
     static constexpr auto transition_table_fn = TransitionTableFn;
 };

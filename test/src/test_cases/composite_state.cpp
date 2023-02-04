@@ -101,11 +101,6 @@ namespace
                 awesm::composite_state_options::on_exit_any
             >;
 
-            template<class Event>
-            void on_event(const Event& /*event*/)
-            {
-            }
-
             void on_exit()
             {
                 ctx.current_led_color = led_color::off;

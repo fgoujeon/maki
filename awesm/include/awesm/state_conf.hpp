@@ -9,7 +9,7 @@
 
 #include "type_patterns.hpp"
 #include "pretty_name.hpp"
-#include "detail/type_list.hpp"
+#include "detail/mix.hpp"
 
 namespace awesm
 {
@@ -34,7 +34,7 @@ namespace state_options
 template<class... Options>
 struct state_conf: Options...
 {
-    using option_type_list = detail::type_list<Options...>;
+    using option_mix_type = detail::mix<Options...>;
     static constexpr auto is_composite = false;
 };
 

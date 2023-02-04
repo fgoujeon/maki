@@ -70,7 +70,7 @@ class region
             else
             {
                 using composite_state_t = typename tlu::front_t<StateRelativeRegionPath>::sm_type;
-                using composite_state_wrapper_t = state_wrapper_t<RegionPath, composite_state_t>;
+                using composite_state_wrapper_t = state_traits::wrap_t<composite_state_t, RegionPath>;
                 auto& state = get_state<composite_state_wrapper_t>();
                 return state.template is_active_state<StateRelativeRegionPath, State>();
             }
@@ -236,11 +236,11 @@ class region
                     >(event);
                 }
 
-                if constexpr(state_traits::requires_on_exit_v<state_wrapper_t<RegionPath, source_state_type>>)
+                if constexpr(state_traits::requires_on_exit_v<state_traits::wrap_t<source_state_type, RegionPath>>)
                 {
                     detail::call_on_exit
                     (
-                        get_state<state_wrapper_t<RegionPath, source_state_type>>(),
+                        get_state<state_traits::wrap_t<source_state_type, RegionPath>>(),
                         &event
                     );
                 }
@@ -275,12 +275,12 @@ class region
                 if constexpr
                 (
                     !is_internal_transition && //for VS2017
-                    state_traits::requires_on_entry_v<state_wrapper_t<RegionPath, target_state_type>>
+                    state_traits::requires_on_entry_v<state_traits::wrap_t<target_state_type, RegionPath>>
                 )
                 {
                     detail::call_on_entry
                     (
-                        get_state<state_wrapper_t<RegionPath, target_state_type>>(),
+                        get_state<state_traits::wrap_t<target_state_type, RegionPath>>(),
                         &event
                     );
                 }
@@ -327,7 +327,7 @@ class region
                 [[maybe_unused]] const Event& event
             )
             {
-                using wrapped_state_t = state_wrapper_t<RegionPath, State>;
+                using wrapped_state_t = state_traits::wrap_t<State, RegionPath>;
                 if constexpr(state_traits::requires_on_event_v<wrapped_state_t, Event>)
                 {
                     auto& state = self.get_state<wrapped_state_t>();

@@ -7,11 +7,32 @@
 #ifndef AWESM_DETAIL_STATE_TRAITS_HPP
 #define AWESM_DETAIL_STATE_TRAITS_HPP
 
+#include "composite_state_wrapper_fwd.hpp"
 #include "tlu.hpp"
 #include "../state_conf.hpp"
 
 namespace awesm::detail::state_traits
 {
+
+//wrap
+
+template<class State, class RegionPath, class Enable = void>
+struct wrap
+{
+    using type = State;
+};
+
+template<class State, class RegionPath>
+struct wrap<State, RegionPath, std::enable_if_t<State::conf_type::is_composite>>
+{
+    using type = composite_state_wrapper<RegionPath, State>;
+};
+
+template<class State, class RegionPath>
+using wrap_t = typename wrap<State, RegionPath>::type;
+
+
+//other
 
 template<template<class> class Option, class Event, class TypePattern>
 constexpr bool requires_on_xxx_conf(Option<TypePattern>* /*tag*/)

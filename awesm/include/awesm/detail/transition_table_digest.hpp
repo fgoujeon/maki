@@ -11,10 +11,11 @@
 #include "type_list.hpp"
 #include "tuple.hpp"
 #include "sm_object_holder.hpp"
-#include "state_wrapper.hpp"
+#include "state_traits.hpp"
 #include "../type_patterns.hpp"
 #include "../transition_table.hpp"
 #include "../events.hpp"
+#include "../null.hpp"
 #include <type_traits>
 
 namespace awesm::detail
@@ -53,7 +54,7 @@ namespace transition_table_digest_detail
         <
             sm_object_holder
             <
-                state_wrapper_t<RegionPath, Ts>
+                state_traits::wrap_t<Ts, RegionPath>
             >...
         >;
     };

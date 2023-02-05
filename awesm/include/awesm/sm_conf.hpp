@@ -45,7 +45,7 @@ namespace sm_options
 }
 
 template<const auto& TransitionTableFn, class Context, class... Options>
-struct sm_conf: Options...
+struct sm_conf
 {
     using context_type = Context;
     using option_mix_type = detail::mix<Options...>;

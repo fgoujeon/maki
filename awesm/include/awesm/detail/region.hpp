@@ -109,7 +109,7 @@ class region
         }
 
     private:
-        using option_type_list = typename conf::option_mix_type;
+        using option_mix_type = typename conf::option_mix_type;
 
         using unresolved_transition_table_type = decltype(TransitionTableFn());
 
@@ -224,7 +224,7 @@ class region
 
             if constexpr(!is_internal_transition)
             {
-                if constexpr(tlu::contains_v<option_type_list, sm_options::before_state_transition>)
+                if constexpr(tlu::contains_v<option_mix_type, sm_options::before_state_transition>)
                 {
                     mach_.get_def().template before_state_transition
                     <
@@ -260,7 +260,7 @@ class region
 
             if constexpr(!is_internal_transition)
             {
-                if constexpr(tlu::contains_v<option_type_list, sm_options::before_entry>)
+                if constexpr(tlu::contains_v<option_mix_type, sm_options::before_entry>)
                 {
                     mach_.get_def().template before_entry
                     <
@@ -280,7 +280,7 @@ class region
                     );
                 }
 
-                if constexpr(tlu::contains_v<option_type_list, sm_options::after_state_transition>)
+                if constexpr(tlu::contains_v<option_mix_type, sm_options::after_state_transition>)
                 {
                     mach_.get_def().template after_state_transition
                     <

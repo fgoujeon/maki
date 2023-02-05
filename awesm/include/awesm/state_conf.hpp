@@ -32,7 +32,7 @@ namespace state_options
 }
 
 template<class... Options>
-struct state_conf: Options...
+struct state_conf
 {
     using option_mix_type = detail::mix<Options...>;
     static constexpr auto is_composite = false;

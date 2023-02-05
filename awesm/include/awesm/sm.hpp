@@ -158,7 +158,7 @@ class sm
         }
 
     private:
-        using option_type_list = typename conf::option_mix_type;
+        using option_mix_type = typename conf::option_mix_type;
 
         using region_tuple_type = detail::region_tuple
         <
@@ -171,8 +171,8 @@ class sm
             using any_event_type = detail::any_container
             <
                 sm&,
-                detail::get_small_event_max_size<conf>(detail::overload_priority::probe),
-                detail::get_small_event_max_alignment_requirement<conf>(detail::overload_priority::probe)
+                detail::get_small_event_max_size<option_mix_type>(detail::overload_priority::probe),
+                detail::get_small_event_max_alignment_requirement<option_mix_type>(detail::overload_priority::probe)
             >;
 
             template<bool = true> //Dummy template for lazy evaluation
@@ -185,7 +185,7 @@ class sm
         };
         using any_event_queue_type = typename detail::alternative_t
         <
-            detail::tlu::contains_v<option_type_list, sm_options::disable_run_to_completion>,
+            detail::tlu::contains_v<option_mix_type, sm_options::disable_run_to_completion>,
             empty_holder,
             any_event_queue_holder
         >::template type<>;
@@ -193,7 +193,7 @@ class sm
         template<detail::sm_operation Operation, class Event>
         void process_event_2(const Event& event)
         {
-            if constexpr(!detail::tlu::contains_v<option_type_list, sm_options::disable_run_to_completion>)
+            if constexpr(!detail::tlu::contains_v<option_mix_type, sm_options::disable_run_to_completion>)
             {
                 if(!processing_event_) //If call is not recursive
                 {
@@ -258,7 +258,7 @@ class sm
 
         void process_exception(const std::exception_ptr& eptr)
         {
-            if constexpr(detail::tlu::contains_v<option_type_list, sm_options::on_exception>)
+            if constexpr(detail::tlu::contains_v<option_mix_type, sm_options::on_exception>)
             {
                 get_def().on_exception(eptr);
             }
@@ -276,7 +276,7 @@ class sm
                 if constexpr
                 (
                     Operation == detail::sm_operation::process_event &&
-                    detail::tlu::contains_v<option_type_list, sm_options::on_event>
+                    detail::tlu::contains_v<option_mix_type, sm_options::on_event>
                 )
                 {
                     get_def().on_event(event);

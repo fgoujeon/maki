@@ -16,8 +16,20 @@ namespace detail
 {
     struct type_pattern{};
 
+    template<class T, class Enable = void>
+    struct is_type_pattern
+    {
+        static constexpr auto value = false;
+    };
+
     template<class T>
-    constexpr auto is_type_pattern_v = std::is_base_of_v<type_pattern, T>;
+    struct is_type_pattern<T, std::enable_if_t<std::is_void_v<typename T::type_pattern_tag>>>
+    {
+        static constexpr auto value = true;
+    };
+
+    template<class T>
+    constexpr auto is_type_pattern_v = is_type_pattern<T>::value;
 
     template<class TypePattern, class T>
     constexpr bool type_pattern_matches()
@@ -33,36 +45,46 @@ namespace detail
     }
 }
 
-struct any: detail::type_pattern
+struct any
 {
+    using type_pattern_tag = void;
+
     template<class T>
     static constexpr bool matches = true;
 };
 
 template<template<class> class Predicate>
-struct any_if: detail::type_pattern
+struct any_if
 {
+    using type_pattern_tag = void;
+
     template<class T>
     static constexpr bool matches = Predicate<T>::value;
 };
 
 template<template<class> class Predicate>
-struct any_if_not: detail::type_pattern
+struct any_if_not
 {
+    using type_pattern_tag = void;
+
     template<class T>
     static constexpr bool matches = !Predicate<T>::value;
 };
 
 template<class... Ts>
-struct any_of: detail::type_pattern
+struct any_of
 {
+    using type_pattern_tag = void;
+
     template<class T>
     static constexpr bool matches = (std::is_same_v<T, Ts> || ...);
 };
 
 template<class... Ts>
-struct any_but: detail::type_pattern
+struct any_but
 {
+    using type_pattern_tag = void;
+
     template<class T>
     static constexpr bool matches = !(std::is_same_v<T, Ts> || ...);
 };

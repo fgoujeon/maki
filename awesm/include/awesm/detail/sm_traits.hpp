@@ -4,21 +4,21 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_DETAIL_SM_CONF_TRAITS_HPP
-#define AWESM_DETAIL_SM_CONF_TRAITS_HPP
+#ifndef AWESM_DETAIL_SM_TRAITS_HPP
+#define AWESM_DETAIL_SM_TRAITS_HPP
 
 #include "../transition_table.hpp"
 #include "clu.hpp"
 #include <type_traits>
 
-namespace awesm::detail::sm_conf_traits
+namespace awesm::detail::sm_traits
 {
 
-template<class SmConf>
-using transition_table_fn_list_t = to_transition_table_fn_list_t<SmConf::transition_table_fn>;
+template<class Sm>
+using transition_table_fn_list_t = to_transition_table_fn_list_t<Sm::conf::transition_table_fn>;
 
-template<class SmConf>
-inline constexpr auto region_count_v = clu::size_v<transition_table_fn_list_t<SmConf>>;
+template<class Sm>
+inline constexpr auto region_count_v = clu::size_v<transition_table_fn_list_t<Sm>>;
 
 } //namespace
 

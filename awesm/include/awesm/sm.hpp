@@ -9,7 +9,7 @@
 
 #include "sm_conf.hpp"
 #include "null.hpp"
-#include "detail/sm_conf_traits.hpp"
+#include "detail/sm_traits.hpp"
 #include "detail/composite_state_wrapper.hpp"
 #include "detail/region_tuple.hpp"
 #include "detail/alternative.hpp"
@@ -163,7 +163,7 @@ class sm
         using region_tuple_type = detail::region_tuple
         <
             detail::sm_path<region_path<>, sm>,
-            detail::sm_conf_traits::transition_table_fn_list_t<conf>
+            detail::sm_traits::transition_table_fn_list_t<sm>
         >;
 
         struct any_event_queue_holder

@@ -12,7 +12,7 @@
 #include "region_tuple.hpp"
 #include "sm_object_holder.hpp"
 #include "sm_path.hpp"
-#include "sm_conf_traits.hpp"
+#include "sm_traits.hpp"
 
 namespace awesm::detail
 {
@@ -82,8 +82,7 @@ class composite_state_wrapper
         }
 
     private:
-        using wrapped_conf_type = typename WrappedState::conf;
-        using transition_table_fn_list_type = sm_conf_traits::transition_table_fn_list_t<wrapped_conf_type>;
+        using transition_table_fn_list_type = sm_traits::transition_table_fn_list_t<WrappedState>;
         using sm_path_type = detail::sm_path<RegionPath, WrappedState>;
 
         detail::sm_object_holder<WrappedState> state_holder_;

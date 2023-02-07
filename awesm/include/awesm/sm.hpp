@@ -10,7 +10,7 @@
 #include "sm_conf.hpp"
 #include "null.hpp"
 #include "detail/sm_traits.hpp"
-#include "detail/composite_state_wrapper.hpp"
+#include "detail/subsm_wrapper.hpp"
 #include "detail/region_tuple.hpp"
 #include "detail/alternative.hpp"
 #include "detail/any_container.hpp"

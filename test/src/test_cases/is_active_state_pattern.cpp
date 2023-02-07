@@ -52,7 +52,7 @@ namespace
 
         struct on
         {
-            using conf = awesm::composite_state_conf
+            using conf = awesm::subsm_conf
             <
                 on_transition_table
             >;

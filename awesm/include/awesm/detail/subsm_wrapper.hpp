@@ -18,7 +18,7 @@ namespace awesm::detail
 {
 
 template<class RegionPath, class WrappedState>
-class composite_state_wrapper
+class subsm_wrapper
 {
     public:
         using sm_type = region_path_to_sm_t<RegionPath>;
@@ -32,7 +32,7 @@ class composite_state_wrapper
         >;
 
         template<class Context>
-        composite_state_wrapper(sm_type& mach, Context& ctx):
+        subsm_wrapper(sm_type& mach, Context& ctx):
             state_holder_(mach, ctx),
             region_tuple_(mach)
         {

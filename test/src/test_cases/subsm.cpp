@@ -95,10 +95,10 @@ namespace
 
         struct on
         {
-            using conf = awesm::composite_state_conf
+            using conf = awesm::subsm_conf
             <
                 on_transition_table,
-                awesm::composite_state_options::on_exit_any
+                awesm::subsm_options::on_exit_any
             >;
 
             void on_exit()
@@ -125,7 +125,7 @@ namespace
     };
 }
 
-TEST_CASE("composite_state")
+TEST_CASE("subsm")
 {
     using sm_on_region_path_t = awesm::make_region_path<sm_t>::add<states::on>;
 

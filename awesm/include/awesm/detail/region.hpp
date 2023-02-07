@@ -69,8 +69,8 @@ class region
             }
             else
             {
-                using composite_state_t = typename tlu::front_t<StateRelativeRegionPath>::sm_type;
-                const auto& state = get_state<composite_state_t>();
+                using subsm_t = typename tlu::front_t<StateRelativeRegionPath>::sm_type;
+                const auto& state = get_state<subsm_t>();
                 return state.template is_active_state<StateRelativeRegionPath, State>();
             }
         }

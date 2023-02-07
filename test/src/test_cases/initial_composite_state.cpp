@@ -105,7 +105,7 @@ namespace
 
         struct on
         {
-            using conf = awesm::composite_state_conf
+            using conf = awesm::subsm_conf
             <
                 on_transition_table
             >;
@@ -143,7 +143,7 @@ namespace
     };
 }
 
-TEST_CASE("initial_composite_state")
+TEST_CASE("initial_subsm")
 {
     auto ctx = context{};
     auto sm = sm_t{ctx};

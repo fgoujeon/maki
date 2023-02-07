@@ -14,7 +14,7 @@
 namespace awesm
 {
 
-namespace composite_state_options
+namespace subsm_options
 {
     using on_entry_any = state_options::on_entry_any;
 
@@ -32,7 +32,7 @@ namespace composite_state_options
 }
 
 template<const auto& TransitionTableFn, class... Options>
-struct composite_state_conf
+struct subsm_conf
 {
     using option_mix_type = detail::mix<Options...>;
     static constexpr auto is_composite = true;

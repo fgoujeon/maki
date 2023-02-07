@@ -35,7 +35,7 @@ namespace pretty_name_ns
         }
     };
 
-    auto composite_state_transition_table()
+    auto subsm_transition_table()
     {
         return awesm::transition_table
         <
@@ -43,17 +43,17 @@ namespace pretty_name_ns
         >;
     }
 
-    struct composite_state
+    struct subsm
     {
-        using conf = awesm::composite_state_conf
+        using conf = awesm::subsm_conf
         <
-            composite_state_transition_table,
-            awesm::composite_state_options::get_pretty_name
+            subsm_transition_table,
+            awesm::subsm_options::get_pretty_name
         >;
 
         static const char* get_pretty_name()
         {
-            return "my_composite_state";
+            return "my_subsm";
         }
     };
 
@@ -88,10 +88,10 @@ namespace pretty_name_ns
 
     struct region_path{};
 
-    using wrapped_composite_state = awesm::detail::composite_state_wrapper
+    using wrapped_subsm = awesm::detail::subsm_wrapper
     <
         awesm::make_region_path<sm_t, 0>,
-        composite_state
+        subsm
     >;
 }
 
@@ -123,14 +123,14 @@ TEST_CASE("pretty_name")
 
     REQUIRE
     (
-        awesm::get_pretty_name<pretty_name_ns::composite_state>() ==
-        std::string_view{"my_composite_state"}
+        awesm::get_pretty_name<pretty_name_ns::subsm>() ==
+        std::string_view{"my_subsm"}
     );
 
     REQUIRE
     (
-        awesm::get_pretty_name<pretty_name_ns::wrapped_composite_state>() ==
-        std::string_view{"my_composite_state"}
+        awesm::get_pretty_name<pretty_name_ns::wrapped_subsm>() ==
+        std::string_view{"my_subsm"}
     );
 
     REQUIRE

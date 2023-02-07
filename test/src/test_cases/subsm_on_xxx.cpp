@@ -72,12 +72,12 @@ namespace
 
         struct on
         {
-            using conf = awesm::composite_state_conf
+            using conf = awesm::subsm_conf
             <
                 on_transition_table,
-                awesm::composite_state_options::on_entry_any,
-                awesm::composite_state_options::on_event_any_of<events::internal>,
-                awesm::composite_state_options::on_exit_any
+                awesm::subsm_options::on_entry_any,
+                awesm::subsm_options::on_event_any_of<events::internal>,
+                awesm::subsm_options::on_exit_any
             >;
 
             void on_entry(const events::button_press& event)
@@ -114,7 +114,7 @@ namespace
     };
 }
 
-TEST_CASE("composite_state_on_xxx")
+TEST_CASE("subsm_on_xxx")
 {
     auto ctx = context{};
     auto sm = sm_t{ctx};

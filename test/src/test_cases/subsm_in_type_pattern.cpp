@@ -36,7 +36,7 @@ namespace
 
         struct s0
         {
-            using conf = awesm::composite_state_conf
+            using conf = awesm::subsm_conf
             <
                 s0_transition_table
             >;
@@ -80,7 +80,7 @@ namespace
     using sm_t = awesm::sm<sm_def>;
 }
 
-TEST_CASE("composite_state_in_type_pattern")
+TEST_CASE("subsm_in_type_pattern")
 {
     auto ctx = context{};
     auto sm = sm_t{ctx};

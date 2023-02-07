@@ -11,7 +11,7 @@ namespace awesm::detail
 {
 
 template<class RegionPath, class WrappedState>
-class composite_state_wrapper;
+class subsm_wrapper;
 
 } //namespace
 

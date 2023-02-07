@@ -50,6 +50,7 @@ namespace
             context,
             awesm::sm_opts::before_state_transition,
             awesm::sm_opts::after_state_transition,
+            awesm::sm_opts::disable_auto_start,
             awesm::sm_opts::get_pretty_name
         >;
 

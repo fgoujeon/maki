@@ -74,6 +74,10 @@ class sm
             def_holder_(*this, context),
             region_tuple_(*this)
         {
+            if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::disable_auto_start>)
+            {
+                start();
+            }
         }
 
         sm(const sm&) = delete;

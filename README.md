@@ -327,9 +327,6 @@ int main()
     */
     auto sm = sm_t{ctx};
 
-    //The state machine must be started.
-    sm.start();
-
 #if TESTING
     auto simulate_push = [&](const int duration_ms)
     {

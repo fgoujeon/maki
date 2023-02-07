@@ -14,7 +14,7 @@
 namespace awesm
 {
 
-namespace sm_options
+namespace sm_opts
 {
     struct after_state_transition{};
     struct before_entry{};

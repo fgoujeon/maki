@@ -14,19 +14,19 @@
 namespace awesm
 {
 
-namespace subsm_options
+namespace subsm_opts
 {
-    using on_entry_any = state_options::on_entry_any;
+    using on_entry_any = state_opts::on_entry_any;
 
     template<class EventPattern>
-    using on_event = state_options::on_event<EventPattern>;
+    using on_event = state_opts::on_event<EventPattern>;
 
-    using on_event_any = state_options::on_event_any;
+    using on_event_any = state_opts::on_event_any;
 
     template<class... Ts>
-    using on_event_any_of = state_options::on_event_any_of<Ts...>;
+    using on_event_any_of = state_opts::on_event_any_of<Ts...>;
 
-    using on_exit_any = state_options::on_exit_any;
+    using on_exit_any = state_opts::on_exit_any;
 
     using get_pretty_name = detail::get_pretty_name_option;
 }

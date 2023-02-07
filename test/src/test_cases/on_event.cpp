@@ -29,7 +29,7 @@ namespace
         {
             using conf = awesm::state_conf
             <
-                awesm::state_options::on_event_any_of<events::button_press>
+                awesm::state_opts::on_event_any_of<events::button_press>
             >;
 
             void on_event(const events::button_press& event)
@@ -44,7 +44,7 @@ namespace
         {
             using conf = awesm::state_conf
             <
-                awesm::state_options::on_event_any_of<events::button_press>
+                awesm::state_opts::on_event_any_of<events::button_press>
             >;
 
             void on_event(const events::button_press& /*event*/)
@@ -71,7 +71,7 @@ namespace
         <
             sm_transition_table,
             context,
-            awesm::sm_options::on_event
+            awesm::sm_opts::on_event
         >;
 
         template<class Event>

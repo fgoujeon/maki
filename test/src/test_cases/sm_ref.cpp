@@ -40,7 +40,7 @@ namespace
         <
             sm_transition_table,
             context,
-            awesm::sm_options::disable_run_to_completion
+            awesm::sm_opts::disable_run_to_completion
         >;
     };
 

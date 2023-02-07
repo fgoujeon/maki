@@ -37,7 +37,7 @@ namespace
         {
             using conf = awesm::state_conf
             <
-                awesm::state_options::on_event_any_of<events::internal_transition>
+                awesm::state_opts::on_event_any_of<events::internal_transition>
             >;
 
             void on_event(const events::internal_transition&)
@@ -72,7 +72,7 @@ namespace
         <
             sm_transition_table,
             context,
-            awesm::sm_options::disable_run_to_completion
+            awesm::sm_opts::disable_run_to_completion
         >;
     };
 

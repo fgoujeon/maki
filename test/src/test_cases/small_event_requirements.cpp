@@ -80,8 +80,8 @@ namespace
         <
             sm_transition_table,
             context,
-            awesm::sm_options::small_event_max_size<SmallEventMaxSize>,
-            awesm::sm_options::small_event_max_align<SmallEventMaxAlign>
+            awesm::sm_opts::small_event_max_size<SmallEventMaxSize>,
+            awesm::sm_opts::small_event_max_align<SmallEventMaxAlign>
         >;
     };
 

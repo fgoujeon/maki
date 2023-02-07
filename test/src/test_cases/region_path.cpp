@@ -44,7 +44,7 @@ namespace
             using conf = awesm::subsm_conf
             <
                 on1_transition_table,
-                awesm::state_options::get_pretty_name
+                awesm::state_opts::get_pretty_name
             >;
 
             static auto get_pretty_name()
@@ -80,7 +80,7 @@ namespace
                 sm_transition_table_1
             >,
             context,
-            awesm::sm_options::get_pretty_name
+            awesm::sm_opts::get_pretty_name
         >;
 
         static auto get_pretty_name()

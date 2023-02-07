@@ -96,7 +96,7 @@ namespace states
                 state.on_entry();
             Where `event` is the event that caused the state transition.
             */
-            awesm::state_options::on_entry_any,
+            awesm::state_opts::on_entry_any,
 
             /*
             Here, we require the state machine to call an on_event() function
@@ -106,7 +106,7 @@ namespace states
             This expression must be valid:
                 state.on_event(event);
             */
-            awesm::state_options::on_event_any_of<button::push_event>,
+            awesm::state_opts::on_event_any_of<button::push_event>,
 
             /*
             Finally, we want the state machine to call on_exit() whenever it
@@ -116,7 +116,7 @@ namespace states
                 state.on_exit();
             Where `event` is the event that caused the state transition.
             */
-            awesm::state_options::on_exit_any
+            awesm::state_opts::on_exit_any
         >;
 
         void on_entry(const button::push_event& event)

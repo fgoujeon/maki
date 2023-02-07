@@ -25,10 +25,10 @@ class subsm_wrapper
 
         using conf = state_conf
         <
-            state_options::on_entry_any,
-            state_options::on_event_any,
-            state_options::on_exit_any,
-            state_options::get_pretty_name
+            state_opts::on_entry_any,
+            state_opts::on_event_any,
+            state_opts::on_exit_any,
+            state_opts::get_pretty_name
         >;
 
         template<class Context>

@@ -26,8 +26,8 @@ namespace
         {
             using conf = awesm::state_conf
             <
-                awesm::state_options::on_entry_any,
-                awesm::state_options::on_exit_any
+                awesm::state_opts::on_entry_any,
+                awesm::state_opts::on_exit_any
             >;
 
             void on_entry()
@@ -47,8 +47,8 @@ namespace
         {
             using conf = awesm::state_conf
             <
-                awesm::state_options::on_entry_any,
-                awesm::state_options::on_exit_any
+                awesm::state_opts::on_entry_any,
+                awesm::state_opts::on_exit_any
             >;
 
             void on_entry()
@@ -84,7 +84,7 @@ namespace
         <
             sm_transition_table,
             context,
-            awesm::sm_options::before_entry
+            awesm::sm_opts::before_entry
         >;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>

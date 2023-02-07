@@ -48,19 +48,19 @@ constexpr bool requires_on_xxx_conf(void* /*tag*/)
 
 template<class State>
 constexpr auto requires_on_entry_v =
-    tlu::contains_v<typename State::conf::option_mix_type, state_options::on_entry_any>
+    tlu::contains_v<typename State::conf::option_mix_type, state_opts::on_entry_any>
 ;
 
 template<class State, class Event>
 constexpr auto requires_on_event_v = requires_on_xxx_conf
 <
-    state_options::on_event,
+    state_opts::on_event,
     Event
 >(static_cast<typename State::conf::option_mix_type*>(nullptr));
 
 template<class State>
 constexpr auto requires_on_exit_v =
-    tlu::contains_v<typename State::conf::option_mix_type, state_options::on_exit_any>
+    tlu::contains_v<typename State::conf::option_mix_type, state_opts::on_exit_any>
 ;
 
 } //namespace

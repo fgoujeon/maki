@@ -34,7 +34,7 @@ namespace
         {
             using conf = awesm::state_conf
             <
-                awesm::state_options::on_event_any_of<events::exception_request>
+                awesm::state_opts::on_event_any_of<events::exception_request>
             >;
 
             void on_event(const events::exception_request&)
@@ -70,9 +70,9 @@ namespace
                 region_1_transition_table
             >,
             context,
-            awesm::sm_options::on_exception,
-            awesm::sm_options::before_state_transition,
-            awesm::sm_options::after_state_transition
+            awesm::sm_opts::on_exception,
+            awesm::sm_opts::before_state_transition,
+            awesm::sm_opts::after_state_transition
         >;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>

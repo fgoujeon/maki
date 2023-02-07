@@ -14,7 +14,7 @@
 namespace awesm
 {
 
-namespace state_options
+namespace state_opts
 {
     struct on_entry_any{};
 

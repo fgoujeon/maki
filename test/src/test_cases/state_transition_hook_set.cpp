@@ -48,9 +48,9 @@ namespace
         <
             sm_transition_table,
             context,
-            awesm::sm_options::before_state_transition,
-            awesm::sm_options::after_state_transition,
-            awesm::sm_options::get_pretty_name
+            awesm::sm_opts::before_state_transition,
+            awesm::sm_opts::after_state_transition,
+            awesm::sm_opts::get_pretty_name
         >;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>

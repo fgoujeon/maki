@@ -8,33 +8,20 @@
 #define AWESM_TRANSITION_TABLE_HPP
 
 #include "null.hpp"
+#include "detail/whatever.hpp"
 #include <type_traits>
 
 namespace awesm
 {
 
-namespace detail
+inline constexpr void noop(detail::whatever /*ctx*/)
 {
-    struct noop_t
-    {
-        template<class Context>
-        void operator()(Context& /*ctx*/) const
-        {
-        }
-    };
-
-    struct null_guard_t
-    {
-        template<class Context>
-        bool operator()(Context& /*ctx*/) const
-        {
-            return true;
-        }
-    };
 }
 
-constexpr inline auto noop = detail::noop_t{};
-constexpr inline auto null_guard = detail::null_guard_t{};
+inline constexpr bool yes(detail::whatever /*ctx*/)
+{
+    return true;
+}
 
 template
 <
@@ -42,7 +29,7 @@ template
     class Event,
     class TargetState,
     const auto& Action = noop,
-    const auto& Guard = null_guard
+    const auto& Guard = yes
 >
 struct transition
 {
@@ -70,7 +57,7 @@ struct transition_table_t
         class Event,
         class TargetState,
         const auto& Action = noop,
-        const auto& Guard = null_guard
+        const auto& Guard = yes
     >
     static constexpr transition_table_t
     <

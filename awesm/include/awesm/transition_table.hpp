@@ -26,20 +26,18 @@ inline constexpr auto transition_table_list = transition_table_list_t<Fns...>{};
 
 namespace detail
 {
-    template<class T>
+    template<class T, const auto& V>
     struct to_transition_table_fn_list_helper;
 
-    template<class... Rows>
-    struct to_transition_table_fn_list_helper<transition_table_t<Rows...>(*)()>
+    template<class... Rows, const auto& TransitionTableFn>
+    struct to_transition_table_fn_list_helper<transition_table_t<Rows...>(*)(), TransitionTableFn>
     {
-        template<auto TransitionTableFn>
         using type = transition_table_list_t<TransitionTableFn>;
     };
 
-    template<auto... Fns>
-    struct to_transition_table_fn_list_helper<transition_table_list_t<Fns...>>
+    template<auto... Fns, const auto& V>
+    struct to_transition_table_fn_list_helper<transition_table_list_t<Fns...>, V>
     {
-        template<const auto&>
         using type = transition_table_list_t<Fns...>;
     };
 
@@ -49,7 +47,7 @@ namespace detail
     - an instance of transition_table_list_t.
     */
     template<const auto& V>
-    using to_transition_table_fn_list_t = typename to_transition_table_fn_list_helper<std::decay_t<decltype(V)>>::template type<V>;
+    using to_transition_table_fn_list_t = typename to_transition_table_fn_list_helper<std::decay_t<decltype(V)>, V>::type;
 }
 
 } //namespace

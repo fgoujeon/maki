@@ -67,10 +67,9 @@ namespace
     auto sm_transition_table()
     {
         return awesm::transition_table
-        <
-            awesm::row<state, event_processing_request<small_event>, awesm::null, process_event<small_event>>,
-            awesm::row<state, event_processing_request<big_event>,   awesm::null, process_event<big_event>>
-        >;
+            .add<state, event_processing_request<small_event>, awesm::null, process_event<small_event>>
+            .add<state, event_processing_request<big_event>,   awesm::null, process_event<big_event>>
+        ;
     }
 
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>

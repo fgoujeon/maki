@@ -30,13 +30,12 @@ namespace
     auto transition_table()
     {
         return awesm::transition_table
-        <
-            awesm::row<state0,     event0, state1>,
-            awesm::row<state1,     event1, state2,  awesm::noop, guard0>,
-            awesm::row<state2,     event2, state3,  action0>,
-            awesm::row<state3,     event3, state0,  action1,     guard1>,
-            awesm::row<awesm::any, event3, state0>
-        >;
+            .add<state0,     event0, state1>
+            .add<state1,     event1, state2,  awesm::noop, guard0>
+            .add<state2,     event2, state3,  action0>
+            .add<state3,     event3, state0,  action1,     guard1>
+            .add<awesm::any, event3, state0>
+        ;
     }
 
     struct sm_def

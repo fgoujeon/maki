@@ -55,24 +55,24 @@ TEST_CASE("detail::resolve_transition_table")
 {
     using transition_table = awesm::transition_table_t
     <
-        awesm::row<state0, event0, state1, action0, guard0>,
-        awesm::row<state1, event1, state2, action1, guard1>,
-        awesm::row<state2, event2, state3, action2, guard2>,
+        awesm::transition<state0, event0, state1, action0, guard0>,
+        awesm::transition<state1, event1, state2, action1, guard1>,
+        awesm::transition<state2, event2, state3, action2, guard2>,
 
         //pattern 1
-        awesm::row<awesm::any, event0, state0, action0, guard0>,
+        awesm::transition<awesm::any, event0, state0, action0, guard0>,
 
         //pattern 2
-        awesm::row<awesm::any_of<state0, state2>, event0, state0, action0, guard0>,
+        awesm::transition<awesm::any_of<state0, state2>, event0, state0, action0, guard0>,
 
         //pattern 3
-        awesm::row<awesm::any_but<state0, state2>, event0, state0, action0, guard0>,
+        awesm::transition<awesm::any_but<state0, state2>, event0, state0, action0, guard0>,
 
         //pattern 4
-        awesm::row<awesm::any_if<std::is_empty>, event0, state0, action0, guard0>,
+        awesm::transition<awesm::any_if<std::is_empty>, event0, state0, action0, guard0>,
 
         //pattern 5
-        awesm::row<awesm::any_if_not<std::is_empty>, event0, state0, action0, guard0>
+        awesm::transition<awesm::any_if_not<std::is_empty>, event0, state0, action0, guard0>
     >;
 
     using resolved_transition_table_t =
@@ -86,31 +86,31 @@ TEST_CASE("detail::resolve_transition_table")
 
     using expected_resolved_transition_table_t = awesm::transition_table_t
     <
-        awesm::row<state0, event0, state1, action0, guard0>,
-        awesm::row<state1, event1, state2, action1, guard1>,
-        awesm::row<state2, event2, state3, action2, guard2>,
+        awesm::transition<state0, event0, state1, action0, guard0>,
+        awesm::transition<state1, event1, state2, action1, guard1>,
+        awesm::transition<state2, event2, state3, action2, guard2>,
 
         //pattern 1
-        awesm::row<state0, event0, state0, action0, guard0>,
-        awesm::row<state1, event0, state0, action0, guard0>,
-        awesm::row<state2, event0, state0, action0, guard0>,
-        awesm::row<state3, event0, state0, action0, guard0>,
+        awesm::transition<state0, event0, state0, action0, guard0>,
+        awesm::transition<state1, event0, state0, action0, guard0>,
+        awesm::transition<state2, event0, state0, action0, guard0>,
+        awesm::transition<state3, event0, state0, action0, guard0>,
 
         //pattern 2
-        awesm::row<state0, event0, state0, action0, guard0>,
-        awesm::row<state2, event0, state0, action0, guard0>,
+        awesm::transition<state0, event0, state0, action0, guard0>,
+        awesm::transition<state2, event0, state0, action0, guard0>,
 
         //pattern 3
-        awesm::row<state1, event0, state0, action0, guard0>,
-        awesm::row<state3, event0, state0, action0, guard0>,
+        awesm::transition<state1, event0, state0, action0, guard0>,
+        awesm::transition<state3, event0, state0, action0, guard0>,
 
         //pattern 4
-        awesm::row<state0, event0, state0, action0, guard0>,
-        awesm::row<state1, event0, state0, action0, guard0>,
-        awesm::row<state2, event0, state0, action0, guard0>,
+        awesm::transition<state0, event0, state0, action0, guard0>,
+        awesm::transition<state1, event0, state0, action0, guard0>,
+        awesm::transition<state2, event0, state0, action0, guard0>,
 
         //pattern 5
-        awesm::row<state3, event0, state0, action0, guard0>
+        awesm::transition<state3, event0, state0, action0, guard0>
     >;
 
     REQUIRE

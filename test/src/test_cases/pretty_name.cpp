@@ -38,9 +38,8 @@ namespace pretty_name_ns
     auto subsm_transition_table()
     {
         return awesm::transition_table
-        <
-            awesm::row<state, awesm::null, awesm::null>
-        >;
+            .add<state, awesm::null, awesm::null>
+        ;
     }
 
     struct subsm
@@ -64,9 +63,8 @@ namespace pretty_name_ns
     auto sm_transition_table()
     {
         return awesm::transition_table
-        <
-            awesm::row<state, awesm::null, awesm::null>
-        >;
+            .add<state, awesm::null, awesm::null>
+        ;
     }
 
     struct sm_def

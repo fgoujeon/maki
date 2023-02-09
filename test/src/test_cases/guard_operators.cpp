@@ -66,17 +66,16 @@ namespace
     auto sm_transition_table()
     {
         return awesm::transition_table
-        <
-            awesm::row<states::idle, events::start, states::state0, awesm::noop, guards::can_access_state0>,
-            awesm::row<states::idle, events::start, states::state1, awesm::noop, guards::can_access_state1>,
-            awesm::row<states::idle, events::start, states::state2, awesm::noop, guards::can_access_state2>,
-            awesm::row<states::idle, events::start, states::state3, awesm::noop, guards::can_access_state3>,
+            .add<states::idle, events::start, states::state0, awesm::noop, guards::can_access_state0>
+            .add<states::idle, events::start, states::state1, awesm::noop, guards::can_access_state1>
+            .add<states::idle, events::start, states::state2, awesm::noop, guards::can_access_state2>
+            .add<states::idle, events::start, states::state3, awesm::noop, guards::can_access_state3>
 
-            awesm::row<states::state0, events::stop, states::idle>,
-            awesm::row<states::state1, events::stop, states::idle>,
-            awesm::row<states::state2, events::stop, states::idle>,
-            awesm::row<states::state3, events::stop, states::idle>
-        >;
+            .add<states::state0, events::stop, states::idle>
+            .add<states::state1, events::stop, states::idle>
+            .add<states::state2, events::stop, states::idle>
+            .add<states::state3, events::stop, states::idle>
+        ;
     }
 
     struct sm_def

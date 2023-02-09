@@ -7,19 +7,82 @@
 #ifndef AWESM_TRANSITION_TABLE_HPP
 #define AWESM_TRANSITION_TABLE_HPP
 
+#include "null.hpp"
 #include <type_traits>
 
 namespace awesm
 {
 
-template<class... Rows>
-struct transition_table_t{};
+namespace detail
+{
+    struct noop_t
+    {
+        template<class Context>
+        void operator()(Context& /*ctx*/) const
+        {
+        }
+    };
+
+    struct null_guard_t
+    {
+        template<class Context>
+        bool operator()(Context& /*ctx*/) const
+        {
+            return true;
+        }
+    };
+}
+
+constexpr inline auto noop = detail::noop_t{};
+constexpr inline auto null_guard = detail::null_guard_t{};
+
+template
+<
+    class SourceState,
+    class Event,
+    class TargetState,
+    const auto& Action = noop,
+    const auto& Guard = null_guard
+>
+struct transition
+{
+    using source_state_type = SourceState;
+    using event_type = Event;
+    using target_state_type = TargetState;
+
+    static constexpr const auto& get_action()
+    {
+        return Action;
+    }
+
+    static constexpr const auto& get_guard()
+    {
+        return Guard;
+    }
+};
+
+template<class... Transitions>
+struct transition_table_t
+{
+    template
+    <
+        class SourceState,
+        class Event,
+        class TargetState,
+        const auto& Action = noop,
+        const auto& Guard = null_guard
+    >
+    static constexpr transition_table_t
+    <
+        Transitions...,
+        transition<SourceState, Event, TargetState, Action, Guard>
+    > add = {};
+};
+
+inline constexpr auto transition_table = transition_table_t<>{};
 
 template<auto... Fns>
 struct transition_table_list_t{};
-
-template<class... Rows>
-inline constexpr auto transition_table = transition_table_t<Rows...>{};
 
 template<auto... Fns>
 inline constexpr auto transition_table_list = transition_table_list_t<Fns...>{};
@@ -29,8 +92,8 @@ namespace detail
     template<class T, const auto& V>
     struct to_transition_table_fn_list_helper;
 
-    template<class... Rows, const auto& TransitionTableFn>
-    struct to_transition_table_fn_list_helper<transition_table_t<Rows...>(*)(), TransitionTableFn>
+    template<class... Transitions, const auto& TransitionTableFn>
+    struct to_transition_table_fn_list_helper<transition_table_t<Transitions...>(*)(), TransitionTableFn>
     {
         using type = transition_table_list_t<TransitionTableFn>;
     };

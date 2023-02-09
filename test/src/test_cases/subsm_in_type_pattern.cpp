@@ -29,9 +29,8 @@ namespace
         auto s0_transition_table()
         {
             return awesm::transition_table
-            <
-                awesm::row<s0_sub, events::button_press, awesm::null>
-            >;
+                .add<s0_sub, events::button_press, awesm::null>
+            ;
         }
 
         struct s0
@@ -64,12 +63,11 @@ namespace
     auto sm_transition_table()
     {
         return awesm::transition_table
-        <
-            awesm::row<states::off,   events::button_press,             states::s0>,
-            awesm::row<states::s0,    events::button_press,             states::s1>,
-            awesm::row<any_but_s0_s1, events::off_button_press,         states::off>,
-            awesm::row<any,           events::destruction_button_press, states::off>
-        >;
+            .add<states::off,   events::button_press,             states::s0>
+            .add<states::s0,    events::button_press,             states::s1>
+            .add<any_but_s0_s1, events::off_button_press,         states::off>
+            .add<any,           events::destruction_button_press, states::off>
+        ;
     }
 
     struct sm_def

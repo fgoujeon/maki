@@ -68,10 +68,9 @@ namespace
     auto sm_transition_table()
     {
         return awesm::transition_table
-        <
-            awesm::row<states::off, events::button_push, states::on>,
-            awesm::row<states::on,  events::button_push, states::off>
-        >;
+            .add<states::off, events::button_push, states::on>
+            .add<states::on,  events::button_push, states::off>
+        ;
     }
 
     struct sm_def;

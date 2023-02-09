@@ -44,15 +44,14 @@ The expected behavior is:
 This behavior can be expressed with the following transition table:
 ```c++
 awesm::transition_table
-<
-    //  source_state,   event,       target_state,   action,            guard
-    row<off,            button_push, emitting_white, turn_light_white>,
-    row<emitting_white, button_push, emitting_red,   turn_light_red,    is_short_push>,
-    row<emitting_red,   button_push, emitting_green, turn_light_green,  is_short_push>,
-    row<emitting_green, button_push, emitting_blue,  turn_light_blue,   is_short_push>,
-    row<emitting_blue,  button_push, emitting_white, turn_light_white,  is_short_push>,
-    row<any_but<off>,   button_push, off,            turn_light_off,    is_long_push>
->;
+    //   source_state,   event,       target_state,   action,            guard
+    .add<off,            button_push, emitting_white, turn_light_white>
+    .add<emitting_white, button_push, emitting_red,   turn_light_red,    is_short_push>
+    .add<emitting_red,   button_push, emitting_green, turn_light_green,  is_short_push>
+    .add<emitting_green, button_push, emitting_blue,  turn_light_blue,   is_short_push>
+    .add<emitting_blue,  button_push, emitting_white, turn_light_white,  is_short_push>
+    .add<any_but<off>,   button_push, off,            turn_light_off,    is_long_push>
+;
 ```
 
 Here is the full program:
@@ -262,14 +261,13 @@ auto sm_transition_table()
     using namespace actions;
     using namespace guards;
     using button_push = button::push_event;
-    using awesm::row;
     using awesm::any_but;
 
     /*
     This is the transition table. This is where we define the actions that must
     be executed depending on the active state and the event we receive.
     Basically, whenever awesm::sm::process_event() is called, AweSM iterates
-    over the rows of this table until it finds a match, i.e. when:
+    over the transitions of this table until it finds a match, i.e. when:
     - 'source_state' is the currently active state (or is awesm::any);
     - 'event' is the type of the processed event;
     - and the 'guard' returns true (or is void).
@@ -282,15 +280,14 @@ auto sm_transition_table()
     in the transition table ('off', is our case).
     */
     return awesm::transition_table
-    <
-        //  source_state,   event,       target_state,   action,            guard
-        row<off,            button_push, emitting_white, turn_light_white>,
-        row<emitting_white, button_push, emitting_red,   turn_light_red,    is_short_push>,
-        row<emitting_red,   button_push, emitting_green, turn_light_green,  is_short_push>,
-        row<emitting_green, button_push, emitting_blue,  turn_light_blue,   is_short_push>,
-        row<emitting_blue,  button_push, emitting_white, turn_light_white,  is_short_push>,
-        row<any_but<off>,   button_push, off,            turn_light_off,    is_long_push>
-    >;
+        //   source_state,   event,       target_state,   action,            guard
+        .add<off,            button_push, emitting_white, turn_light_white>
+        .add<emitting_white, button_push, emitting_red,   turn_light_red,    is_short_push>
+        .add<emitting_red,   button_push, emitting_green, turn_light_green,  is_short_push>
+        .add<emitting_green, button_push, emitting_blue,  turn_light_blue,   is_short_push>
+        .add<emitting_blue,  button_push, emitting_white, turn_light_white,  is_short_push>
+        .add<any_but<off>,   button_push, off,            turn_light_off,    is_long_push>
+    ;
 }
 
 /*

@@ -47,17 +47,15 @@ namespace
     auto region_0_transition_table()
     {
         return awesm::transition_table
-        <
-            awesm::row<states::off0, events::button_press, states::on0>
-        >;
+            .add<states::off0, events::button_press, states::on0>
+        ;
     }
 
     auto region_1_transition_table()
     {
         return awesm::transition_table
-        <
-            awesm::row<states::off1, events::button_press, states::on1>
-        >;
+            .add<states::off1, events::button_press, states::on1>
+        ;
     }
 
     struct sm_def

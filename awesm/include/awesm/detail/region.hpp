@@ -91,8 +91,8 @@ class region
         template<class Event>
         void start(const Event& event)
         {
-            using fake_row = row<states::stopped, Event, initial_state_type>;
-            try_processing_event_in_row<fake_row>(event);
+            using fake_transition = transition<states::stopped, Event, initial_state_type>;
+            try_processing_event_in_transition<fake_transition>(event);
         }
 
         template<class Event>
@@ -149,8 +149,8 @@ class region
             }
             else
             {
-                using fake_row = row<State, Event, states::stopped>;
-                return try_processing_event_in_row<fake_row>(event);
+                using fake_transition = transition<State, Event, states::stopped>;
+                return try_processing_event_in_transition<fake_transition>(event);
             }
         }
 
@@ -164,7 +164,7 @@ class region
             >::process(*this, event);
         }
 
-        template<class Row, class... Rows>
+        template<class Transition, class... Transitions>
         struct process_event_in_transition_table_helper
         {
             template<class Event>
@@ -174,26 +174,26 @@ class region
                 [[maybe_unused]] const Event& event
             )
             {
-                if constexpr(std::is_same_v<Event, typename Row::event_type>)
+                if constexpr(std::is_same_v<Event, typename Transition::event_type>)
                 {
-                    if(self.try_processing_event_in_row<Row>(event))
+                    if(self.try_processing_event_in_transition<Transition>(event))
                     {
                         return;
                     }
                 }
 
-                if constexpr(sizeof...(Rows) != 0)
+                if constexpr(sizeof...(Transitions) != 0)
                 {
-                    process_event_in_transition_table_helper<Rows...>::process(self, event);
+                    process_event_in_transition_table_helper<Transitions...>::process(self, event);
                 }
             }
         };
 
         //Check active state and guard
-        template<class Row, class Event>
-        bool try_processing_event_in_row(const Event& event)
+        template<class Transition, class Event>
+        bool try_processing_event_in_transition(const Event& event)
         {
-            using source_state_type = typename Row::source_state_type;
+            using source_state_type = typename Transition::source_state_type;
 
             //Make sure the transition source state is the active state
             if(!is_active_state_type<source_state_type>())
@@ -202,21 +202,21 @@ class region
             }
 
             //Check guard
-            if(!detail::call_action_or_guard(Row::get_guard(), mach_, &event))
+            if(!detail::call_action_or_guard(Transition::get_guard(), mach_, &event))
             {
                 return false;
             }
 
-            process_event_in_row<Row>(event);
+            process_event_in_transition<Transition>(event);
 
             return true;
         }
 
-        template<class Row, class Event>
-        void process_event_in_row([[maybe_unused]] const Event& event)
+        template<class Transition, class Event>
+        void process_event_in_transition([[maybe_unused]] const Event& event)
         {
-            using source_state_type = typename Row::source_state_type;
-            using target_state_type = typename Row::target_state_type;
+            using source_state_type = typename Transition::source_state_type;
+            using target_state_type = typename Transition::target_state_type;
 
             constexpr auto is_internal_transition =
                 std::is_same_v<target_state_type, null>
@@ -253,7 +253,7 @@ class region
 
             detail::call_action_or_guard
             (
-                Row::get_action(),
+                Transition::get_action(),
                 mach_,
                 &event
             );

@@ -96,11 +96,10 @@ namespace
         auto on_transition_table()
         {
             return awesm::transition_table
-            <
-                awesm::row<states::emitting_red,   events::color_button_press, states::emitting_green>,
-                awesm::row<states::emitting_green, events::color_button_press, states::emitting_blue>,
-                awesm::row<states::emitting_blue,  events::color_button_press, states::emitting_red>
-            >;
+                .add<states::emitting_red,   events::color_button_press, states::emitting_green>
+                .add<states::emitting_green, events::color_button_press, states::emitting_blue>
+                .add<states::emitting_blue,  events::color_button_press, states::emitting_red>
+            ;
         }
 
         struct on
@@ -132,9 +131,8 @@ namespace
     auto sm_transition_table()
     {
         return awesm::transition_table
-        <
-            awesm::row<states::on, events::power_button_press, states::off>
-        >;
+            .add<states::on, events::power_button_press, states::off>
+        ;
     }
 
     struct sm_def

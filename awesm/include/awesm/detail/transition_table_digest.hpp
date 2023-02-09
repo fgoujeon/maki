@@ -28,10 +28,10 @@ types of a given transition_table.
 For example, the following digest type...:
     using transition_table = awesm::transition_table
     <
-        awesm::row<state0, event0, state1>,
-        awesm::row<state1, event1, state2, null,     guard0>,
-        awesm::row<state2, event2, state3, action0>,
-        awesm::row<state3, event3, state0, action1,  guard1>
+        awesm::transition<state0, event0, state1>,
+        awesm::transition<state1, event1, state2, null,     guard0>,
+        awesm::transition<state2, event2, state3, action0>,
+        awesm::transition<state3, event3, state0, action1,  guard1>
     >;
     using digest = awesm::detail::transition_table_digest<transition_table>;
 
@@ -78,23 +78,23 @@ namespace transition_table_digest_detail
         static constexpr auto has_null_events = false;
     };
 
-    template<class Digest, class Row>
-    struct add_row_to_digest
+    template<class Digest, class Transition>
+    struct add_transition_to_digest
     {
         using state_tuple_type = push_back_unique_if_not_null
         <
             typename Digest::state_tuple_type,
-            typename Row::target_state_type
+            typename Transition::target_state_type
         >;
 
         static constexpr auto has_source_state_patterns =
             Digest::has_source_state_patterns ||
-            is_type_pattern_v<typename Row::source_state_type>
+            is_type_pattern_v<typename Transition::source_state_type>
         ;
 
         static constexpr auto has_null_events =
             Digest::has_null_events ||
-            std::is_same_v<typename Row::event_type, null>
+            std::is_same_v<typename Transition::event_type, null>
         ;
     };
 
@@ -106,7 +106,7 @@ namespace transition_table_digest_detail
     using digest_with_type_lists = tlu::left_fold_t
     <
         TransitionTable,
-        add_row_to_digest,
+        add_transition_to_digest,
         initial_digest<initial_state_t<TransitionTable>>
     >;
 }

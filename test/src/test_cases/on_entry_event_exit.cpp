@@ -85,11 +85,10 @@ namespace
     auto sm_transition_table()
     {
         return awesm::transition_table
-        <
-            awesm::row<states::idle,    events::next_language_request, states::english>,
-            awesm::row<states::english, events::next_language_request, states::french>,
-            awesm::row<states::french,  events::next_language_request, states::idle>
-        >;
+            .add<states::idle,    events::next_language_request, states::english>
+            .add<states::english, events::next_language_request, states::french>
+            .add<states::french,  events::next_language_request, states::idle>
+        ;
     }
 
     struct sm_def

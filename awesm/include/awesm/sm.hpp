@@ -158,6 +158,12 @@ class sm
         }
 
         template<class Event>
+        void process_event_now(const Event& event)
+        {
+            process_event_now_impl<detail::sm_operation::process_event>(event);
+        }
+
+        template<class Event>
         void queue_event(const Event& event)
         {
             queue_event_impl<detail::sm_operation::process_event>(event);
@@ -208,18 +214,7 @@ class sm
             {
                 if(!processing_event_) //If call is not recursive
                 {
-                    processing_event_ = true;
-
-                    process_event_once<Operation>(event);
-
-                    //Process queued events, if any
-                    while(!event_queue_.empty())
-                    {
-                        event_queue_.front().visit(*this);
-                        event_queue_.pop();
-                    }
-
-                    processing_event_ = false;
+                    process_event_now_impl<Operation>(event);
                 }
                 else
                 {
@@ -231,6 +226,23 @@ class sm
             {
                 process_event_once<Operation>(event);
             }
+        }
+
+        template<detail::sm_operation Operation, class Event>
+        void process_event_now_impl(const Event& event)
+        {
+            processing_event_ = true;
+
+            process_event_once<Operation>(event);
+
+            //Process queued events, if any
+            while(!event_queue_.empty())
+            {
+                event_queue_.front().visit(*this);
+                event_queue_.pop();
+            }
+
+            processing_event_ = false;
         }
 
         template<detail::sm_operation Operation, class Event>

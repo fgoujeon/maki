@@ -14,30 +14,38 @@
 namespace awesm::detail
 {
 
+template<class State, class Sm, class Event>
+auto call_on_entry_impl(State& state, Sm* pmach, const Event* pevent) ->
+    decltype(state.on_entry(*pmach, *pevent))
+{
+    state.on_entry(*pmach, *pevent);
+}
+
 template<class State, class Event>
-auto call_on_entry_impl(State& state, const Event* pevent) ->
+auto call_on_entry_impl(State& state, void* /*pmach*/, const Event* pevent) ->
     decltype(state.on_entry(*pevent))
 {
     state.on_entry(*pevent);
 }
 
 template<class State>
-auto call_on_entry_impl(State& state, const void* /*pevent*/) ->
+auto call_on_entry_impl(State& state, void* /*pmach*/, const void* /*pevent*/) ->
     decltype(state.on_entry())
 {
     state.on_entry();
 }
 
-template<class State, class Event>
+template<class State, class Sm, class Event>
 void call_on_entry
 (
     [[maybe_unused]] State& state,
+    [[maybe_unused]] Sm& mach,
     [[maybe_unused]] const Event& event
 )
 {
     if constexpr(state_traits::requires_on_entry_v<State>)
     {
-        call_on_entry_impl(state, &event);
+        call_on_entry_impl(state, &mach, &event);
     }
 }
 
@@ -54,30 +62,38 @@ void call_on_event
     }
 }
 
+template<class State, class Sm, class Event>
+auto call_on_exit_impl(State& state, Sm* pmach, const Event* pevent) ->
+    decltype(state.on_exit(*pmach, *pevent))
+{
+    state.on_exit(*pmach, *pevent);
+}
+
 template<class State, class Event>
-auto call_on_exit_impl(State& state, const Event* pevent) ->
+auto call_on_exit_impl(State& state, void* /*pmach*/, const Event* pevent) ->
     decltype(state.on_exit(*pevent))
 {
     state.on_exit(*pevent);
 }
 
 template<class State>
-auto call_on_exit_impl(State& state, const void* /*pevent*/) ->
+auto call_on_exit_impl(State& state, void* /*pmach*/, const void* /*pevent*/) ->
     decltype(state.on_exit())
 {
     state.on_exit();
 }
 
-template<class State, class Event>
+template<class State, class Sm, class Event>
 void call_on_exit
 (
     [[maybe_unused]] State& state,
+    [[maybe_unused]] Sm& mach,
     [[maybe_unused]] const Event& event
 )
 {
     if constexpr(state_traits::requires_on_exit_v<State>)
     {
-        call_on_exit_impl(state, &event);
+        call_on_exit_impl(state, &mach, &event);
     }
 }
 

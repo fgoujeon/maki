@@ -63,9 +63,10 @@ namespace
                 awesm::state_opts::on_exit_any
             >;
 
-            void on_entry()
+            template<class Sm, class Event>
+            void on_entry(Sm& mach, const Event& /*event*/)
             {
-                ctx.hello = "bonjour";
+                mach.get_context().hello = "bonjour";
             }
 
             void on_event(const events::say_dog&)
@@ -73,9 +74,10 @@ namespace
                 ctx.dog = "chien";
             }
 
-            void on_exit()
+            template<class Sm, class Event>
+            void on_exit(Sm& mach, const Event& /*event*/)
             {
-                ctx.goodbye = "au revoir";
+                mach.get_context().goodbye = "au revoir";
             }
 
             context& ctx;

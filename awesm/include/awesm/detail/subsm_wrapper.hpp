@@ -33,6 +33,7 @@ class subsm_wrapper
 
         template<class Context>
         subsm_wrapper(sm_type& mach, Context& ctx):
+            mach_(mach),
             state_holder_(mach, ctx),
             region_tuple_(mach)
         {
@@ -58,7 +59,7 @@ class subsm_wrapper
         template<class Event>
         void on_entry(const Event& event)
         {
-            call_on_entry(state_holder_.get(), event);
+            call_on_entry(state_holder_.get(), mach_, event);
             region_tuple_.start(event);
         }
 
@@ -73,7 +74,7 @@ class subsm_wrapper
         void on_exit(const Event& event)
         {
             region_tuple_.stop(event);
-            call_on_exit(state_holder_.get(), event);
+            call_on_exit(state_holder_.get(), mach_, event);
         }
 
         static decltype(auto) get_pretty_name()
@@ -85,6 +86,7 @@ class subsm_wrapper
         using transition_table_fn_list_type = sm_traits::transition_table_fn_list_t<WrappedState>;
         using sm_path_type = detail::sm_path<RegionPath, WrappedState>;
 
+        sm_type& mach_;
         detail::sm_object_holder<WrappedState> state_holder_;
         detail::region_tuple<sm_path_type, transition_table_fn_list_type> region_tuple_;
 };

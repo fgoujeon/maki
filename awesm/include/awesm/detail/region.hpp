@@ -240,6 +240,7 @@ class region
                     detail::call_on_exit
                     (
                         get_state<source_state_type>(),
+                        mach_,
                         event
                     );
                 }
@@ -276,6 +277,7 @@ class region
                     detail::call_on_entry
                     (
                         get_state<target_state_type>(),
+                        mach_,
                         event
                     );
                 }

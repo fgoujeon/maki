@@ -90,7 +90,11 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf<sm_transition_table, context>;
+        using conf = awesm::sm_conf
+        <
+            sm_transition_table,
+            context
+        >;
     };
 
     using sm_t = awesm::sm<sm_def>;
@@ -101,7 +105,6 @@ TEST_CASE("basic_exception")
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
-    sm.start();
     REQUIRE(sm.is_active_state<states::off>());
     REQUIRE(ctx.out == "off::on_entry;");
 

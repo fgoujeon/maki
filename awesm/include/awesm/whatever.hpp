@@ -4,10 +4,10 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_DETAIL_WHATEVER_HPP
-#define AWESM_DETAIL_WHATEVER_HPP
+#ifndef AWESM_WHATEVER_HPP
+#define AWESM_WHATEVER_HPP
 
-namespace awesm::detail
+namespace awesm
 {
 
 struct whatever

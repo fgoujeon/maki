@@ -19,3 +19,4 @@
 #include "awesm/transition_table.hpp"
 #include "awesm/type_patterns.hpp"
 #include "awesm/version.hpp"
+#include "awesm/whatever.hpp"

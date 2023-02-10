@@ -8,17 +8,17 @@
 #define AWESM_TRANSITION_TABLE_HPP
 
 #include "null.hpp"
-#include "detail/whatever.hpp"
+#include "whatever.hpp"
 #include <type_traits>
 
 namespace awesm
 {
 
-inline constexpr void noop(detail::whatever /*ctx*/)
+inline constexpr void noop(whatever /*ctx*/)
 {
 }
 
-inline constexpr bool yes(detail::whatever /*ctx*/)
+inline constexpr bool yes(whatever /*ctx*/)
 {
     return true;
 }

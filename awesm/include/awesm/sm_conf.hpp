@@ -45,7 +45,7 @@ namespace sm_opts
     using get_pretty_name = detail::get_pretty_name_option;
 }
 
-template<const auto& TransitionTableFn, class Context, class... Options>
+template<auto TransitionTableFn, class Context, class... Options>
 struct sm_conf
 {
     using context_type = Context;

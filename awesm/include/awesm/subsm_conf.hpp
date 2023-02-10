@@ -31,7 +31,7 @@ namespace subsm_opts
     using get_pretty_name = detail::get_pretty_name_option;
 }
 
-template<const auto& TransitionTableFn, class... Options>
+template<auto TransitionTableFn, class... Options>
 struct subsm_conf
 {
     using option_mix_type = detail::mix<Options...>;

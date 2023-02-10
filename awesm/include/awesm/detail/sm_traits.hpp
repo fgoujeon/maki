@@ -22,18 +22,21 @@ namespace transition_table_fn_list_detail
     /*
     T is either:
     - a pointer to a function returning an instance of transition_table_t;
-    - an instance of transition_table_list_t.
+    - a pointer to an instance of transition_table_list_t.
     */
-    template<class T, const auto& V>
-    struct helper
-    {
-        using type = T;
-    };
+    template<class T, auto V>
+    struct helper;
 
-    template<class... Transitions, const auto& TransitionTableFn>
+    template<class... Transitions, auto TransitionTableFn>
     struct helper<nullary_fn_ptr_t<transition_table_t<Transitions...>>, TransitionTableFn>
     {
         using type = transition_table_list_t<TransitionTableFn>;
+    };
+
+    template<auto... TransitionTableFns, auto V>
+    struct helper<const transition_table_list_t<TransitionTableFns...>*, V>
+    {
+        using type = transition_table_list_t<TransitionTableFns...>;
     };
 }
 

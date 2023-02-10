@@ -9,6 +9,7 @@
 
 #include "sm_conf.hpp"
 #include "null.hpp"
+#include "detail/noinline.hpp"
 #include "detail/sm_traits.hpp"
 #include "detail/subsm_wrapper.hpp"
 #include "detail/region_tuple.hpp"
@@ -156,6 +157,12 @@ class sm
             process_event_2<detail::sm_operation::process_event>(event);
         }
 
+        template<class Event>
+        void queue_event(const Event& event)
+        {
+            queue_event_impl<detail::sm_operation::process_event>(event);
+        }
+
         static decltype(auto) get_pretty_name()
         {
             return awesm::get_pretty_name<Def>();
@@ -217,21 +224,7 @@ class sm
                 else
                 {
                     //Queue event in case of recursive call
-                    if constexpr(std::is_nothrow_copy_constructible_v<Event>)
-                    {
-                        queue_event<Operation>(event);
-                    }
-                    else
-                    {
-                        try
-                        {
-                            queue_event<Operation>(event);
-                        }
-                        catch(...)
-                        {
-                            process_exception(std::current_exception());
-                        }
-                    }
+                    queue_event_impl<Operation>(event);
                 }
             }
             else
@@ -241,7 +234,27 @@ class sm
         }
 
         template<detail::sm_operation Operation, class Event>
-        void queue_event(const Event& event)
+        void queue_event_impl(const Event& event)
+        {
+            if constexpr(std::is_nothrow_copy_constructible_v<Event>)
+            {
+                queue_event_impl_2<Operation>(event);
+            }
+            else
+            {
+                try
+                {
+                    queue_event_impl_2<Operation>(event);
+                }
+                catch(...)
+                {
+                    process_exception(std::current_exception());
+                }
+            }
+        }
+
+        template<detail::sm_operation Operation, class Event>
+        void queue_event_impl_2(const Event& event)
         {
             event_queue_.emplace
             (
@@ -254,7 +267,7 @@ class sm
         struct any_event_visitor
         {
             template<class Event>
-            static void call(const Event& event, sm& self)
+            AWESM_NOINLINE static void call(const Event& event, sm& self)
             {
                 self.process_event_once<Operation>(event);
             }

@@ -165,7 +165,7 @@ class sm
         }
 
         template<class Event>
-        void queue_event(const Event& event)
+        AWESM_NOINLINE void queue_event(const Event& event)
         {
             queue_event_impl<detail::sm_operation::process_event>(event);
         }
@@ -287,7 +287,7 @@ class sm
         struct any_event_visitor
         {
             template<class Event>
-            AWESM_NOINLINE static void call(const Event& event, sm& self)
+            static void call(const Event& event, sm& self)
             {
                 self.process_event_once<Operation>(event);
             }

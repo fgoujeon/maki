@@ -77,7 +77,8 @@ class sm
         {
             if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::disable_auto_start>)
             {
-                start();
+                //start
+                process_event_now_impl<detail::sm_operation::start>(events::start{});
             }
         }
 
@@ -231,18 +232,25 @@ class sm
         template<detail::sm_operation Operation, class Event>
         void process_event_now_impl(const Event& event)
         {
-            processing_event_ = true;
-
-            process_event_once<Operation>(event);
-
-            //Process queued events, if any
-            while(!event_queue_.empty())
+            if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::disable_run_to_completion>)
             {
-                event_queue_.front().visit(*this);
-                event_queue_.pop();
-            }
+                processing_event_ = true;
 
-            processing_event_ = false;
+                process_event_once<Operation>(event);
+
+                //Process queued events, if any
+                while(!event_queue_.empty())
+                {
+                    event_queue_.front().visit(*this);
+                    event_queue_.pop();
+                }
+
+                processing_event_ = false;
+            }
+            else
+            {
+                process_event_once<Operation>(event);
+            }
         }
 
         template<detail::sm_operation Operation, class Event>

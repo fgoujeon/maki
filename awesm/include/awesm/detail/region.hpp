@@ -15,6 +15,7 @@
 #include "call_member.hpp"
 #include "resolve_transition_table.hpp"
 #include "transition_table_digest.hpp"
+#include "transition_table_filters.hpp"
 #include "tlu.hpp"
 #include <type_traits>
 #include <exception>
@@ -157,14 +158,20 @@ class region
         template<class Event>
         void process_event_in_transition_table(const Event& event)
         {
-            detail::tlu::apply_t
+            using filtered_transition_table_t = transition_table_filters::by_event_t
             <
                 transition_table_type,
+                Event
+            >;
+
+            detail::tlu::apply_t
+            <
+                filtered_transition_table_t,
                 process_event_in_transition_table_helper
             >::process(*this, event);
         }
 
-        template<class Transition, class... Transitions>
+        template<class... Transitions>
         struct process_event_in_transition_table_helper
         {
             template<class Event>
@@ -174,17 +181,12 @@ class region
                 [[maybe_unused]] const Event& event
             )
             {
-                if constexpr(std::is_same_v<Event, typename Transition::event_type>)
-                {
-                    if(self.try_processing_event_in_transition<Transition>(event))
-                    {
-                        return;
-                    }
-                }
-
                 if constexpr(sizeof...(Transitions) != 0)
                 {
-                    process_event_in_transition_table_helper<Transitions...>::process(self, event);
+                    (
+                        self.try_processing_event_in_transition<Transitions>(event) ||
+                        ...
+                    );
                 }
             }
         };

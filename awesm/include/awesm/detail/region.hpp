@@ -46,12 +46,13 @@ class region
 {
     public:
         using sm_type = region_path_to_sm_t<RegionPath>;
-        using context_type = typename sm_type::context_type;
+        using parent_sm_type = region_path_back_sm_t<RegionPath>;
+        using context_type = typename parent_sm_type::conf::context_type;
         using conf = typename sm_type::conf;
 
-        template<class Context>
-        region(sm_type& mach, Context& ctx):
+        region(sm_type& mach, context_type& ctx):
             mach_(mach),
+            ctx_(ctx),
             state_holders_(mach, ctx)
         {
         }
@@ -204,7 +205,7 @@ class region
             }
 
             //Check guard
-            if(!detail::call_action_or_guard(Transition::get_guard(), mach_, &event))
+            if(!detail::call_action_or_guard(Transition::get_guard(), &mach_, ctx_, &event))
             {
                 return false;
             }
@@ -257,7 +258,8 @@ class region
             detail::call_action_or_guard
             (
                 Transition::get_action(),
-                mach_,
+                &mach_,
+                ctx_,
                 &event
             );
 
@@ -407,6 +409,7 @@ class region
         }
 
         sm_type& mach_;
+        context_type& ctx_;
         wrapped_state_holder_tuple_type state_holders_;
 
         int active_state_index_ = index_of_state_v<state_tuple_type, states::stopped>;

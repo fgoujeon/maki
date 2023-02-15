@@ -18,9 +18,9 @@ namespace detail
     struct and_t
     {
         template<class Sm, class Context, class Event>
-        bool operator()(Sm& mach, Context& /*ctx*/, const Event& event) const
+        bool operator()(Sm& mach, Context& ctx, const Event& event) const
         {
-            return (call_action_or_guard(Guards, mach, &event) && ...);
+            return (call_action_or_guard(Guards, &mach, ctx, &event) && ...);
         }
     };
 
@@ -28,9 +28,9 @@ namespace detail
     struct or_t
     {
         template<class Sm, class Context, class Event>
-        bool operator()(Sm& mach, Context& /*ctx*/, const Event& event) const
+        bool operator()(Sm& mach, Context& ctx, const Event& event) const
         {
-            return (call_action_or_guard(Guards, mach, &event) || ...);
+            return (call_action_or_guard(Guards, &mach, ctx, &event) || ...);
         }
     };
 
@@ -38,9 +38,9 @@ namespace detail
     struct xor_t
     {
         template<class Sm, class Context, class Event>
-        bool operator()(Sm& mach, Context& /*ctx*/, const Event& event) const
+        bool operator()(Sm& mach, Context& ctx, const Event& event) const
         {
-            return (call_action_or_guard(Guards, mach, &event) != ...);
+            return (call_action_or_guard(Guards, &mach, ctx, &event) != ...);
         }
     };
 
@@ -48,9 +48,9 @@ namespace detail
     struct not_t
     {
         template<class Sm, class Context, class Event>
-        bool operator()(Sm& mach, Context& /*ctx*/, const Event& event) const
+        bool operator()(Sm& mach, Context& ctx, const Event& event) const
         {
-            return !call_action_or_guard(Guard, mach, &event);
+            return !call_action_or_guard(Guard, &mach, ctx, &event);
         }
     };
 }

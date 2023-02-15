@@ -57,8 +57,9 @@ class region_tuple
     public:
         using sm_type = sm_path_to_sm_t<SmPath>;
 
-        explicit region_tuple(sm_type& mach):
-            regions_(mach)
+        template<class Context>
+        region_tuple(sm_type& mach, Context& ctx):
+            regions_(mach, ctx)
         {
         }
 

@@ -34,8 +34,9 @@ class subsm_wrapper
         template<class Context>
         subsm_wrapper(sm_type& mach, Context& ctx):
             mach_(mach),
-            state_holder_(mach, ctx),
-            region_tuple_(mach)
+            context_(ctx),
+            state_holder_(mach, context_),
+            region_tuple_(mach, context_)
         {
         }
 
@@ -83,10 +84,13 @@ class subsm_wrapper
         }
 
     private:
-        using transition_table_fn_list_type = sm_conf_traits::transition_table_fn_list_t<typename WrappedState::conf>;
+        using wrapped_state_conf_type = typename WrappedState::conf;
+        using context_type = typename wrapped_state_conf_type::context_type;
+        using transition_table_fn_list_type = sm_conf_traits::transition_table_fn_list_t<wrapped_state_conf_type>;
         using sm_path_type = detail::sm_path<RegionPath, WrappedState>;
 
         sm_type& mach_;
+        context_type context_;
         detail::sm_object_holder<WrappedState> state_holder_;
         detail::region_tuple<sm_path_type, transition_table_fn_list_type> region_tuple_;
 };

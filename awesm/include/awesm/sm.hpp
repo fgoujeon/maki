@@ -73,7 +73,7 @@ class sm
         explicit sm(context_type& context):
             ctx_(context),
             def_holder_(*this, context),
-            region_tuple_(*this)
+            region_tuple_(*this, context)
         {
             if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::disable_auto_start>)
             {

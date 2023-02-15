@@ -49,9 +49,10 @@ class region
         using context_type = typename sm_type::context_type;
         using conf = typename sm_type::conf;
 
-        explicit region(sm_type& mach):
+        template<class Context>
+        region(sm_type& mach, Context& ctx):
             mach_(mach),
-            state_holders_(mach, mach.get_context())
+            state_holders_(mach, ctx)
         {
         }
 

@@ -97,6 +97,7 @@ namespace
             using conf = awesm::subsm_conf
             <
                 on_transition_table,
+                context&,
                 awesm::subsm_opts::on_exit_any
             >;
 

@@ -66,8 +66,8 @@ class subsm_wrapper
         template<class Event>
         void on_event(const Event& event)
         {
-            region_tuple_.process_event(event);
             call_on_event(state_holder_.get(), event);
+            region_tuple_.process_event(event);
         }
 
         template<class Event>

@@ -51,7 +51,7 @@ namespace
 
             void on_event(const events::internal& event)
             {
-                ctx.out += event.data + "1";
+                ctx.out += event.data + "2";
             }
 
             void on_exit(const events::button_press& event)
@@ -86,7 +86,7 @@ namespace
 
             void on_event(const events::internal& event)
             {
-                ctx.out += event.data + "2";
+                ctx.out += event.data + "1";
             }
 
             void on_exit(const events::button_press& event)

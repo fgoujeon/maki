@@ -105,8 +105,10 @@ class region
         template<class Event>
         void process_event(const Event& event)
         {
-            process_event_in_active_state(event);
-            process_event_in_transition_table(event);
+            if(!process_event_in_transition_table(event))
+            {
+                process_event_in_active_state(event);
+            }
         }
 
     private:
@@ -156,7 +158,7 @@ class region
         }
 
         template<class Event>
-        void process_event_in_transition_table(const Event& event)
+        bool process_event_in_transition_table(const Event& event)
         {
             using filtered_transition_table_t = transition_table_filters::by_event_t
             <
@@ -164,7 +166,7 @@ class region
                 Event
             >;
 
-            detail::tlu::apply_t
+            return detail::tlu::apply_t
             <
                 filtered_transition_table_t,
                 process_event_in_transition_table_helper
@@ -175,19 +177,16 @@ class region
         struct process_event_in_transition_table_helper
         {
             template<class Event>
-            static void process
+            static bool process
             (
                 [[maybe_unused]] region& self,
                 [[maybe_unused]] const Event& event
             )
             {
-                if constexpr(sizeof...(Transitions) != 0)
-                {
-                    (
-                        self.try_processing_event_in_transition<Transitions>(event) ||
-                        ...
-                    );
-                }
+                return (
+                    self.try_processing_event_in_transition<Transitions>(event) ||
+                    ...
+                );
             }
         };
 

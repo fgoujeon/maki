@@ -99,5 +99,5 @@ TEST_CASE("on_event")
 
     sm.process_event(events::button_press{"a"});
     REQUIRE(sm.is_active_state<states::on>());
-    REQUIRE(ctx.out == "a1;a2;");
+    REQUIRE(ctx.out == "a1;");
 }

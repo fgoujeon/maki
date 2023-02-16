@@ -115,9 +115,9 @@ TEST_CASE("internal_transition_in_transition_table")
 
     ctx.out.clear();
     sm.process_event(events::power_button_press{});
-    REQUIRE(ctx.out == "idle::on_event;idle::on_exit;running::on_entry;");
+    REQUIRE(ctx.out == "idle::on_exit;running::on_entry;");
 
     ctx.out.clear();
     sm.process_event(events::beep_button_press{});
-    REQUIRE(ctx.out == "running::on_event;beep;");
+    REQUIRE(ctx.out == "beep;");
 }

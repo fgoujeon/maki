@@ -71,8 +71,13 @@ namespace
         <
             sm_transition_table,
             context,
-            awesm::sm_opts::disable_run_to_completion
+            awesm::sm_opts::disable_run_to_completion,
+            awesm::sm_opts::on_exception
         >;
+
+        void on_exception(const std::exception_ptr& /*eptr*/)
+        {
+        }
     };
 
     using sm_t = awesm::sm<sm_def>;
@@ -86,7 +91,9 @@ TEST_CASE("internal transition")
     sm.start();
 
     for(auto i = 0; i < 10; ++i)
+    {
         sm.process_event(events::next_state{});
+    }
     REQUIRE(sm.is_active_state<states::benchmarking>());
 
     sm.process_event(events::internal_transition{});

@@ -301,7 +301,7 @@ class sm
             }
             else
             {
-                process_event(eptr);
+                queue_event(eptr);
             }
         }
 

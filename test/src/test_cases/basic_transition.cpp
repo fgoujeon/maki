@@ -39,8 +39,13 @@ namespace
             sm_transition_table,
             context,
             awesm::sm_opts::disable_auto_start,
-            awesm::sm_opts::disable_run_to_completion
+            awesm::sm_opts::disable_run_to_completion,
+            awesm::sm_opts::on_exception
         >;
+
+        void on_exception(const std::exception_ptr& /*eptr*/)
+        {
+        }
     };
 
     using sm_t = awesm::sm<sm_def>;

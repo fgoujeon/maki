@@ -159,12 +159,6 @@ class sm
         }
 
         template<class Event>
-        void process_event_now(const Event& event)
-        {
-            process_event_now_impl<detail::sm_operation::process_event>(event);
-        }
-
-        template<class Event>
         AWESM_NOINLINE void queue_event(const Event& event)
         {
             queue_event_impl<detail::sm_operation::process_event>(event);

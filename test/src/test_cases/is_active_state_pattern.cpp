@@ -53,8 +53,7 @@ namespace
         {
             using conf = awesm::subsm_conf
             <
-                on_transition_table,
-                context&
+                on_transition_table
             >;
 
             template<class Event>

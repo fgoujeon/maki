@@ -29,12 +29,17 @@ namespace subsm_opts
     using on_exit_any = state_opts::on_exit_any;
 
     using get_pretty_name = detail::get_pretty_name_option;
+
+    template<class T>
+    struct context
+    {
+        using context_type = T;
+    };
 }
 
-template<auto TransitionTableFn, class Context, class... Options>
+template<auto TransitionTableFn, class... Options>
 struct subsm_conf
 {
-    using context_type = Context;
     using option_mix_type = detail::mix<Options...>;
     static constexpr auto is_composite = true;
     static constexpr auto transition_table_fn = TransitionTableFn;

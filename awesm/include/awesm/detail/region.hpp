@@ -41,19 +41,17 @@ namespace
     inline constexpr auto index_of_state_v = index_of_state<StateList, State>::value;
 }
 
-template<class RegionPath, auto TransitionTableFn>
+template<class RegionPath, class Context, auto TransitionTableFn>
 class region
 {
     public:
-        using sm_type = region_path_to_sm_t<RegionPath>;
-        using parent_sm_type = region_path_back_sm_t<RegionPath>;
-        using context_type = typename parent_sm_type::conf::context_type;
-        using conf = typename sm_type::conf;
+        using root_sm_type = region_path_to_sm_t<RegionPath>;
+        using conf = typename root_sm_type::conf;
 
-        region(sm_type& mach, context_type& ctx):
-            mach_(mach),
+        region(root_sm_type& root_sm, Context& ctx):
+            root_sm_(root_sm),
             ctx_(ctx),
-            state_holders_(mach, ctx)
+            state_holders_(root_sm, ctx)
         {
         }
 
@@ -205,7 +203,7 @@ class region
             }
 
             //Check guard
-            if(!detail::call_action_or_guard(Transition::get_guard(), &mach_, ctx_, &event))
+            if(!detail::call_action_or_guard(Transition::get_guard(), &root_sm_, ctx_, &event))
             {
                 return false;
             }
@@ -229,7 +227,7 @@ class region
             {
                 if constexpr(tlu::contains_v<option_mix_type, sm_opts::before_state_transition>)
                 {
-                    mach_.get_def().template before_state_transition
+                    root_sm_.get_def().template before_state_transition
                     <
                         RegionPath,
                         source_state_type,
@@ -243,7 +241,7 @@ class region
                     detail::call_on_exit
                     (
                         get_state<source_state_type>(),
-                        mach_,
+                        root_sm_,
                         event
                     );
                 }
@@ -258,7 +256,7 @@ class region
             detail::call_action_or_guard
             (
                 Transition::get_action(),
-                &mach_,
+                &root_sm_,
                 ctx_,
                 &event
             );
@@ -267,7 +265,7 @@ class region
             {
                 if constexpr(tlu::contains_v<option_mix_type, sm_opts::before_entry>)
                 {
-                    mach_.get_def().template before_entry
+                    root_sm_.get_def().template before_entry
                     <
                         RegionPath,
                         source_state_type,
@@ -281,14 +279,14 @@ class region
                     detail::call_on_entry
                     (
                         get_state<target_state_type>(),
-                        mach_,
+                        root_sm_,
                         event
                     );
                 }
 
                 if constexpr(tlu::contains_v<option_mix_type, sm_opts::after_state_transition>)
                 {
-                    mach_.get_def().template after_state_transition
+                    root_sm_.get_def().template after_state_transition
                     <
                         RegionPath,
                         source_state_type,
@@ -408,8 +406,8 @@ class region
             return get<sm_object_holder<wrapped_state_t>>(state_holders_).get();
         }
 
-        sm_type& mach_;
-        context_type& ctx_;
+        root_sm_type& root_sm_;
+        Context& ctx_;
         wrapped_state_holder_tuple_type state_holders_;
 
         int active_state_index_ = index_of_state_v<state_tuple_type, states::stopped>;

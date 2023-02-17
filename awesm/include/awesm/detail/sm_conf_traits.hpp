@@ -8,6 +8,8 @@
 #define AWESM_DETAIL_SM_CONF_TRAITS_HPP
 
 #include "clu.hpp"
+#include "overload_priority.hpp"
+#include "type_tag.hpp"
 #include "../transition_table.hpp"
 #include <type_traits>
 
@@ -39,6 +41,24 @@ namespace transition_table_fn_list_detail
         using type = transition_table_list_t<TransitionTableFns...>;
     };
 }
+
+namespace context_detail
+{
+    template<class SmConf, class DefaultContext>
+    inline auto get_context(overload_priority::low /*unused*/)
+    {
+        return type_tag<DefaultContext>{};
+    }
+
+    template<class SmConf, class DefaultContext>
+    inline type_tag<typename SmConf::option_mix_type::context_type> get_context(overload_priority::high /*unused*/)
+    {
+        return type_tag<typename SmConf::option_mix_type::context_type>{};
+    }
+}
+
+template<class SmConf, class DefaultContext>
+using context_t = typename decltype(context_detail::get_context<SmConf, DefaultContext>(overload_priority::probe))::type;
 
 template<class SmConf>
 using transition_table_fn_list_t = typename transition_table_fn_list_detail::helper

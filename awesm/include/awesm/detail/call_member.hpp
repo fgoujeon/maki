@@ -97,25 +97,25 @@ void call_on_exit
     }
 }
 
-template<class Fn, class Sm, class Event>
-auto call_action_or_guard(const Fn& fun, Sm& mach, const Event* pevent) ->
-    decltype(fun(mach, mach.get_context(), *pevent))
+template<class Fn, class Sm, class Context, class Event>
+auto call_action_or_guard(const Fn& fun, Sm* pmach, Context& ctx, const Event* pevent) ->
+    decltype(fun(*pmach, ctx, *pevent))
 {
-    return fun(mach, mach.get_context(), *pevent);
+    return fun(*pmach, ctx, *pevent);
 }
 
-template<class Fn, class Sm, class Event>
-auto call_action_or_guard(const Fn& fun, Sm& mach, const Event* pevent) ->
-    decltype(fun(mach.get_context(), *pevent))
+template<class Fn, class Context, class Event>
+auto call_action_or_guard(const Fn& fun, void* /*pmach*/, Context& ctx, const Event* pevent) ->
+    decltype(fun(ctx, *pevent))
 {
-    return fun(mach.get_context(), *pevent);
+    return fun(ctx, *pevent);
 }
 
-template<class Fn, class Sm>
-auto call_action_or_guard(const Fn& fun, Sm& mach, const void* /*pevent*/) ->
-    decltype(fun(mach.get_context()))
+template<class Fn, class Context>
+auto call_action_or_guard(const Fn& fun, void* /*pmach*/, Context& ctx, const void* /*pevent*/) ->
+    decltype(fun(ctx))
 {
-    return fun(mach.get_context());
+    return fun(ctx);
 }
 
 } //namespace

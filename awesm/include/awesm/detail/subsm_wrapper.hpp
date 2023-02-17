@@ -17,11 +17,17 @@
 namespace awesm::detail
 {
 
-template<class RegionPath, class WrappedState>
+template<class RegionPath, class Subsm>
 class subsm_wrapper
 {
     public:
-        using sm_type = region_path_to_sm_t<RegionPath>;
+        using root_sm_type = region_path_to_sm_t<RegionPath>;
+
+        using parent_sm_type = state_traits::wrap_t<region_path_back_sm_t<RegionPath>, RegionPath>;
+        using parent_sm_context_type = typename parent_sm_type::context_type;
+
+        using subsm_conf_type = typename Subsm::conf;
+        using context_type = sm_conf_traits::context_t<subsm_conf_type, typename root_sm_type::context_type&>;
 
         using conf = state_conf
         <
@@ -31,11 +37,11 @@ class subsm_wrapper
             state_opts::get_pretty_name
         >;
 
-        template<class Context>
-        subsm_wrapper(sm_type& mach, Context& ctx):
-            mach_(mach),
-            state_holder_(mach, ctx),
-            region_tuple_(mach)
+        subsm_wrapper(root_sm_type& root_sm, parent_sm_context_type& parent_ctx):
+            root_sm_(root_sm),
+            context_(parent_ctx),
+            subsm_holder_(root_sm, context_),
+            region_tuple_(root_sm, context_)
         {
         }
 
@@ -59,14 +65,14 @@ class subsm_wrapper
         template<class Event>
         void on_entry(const Event& event)
         {
-            call_on_entry(state_holder_.get(), mach_, event);
+            call_on_entry(subsm_holder_.get(), root_sm_, event);
             region_tuple_.start(event);
         }
 
         template<class Event>
         void on_event(const Event& event)
         {
-            call_on_event(state_holder_.get(), event);
+            call_on_event(subsm_holder_.get(), event);
             region_tuple_.process_event(event);
         }
 
@@ -74,21 +80,22 @@ class subsm_wrapper
         void on_exit(const Event& event)
         {
             region_tuple_.stop(event);
-            call_on_exit(state_holder_.get(), mach_, event);
+            call_on_exit(subsm_holder_.get(), root_sm_, event);
         }
 
         static decltype(auto) get_pretty_name()
         {
-            return awesm::get_pretty_name<WrappedState>();
+            return awesm::get_pretty_name<Subsm>();
         }
 
     private:
-        using transition_table_fn_list_type = sm_conf_traits::transition_table_fn_list_t<typename WrappedState::conf>;
-        using sm_path_type = detail::sm_path<RegionPath, WrappedState>;
+        using transition_table_fn_list_type = sm_conf_traits::transition_table_fn_list_t<subsm_conf_type>;
+        using sm_path_type = detail::sm_path<RegionPath, Subsm>;
 
-        sm_type& mach_;
-        detail::sm_object_holder<WrappedState> state_holder_;
-        detail::region_tuple<sm_path_type, transition_table_fn_list_type> region_tuple_;
+        root_sm_type& root_sm_;
+        context_type context_;
+        detail::sm_object_holder<Subsm> subsm_holder_;
+        detail::region_tuple<sm_path_type, context_type, transition_table_fn_list_type> region_tuple_;
 };
 
 } //namespace

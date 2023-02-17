@@ -10,6 +10,7 @@
 #include "transition_table.hpp"
 #include "pretty_name.hpp"
 #include "detail/sm_conf_traits.hpp"
+#include "detail/tlu.hpp"
 #include <string>
 
 namespace awesm
@@ -90,16 +91,10 @@ using make_region_path = region_path<>::add<Sm, RegionIndex>;
 namespace detail
 {
     template<class RegionPath>
-    struct region_path_to_sm;
-
-    template<class Elem, class... Elems>
-    struct region_path_to_sm<region_path<Elem, Elems...>>
-    {
-        using type = typename Elem::sm_type;
-    };
+    using region_path_to_sm_t = typename tlu::front_t<RegionPath>::sm_type;
 
     template<class RegionPath>
-    using region_path_to_sm_t = typename region_path_to_sm<RegionPath>::type;
+    using region_path_back_sm_t = typename tlu::back_t<RegionPath>::sm_type;
 }
 
 } //namespace

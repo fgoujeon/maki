@@ -73,7 +73,7 @@ class sm
         explicit sm(context_type& context):
             ctx_(context),
             def_holder_(*this, context),
-            region_tuple_(*this)
+            region_tuple_(*this, context)
         {
             if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::disable_auto_start>)
             {
@@ -175,6 +175,7 @@ class sm
         using region_tuple_type = detail::region_tuple
         <
             detail::sm_path<region_path<>, sm>,
+            context_type,
             detail::sm_conf_traits::transition_table_fn_list_t<conf>
         >;
 

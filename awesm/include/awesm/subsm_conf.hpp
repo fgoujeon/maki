@@ -29,6 +29,12 @@ namespace subsm_opts
     using on_exit_any = state_opts::on_exit_any;
 
     using get_pretty_name = detail::get_pretty_name_option;
+
+    template<class T>
+    struct context
+    {
+        using context_type = T;
+    };
 }
 
 template<auto TransitionTableFn, class... Options>

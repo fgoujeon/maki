@@ -14,26 +14,14 @@
 namespace awesm
 {
 
-namespace detail
+inline constexpr void noop(whatever /*ctx*/)
 {
-    struct noop_t
-    {
-        void operator()(whatever /*ctx*/) const
-        {
-        }
-    };
-
-    struct yes_t
-    {
-        bool operator()(whatever /*ctx*/) const
-        {
-            return true;
-        }
-    };
 }
 
-constexpr inline auto noop = detail::noop_t{};
-constexpr inline auto yes = detail::yes_t{};
+inline constexpr bool yes(whatever /*ctx*/)
+{
+    return true;
+}
 
 template
 <

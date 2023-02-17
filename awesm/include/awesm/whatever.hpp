@@ -13,7 +13,7 @@ namespace awesm
 struct whatever
 {
     template<class T>
-    constexpr whatever(T /*unused*/)
+    constexpr whatever(const T& /*unused*/)
     {
     }
 };

@@ -16,10 +16,14 @@ namespace awesm
 
 namespace sm_opts
 {
+    namespace unsafe
+    {
+        struct disable_run_to_completion{};
+    }
+
     struct after_state_transition{};
     struct before_entry{};
     struct before_state_transition{};
-    struct disable_run_to_completion{};
     struct disable_auto_start{};
     struct on_event{};
     struct on_exception{};

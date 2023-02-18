@@ -39,7 +39,7 @@ namespace
             sm_transition_table,
             context,
             awesm::sm_opts::disable_auto_start,
-            awesm::sm_opts::disable_run_to_completion,
+            awesm::sm_opts::unsafe::disable_run_to_completion,
             awesm::sm_opts::on_exception
         >;
 

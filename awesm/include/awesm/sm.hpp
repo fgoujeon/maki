@@ -198,7 +198,7 @@ class sm
         };
         using any_event_queue_type = typename detail::alternative_t
         <
-            detail::tlu::contains_v<option_mix_type, sm_opts::disable_run_to_completion>,
+            detail::tlu::contains_v<option_mix_type, sm_opts::unsafe::disable_run_to_completion>,
             empty_holder,
             any_event_queue_holder
         >::template type<>;
@@ -206,7 +206,7 @@ class sm
         template<detail::sm_operation Operation, class Event>
         void process_event_2(const Event& event)
         {
-            if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::disable_run_to_completion>)
+            if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::unsafe::disable_run_to_completion>)
             {
                 if(!processing_event_) //If call is not recursive
                 {
@@ -227,7 +227,7 @@ class sm
         template<detail::sm_operation Operation, class Event>
         void process_event_now_impl(const Event& event)
         {
-            if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::disable_run_to_completion>)
+            if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::unsafe::disable_run_to_completion>)
             {
                 processing_event_ = true;
 

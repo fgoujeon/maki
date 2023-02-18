@@ -57,8 +57,8 @@ namespace
 
 #undef GUARD
 
-        constexpr auto can_access_state0 = awesm::guard<can_access_state0_0> && awesm::guard<can_access_state0_1>;
-        constexpr auto can_access_state1 = awesm::guard<can_access_state1_0> || awesm::guard<can_access_state1_1>;
+        constexpr auto can_access_state0 = awesm::guard<can_access_state0_0> && can_access_state0_1;
+        constexpr auto can_access_state1 = can_access_state1_0 || awesm::guard<can_access_state1_1>;
         constexpr auto can_access_state2 = awesm::guard<can_access_state2_0> != awesm::guard<can_access_state2_1>;
         constexpr auto can_access_state3 = !awesm::guard<cant_access_state3>;
     }

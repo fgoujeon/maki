@@ -48,7 +48,10 @@ namespace detail
         private: \
             storable_function_t<Lhs> lhs_; \
             storable_function_t<Rhs> rhs_; \
-    };
+    }; \
+ \
+    template<class Lhs, class Rhs> \
+    op_name##_t(const Lhs&, const Rhs&) -> op_name##_t<Lhs, Rhs>;
 
     AWESM_GUARD_OPERATOR(and, &&)
     AWESM_GUARD_OPERATOR(or, ||)
@@ -60,7 +63,7 @@ namespace detail
     class not_t
     {
         public:
-            constexpr not_t(const Guard& grd):
+            explicit constexpr not_t(const Guard& grd):
                 grd_(grd)
             {
             }
@@ -83,7 +86,7 @@ template<class F>
 class guard_t
 {
     public:
-        constexpr guard_t(const F& fun):
+        explicit constexpr guard_t(const F& fun):
             f_(fun)
         {
         }
@@ -97,34 +100,7 @@ class guard_t
         template<class Sm, class Context, class Event>
         bool operator()(Sm& mach, Context& ctx, const Event& event) const
         {
-            return call_action_or_guard(f_, &mach, ctx, &event);
-        }
-
-        template<class Rhs>
-        constexpr auto operator&&(const guard_t<Rhs>& rhs) const
-        {
-            using type = detail::and_t<F, Rhs>;
-            return guard_t<type>{type{f_, rhs.f_}};
-        }
-
-        template<class Rhs>
-        constexpr auto operator||(const guard_t<Rhs>& rhs) const
-        {
-            using type = detail::or_t<F, Rhs>;
-            return guard_t<type>{type{f_, rhs.f_}};
-        }
-
-        template<class Rhs>
-        constexpr auto operator!=(const guard_t<Rhs>& rhs) const
-        {
-            using type = detail::xor_t<F, Rhs>;
-            return guard_t<type>{type{f_, rhs.f_}};
-        }
-
-        constexpr auto operator!() const
-        {
-            using type = detail::not_t<F>;
-            return guard_t<type>{type{f_}};
+            return detail::call_action_or_guard(f_, &mach, ctx, &event);
         }
 
     private:
@@ -133,6 +109,66 @@ class guard_t
 
 template<class F>
 guard_t(const F&) -> guard_t<F>;
+
+template<class Lhs, class Rhs>
+constexpr auto operator&&(const guard_t<Lhs>& lhs, const guard_t<Rhs>& rhs)
+{
+    return guard_t{detail::and_t{lhs, rhs}};
+}
+
+template<class Lhs, class Rhs>
+constexpr auto operator&&(const guard_t<Lhs>& lhs, const Rhs& rhs)
+{
+    return guard_t{detail::and_t{lhs, rhs}};
+}
+
+template<class Lhs, class Rhs>
+constexpr auto operator&&(const Lhs& lhs, const guard_t<Rhs>& rhs)
+{
+    return guard_t{detail::and_t{lhs, rhs}};
+}
+
+template<class Lhs, class Rhs>
+constexpr auto operator||(const guard_t<Lhs>& lhs, const guard_t<Rhs>& rhs)
+{
+    return guard_t{detail::or_t{lhs, rhs}};
+}
+
+template<class Lhs, class Rhs>
+constexpr auto operator||(const guard_t<Lhs>& lhs, const Rhs& rhs)
+{
+    return guard_t{detail::or_t{lhs, rhs}};
+}
+
+template<class Lhs, class Rhs>
+constexpr auto operator||(const Lhs& lhs, const guard_t<Rhs>& rhs)
+{
+    return guard_t{detail::or_t{lhs, rhs}};
+}
+
+template<class Lhs, class Rhs>
+constexpr auto operator!=(const guard_t<Lhs>& lhs, const guard_t<Rhs>& rhs)
+{
+    return guard_t{detail::xor_t{lhs, rhs}};
+}
+
+template<class Lhs, class Rhs>
+constexpr auto operator!=(const guard_t<Lhs>& lhs, const Rhs& rhs)
+{
+    return guard_t{detail::xor_t{lhs, rhs}};
+}
+
+template<class Lhs, class Rhs>
+constexpr auto operator!=(const Lhs& lhs, const guard_t<Rhs>& rhs)
+{
+    return guard_t{detail::xor_t{lhs, rhs}};
+}
+
+template<class Guard>
+constexpr auto operator!(const guard_t<Guard>& grd)
+{
+    return guard_t{detail::not_t{grd}};
+}
 
 template<const auto& Guard>
 inline constexpr auto guard = guard_t{Guard};

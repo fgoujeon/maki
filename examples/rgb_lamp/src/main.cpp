@@ -199,8 +199,8 @@ namespace guards
         return event.duration_ms > 1000;
     }
 
-    //We can use guard operators to compose guards.
-    constexpr auto is_short_push = awesm::not_<is_long_push>;
+    //We can use awesm::guard and boolean operators to compose guards.
+    constexpr auto is_short_push = !awesm::guard<is_long_push>;
 }
 
 auto sm_transition_table()

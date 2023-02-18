@@ -200,7 +200,7 @@ namespace guards
     }
 
     //We can use awesm::guard and boolean operators to compose guards.
-    constexpr auto is_short_push = !awesm::guard_t{is_long_push};
+    constexpr auto is_short_push = !awesm::guard<is_long_push>;
 }
 
 auto sm_transition_table()

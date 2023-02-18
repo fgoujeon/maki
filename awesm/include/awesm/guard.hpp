@@ -134,6 +134,9 @@ class guard_t
 template<class F>
 guard_t(const F&) -> guard_t<F>;
 
+template<const auto& Guard>
+inline constexpr auto guard = guard_t{Guard};
+
 } //namespace
 
 #endif

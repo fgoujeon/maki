@@ -57,10 +57,10 @@ namespace
 
 #undef GUARD
 
-        constexpr auto can_access_state0 = awesm::and_<guards::can_access_state0_0, guards::can_access_state0_1>;
-        constexpr auto can_access_state1 = awesm::or_<guards::can_access_state1_0, guards::can_access_state1_1>;
-        constexpr auto can_access_state2 = awesm::xor_<guards::can_access_state2_0, guards::can_access_state2_1>;
-        constexpr auto can_access_state3 = awesm::not_<guards::cant_access_state3>;
+        constexpr auto can_access_state0 = awesm::guard_t{&can_access_state0_0} && awesm::guard_t{&can_access_state0_1};
+        constexpr auto can_access_state1 = awesm::guard_t{&can_access_state1_0} || awesm::guard_t{&can_access_state1_1};
+        constexpr auto can_access_state2 = awesm::guard_t{&can_access_state2_0} != awesm::guard_t{&can_access_state2_1};
+        constexpr auto can_access_state3 = !awesm::guard_t{&cant_access_state3};
     }
 
     auto sm_transition_table()

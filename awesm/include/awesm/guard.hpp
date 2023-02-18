@@ -8,12 +8,23 @@
 #define AWESM_GUARD_HPP
 
 #include "detail/call_member.hpp"
+#include "detail/alternative.hpp"
 
 namespace awesm
 {
 
 namespace detail
 {
+    //Variables can't have function types. Only pointer to functions are valid
+    //variable types.
+    template<class F>
+    using storable_function_t = detail::alternative_t
+    <
+        std::is_function_v<F>,
+        F&,
+        F
+    >;
+
 #define AWESM_GUARD_OPERATOR(op_name, op) \
     template<class Lhs, class Rhs> \
     class op_name##_t \
@@ -35,8 +46,8 @@ namespace detail
             } \
     \
         private: \
-            Lhs lhs_; \
-            Rhs rhs_; \
+            storable_function_t<Lhs> lhs_; \
+            storable_function_t<Rhs> rhs_; \
     };
 
     AWESM_GUARD_OPERATOR(and, &&)
@@ -61,7 +72,7 @@ namespace detail
             }
 
         private:
-            Guard grd_;
+            storable_function_t<Guard> grd_;
     };
 
     template<class Guard>
@@ -74,6 +85,12 @@ class guard_t
     public:
         constexpr guard_t(const F& fun):
             f_(fun)
+        {
+        }
+
+        template<class F2>
+        constexpr guard_t(const guard_t<F2>& grd):
+            f_(grd.f_)
         {
         }
 
@@ -111,7 +128,7 @@ class guard_t
         }
 
     private:
-        F f_;
+        detail::storable_function_t<F> f_;
 };
 
 template<class F>

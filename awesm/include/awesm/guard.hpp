@@ -7,8 +7,8 @@
 #ifndef AWESM_GUARD_HPP
 #define AWESM_GUARD_HPP
 
-#include "detail/call_member.hpp"
 #include "detail/alternative.hpp"
+#include <type_traits>
 
 namespace awesm
 {
@@ -36,13 +36,10 @@ namespace detail
             { \
             } \
     \
-            template<class Sm, class Context, class Event> \
-            bool operator()(Sm& mach, Context& ctx, const Event& event) const \
+            template<class... Args> \
+            auto operator()(Args&... args) const -> decltype(std::declval<Lhs>()(args...) op std::declval<Rhs>()(args...)) \
             { \
-                return \
-                    call_action_or_guard(lhs_, &mach, ctx, &event) op \
-                    call_action_or_guard(rhs_, &mach, ctx, &event) \
-                ; \
+                return lhs_(args...) op rhs_(args...); \
             } \
     \
         private: \
@@ -68,10 +65,10 @@ namespace detail
             {
             }
 
-            template<class Sm, class Context, class Event>
-            bool operator()(Sm& mach, Context& ctx, const Event& event) const
+            template<class... Args>
+            auto operator()(Args&... args) const -> decltype(!std::declval<Guard>()(args...))
             {
-                return !call_action_or_guard(grd_, &mach, ctx, &event);
+                return !grd_(args...);
             }
 
         private:
@@ -82,29 +79,29 @@ namespace detail
     not_t(const Guard&) -> not_t<Guard>;
 }
 
-template<class F>
+template<class Guard>
 class guard_t
 {
     public:
-        explicit constexpr guard_t(const F& fun):
-            f_(fun)
+        explicit constexpr guard_t(const Guard& grd):
+            grd_(grd)
         {
         }
 
-        template<class F2>
-        constexpr guard_t(const guard_t<F2>& grd):
-            f_(grd.f_)
+        template<class Guard2>
+        constexpr guard_t(const guard_t<Guard2>& grd):
+            grd_(grd.grd_)
         {
         }
 
-        template<class Sm, class Context, class Event>
-        bool operator()(Sm& mach, Context& ctx, const Event& event) const
+        template<class... Args>
+        auto operator()(Args&... args) const -> decltype(std::declval<Guard>()(args...))
         {
-            return detail::call_action_or_guard(f_, &mach, ctx, &event);
+            return grd_(args...);
         }
 
     private:
-        detail::storable_function_t<F> f_;
+        detail::storable_function_t<Guard> grd_;
 };
 
 template<class F>

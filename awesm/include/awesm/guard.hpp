@@ -15,46 +15,68 @@ namespace awesm
 
 namespace detail
 {
-    //Variables can't have function types. Only pointer to functions are valid
-    //variable types.
+    //Variables can't have function types, we must use a reference.
     template<class F>
     using storable_function_t = detail::alternative_t
     <
         std::is_function_v<F>,
-        F&,
+        const F&,
         F
     >;
 
-#define AWESM_GUARD_OPERATOR(op_name, op) \
-    template<class Lhs, class Rhs> \
-    class op_name##_t \
-    { \
-        public: \
-            constexpr op_name##_t(const Lhs& lhs, const Rhs& rhs): \
-                lhs_(lhs), \
-                rhs_(rhs) \
-            { \
-            } \
-    \
-            template<class... Args> \
-            auto operator()(Args&... args) const -> decltype(std::declval<Lhs>()(args...) op std::declval<Rhs>()(args...)) \
-            { \
-                return lhs_(args...) op rhs_(args...); \
-            } \
-    \
-        private: \
-            storable_function_t<Lhs> lhs_; \
-            storable_function_t<Rhs> rhs_; \
-    }; \
- \
-    template<class Lhs, class Rhs> \
-    op_name##_t(const Lhs&, const Rhs&) -> op_name##_t<Lhs, Rhs>;
+    template<auto Operator, class Lhs, class Rhs>
+    class binary_operator
+    {
+        public:
+            constexpr binary_operator(const Lhs& lhs, const Rhs& rhs):
+                lhs_(lhs),
+                rhs_(rhs)
+            {
+            }
 
-    AWESM_GUARD_OPERATOR(and, &&)
-    AWESM_GUARD_OPERATOR(or, ||)
-    AWESM_GUARD_OPERATOR(xor, !=)
+            template<class... Args>
+            auto operator()(Args&... args) const -> decltype(Operator(std::declval<Lhs>()(args...), std::declval<Rhs>()(args...)))
+            {
+                return Operator(lhs_(args...), rhs_(args...));
+            }
 
-#undef AWESM_GUARD_OPERATOR
+        private:
+            storable_function_t<Lhs> lhs_;
+            storable_function_t<Rhs> rhs_;
+    };
+
+    inline bool and_(const bool lhs, const bool rhs)
+    {
+        return lhs && rhs;
+    }
+
+    inline bool or_(const bool lhs, const bool rhs)
+    {
+        return lhs || rhs;
+    }
+
+    inline bool xor_(const bool lhs, const bool rhs)
+    {
+        return lhs != rhs;
+    }
+
+    template<class Lhs, class Rhs>
+    constexpr auto make_and_operator(const Lhs& lhs, const Rhs& rhs)
+    {
+        return binary_operator<and_, Lhs, Rhs>(lhs, rhs);
+    }
+
+    template<class Lhs, class Rhs>
+    constexpr auto make_or_operator(const Lhs& lhs, const Rhs& rhs)
+    {
+        return binary_operator<or_, Lhs, Rhs>(lhs, rhs);
+    }
+
+    template<class Lhs, class Rhs>
+    constexpr auto make_xor_operator(const Lhs& lhs, const Rhs& rhs)
+    {
+        return binary_operator<xor_, Lhs, Rhs>{lhs, rhs};
+    }
 
     template<class Guard>
     class not_t
@@ -110,55 +132,55 @@ guard_t(const F&) -> guard_t<F>;
 template<class Lhs, class Rhs>
 constexpr auto operator&&(const guard_t<Lhs>& lhs, const guard_t<Rhs>& rhs)
 {
-    return guard_t{detail::and_t{lhs, rhs}};
+    return guard_t{detail::make_and_operator(lhs, rhs)};
 }
 
 template<class Lhs, class Rhs>
 constexpr auto operator&&(const guard_t<Lhs>& lhs, const Rhs& rhs)
 {
-    return guard_t{detail::and_t{lhs, rhs}};
+    return guard_t{detail::make_and_operator(lhs, rhs)};
 }
 
 template<class Lhs, class Rhs>
 constexpr auto operator&&(const Lhs& lhs, const guard_t<Rhs>& rhs)
 {
-    return guard_t{detail::and_t{lhs, rhs}};
+    return guard_t{detail::make_and_operator(lhs, rhs)};
 }
 
 template<class Lhs, class Rhs>
 constexpr auto operator||(const guard_t<Lhs>& lhs, const guard_t<Rhs>& rhs)
 {
-    return guard_t{detail::or_t{lhs, rhs}};
+    return guard_t{detail::make_or_operator(lhs, rhs)};
 }
 
 template<class Lhs, class Rhs>
 constexpr auto operator||(const guard_t<Lhs>& lhs, const Rhs& rhs)
 {
-    return guard_t{detail::or_t{lhs, rhs}};
+    return guard_t{detail::make_or_operator(lhs, rhs)};
 }
 
 template<class Lhs, class Rhs>
 constexpr auto operator||(const Lhs& lhs, const guard_t<Rhs>& rhs)
 {
-    return guard_t{detail::or_t{lhs, rhs}};
+    return guard_t{detail::make_or_operator(lhs, rhs)};
 }
 
 template<class Lhs, class Rhs>
 constexpr auto operator!=(const guard_t<Lhs>& lhs, const guard_t<Rhs>& rhs)
 {
-    return guard_t{detail::xor_t{lhs, rhs}};
+    return guard_t{detail::make_xor_operator(lhs, rhs)};
 }
 
 template<class Lhs, class Rhs>
 constexpr auto operator!=(const guard_t<Lhs>& lhs, const Rhs& rhs)
 {
-    return guard_t{detail::xor_t{lhs, rhs}};
+    return guard_t{detail::make_xor_operator(lhs, rhs)};
 }
 
 template<class Lhs, class Rhs>
 constexpr auto operator!=(const Lhs& lhs, const guard_t<Rhs>& rhs)
 {
-    return guard_t{detail::xor_t{lhs, rhs}};
+    return guard_t{detail::make_xor_operator(lhs, rhs)};
 }
 
 template<class Guard>

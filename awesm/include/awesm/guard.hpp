@@ -16,12 +16,12 @@ namespace awesm
 
 namespace detail
 {
-    //Variables can't have function types, we must use a reference.
+    //Variables can't have function types, we must use a pointer.
     template<class F>
     using storable_function_t = detail::alternative_t
     <
         std::is_function_v<F>,
-        const F&,
+        const F*,
         F
     >;
 
@@ -29,7 +29,10 @@ namespace detail
     class binary_operator
     {
         public:
-            constexpr binary_operator(const Lhs& lhs, const Rhs& rhs):
+            using lhs_type = storable_function_t<Lhs>;
+            using rhs_type = storable_function_t<Rhs>;
+
+            constexpr binary_operator(const lhs_type& lhs, const rhs_type& rhs):
                 lhs_(lhs),
                 rhs_(rhs)
             {
@@ -46,8 +49,8 @@ namespace detail
             }
 
         private:
-            storable_function_t<Lhs> lhs_;
-            storable_function_t<Rhs> rhs_;
+            lhs_type lhs_;
+            rhs_type rhs_;
     };
 
     inline bool and_(const bool lhs, const bool rhs)
@@ -87,7 +90,9 @@ namespace detail
     class not_t
     {
         public:
-            explicit constexpr not_t(const Guard& grd):
+            using guard_type = storable_function_t<Guard>;
+
+            explicit constexpr not_t(const guard_type& grd):
                 grd_(grd)
             {
             }
@@ -99,7 +104,7 @@ namespace detail
             }
 
         private:
-            storable_function_t<Guard> grd_;
+            guard_type grd_;
     };
 
     template<class Guard>
@@ -110,7 +115,9 @@ template<class Guard>
 class guard_t
 {
     public:
-        explicit constexpr guard_t(const Guard& grd):
+        using guard_type = detail::storable_function_t<Guard>;
+
+        explicit constexpr guard_t(const guard_type& grd):
             grd_(grd)
         {
         }
@@ -127,13 +134,13 @@ class guard_t
             return detail::call_action_or_guard(grd_, &mach, ctx, &event);
         }
 
-        constexpr const Guard& get() const
+        constexpr const guard_type& get() const
         {
             return grd_;
         }
 
     private:
-        detail::storable_function_t<Guard> grd_;
+        guard_type grd_;
 };
 
 template<class F>

@@ -127,6 +127,11 @@ class guard_t
             return detail::call_action_or_guard(grd_, &mach, ctx, &event);
         }
 
+        constexpr const Guard& get() const
+        {
+            return grd_;
+        }
+
     private:
         detail::storable_function_t<Guard> grd_;
 };
@@ -137,61 +142,61 @@ guard_t(const F&) -> guard_t<F>;
 template<class Lhs, class Rhs>
 constexpr auto operator&&(const guard_t<Lhs>& lhs, const guard_t<Rhs>& rhs)
 {
-    return guard_t{detail::make_and_operator(lhs, rhs)};
+    return guard_t{detail::make_and_operator(lhs.get(), rhs.get())};
 }
 
 template<class Lhs, class Rhs>
 constexpr auto operator&&(const guard_t<Lhs>& lhs, const Rhs& rhs)
 {
-    return guard_t{detail::make_and_operator(lhs, rhs)};
+    return guard_t{detail::make_and_operator(lhs.get(), rhs)};
 }
 
 template<class Lhs, class Rhs>
 constexpr auto operator&&(const Lhs& lhs, const guard_t<Rhs>& rhs)
 {
-    return guard_t{detail::make_and_operator(lhs, rhs)};
+    return guard_t{detail::make_and_operator(lhs, rhs.get())};
 }
 
 template<class Lhs, class Rhs>
 constexpr auto operator||(const guard_t<Lhs>& lhs, const guard_t<Rhs>& rhs)
 {
-    return guard_t{detail::make_or_operator(lhs, rhs)};
+    return guard_t{detail::make_or_operator(lhs.get(), rhs.get())};
 }
 
 template<class Lhs, class Rhs>
 constexpr auto operator||(const guard_t<Lhs>& lhs, const Rhs& rhs)
 {
-    return guard_t{detail::make_or_operator(lhs, rhs)};
+    return guard_t{detail::make_or_operator(lhs.get(), rhs)};
 }
 
 template<class Lhs, class Rhs>
 constexpr auto operator||(const Lhs& lhs, const guard_t<Rhs>& rhs)
 {
-    return guard_t{detail::make_or_operator(lhs, rhs)};
+    return guard_t{detail::make_or_operator(lhs, rhs.get())};
 }
 
 template<class Lhs, class Rhs>
 constexpr auto operator!=(const guard_t<Lhs>& lhs, const guard_t<Rhs>& rhs)
 {
-    return guard_t{detail::make_xor_operator(lhs, rhs)};
+    return guard_t{detail::make_xor_operator(lhs.get(), rhs.get())};
 }
 
 template<class Lhs, class Rhs>
 constexpr auto operator!=(const guard_t<Lhs>& lhs, const Rhs& rhs)
 {
-    return guard_t{detail::make_xor_operator(lhs, rhs)};
+    return guard_t{detail::make_xor_operator(lhs.get(), rhs)};
 }
 
 template<class Lhs, class Rhs>
 constexpr auto operator!=(const Lhs& lhs, const guard_t<Rhs>& rhs)
 {
-    return guard_t{detail::make_xor_operator(lhs, rhs)};
+    return guard_t{detail::make_xor_operator(lhs, rhs.get())};
 }
 
 template<class Guard>
 constexpr auto operator!(const guard_t<Guard>& grd)
 {
-    return guard_t{detail::not_t{grd}};
+    return guard_t{detail::not_t{grd.get()}};
 }
 
 template<const auto& Guard>

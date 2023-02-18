@@ -7,6 +7,7 @@
 #ifndef AWESM_GUARD_HPP
 #define AWESM_GUARD_HPP
 
+#include "detail/call_member.hpp"
 #include "detail/alternative.hpp"
 #include <type_traits>
 
@@ -34,10 +35,14 @@ namespace detail
             {
             }
 
-            template<class... Args>
-            auto operator()(Args&... args) const -> decltype(Operator(std::declval<Lhs>()(args...), std::declval<Rhs>()(args...)))
+            template<class Sm, class Context, class Event>
+            bool operator()(Sm& mach, Context& ctx, const Event& event) const
             {
-                return Operator(lhs_(args...), rhs_(args...));
+                return Operator
+                (
+                    call_action_or_guard(lhs_, &mach, ctx, &event),
+                    call_action_or_guard(rhs_, &mach, ctx, &event)
+                );
             }
 
         private:
@@ -87,10 +92,10 @@ namespace detail
             {
             }
 
-            template<class... Args>
-            auto operator()(Args&... args) const -> decltype(!std::declval<Guard>()(args...))
+            template<class Sm, class Context, class Event>
+            bool operator()(Sm& mach, Context& ctx, const Event& event) const
             {
-                return !grd_(args...);
+                return !call_action_or_guard(grd_, &mach, ctx, &event);
             }
 
         private:
@@ -116,10 +121,10 @@ class guard_t
         {
         }
 
-        template<class... Args>
-        auto operator()(Args&... args) const -> decltype(std::declval<Guard>()(args...))
+        template<class Sm, class Context, class Event>
+        bool operator()(Sm& mach, Context& ctx, const Event& event) const
         {
-            return grd_(args...);
+            return detail::call_action_or_guard(grd_, &mach, ctx, &event);
         }
 
     private:

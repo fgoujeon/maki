@@ -44,7 +44,7 @@ namespace
             using conf = awesm::state_conf
             <
                 awesm::state_opts::on_entry_any,
-                awesm::state_opts::on_event_any_of<std::exception_ptr>,
+                awesm::state_opts::on_event_any_of<awesm::events::exception>,
                 awesm::state_opts::on_exit_any
             >;
 
@@ -58,11 +58,11 @@ namespace
                 }
             }
 
-            void on_event(const std::exception_ptr& eptr)
+            void on_event(const awesm::events::exception& event)
             {
                 try
                 {
-                    std::rethrow_exception(eptr);
+                    std::rethrow_exception(event.eptr);
                 }
                 catch(const std::exception& e)
                 {

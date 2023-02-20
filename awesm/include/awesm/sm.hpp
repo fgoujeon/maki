@@ -296,7 +296,7 @@ class sm
             }
             else
             {
-                queue_event(eptr);
+                queue_event(events::exception{eptr});
             }
         }
 

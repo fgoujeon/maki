@@ -7,6 +7,8 @@
 #ifndef AWESM_EVENTS_HPP
 #define AWESM_EVENTS_HPP
 
+#include <exception>
+
 namespace awesm::events
 {
 
@@ -15,6 +17,13 @@ struct start{};
 
 //Default event sent by sm::stop()
 struct stop{};
+
+//Event sent by the default on_exception policy of sm whenever it catches an
+//exception
+struct exception
+{
+    std::exception_ptr eptr;
+};
 
 } //namespace
 

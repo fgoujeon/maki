@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_DETAIL_COMPOSITE_STATE_WRAPPER_HPP
-#define AWESM_DETAIL_COMPOSITE_STATE_WRAPPER_HPP
+#ifndef AWESM_DETAIL_SUBSM_WRAPPER_HPP
+#define AWESM_DETAIL_SUBSM_WRAPPER_HPP
 
 #include "../state_conf.hpp"
 #include "call_member.hpp"
@@ -17,17 +17,24 @@
 namespace awesm::detail
 {
 
-template<class RegionPath, class Subsm>
+template<class Subsm, class RegionPath, class ParentSmContext>
 class subsm_wrapper
 {
     public:
         using root_sm_type = region_path_to_sm_t<RegionPath>;
 
-        using parent_sm_type = state_traits::wrap_t<region_path_back_sm_t<RegionPath>, RegionPath>;
-        using parent_sm_context_type = typename parent_sm_type::context_type;
-
         using subsm_conf_type = typename Subsm::conf;
-        using context_type = sm_conf_traits::context_t<subsm_conf_type, typename root_sm_type::context_type&>;
+
+        /*
+        Context type is either (in this order of priority):
+        - the one specified in the subsm_opts::context option, if any;
+        - the context type of the parent SM (not necessarily the root SM).
+        */
+        using context_type = sm_conf_traits::context_t
+        <
+            subsm_conf_type,
+            ParentSmContext&
+        >;
 
         using conf = state_conf
         <
@@ -37,7 +44,7 @@ class subsm_wrapper
             state_opts::get_pretty_name
         >;
 
-        subsm_wrapper(root_sm_type& root_sm, parent_sm_context_type& parent_ctx):
+        subsm_wrapper(root_sm_type& root_sm, ParentSmContext& parent_ctx):
             root_sm_(root_sm),
             context_(parent_ctx),
             subsm_holder_(root_sm, context_),

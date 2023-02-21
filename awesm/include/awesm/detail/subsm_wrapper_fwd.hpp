@@ -4,13 +4,13 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_DETAIL_COMPOSITE_STATE_WRAPPER_FWD_HPP
-#define AWESM_DETAIL_COMPOSITE_STATE_WRAPPER_FWD_HPP
+#ifndef AWESM_DETAIL_SUBSM_WRAPPER_FWD_HPP
+#define AWESM_DETAIL_SUBSM_WRAPPER_FWD_HPP
 
 namespace awesm::detail
 {
 
-template<class RegionPath, class WrappedState>
+template<class Subsm, class RegionPath, class ParentSmContext>
 class subsm_wrapper;
 
 } //namespace

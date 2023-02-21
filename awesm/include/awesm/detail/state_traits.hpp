@@ -16,20 +16,20 @@ namespace awesm::detail::state_traits
 
 //wrap
 
-template<class State, class RegionPath, class Enable = void>
+template<class State, class RegionPath, class ParentSmContext, class Enable = void>
 struct wrap
 {
     using type = State;
 };
 
-template<class State, class RegionPath>
-struct wrap<State, RegionPath, std::enable_if_t<State::conf::is_composite>>
+template<class State, class RegionPath, class ParentSmContext>
+struct wrap<State, RegionPath, ParentSmContext, std::enable_if_t<State::conf::is_composite>>
 {
-    using type = subsm_wrapper<RegionPath, State>;
+    using type = subsm_wrapper<State, RegionPath, ParentSmContext>;
 };
 
-template<class State, class RegionPath>
-using wrap_t = typename wrap<State, RegionPath>::type;
+template<class State, class RegionPath, class ParentSmContext>
+using wrap_t = typename wrap<State, RegionPath, ParentSmContext>::type;
 
 
 //other

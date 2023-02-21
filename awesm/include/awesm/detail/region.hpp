@@ -117,7 +117,7 @@ class region
         using unresolved_transition_table_type = decltype(TransitionTableFn());
 
         using transition_table_digest_type =
-            detail::transition_table_digest<RegionPath, unresolved_transition_table_type>
+            detail::transition_table_digest<unresolved_transition_table_type, RegionPath, Context>
         ;
         using state_tuple_type = typename transition_table_digest_type::state_tuple_type;
         using wrapped_state_holder_tuple_type =
@@ -326,7 +326,7 @@ class region
                 [[maybe_unused]] const Event& event
             )
             {
-                using wrapped_state_t = state_traits::wrap_t<State, RegionPath>;
+                using wrapped_state_t = state_traits::wrap_t<State, RegionPath, Context>;
                 if constexpr(state_traits::requires_on_event_v<wrapped_state_t, Event>)
                 {
                     auto& state = self.get_state<State>();
@@ -395,14 +395,14 @@ class region
         template<class State>
         auto& get_state()
         {
-            using wrapped_state_t = state_traits::wrap_t<State, RegionPath>;
+            using wrapped_state_t = state_traits::wrap_t<State, RegionPath, Context>;
             return get<sm_object_holder<wrapped_state_t>>(state_holders_).get();
         }
 
         template<class State>
         const auto& get_state() const
         {
-            using wrapped_state_t = state_traits::wrap_t<State, RegionPath>;
+            using wrapped_state_t = state_traits::wrap_t<State, RegionPath, Context>;
             return get<sm_object_holder<wrapped_state_t>>(state_holders_).get();
         }
 

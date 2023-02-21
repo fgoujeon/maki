@@ -9,9 +9,6 @@
 
 namespace
 {
-    struct sm_def;
-    using sm_t = awesm::sm<sm_def>;
-
     enum class led_color
     {
         off,
@@ -35,7 +32,7 @@ namespace
     {
         EMPTY_STATE(off);
 
-        namespace on_detail
+        namespace on_ns
         {
             struct context
             {
@@ -50,10 +47,32 @@ namespace
                 int red_count = 0;
             };
 
+            namespace emitting_red_ns
+            {
+                struct emitting_cold_red
+                {
+                    using conf = awesm::state_conf
+                    <
+                    >;
+
+                    on_ns::context& ctx;
+                };
+
+                EMPTY_STATE(emitting_hot_red);
+
+                auto make_transition_table()
+                {
+                    return awesm::transition_table
+                        .add<emitting_cold_red, events::color_button_press, emitting_hot_red>
+                    ;
+                }
+            }
+
             struct emitting_red
             {
-                using conf = awesm::state_conf
+                using conf = awesm::subsm_conf
                 <
+                    emitting_red_ns::make_transition_table,
                     awesm::state_opts::on_entry_any
                 >;
 
@@ -82,8 +101,8 @@ namespace
         {
             using conf = awesm::subsm_conf
             <
-                on_detail::make_transition_table,
-                awesm::subsm_opts::context<on_detail::context>,
+                on_ns::make_transition_table,
+                awesm::subsm_opts::context<on_ns::context>,
                 awesm::subsm_opts::on_exit_any
             >;
 
@@ -92,7 +111,7 @@ namespace
                 ctx.parent.out = std::to_string(ctx.red_count);
             }
 
-            on_detail::context& ctx;
+            on_ns::context& ctx;
         };
     }
 
@@ -108,6 +127,8 @@ namespace
     {
         using conf = awesm::sm_conf<sm_transition_table, context>;
     };
+
+    using sm_t = awesm::sm<sm_def>;
 }
 
 TEST_CASE("subsm_context")
@@ -118,16 +139,16 @@ TEST_CASE("subsm_context")
     auto sm = sm_t{ctx};
 
     sm.process_event(events::power_button_press{});
-    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::on_detail::emitting_red>());
+    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::on_ns::emitting_red>());
 
     sm.process_event(events::color_button_press{});
-    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::on_detail::emitting_green>());
+    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::on_ns::emitting_green>());
 
     sm.process_event(events::color_button_press{});
-    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::on_detail::emitting_blue>());
+    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::on_ns::emitting_blue>());
 
     sm.process_event(events::color_button_press{});
-    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::on_detail::emitting_red>());
+    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::on_ns::emitting_red>());
 
     sm.process_event(events::power_button_press{});
     REQUIRE(sm.is_active_state<states::off>());

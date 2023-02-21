@@ -88,8 +88,9 @@ namespace pretty_name_ns
 
     using wrapped_subsm = awesm::detail::subsm_wrapper
     <
+        subsm,
         awesm::make_region_path<sm_t, 0>,
-        subsm
+        context
     >;
 }
 

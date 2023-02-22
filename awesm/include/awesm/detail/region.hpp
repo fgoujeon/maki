@@ -13,7 +13,6 @@
 #include "state_traits.hpp"
 #include "sm_path.hpp"
 #include "call_member.hpp"
-#include "resolve_transition_table.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "tlu.hpp"
@@ -114,10 +113,10 @@ class region
     private:
         using option_mix_type = typename conf::option_mix_type;
 
-        using unresolved_transition_table_type = decltype(TransitionTableFn());
+        using transition_table_type = decltype(TransitionTableFn());
 
         using transition_table_digest_type =
-            detail::transition_table_digest<unresolved_transition_table_type, RegionPath, Context>
+            detail::transition_table_digest<transition_table_type, RegionPath, Context>
         ;
         using state_tuple_type = typename transition_table_digest_type::state_tuple_type;
         using wrapped_state_holder_tuple_type =
@@ -125,13 +124,6 @@ class region
         ;
 
         using initial_state_type = detail::tlu::front_t<state_tuple_type>;
-
-        using transition_table_type = detail::resolve_transition_table_t
-        <
-            unresolved_transition_table_type,
-            state_tuple_type,
-            transition_table_digest_type::has_source_state_patterns
-        >;
 
         template<class... States>
         struct stop_helper
@@ -196,6 +188,64 @@ class region
         {
             using source_state_type = typename Transition::source_state_type;
 
+            if constexpr(is_type_pattern_v<source_state_type>)
+            {
+                auto processed = false;
+                with_active_state<try_processing_event_in_transition_with_source_state_type_pattern<Transition>>
+                (
+                    *this,
+                    event,
+                    processed
+                );
+                return processed;
+            }
+            else
+            {
+                return try_processing_event_in_transition_with_source_state_type<Transition>
+                (
+                    event
+                );
+            }
+        }
+
+        template<class Transition>
+        struct try_processing_event_in_transition_with_source_state_type_pattern
+        {
+            template<class ActiveState, class Event>
+            static void call
+            (
+                [[maybe_unused]] region& self,
+                [[maybe_unused]] const Event& event,
+                [[maybe_unused]] bool& processed
+            )
+            {
+                using source_state_type_pattern = typename Transition::source_state_type;
+
+                if constexpr(type_pattern_matches<source_state_type_pattern, ActiveState>())
+                {
+                    //Check guard
+                    if(!detail::call_action_or_guard(Transition::get_guard(), &self.root_sm_, self.ctx_, &event))
+                    {
+                        return;
+                    }
+
+                    self.process_event_in_transition
+                    <
+                        ActiveState,
+                        typename Transition::target_state_type,
+                        Transition::get_action()
+                    >(event);
+
+                    processed = true;
+                }
+            }
+        };
+
+        template<class Transition, class Event>
+        bool try_processing_event_in_transition_with_source_state_type(const Event& event)
+        {
+            using source_state_type = typename Transition::source_state_type;
+
             //Make sure the transition source state is the active state
             if(!is_active_state_type<source_state_type>())
             {
@@ -208,19 +258,21 @@ class region
                 return false;
             }
 
-            process_event_in_transition<Transition>(event);
+            process_event_in_transition
+            <
+                source_state_type,
+                typename Transition::target_state_type,
+                Transition::get_action()
+            >(event);
 
             return true;
         }
 
-        template<class Transition, class Event>
+        template<class SourceState, class TargetState, const auto& Action, class Event>
         void process_event_in_transition([[maybe_unused]] const Event& event)
         {
-            using source_state_type = typename Transition::source_state_type;
-            using target_state_type = typename Transition::target_state_type;
-
             constexpr auto is_internal_transition =
-                std::is_same_v<target_state_type, null>
+                std::is_same_v<TargetState, null>
             ;
 
             if constexpr(!is_internal_transition)
@@ -230,17 +282,17 @@ class region
                     root_sm_.get_def().template before_state_transition
                     <
                         RegionPath,
-                        source_state_type,
+                        SourceState,
                         Event,
-                        target_state_type
+                        TargetState
                     >(event);
                 }
 
-                if constexpr(!std::is_same_v<source_state_type, states::stopped>)
+                if constexpr(!std::is_same_v<SourceState, states::stopped>)
                 {
                     detail::call_on_exit
                     (
-                        get_state<source_state_type>(),
+                        get_state<SourceState>(),
                         root_sm_,
                         event
                     );
@@ -249,13 +301,13 @@ class region
                 active_state_index_ = index_of_state_v
                 <
                     state_tuple_type,
-                    target_state_type
+                    TargetState
                 >;
             }
 
             detail::call_action_or_guard
             (
-                Transition::get_action(),
+                Action,
                 &root_sm_,
                 ctx_,
                 &event
@@ -268,17 +320,17 @@ class region
                     root_sm_.get_def().template before_entry
                     <
                         RegionPath,
-                        source_state_type,
+                        SourceState,
                         Event,
-                        target_state_type
+                        TargetState
                     >(event);
                 }
 
-                if constexpr(!std::is_same_v<target_state_type, states::stopped>)
+                if constexpr(!std::is_same_v<TargetState, states::stopped>)
                 {
                     detail::call_on_entry
                     (
-                        get_state<target_state_type>(),
+                        get_state<TargetState>(),
                         root_sm_,
                         event
                     );
@@ -289,9 +341,9 @@ class region
                     root_sm_.get_def().template after_state_transition
                     <
                         RegionPath,
-                        source_state_type,
+                        SourceState,
                         Event,
-                        target_state_type
+                        TargetState
                     >(event);
                 }
 
@@ -390,6 +442,37 @@ class region
             {
                 return false;
             }
+        }
+
+        template<class F, class... Args>
+        void with_active_state(Args&&... args)
+        {
+            tlu::apply_t
+            <
+                state_tuple_type,
+                with_active_state_2
+            >::template call<F>(*this, std::forward<Args>(args)...);
+        }
+
+        template<class... States>
+        struct with_active_state_2
+        {
+            template<class F, class... Args>
+            static void call(region& self, Args&&... args)
+            {
+                (self.with_active_state_3<F, States>(std::forward<Args>(args)...) || ...);
+            }
+        };
+
+        template<class F, class State, class... Args>
+        bool with_active_state_3(Args&&... args)
+        {
+            if(is_active_state_type<State>())
+            {
+                F::template call<State>(std::forward<Args>(args)...);
+                return true;
+            }
+            return false;
         }
 
         template<class State>

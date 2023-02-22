@@ -39,7 +39,6 @@ For example, the following digest type...:
     struct digest
     {
         using state_tuple_type = awesm::detail::type_list<state0, state1, state2, state3>;
-        static constexpr auto has_source_state_patterns = false;
         static constexpr auto has_null_events = false;
     };
 */
@@ -74,7 +73,6 @@ namespace transition_table_digest_detail
     struct initial_digest
     {
         using state_tuple_type = type_list<InitialState>;
-        static constexpr auto has_source_state_patterns = false;
         static constexpr auto has_null_events = false;
     };
 
@@ -86,11 +84,6 @@ namespace transition_table_digest_detail
             typename Digest::state_tuple_type,
             typename Transition::target_state_type
         >;
-
-        static constexpr auto has_source_state_patterns =
-            Digest::has_source_state_patterns ||
-            is_type_pattern_v<typename Transition::source_state_type>
-        ;
 
         static constexpr auto has_null_events =
             Digest::has_null_events ||
@@ -128,7 +121,6 @@ class transition_table_digest
             transition_table_digest_detail::state_wrapper_tuple_holder<RegionPath, Context>::template type
         >;
 
-        static constexpr auto has_source_state_patterns = digest_type::has_source_state_patterns;
         static constexpr auto has_null_events = digest_type::has_null_events;
 };
 

@@ -409,42 +409,26 @@ class region
         template<class StatePattern>
         [[nodiscard]] bool is_active_state_pattern() const
         {
-            return tlu::apply_t
-            <
-                tlu::push_back_t<state_tuple_type, states::stopped>,
-                is_active_state_pattern_helper
-            >::template call<StatePattern>(*this);
+            auto active_state_matches_pattern = false;
+            with_active_state_or_stopped<is_active_state_pattern_2<StatePattern>>(active_state_matches_pattern);
+            return active_state_matches_pattern;
         }
 
-        template<class... States>
-        struct is_active_state_pattern_helper
+        template<class StatePattern>
+        struct is_active_state_pattern_2
         {
-            template<class StatePattern>
-            static bool call(const region& self)
+            template<class ActiveState>
+            static void call([[maybe_unused]] bool& active_state_matches_pattern)
             {
-                return
-                (
-                    self.is_active_state_pattern_2<StatePattern, States>() ||
-                    ...
-                );
+                if constexpr(type_pattern_matches<StatePattern, ActiveState>())
+                {
+                    active_state_matches_pattern = true;
+                }
             }
         };
 
-        template<class StatePattern, class State>
-        [[nodiscard]] bool is_active_state_pattern_2() const
-        {
-            if constexpr(type_pattern_matches<StatePattern, State>())
-            {
-                return is_active_state_type<State>();
-            }
-            else
-            {
-                return false;
-            }
-        }
-
         template<class F, class... Args>
-        void with_active_state(Args&&... args)
+        void with_active_state(Args&&... args) const
         {
             tlu::apply_t
             <
@@ -453,18 +437,28 @@ class region
             >::template call<F>(*this, std::forward<Args>(args)...);
         }
 
+        template<class F, class... Args>
+        void with_active_state_or_stopped(Args&&... args) const
+        {
+            tlu::apply_t
+            <
+                tlu::push_back_t<state_tuple_type, states::stopped>,
+                with_active_state_2
+            >::template call<F>(*this, std::forward<Args>(args)...);
+        }
+
         template<class... States>
         struct with_active_state_2
         {
             template<class F, class... Args>
-            static void call(region& self, Args&&... args)
+            static void call(const region& self, Args&&... args)
             {
                 (self.with_active_state_3<F, States>(std::forward<Args>(args)...) || ...);
             }
         };
 
         template<class F, class State, class... Args>
-        bool with_active_state_3(Args&&... args)
+        bool with_active_state_3(Args&&... args) const
         {
             if(is_active_state_type<State>())
             {

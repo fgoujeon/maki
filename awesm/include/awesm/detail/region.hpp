@@ -100,7 +100,14 @@ class region
         template<class Event>
         void stop(const Event& event)
         {
-            detail::tlu::apply_t<state_tuple_type, stop_helper>::call(*this, event);
+            if(!is_active_state_type<states::stopped>())
+            {
+                with_active_state<stop_2>
+                (
+                    *this,
+                    event
+                );
+            }
         }
 
         template<class Event>
@@ -127,29 +134,19 @@ class region
 
         using initial_state_type = detail::tlu::front_t<state_tuple_type>;
 
-        template<class... States>
-        struct stop_helper
+        struct stop_2
         {
-            template<class Event>
+            template<class ActiveState, class Event>
             static void call(region& self, const Event& event)
             {
-                (self.stop_2<States>(event) || ...);
+                self.process_event_in_transition
+                <
+                    ActiveState,
+                    states::stopped,
+                    noop
+                >(event);
             }
         };
-
-        template<class State, class Event>
-        bool stop_2([[maybe_unused]] const Event& event)
-        {
-            if constexpr(std::is_same_v<State, states::stopped>)
-            {
-                return false;
-            }
-            else
-            {
-                using fake_transition = transition<State, Event, states::stopped>;
-                return try_processing_event_in_transition<fake_transition>(event);
-            }
-        }
 
         template<class Event>
         bool process_event_in_transition_table(const Event& event)

@@ -91,8 +91,10 @@ class region
         template<class Event>
         void start(const Event& event)
         {
-            using fake_transition = transition<states::stopped, Event, initial_state_type>;
-            try_processing_event_in_transition<fake_transition>(event);
+            if(is_active_state_type<states::stopped>())
+            {
+                process_event_in_transition<states::stopped, initial_state_type, noop>(event);
+            }
         }
 
         template<class Event>

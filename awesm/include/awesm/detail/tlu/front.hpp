@@ -7,13 +7,20 @@
 #ifndef AWESM_DETAIL_TLU_FRONT_HPP
 #define AWESM_DETAIL_TLU_FRONT_HPP
 
-#include "at.hpp"
-
 namespace awesm::detail::tlu
 {
 
 template<class TList>
-using front_t = at_t<TList, 0>;
+struct front;
+
+template<template<class...> class TList, class T, class... Ts>
+struct front<TList<T, Ts...>>
+{
+    using type = T;
+};
+
+template<class TList>
+using front_t = typename front<TList>::type;
 
 } //namespace
 

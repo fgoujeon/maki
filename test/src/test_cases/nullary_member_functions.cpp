@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace nullary_member_functions_ns
 {
     struct context
     {
@@ -109,6 +109,8 @@ namespace
 
 TEST_CASE("nullary_member_functions")
 {
+    using namespace nullary_member_functions_ns;
+
     auto ctx = context{};
     auto sm = sm_t{ctx};
 

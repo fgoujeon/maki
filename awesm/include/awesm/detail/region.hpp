@@ -228,11 +228,12 @@ class region
                         return;
                     }
 
+                    static constexpr const auto& action = Transition::get_action();
                     self.process_event_in_transition
                     <
                         ActiveState,
                         typename Transition::target_state_type,
-                        Transition::get_action()
+                        action
                     >(event);
 
                     processed = true;
@@ -257,11 +258,12 @@ class region
                 return false;
             }
 
+            static constexpr const auto& action = Transition::get_action();
             process_event_in_transition
             <
                 source_state_type,
                 typename Transition::target_state_type,
-                Transition::get_action()
+                action
             >(event);
 
             return true;

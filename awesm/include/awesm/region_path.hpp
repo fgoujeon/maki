@@ -88,15 +88,6 @@ struct region_path
 template<class Sm, int RegionIndex = -1>
 using make_region_path = region_path<>::add<Sm, RegionIndex>;
 
-namespace detail
-{
-    template<class RegionPath>
-    using region_path_to_sm_t = typename tlu::front_t<RegionPath>::sm_type;
-
-    template<class RegionPath>
-    using region_path_back_sm_t = typename tlu::back_t<RegionPath>::sm_type;
-}
-
 } //namespace
 
 #endif

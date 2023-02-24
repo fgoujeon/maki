@@ -17,7 +17,7 @@ template<template<class...> class TList, class... Ts, class F>
 struct for_each_or_helper<TList<Ts...>, F>
 {
     template<class... Args>
-    static bool call(Args&... args)
+    static bool call([[maybe_unused]] Args&... args)
     {
         return (F::template call<Ts>(args...) || ...);
     }

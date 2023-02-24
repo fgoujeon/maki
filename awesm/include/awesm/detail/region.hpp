@@ -60,6 +60,7 @@ template<class ParentSm, int Index, auto TransitionTableFn>
 class region
 {
     public:
+        using parent_sm_type = ParentSm;
         using context_type = typename ParentSm::context_type;
         using root_sm_conf = typename root_sm_of_t<region>::conf;
 
@@ -141,7 +142,7 @@ class region
         using transition_table_type = decltype(TransitionTableFn());
 
         using transition_table_digest_type =
-            detail::transition_table_digest<transition_table_type, region, context_type>
+            detail::transition_table_digest<transition_table_type, region>
         ;
         using state_tuple_type = typename transition_table_digest_type::state_tuple_type;
         using wrapped_state_holder_tuple_type =
@@ -363,7 +364,6 @@ class region
                 <
                     state_tuple_type,
                     region,
-                    context_type,
                     Event
                 >
             ;
@@ -470,14 +470,14 @@ class region
         template<class State>
         auto& get_state()
         {
-            using wrapped_state_t = state_traits::wrap_t<State, region, context_type>;
+            using wrapped_state_t = state_traits::wrap_t<State, region>;
             return get<sm_object_holder<wrapped_state_t>>(state_holders_).get();
         }
 
         template<class State>
         const auto& get_state() const
         {
-            using wrapped_state_t = state_traits::wrap_t<State, region, context_type>;
+            using wrapped_state_t = state_traits::wrap_t<State, region>;
             return get<sm_object_holder<wrapped_state_t>>(state_holders_).get();
         }
 

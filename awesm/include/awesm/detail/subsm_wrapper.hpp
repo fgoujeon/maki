@@ -17,25 +17,25 @@
 namespace awesm::detail
 {
 
-template<class Subsm, class Region, class ParentSmContext>
-struct region_path_of<subsm_wrapper<Subsm, Region, ParentSmContext>>
+template<class Subsm, class Region>
+struct region_path_of<subsm_wrapper<Subsm, Region>>
 {
     using type = region_path_of_t<Region>;
 };
 
-template<class Subsm, class Region, class ParentSmContext>
-struct root_sm_of<subsm_wrapper<Subsm, Region, ParentSmContext>>
+template<class Subsm, class Region>
+struct root_sm_of<subsm_wrapper<Subsm, Region>>
 {
     using type = root_sm_of_t<Region>;
 };
 
-template<class Subsm, class Region, class ParentSmContext>
+template<class Subsm, class Region>
 class subsm_wrapper
 {
     public:
         using root_sm_type = root_sm_of_t<subsm_wrapper>;
-
         using subsm_conf_type = typename Subsm::conf;
+        using parent_sm_context_type = typename Region::parent_sm_type::context_type;
 
         /*
         Context type is either (in this order of priority):
@@ -45,7 +45,7 @@ class subsm_wrapper
         using context_type = sm_conf_traits::context_t
         <
             subsm_conf_type,
-            ParentSmContext&
+            parent_sm_context_type&
         >;
 
         using conf = state_conf
@@ -56,7 +56,7 @@ class subsm_wrapper
             state_opts::get_pretty_name
         >;
 
-        subsm_wrapper(root_sm_type& root_sm, ParentSmContext& parent_ctx):
+        subsm_wrapper(root_sm_type& root_sm, parent_sm_context_type& parent_ctx):
             root_sm_(root_sm),
             context_(parent_ctx),
             subsm_holder_(root_sm, context_),

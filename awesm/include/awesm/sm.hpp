@@ -93,7 +93,7 @@ class sm
         explicit sm(ContextArgs&&... ctx_args):
             ctx_{std::forward<ContextArgs>(ctx_args)...},
             def_holder_(*this, ctx_),
-            region_tuple_(*this, ctx_)
+            region_tuple_(*this)
         {
             if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::disable_auto_start>)
             {

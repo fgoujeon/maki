@@ -62,8 +62,8 @@ template<class ParentSm, class TransitionTableFnList>
 class region_tuple
 {
     public:
-        region_tuple(ParentSm& parent_sm, typename ParentSm::context_type& ctx):
-            regions_(parent_sm, ctx)
+        region_tuple(ParentSm& parent_sm):
+            regions_(parent_sm)
         {
         }
 

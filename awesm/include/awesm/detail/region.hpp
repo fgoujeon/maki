@@ -64,10 +64,9 @@ class region
         using context_type = typename ParentSm::context_type;
         using root_sm_conf = typename root_sm_of_t<region>::conf;
 
-        region(ParentSm& parent_sm, context_type& ctx):
+        region(ParentSm& parent_sm):
             parent_sm_(parent_sm),
-            ctx_(ctx),
-            state_holders_(parent_sm.get_root_sm(), ctx)
+            state_holders_(parent_sm.get_root_sm(), get_context())
         {
         }
 
@@ -248,7 +247,7 @@ class region
                 }
 
                 //Check guard
-                if(!detail::call_action_or_guard(Guard, &self.get_root_sm(), self.ctx_, &event))
+                if(!detail::call_action_or_guard(Guard, &self.get_root_sm(), self.get_context(), &event))
                 {
                     return false;
                 }
@@ -307,7 +306,7 @@ class region
             (
                 Action,
                 &get_root_sm(),
-                ctx_,
+                get_context(),
                 &event
             );
 
@@ -467,6 +466,11 @@ class region
             return parent_sm_.get_root_sm();
         }
 
+        auto& get_context()
+        {
+            return parent_sm_.get_context();
+        }
+
         template<class State>
         auto& get_state()
         {
@@ -482,7 +486,6 @@ class region
         }
 
         ParentSm& parent_sm_;
-        context_type& ctx_;
         wrapped_state_holder_tuple_type state_holders_;
 
         int active_state_index_ = index_of_state_v<state_tuple_type, states::stopped>;

@@ -60,13 +60,18 @@ class subsm_wrapper
             root_sm_(root_sm),
             context_(parent_ctx),
             subsm_holder_(root_sm, context_),
-            region_tuple_(*this, context_)
+            region_tuple_(*this)
         {
         }
 
         root_sm_type& get_root_sm()
         {
             return root_sm_;
+        }
+
+        auto& get_context()
+        {
+            return context_;
         }
 
         template<class StateRelativeRegionPath, class State>

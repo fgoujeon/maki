@@ -124,7 +124,7 @@ class subsm_wrapper
         root_sm_type& root_sm_;
         context_type context_;
         detail::sm_object_holder<Subsm> subsm_holder_;
-        detail::region_tuple<subsm_wrapper, context_type, transition_table_fn_list_type> region_tuple_;
+        detail::region_tuple<subsm_wrapper, transition_table_fn_list_type> region_tuple_;
 };
 
 } //namespace

@@ -206,7 +206,6 @@ class sm
         using region_tuple_type = detail::region_tuple
         <
             sm,
-            context_type,
             detail::sm_conf_traits::transition_table_fn_list_t<conf>
         >;
 

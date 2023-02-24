@@ -58,11 +58,11 @@ using tt_list_to_region_tuple_t = typename tt_list_to_region_tuple
     std::make_integer_sequence<int, clu::size_v<TransitionTableFnList>>
 >::type;
 
-template<class ParentSm, class Context, class TransitionTableFnList>
+template<class ParentSm, class TransitionTableFnList>
 class region_tuple
 {
     public:
-        region_tuple(ParentSm& parent_sm, Context& ctx):
+        region_tuple(ParentSm& parent_sm, typename ParentSm::context_type& ctx):
             regions_(parent_sm, ctx)
         {
         }

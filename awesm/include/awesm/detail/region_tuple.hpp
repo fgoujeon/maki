@@ -19,7 +19,6 @@ namespace awesm::detail
 
 template
 <
-    class RootSm,
     class ParentSm,
     class Context,
     class TransitionTableFnList,
@@ -29,7 +28,6 @@ struct tt_list_to_region_tuple;
 
 template
 <
-    class RootSm,
     class ParentSm,
     class Context,
     template<auto...> class TransitionTableFnList,
@@ -38,7 +36,6 @@ template
 >
 struct tt_list_to_region_tuple
 <
-    RootSm,
     ParentSm,
     Context,
     TransitionTableFnList<TransitionTableFns...>,
@@ -49,7 +46,6 @@ struct tt_list_to_region_tuple
     <
         region
         <
-            RootSm,
             ParentSm,
             RegionIndexes,
             Context,
@@ -58,17 +54,16 @@ struct tt_list_to_region_tuple
     >;
 };
 
-template<class RootSm, class ParentSm, class Context, class TransitionTableFnList>
+template<class ParentSm, class Context, class TransitionTableFnList>
 using tt_list_to_region_tuple_t = typename tt_list_to_region_tuple
 <
-    RootSm,
     ParentSm,
     Context,
     TransitionTableFnList,
     std::make_integer_sequence<int, clu::size_v<TransitionTableFnList>>
 >::type;
 
-template<class RootSm, class ParentSm, class Context, class TransitionTableFnList>
+template<class ParentSm, class Context, class TransitionTableFnList>
 class region_tuple
 {
     public:
@@ -163,7 +158,6 @@ class region_tuple
 
         using region_tuple_type = tt_list_to_region_tuple_t
         <
-            RootSm,
             ParentSm,
             Context,
             TransitionTableFnList

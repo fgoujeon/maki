@@ -45,7 +45,7 @@ For example, the following digest type...:
 
 namespace transition_table_digest_detail
 {
-    template<class RootSm, class Region, class Context>
+    template<class Region, class Context>
     struct state_wrapper_tuple_holder
     {
         template<class... Ts>
@@ -53,7 +53,7 @@ namespace transition_table_digest_detail
         <
             sm_object_holder
             <
-                state_traits::wrap_t<Ts, RootSm, Region, Context>
+                state_traits::wrap_t<Ts, Region, Context>
             >...
         >;
     };
@@ -104,7 +104,7 @@ namespace transition_table_digest_detail
     >;
 }
 
-template<class TransitionTable, class RootSm, class Region, class Context>
+template<class TransitionTable, class Region, class Context>
 class transition_table_digest
 {
     private:
@@ -118,7 +118,7 @@ class transition_table_digest
         using wrapped_state_holder_tuple_type = tlu::apply_t
         <
             state_tuple_type,
-            transition_table_digest_detail::state_wrapper_tuple_holder<RootSm, Region, Context>::template type
+            transition_table_digest_detail::state_wrapper_tuple_holder<Region, Context>::template type
         >;
 
         static constexpr auto has_null_events = digest_type::has_null_events;

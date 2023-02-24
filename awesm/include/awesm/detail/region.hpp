@@ -41,22 +41,28 @@ namespace
     inline constexpr auto index_of_state_v = index_of_state<StateList, State>::value;
 }
 
-template<class RootSm, class ParentSm, int Index, class Context, auto TransitionTableFn>
+template<class ParentSm, int Index, class Context, auto TransitionTableFn>
 class region;
 
-template<class RootSm, class ParentSm, int Index, class Context, auto TransitionTableFn>
-struct region_path_of<region<RootSm, ParentSm, Index, Context, TransitionTableFn>>
+template<class ParentSm, int Index, class Context, auto TransitionTableFn>
+struct region_path_of<region<ParentSm, Index, Context, TransitionTableFn>>
 {
     using type = typename region_path_of_t<ParentSm>::template add<ParentSm, Index>;
 };
 
-template<class RootSm, class ParentSm, int Index, class Context, auto TransitionTableFn>
-struct root_conf_of<region<RootSm, ParentSm, Index, Context, TransitionTableFn>>
+template<class ParentSm, int Index, class Context, auto TransitionTableFn>
+struct root_conf_of<region<ParentSm, Index, Context, TransitionTableFn>>
 {
     using type = root_conf_of_t<ParentSm>;
 };
 
-template<class RootSm, class ParentSm, int Index, class Context, auto TransitionTableFn>
+template<class ParentSm, int Index, class Context, auto TransitionTableFn>
+struct root_sm_of<region<ParentSm, Index, Context, TransitionTableFn>>
+{
+    using type = root_sm_of_t<ParentSm>;
+};
+
+template<class ParentSm, int Index, class Context, auto TransitionTableFn>
 class region
 {
     public:
@@ -140,7 +146,7 @@ class region
         using transition_table_type = decltype(TransitionTableFn());
 
         using transition_table_digest_type =
-            detail::transition_table_digest<transition_table_type, RootSm, region, Context>
+            detail::transition_table_digest<transition_table_type, region, Context>
         ;
         using state_tuple_type = typename transition_table_digest_type::state_tuple_type;
         using wrapped_state_holder_tuple_type =
@@ -361,7 +367,6 @@ class region
                 state_type_list_filters::by_required_on_event_t
                 <
                     state_tuple_type,
-                    RootSm,
                     region,
                     Context,
                     Event
@@ -470,14 +475,14 @@ class region
         template<class State>
         auto& get_state()
         {
-            using wrapped_state_t = state_traits::wrap_t<State, RootSm, region, Context>;
+            using wrapped_state_t = state_traits::wrap_t<State, region, Context>;
             return get<sm_object_holder<wrapped_state_t>>(state_holders_).get();
         }
 
         template<class State>
         const auto& get_state() const
         {
-            using wrapped_state_t = state_traits::wrap_t<State, RootSm, region, Context>;
+            using wrapped_state_t = state_traits::wrap_t<State, region, Context>;
             return get<sm_object_holder<wrapped_state_t>>(state_holders_).get();
         }
 

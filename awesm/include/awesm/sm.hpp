@@ -80,6 +80,12 @@ namespace detail
     {
         using type = typename sm<Def>::conf;
     };
+
+    template<class Def>
+    struct root_sm_of<sm<Def>>
+    {
+        using type = sm<Def>;
+    };
 }
 
 template<class Def>
@@ -199,7 +205,6 @@ class sm
 
         using region_tuple_type = detail::region_tuple
         <
-            sm,
             sm,
             context_type,
             detail::sm_conf_traits::transition_table_fn_list_t<conf>

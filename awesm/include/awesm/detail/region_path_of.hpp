@@ -24,6 +24,13 @@ struct root_conf_of;
 template<class T>
 using root_conf_of_t = typename root_conf_of<T>::type;
 
+//Must be specialized by each type
+template<class T>
+struct root_sm_of;
+
+template<class T>
+using root_sm_of_t = typename root_sm_of<T>::type;
+
 } //namespace
 
 #endif

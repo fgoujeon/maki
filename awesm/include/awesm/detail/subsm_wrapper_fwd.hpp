@@ -10,7 +10,7 @@
 namespace awesm::detail
 {
 
-template<class Subsm, class RootSm, class Region, class ParentSmContext>
+template<class Subsm, class Region, class ParentSmContext>
 class subsm_wrapper;
 
 } //namespace

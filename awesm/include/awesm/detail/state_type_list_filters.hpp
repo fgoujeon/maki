@@ -37,7 +37,7 @@ using by_pattern_t = tlu::filter_t
 
 namespace by_required_on_event_detail
 {
-    template<class RootSm, class Region, class Context, class Event>
+    template<class Region, class Context, class Event>
     struct with
     {
         template<class State>
@@ -45,18 +45,18 @@ namespace by_required_on_event_detail
         {
             static constexpr auto value = state_traits::requires_on_event_v
             <
-                state_traits::wrap_t<State, RootSm, Region, Context>,
+                state_traits::wrap_t<State, Region, Context>,
                 Event
             >;
         };
     };
 }
 
-template<class StateList, class RootSm, class Region, class Context, class Event>
+template<class StateList, class Region, class Context, class Event>
 using by_required_on_event_t = tlu::filter_t
 <
     StateList,
-    by_required_on_event_detail::with<RootSm, Region, Context, Event>::template requires_on_event
+    by_required_on_event_detail::with<Region, Context, Event>::template requires_on_event
 >;
 
 } //namespace

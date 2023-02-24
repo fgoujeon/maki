@@ -51,12 +51,6 @@ struct region_path_of<region<ParentSm, Index, TransitionTableFn>>
 };
 
 template<class ParentSm, int Index, auto TransitionTableFn>
-struct root_conf_of<region<ParentSm, Index, TransitionTableFn>>
-{
-    using type = root_conf_of_t<ParentSm>;
-};
-
-template<class ParentSm, int Index, auto TransitionTableFn>
 struct root_sm_of<region<ParentSm, Index, TransitionTableFn>>
 {
     using type = root_sm_of_t<ParentSm>;
@@ -67,7 +61,7 @@ class region
 {
     public:
         using context_type = typename ParentSm::context_type;
-        using conf = root_conf_of_t<region>;
+        using root_sm_conf = typename root_sm_of_t<region>::conf;
 
         region(ParentSm& parent_sm, context_type& ctx):
             parent_sm_(parent_sm),
@@ -142,7 +136,7 @@ class region
         }
 
     private:
-        using option_mix_type = typename conf::option_mix_type;
+        using option_mix_type = typename root_sm_conf::option_mix_type;
 
         using transition_table_type = decltype(TransitionTableFn());
 

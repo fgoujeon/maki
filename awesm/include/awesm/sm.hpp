@@ -76,12 +76,6 @@ namespace detail
     };
 
     template<class Def>
-    struct root_conf_of<sm<Def>>
-    {
-        using type = typename sm<Def>::conf;
-    };
-
-    template<class Def>
     struct root_sm_of<sm<Def>>
     {
         using type = sm<Def>;

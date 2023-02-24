@@ -24,12 +24,6 @@ struct region_path_of<subsm_wrapper<Subsm, Region, ParentSmContext>>
 };
 
 template<class Subsm, class Region, class ParentSmContext>
-struct root_conf_of<subsm_wrapper<Subsm, Region, ParentSmContext>>
-{
-    using type = root_conf_of_t<Region>;
-};
-
-template<class Subsm, class Region, class ParentSmContext>
 struct root_sm_of<subsm_wrapper<Subsm, Region, ParentSmContext>>
 {
     using type = root_sm_of_t<Region>;

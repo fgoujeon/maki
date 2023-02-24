@@ -334,38 +334,37 @@ class region
         template<class Event>
         void process_event_in_active_state(const Event& event)
         {
-            detail::tlu::apply_t
+            using filtered_state_type_list =
+                state_type_list_filters::by_required_on_event_t
+                <
+                    state_tuple_type,
+                    RegionPath,
+                    Context,
+                    Event
+                >
+            ;
+
+            detail::tlu::for_each_or
             <
-                state_tuple_type,
-                process_event_in_active_state_helper
-            >::process(*this, event);
+                filtered_state_type_list,
+                process_event_in_active_state_2
+            >(*this, event);
         }
 
-        template<class State, class... States>
-        struct process_event_in_active_state_helper
+        struct process_event_in_active_state_2
         {
-            template<class Event>
-            static void process
-            (
-                [[maybe_unused]] region& self,
-                [[maybe_unused]] const Event& event
-            )
+            template<class State, class Event>
+            static bool call(region& self, const Event& event)
             {
-                using wrapped_state_t = state_traits::wrap_t<State, RegionPath, Context>;
-                if constexpr(state_traits::requires_on_event_v<wrapped_state_t, Event>)
+                if(!self.is_active_state_type<State>())
                 {
-                    auto& state = self.get_state<State>();
-                    if(self.is_active_state_type<State>())
-                    {
-                        call_on_event(state, event);
-                        return;
-                    }
+                    return false;
                 }
 
-                if constexpr(sizeof...(States) != 0)
-                {
-                    process_event_in_active_state_helper<States...>::process(self, event);
-                }
+                auto& state = self.get_state<State>();
+                call_on_event(state, event);
+
+                return false;
             }
         };
 

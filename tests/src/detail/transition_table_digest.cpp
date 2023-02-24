@@ -51,7 +51,7 @@ namespace
 
     using region_path_t = awesm::make_region_path<sm_t>;
 
-    using digest_t = awesm::detail::transition_table_digest<decltype(transition_table()), region_path_t, context>;
+    using digest_t = awesm::detail::transition_table_digest<decltype(transition_table()), sm_t>;
 
     using state_tuple_t = awesm::detail::type_list<state0, state1, state2, state3>;
 }

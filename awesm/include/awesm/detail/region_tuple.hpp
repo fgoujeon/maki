@@ -8,6 +8,7 @@
 #define AWESM_DETAIL_REGION_TUPLE_HPP
 
 #include "../transition_table.hpp"
+#include "../region_path.hpp"
 #include "region.hpp"
 #include "tuple.hpp"
 #include "clu.hpp"
@@ -18,8 +19,7 @@ namespace awesm::detail
 
 template
 <
-    class SmPath,
-    class Context,
+    class ParentSm,
     class TransitionTableFnList,
     class RegionIndexSequence
 >
@@ -27,16 +27,14 @@ struct tt_list_to_region_tuple;
 
 template
 <
-    class SmPath,
-    class Context,
+    class ParentSm,
     template<auto...> class TransitionTableFnList,
     auto... TransitionTableFns,
     int... RegionIndexes
 >
 struct tt_list_to_region_tuple
 <
-    SmPath,
-    Context,
+    ParentSm,
     TransitionTableFnList<TransitionTableFns...>,
     std::integer_sequence<int, RegionIndexes...>
 >
@@ -45,30 +43,27 @@ struct tt_list_to_region_tuple
     <
         region
         <
-            make_region_path_t<SmPath, RegionIndexes>,
-            Context,
+            ParentSm,
+            RegionIndexes,
             TransitionTableFns
         >...
     >;
 };
 
-template<class SmPath, class Context, class TransitionTableFnList>
+template<class ParentSm, class TransitionTableFnList>
 using tt_list_to_region_tuple_t = typename tt_list_to_region_tuple
 <
-    SmPath,
-    Context,
+    ParentSm,
     TransitionTableFnList,
     std::make_integer_sequence<int, clu::size_v<TransitionTableFnList>>
 >::type;
 
-template<class SmPath, class Context, class TransitionTableFnList>
+template<class ParentSm, class TransitionTableFnList>
 class region_tuple
 {
     public:
-        using sm_type = sm_path_to_sm_t<SmPath>;
-
-        region_tuple(sm_type& mach, Context& ctx):
-            regions_(mach, ctx)
+        region_tuple(ParentSm& parent_sm):
+            regions_(parent_sm)
         {
         }
 
@@ -158,8 +153,7 @@ class region_tuple
 
         using region_tuple_type = tt_list_to_region_tuple_t
         <
-            SmPath,
-            Context,
+            ParentSm,
             TransitionTableFnList
         >;
         region_tuple_type regions_;

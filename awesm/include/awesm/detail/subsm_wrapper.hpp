@@ -11,19 +11,31 @@
 #include "call_member.hpp"
 #include "region_tuple.hpp"
 #include "sm_object_holder.hpp"
-#include "sm_path.hpp"
 #include "sm_conf_traits.hpp"
+#include "region_path_of.hpp"
 
 namespace awesm::detail
 {
 
-template<class Subsm, class RegionPath, class ParentSmContext>
+template<class Subsm, class Region>
+struct region_path_of<subsm_wrapper<Subsm, Region>>
+{
+    using type = region_path_of_t<Region>;
+};
+
+template<class Subsm, class Region>
+struct root_sm_of<subsm_wrapper<Subsm, Region>>
+{
+    using type = root_sm_of_t<Region>;
+};
+
+template<class Subsm, class Region>
 class subsm_wrapper
 {
     public:
-        using root_sm_type = region_path_to_sm_t<RegionPath>;
-
+        using root_sm_type = root_sm_of_t<subsm_wrapper>;
         using subsm_conf_type = typename Subsm::conf;
+        using parent_sm_context_type = typename Region::parent_sm_type::context_type;
 
         /*
         Context type is either (in this order of priority):
@@ -33,7 +45,7 @@ class subsm_wrapper
         using context_type = sm_conf_traits::context_t
         <
             subsm_conf_type,
-            ParentSmContext&
+            parent_sm_context_type&
         >;
 
         using conf = state_conf
@@ -44,12 +56,22 @@ class subsm_wrapper
             state_opts::get_pretty_name
         >;
 
-        subsm_wrapper(root_sm_type& root_sm, ParentSmContext& parent_ctx):
+        subsm_wrapper(root_sm_type& root_sm, parent_sm_context_type& parent_ctx):
             root_sm_(root_sm),
             context_(parent_ctx),
             subsm_holder_(root_sm, context_),
-            region_tuple_(root_sm, context_)
+            region_tuple_(*this)
         {
+        }
+
+        root_sm_type& get_root_sm()
+        {
+            return root_sm_;
+        }
+
+        auto& get_context()
+        {
+            return context_;
         }
 
         template<class StateRelativeRegionPath, class State>
@@ -97,12 +119,11 @@ class subsm_wrapper
 
     private:
         using transition_table_fn_list_type = sm_conf_traits::transition_table_fn_list_t<subsm_conf_type>;
-        using sm_path_type = detail::sm_path<RegionPath, Subsm>;
 
         root_sm_type& root_sm_;
         context_type context_;
         detail::sm_object_holder<Subsm> subsm_holder_;
-        detail::region_tuple<sm_path_type, context_type, transition_table_fn_list_type> region_tuple_;
+        detail::region_tuple<subsm_wrapper, transition_table_fn_list_type> region_tuple_;
 };
 
 } //namespace

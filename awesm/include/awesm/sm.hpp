@@ -8,6 +8,7 @@
 #define AWESM_SM_HPP
 
 #include "sm_conf.hpp"
+#include "region_path.hpp"
 #include "null.hpp"
 #include "detail/noinline.hpp"
 #include "detail/sm_conf_traits.hpp"
@@ -15,7 +16,7 @@
 #include "detail/region_tuple.hpp"
 #include "detail/alternative.hpp"
 #include "detail/any_container.hpp"
-#include "detail/sm_path.hpp"
+#include "detail/region_path_of.hpp"
 #include "detail/tlu.hpp"
 #include "detail/type_tag.hpp"
 #include "detail/overload_priority.hpp"
@@ -64,6 +65,24 @@ namespace detail
 }
 
 template<class Def>
+class sm;
+
+namespace detail
+{
+    template<class Def>
+    struct region_path_of<sm<Def>>
+    {
+        using type = region_path<>;
+    };
+
+    template<class Def>
+    struct root_sm_of<sm<Def>>
+    {
+        using type = sm<Def>;
+    };
+}
+
+template<class Def>
 class sm
 {
     public:
@@ -74,7 +93,7 @@ class sm
         explicit sm(ContextArgs&&... ctx_args):
             ctx_{std::forward<ContextArgs>(ctx_args)...},
             def_holder_(*this, ctx_),
-            region_tuple_(*this, ctx_)
+            region_tuple_(*this)
         {
             if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::disable_auto_start>)
             {
@@ -88,6 +107,11 @@ class sm
         sm& operator=(const sm&) = delete;
         sm& operator=(sm&&) = delete;
         ~sm() = default;
+
+        sm& get_root_sm()
+        {
+            return *this;
+        }
 
         Def& get_def()
         {
@@ -175,8 +199,7 @@ class sm
 
         using region_tuple_type = detail::region_tuple
         <
-            detail::sm_path<region_path<>, sm>,
-            context_type,
+            sm,
             detail::sm_conf_traits::transition_table_fn_list_t<conf>
         >;
 

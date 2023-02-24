@@ -85,13 +85,6 @@ namespace pretty_name_ns
     using sm_t = awesm::sm<sm_def>;
 
     struct region_path{};
-
-    using wrapped_subsm = awesm::detail::subsm_wrapper
-    <
-        subsm,
-        awesm::make_region_path<sm_t, 0>,
-        context
-    >;
 }
 
 TEST_CASE("pretty_name")
@@ -123,12 +116,6 @@ TEST_CASE("pretty_name")
     REQUIRE
     (
         awesm::get_pretty_name<pretty_name_ns::subsm>() ==
-        std::string_view{"my_subsm"}
-    );
-
-    REQUIRE
-    (
-        awesm::get_pretty_name<pretty_name_ns::wrapped_subsm>() ==
         std::string_view{"my_subsm"}
     );
 

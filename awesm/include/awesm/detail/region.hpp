@@ -185,10 +185,21 @@ class region
                 }
                 else
                 {
-                    return self.try_processing_event_in_transition_with_source_state_type<Transition>
-                    (
-                        event
-                    );
+                    //Make sure the transition source state is the active state
+                    if(!self.is_active_state_type<source_state_type>())
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return self.try_processing_event_in_transition_2
+                        <
+                            source_state_type,
+                            typename Transition::target_state_type,
+                            Transition::get_action(),
+                            Transition::get_guard()
+                        >(event);
+                    }
                 }
             }
         };
@@ -208,48 +219,38 @@ class region
 
                 if constexpr(type_pattern_matches<source_state_type_pattern, ActiveState>())
                 {
-                    //Check guard
-                    if(!detail::call_action_or_guard(Transition::get_guard(), &self.root_sm_, self.ctx_, &event))
-                    {
-                        return;
-                    }
-
-                    static constexpr const auto& action = Transition::get_action();
-                    self.process_event_in_transition
+                    processed = self.try_processing_event_in_transition_2
                     <
                         ActiveState,
                         typename Transition::target_state_type,
-                        action
+                        Transition::get_action(),
+                        Transition::get_guard()
                     >(event);
-
-                    processed = true;
                 }
             }
         };
 
-        template<class Transition, class Event>
-        bool try_processing_event_in_transition_with_source_state_type(const Event& event)
+        template
+        <
+            class SourceState,
+            class TargetState,
+            const auto& Action,
+            const auto& Guard,
+            class Event
+        >
+        bool try_processing_event_in_transition_2(const Event& event)
         {
-            using source_state_type = typename Transition::source_state_type;
-
-            //Make sure the transition source state is the active state
-            if(!is_active_state_type<source_state_type>())
-            {
-                return false;
-            }
-
             //Check guard
-            if(!detail::call_action_or_guard(Transition::get_guard(), &root_sm_, ctx_, &event))
+            if(!detail::call_action_or_guard(Guard, &root_sm_, ctx_, &event))
             {
                 return false;
             }
 
-            static constexpr const auto& action = Transition::get_action();
             process_event_in_transition
             <
-                source_state_type,
-                typename Transition::target_state_type,
-                action
+                SourceState,
+                TargetState,
+                Action
             >(event);
 
             return true;

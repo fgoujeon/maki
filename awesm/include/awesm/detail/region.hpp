@@ -157,55 +157,41 @@ class region
                 Event
             >;
 
-            return detail::tlu::apply_t
+            return tlu::for_each_or
             <
                 filtered_transition_table_t,
-                process_event_in_transition_table_helper
-            >::process(*this, event);
+                try_processing_event_in_transition
+            >(*this, event);
         }
-
-        template<class... Transitions>
-        struct process_event_in_transition_table_helper
-        {
-            template<class Event>
-            static bool process
-            (
-                [[maybe_unused]] region& self,
-                [[maybe_unused]] const Event& event
-            )
-            {
-                return (
-                    self.try_processing_event_in_transition<Transitions>(event) ||
-                    ...
-                );
-            }
-        };
 
         //Check active state and guard
-        template<class Transition, class Event>
-        bool try_processing_event_in_transition(const Event& event)
+        struct try_processing_event_in_transition
         {
-            using source_state_type = typename Transition::source_state_type;
+            template<class Transition, class Event>
+            static bool call(region& self, const Event& event)
+            {
+                using source_state_type = typename Transition::source_state_type;
 
-            if constexpr(is_type_pattern_v<source_state_type>)
-            {
-                auto processed = false;
-                with_active_state<try_processing_event_in_transition_with_source_state_type_pattern<Transition>>
-                (
-                    *this,
-                    event,
-                    processed
-                );
-                return processed;
+                if constexpr(is_type_pattern_v<source_state_type>)
+                {
+                    auto processed = false;
+                    self.with_active_state<try_processing_event_in_transition_with_source_state_type_pattern<Transition>>
+                    (
+                        self,
+                        event,
+                        processed
+                    );
+                    return processed;
+                }
+                else
+                {
+                    return self.try_processing_event_in_transition_with_source_state_type<Transition>
+                    (
+                        event
+                    );
+                }
             }
-            else
-            {
-                return try_processing_event_in_transition_with_source_state_type<Transition>
-                (
-                    event
-                );
-            }
-        }
+        };
 
         template<class Transition>
         struct try_processing_event_in_transition_with_source_state_type_pattern
@@ -432,43 +418,37 @@ class region
         template<class F, class... Args>
         void with_active_state(Args&&... args) const
         {
-            tlu::apply_t
+            tlu::for_each_or
             <
                 state_tuple_type,
-                with_active_state_2
-            >::template call<F>(*this, std::forward<Args>(args)...);
+                with_active_state_2<F>
+            >(*this, std::forward<Args>(args)...);
         }
 
         template<class F, class... Args>
         void with_active_state_or_stopped(Args&&... args) const
         {
-            tlu::apply_t
+            tlu::for_each_or
             <
                 tlu::push_back_t<state_tuple_type, states::stopped>,
-                with_active_state_2
-            >::template call<F>(*this, std::forward<Args>(args)...);
+                with_active_state_2<F>
+            >(*this, std::forward<Args>(args)...);
         }
 
-        template<class... States>
+        template<class F>
         struct with_active_state_2
         {
-            template<class F, class... Args>
-            static void call(const region& self, Args&&... args)
+            template<class State, class... Args>
+            static bool call(const region& self, Args&&... args)
             {
-                (self.with_active_state_3<F, States>(std::forward<Args>(args)...) || ...);
+                if(self.is_active_state_type<State>())
+                {
+                    F::template call<State>(std::forward<Args>(args)...);
+                    return true;
+                }
+                return false;
             }
         };
-
-        template<class F, class State, class... Args>
-        bool with_active_state_3(Args&&... args) const
-        {
-            if(is_active_state_type<State>())
-            {
-                F::template call<State>(std::forward<Args>(args)...);
-                return true;
-            }
-            return false;
-        }
 
         template<class State>
         auto& get_state()

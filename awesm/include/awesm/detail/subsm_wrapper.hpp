@@ -17,13 +17,17 @@
 namespace awesm::detail
 {
 
-template<class Subsm, class RegionPath, class ParentSmContext>
+template<class Subsm, class RootSm, class Region, class ParentSmContext>
 class subsm_wrapper
 {
     public:
-        using root_sm_type = region_path_to_sm_t<RegionPath>;
-
         using subsm_conf_type = typename Subsm::conf;
+
+        template<class Dummy>
+        struct region_path_type_holder
+        {
+            using type = typename Region::template path_type_holder<void>::type;
+        };
 
         /*
         Context type is either (in this order of priority):
@@ -44,7 +48,7 @@ class subsm_wrapper
             state_opts::get_pretty_name
         >;
 
-        subsm_wrapper(root_sm_type& root_sm, ParentSmContext& parent_ctx):
+        subsm_wrapper(RootSm& root_sm, ParentSmContext& parent_ctx):
             root_sm_(root_sm),
             context_(parent_ctx),
             subsm_holder_(root_sm, context_),
@@ -97,12 +101,11 @@ class subsm_wrapper
 
     private:
         using transition_table_fn_list_type = sm_conf_traits::transition_table_fn_list_t<subsm_conf_type>;
-        using sm_path_type = detail::sm_path<RegionPath, Subsm>;
 
-        root_sm_type& root_sm_;
+        RootSm& root_sm_;
         context_type context_;
         detail::sm_object_holder<Subsm> subsm_holder_;
-        detail::region_tuple<sm_path_type, context_type, transition_table_fn_list_type> region_tuple_;
+        detail::region_tuple<RootSm, subsm_wrapper, context_type, transition_table_fn_list_type> region_tuple_;
 };
 
 } //namespace

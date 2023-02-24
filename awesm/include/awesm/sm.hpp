@@ -70,6 +70,12 @@ class sm
         using conf = typename Def::conf;
         using context_type = typename conf::context_type;
 
+        template<class Dummy>
+        struct region_path_type_holder
+        {
+            using type = region_path<>;
+        };
+
         template<class... ContextArgs>
         explicit sm(ContextArgs&&... ctx_args):
             ctx_{std::forward<ContextArgs>(ctx_args)...},
@@ -175,7 +181,8 @@ class sm
 
         using region_tuple_type = detail::region_tuple
         <
-            detail::sm_path<region_path<>, sm>,
+            sm,
+            sm,
             context_type,
             detail::sm_conf_traits::transition_table_fn_list_t<conf>
         >;

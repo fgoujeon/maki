@@ -18,7 +18,8 @@ namespace awesm::detail
 
 template
 <
-    class SmPath,
+    class RootSm,
+    class ParentSm,
     class Context,
     class TransitionTableFnList,
     class RegionIndexSequence
@@ -27,7 +28,8 @@ struct tt_list_to_region_tuple;
 
 template
 <
-    class SmPath,
+    class RootSm,
+    class ParentSm,
     class Context,
     template<auto...> class TransitionTableFnList,
     auto... TransitionTableFns,
@@ -35,7 +37,8 @@ template
 >
 struct tt_list_to_region_tuple
 <
-    SmPath,
+    RootSm,
+    ParentSm,
     Context,
     TransitionTableFnList<TransitionTableFns...>,
     std::integer_sequence<int, RegionIndexes...>
@@ -45,29 +48,30 @@ struct tt_list_to_region_tuple
     <
         region
         <
-            make_region_path_t<SmPath, RegionIndexes>,
+            RootSm,
+            ParentSm,
+            RegionIndexes,
             Context,
             TransitionTableFns
         >...
     >;
 };
 
-template<class SmPath, class Context, class TransitionTableFnList>
+template<class RootSm, class ParentSm, class Context, class TransitionTableFnList>
 using tt_list_to_region_tuple_t = typename tt_list_to_region_tuple
 <
-    SmPath,
+    RootSm,
+    ParentSm,
     Context,
     TransitionTableFnList,
     std::make_integer_sequence<int, clu::size_v<TransitionTableFnList>>
 >::type;
 
-template<class SmPath, class Context, class TransitionTableFnList>
+template<class RootSm, class ParentSm, class Context, class TransitionTableFnList>
 class region_tuple
 {
     public:
-        using sm_type = sm_path_to_sm_t<SmPath>;
-
-        region_tuple(sm_type& mach, Context& ctx):
+        region_tuple(RootSm& mach, Context& ctx):
             regions_(mach, ctx)
         {
         }
@@ -158,7 +162,8 @@ class region_tuple
 
         using region_tuple_type = tt_list_to_region_tuple_t
         <
-            SmPath,
+            RootSm,
+            ParentSm,
             Context,
             TransitionTableFnList
         >;

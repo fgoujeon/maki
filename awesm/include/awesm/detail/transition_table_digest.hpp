@@ -87,7 +87,7 @@ namespace transition_table_digest_detail
 
         static constexpr auto has_null_events =
             Digest::has_null_events ||
-            std::is_same_v<typename Transition::event_type, null>
+            std::is_same_v<typename Transition::event_type_pattern, null>
         ;
     };
 

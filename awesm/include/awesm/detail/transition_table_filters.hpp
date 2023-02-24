@@ -8,6 +8,7 @@
 #define AWESM_DETAIL_TRANSITION_TABLE_FILTERS_HPP
 
 #include "tlu.hpp"
+#include "../type_patterns.hpp"
 #include <type_traits>
 
 namespace awesm::detail::transition_table_filters
@@ -19,9 +20,9 @@ namespace by_event_detail
     struct for_event
     {
         template<class Row>
-        struct has_event
+        struct matches_event_pattern
         {
-            static constexpr auto value = std::is_same_v<Event, typename Row::event_type>;
+            static constexpr auto value = matches_pattern_v<Event, typename Row::event_type_pattern>;
         };
     };
 }
@@ -30,7 +31,7 @@ template<class TransitionTable, class Event>
 using by_event_t = tlu::filter_t
 <
     TransitionTable,
-    by_event_detail::for_event<Event>::template has_event
+    by_event_detail::for_event<Event>::template matches_event_pattern
 >;
 
 } //namespace

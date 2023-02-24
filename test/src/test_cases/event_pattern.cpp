@@ -21,14 +21,21 @@ namespace
 
     namespace events
     {
-        struct button_press{};
+        struct power_button_press{};
+        struct alert_button_press{};
     }
 
     auto sm_transition_table()
     {
+        using any_button_press = awesm::any_of
+        <
+            events::power_button_press,
+            events::alert_button_press
+        >;
+
         return awesm::transition_table
-            .add<states::off, events::button_press, states::on>
-            .add<states::on,  events::button_press, states::off>
+            .add<states::off, any_button_press,           states::on>
+            .add<states::on,  events::power_button_press, states::off>
         ;
     }
 
@@ -37,32 +44,28 @@ namespace
         using conf = awesm::sm_conf
         <
             sm_transition_table,
-            context,
-            awesm::sm_opts::disable_auto_start,
-            awesm::sm_opts::unsafe::disable_run_to_completion,
-            awesm::sm_opts::on_exception
+            context
         >;
-
-        void on_exception(const std::exception_ptr& /*eptr*/)
-        {
-        }
     };
 
     using sm_t = awesm::sm<sm_def>;
 }
 
-TEST_CASE("basic_transition")
+TEST_CASE("event_pattern")
 {
     auto sm = sm_t{};
 
-    REQUIRE(!sm.is_running());
-
-    sm.start();
     REQUIRE(sm.is_active_state<states::off>());
 
-    sm.process_event(events::button_press{});
+    sm.process_event(events::power_button_press{});
     REQUIRE(sm.is_active_state<states::on>());
 
-    sm.process_event(events::button_press{});
+    sm.process_event(events::power_button_press{});
     REQUIRE(sm.is_active_state<states::off>());
+
+    sm.process_event(events::alert_button_press{});
+    REQUIRE(sm.is_active_state<states::on>());
+
+    sm.process_event(events::alert_button_press{});
+    REQUIRE(sm.is_active_state<states::on>());
 }

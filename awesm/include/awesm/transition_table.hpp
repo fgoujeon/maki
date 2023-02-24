@@ -26,7 +26,7 @@ inline constexpr bool yes(whatever /*ctx*/)
 template
 <
     class SourceStatePattern,
-    class Event,
+    class EventPattern,
     class TargetState,
     const auto& Action = noop,
     const auto& Guard = yes
@@ -34,7 +34,7 @@ template
 struct transition
 {
     using source_state_type_pattern = SourceStatePattern;
-    using event_type = Event;
+    using event_type_pattern = EventPattern;
     using target_state_type = TargetState;
 
     static constexpr const auto& get_action()
@@ -54,7 +54,7 @@ struct transition_table_t
     template
     <
         class SourceStatePattern,
-        class Event,
+        class EventPattern,
         class TargetState,
         const auto& Action = noop,
         const auto& Guard = yes
@@ -62,7 +62,7 @@ struct transition_table_t
     static constexpr transition_table_t
     <
         Transitions...,
-        transition<SourceStatePattern, Event, TargetState, Action, Guard>
+        transition<SourceStatePattern, EventPattern, TargetState, Action, Guard>
     > add = {};
 };
 

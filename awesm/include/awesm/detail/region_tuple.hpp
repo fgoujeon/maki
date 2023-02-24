@@ -8,6 +8,7 @@
 #define AWESM_DETAIL_REGION_TUPLE_HPP
 
 #include "../transition_table.hpp"
+#include "../region_path.hpp"
 #include "region.hpp"
 #include "tuple.hpp"
 #include "clu.hpp"

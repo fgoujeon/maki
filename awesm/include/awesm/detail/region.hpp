@@ -7,15 +7,16 @@
 #ifndef AWESM_DETAIL_REGION_HPP
 #define AWESM_DETAIL_REGION_HPP
 
-#include "../sm_conf.hpp"
-#include "../states.hpp"
-#include "../null.hpp"
+#include "region_path_of.hpp"
 #include "state_traits.hpp"
 #include "call_member.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
 #include "tlu.hpp"
+#include "../sm_conf.hpp"
+#include "../states.hpp"
+#include "../null.hpp"
 #include <type_traits>
 #include <exception>
 
@@ -41,15 +42,18 @@ namespace
 }
 
 template<class RootSm, class ParentSm, int Index, class Context, auto TransitionTableFn>
+class region;
+
+template<class RootSm, class ParentSm, int Index, class Context, auto TransitionTableFn>
+struct region_path_of<region<RootSm, ParentSm, Index, Context, TransitionTableFn>>
+{
+    using type = typename region_path_of_t<ParentSm>::template add<ParentSm, Index>;
+};
+
+template<class RootSm, class ParentSm, int Index, class Context, auto TransitionTableFn>
 class region
 {
     public:
-        template<class Dummy>
-        struct path_type_holder
-        {
-            using type = typename ParentSm::template region_path_type_holder<void>::type::template add<ParentSm, Index>;
-        };
-
         using conf = typename RootSm::conf;
 
         region(ParentSm& parent_sm, Context& ctx):
@@ -255,7 +259,7 @@ class region
         template<class SourceState, class TargetState, const auto& Action, class Event>
         void process_event_in_transition([[maybe_unused]] const Event& event)
         {
-            using path_t = typename path_type_holder<void>::type;
+            using path_t = region_path_of_t<region>;
 
             constexpr auto is_internal_transition =
                 std::is_same_v<TargetState, null>

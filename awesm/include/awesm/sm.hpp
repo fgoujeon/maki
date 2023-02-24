@@ -8,6 +8,7 @@
 #define AWESM_SM_HPP
 
 #include "sm_conf.hpp"
+#include "region_path.hpp"
 #include "null.hpp"
 #include "detail/noinline.hpp"
 #include "detail/sm_conf_traits.hpp"
@@ -15,6 +16,7 @@
 #include "detail/region_tuple.hpp"
 #include "detail/alternative.hpp"
 #include "detail/any_container.hpp"
+#include "detail/region_path_of.hpp"
 #include "detail/tlu.hpp"
 #include "detail/type_tag.hpp"
 #include "detail/overload_priority.hpp"
@@ -63,17 +65,23 @@ namespace detail
 }
 
 template<class Def>
+class sm;
+
+namespace detail
+{
+    template<class Def>
+    struct region_path_of<sm<Def>>
+    {
+        using type = region_path<>;
+    };
+}
+
+template<class Def>
 class sm
 {
     public:
         using conf = typename Def::conf;
         using context_type = typename conf::context_type;
-
-        template<class Dummy>
-        struct region_path_type_holder
-        {
-            using type = region_path<>;
-        };
 
         template<class... ContextArgs>
         explicit sm(ContextArgs&&... ctx_args):

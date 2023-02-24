@@ -12,21 +12,22 @@
 #include "region_tuple.hpp"
 #include "sm_object_holder.hpp"
 #include "sm_conf_traits.hpp"
+#include "region_path_of.hpp"
 
 namespace awesm::detail
 {
+
+template<class Subsm, class RootSm, class Region, class ParentSmContext>
+struct region_path_of<subsm_wrapper<Subsm, RootSm, Region, ParentSmContext>>
+{
+    using type = region_path_of_t<Region>;
+};
 
 template<class Subsm, class RootSm, class Region, class ParentSmContext>
 class subsm_wrapper
 {
     public:
         using subsm_conf_type = typename Subsm::conf;
-
-        template<class Dummy>
-        struct region_path_type_holder
-        {
-            using type = typename Region::template path_type_holder<void>::type;
-        };
 
         /*
         Context type is either (in this order of priority):

@@ -15,6 +15,7 @@
 #include "call_member.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
+#include "state_type_list_filters.hpp"
 #include "tlu.hpp"
 #include <type_traits>
 #include <exception>
@@ -170,91 +171,75 @@ class region
             template<class Transition, class Event>
             static bool call(region& self, const Event& event)
             {
-                using source_state_type = typename Transition::source_state_type;
+                using source_state_t = typename Transition::source_state_type;
+                using target_state_t = typename Transition::target_state_type;
 
-                if constexpr(is_type_pattern_v<source_state_type>)
+                if constexpr(is_type_pattern_v<source_state_t>)
                 {
-                    auto processed = false;
-                    self.with_active_state<try_processing_event_in_transition_with_source_state_type_pattern<Transition>>
-                    (
-                        self,
-                        event,
-                        processed
-                    );
-                    return processed;
+                    using matching_state_type_list = state_type_list_filters::by_pattern_t
+                    <
+                        state_tuple_type,
+                        source_state_t
+                    >;
+
+                    static_assert(tlu::size_v<matching_state_type_list> != 0);
+
+                    return tlu::for_each_or
+                    <
+                        matching_state_type_list,
+                        try_processing_event_in_transition_2
+                        <
+                            target_state_t,
+                            Transition::get_action(),
+                            Transition::get_guard()
+                        >
+                    >(self, event);
                 }
                 else
                 {
-                    //Make sure the transition source state is the active state
-                    if(!self.is_active_state_type<source_state_type>())
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        return self.try_processing_event_in_transition_2
-                        <
-                            source_state_type,
-                            typename Transition::target_state_type,
-                            Transition::get_action(),
-                            Transition::get_guard()
-                        >(event);
-                    }
-                }
-            }
-        };
-
-        template<class Transition>
-        struct try_processing_event_in_transition_with_source_state_type_pattern
-        {
-            template<class ActiveState, class Event>
-            static void call
-            (
-                [[maybe_unused]] region& self,
-                [[maybe_unused]] const Event& event,
-                [[maybe_unused]] bool& processed
-            )
-            {
-                using source_state_type_pattern = typename Transition::source_state_type;
-
-                if constexpr(type_pattern_matches<source_state_type_pattern, ActiveState>())
-                {
-                    processed = self.try_processing_event_in_transition_2
+                    return try_processing_event_in_transition_2
                     <
-                        ActiveState,
-                        typename Transition::target_state_type,
+                        target_state_t,
                         Transition::get_action(),
                         Transition::get_guard()
-                    >(event);
+                    >::template call<source_state_t>(self, event);
                 }
             }
         };
 
         template
         <
-            class SourceState,
             class TargetState,
             const auto& Action,
-            const auto& Guard,
-            class Event
+            const auto& Guard
         >
-        bool try_processing_event_in_transition_2(const Event& event)
+        struct try_processing_event_in_transition_2
         {
-            //Check guard
-            if(!detail::call_action_or_guard(Guard, &root_sm_, ctx_, &event))
+            template<class SourceState, class Event>
+            static bool call(region& self, const Event& event)
             {
-                return false;
+                //Make sure the transition source state is the active state
+                if(!self.is_active_state_type<SourceState>())
+                {
+                    return false;
+                }
+
+                //Check guard
+                if(!detail::call_action_or_guard(Guard, &self.root_sm_, self.ctx_, &event))
+                {
+                    return false;
+                }
+
+                self.process_event_in_transition
+                <
+                    SourceState,
+                    TargetState,
+                    Action
+                >(event);
+
+                return true;
             }
-
-            process_event_in_transition
-            <
-                SourceState,
-                TargetState,
-                Action
-            >(event);
-
-            return true;
-        }
+        };
 
         template<class SourceState, class TargetState, const auto& Action, class Event>
         void process_event_in_transition([[maybe_unused]] const Event& event)

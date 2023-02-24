@@ -103,8 +103,8 @@ namespace
 
 TEST_CASE("on_entry_event_exit")
 {
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
+    auto& ctx = sm.get_context();
 
     sm.start();
 

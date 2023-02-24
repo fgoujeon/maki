@@ -65,15 +65,14 @@ namespace
 
 TEST_CASE("guard")
 {
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
 
     sm.start();
 
     sm.process_event(events::button_press{});
     REQUIRE(sm.is_active_state<states::off>());
 
-    ctx.has_power = true;
+    sm.get_context().has_power = true;
     sm.process_event(events::button_press{true});
     REQUIRE(sm.is_active_state<states::on>());
 }

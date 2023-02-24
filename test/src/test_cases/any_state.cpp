@@ -49,8 +49,7 @@ namespace
 
 TEST_CASE("any state")
 {
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
 
     sm.start();
 

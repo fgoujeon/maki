@@ -130,10 +130,10 @@ namespace
 
 TEST_CASE("on_exception")
 {
-    auto ctx = context{};
-
     {
-        auto sm = default_sm_t{ctx};
+        auto sm = default_sm_t{};
+        auto& ctx = sm.get_context();
+
         sm.start();
         ctx.out.clear();
 
@@ -143,7 +143,9 @@ TEST_CASE("on_exception")
     }
 
     {
-        auto sm = custom_sm_t{ctx};
+        auto sm = custom_sm_t{};
+        auto& ctx = sm.get_context();
+
         sm.start();
         ctx.out.clear();
 

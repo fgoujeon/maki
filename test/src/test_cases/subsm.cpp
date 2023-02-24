@@ -127,8 +127,8 @@ TEST_CASE("subsm")
 {
     using sm_on_region_path_t = awesm::make_region_path<sm_t>::add<states::on>;
 
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
+    auto& ctx = sm.get_context();
 
     sm.start();
 

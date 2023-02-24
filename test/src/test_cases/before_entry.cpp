@@ -12,7 +12,7 @@ namespace
 {
     struct context
     {
-        std::string out;
+        std::string& out;
     };
 
     namespace events
@@ -107,20 +107,20 @@ namespace
 
 TEST_CASE("before_entry")
 {
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto out = std::string{};
+    auto sm = sm_t{out};
 
     sm.start();
     REQUIRE(sm.is_active_state<states::off>());
-    REQUIRE(ctx.out == "off::before_entry;off::on_entry;");
+    REQUIRE(out == "off::before_entry;off::on_entry;");
 
-    ctx.out.clear();
+    out.clear();
     sm.process_event(events::button_push{});
     REQUIRE(sm.is_active_state<states::on>());
-    REQUIRE(ctx.out == "off::on_exit;on::before_entry;on::on_entry;");
+    REQUIRE(out == "off::on_exit;on::before_entry;on::on_entry;");
 
-    ctx.out.clear();
+    out.clear();
     sm.process_event(events::button_push{});
     REQUIRE(sm.is_active_state<states::off>());
-    REQUIRE(ctx.out == "on::on_exit;off::before_entry;off::on_entry;");
+    REQUIRE(out == "on::on_exit;off::before_entry;off::on_entry;");
 }

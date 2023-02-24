@@ -20,7 +20,7 @@ namespace
 
     struct context
     {
-        std::string out;
+        std::string& out;
     };
 
     namespace states
@@ -91,8 +91,8 @@ namespace
 
 TEST_CASE("double_start_stop")
 {
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto out = std::string{};
+    auto sm = sm_t{out};
 
     sm.start();
     sm.start();
@@ -100,23 +100,23 @@ TEST_CASE("double_start_stop")
     REQUIRE(sm.is_active_state<states::off>());
     REQUIRE
     (
-        ctx.out ==
+        out ==
         "Transition in main_sm: stopped -> off...;"
         "Transition in main_sm: stopped -> off;"
     );
 
-    ctx.out.clear();
+    out.clear();
     sm.stop();
     REQUIRE(!sm.is_running());
     REQUIRE
     (
-        ctx.out ==
+        out ==
         "Transition in main_sm: off -> stopped...;"
         "Transition in main_sm: off -> stopped;"
     );
 
-    ctx.out.clear();
+    out.clear();
     sm.stop();
     REQUIRE(!sm.is_running());
-    REQUIRE(ctx.out == "");
+    REQUIRE(out == "");
 }

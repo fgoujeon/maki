@@ -107,8 +107,8 @@ namespace
 
 TEST_CASE("internal_transition_in_transition_table")
 {
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
+    auto& ctx = sm.get_context();
 
     sm.start();
     REQUIRE(ctx.out == "idle::on_entry;");

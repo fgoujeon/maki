@@ -57,8 +57,7 @@ TEST_CASE("sm_ref")
         awesm::sm_ref<events::on_button_press, events::off_button_press>
     ;
 
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
     auto psm_ref_temp = std::make_unique<sm_ref_t>(sm); //test ref of ref
     auto sm_ref = sm_ref_t{*psm_ref_temp};
     psm_ref_temp.reset();

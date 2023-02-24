@@ -114,8 +114,8 @@ namespace
 
 TEST_CASE("subsm_on_xxx")
 {
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
+    auto& ctx = sm.get_context();
 
     sm.start();
 

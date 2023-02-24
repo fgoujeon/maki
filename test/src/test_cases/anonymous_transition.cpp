@@ -46,8 +46,7 @@ namespace
 
 TEST_CASE("anonymous transition")
 {
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
 
     sm.start();
 

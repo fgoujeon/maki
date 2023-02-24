@@ -88,8 +88,8 @@ namespace
 
 TEST_CASE("start_stop")
 {
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
+    auto& ctx = sm.get_context();
 
     REQUIRE(!sm.is_running());
     REQUIRE(ctx.out == "");

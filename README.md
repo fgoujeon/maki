@@ -251,8 +251,8 @@ namespace guards
         return event.duration_ms > 1000;
     }
 
-    //We can use guard operators to compose guards.
-    constexpr auto is_short_push = awesm::not_<is_long_push>;
+    //We can use awesm::guard and boolean operators to compose guards.
+    constexpr auto is_short_push = !awesm::guard<is_long_push>;
 }
 
 auto sm_transition_table()
@@ -309,20 +309,14 @@ using sm_t = awesm::sm<sm_def>;
 int main()
 {
     /*
-    We're responsible for instantiating our context ourselves. Also, as the
-    states, actions and guards only holds a reference to this context and not
-    a copy, it's also our responsibility to keep it alive until the state
-    machine is destructed.
+    When we instantiate the state machine, we also instantiate:
+    - a context;
+    - the states mentionned in the transition table.
+    Note that the states are instantiated once and for all: no construction or
+    destruction happens during state transitions.
     */
-    auto ctx = context{};
-
-    /*
-    When we instantiate the state machine, we also instantiate every state,
-    action and guard mentionned in the transition table. Note that they're
-    instantiated once and for all: no construction or destruction happens during
-    state transitions.
-    */
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
+    auto& ctx = sm.get_context();
 
 #if TESTING
     auto simulate_push = [&](const int duration_ms)

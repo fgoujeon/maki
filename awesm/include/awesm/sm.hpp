@@ -70,10 +70,11 @@ class sm
         using conf = typename Def::conf;
         using context_type = typename conf::context_type;
 
-        explicit sm(context_type& context):
-            ctx_(context),
-            def_holder_(*this, context),
-            region_tuple_(*this, context)
+        template<class... ContextArgs>
+        explicit sm(ContextArgs&&... ctx_args):
+            ctx_{std::forward<ContextArgs>(ctx_args)...},
+            def_holder_(*this, ctx_),
+            region_tuple_(*this, ctx_)
         {
             if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::disable_auto_start>)
             {
@@ -333,7 +334,7 @@ class sm
             }
         }
 
-        context_type& ctx_;
+        context_type ctx_;
         detail::sm_object_holder<Def> def_holder_;
         region_tuple_type region_tuple_;
         bool processing_event_ = false;

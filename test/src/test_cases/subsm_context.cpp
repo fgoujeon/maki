@@ -135,8 +135,8 @@ TEST_CASE("subsm_context")
 {
     using sm_on_region_path_t = awesm::make_region_path<sm_t>::add<states::on>;
 
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
+    auto& ctx = sm.get_context();
 
     sm.process_event(events::power_button_press{});
     REQUIRE(sm.is_active_state<sm_on_region_path_t, states::on_ns::emitting_red>());

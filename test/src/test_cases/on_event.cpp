@@ -91,9 +91,9 @@ namespace
 
 TEST_CASE("on_event")
 {
-    auto ctx = context{};
+    auto sm = sm_t{};
+    auto& ctx = sm.get_context();
 
-    auto sm = sm_t{ctx};
     sm.start();
     ctx.out.clear();
 

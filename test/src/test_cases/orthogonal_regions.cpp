@@ -107,8 +107,8 @@ namespace
 
 TEST_CASE("orthogonal_regions")
 {
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
+    auto& ctx = sm.get_context();
 
     using sm_region_0_path = awesm::make_region_path<sm_t, 0>;
     using sm_region_1_path = awesm::make_region_path<sm_t, 1>;

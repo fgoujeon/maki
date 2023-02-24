@@ -47,8 +47,7 @@ namespace
 
 TEST_CASE("non_copyable_context")
 {
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
 
     REQUIRE(sm.is_active_state<states::off>());
 

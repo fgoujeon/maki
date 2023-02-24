@@ -104,8 +104,8 @@ namespace
 
 TEST_CASE("guard operators")
 {
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
+    auto& ctx = sm.get_context();
 
     sm.start();
 

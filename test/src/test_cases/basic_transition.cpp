@@ -53,8 +53,7 @@ namespace
 
 TEST_CASE("basic transition")
 {
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
 
     REQUIRE(!sm.is_running());
 

@@ -93,8 +93,7 @@ TEST_CASE("is_active_state_pattern")
 {
     using sm_on_region_path_t = awesm::make_region_path<sm_t>::add<states::on>;
 
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
 
     sm.start();
 

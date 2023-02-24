@@ -96,8 +96,8 @@ namespace
 
 TEST_CASE("state_transition_hook_set")
 {
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
+    auto& ctx = sm.get_context();
 
     sm.start(events::button_press{0});
     REQUIRE(sm.is_active_state<states::off>());

@@ -80,8 +80,7 @@ namespace
 
 TEST_CASE("subsm_in_type_pattern")
 {
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
 
     sm.start();
     REQUIRE(sm.is_active_state<states::off>());

@@ -56,16 +56,15 @@ namespace
 
 TEST_CASE("action")
 {
-    auto ctx = context{};
-    auto sm = sm_t{ctx};
+    auto sm = sm_t{};
 
     sm.start();
 
     sm.process_event(events::button_press{});
     REQUIRE(sm.is_active_state<states::on>());
-    REQUIRE(ctx.i == 1);
+    REQUIRE(sm.get_context().i == 1);
 
     sm.process_event(events::button_press{});
     REQUIRE(sm.is_active_state<states::off>());
-    REQUIRE(ctx.i == 0);
+    REQUIRE(sm.get_context().i == 0);
 }

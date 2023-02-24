@@ -18,13 +18,10 @@ namespace subsm_opts
 {
     using on_entry_any = state_opts::on_entry_any;
 
-    template<class EventPattern>
-    using on_event = state_opts::on_event<EventPattern>;
+    template<class... EventPatterns>
+    using on_event = state_opts::on_event<EventPatterns...>;
 
     using on_event_any = state_opts::on_event_any;
-
-    template<class... Ts>
-    using on_event_any_of = state_opts::on_event_any_of<Ts...>;
 
     using on_exit_any = state_opts::on_exit_any;
 

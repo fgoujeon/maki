@@ -106,7 +106,7 @@ namespace states
             This expression must be valid:
                 state.on_event(event);
             */
-            awesm::state_opts::on_event_any_of<button::push_event>,
+            awesm::state_opts::on_event<button::push_event>,
 
             /*
             Finally, we want the state machine to call on_exit() whenever it

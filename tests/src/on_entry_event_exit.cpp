@@ -32,7 +32,7 @@ namespace
             using conf = awesm::state_conf
             <
                 awesm::state_opts::on_entry_any,
-                awesm::state_opts::on_event_any_of<events::say_dog>,
+                awesm::state_opts::on_event<events::say_dog>,
                 awesm::state_opts::on_exit_any
             >;
 
@@ -59,7 +59,7 @@ namespace
             using conf = awesm::state_conf
             <
                 awesm::state_opts::on_entry_any,
-                awesm::state_opts::on_event_any_of<events::say_dog>,
+                awesm::state_opts::on_event<events::say_dog>,
                 awesm::state_opts::on_exit_any
             >;
 

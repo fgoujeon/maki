@@ -44,7 +44,7 @@ namespace
             using conf = awesm::state_conf
             <
                 awesm::state_opts::on_entry_any,
-                awesm::state_opts::on_event_any_of<awesm::events::exception>,
+                awesm::state_opts::on_event<awesm::events::exception>,
                 awesm::state_opts::on_exit_any
             >;
 

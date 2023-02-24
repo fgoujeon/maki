@@ -18,13 +18,10 @@ namespace state_opts
 {
     struct on_entry_any{};
 
-    template<class TypePattern>
+    template<class... EventPatterns>
     struct on_event{};
 
     using on_event_any = on_event<any>;
-
-    template<class... Ts>
-    using on_event_any_of = on_event<any_of<Ts...>>;
 
     struct on_exit_any{};
 

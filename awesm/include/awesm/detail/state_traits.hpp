@@ -34,13 +34,13 @@ using wrap_t = typename wrap<State, RegionPath, ParentSmContext>::type;
 
 //other
 
-template<template<class> class Option, class Event, class TypePattern>
-constexpr bool requires_on_xxx_conf(Option<TypePattern>* /*tag*/)
+template<template<class...> class Option, class Event, class... TypePatterns>
+constexpr bool requires_on_xxx_conf(Option<TypePatterns...>* /*tag*/)
 {
-    return TypePattern::template matches<Event>;
+    return (matches_pattern_v<Event, TypePatterns> || ...);
 }
 
-template<template<class> class Option, class Event>
+template<template<class...> class Option, class Event>
 constexpr bool requires_on_xxx_conf(void* /*tag*/)
 {
     return false;

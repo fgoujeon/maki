@@ -21,6 +21,10 @@ namespace
         {
             std::string data;
         };
+
+        struct alert_button_press
+        {
+        };
     }
 
     namespace states
@@ -29,7 +33,7 @@ namespace
         {
             using conf = awesm::state_conf
             <
-                awesm::state_opts::on_event_any_of<events::button_press>
+                awesm::state_opts::on_event<events::button_press>
             >;
 
             void on_event(const events::button_press& event)
@@ -44,12 +48,21 @@ namespace
         {
             using conf = awesm::state_conf
             <
-                awesm::state_opts::on_event_any_of<events::button_press>
+                awesm::state_opts::on_event
+                <
+                    events::button_press,
+                    events::alert_button_press
+                >
             >;
 
             void on_event(const events::button_press& /*event*/)
             {
                 ctx.out += "_";
+            }
+
+            void on_event(const events::alert_button_press& /*event*/)
+            {
+                ctx.out += "beep;";
             }
 
             context& ctx;
@@ -95,9 +108,14 @@ TEST_CASE("on_event")
     auto& ctx = sm.get_context();
 
     sm.start();
-    ctx.out.clear();
 
+    ctx.out.clear();
     sm.process_event(events::button_press{"a"});
     REQUIRE(sm.is_active_state<states::on>());
     REQUIRE(ctx.out == "a1;");
+
+    ctx.out.clear();
+    sm.process_event(events::alert_button_press{});
+    REQUIRE(sm.is_active_state<states::on>());
+    REQUIRE(ctx.out == "beep;");
 }

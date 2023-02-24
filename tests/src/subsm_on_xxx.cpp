@@ -40,7 +40,7 @@ namespace
             using conf = awesm::state_conf
             <
                 awesm::state_opts::on_entry_any,
-                awesm::state_opts::on_event_any_of<events::internal>,
+                awesm::state_opts::on_event<events::internal>,
                 awesm::state_opts::on_exit_any
             >;
 
@@ -75,7 +75,7 @@ namespace
             <
                 on_transition_table,
                 awesm::subsm_opts::on_entry_any,
-                awesm::subsm_opts::on_event_any_of<events::internal>,
+                awesm::subsm_opts::on_event<events::internal>,
                 awesm::subsm_opts::on_exit_any
             >;
 

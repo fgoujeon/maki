@@ -89,11 +89,12 @@ namespace
     };
 }
 
-TEST_CASE("double_stop")
+TEST_CASE("double_start_stop")
 {
     auto ctx = context{};
     auto sm = sm_t{ctx};
 
+    sm.start();
     sm.start();
 
     REQUIRE(sm.is_active_state<states::off>());

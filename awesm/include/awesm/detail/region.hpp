@@ -158,11 +158,18 @@ class region
                 Event
             >;
 
-            return tlu::for_each_or
-            <
-                filtered_transition_table_t,
-                try_processing_event_in_transition
-            >(*this, event);
+            if constexpr(tlu::empty_v<filtered_transition_table_t>)
+            {
+                return false;
+            }
+            else
+            {
+                return tlu::for_each_or
+                <
+                    filtered_transition_table_t,
+                    try_processing_event_in_transition
+                >(*this, event);
+            }
         }
 
         //Check active state and guard
@@ -171,7 +178,7 @@ class region
             template<class Transition, class Event>
             static bool call(region& self, const Event& event)
             {
-                using source_state_t = typename Transition::source_state_type;
+                using source_state_t = typename Transition::source_state_type_pattern;
                 using target_state_t = typename Transition::target_state_type;
 
                 if constexpr(is_type_pattern_v<source_state_t>)
@@ -182,7 +189,7 @@ class region
                         source_state_t
                     >;
 
-                    static_assert(tlu::size_v<matching_state_type_list> != 0);
+                    static_assert(!tlu::empty_v<matching_state_type_list>);
 
                     return tlu::for_each_or
                     <
@@ -344,11 +351,14 @@ class region
                 >
             ;
 
-            detail::tlu::for_each_or
-            <
-                filtered_state_type_list,
-                process_event_in_active_state_2
-            >(*this, event);
+            if constexpr(!tlu::empty_v<filtered_state_type_list>)
+            {
+                tlu::for_each_or
+                <
+                    filtered_state_type_list,
+                    process_event_in_active_state_2
+                >(*this, event);
+            }
         }
 
         struct process_event_in_active_state_2

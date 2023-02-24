@@ -74,6 +74,12 @@ namespace detail
     {
         using type = region_path<>;
     };
+
+    template<class Def>
+    struct root_conf_of<sm<Def>>
+    {
+        using type = typename sm<Def>::conf;
+    };
 }
 
 template<class Def>

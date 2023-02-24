@@ -51,10 +51,16 @@ struct region_path_of<region<RootSm, ParentSm, Index, Context, TransitionTableFn
 };
 
 template<class RootSm, class ParentSm, int Index, class Context, auto TransitionTableFn>
+struct root_conf_of<region<RootSm, ParentSm, Index, Context, TransitionTableFn>>
+{
+    using type = root_conf_of_t<ParentSm>;
+};
+
+template<class RootSm, class ParentSm, int Index, class Context, auto TransitionTableFn>
 class region
 {
     public:
-        using conf = typename RootSm::conf;
+        using conf = root_conf_of_t<region>;
 
         region(ParentSm& parent_sm, Context& ctx):
             parent_sm_(parent_sm),

@@ -341,15 +341,6 @@ class sm
         {
             try
             {
-                if constexpr
-                (
-                    Operation == detail::sm_operation::process_event &&
-                    detail::tlu::contains_v<option_mix_type, sm_opts::on_event>
-                )
-                {
-                    get_def().on_event(event);
-                }
-
                 if constexpr(Operation == detail::sm_operation::start)
                 {
                     def_holder_.on_entry(event);

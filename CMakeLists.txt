@@ -11,10 +11,10 @@ project(awesm)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 option(AWESM_BUILD_EXAMPLES "Build example executables" OFF)
-option(AWESM_BUILD_TEST "Build test executable" OFF)
+option(AWESM_BUILD_TESTS "Build test executable" OFF)
 option(AWESM_FORCE_CATCH2_V2 "Force version 2 of catch2" OFF)
 
-if(AWESM_BUILD_TEST)
+if(AWESM_BUILD_TESTS)
     find_package(Catch2 REQUIRED)
 endif()
 
@@ -24,7 +24,7 @@ if(AWESM_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-if(AWESM_BUILD_TEST)
+if(AWESM_BUILD_TESTS)
     enable_testing()
-    add_subdirectory(test)
+    add_subdirectory(tests)
 endif()

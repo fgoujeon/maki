@@ -50,7 +50,7 @@ jobs:
           -B ${{github.workspace}}/build \
           -DCMAKE_CXX_COMPILER=${{matrix.config.compiler}}-${{matrix.config.version}} \
           -DCMAKE_BUILD_TYPE=${{matrix.config.build_type}} \
-          -DAWESM_BUILD_TEST=1 \
+          -DAWESM_BUILD_TESTS=1 \
           -DAWESM_BUILD_EXAMPLES=1 \
           -DAWESM_FORCE_CATCH2_V2=1
 

@@ -23,7 +23,7 @@ install:
   - vcpkg install catch2:x86-windows
 
 before_build:
-  - cmake -DAWESM_BUILD_TEST=1 -DAWESM_BUILD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake -A%PLATFORM% .
+  - cmake -DAWESM_BUILD_TESTS=1 -DAWESM_BUILD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake -A%PLATFORM% .
 
 build:
   project: $(APPVEYOR_BUILD_FOLDER)\$(APPVEYOR_PROJECT_NAME).sln

@@ -11,7 +11,6 @@
 #include "../states.hpp"
 #include "../null.hpp"
 #include "state_traits.hpp"
-#include "sm_path.hpp"
 #include "call_member.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"

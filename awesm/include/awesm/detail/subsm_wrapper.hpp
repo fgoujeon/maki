@@ -11,7 +11,6 @@
 #include "call_member.hpp"
 #include "region_tuple.hpp"
 #include "sm_object_holder.hpp"
-#include "sm_path.hpp"
 #include "sm_conf_traits.hpp"
 
 namespace awesm::detail

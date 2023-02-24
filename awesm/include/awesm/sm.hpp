@@ -15,7 +15,6 @@
 #include "detail/region_tuple.hpp"
 #include "detail/alternative.hpp"
 #include "detail/any_container.hpp"
-#include "detail/sm_path.hpp"
 #include "detail/tlu.hpp"
 #include "detail/type_tag.hpp"
 #include "detail/overload_priority.hpp"

@@ -13,7 +13,6 @@
 #include "detail/noinline.hpp"
 #include "detail/sm_conf_traits.hpp"
 #include "detail/subsm_wrapper.hpp"
-#include "detail/region_tuple.hpp"
 #include "detail/alternative.hpp"
 #include "detail/any_container.hpp"
 #include "detail/region_path_of.hpp"
@@ -133,12 +132,12 @@ class sm
 
         Def& get_def()
         {
-            return def_holder_.get();
+            return def_holder_.get_def();
         }
 
         const Def& get_def() const
         {
-            return def_holder_.get();
+            return def_holder_.get_def();
         }
 
         context_type& get_context()

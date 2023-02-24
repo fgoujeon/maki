@@ -71,8 +71,8 @@ template<class RootSm, class ParentSm, class Context, class TransitionTableFnLis
 class region_tuple
 {
     public:
-        region_tuple(RootSm& mach, Context& ctx):
-            regions_(mach, ctx)
+        region_tuple(ParentSm& parent_sm, Context& ctx):
+            regions_(parent_sm, ctx)
         {
         }
 

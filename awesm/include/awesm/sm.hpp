@@ -95,6 +95,11 @@ class sm
         sm& operator=(sm&&) = delete;
         ~sm() = default;
 
+        sm& get_root_sm()
+        {
+            return *this;
+        }
+
         Def& get_def()
         {
             return def_holder_.get();

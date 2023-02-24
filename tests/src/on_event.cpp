@@ -83,13 +83,8 @@ namespace
         <
             sm_transition_table,
             context,
-            awesm::sm_opts::on_event
+            awesm::sm_opts::on_event<events::button_press>
         >;
-
-        template<class Event>
-        void on_event(const Event& /*event*/)
-        {
-        }
 
         void on_event(const events::button_press& event)
         {

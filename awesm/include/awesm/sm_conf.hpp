@@ -7,6 +7,7 @@
 #ifndef AWESM_SM_CONF_HPP
 #define AWESM_SM_CONF_HPP
 
+#include "subsm_conf.hpp"
 #include "transition_table.hpp"
 #include "pretty_name.hpp"
 #include "detail/mix.hpp"
@@ -21,11 +22,13 @@ namespace sm_opts
         struct disable_run_to_completion{};
     }
 
+    template<class... EventPatterns>
+    using on_event = state_opts::on_event<EventPatterns...>;
+
     struct after_state_transition{};
     struct before_entry{};
     struct before_state_transition{};
     struct disable_auto_start{};
-    struct on_event{};
     struct on_exception{};
 
     template<size_t Value>

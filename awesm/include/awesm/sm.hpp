@@ -13,7 +13,6 @@
 #include "detail/noinline.hpp"
 #include "detail/sm_conf_traits.hpp"
 #include "detail/subsm_wrapper.hpp"
-#include "detail/region_tuple.hpp"
 #include "detail/alternative.hpp"
 #include "detail/any_container.hpp"
 #include "detail/region_path_of.hpp"
@@ -62,6 +61,13 @@ namespace detail
     {
         return SmConf::get_small_event_max_alignment_requirement();
     }
+
+    //Fake region class for subsm_wrapper
+    template<class Sm>
+    struct sm_root_region
+    {
+        using parent_sm_type = Sm;
+    };
 }
 
 template<class Def>
@@ -80,6 +86,18 @@ namespace detail
     {
         using type = sm<Def>;
     };
+
+    template<class Def>
+    struct region_path_of<sm_root_region<sm<Def>>>
+    {
+        using type = region_path<>;
+    };
+
+    template<class Def>
+    struct root_sm_of<sm_root_region<sm<Def>>>
+    {
+        using type = sm<Def>;
+    };
 }
 
 template<class Def>
@@ -92,8 +110,7 @@ class sm
         template<class... ContextArgs>
         explicit sm(ContextArgs&&... ctx_args):
             ctx_{std::forward<ContextArgs>(ctx_args)...},
-            def_holder_(*this, ctx_),
-            region_tuple_(*this)
+            def_holder_(*this, ctx_)
         {
             if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::disable_auto_start>)
             {
@@ -115,12 +132,12 @@ class sm
 
         Def& get_def()
         {
-            return def_holder_.get();
+            return def_holder_.get_def();
         }
 
         const Def& get_def() const
         {
-            return def_holder_.get();
+            return def_holder_.get_def();
         }
 
         context_type& get_context()
@@ -156,13 +173,13 @@ class sm
                     sm
                 >
             );
-            return region_tuple_.template is_active_state<StateRegionPath, State>();
+            return def_holder_.template is_active_state<StateRegionPath, State>();
         }
 
         template<class State>
         [[nodiscard]] bool is_active_state() const
         {
-            return region_tuple_.template is_active_state<State>();
+            return def_holder_.template is_active_state<State>();
         }
 
         template<class Event = events::start>
@@ -196,12 +213,6 @@ class sm
 
     private:
         using option_mix_type = typename conf::option_mix_type;
-
-        using region_tuple_type = detail::region_tuple
-        <
-            sm,
-            detail::sm_conf_traits::transition_table_fn_list_t<conf>
-        >;
 
         struct any_event_queue_holder
         {
@@ -329,26 +340,17 @@ class sm
         {
             try
             {
-                if constexpr
-                (
-                    Operation == detail::sm_operation::process_event &&
-                    detail::tlu::contains_v<option_mix_type, sm_opts::on_event>
-                )
-                {
-                    get_def().on_event(event);
-                }
-
                 if constexpr(Operation == detail::sm_operation::start)
                 {
-                    region_tuple_.start(event);
+                    def_holder_.on_entry(event);
                 }
                 else if constexpr(Operation == detail::sm_operation::stop)
                 {
-                    region_tuple_.stop(event);
+                    def_holder_.on_exit(event);
                 }
                 else
                 {
-                    region_tuple_.process_event(event);
+                    def_holder_.on_event(event);
                 }
             }
             catch(...)
@@ -358,8 +360,7 @@ class sm
         }
 
         context_type ctx_;
-        detail::sm_object_holder<Def> def_holder_;
-        region_tuple_type region_tuple_;
+        detail::subsm_wrapper<Def, detail::sm_root_region<sm>, true> def_holder_;
         bool processing_event_ = false;
         any_event_queue_type event_queue_;
 };

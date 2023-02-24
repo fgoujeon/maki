@@ -7,35 +7,84 @@
 #ifndef AWESM_DETAIL_SUBSM_WRAPPER_HPP
 #define AWESM_DETAIL_SUBSM_WRAPPER_HPP
 
-#include "../state_conf.hpp"
+#include "alternative.hpp"
 #include "call_member.hpp"
-#include "region_tuple.hpp"
-#include "sm_object_holder.hpp"
-#include "sm_conf_traits.hpp"
+#include "clu.hpp"
+#include "tlu.hpp"
+#include "region.hpp"
 #include "region_path_of.hpp"
+#include "sm_conf_traits.hpp"
+#include "sm_object_holder.hpp"
+#include "subsm_wrapper_fwd.hpp"
+#include "tuple.hpp"
+#include "../state_conf.hpp"
+#include "../transition_table.hpp"
+#include "../region_path.hpp"
+#include <type_traits>
 
 namespace awesm::detail
 {
 
-template<class Subsm, class Region>
-struct region_path_of<subsm_wrapper<Subsm, Region>>
+template<class Subsm, class ParentRegion, bool Root>
+struct region_path_of<subsm_wrapper<Subsm, ParentRegion, Root>>
 {
-    using type = region_path_of_t<Region>;
+    using type = region_path_of_t<ParentRegion>;
 };
 
-template<class Subsm, class Region>
-struct root_sm_of<subsm_wrapper<Subsm, Region>>
+template<class Subsm, class ParentRegion, bool Root>
+struct root_sm_of<subsm_wrapper<Subsm, ParentRegion, Root>>
 {
-    using type = root_sm_of_t<Region>;
+    using type = root_sm_of_t<ParentRegion>;
 };
 
-template<class Subsm, class Region>
+template
+<
+    class ParentSm,
+    class TransitionTableFnList,
+    class RegionIndexSequence
+>
+struct tt_list_to_region_tuple;
+
+template
+<
+    class ParentSm,
+    template<auto...> class TransitionTableFnList,
+    auto... TransitionTableFns,
+    int... RegionIndexes
+>
+struct tt_list_to_region_tuple
+<
+    ParentSm,
+    TransitionTableFnList<TransitionTableFns...>,
+    std::integer_sequence<int, RegionIndexes...>
+>
+{
+    using type = tuple
+    <
+        region
+        <
+            ParentSm,
+            RegionIndexes,
+            TransitionTableFns
+        >...
+    >;
+};
+
+template<class ParentSm, class TransitionTableFnList>
+using tt_list_to_region_tuple_t = typename tt_list_to_region_tuple
+<
+    ParentSm,
+    TransitionTableFnList,
+    std::make_integer_sequence<int, clu::size_v<TransitionTableFnList>>
+>::type;
+
+template<class Subsm, class ParentRegion, bool Root>
 class subsm_wrapper
 {
     public:
         using root_sm_type = root_sm_of_t<subsm_wrapper>;
         using subsm_conf_type = typename Subsm::conf;
-        using parent_sm_context_type = typename Region::parent_sm_type::context_type;
+        using parent_sm_context_type = typename ParentRegion::parent_sm_type::context_type;
 
         /*
         Context type is either (in this order of priority):
@@ -60,7 +109,7 @@ class subsm_wrapper
             root_sm_(root_sm),
             context_(parent_ctx),
             subsm_holder_(root_sm, context_),
-            region_tuple_(*this)
+            regions_(get_region_parent_sm())
         {
         }
 
@@ -74,16 +123,23 @@ class subsm_wrapper
             return context_;
         }
 
-        template<class StateRelativeRegionPath, class State>
+        Subsm& get_def()
+        {
+            return subsm_holder_.get();
+        }
+
+        template<class StateRegionPath, class State>
         [[nodiscard]] bool is_active_state() const
         {
-            return region_tuple_.template is_active_state<StateRelativeRegionPath, State>();
+            static constexpr auto region_index = tlu::front_t<StateRegionPath>::region_index;
+            return get<region_index>(regions_).template is_active_state<tlu::pop_front_t<StateRegionPath>, State>();
         }
 
         template<class State>
         [[nodiscard]] bool is_active_state() const
         {
-            return region_tuple_.template is_active_state<State>();
+            static_assert(clu::size_v<transition_table_fn_list_type> == 1);
+            return get<0>(regions_).template is_active_state<region_path<>, State>();
         }
 
         [[nodiscard]] bool is_running() const
@@ -95,20 +151,44 @@ class subsm_wrapper
         void on_entry(const Event& event)
         {
             call_on_entry(subsm_holder_.get(), root_sm_, event);
-            region_tuple_.start(event);
+
+            for_each_region
+            (
+                [](auto& reg, const Event& event)
+                {
+                    reg.start(event);
+                },
+                event
+            );
         }
 
         template<class Event>
         void on_event(const Event& event)
         {
             call_on_event(subsm_holder_.get(), event);
-            region_tuple_.process_event(event);
+
+            for_each_region
+            (
+                [](auto& reg, const Event& event)
+                {
+                    reg.process_event(event);
+                },
+                event
+            );
         }
 
         template<class Event>
         void on_exit(const Event& event)
         {
-            region_tuple_.stop(event);
+            for_each_region
+            (
+                [](auto& reg, const Event& event)
+                {
+                    reg.stop(event);
+                },
+                event
+            );
+
             call_on_exit(subsm_holder_.get(), root_sm_, event);
         }
 
@@ -120,10 +200,59 @@ class subsm_wrapper
     private:
         using transition_table_fn_list_type = sm_conf_traits::transition_table_fn_list_t<subsm_conf_type>;
 
+        using region_parent_sm_type = alternative_t
+        <
+            Root,
+            root_sm_type,
+            subsm_wrapper
+        >;
+
+        using region_tuple_type = tt_list_to_region_tuple_t
+        <
+            region_parent_sm_type,
+            transition_table_fn_list_type
+        >;
+
+        region_parent_sm_type& get_region_parent_sm()
+        {
+            if constexpr(Root)
+            {
+                return root_sm_;
+            }
+            else
+            {
+                return *this;
+            }
+        }
+
+        template<class F, class Event>
+        void for_each_region(F&& fun, const Event& event)
+        {
+            tlu::apply_t<region_tuple_type, for_each_region_helper>::call
+            (
+                *this,
+                std::forward<F>(fun),
+                event
+            );
+        }
+
+        template<class... Regions>
+        struct for_each_region_helper
+        {
+            template<class F, class Event>
+            static void call(subsm_wrapper& self, F&& fun, const Event& event)
+            {
+                (
+                    fun(get<Regions>(self.regions_), event),
+                    ...
+                );
+            }
+        };
+
         root_sm_type& root_sm_;
         context_type context_;
         detail::sm_object_holder<Subsm> subsm_holder_;
-        detail::region_tuple<subsm_wrapper, transition_table_fn_list_type> region_tuple_;
+        region_tuple_type regions_;
 };
 
 } //namespace

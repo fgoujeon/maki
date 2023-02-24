@@ -8,6 +8,8 @@
 #define AWESM_DETAIL_SUBSM_WRAPPER_HPP
 
 #include "../state_conf.hpp"
+#include "alternative.hpp"
+#include "subsm_wrapper_fwd.hpp"
 #include "call_member.hpp"
 #include "region_tuple.hpp"
 #include "sm_object_holder.hpp"
@@ -17,19 +19,19 @@
 namespace awesm::detail
 {
 
-template<class Subsm, class Region>
-struct region_path_of<subsm_wrapper<Subsm, Region>>
+template<class Subsm, class Region, bool Root>
+struct region_path_of<subsm_wrapper<Subsm, Region, Root>>
 {
     using type = region_path_of_t<Region>;
 };
 
-template<class Subsm, class Region>
-struct root_sm_of<subsm_wrapper<Subsm, Region>>
+template<class Subsm, class Region, bool Root>
+struct root_sm_of<subsm_wrapper<Subsm, Region, Root>>
 {
     using type = root_sm_of_t<Region>;
 };
 
-template<class Subsm, class Region>
+template<class Subsm, class Region, bool Root>
 class subsm_wrapper
 {
     public:
@@ -60,7 +62,7 @@ class subsm_wrapper
             root_sm_(root_sm),
             context_(parent_ctx),
             subsm_holder_(root_sm, context_),
-            region_tuple_(*this)
+            region_tuple_(get_region_parent_sm())
         {
         }
 
@@ -72,6 +74,11 @@ class subsm_wrapper
         auto& get_context()
         {
             return context_;
+        }
+
+        Subsm& get()
+        {
+            return subsm_holder_.get();
         }
 
         template<class StateRelativeRegionPath, class State>
@@ -120,10 +127,29 @@ class subsm_wrapper
     private:
         using transition_table_fn_list_type = sm_conf_traits::transition_table_fn_list_t<subsm_conf_type>;
 
+        using region_parent_sm_type = alternative_t
+        <
+            Root,
+            root_sm_type,
+            subsm_wrapper
+        >;
+
+        region_parent_sm_type& get_region_parent_sm()
+        {
+            if constexpr(Root)
+            {
+                return root_sm_;
+            }
+            else
+            {
+                return *this;
+            }
+        }
+
         root_sm_type& root_sm_;
         context_type context_;
         detail::sm_object_holder<Subsm> subsm_holder_;
-        detail::region_tuple<subsm_wrapper, transition_table_fn_list_type> region_tuple_;
+        detail::region_tuple<region_parent_sm_type, transition_table_fn_list_type> region_tuple_;
 };
 
 } //namespace

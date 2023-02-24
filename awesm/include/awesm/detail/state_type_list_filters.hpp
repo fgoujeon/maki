@@ -23,7 +23,7 @@ namespace by_pattern_detail
         template<class State>
         struct matches
         {
-            static constexpr auto value = type_pattern_matches<Pattern, State>();
+            static constexpr auto value = matches_pattern_v<State, Pattern>;
         };
     };
 }

@@ -403,7 +403,7 @@ class region
             template<class ActiveState>
             static void call([[maybe_unused]] bool& active_state_matches_pattern)
             {
-                if constexpr(type_pattern_matches<StatePattern, ActiveState>())
+                if constexpr(matches_pattern_v<ActiveState, StatePattern>)
                 {
                     active_state_matches_pattern = true;
                 }

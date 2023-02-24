@@ -31,18 +31,21 @@ namespace detail
     template<class T>
     constexpr auto is_type_pattern_v = is_type_pattern<T>::value;
 
-    template<class TypePattern, class T>
-    constexpr bool type_pattern_matches()
+    template<class T, class Pattern>
+    constexpr bool matches_pattern_impl()
     {
-        if constexpr(is_type_pattern_v<TypePattern>)
+        if constexpr(is_type_pattern_v<Pattern>)
         {
-            return TypePattern::template matches<T>;
+            return Pattern::template matches<T>;
         }
         else
         {
-            return std::is_same_v<TypePattern, T>;
+            return std::is_same_v<T, Pattern>;
         }
     }
+
+    template<class T, class Pattern>
+    constexpr auto matches_pattern_v = matches_pattern_impl<T, Pattern>();
 }
 
 struct any

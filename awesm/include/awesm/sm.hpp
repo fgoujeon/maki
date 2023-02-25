@@ -114,8 +114,7 @@ class sm
 
         template<class... ContextArgs>
         explicit sm(ContextArgs&&... ctx_args):
-            ctx_{std::forward<ContextArgs>(ctx_args)...},
-            subsm_(*this, ctx_)
+            subsm_(*this, std::forward<ContextArgs>(ctx_args)...)
         {
             if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::disable_auto_start>)
             {
@@ -142,12 +141,12 @@ class sm
 
         context_type& get_context()
         {
-            return ctx_;
+            return subsm_.get_context();
         }
 
         const context_type& get_context() const
         {
-            return ctx_;
+            return subsm_.get_context();
         }
 
         template<class RegionPath>
@@ -359,7 +358,6 @@ class sm
             }
         }
 
-        context_type ctx_;
         detail::subsm<Def, detail::sm_root_region<sm>, true> subsm_;
         bool processing_event_ = false;
         any_event_queue_type event_queue_;

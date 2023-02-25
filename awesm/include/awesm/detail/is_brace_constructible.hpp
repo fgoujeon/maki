@@ -8,6 +8,7 @@
 #define AWESM_DETAIL_IS_BRACE_CONSTRUCTIBLE_HPP
 
 #include "overload_priority.hpp"
+#include <utility>
 
 namespace awesm::detail
 {

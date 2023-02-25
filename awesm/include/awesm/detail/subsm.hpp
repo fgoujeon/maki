@@ -8,6 +8,7 @@
 #define AWESM_DETAIL_SUBSM_HPP
 
 #include "alternative.hpp"
+#include "is_brace_constructible.hpp"
 #include "call_member.hpp"
 #include "clu.hpp"
 #include "tlu.hpp"
@@ -96,10 +97,15 @@ class subsm
         - the one specified in the subsm_opts::context option, if any;
         - the context type of the parent SM (not necessarily the root SM).
         */
-        using context_type = sm_conf_traits::context_t
+        using context_type = alternative_t
         <
-            subsm_conf_type,
-            parent_sm_context_type&
+            Root,
+            parent_sm_context_type,
+            sm_conf_traits::context_t
+            <
+                subsm_conf_type,
+                parent_sm_context_type&
+            >
         >;
 
         using conf = state_conf
@@ -110,9 +116,10 @@ class subsm
             state_opts::get_pretty_name
         >;
 
-        subsm(root_sm_type& root_sm, parent_sm_context_type& parent_ctx):
+        template<class... ContextArgs>
+        subsm(root_sm_type& root_sm, ContextArgs&&... ctx_args):
             root_sm_(root_sm),
-            context_(parent_ctx),
+            context_{std::forward<ContextArgs>(ctx_args)...},
             def_holder_(root_sm, context_),
             regions_(get_region_parent_sm())
         {

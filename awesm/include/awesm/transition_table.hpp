@@ -14,11 +14,11 @@
 namespace awesm
 {
 
-inline constexpr void noop(whatever /*ctx*/)
+inline constexpr void noop()
 {
 }
 
-inline constexpr bool yes(whatever /*ctx*/)
+inline constexpr bool yes()
 {
     return true;
 }

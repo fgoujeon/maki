@@ -8,6 +8,7 @@
 #define AWESM_DETAIL_CALL_MEMBER_HPP
 
 #include "state_traits.hpp"
+#include "../whatever.hpp"
 #include <type_traits>
 #include <utility>
 
@@ -116,6 +117,13 @@ auto call_action_or_guard(const Fn& fun, void* /*pmach*/, Context& ctx, const vo
     decltype(fun(ctx))
 {
     return fun(ctx);
+}
+
+template<class Fn>
+auto call_action_or_guard(const Fn& fun, void* /*pmach*/, whatever /*ctx*/, const void* /*pevent*/) ->
+    decltype(fun())
+{
+    return fun();
 }
 
 } //namespace

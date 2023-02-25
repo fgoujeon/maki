@@ -35,6 +35,11 @@ template<class Def, class ParentRegion, bool Root>
 struct root_sm_of<subsm<Def, ParentRegion, Root>>
 {
     using type = root_sm_of_t<ParentRegion>;
+
+    static type& get(subsm<Def, ParentRegion, Root>& node)
+    {
+        return node.get_root_sm();
+    }
 };
 
 template

@@ -61,12 +61,10 @@ class region
 {
     public:
         using parent_sm_type = ParentSm;
-        using context_type = typename ParentSm::context_type;
-        using root_sm_conf = typename root_sm_of_t<region>::conf;
 
         region(ParentSm& parent_sm):
             parent_sm_(parent_sm),
-            state_holders_(parent_sm.get_root_sm(), get_context())
+            state_holders_(get_root_sm(), get_context())
         {
         }
 
@@ -136,6 +134,7 @@ class region
         }
 
     private:
+        using root_sm_conf = typename root_sm_of_t<ParentSm>::conf;
         using option_mix_type = typename root_sm_conf::option_mix_type;
 
         using transition_table_type = decltype(TransitionTableFn());
@@ -463,7 +462,7 @@ class region
 
         auto& get_root_sm()
         {
-            return parent_sm_.get_root_sm();
+            return root_sm_of<ParentSm>::get(parent_sm_);
         }
 
         auto& get_context()

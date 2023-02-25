@@ -85,6 +85,11 @@ namespace detail
     struct root_sm_of<sm<Def>>
     {
         using type = sm<Def>;
+
+        static type& get(sm<Def>& root)
+        {
+            return root;
+        }
     };
 
     template<class Def>
@@ -124,11 +129,6 @@ class sm
         sm& operator=(const sm&) = delete;
         sm& operator=(sm&&) = delete;
         ~sm() = default;
-
-        sm& get_root_sm()
-        {
-            return *this;
-        }
 
         Def& get_def()
         {

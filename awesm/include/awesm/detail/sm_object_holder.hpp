@@ -7,34 +7,14 @@
 #ifndef AWESM_DETAIL_SM_OBJECT_HOLDER_HPP
 #define AWESM_DETAIL_SM_OBJECT_HOLDER_HPP
 
-#include "overload_priority.hpp"
+#include "is_brace_constructible.hpp"
 #include <type_traits>
 
 namespace awesm::detail
 {
 
-namespace sm_object_holder_detail
-{
-    template<class T, class... Args>
-    constexpr auto is_brace_constructible_impl(overload_priority::high /*ignored*/) -> decltype(T{std::declval<Args>()...}, bool())
-    {
-        return true;
-    }
-
-    template<class T, class... Args>
-    constexpr bool is_brace_constructible_impl(overload_priority::low /*ignored*/)
-    {
-        return false;
-    }
-
-    template<class T, class... Args>
-    constexpr bool is_brace_constructible =
-        is_brace_constructible_impl<T, Args...>(overload_priority::probe)
-    ;
-}
-
 /*
-SM objects are states, actions and guards.
+SM objects are states and defs.
 All SM objects can be constructed with one of these statements:
     auto obj = object_type{machine, context};
     auto obj = object_type{context};
@@ -54,11 +34,7 @@ class sm_object_holder: private T
             class Sm,
             class Context,
             class U = T,
-            std::enable_if_t
-            <
-                sm_object_holder_detail::is_brace_constructible<U, Sm&, Context&>,
-                bool
-            > = true
+            std::enable_if_t<is_brace_constructible<U, Sm&, Context&>, bool> = true
         >
         sm_object_holder(Sm& machine, Context& ctx):
             T{machine, ctx}
@@ -70,11 +46,7 @@ class sm_object_holder: private T
             class Sm,
             class Context,
             class U = T,
-            std::enable_if_t
-            <
-                sm_object_holder_detail::is_brace_constructible<U, Context&>,
-                bool
-            > = true
+            std::enable_if_t<is_brace_constructible<U, Context&>, bool> = true
         >
         sm_object_holder(Sm& /*machine*/, Context& ctx):
             T{ctx}
@@ -86,11 +58,7 @@ class sm_object_holder: private T
             class Sm,
             class Context,
             class U = T,
-            std::enable_if_t
-            <
-                std::is_default_constructible_v<U>,
-                bool
-            > = true
+            std::enable_if_t<std::is_default_constructible_v<U>, bool> = true
         >
         sm_object_holder(Sm& /*machine*/, Context& /*ctx*/)
         {

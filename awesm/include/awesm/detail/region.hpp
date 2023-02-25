@@ -16,7 +16,6 @@
 #include "tlu.hpp"
 #include "../sm_conf.hpp"
 #include "../states.hpp"
-#include "../null.hpp"
 #include <type_traits>
 #include <exception>
 

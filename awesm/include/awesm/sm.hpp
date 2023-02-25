@@ -9,7 +9,6 @@
 
 #include "sm_conf.hpp"
 #include "region_path.hpp"
-#include "null.hpp"
 #include "detail/noinline.hpp"
 #include "detail/sm_conf_traits.hpp"
 #include "detail/subsm.hpp"

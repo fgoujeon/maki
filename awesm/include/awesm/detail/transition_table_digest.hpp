@@ -15,7 +15,6 @@
 #include "../type_patterns.hpp"
 #include "../transition_table.hpp"
 #include "../events.hpp"
-#include "../null.hpp"
 #include <type_traits>
 
 namespace awesm::detail

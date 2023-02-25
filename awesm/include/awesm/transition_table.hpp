@@ -7,12 +7,15 @@
 #ifndef AWESM_TRANSITION_TABLE_HPP
 #define AWESM_TRANSITION_TABLE_HPP
 
-#include "null.hpp"
-#include "whatever.hpp"
-#include <type_traits>
-
 namespace awesm
 {
+
+/*
+Represents either:
+- a null event (for anonymous transitions);
+- a null target state (for internal transitions in transition table).
+*/
+struct null{};
 
 inline constexpr void noop()
 {

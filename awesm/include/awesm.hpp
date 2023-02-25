@@ -7,7 +7,6 @@
 #include "awesm/subsm_conf.hpp"
 #include "awesm/events.hpp"
 #include "awesm/guard.hpp"
-#include "awesm/null.hpp"
 #include "awesm/pretty_name.hpp"
 #include "awesm/region_path.hpp"
 #include "awesm/sm.hpp"

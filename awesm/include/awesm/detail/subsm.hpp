@@ -8,7 +8,6 @@
 #define AWESM_DETAIL_SUBSM_HPP
 
 #include "alternative.hpp"
-#include "is_brace_constructible.hpp"
 #include "call_member.hpp"
 #include "clu.hpp"
 #include "tlu.hpp"
@@ -16,6 +15,7 @@
 #include "region_path_of.hpp"
 #include "sm_conf_traits.hpp"
 #include "sm_object_holder.hpp"
+#include "context_holder.hpp"
 #include "subsm_fwd.hpp"
 #include "tuple.hpp"
 #include "../state_conf.hpp"
@@ -119,8 +119,8 @@ class subsm
         template<class... ContextArgs>
         subsm(root_sm_type& root_sm, ContextArgs&&... ctx_args):
             root_sm_(root_sm),
-            context_{std::forward<ContextArgs>(ctx_args)...},
-            def_holder_(root_sm, context_),
+            ctx_holder_(root_sm, std::forward<ContextArgs>(ctx_args)...),
+            def_holder_(root_sm, get_context()),
             regions_(get_region_parent_sm())
         {
         }
@@ -132,7 +132,7 @@ class subsm
 
         auto& get_context()
         {
-            return context_;
+            return ctx_holder_.get();
         }
 
         Def& get_def()
@@ -262,7 +262,7 @@ class subsm
         };
 
         root_sm_type& root_sm_;
-        context_type context_;
+        context_holder<context_type> ctx_holder_;
         detail::sm_object_holder<Def> def_holder_;
         region_tuple_type regions_;
 };

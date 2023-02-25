@@ -4,14 +4,14 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_DETAIL_SUBSM_WRAPPER_FWD_HPP
-#define AWESM_DETAIL_SUBSM_WRAPPER_FWD_HPP
+#ifndef AWESM_DETAIL_SUBSM_FWD_HPP
+#define AWESM_DETAIL_SUBSM_FWD_HPP
 
 namespace awesm::detail
 {
 
-template<class Subsm, class Region, bool Root = false>
-class subsm_wrapper;
+template<class Def, class Region, bool Root = false>
+class subsm;
 
 } //namespace
 

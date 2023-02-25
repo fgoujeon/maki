@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_DETAIL_SUBSM_WRAPPER_HPP
-#define AWESM_DETAIL_SUBSM_WRAPPER_HPP
+#ifndef AWESM_DETAIL_SUBSM_HPP
+#define AWESM_DETAIL_SUBSM_HPP
 
 #include "alternative.hpp"
 #include "call_member.hpp"
@@ -15,7 +15,7 @@
 #include "region_path_of.hpp"
 #include "sm_conf_traits.hpp"
 #include "sm_object_holder.hpp"
-#include "subsm_wrapper_fwd.hpp"
+#include "subsm_fwd.hpp"
 #include "tuple.hpp"
 #include "../state_conf.hpp"
 #include "../transition_table.hpp"
@@ -25,14 +25,14 @@
 namespace awesm::detail
 {
 
-template<class Subsm, class ParentRegion, bool Root>
-struct region_path_of<subsm_wrapper<Subsm, ParentRegion, Root>>
+template<class Def, class ParentRegion, bool Root>
+struct region_path_of<subsm<Def, ParentRegion, Root>>
 {
     using type = region_path_of_t<ParentRegion>;
 };
 
-template<class Subsm, class ParentRegion, bool Root>
-struct root_sm_of<subsm_wrapper<Subsm, ParentRegion, Root>>
+template<class Def, class ParentRegion, bool Root>
+struct root_sm_of<subsm<Def, ParentRegion, Root>>
 {
     using type = root_sm_of_t<ParentRegion>;
 };
@@ -78,12 +78,12 @@ using tt_list_to_region_tuple_t = typename tt_list_to_region_tuple
     std::make_integer_sequence<int, clu::size_v<TransitionTableFnList>>
 >::type;
 
-template<class Subsm, class ParentRegion, bool Root>
-class subsm_wrapper
+template<class Def, class ParentRegion, bool Root>
+class subsm
 {
     public:
-        using root_sm_type = root_sm_of_t<subsm_wrapper>;
-        using subsm_conf_type = typename Subsm::conf;
+        using root_sm_type = root_sm_of_t<subsm>;
+        using subsm_conf_type = typename Def::conf;
         using parent_sm_context_type = typename ParentRegion::parent_sm_type::context_type;
 
         /*
@@ -105,10 +105,10 @@ class subsm_wrapper
             state_opts::get_pretty_name
         >;
 
-        subsm_wrapper(root_sm_type& root_sm, parent_sm_context_type& parent_ctx):
+        subsm(root_sm_type& root_sm, parent_sm_context_type& parent_ctx):
             root_sm_(root_sm),
             context_(parent_ctx),
-            subsm_holder_(root_sm, context_),
+            def_holder_(root_sm, context_),
             regions_(get_region_parent_sm())
         {
         }
@@ -123,9 +123,9 @@ class subsm_wrapper
             return context_;
         }
 
-        Subsm& get_def()
+        Def& get_def()
         {
-            return subsm_holder_.get();
+            return def_holder_.get();
         }
 
         template<class StateRegionPath, class State>
@@ -150,7 +150,7 @@ class subsm_wrapper
         template<class Event>
         void on_entry(const Event& event)
         {
-            call_on_entry(subsm_holder_.get(), root_sm_, event);
+            call_on_entry(def_holder_.get(), root_sm_, event);
 
             for_each_region
             (
@@ -165,7 +165,7 @@ class subsm_wrapper
         template<class Event>
         void on_event(const Event& event)
         {
-            call_on_event(subsm_holder_.get(), event);
+            call_on_event(def_holder_.get(), event);
 
             for_each_region
             (
@@ -189,12 +189,12 @@ class subsm_wrapper
                 event
             );
 
-            call_on_exit(subsm_holder_.get(), root_sm_, event);
+            call_on_exit(def_holder_.get(), root_sm_, event);
         }
 
         static decltype(auto) get_pretty_name()
         {
-            return awesm::get_pretty_name<Subsm>();
+            return awesm::get_pretty_name<Def>();
         }
 
     private:
@@ -204,7 +204,7 @@ class subsm_wrapper
         <
             Root,
             root_sm_type,
-            subsm_wrapper
+            subsm
         >;
 
         using region_tuple_type = tt_list_to_region_tuple_t
@@ -240,7 +240,7 @@ class subsm_wrapper
         struct for_each_region_helper
         {
             template<class F, class Event>
-            static void call(subsm_wrapper& self, F&& fun, const Event& event)
+            static void call(subsm& self, F&& fun, const Event& event)
             {
                 (
                     fun(get<Regions>(self.regions_), event),
@@ -251,7 +251,7 @@ class subsm_wrapper
 
         root_sm_type& root_sm_;
         context_type context_;
-        detail::sm_object_holder<Subsm> subsm_holder_;
+        detail::sm_object_holder<Def> def_holder_;
         region_tuple_type regions_;
 };
 

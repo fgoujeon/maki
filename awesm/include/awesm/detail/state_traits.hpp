@@ -7,7 +7,7 @@
 #ifndef AWESM_DETAIL_STATE_TRAITS_HPP
 #define AWESM_DETAIL_STATE_TRAITS_HPP
 
-#include "subsm_wrapper_fwd.hpp"
+#include "subsm_fwd.hpp"
 #include "tlu.hpp"
 #include "../state_conf.hpp"
 
@@ -25,7 +25,7 @@ struct wrap
 template<class State, class Region>
 struct wrap<State, Region, std::enable_if_t<State::conf::is_composite>>
 {
-    using type = subsm_wrapper<State, Region>;
+    using type = subsm<State, Region>;
 };
 
 template<class State, class Region>

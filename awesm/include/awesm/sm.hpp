@@ -12,7 +12,7 @@
 #include "null.hpp"
 #include "detail/noinline.hpp"
 #include "detail/sm_conf_traits.hpp"
-#include "detail/subsm_wrapper.hpp"
+#include "detail/subsm.hpp"
 #include "detail/alternative.hpp"
 #include "detail/any_container.hpp"
 #include "detail/region_path_of.hpp"
@@ -62,7 +62,7 @@ namespace detail
         return SmConf::get_small_event_max_alignment_requirement();
     }
 
-    //Fake region class for subsm_wrapper
+    //Fake region class for subsm
     template<class Sm>
     struct sm_root_region
     {
@@ -110,7 +110,7 @@ class sm
         template<class... ContextArgs>
         explicit sm(ContextArgs&&... ctx_args):
             ctx_{std::forward<ContextArgs>(ctx_args)...},
-            def_holder_(*this, ctx_)
+            subsm_(*this, ctx_)
         {
             if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::disable_auto_start>)
             {
@@ -132,12 +132,12 @@ class sm
 
         Def& get_def()
         {
-            return def_holder_.get_def();
+            return subsm_.get_def();
         }
 
         const Def& get_def() const
         {
-            return def_holder_.get_def();
+            return subsm_.get_def();
         }
 
         context_type& get_context()
@@ -173,13 +173,13 @@ class sm
                     sm
                 >
             );
-            return def_holder_.template is_active_state<StateRegionPath, State>();
+            return subsm_.template is_active_state<StateRegionPath, State>();
         }
 
         template<class State>
         [[nodiscard]] bool is_active_state() const
         {
-            return def_holder_.template is_active_state<State>();
+            return subsm_.template is_active_state<State>();
         }
 
         template<class Event = events::start>
@@ -342,15 +342,15 @@ class sm
             {
                 if constexpr(Operation == detail::sm_operation::start)
                 {
-                    def_holder_.on_entry(event);
+                    subsm_.on_entry(event);
                 }
                 else if constexpr(Operation == detail::sm_operation::stop)
                 {
-                    def_holder_.on_exit(event);
+                    subsm_.on_exit(event);
                 }
                 else
                 {
-                    def_holder_.on_event(event);
+                    subsm_.on_event(event);
                 }
             }
             catch(...)
@@ -360,7 +360,7 @@ class sm
         }
 
         context_type ctx_;
-        detail::subsm_wrapper<Def, detail::sm_root_region<sm>, true> def_holder_;
+        detail::subsm<Def, detail::sm_root_region<sm>, true> subsm_;
         bool processing_event_ = false;
         any_event_queue_type event_queue_;
 };

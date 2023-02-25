@@ -165,7 +165,7 @@ class region
         };
 
         template<class Event>
-        bool process_event_in_transition_table(const Event& event)
+        bool process_event_in_transition_table([[maybe_unused]] const Event& event)
         {
             using filtered_transition_table_t = transition_table_filters::by_event_t
             <
@@ -356,7 +356,7 @@ class region
         Call active_state.on_event(event)
         */
         template<class Event>
-        void process_event_in_active_state(const Event& event)
+        void process_event_in_active_state([[maybe_unused]] const Event& event)
         {
             using filtered_state_type_list =
                 state_type_list_filters::by_required_on_event_t

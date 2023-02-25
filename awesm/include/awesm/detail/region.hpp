@@ -390,7 +390,7 @@ class region
                 auto& state = self.get_state<State>();
                 call_on_event(state, event);
 
-                return false;
+                return true;
             }
         };
 

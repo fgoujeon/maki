@@ -46,7 +46,7 @@ class region;
 template<class ParentSm, int Index, auto TransitionTableFn>
 struct region_path_of<region<ParentSm, Index, TransitionTableFn>>
 {
-    using type = typename region_path_of_t<ParentSm>::template add<ParentSm, Index>;
+    using type = typename region_path_of_t<ParentSm>::template add<typename ParentSm::def_type, Index>;
 };
 
 template<class ParentSm, int Index, auto TransitionTableFn>

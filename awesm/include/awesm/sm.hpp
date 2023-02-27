@@ -108,6 +108,7 @@ template<class Def>
 class sm
 {
     public:
+        using def_type = Def;
         using conf = typename Def::conf;
         using context_type = typename conf::context_type;
 
@@ -151,26 +152,18 @@ class sm
         template<class RegionPath>
         [[nodiscard]] bool is_running() const
         {
-            return !is_active_state<RegionPath, states::stopped>();
+            return subsm_.template is_running<RegionPath>();
         }
 
         template<bool Dummy = true>
         [[nodiscard]] bool is_running() const
         {
-            return !is_active_state<states::stopped>();
+            return subsm_.is_running();
         }
 
         template<class StateRegionPath, class State>
         [[nodiscard]] bool is_active_state() const
         {
-            static_assert
-            (
-                std::is_same_v
-                <
-                    typename detail::tlu::front_t<StateRegionPath>::sm_type,
-                    sm
-                >
-            );
             return subsm_.template is_active_state<StateRegionPath, State>();
         }
 
@@ -202,11 +195,6 @@ class sm
         AWESM_NOINLINE void queue_event(const Event& event)
         {
             queue_event_impl<detail::sm_operation::process_event>(event);
-        }
-
-        static decltype(auto) get_pretty_name()
-        {
-            return awesm::get_pretty_name<Def>();
         }
 
     private:

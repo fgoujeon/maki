@@ -19,10 +19,6 @@ namespace
         struct button_press
         {
         };
-
-        struct exception_request
-        {
-        };
     }
 
     namespace states
@@ -94,28 +90,28 @@ namespace
 TEST_CASE("region_path")
 {
     {
-        using region_path_t = awesm::make_region_path<sm_t, 0>;
+        using region_path_t = awesm::make_region_path<sm_def, 0>;
         REQUIRE(awesm::get_pretty_name<region_path_t>() == "main_sm[0]");
     }
 
     {
-        using region_path_t = awesm::make_region_path<sm_t, 1>;
+        using region_path_t = awesm::make_region_path<sm_def, 1>;
         REQUIRE(awesm::get_pretty_name<region_path_t>() == "main_sm[1]");
     }
 
     {
-        using region_path_t = awesm::make_region_path<sm_t, 1>::add<states::on1, 0>;
+        using region_path_t = awesm::make_region_path<sm_def, 1>::add<states::on1, 0>;
         REQUIRE(region_path_t::get_pretty_name() == "main_sm[1].on_1");
     }
 
     {
         using region_path_t = awesm::region_path
         <
-            awesm::region_path_element<sm_t, 1>,
+            awesm::region_path_element<sm_def, 1>,
             awesm::region_path_element<states::on1, 0>
         >;
 
-        using region_path_2_t = awesm::make_region_path<sm_t, 1>::add<states::on1, 0>;
+        using region_path_2_t = awesm::make_region_path<sm_def, 1>::add<states::on1, 0>;
 
         REQUIRE(std::is_same_v<region_path_t, region_path_2_t>);
     }

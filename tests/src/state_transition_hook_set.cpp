@@ -25,27 +25,55 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(on);
-        EMPTY_STATE(off);
+        EMPTY_STATE(off0);
+        EMPTY_STATE(off1);
+        EMPTY_STATE(on0);
+
+        auto on1_transition_table()
+        {
+            return awesm::transition_table
+                .add<states::off0, events::button_press, states::on0>
+            ;
+        }
+
+        struct on1
+        {
+            using conf = awesm::subsm_conf
+            <
+                on1_transition_table,
+                awesm::state_opts::get_pretty_name
+            >;
+
+            static auto get_pretty_name()
+            {
+                return "on_1";
+            }
+        };
     }
 
-    auto sm_transition_table()
+    auto sm_transition_table_0()
     {
         return awesm::transition_table
-            .add<states::off, events::button_press, states::on>
-            .add<states::on,  events::button_press, states::off>
+            .add<states::off0, events::button_press, states::on0>
         ;
     }
 
-    struct sm_def;
-
-    using sm_t = awesm::sm<sm_def>;
+    auto sm_transition_table_1()
+    {
+        return awesm::transition_table
+            .add<states::off1, events::button_press, states::on1>
+        ;
+    }
 
     struct sm_def
     {
         using conf = awesm::sm_conf
         <
-            sm_transition_table,
+            awesm::transition_table_list
+            <
+                sm_transition_table_0,
+                sm_transition_table_1
+            >,
             context,
             awesm::sm_opts::before_state_transition,
             awesm::sm_opts::after_state_transition,
@@ -56,8 +84,6 @@ namespace
         template<class RegionPath, class SourceState, class Event, class TargetState>
         void before_state_transition(const Event& event)
         {
-            static_assert(std::is_same_v<RegionPath, awesm::make_region_path<sm_t, 0>>);
-
             ctx.out += "Transition in ";
             ctx.out += RegionPath::get_pretty_name();
             ctx.out += ": ";
@@ -72,8 +98,6 @@ namespace
         template<class RegionPath, class SourceState, class Event, class TargetState>
         void after_state_transition(const Event& event)
         {
-            static_assert(std::is_same_v<RegionPath, awesm::make_region_path<sm_t, 0>>);
-
             ctx.out += std::to_string(event.pressure) + ";";
 
             ctx.out += "Transition in ";
@@ -85,13 +109,15 @@ namespace
             ctx.out += ";";
         }
 
-        static constexpr auto get_pretty_name()
+        static auto get_pretty_name()
         {
             return "main_sm";
         }
 
         context& ctx;
     };
+
+    using sm_t = awesm::sm<sm_def>;
 }
 
 TEST_CASE("state_transition_hook_set")
@@ -99,35 +125,47 @@ TEST_CASE("state_transition_hook_set")
     auto sm = sm_t{};
     auto& ctx = sm.get_context();
 
+    using root_0_path = awesm::make_region_path<sm_def, 0>;
+    using root_1_path = awesm::make_region_path<sm_def, 1>;
+    using root_1_on_1_path = root_1_path::add<states::on1>;
+
     sm.start(events::button_press{0});
-    REQUIRE(sm.is_active_state<states::off>());
+    REQUIRE(sm.is_active_state<root_0_path, states::off0>());
+    REQUIRE(sm.is_active_state<root_1_path, states::off1>());
     REQUIRE
     (
         ctx.out ==
-        "Transition in main_sm: stopped -> off...;"
-        "0;0;"
-        "Transition in main_sm: stopped -> off;"
+        "Transition in main_sm[0]: stopped -> off0...;0;"
+        "0;Transition in main_sm[0]: stopped -> off0;"
+        "Transition in main_sm[1]: stopped -> off1...;0;"
+        "0;Transition in main_sm[1]: stopped -> off1;"
     );
 
     ctx.out.clear();
     sm.process_event(events::button_press{1});
-    REQUIRE(sm.is_active_state<states::on>());
+    REQUIRE(sm.is_active_state<root_0_path, states::on0>());
+    REQUIRE(sm.is_active_state<root_1_path, states::on1>());
+    REQUIRE(sm.is_active_state<root_1_on_1_path, states::off0>());
     REQUIRE
     (
         ctx.out ==
-        "Transition in main_sm: off -> on...;"
-        "1;1;"
-        "Transition in main_sm: off -> on;"
+        "Transition in main_sm[0]: off0 -> on0...;1;"
+        "1;Transition in main_sm[0]: off0 -> on0;"
+        "Transition in main_sm[1]: off1 -> on_1...;1;"
+        "Transition in main_sm[1].on_1: stopped -> off0...;1;"
+        "1;Transition in main_sm[1].on_1: stopped -> off0;"
+        "1;Transition in main_sm[1]: off1 -> on_1;"
     );
 
     ctx.out.clear();
     sm.process_event(events::button_press{2});
-    REQUIRE(sm.is_active_state<states::off>());
+    REQUIRE(sm.is_active_state<root_0_path, states::on0>());
+    REQUIRE(sm.is_active_state<root_1_path, states::on1>());
+    REQUIRE(sm.is_active_state<root_1_on_1_path, states::on0>());
     REQUIRE
     (
         ctx.out ==
-        "Transition in main_sm: on -> off...;"
-        "2;2;"
-        "Transition in main_sm: on -> off;"
+        "Transition in main_sm[1].on_1: off0 -> on0...;2;"
+        "2;Transition in main_sm[1].on_1: off0 -> on0;"
     );
 }

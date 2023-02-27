@@ -88,6 +88,7 @@ template<class Def, class ParentRegion, bool Root>
 class subsm
 {
     public:
+        using def_type = Def;
         using root_sm_type = root_sm_of_t<subsm>;
         using subsm_conf_type = typename Def::conf;
         using parent_sm_context_type = typename ParentRegion::parent_sm_type::context_type;
@@ -112,8 +113,7 @@ class subsm
         <
             state_opts::on_entry_any,
             state_opts::on_event_any,
-            state_opts::on_exit_any,
-            state_opts::get_pretty_name
+            state_opts::on_exit_any
         >;
 
         template<class... ContextArgs>
@@ -143,6 +143,15 @@ class subsm
         template<class StateRegionPath, class State>
         [[nodiscard]] bool is_active_state() const
         {
+            static_assert
+            (
+                std::is_same_v
+                <
+                    typename detail::tlu::front_t<StateRegionPath>::sm_type,
+                    def_type
+                >
+            );
+
             static constexpr auto region_index = tlu::front_t<StateRegionPath>::region_index;
             return get<region_index>(regions_).template is_active_state<tlu::pop_front_t<StateRegionPath>, State>();
         }
@@ -151,7 +160,14 @@ class subsm
         [[nodiscard]] bool is_active_state() const
         {
             static_assert(clu::size_v<transition_table_fn_list_type> == 1);
+
             return get<0>(regions_).template is_active_state<region_path<>, State>();
+        }
+
+        template<class RegionPath>
+        [[nodiscard]] bool is_running() const
+        {
+            return !is_active_state<RegionPath, states::stopped>();
         }
 
         [[nodiscard]] bool is_running() const
@@ -202,11 +218,6 @@ class subsm
             );
 
             call_on_exit(def_holder_.get(), root_sm_, event);
-        }
-
-        static decltype(auto) get_pretty_name()
-        {
-            return awesm::get_pretty_name<Def>();
         }
 
     private:

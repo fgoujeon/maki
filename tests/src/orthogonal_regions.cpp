@@ -116,8 +116,8 @@ TEST_CASE("orthogonal_regions")
     auto sm = sm_t{};
     auto& ctx = sm.get_context();
 
-    using sm_region_0_path = awesm::make_region_path<sm_t, 0>;
-    using sm_region_1_path = awesm::make_region_path<sm_t, 1>;
+    using sm_region_0_path = awesm::make_region_path<sm_def, 0>;
+    using sm_region_1_path = awesm::make_region_path<sm_def, 1>;
 
     sm.start();
     REQUIRE(sm.is_active_state<sm_region_0_path, states::off0>());

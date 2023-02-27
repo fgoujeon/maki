@@ -118,10 +118,4 @@ TEST_CASE("pretty_name")
         awesm::get_pretty_name<pretty_name_ns::subsm>() ==
         std::string_view{"my_subsm"}
     );
-
-    REQUIRE
-    (
-        awesm::get_pretty_name<pretty_name_ns::sm_t>() ==
-        std::string_view{"my_sm"}
-    );
 }

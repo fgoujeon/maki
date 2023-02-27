@@ -11,6 +11,7 @@ namespace
 {
     struct context
     {
+        int always_zero = 0;
         std::string out;
     };
 
@@ -39,8 +40,13 @@ namespace
 
             void on_event(const events::exception_request&)
             {
-                throw std::runtime_error{"exception"};
+                if(ctx.always_zero == 0) //We need this to avoid "unreachable code" warnings
+                {
+                    throw std::runtime_error{"exception"};
+                }
             }
+
+            context& ctx;
         };
     }
 

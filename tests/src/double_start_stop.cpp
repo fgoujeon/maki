@@ -58,7 +58,7 @@ namespace
             static_assert(std::is_same_v<RegionPath, awesm::make_region_path<sm_def>>);
 
             ctx.out += "Transition in ";
-            ctx.out += RegionPath::get_pretty_name();
+            ctx.out += RegionPath::to_string();
             ctx.out += ": ";
             ctx.out += awesm::get_pretty_name<SourceState>();
             ctx.out += " -> ";
@@ -72,7 +72,7 @@ namespace
             static_assert(std::is_same_v<RegionPath, awesm::make_region_path<sm_def>>);
 
             ctx.out += "Transition in ";
-            ctx.out += RegionPath::get_pretty_name();
+            ctx.out += RegionPath::to_string();
             ctx.out += ": ";
             ctx.out += awesm::get_pretty_name<SourceState>();
             ctx.out += " -> ";

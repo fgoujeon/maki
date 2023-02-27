@@ -14,14 +14,6 @@ namespace pretty_name_ns
     template<class T, class U>
     class templ{};
 
-    struct has_get_pretty_name
-    {
-        static auto get_pretty_name()
-        {
-            return "custom_name";
-        }
-    };
-
     struct state
     {
         using conf = awesm::state_conf
@@ -99,12 +91,6 @@ TEST_CASE("pretty_name")
     (
         awesm::get_pretty_name<pretty_name_ns::templ<int, pretty_name_ns::test>>() ==
         std::string_view{"templ"}
-    );
-
-    REQUIRE
-    (
-        awesm::get_pretty_name<pretty_name_ns::has_get_pretty_name>() ==
-        std::string_view{"custom_name"}
     );
 
     REQUIRE

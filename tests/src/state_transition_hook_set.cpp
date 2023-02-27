@@ -85,7 +85,7 @@ namespace
         void before_state_transition(const Event& event)
         {
             ctx.out += "Transition in ";
-            ctx.out += RegionPath::get_pretty_name();
+            ctx.out += RegionPath::to_string();
             ctx.out += ": ";
             ctx.out += awesm::get_pretty_name<SourceState>();
             ctx.out += " -> ";
@@ -101,7 +101,7 @@ namespace
             ctx.out += std::to_string(event.pressure) + ";";
 
             ctx.out += "Transition in ";
-            ctx.out += RegionPath::get_pretty_name();
+            ctx.out += RegionPath::to_string();
             ctx.out += ": ";
             ctx.out += awesm::get_pretty_name<SourceState>();
             ctx.out += " -> ";

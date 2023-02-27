@@ -24,7 +24,7 @@ struct region_path_element
     using sm_type = SmOrCompositeState;
     static constexpr auto region_index = RegionIndex;
 
-    static std::string get_pretty_name()
+    static std::string to_string()
     {
         auto str = std::string{};
         str += awesm::get_pretty_name<sm_type>();
@@ -69,7 +69,7 @@ struct region_path
     template<class SmOrCompositeState, int RegionIndex = -1>
     using add = typename detail::region_path_add<region_path, SmOrCompositeState, RegionIndex>::type;
 
-    static std::string get_pretty_name()
+    static std::string to_string()
     {
         if constexpr(sizeof...(Ts) == 0)
         {
@@ -77,7 +77,7 @@ struct region_path
         }
         else
         {
-            auto str = ((Ts::get_pretty_name() + ".") + ...);
+            auto str = ((Ts::to_string() + ".") + ...);
             str.resize(str.size() - 1);
             return str;
         }

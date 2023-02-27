@@ -25,13 +25,6 @@ namespace detail
         return get_decayed_type_name<T>();
     }
 
-    template<class T>
-    auto get_pretty_name_impl(overload_priority::high /*unused*/) ->
-        decltype(T::get_pretty_name())
-    {
-        return T::get_pretty_name();
-    }
-
     template
     <
         class T,
@@ -41,7 +34,7 @@ namespace detail
             bool
         > = true
     >
-    static decltype(auto) get_pretty_name_impl(overload_priority::medium /*unused*/)
+    static decltype(auto) get_pretty_name_impl(overload_priority::high /*unused*/)
     {
         return T::get_pretty_name();
     }

@@ -16,7 +16,7 @@ namespace awesm::detail
 /*
 SM objects are states and defs.
 All SM objects can be constructed with one of these statements:
-    auto obj = object_type{machine, context};
+    auto obj = object_type{root_sm, context};
     auto obj = object_type{context};
     auto obj = object_type{};
 Since we don't want to require SM objects to be copyable or movable, we can't
@@ -31,36 +31,36 @@ class sm_object_holder: private T
 
         template
         <
-            class Sm,
+            class RootSm,
             class Context,
             class U = T,
-            std::enable_if_t<is_brace_constructible<U, Sm&, Context&>, bool> = true
+            std::enable_if_t<is_brace_constructible<U, RootSm&, Context&>, bool> = true
         >
-        sm_object_holder(Sm& machine, Context& ctx):
-            T{machine, ctx}
+        sm_object_holder(RootSm& root_sm, Context& ctx):
+            T{root_sm, ctx}
         {
         }
 
         template
         <
-            class Sm,
+            class RootSm,
             class Context,
             class U = T,
             std::enable_if_t<is_brace_constructible<U, Context&>, bool> = true
         >
-        sm_object_holder(Sm& /*machine*/, Context& ctx):
+        sm_object_holder(RootSm& /*root_sm*/, Context& ctx):
             T{ctx}
         {
         }
 
         template
         <
-            class Sm,
+            class RootSm,
             class Context,
             class U = T,
             std::enable_if_t<std::is_default_constructible_v<U>, bool> = true
         >
-        sm_object_holder(Sm& /*machine*/, Context& /*ctx*/)
+        sm_object_holder(RootSm& /*root_sm*/, Context& /*ctx*/)
         {
         }
 

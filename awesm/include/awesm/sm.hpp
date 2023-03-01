@@ -14,7 +14,6 @@
 #include "detail/subsm.hpp"
 #include "detail/alternative.hpp"
 #include "detail/any_container.hpp"
-#include "detail/region_path_of.hpp"
 #include "detail/tlu.hpp"
 #include "detail/type_tag.hpp"
 #include "detail/overload_priority.hpp"
@@ -60,48 +59,6 @@ namespace detail
     {
         return SmConf::get_small_event_max_alignment_requirement();
     }
-
-    //Fake region class for subsm
-    template<class Sm>
-    struct sm_root_region
-    {
-        using parent_sm_type = Sm;
-    };
-}
-
-template<class Def>
-class sm;
-
-namespace detail
-{
-    template<class Def>
-    struct region_path_of<sm<Def>>
-    {
-        using type = region_path<>;
-    };
-
-    template<class Def>
-    struct root_sm_of<sm<Def>>
-    {
-        using type = sm<Def>;
-
-        static type& get(sm<Def>& root)
-        {
-            return root;
-        }
-    };
-
-    template<class Def>
-    struct region_path_of<sm_root_region<sm<Def>>>
-    {
-        using type = region_path<>;
-    };
-
-    template<class Def>
-    struct root_sm_of<sm_root_region<sm<Def>>>
-    {
-        using type = sm<Def>;
-    };
 }
 
 template<class Def>
@@ -345,7 +302,7 @@ class sm
             }
         }
 
-        detail::subsm<Def, detail::sm_root_region<sm>, true> subsm_;
+        detail::subsm<Def, void> subsm_;
         bool processing_event_ = false;
         any_event_queue_type event_queue_;
 };

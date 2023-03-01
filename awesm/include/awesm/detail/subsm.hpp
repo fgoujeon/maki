@@ -18,6 +18,7 @@
 #include "context_holder.hpp"
 #include "subsm_fwd.hpp"
 #include "tuple.hpp"
+#include "../sm_fwd.hpp"
 #include "../state_conf.hpp"
 #include "../transition_table.hpp"
 #include "../region_path.hpp"
@@ -26,18 +27,35 @@
 namespace awesm::detail
 {
 
-template<class Def, class ParentRegion, bool Root>
-struct region_path_of<subsm<Def, ParentRegion, Root>>
+template<class Def, class ParentRegion>
+struct region_path_of<subsm<Def, ParentRegion>>
 {
     using type = region_path_of_t<ParentRegion>;
 };
 
-template<class Def, class ParentRegion, bool Root>
-struct root_sm_of<subsm<Def, ParentRegion, Root>>
+template<class Def>
+struct region_path_of<subsm<Def, void>>
+{
+    using type = region_path<>;
+};
+
+template<class Def, class ParentRegion>
+struct root_sm_of<subsm<Def, ParentRegion>>
 {
     using type = root_sm_of_t<ParentRegion>;
 
-    static type& get(subsm<Def, ParentRegion, Root>& node)
+    static type& get(subsm<Def, ParentRegion>& node)
+    {
+        return node.get_root_sm();
+    }
+};
+
+template<class Def>
+struct root_sm_of<subsm<Def, void>>
+{
+    using type = sm<Def>;
+
+    static type& get(subsm<Def, void>& node)
     {
         return node.get_root_sm();
     }
@@ -84,30 +102,43 @@ using tt_list_to_region_tuple_t = typename tt_list_to_region_tuple
     std::make_integer_sequence<int, clu::size_v<TransitionTableFnList>>
 >::type;
 
-template<class Def, class ParentRegion, bool Root>
+template<class Def, class ParentRegion>
 class subsm
 {
     public:
         using def_type = Def;
         using root_sm_type = root_sm_of_t<subsm>;
         using subsm_conf_type = typename Def::conf;
-        using parent_sm_context_type = typename ParentRegion::parent_sm_type::context_type;
 
-        /*
-        Context type is either (in this order of priority):
-        - the one specified in the subsm_opts::context option, if any;
-        - the context type of the parent SM (not necessarily the root SM).
-        */
-        using context_type = alternative_t
-        <
-            Root,
-            parent_sm_context_type,
-            sm_conf_traits::context_t
+        static constexpr auto is_root = std::is_void_v<ParentRegion>;
+
+        struct root_context_type_holder
+        {
+            template<class Dummy = void>
+            using type = typename subsm_conf_type::context_type;
+        };
+
+        struct non_root_context_type_holder
+        {
+            /*
+            Context type is either (in this order of priority):
+            - the one specified in the subsm_opts::context option, if any;
+            - the context type of the parent SM (not necessarily the root SM).
+            */
+            template<class Dummy = void>
+            using type = sm_conf_traits::context_t
             <
                 subsm_conf_type,
-                parent_sm_context_type&
-            >
-        >;
+                typename ParentRegion::parent_sm_type::context_type&
+            >;
+        };
+
+        using context_type = typename alternative_t
+        <
+            is_root,
+            root_context_type_holder,
+            non_root_context_type_holder
+        >::template type<>;
 
         using conf = state_conf
         <
@@ -121,7 +152,7 @@ class subsm
             root_sm_(root_sm),
             ctx_holder_(root_sm, std::forward<ContextArgs>(ctx_args)...),
             def_holder_(root_sm, get_context()),
-            regions_(get_region_parent_sm())
+            regions_(*this)
         {
         }
 
@@ -130,7 +161,7 @@ class subsm
             return root_sm_;
         }
 
-        auto& get_context()
+        context_type& get_context()
         {
             return ctx_holder_.get();
         }
@@ -223,30 +254,11 @@ class subsm
     private:
         using transition_table_fn_list_type = sm_conf_traits::transition_table_fn_list_t<subsm_conf_type>;
 
-        using region_parent_sm_type = alternative_t
-        <
-            Root,
-            root_sm_type,
-            subsm
-        >;
-
         using region_tuple_type = tt_list_to_region_tuple_t
         <
-            region_parent_sm_type,
+            subsm,
             transition_table_fn_list_type
         >;
-
-        region_parent_sm_type& get_region_parent_sm()
-        {
-            if constexpr(Root)
-            {
-                return root_sm_;
-            }
-            else
-            {
-                return *this;
-            }
-        }
 
         template<class F, class Event>
         void for_each_region(F&& fun, const Event& event)

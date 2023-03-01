@@ -10,7 +10,7 @@
 namespace awesm::detail
 {
 
-template<class Def, class Region, bool Root = false>
+template<class Def, class ParentRegion>
 class subsm;
 
 } //namespace

@@ -61,9 +61,10 @@ class region
     public:
         using parent_sm_type = ParentSm;
 
-        region(ParentSm& parent_sm):
-            parent_sm_(parent_sm),
-            state_holders_(get_root_sm(), get_context())
+        explicit region(ParentSm& parent_sm):
+            root_sm_(root_sm_of<ParentSm>::get(parent_sm)),
+            ctx_(parent_sm.get_context()),
+            state_holders_(root_sm_, ctx_)
         {
         }
 
@@ -133,7 +134,8 @@ class region
         }
 
     private:
-        using root_sm_conf = typename root_sm_of_t<ParentSm>::conf;
+        using root_sm_type = root_sm_of_t<ParentSm>;
+        using root_sm_conf = typename root_sm_type::conf;
         using option_mix_type = typename root_sm_conf::option_mix_type;
 
         using transition_table_type = decltype(TransitionTableFn());
@@ -245,7 +247,7 @@ class region
                 }
 
                 //Check guard
-                if(!detail::call_action_or_guard(Guard, &self.get_root_sm(), self.get_context(), &event))
+                if(!detail::call_action_or_guard(Guard, &self.root_sm_, self.ctx_, &event))
                 {
                     return false;
                 }
@@ -274,7 +276,7 @@ class region
             {
                 if constexpr(tlu::contains_v<option_mix_type, sm_opts::before_state_transition>)
                 {
-                    get_root_sm().get_def().template before_state_transition
+                    root_sm_.get_def().template before_state_transition
                     <
                         path_t,
                         SourceState,
@@ -288,7 +290,7 @@ class region
                     detail::call_on_exit
                     (
                         get_state<SourceState>(),
-                        get_root_sm(),
+                        root_sm_,
                         event
                     );
                 }
@@ -303,8 +305,8 @@ class region
             detail::call_action_or_guard
             (
                 Action,
-                &get_root_sm(),
-                get_context(),
+                &root_sm_,
+                ctx_,
                 &event
             );
 
@@ -312,7 +314,7 @@ class region
             {
                 if constexpr(tlu::contains_v<option_mix_type, sm_opts::before_entry>)
                 {
-                    get_root_sm().get_def().template before_entry
+                    root_sm_.get_def().template before_entry
                     <
                         path_t,
                         SourceState,
@@ -326,14 +328,14 @@ class region
                     detail::call_on_entry
                     (
                         get_state<TargetState>(),
-                        get_root_sm(),
+                        root_sm_,
                         event
                     );
                 }
 
                 if constexpr(tlu::contains_v<option_mix_type, sm_opts::after_state_transition>)
                 {
-                    get_root_sm().get_def().template after_state_transition
+                    root_sm_.get_def().template after_state_transition
                     <
                         path_t,
                         SourceState,
@@ -459,16 +461,6 @@ class region
             }
         };
 
-        auto& get_root_sm()
-        {
-            return root_sm_of<ParentSm>::get(parent_sm_);
-        }
-
-        auto& get_context()
-        {
-            return parent_sm_.get_context();
-        }
-
         template<class State>
         auto& get_state()
         {
@@ -483,7 +475,8 @@ class region
             return get<sm_object_holder<wrapped_state_t>>(state_holders_).get();
         }
 
-        ParentSm& parent_sm_;
+        root_sm_type& root_sm_;
+        std::decay_t<typename ParentSm::context_type>& ctx_;
         wrapped_state_holder_tuple_type state_holders_;
 
         int active_state_index_ = index_of_state_v<state_tuple_type, states::stopped>;

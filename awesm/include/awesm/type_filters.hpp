@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_TYPE_PATTERN_HPP
-#define AWESM_TYPE_PATTERN_HPP
+#ifndef AWESM_TYPE_FILTERS_HPP
+#define AWESM_TYPE_FILTERS_HPP
 
 #include <type_traits>
 
@@ -14,43 +14,43 @@ namespace awesm
 
 namespace detail
 {
-    struct type_pattern{};
+    struct type_filter{};
 
     template<class T, class Enable = void>
-    struct is_type_pattern
+    struct is_type_filter
     {
         static constexpr auto value = false;
     };
 
     template<class T>
-    struct is_type_pattern<T, std::enable_if_t<std::is_void_v<typename T::type_pattern_tag>>>
+    struct is_type_filter<T, std::enable_if_t<std::is_void_v<typename T::type_filter_tag>>>
     {
         static constexpr auto value = true;
     };
 
     template<class T>
-    constexpr auto is_type_pattern_v = is_type_pattern<T>::value;
+    constexpr auto is_type_filter_v = is_type_filter<T>::value;
 
-    template<class T, class Pattern>
-    constexpr bool matches_pattern_impl()
+    template<class T, class Filter>
+    constexpr bool matches_filter_impl()
     {
-        if constexpr(is_type_pattern_v<Pattern>)
+        if constexpr(is_type_filter_v<Filter>)
         {
-            return Pattern::template matches<T>;
+            return Filter::template matches<T>;
         }
         else
         {
-            return std::is_same_v<T, Pattern>;
+            return std::is_same_v<T, Filter>;
         }
     }
 
-    template<class T, class Pattern>
-    constexpr auto matches_pattern_v = matches_pattern_impl<T, Pattern>();
+    template<class T, class Filter>
+    constexpr auto matches_filter_v = matches_filter_impl<T, Filter>();
 }
 
 struct any
 {
-    using type_pattern_tag = void;
+    using type_filter_tag = void;
 
     template<class T>
     static constexpr bool matches = true;
@@ -59,7 +59,7 @@ struct any
 template<template<class> class Predicate>
 struct any_if
 {
-    using type_pattern_tag = void;
+    using type_filter_tag = void;
 
     template<class T>
     static constexpr bool matches = Predicate<T>::value;
@@ -68,7 +68,7 @@ struct any_if
 template<template<class> class Predicate>
 struct any_if_not
 {
-    using type_pattern_tag = void;
+    using type_filter_tag = void;
 
     template<class T>
     static constexpr bool matches = !Predicate<T>::value;
@@ -77,7 +77,7 @@ struct any_if_not
 template<class... Ts>
 struct any_of
 {
-    using type_pattern_tag = void;
+    using type_filter_tag = void;
 
     template<class T>
     static constexpr bool matches = (std::is_same_v<T, Ts> || ...);
@@ -86,7 +86,7 @@ struct any_of
 template<class... Ts>
 struct any_but
 {
-    using type_pattern_tag = void;
+    using type_filter_tag = void;
 
     template<class T>
     static constexpr bool matches = !(std::is_same_v<T, Ts> || ...);

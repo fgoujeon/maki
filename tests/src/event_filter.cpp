@@ -51,7 +51,7 @@ namespace
     using sm_t = awesm::sm<sm_def>;
 }
 
-TEST_CASE("event_pattern")
+TEST_CASE("event_filter")
 {
     auto sm = sm_t{};
 

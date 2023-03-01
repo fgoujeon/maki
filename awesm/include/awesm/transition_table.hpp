@@ -28,16 +28,16 @@ inline constexpr bool yes()
 
 template
 <
-    class SourceStatePattern,
-    class EventPattern,
+    class SourceStateFilter,
+    class EventFilter,
     class TargetState,
     const auto& Action = noop,
     const auto& Guard = yes
 >
 struct transition
 {
-    using source_state_type_pattern = SourceStatePattern;
-    using event_type_pattern = EventPattern;
+    using source_state_type_filter = SourceStateFilter;
+    using event_type_filter = EventFilter;
     using target_state_type = TargetState;
 
     static constexpr const auto& get_action()
@@ -56,8 +56,8 @@ struct transition_table_t
 {
     template
     <
-        class SourceStatePattern,
-        class EventPattern,
+        class SourceStateFilter,
+        class EventFilter,
         class TargetState,
         const auto& Action = noop,
         const auto& Guard = yes
@@ -65,7 +65,7 @@ struct transition_table_t
     static constexpr transition_table_t
     <
         Transitions...,
-        transition<SourceStatePattern, EventPattern, TargetState, Action, Guard>
+        transition<SourceStateFilter, EventFilter, TargetState, Action, Guard>
     > add = {};
 };
 

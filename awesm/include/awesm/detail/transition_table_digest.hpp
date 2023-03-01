@@ -12,7 +12,7 @@
 #include "tuple.hpp"
 #include "sm_object_holder.hpp"
 #include "state_traits.hpp"
-#include "../type_patterns.hpp"
+#include "../type_filters.hpp"
 #include "../transition_table.hpp"
 #include "../events.hpp"
 #include <type_traits>
@@ -66,7 +66,7 @@ namespace transition_table_digest_detail
     >;
 
     template<class TransitionTable>
-    using initial_state_t = typename tlu::at_t<TransitionTable, 0>::source_state_type_pattern;
+    using initial_state_t = typename tlu::at_t<TransitionTable, 0>::source_state_type_filter;
 
     template<class InitialState>
     struct initial_digest
@@ -86,7 +86,7 @@ namespace transition_table_digest_detail
 
         static constexpr auto has_null_events =
             Digest::has_null_events ||
-            std::is_same_v<typename Transition::event_type_pattern, null>
+            std::is_same_v<typename Transition::event_type_filter, null>
         ;
     };
 

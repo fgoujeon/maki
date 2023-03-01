@@ -34,10 +34,10 @@ using wrap_t = typename wrap<State, Region>::type;
 
 //other
 
-template<template<class...> class Option, class Event, class... TypePatterns>
-constexpr bool requires_on_xxx_conf(Option<TypePatterns...>* /*tag*/)
+template<template<class...> class Option, class Event, class... TypeFilters>
+constexpr bool requires_on_xxx_conf(Option<TypeFilters...>* /*tag*/)
 {
-    return (matches_pattern_v<Event, TypePatterns> || ...);
+    return (matches_filter_v<Event, TypeFilters> || ...);
 }
 
 template<template<class...> class Option, class Event>

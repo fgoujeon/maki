@@ -22,8 +22,8 @@ namespace sm_opts
         struct disable_run_to_completion{};
     }
 
-    template<class... EventPatterns>
-    using on_event = state_opts::on_event<EventPatterns...>;
+    template<class... EventFilters>
+    using on_event = state_opts::on_event<EventFilters...>;
 
     struct after_state_transition{};
     struct before_entry{};

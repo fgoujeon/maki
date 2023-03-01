@@ -7,7 +7,7 @@
 #ifndef AWESM_STATE_CONF_HPP
 #define AWESM_STATE_CONF_HPP
 
-#include "type_patterns.hpp"
+#include "type_filters.hpp"
 #include "pretty_name.hpp"
 #include "detail/mix.hpp"
 
@@ -18,7 +18,7 @@ namespace state_opts
 {
     struct on_entry_any{};
 
-    template<class... EventPatterns>
+    template<class... EventFilters>
     struct on_event{};
 
     using on_event_any = on_event<any>;

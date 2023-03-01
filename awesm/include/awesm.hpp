@@ -16,6 +16,6 @@
 #include "awesm/state_conf.hpp"
 #include "awesm/states.hpp"
 #include "awesm/transition_table.hpp"
-#include "awesm/type_patterns.hpp"
+#include "awesm/type_filters.hpp"
 #include "awesm/version.hpp"
 #include "awesm/whatever.hpp"

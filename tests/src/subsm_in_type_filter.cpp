@@ -78,7 +78,7 @@ namespace
     using sm_t = awesm::sm<sm_def>;
 }
 
-TEST_CASE("subsm_in_type_pattern")
+TEST_CASE("subsm_in_type_filter")
 {
     auto sm = sm_t{};
 

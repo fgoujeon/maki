@@ -92,9 +92,9 @@ class region
         template<class State>
         [[nodiscard]] bool is_active_state() const
         {
-            if constexpr(is_type_pattern_v<State>)
+            if constexpr(is_type_filter_v<State>)
             {
-                return is_active_state_pattern<State>();
+                return is_active_state_filter<State>();
             }
             else
             {
@@ -193,12 +193,12 @@ class region
             template<class Transition, class Event>
             static bool call(region& self, const Event& event)
             {
-                using source_state_t = typename Transition::source_state_type_pattern;
+                using source_state_t = typename Transition::source_state_type_filter;
                 using target_state_t = typename Transition::target_state_type;
 
-                if constexpr(is_type_pattern_v<source_state_t>)
+                if constexpr(is_type_filter_v<source_state_t>)
                 {
-                    using matching_state_type_list = state_type_list_filters::by_pattern_t
+                    using matching_state_type_list = state_type_list_filters::by_filter_t
                     <
                         state_tuple_type,
                         source_state_t
@@ -405,23 +405,23 @@ class region
             return given_state_index == active_state_index_;
         }
 
-        template<class StatePattern>
-        [[nodiscard]] bool is_active_state_pattern() const
+        template<class StateFilter>
+        [[nodiscard]] bool is_active_state_filter() const
         {
-            auto active_state_matches_pattern = false;
-            with_active_state_or_stopped<is_active_state_pattern_2<StatePattern>>(active_state_matches_pattern);
-            return active_state_matches_pattern;
+            auto active_state_matches_filter = false;
+            with_active_state_or_stopped<is_active_state_filter_2<StateFilter>>(active_state_matches_filter);
+            return active_state_matches_filter;
         }
 
-        template<class StatePattern>
-        struct is_active_state_pattern_2
+        template<class StateFilter>
+        struct is_active_state_filter_2
         {
             template<class ActiveState>
-            static void call([[maybe_unused]] bool& active_state_matches_pattern)
+            static void call([[maybe_unused]] bool& active_state_matches_filter)
             {
-                if constexpr(matches_pattern_v<ActiveState, StatePattern>)
+                if constexpr(matches_filter_v<ActiveState, StateFilter>)
                 {
-                    active_state_matches_pattern = true;
+                    active_state_matches_filter = true;
                 }
             }
         };

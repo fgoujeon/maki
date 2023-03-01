@@ -7,7 +7,6 @@
 #ifndef AWESM_DETAIL_SUBSM_HPP
 #define AWESM_DETAIL_SUBSM_HPP
 
-#include "alternative.hpp"
 #include "call_member.hpp"
 #include "clu.hpp"
 #include "tlu.hpp"
@@ -61,6 +60,28 @@ struct root_sm_of<subsm<Def, void>>
     }
 };
 
+template<class Def, class ParentRegion>
+struct subsm_context
+{
+    /*
+    Context type is either (in this order of priority):
+    - the one specified in the subsm_opts::context option, if any;
+    - a reference to the context type of the parent SM (not necessarily the root
+      SM).
+    */
+    using type = sm_conf_traits::context_t
+    <
+        typename Def::conf,
+        typename ParentRegion::parent_sm_type::context_type&
+    >;
+};
+
+template<class Def>
+struct subsm_context<Def, void>
+{
+    using type = typename Def::conf::context_type;
+};
+
 template
 <
     class ParentSm,
@@ -106,46 +127,16 @@ template<class Def, class ParentRegion>
 class subsm
 {
     public:
-        using def_type = Def;
-        using root_sm_type = root_sm_of_t<subsm>;
-        using subsm_conf_type = typename Def::conf;
-
-        static constexpr auto is_root = std::is_void_v<ParentRegion>;
-
-        struct root_context_type_holder
-        {
-            template<class Dummy = void>
-            using type = typename subsm_conf_type::context_type;
-        };
-
-        struct non_root_context_type_holder
-        {
-            /*
-            Context type is either (in this order of priority):
-            - the one specified in the subsm_opts::context option, if any;
-            - the context type of the parent SM (not necessarily the root SM).
-            */
-            template<class Dummy = void>
-            using type = sm_conf_traits::context_t
-            <
-                subsm_conf_type,
-                typename ParentRegion::parent_sm_type::context_type&
-            >;
-        };
-
-        using context_type = typename alternative_t
-        <
-            is_root,
-            root_context_type_holder,
-            non_root_context_type_holder
-        >::template type<>;
-
         using conf = state_conf
         <
             state_opts::on_entry_any,
             state_opts::on_event_any,
             state_opts::on_exit_any
         >;
+
+        using def_type = Def;
+        using context_type = typename subsm_context<Def, ParentRegion>::type;
+        using root_sm_type = root_sm_of_t<subsm>;
 
         template<class... ContextArgs>
         subsm(root_sm_type& root_sm, ContextArgs&&... ctx_args):
@@ -179,7 +170,7 @@ class subsm
                 std::is_same_v
                 <
                     typename detail::tlu::front_t<StateRegionPath>::sm_type,
-                    def_type
+                    Def
                 >
             );
 
@@ -252,7 +243,7 @@ class subsm
         }
 
     private:
-        using transition_table_fn_list_type = sm_conf_traits::transition_table_fn_list_t<subsm_conf_type>;
+        using transition_table_fn_list_type = sm_conf_traits::transition_table_fn_list_t<typename Def::conf>;
 
         using region_tuple_type = tt_list_to_region_tuple_t
         <

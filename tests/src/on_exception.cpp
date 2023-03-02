@@ -95,7 +95,10 @@ namespace
 
     struct default_sm_def
     {
-        using conf = awesm::sm_conf<sm_transition_table, context>;
+        using conf = awesm::sm_conf
+            ::transition_table<sm_transition_table>
+            ::context<context>
+        ;
     };
 
     using default_sm_t = awesm::sm<default_sm_def>;
@@ -103,11 +106,10 @@ namespace
     struct custom_sm_def
     {
         using conf = awesm::sm_conf
-        <
-            sm_transition_table,
-            context,
-            awesm::sm_opts::on_exception
-        >;
+            ::transition_table<sm_transition_table>
+            ::context<context>
+            ::on_exception
+        ;
 
         void on_exception(const std::exception_ptr& eptr)
         {

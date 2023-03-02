@@ -10,18 +10,18 @@
 namespace awesm::detail::tlu
 {
 
-template<int Index, class TList>
+template<class TList, int Index>
 struct at;
 
 template
 <
-    int Index,
     template<class...> class TList,
     class T,
-    class... Ts
+    class... Ts,
+    int Index
 >
-struct at<Index, TList<T, Ts...>>:
-    at<Index - 1, TList<Ts...>>
+struct at<TList<T, Ts...>, Index>:
+    at<TList<Ts...>, Index - 1>
 {
 };
 
@@ -31,13 +31,16 @@ template
     class T,
     class... Ts
 >
-struct at<0, TList<T, Ts...>>
+struct at<TList<T, Ts...>, 0>
 {
     using type = T;
 };
 
 template<class TList, int Index>
-using at_t = typename at<Index, TList>::type;
+using at_t = typename at<TList, Index>::type;
+
+template<class TList, auto Index>
+using at_f_t = at_t<TList, static_cast<int>(Index)>;
 
 } //namespace
 

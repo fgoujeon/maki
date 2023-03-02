@@ -4,7 +4,6 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#include "awesm/subsm_conf.hpp"
 #include "awesm/events.hpp"
 #include "awesm/guard.hpp"
 #include "awesm/pretty_name.hpp"

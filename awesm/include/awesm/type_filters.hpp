@@ -46,6 +46,18 @@ namespace detail
 
     template<class T, class Filter>
     constexpr auto matches_filter_v = matches_filter_impl<T, Filter>();
+
+    template<class T, class FilterList>
+    struct matches_any_filter;
+
+    template<class T, template<class...> class FilterList, class... Filters>
+    struct matches_any_filter<T, FilterList<Filters...>>
+    {
+        static constexpr auto value = (matches_filter_v<T, Filters> || ...);
+    };
+
+    template<class T, class FilterList>
+    constexpr auto matches_any_filter_v = matches_any_filter<T, FilterList>::value;
 }
 
 struct any
@@ -90,6 +102,14 @@ struct any_but
 
     template<class T>
     static constexpr bool matches = !(std::is_same_v<T, Ts> || ...);
+};
+
+struct none
+{
+    using type_filter_tag = void;
+
+    template<class T>
+    static constexpr bool matches = false;
 };
 
 } //namespace

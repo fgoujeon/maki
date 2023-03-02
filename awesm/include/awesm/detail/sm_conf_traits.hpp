@@ -8,39 +8,14 @@
 #define AWESM_DETAIL_SM_CONF_TRAITS_HPP
 
 #include "clu.hpp"
+#include "tlu.hpp"
 #include "overload_priority.hpp"
 #include "type_tag.hpp"
-#include "../transition_table.hpp"
+#include "../sm_conf.hpp"
 #include <type_traits>
 
 namespace awesm::detail::sm_conf_traits
 {
-
-namespace transition_table_fn_list_detail
-{
-    template<class R>
-    using nullary_fn_ptr_t = R(*)();
-
-    /*
-    T is either:
-    - a pointer to a function returning an instance of transition_table_t;
-    - a pointer to an instance of transition_table_list_t.
-    */
-    template<class T, auto V>
-    struct helper;
-
-    template<class... Transitions, auto TransitionTableFn>
-    struct helper<nullary_fn_ptr_t<transition_table_t<Transitions...>>, TransitionTableFn>
-    {
-        using type = transition_table_list_t<TransitionTableFn>;
-    };
-
-    template<auto... TransitionTableFns, auto V>
-    struct helper<const transition_table_list_t<TransitionTableFns...>*, V>
-    {
-        using type = transition_table_list_t<TransitionTableFns...>;
-    };
-}
 
 namespace context_detail
 {
@@ -50,25 +25,20 @@ namespace context_detail
         return type_tag<DefaultContext>{};
     }
 
-    template<class SmConf, class DefaultContext>
-    inline type_tag<typename SmConf::option_mix_type::context_type> get_context(overload_priority::high /*unused*/)
+    template
+    <
+        class SmConf,
+        class DefaultContext,
+        std::enable_if_t<!std::is_void_v<tlu::at_f_t<SmConf, sm_option::context>>, bool> = true
+    >
+    inline auto get_context(overload_priority::high /*unused*/)
     {
-        return type_tag<typename SmConf::option_mix_type::context_type>{};
+        return type_tag<tlu::at_f_t<SmConf, sm_option::context>>{};
     }
 }
 
 template<class SmConf, class DefaultContext>
 using context_t = typename decltype(context_detail::get_context<SmConf, DefaultContext>(overload_priority::probe))::type;
-
-template<class SmConf>
-using transition_table_fn_list_t = typename transition_table_fn_list_detail::helper
-<
-    std::decay_t<decltype(SmConf::transition_table_fn)>,
-    SmConf::transition_table_fn
->::type;
-
-template<class SmConf>
-inline constexpr auto region_count_v = clu::size_v<transition_table_fn_list_t<SmConf>>;
 
 } //namespace
 

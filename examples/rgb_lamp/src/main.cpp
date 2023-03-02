@@ -244,7 +244,10 @@ the transition table, but we can put many options in it.
 */
 struct sm_def
 {
-    using conf = awesm::sm_conf<sm_transition_table, context>;
+    using conf = awesm::sm_conf
+        ::transition_table_list<sm_transition_table>
+        ::context<context>
+    ;
 };
 
 /*

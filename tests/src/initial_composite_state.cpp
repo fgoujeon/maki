@@ -104,25 +104,9 @@ namespace
 
         struct on
         {
-            using conf = awesm::subsm_conf
-            <
-                on_transition_table
-            >;
-
-            template<class Event>
-            void on_entry(const Event& /*event*/)
-            {
-            }
-
-            template<class Event>
-            void on_event(const Event& /*event*/)
-            {
-            }
-
-            template<class Event>
-            void on_exit(const Event& /*event*/)
-            {
-            }
+            using conf = awesm::sm_conf
+                ::transition_table<on_transition_table>
+            ;
 
             context& ctx;
         };
@@ -137,7 +121,10 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf<sm_transition_table, context>;
+        using conf = awesm::sm_conf
+            ::transition_table<sm_transition_table>
+            ::context<context>
+        ;
     };
 }
 

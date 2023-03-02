@@ -7,6 +7,7 @@
 #ifndef AWESM_PRETTY_NAME_HPP
 #define AWESM_PRETTY_NAME_HPP
 
+#include "sm_conf.hpp"
 #include "detail/type_name.hpp"
 #include "detail/tlu.hpp"
 #include "detail/overload_priority.hpp"
@@ -31,6 +32,21 @@ namespace detail
         std::enable_if_t
         <
             tlu::contains_v<typename T::conf::option_mix_type, get_pretty_name_option>,
+            bool
+        > = true
+    >
+    static decltype(auto) get_pretty_name_impl(overload_priority::high /*unused*/)
+    {
+        return T::get_pretty_name();
+    }
+
+    template
+    <
+        class T,
+        std::enable_if_t<T::conf::is_composite, bool> = true,
+        std::enable_if_t
+        <
+            tlu::at_f_t<typename T::conf, sm_option::pretty_name>::value,
             bool
         > = true
     >

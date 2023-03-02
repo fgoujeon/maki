@@ -7,58 +7,191 @@
 #ifndef AWESM_SM_CONF_HPP
 #define AWESM_SM_CONF_HPP
 
-#include "subsm_conf.hpp"
 #include "transition_table.hpp"
-#include "pretty_name.hpp"
-#include "detail/mix.hpp"
+#include "type_filters.hpp"
+#include "detail/constant_list.hpp"
+#include "detail/type_list.hpp"
+#include "detail/tlu.hpp"
 
 namespace awesm
 {
 
-namespace sm_opts
+namespace detail
 {
-    namespace unsafe
+    template<auto Value>
+    struct constant
     {
-        struct disable_run_to_completion{};
-    }
-
-    template<class... EventFilters>
-    using on_event = state_opts::on_event<EventFilters...>;
-
-    struct after_state_transition{};
-    struct before_entry{};
-    struct before_state_transition{};
-    struct disable_auto_start{};
-    struct on_exception{};
-
-    template<size_t Value>
-    struct small_event_max_size
-    {
-        static constexpr size_t get_small_event_max_size()
-        {
-            return Value;
-        }
+        static constexpr auto value = Value;
     };
 
-    template<size_t Value>
-    struct small_event_max_align
+    enum class sm_option
     {
-        static constexpr size_t get_small_event_max_alignment_requirement()
-        {
-            return Value;
-        }
+        after_state_transition,
+        auto_start,
+        before_entry,
+        before_state_transition,
+        context,
+        pretty_name,
+        on_event,
+        on_exception,
+        run_to_completion,
+        small_event_max_align,
+        small_event_max_size,
+        transition_table_list,
+        on_entry_any,
+        on_exit_any,
+        _size //It's 2023 and we still have to do this :'(
     };
-
-    using get_pretty_name = detail::get_pretty_name_option;
 }
 
-template<auto TransitionTableFn, class Context, class... Options>
-struct sm_conf
+template<class... Options>
+struct sm_conf_tpl
 {
-    using context_type = Context;
-    using option_mix_type = detail::mix<Options...>;
-    static constexpr auto transition_table_fn = TransitionTableFn;
+    template<bool B>
+    using set_after_state_transition_enabled = detail::tlu::set_at_f_t
+    <
+        sm_conf_tpl,
+        detail::sm_option::after_state_transition,
+        detail::constant<B>
+    >;
+    using after_state_transition = set_after_state_transition_enabled<true>;
+    using no_after_state_transition = set_after_state_transition_enabled<false>;
+
+    template<bool B>
+    using set_auto_start_enabled = detail::tlu::set_at_f_t
+    <
+        sm_conf_tpl,
+        detail::sm_option::auto_start,
+        detail::constant<B>
+    >;
+    using auto_start = set_auto_start_enabled<true>;
+    using no_auto_start = set_auto_start_enabled<false>;
+
+    template<bool B>
+    using set_before_entry_enabled = detail::tlu::set_at_f_t
+    <
+        sm_conf_tpl,
+        detail::sm_option::before_entry,
+        detail::constant<B>
+    >;
+    using before_entry = set_before_entry_enabled<true>;
+    using no_before_entry = set_before_entry_enabled<false>;
+
+    template<bool B>
+    using set_before_state_transition_enabled = detail::tlu::set_at_f_t
+    <
+        sm_conf_tpl,
+        detail::sm_option::before_state_transition,
+        detail::constant<B>
+    >;
+    using before_state_transition = set_before_state_transition_enabled<true>;
+    using no_before_state_transition = set_before_state_transition_enabled<false>;
+
+    template<class T>
+    using context = detail::tlu::set_at_f_t<sm_conf_tpl, detail::sm_option::context, T>;
+
+    template<bool B>
+    using set_run_to_completion_enabled = detail::tlu::set_at_f_t
+    <
+        sm_conf_tpl,
+        detail::sm_option::run_to_completion,
+        detail::constant<B>
+    >;
+    using run_to_completion = set_run_to_completion_enabled<true>;
+    using no_run_to_completion = set_run_to_completion_enabled<false>;
+
+    template<bool B>
+    using set_pretty_name_enabled = detail::tlu::set_at_f_t
+    <
+        sm_conf_tpl,
+        detail::sm_option::pretty_name,
+        detail::constant<B>
+    >;
+    using pretty_name = set_pretty_name_enabled<true>;
+    using no_pretty_name = set_pretty_name_enabled<false>;
+
+    template<bool B>
+    using set_on_exception_enabled = detail::tlu::set_at_f_t
+    <
+        sm_conf_tpl,
+        detail::sm_option::on_exception,
+        detail::constant<B>
+    >;
+    using on_exception = set_on_exception_enabled<true>;
+    using no_on_exception = set_on_exception_enabled<false>;
+
+    template<std::size_t Value>
+    using small_event_max_align = detail::tlu::set_at_f_t
+    <
+        sm_conf_tpl,
+        detail::sm_option::small_event_max_align,
+        detail::constant<Value>
+    >;
+
+    template<std::size_t Value>
+    using small_event_max_size = detail::tlu::set_at_f_t
+    <
+        sm_conf_tpl,
+        detail::sm_option::small_event_max_size,
+        detail::constant<Value>
+    >;
+
+    template<class... EventFilters>
+    using on_event = detail::tlu::set_at_f_t
+    <
+        sm_conf_tpl,
+        detail::sm_option::on_event,
+        detail::type_list<EventFilters...>
+    >;
+
+    template<bool B>
+    using set_on_entry_enabled = detail::tlu::set_at_f_t
+    <
+        sm_conf_tpl,
+        detail::sm_option::on_entry_any,
+        detail::constant<B>
+    >;
+    using on_entry_any = set_on_entry_enabled<true>;
+    using no_on_entry_any = set_on_entry_enabled<false>;
+
+    template<bool B>
+    using set_on_exit_enabled = detail::tlu::set_at_f_t
+    <
+        sm_conf_tpl,
+        detail::sm_option::on_exit_any,
+        detail::constant<B>
+    >;
+    using on_exit_any = set_on_exit_enabled<true>;
+    using no_on_exit_any = set_on_exit_enabled<false>;
+
+    template<auto... Fns>
+    using transition_table_list = detail::tlu::set_at_f_t
+    <
+        sm_conf_tpl,
+        detail::sm_option::transition_table_list,
+        detail::constant_list<Fns...>
+    >;
+
+    template<auto Fn>
+    using transition_table = transition_table_list<Fn>;
+
+    static constexpr auto is_composite = true;
 };
+
+using sm_conf = typename sm_conf_tpl<void, void, void, void, void, void, void, void, void, void, void, void, void, void>
+    ::auto_start
+    ::no_after_state_transition
+    ::no_before_entry
+    ::no_before_state_transition
+    ::no_on_entry_any
+    ::no_on_exception
+    ::no_on_exit_any
+    ::no_pretty_name
+    ::on_event<none>
+    ::run_to_completion
+    ::small_event_max_align<16>
+    ::small_event_max_size<8>
+;
 
 } //namespace
 

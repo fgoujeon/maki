@@ -80,11 +80,10 @@ namespace
     struct sm_def
     {
         using conf = awesm::sm_conf
-        <
-            sm_transition_table,
-            context,
-            awesm::sm_opts::before_entry
-        >;
+            ::transition_table<sm_transition_table>
+            ::context<context>
+            ::before_entry
+        ;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>
         void before_entry(const Event& /*event*/)

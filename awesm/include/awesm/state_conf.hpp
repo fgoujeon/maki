@@ -19,11 +19,11 @@ namespace detail
 {
     enum class state_option
     {
+        //Common with state_option, don't reorder
         get_pretty_name,
         on_entry_any,
         on_event,
-        on_exit_any,
-        _size //It's 2023 and we still have to do this :'(
+        on_exit_any
     };
 }
 

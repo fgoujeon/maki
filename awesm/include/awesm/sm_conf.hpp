@@ -21,21 +21,23 @@ namespace detail
 {
     enum class sm_option
     {
+        //Common with state_option, don't reorder
+        get_pretty_name,
+        on_entry_any,
+        on_event,
+        on_exit_any,
+
+        //Specific
         after_state_transition,
         auto_start,
         before_entry,
         before_state_transition,
         context,
-        get_pretty_name,
-        on_event,
         on_exception,
         run_to_completion,
         small_event_max_align,
         small_event_max_size,
         transition_table_list,
-        on_entry_any,
-        on_exit_any,
-        _size //It's 2023 and we still have to do this :'(
     };
 }
 

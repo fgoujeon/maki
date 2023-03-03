@@ -19,7 +19,11 @@ namespace awesm
 
 namespace detail
 {
-    struct get_pretty_name_option{};
+    static_assert
+    (
+        static_cast<int>(state_option::get_pretty_name) ==
+        static_cast<int>(sm_option::get_pretty_name)
+    );
 
     template<class T>
     decltype(auto) get_pretty_name_impl(overload_priority::low /*unused*/)
@@ -30,22 +34,6 @@ namespace detail
     template
     <
         class T,
-        std::enable_if_t<!T::conf::is_composite, bool> = true,
-        std::enable_if_t
-        <
-            tlu::at_f_t<typename T::conf, state_option::get_pretty_name>::value,
-            bool
-        > = true
-    >
-    static decltype(auto) get_pretty_name_impl(overload_priority::high /*unused*/)
-    {
-        return T::get_pretty_name();
-    }
-
-    template
-    <
-        class T,
-        std::enable_if_t<T::conf::is_composite, bool> = true,
         std::enable_if_t
         <
             tlu::at_f_t<typename T::conf, sm_option::get_pretty_name>::value,

@@ -36,61 +36,37 @@ using wrap_t = typename wrap<State, Region>::type;
 
 //other
 
-template<class Conf>
-struct requires_on_entry;
+static_assert(static_cast<int>(sm_option::on_entry_any) == static_cast<int>(state_option::on_entry_any));
+static_assert(static_cast<int>(sm_option::on_event) == static_cast<int>(state_option::on_event));
+static_assert(static_cast<int>(sm_option::on_exit_any) == static_cast<int>(state_option::on_exit_any));
 
-template<class... Options>
-struct requires_on_entry<awesm::sm_conf_tpl<Options...>>
+template<class State>
+struct requires_on_entry
 {
-    static constexpr auto value = tlu::at_f_t<sm_conf_tpl<Options...>, sm_option::on_entry_any>::value;
-};
-
-template<class... Options>
-struct requires_on_entry<awesm::state_conf_tpl<Options...>>
-{
-    static constexpr auto value = tlu::at_f_t<state_conf_tpl<Options...>, state_option::on_entry_any>::value;
+    static constexpr auto value = tlu::at_f_t<typename State::conf, sm_option::on_entry_any>::value;
 };
 
 template<class State>
-constexpr auto requires_on_entry_v = requires_on_entry<typename State::conf>::value;
+constexpr auto requires_on_entry_v = requires_on_entry<State>::value;
 
-template<class Conf, class Event>
-struct requires_on_event;
-
-template<class... Options, class Event>
-struct requires_on_event<awesm::sm_conf_tpl<Options...>, Event>
+template<class State, class Event>
+struct requires_on_event
 {
-    using filter_type_list = tlu::at_f_t<sm_conf_tpl<Options...>, sm_option::on_event>;
-    static constexpr auto value = matches_any_filter_v<Event, filter_type_list>;
-};
-
-template<class... Options, class Event>
-struct requires_on_event<awesm::state_conf_tpl<Options...>, Event>
-{
-    using filter_type_list = tlu::at_f_t<state_conf_tpl<Options...>, state_option::on_event>;
+    using filter_type_list = tlu::at_f_t<typename State::conf, sm_option::on_event>;
     static constexpr auto value = matches_any_filter_v<Event, filter_type_list>;
 };
 
 template<class State, class Event>
-constexpr auto requires_on_event_v = requires_on_event<typename State::conf, Event>::value;
+constexpr auto requires_on_event_v = requires_on_event<State, Event>::value;
 
-template<class Conf>
-struct requires_on_exit;
-
-template<class... Options>
-struct requires_on_exit<awesm::sm_conf_tpl<Options...>>
+template<class State>
+struct requires_on_exit
 {
-    static constexpr auto value = tlu::at_f_t<sm_conf_tpl<Options...>, sm_option::on_exit_any>::value;
-};
-
-template<class... Options>
-struct requires_on_exit<awesm::state_conf_tpl<Options...>>
-{
-    static constexpr auto value = tlu::at_f_t<state_conf_tpl<Options...>, state_option::on_exit_any>::value;
+    static constexpr auto value = tlu::at_f_t<typename State::conf, sm_option::on_exit_any>::value;
 };
 
 template<class State>
-constexpr auto requires_on_exit_v = requires_on_exit<typename State::conf>::value;
+constexpr auto requires_on_exit_v = requires_on_exit<State>::value;
 
 } //namespace
 

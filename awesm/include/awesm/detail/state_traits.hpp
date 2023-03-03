@@ -36,18 +36,6 @@ using wrap_t = typename wrap<State, Region>::type;
 
 //other
 
-template<template<class...> class Option, class Event, class... TypeFilters>
-constexpr bool requires_on_xxx_conf(Option<TypeFilters...>* /*tag*/)
-{
-    return (matches_filter_v<Event, TypeFilters> || ...);
-}
-
-template<template<class...> class Option, class Event>
-constexpr bool requires_on_xxx_conf(void* /*tag*/)
-{
-    return false;
-}
-
 template<class Conf>
 struct requires_on_entry;
 

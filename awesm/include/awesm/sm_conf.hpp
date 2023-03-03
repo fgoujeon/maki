@@ -178,7 +178,10 @@ struct sm_conf_tpl
     static constexpr auto is_composite = true;
 };
 
-using sm_conf = typename sm_conf_tpl<void, void, void, void, void, void, void, void, void, void, void, void, void, void>
+inline constexpr auto small_event_max_align = 8;
+inline constexpr auto small_event_max_size = 16;
+
+using sm_conf = sm_conf_tpl<void, void, void, void, void, void, void, void, void, void, void, void, void, void>
     ::auto_start
     ::no_after_state_transition
     ::no_before_entry
@@ -189,8 +192,8 @@ using sm_conf = typename sm_conf_tpl<void, void, void, void, void, void, void, v
     ::no_pretty_name
     ::on_event<none>
     ::run_to_completion
-    ::small_event_max_align<16>
-    ::small_event_max_size<8>
+    ::small_event_max_align<small_event_max_align>
+    ::small_event_max_size<small_event_max_size>
 ;
 
 } //namespace

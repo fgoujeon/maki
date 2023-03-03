@@ -38,7 +38,7 @@ namespace
         {
             using conf = awesm::sm_conf
                 ::transition_table<on1_transition_table>
-                ::pretty_name
+                ::get_pretty_name
             ;
 
             static auto get_pretty_name()
@@ -71,7 +71,7 @@ namespace
                 sm_transition_table_1
             >
             ::context<context>
-            ::pretty_name
+            ::get_pretty_name
         ;
 
         static auto get_pretty_name()

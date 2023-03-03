@@ -48,7 +48,7 @@ namespace detail
         std::enable_if_t<T::conf::is_composite, bool> = true,
         std::enable_if_t
         <
-            tlu::at_f_t<typename T::conf, sm_option::pretty_name>::value,
+            tlu::at_f_t<typename T::conf, sm_option::get_pretty_name>::value,
             bool
         > = true
     >

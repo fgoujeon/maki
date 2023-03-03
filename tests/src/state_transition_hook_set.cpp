@@ -40,7 +40,7 @@ namespace
         {
             using conf = awesm::sm_conf
                 ::transition_table<on1_transition_table>
-                ::pretty_name
+                ::get_pretty_name
             ;
 
             static auto get_pretty_name()
@@ -72,7 +72,7 @@ namespace
             ::before_state_transition
             ::after_state_transition
             ::no_auto_start
-            ::pretty_name
+            ::get_pretty_name
         ;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>

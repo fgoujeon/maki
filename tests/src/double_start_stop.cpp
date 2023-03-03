@@ -48,7 +48,7 @@ namespace
             ::context<context>
             ::before_state_transition
             ::after_state_transition
-            ::pretty_name
+            ::get_pretty_name
         ;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>

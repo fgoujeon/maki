@@ -26,7 +26,7 @@ namespace detail
         before_entry,
         before_state_transition,
         context,
-        pretty_name,
+        get_pretty_name,
         on_event,
         on_exception,
         run_to_completion,
@@ -96,14 +96,14 @@ struct sm_conf_tpl
     using no_run_to_completion = set_run_to_completion_enabled<false>;
 
     template<bool B>
-    using set_pretty_name_enabled = detail::tlu::set_at_f_t
+    using set_get_pretty_name_enabled = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
-        detail::sm_option::pretty_name,
+        detail::sm_option::get_pretty_name,
         detail::constant<B>
     >;
-    using pretty_name = set_pretty_name_enabled<true>;
-    using no_pretty_name = set_pretty_name_enabled<false>;
+    using get_pretty_name = set_get_pretty_name_enabled<true>;
+    using no_get_pretty_name = set_get_pretty_name_enabled<false>;
 
     template<bool B>
     using set_on_exception_enabled = detail::tlu::set_at_f_t
@@ -184,7 +184,7 @@ using sm_conf = sm_conf_tpl<void, void, void, void, void, void, void, void, void
     ::no_on_entry_any
     ::no_on_exception
     ::no_on_exit_any
-    ::no_pretty_name
+    ::no_get_pretty_name
     ::on_event<none>
     ::run_to_completion
     ::small_event_max_align<small_event_max_align>

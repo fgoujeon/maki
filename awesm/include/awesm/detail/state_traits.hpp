@@ -49,31 +49,25 @@ constexpr bool requires_on_xxx_conf(void* /*tag*/)
 }
 
 template<class Conf>
-struct required_on_entry
-{
-    static constexpr auto value =
-        tlu::contains_v<typename Conf::option_mix_type, state_opts::on_entry_any>
-    ;
-};
+struct requires_on_entry;
 
 template<class... Options>
-struct required_on_entry<awesm::sm_conf_tpl<Options...>>
+struct requires_on_entry<awesm::sm_conf_tpl<Options...>>
 {
     static constexpr auto value = tlu::at_f_t<sm_conf_tpl<Options...>, sm_option::on_entry_any>::value;
 };
 
+template<class... Options>
+struct requires_on_entry<awesm::state_conf_tpl<Options...>>
+{
+    static constexpr auto value = tlu::at_f_t<state_conf_tpl<Options...>, state_option::on_entry_any>::value;
+};
+
 template<class State>
-constexpr auto requires_on_entry_v = required_on_entry<typename State::conf>::value;
+constexpr auto requires_on_entry_v = requires_on_entry<typename State::conf>::value;
 
 template<class Conf, class Event>
-struct requires_on_event
-{
-    static constexpr auto value = requires_on_xxx_conf
-    <
-        state_opts::on_event,
-        Event
-    >(static_cast<typename Conf::option_mix_type*>(nullptr));
-};
+struct requires_on_event;
 
 template<class... Options, class Event>
 struct requires_on_event<awesm::sm_conf_tpl<Options...>, Event>
@@ -82,25 +76,33 @@ struct requires_on_event<awesm::sm_conf_tpl<Options...>, Event>
     static constexpr auto value = matches_any_filter_v<Event, filter_type_list>;
 };
 
+template<class... Options, class Event>
+struct requires_on_event<awesm::state_conf_tpl<Options...>, Event>
+{
+    using filter_type_list = tlu::at_f_t<state_conf_tpl<Options...>, state_option::on_event>;
+    static constexpr auto value = matches_any_filter_v<Event, filter_type_list>;
+};
+
 template<class State, class Event>
 constexpr auto requires_on_event_v = requires_on_event<typename State::conf, Event>::value;
 
 template<class Conf>
-struct required_on_exit
-{
-    static constexpr auto value =
-        tlu::contains_v<typename Conf::option_mix_type, state_opts::on_exit_any>
-    ;
-};
+struct requires_on_exit;
 
 template<class... Options>
-struct required_on_exit<awesm::sm_conf_tpl<Options...>>
+struct requires_on_exit<awesm::sm_conf_tpl<Options...>>
 {
     static constexpr auto value = tlu::at_f_t<sm_conf_tpl<Options...>, sm_option::on_exit_any>::value;
 };
 
+template<class... Options>
+struct requires_on_exit<awesm::state_conf_tpl<Options...>>
+{
+    static constexpr auto value = tlu::at_f_t<state_conf_tpl<Options...>, state_option::on_exit_any>::value;
+};
+
 template<class State>
-constexpr auto requires_on_exit_v = required_on_exit<typename State::conf>::value;
+constexpr auto requires_on_exit_v = requires_on_exit<typename State::conf>::value;
 
 } //namespace
 

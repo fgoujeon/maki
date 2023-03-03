@@ -38,11 +38,10 @@ namespace
         struct on_0
         {
             using conf = awesm::state_conf
-            <
-                awesm::state_opts::on_entry_any,
-                awesm::state_opts::on_event<events::internal>,
-                awesm::state_opts::on_exit_any
-            >;
+                ::on_entry_any
+                ::on_event<events::internal>
+                ::on_exit_any
+            ;
 
             void on_entry(const events::button_press& event)
             {

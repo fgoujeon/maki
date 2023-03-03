@@ -51,10 +51,7 @@ namespace
             {
                 struct emitting_cold_red
                 {
-                    using conf = awesm::state_conf
-                    <
-                    >;
-
+                    using conf = awesm::state_conf;
                     on_ns::context& ctx;
                 };
 

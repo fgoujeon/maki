@@ -34,9 +34,8 @@ namespace
         struct on1
         {
             using conf = awesm::state_conf
-            <
-                awesm::state_opts::on_event<events::exception_request>
-            >;
+                ::on_event<events::exception_request>
+            ;
 
             void on_event(const events::exception_request&)
             {

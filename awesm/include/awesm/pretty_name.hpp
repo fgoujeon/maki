@@ -8,6 +8,7 @@
 #define AWESM_PRETTY_NAME_HPP
 
 #include "sm_conf.hpp"
+#include "state_conf.hpp"
 #include "detail/type_name.hpp"
 #include "detail/tlu.hpp"
 #include "detail/overload_priority.hpp"
@@ -29,9 +30,10 @@ namespace detail
     template
     <
         class T,
+        std::enable_if_t<!T::conf::is_composite, bool> = true,
         std::enable_if_t
         <
-            tlu::contains_v<typename T::conf::option_mix_type, get_pretty_name_option>,
+            tlu::at_f_t<typename T::conf, state_option::get_pretty_name>::value,
             bool
         > = true
     >

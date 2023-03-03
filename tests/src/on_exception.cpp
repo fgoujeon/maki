@@ -21,10 +21,9 @@ namespace
         struct off
         {
             using conf = awesm::state_conf
-            <
-                awesm::state_opts::on_entry_any,
-                awesm::state_opts::on_exit_any
-            >;
+                ::on_entry_any
+                ::on_exit_any
+            ;
 
             void on_entry()
             {
@@ -42,11 +41,10 @@ namespace
         struct on
         {
             using conf = awesm::state_conf
-            <
-                awesm::state_opts::on_entry_any,
-                awesm::state_opts::on_event<awesm::events::exception>,
-                awesm::state_opts::on_exit_any
-            >;
+                ::on_entry_any
+                ::on_event<awesm::events::exception>
+                ::on_exit_any
+            ;
 
             void on_entry()
             {

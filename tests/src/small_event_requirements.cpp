@@ -55,7 +55,7 @@ namespace
 
     struct state
     {
-        using conf = awesm::state_conf<>;
+        using conf = awesm::state_conf;
     };
 
     template<class Event>

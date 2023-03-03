@@ -36,9 +36,8 @@ namespace
         struct benchmarking
         {
             using conf = awesm::state_conf
-            <
-                awesm::state_opts::on_event<events::internal_transition>
-            >;
+                ::on_event<events::internal_transition>
+            ;
 
             void on_event(const events::internal_transition&)
             {

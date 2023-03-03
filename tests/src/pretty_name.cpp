@@ -17,9 +17,8 @@ namespace pretty_name_ns
     struct state
     {
         using conf = awesm::state_conf
-        <
-            awesm::state_opts::get_pretty_name
-        >;
+            ::get_pretty_name
+        ;
 
         static const char* get_pretty_name()
         {

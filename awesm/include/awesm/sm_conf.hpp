@@ -10,6 +10,7 @@
 #include "transition_table.hpp"
 #include "type_filters.hpp"
 #include "detail/constant_list.hpp"
+#include "detail/constant.hpp"
 #include "detail/type_list.hpp"
 #include "detail/tlu.hpp"
 
@@ -18,12 +19,6 @@ namespace awesm
 
 namespace detail
 {
-    template<auto Value>
-    struct constant
-    {
-        static constexpr auto value = Value;
-    };
-
     enum class sm_option
     {
         after_state_transition,

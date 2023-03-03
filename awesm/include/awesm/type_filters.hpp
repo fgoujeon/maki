@@ -14,8 +14,6 @@ namespace awesm
 
 namespace detail
 {
-    struct type_filter{};
-
     template<class T, class Enable = void>
     struct is_type_filter
     {
@@ -32,20 +30,25 @@ namespace detail
     constexpr auto is_type_filter_v = is_type_filter<T>::value;
 
     template<class T, class Filter>
-    constexpr bool matches_filter_impl()
+    struct matches_filter
     {
-        if constexpr(is_type_filter_v<Filter>)
+        static constexpr bool matches()
         {
-            return Filter::template matches<T>;
+            if constexpr(is_type_filter_v<Filter>)
+            {
+                return Filter::template matches<T>;
+            }
+            else
+            {
+                return std::is_same_v<T, Filter>;
+            }
         }
-        else
-        {
-            return std::is_same_v<T, Filter>;
-        }
-    }
+
+        static constexpr bool value = matches();
+    };
 
     template<class T, class Filter>
-    constexpr auto matches_filter_v = matches_filter_impl<T, Filter>();
+    constexpr auto matches_filter_v = matches_filter<T, Filter>::value;
 
     template<class T, class FilterList>
     struct matches_any_filter;
@@ -53,7 +56,7 @@ namespace detail
     template<class T, template<class...> class FilterList, class... Filters>
     struct matches_any_filter<T, FilterList<Filters...>>
     {
-        static constexpr auto value = (matches_filter_v<T, Filters> || ...);
+        static constexpr auto value = (matches_filter<T, Filters>::value || ...);
     };
 
     template<class T, class FilterList>

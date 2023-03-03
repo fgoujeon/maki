@@ -36,7 +36,7 @@ namespace set_at_detail
         using type = push_front_t
         <
             typename set_at_reverse<TList, ReverseIndex, U, Ts...>::type,
-            typename alternative<sizeof...(Ts) == ReverseIndex, U, T>::type
+            typename alternative<static_cast<int>(sizeof...(Ts)) == ReverseIndex, U, T>::type
         >;
     };
 

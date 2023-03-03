@@ -41,32 +41,21 @@ static_assert(static_cast<int>(sm_option::on_event) == static_cast<int>(state_op
 static_assert(static_cast<int>(sm_option::on_exit_any) == static_cast<int>(state_option::on_exit_any));
 
 template<class State>
-struct requires_on_entry
-{
-    static constexpr auto value = tlu::at_f_t<typename State::conf, sm_option::on_entry_any>::value;
-};
-
-template<class State>
-constexpr auto requires_on_entry_v = requires_on_entry<State>::value;
+constexpr auto requires_on_entry_v =
+    tlu::at_f_t<typename State::conf, sm_option::on_entry_any>::value
+;
 
 template<class State, class Event>
-struct requires_on_event
-{
-    using filter_type_list = tlu::at_f_t<typename State::conf, sm_option::on_event>;
-    static constexpr auto value = matches_any_filter_v<Event, filter_type_list>;
-};
-
-template<class State, class Event>
-constexpr auto requires_on_event_v = requires_on_event<State, Event>::value;
+constexpr auto requires_on_event_v = matches_any_filter_v
+<
+    Event,
+    tlu::at_f_t<typename State::conf, sm_option::on_event>
+>;
 
 template<class State>
-struct requires_on_exit
-{
-    static constexpr auto value = tlu::at_f_t<typename State::conf, sm_option::on_exit_any>::value;
-};
-
-template<class State>
-constexpr auto requires_on_exit_v = requires_on_exit<State>::value;
+constexpr auto requires_on_exit_v =
+    tlu::at_f_t<typename State::conf, sm_option::on_exit_any>::value
+;
 
 } //namespace
 

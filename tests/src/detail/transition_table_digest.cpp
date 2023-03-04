@@ -52,7 +52,7 @@ namespace
 
     using digest_t = awesm::detail::transition_table_digest<decltype(transition_table()), sm_t>;
 
-    using state_tuple_t = awesm::detail::type_list<state0, state1, state2, state3>;
+    using state_tuple_t = awesm::detail::tlu::type_list<state0, state1, state2, state3>;
 }
 
 TEST_CASE("detail::transition_table_digest")

@@ -4,10 +4,10 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_DETAIL_TYPE_LIST_HPP
-#define AWESM_DETAIL_TYPE_LIST_HPP
+#ifndef AWESM_DETAIL_TLU_TYPE_LIST_HPP
+#define AWESM_DETAIL_TLU_TYPE_LIST_HPP
 
-namespace awesm::detail
+namespace awesm::detail::tlu
 {
 
 template<class... Ts>

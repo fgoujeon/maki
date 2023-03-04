@@ -9,7 +9,6 @@
 
 #include "type_filters.hpp"
 #include "detail/constant.hpp"
-#include "detail/type_list.hpp"
 #include "detail/tlu.hpp"
 
 namespace awesm
@@ -45,7 +44,7 @@ struct state_conf_tpl
     <
         state_conf_tpl,
         detail::state_option::on_event,
-        detail::type_list<EventFilters...>
+        detail::tlu::type_list<EventFilters...>
     >;
     using on_event_any = on_event<any>;
 

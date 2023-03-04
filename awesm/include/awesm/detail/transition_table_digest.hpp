@@ -8,7 +8,6 @@
 #define AWESM_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 
 #include "tlu.hpp"
-#include "type_list.hpp"
 #include "tuple.hpp"
 #include "sm_object_holder.hpp"
 #include "state_traits.hpp"
@@ -71,7 +70,7 @@ namespace transition_table_digest_detail
     template<class InitialState>
     struct initial_digest
     {
-        using state_tuple_type = type_list<InitialState>;
+        using state_tuple_type = tlu::type_list<InitialState>;
         static constexpr auto has_null_events = false;
     };
 
@@ -91,8 +90,9 @@ namespace transition_table_digest_detail
     };
 
     /*
-    First step with type_list instead of awesm::detail::sm_object_holder_tuple,
-    so that we don't instantiate intermediate tuples.
+    First step with tlu::type_list instead of
+    awesm::detail::sm_object_holder_tuple, so that we don't instantiate
+    intermediate tuples.
     */
     template<class TransitionTable>
     using digest_with_type_lists = tlu::left_fold_t

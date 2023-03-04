@@ -11,7 +11,6 @@
 #include "type_filters.hpp"
 #include "detail/constant_list.hpp"
 #include "detail/constant.hpp"
-#include "detail/type_list.hpp"
 #include "detail/tlu.hpp"
 
 namespace awesm
@@ -138,7 +137,7 @@ struct sm_conf_tpl
     <
         sm_conf_tpl,
         detail::sm_option::on_event,
-        detail::type_list<EventFilters...>
+        detail::tlu::type_list<EventFilters...>
     >;
 
     template<bool B>

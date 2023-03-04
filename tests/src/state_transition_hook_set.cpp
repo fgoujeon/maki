@@ -29,12 +29,9 @@ namespace
         EMPTY_STATE(off1);
         EMPTY_STATE(on0);
 
-        auto on1_transition_table()
-        {
-            return awesm::transition_table
-                .add<states::off0, events::button_press, states::on0>
-            ;
-        }
+        using on1_transition_table = awesm::transition_table
+            ::add<states::off0, events::button_press, states::on0>
+        ;
 
         struct on1
         {
@@ -50,19 +47,13 @@ namespace
         };
     }
 
-    auto sm_transition_table_0()
-    {
-        return awesm::transition_table
-            .add<states::off0, events::button_press, states::on0>
-        ;
-    }
+    using sm_transition_table_0 = awesm::transition_table
+        ::add<states::off0, events::button_press, states::on0>
+    ;
 
-    auto sm_transition_table_1()
-    {
-        return awesm::transition_table
-            .add<states::off1, events::button_press, states::on1>
-        ;
-    }
+    using sm_transition_table_1 = awesm::transition_table
+        ::add<states::off1, events::button_press, states::on1>
+    ;
 
     struct sm_def
     {

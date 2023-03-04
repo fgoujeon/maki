@@ -13,7 +13,6 @@
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
-#include "clu.hpp"
 #include "tlu.hpp"
 #include "../sm_conf.hpp"
 #include "../states.hpp"
@@ -138,7 +137,7 @@ class region
         using root_sm_type = root_sm_of_t<ParentSm>;
         using root_sm_conf = typename root_sm_type::conf;
 
-        using transition_table_type = decltype(clu::at_v<typename ParentSm::transition_table_fn_list_type, Index>());
+        using transition_table_type = tlu::at_t<typename ParentSm::transition_table_type_list, Index>;
 
         using transition_table_digest_type =
             detail::transition_table_digest<transition_table_type, region>

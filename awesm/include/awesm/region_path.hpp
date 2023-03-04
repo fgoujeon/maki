@@ -10,7 +10,6 @@
 #include "transition_table.hpp"
 #include "pretty_name.hpp"
 #include "detail/tlu.hpp"
-#include "detail/clu.hpp"
 #include <string>
 
 namespace awesm
@@ -35,7 +34,7 @@ struct region_path_element
         auto str = std::string{};
         str += awesm::get_pretty_name<sm_type>();
 
-        if constexpr(detail::clu::size_v<transition_table_list_type> > 1)
+        if constexpr(detail::tlu::size_v<transition_table_list_type> > 1)
         {
             str += "[";
             str += std::to_string(region_index);
@@ -65,7 +64,7 @@ namespace detail
     {
         using conf_type = typename SmOrCompositeState::conf;
         using transition_table_list_type = tlu::at_f_t<conf_type, sm_option::transition_tables>;
-        static_assert(clu::size_v<transition_table_list_type> == 1);
+        static_assert(tlu::size_v<transition_table_list_type> == 1);
 
         using type = region_path<Ts..., region_path_element<SmOrCompositeState, 0>>;
     };

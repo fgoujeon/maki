@@ -49,27 +49,15 @@ namespace
         };
     }
 
-    auto region_0_transition_table()
-    {
-        return awesm::transition_table
-            .add<states::off0, events::button_press, states::on0>
-        ;
-    }
-
-    auto region_1_transition_table()
-    {
-        return awesm::transition_table
-            .add<states::off1, events::button_press, states::on1>
-        ;
-    }
-
     struct sm_def
     {
         using conf = awesm::sm_conf
             ::transition_tables
             <
-                region_0_transition_table,
-                region_1_transition_table
+                awesm::transition_table
+                    ::add<states::off0, events::button_press, states::on0>,
+                awesm::transition_table
+                    ::add<states::off1, events::button_press, states::on1>
             >
             ::context<context>
             ::on_exception<true>

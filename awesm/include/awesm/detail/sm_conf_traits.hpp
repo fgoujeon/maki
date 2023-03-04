@@ -7,7 +7,6 @@
 #ifndef AWESM_DETAIL_SM_CONF_TRAITS_HPP
 #define AWESM_DETAIL_SM_CONF_TRAITS_HPP
 
-#include "clu.hpp"
 #include "tlu.hpp"
 #include "overload_priority.hpp"
 #include "type_tag.hpp"

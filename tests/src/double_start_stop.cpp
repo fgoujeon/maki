@@ -29,13 +29,10 @@ namespace
         EMPTY_STATE(off);
     }
 
-    auto sm_transition_table()
-    {
-        return awesm::transition_table
-            .add<states::off, events::button_press, states::on>
-            .add<states::on,  events::button_press, states::off>
-        ;
-    }
+    using sm_transition_table = awesm::transition_table
+        ::add<states::off, events::button_press, states::on>
+        ::add<states::on,  events::button_press, states::off>
+    ;
 
     struct sm_def;
 

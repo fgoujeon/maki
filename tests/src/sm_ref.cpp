@@ -25,13 +25,10 @@ namespace
         struct off_button_press{};
     }
 
-    auto sm_transition_table()
-    {
-        return awesm::transition_table
-            .add<states::off, events::on_button_press,  states::on>
-            .add<states::on,  events::off_button_press, states::off>
-        ;
-    }
+    using sm_transition_table = awesm::transition_table
+        ::add<states::off, events::on_button_press,  states::on>
+        ::add<states::on,  events::off_button_press, states::off>
+    ;
 
     struct sm_def
     {

@@ -88,15 +88,12 @@ namespace nullary_member_functions_ns
         return true;
     };
 
-    auto sm_transition_table()
-    {
-        return awesm::transition_table
-            .add<states::off, events::e1, states::on,  action, guard>
-            .add<states::off, events::e2, states::on,  action, guard>
-            .add<states::on,  events::e1, states::off, action, guard>
-            .add<states::on,  events::e2, states::off, action, guard>
-        ;
-    }
+    using sm_transition_table = awesm::transition_table
+        ::add<states::off, events::e1, states::on,  action, guard>
+        ::add<states::off, events::e2, states::on,  action, guard>
+        ::add<states::on,  events::e1, states::off, action, guard>
+        ::add<states::on,  events::e2, states::off, action, guard>
+    ;
 
     struct sm_def
     {

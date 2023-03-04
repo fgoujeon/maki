@@ -64,13 +64,10 @@ namespace
         sm.process_event(Event{});
     };
 
-    auto sm_transition_table()
-    {
-        return awesm::transition_table
-            .add<state, event_processing_request<small_event>, awesm::null, process_event<small_event>>
-            .add<state, event_processing_request<big_event>,   awesm::null, process_event<big_event>>
-        ;
-    }
+    using sm_transition_table = awesm::transition_table
+        ::add<state, event_processing_request<small_event>, awesm::null, process_event<small_event>>
+        ::add<state, event_processing_request<big_event>,   awesm::null, process_event<big_event>>
+    ;
 
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
     struct sm_def

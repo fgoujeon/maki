@@ -52,7 +52,7 @@ struct transition
 };
 
 template<class... Transitions>
-struct transition_table_t
+struct transition_table_tpl
 {
     template
     <
@@ -62,14 +62,14 @@ struct transition_table_t
         const auto& Action = noop,
         const auto& Guard = yes
     >
-    static constexpr transition_table_t
+    using add = transition_table_tpl
     <
         Transitions...,
         transition<SourceStateFilter, EventFilter, TargetState, Action, Guard>
-    > add = {};
+    >;
 };
 
-inline constexpr auto transition_table = transition_table_t<>{};
+using transition_table = transition_table_tpl<>;
 
 } //namespace
 

@@ -57,18 +57,15 @@ namespace
 
                 EMPTY_STATE(emitting_hot_red);
 
-                auto make_transition_table()
-                {
-                    return awesm::transition_table
-                        .add<emitting_cold_red, events::color_button_press, emitting_hot_red>
-                    ;
-                }
+                using sm_transition_table = awesm::transition_table
+                    ::add<emitting_cold_red, events::color_button_press, emitting_hot_red>
+                ;
             }
 
             struct emitting_red
             {
                 using conf = awesm::sm_conf
-                    ::transition_tables<emitting_red_ns::make_transition_table>
+                    ::transition_tables<emitting_red_ns::sm_transition_table>
                     ::on_entry<true>
                 ;
 
@@ -83,20 +80,17 @@ namespace
             EMPTY_STATE(emitting_green);
             EMPTY_STATE(emitting_blue);
 
-            auto make_transition_table()
-            {
-                return awesm::transition_table
-                    .add<emitting_red,   events::color_button_press, emitting_green>
-                    .add<emitting_green, events::color_button_press, emitting_blue>
-                    .add<emitting_blue,  events::color_button_press, emitting_red>
-                ;
-            }
+            using sm_transition_table = awesm::transition_table
+                ::add<emitting_red,   events::color_button_press, emitting_green>
+                ::add<emitting_green, events::color_button_press, emitting_blue>
+                ::add<emitting_blue,  events::color_button_press, emitting_red>
+            ;
         }
 
         struct on
         {
             using conf = awesm::sm_conf
-                ::transition_tables<on_ns::make_transition_table>
+                ::transition_tables<on_ns::sm_transition_table>
                 ::context<on_ns::context>
                 ::on_exit<true>
             ;
@@ -110,13 +104,10 @@ namespace
         };
     }
 
-    auto sm_transition_table()
-    {
-        return awesm::transition_table
-            .add<states::off, events::power_button_press, states::on>
-            .add<states::on,  events::power_button_press, states::off>
-        ;
-    }
+    using sm_transition_table = awesm::transition_table
+        ::add<states::off, events::power_button_press, states::on>
+        ::add<states::on,  events::power_button_press, states::off>
+    ;
 
     struct sm_def
     {

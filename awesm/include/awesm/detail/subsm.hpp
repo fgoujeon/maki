@@ -8,7 +8,6 @@
 #define AWESM_DETAIL_SUBSM_HPP
 
 #include "call_member.hpp"
-#include "clu.hpp"
 #include "tlu.hpp"
 #include "region.hpp"
 #include "region_path_of.hpp"
@@ -124,7 +123,7 @@ class subsm
         using context_type = typename subsm_context<Def, ParentRegion>::type;
         using root_sm_type = root_sm_of_t<subsm>;
 
-        using transition_table_fn_list_type = tlu::at_t<typename Def::conf, static_cast<int>(sm_option::transition_tables)>;
+        using transition_table_type_list = tlu::at_t<typename Def::conf, static_cast<int>(sm_option::transition_tables)>;
 
         template<class... ContextArgs>
         subsm(root_sm_type& root_sm, ContextArgs&&... ctx_args):
@@ -169,7 +168,7 @@ class subsm
         template<class State>
         [[nodiscard]] bool is_active_state() const
         {
-            static_assert(clu::size_v<transition_table_fn_list_type> == 1);
+            static_assert(tlu::size_v<transition_table_type_list> == 1);
 
             return get<0>(regions_).template is_active_state<region_path<>, State>();
         }
@@ -234,7 +233,7 @@ class subsm
         using region_tuple_type = typename region_tuple
         <
             subsm,
-            std::make_integer_sequence<int, clu::size_v<transition_table_fn_list_type>>
+            std::make_integer_sequence<int, tlu::size_v<transition_table_type_list>>
         >::type;
 
         template<class F, class Event>

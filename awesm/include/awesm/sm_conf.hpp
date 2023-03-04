@@ -9,7 +9,6 @@
 
 #include "transition_table.hpp"
 #include "type_filters.hpp"
-#include "detail/constant_list.hpp"
 #include "detail/constant.hpp"
 #include "detail/tlu.hpp"
 
@@ -142,12 +141,12 @@ struct sm_conf_tpl
         detail::constant<B>
     >;
 
-    template<auto... Fns>
+    template<class... Ts>
     using transition_tables = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
         detail::sm_option::transition_tables,
-        detail::constant_list<Fns...>
+        detail::tlu::type_list<Ts...>
     >;
 
     static constexpr auto is_composite = true;

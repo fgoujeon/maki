@@ -48,21 +48,18 @@ namespace
         };
     }
 
-    auto sm_transition_table()
-    {
-        return awesm::transition_table
-            .add<states::state0, events::next_state, states::state1>
-            .add<states::state1, events::next_state, states::state2>
-            .add<states::state2, events::next_state, states::state3>
-            .add<states::state3, events::next_state, states::state4>
-            .add<states::state4, events::next_state, states::state5>
-            .add<states::state5, events::next_state, states::state6>
-            .add<states::state6, events::next_state, states::state7>
-            .add<states::state7, events::next_state, states::state8>
-            .add<states::state8, events::next_state, states::state9>
-            .add<states::state9, events::next_state, states::benchmarking>
-        ;
-    }
+    using sm_transition_table = awesm::transition_table
+        ::add<states::state0, events::next_state, states::state1>
+        ::add<states::state1, events::next_state, states::state2>
+        ::add<states::state2, events::next_state, states::state3>
+        ::add<states::state3, events::next_state, states::state4>
+        ::add<states::state4, events::next_state, states::state5>
+        ::add<states::state5, events::next_state, states::state6>
+        ::add<states::state6, events::next_state, states::state7>
+        ::add<states::state7, events::next_state, states::state8>
+        ::add<states::state8, events::next_state, states::state9>
+        ::add<states::state9, events::next_state, states::benchmarking>
+    ;
 
     struct sm_def
     {

@@ -25,15 +25,12 @@ namespace
         struct error{};
     }
 
-    auto sm_transition_table()
-    {
-        return awesm::transition_table
-            .add<states::idle,    events::start_button_press, states::running>
-            .add<states::running, events::stop_button_press,  states::idle>
-            .add<states::failed,  events::stop_button_press,  states::idle>
-            .add<awesm::any,      events::error,              states::failed>
-        ;
-    }
+    using sm_transition_table = awesm::transition_table
+        ::add<states::idle,    events::start_button_press, states::running>
+        ::add<states::running, events::stop_button_press,  states::idle>
+        ::add<states::failed,  events::stop_button_press,  states::idle>
+        ::add<awesm::any,      events::error,              states::failed>
+    ;
 
     struct sm_def
     {

@@ -25,7 +25,7 @@ namespace
         struct alert_button_press{};
     }
 
-    auto sm_transition_table()
+    constexpr auto make_sm_transition_table()
     {
         using any_button_press = awesm::any_of
         <
@@ -34,15 +34,17 @@ namespace
         >;
 
         return awesm::transition_table
-            .add<states::off, any_button_press,           states::on>
-            .add<states::on,  events::power_button_press, states::off>
-        ;
+            ::add<states::off, any_button_press,           states::on>
+            ::add<states::on,  events::power_button_press, states::off>
+        {};
     }
+
+    inline constexpr auto sm_transition_table = make_sm_transition_table();
 
     struct sm_def
     {
         using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+            ::transition_tables<decltype(make_sm_transition_table())>
             ::context<context>
         ;
     };

@@ -242,7 +242,7 @@ class subsm
         }
 
     private:
-        using transition_table_fn_list_type = tlu::at_t<typename Def::conf, static_cast<int>(sm_option::transition_table_list)>;
+        using transition_table_fn_list_type = tlu::at_t<typename Def::conf, static_cast<int>(sm_option::transition_tables)>;
 
         using region_tuple_type = tt_list_to_region_tuple_t
         <

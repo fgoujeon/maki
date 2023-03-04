@@ -68,7 +68,7 @@ namespace
             struct emitting_red
             {
                 using conf = awesm::sm_conf
-                    ::transition_table<emitting_red_ns::make_transition_table>
+                    ::transition_tables<emitting_red_ns::make_transition_table>
                     ::on_entry<true>
                 ;
 
@@ -96,7 +96,7 @@ namespace
         struct on
         {
             using conf = awesm::sm_conf
-                ::transition_table<on_ns::make_transition_table>
+                ::transition_tables<on_ns::make_transition_table>
                 ::context<on_ns::context>
                 ::on_exit<true>
             ;
@@ -121,7 +121,7 @@ namespace
     struct sm_def
     {
         using conf = awesm::sm_conf
-            ::transition_table<sm_transition_table>
+            ::transition_tables<sm_transition_table>
             ::context<context>
         ;
     };

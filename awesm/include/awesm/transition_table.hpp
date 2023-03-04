@@ -75,7 +75,7 @@ template<auto... Fns>
 struct transition_table_list_t{};
 
 template<auto... Fns>
-inline constexpr auto transition_table_list = static_cast<const transition_table_list_t<Fns...>*>(nullptr);
+inline constexpr auto transition_tables = static_cast<const transition_table_list_t<Fns...>*>(nullptr);
 
 } //namespace
 

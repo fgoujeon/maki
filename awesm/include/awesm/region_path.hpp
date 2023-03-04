@@ -29,7 +29,7 @@ struct region_path_element
         using transition_table_list_type = detail::tlu::at_f_t
         <
             typename sm_type::conf,
-            detail::sm_option::transition_table_list
+            detail::sm_option::transition_tables
         >;
 
         auto str = std::string{};
@@ -64,7 +64,7 @@ namespace detail
     struct region_path_add<region_path<Ts...>, SmOrCompositeState, -1>
     {
         using conf_type = typename SmOrCompositeState::conf;
-        using transition_table_list_type = tlu::at_f_t<conf_type, sm_option::transition_table_list>;
+        using transition_table_list_type = tlu::at_f_t<conf_type, sm_option::transition_tables>;
         static_assert(clu::size_v<transition_table_list_type> == 1);
 
         using type = region_path<Ts..., region_path_element<SmOrCompositeState, 0>>;

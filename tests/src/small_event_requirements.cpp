@@ -76,7 +76,7 @@ namespace
     struct sm_def
     {
         using conf = typename awesm::sm_conf
-            ::transition_table<sm_transition_table>
+            ::transition_tables<sm_transition_table>
             ::context<context>
             ::small_event_max_size<SmallEventMaxSize>
             ::template small_event_max_align<SmallEventMaxAlign>

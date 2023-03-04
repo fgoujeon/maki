@@ -66,7 +66,7 @@ namespace
     struct sm_def
     {
         using conf = awesm::sm_conf
-            ::transition_table_list
+            ::transition_tables
             <
                 region_0_transition_table,
                 region_1_transition_table

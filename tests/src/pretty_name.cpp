@@ -36,7 +36,7 @@ namespace pretty_name_ns
     struct subsm
     {
         using conf = awesm::sm_conf
-            ::transition_table<subsm_transition_table>
+            ::transition_tables<subsm_transition_table>
             ::get_pretty_name<true>
         ;
 
@@ -60,7 +60,7 @@ namespace pretty_name_ns
     struct sm_def
     {
         using conf = awesm::sm_conf
-            ::transition_table<sm_transition_table>
+            ::transition_tables<sm_transition_table>
             ::context<context>
             ::get_pretty_name<true>
         ;

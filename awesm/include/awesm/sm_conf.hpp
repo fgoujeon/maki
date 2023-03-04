@@ -36,7 +36,7 @@ namespace detail
         run_to_completion,
         small_event_max_align,
         small_event_max_size,
-        transition_table_list,
+        transition_tables,
     };
 }
 
@@ -143,15 +143,12 @@ struct sm_conf_tpl
     >;
 
     template<auto... Fns>
-    using transition_table_list = detail::tlu::set_at_f_t
+    using transition_tables = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
-        detail::sm_option::transition_table_list,
+        detail::sm_option::transition_tables,
         detail::constant_list<Fns...>
     >;
-
-    template<auto Fn>
-    using transition_table = transition_table_list<Fn>;
 
     static constexpr auto is_composite = true;
 };

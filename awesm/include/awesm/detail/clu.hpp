@@ -15,4 +15,5 @@ A constant list is an instance of a type template of this form:
 */
 
 #include "clu/apply.hpp"
+#include "clu/at.hpp"
 #include "clu/size.hpp"

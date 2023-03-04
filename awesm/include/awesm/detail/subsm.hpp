@@ -85,22 +85,18 @@ struct subsm_context<Def, void>
 template
 <
     class ParentSm,
-    class TransitionTableFnList,
     class RegionIndexSequence
 >
-struct tt_list_to_region_tuple;
+struct region_tuple;
 
 template
 <
     class ParentSm,
-    template<auto...> class TransitionTableFnList,
-    auto... TransitionTableFns,
     int... RegionIndexes
 >
-struct tt_list_to_region_tuple
+struct region_tuple
 <
     ParentSm,
-    TransitionTableFnList<TransitionTableFns...>,
     std::integer_sequence<int, RegionIndexes...>
 >
 {
@@ -109,19 +105,10 @@ struct tt_list_to_region_tuple
         region
         <
             ParentSm,
-            RegionIndexes,
-            TransitionTableFns
+            RegionIndexes
         >...
     >;
 };
-
-template<class ParentSm, class TransitionTableFnList>
-using tt_list_to_region_tuple_t = typename tt_list_to_region_tuple
-<
-    ParentSm,
-    TransitionTableFnList,
-    std::make_integer_sequence<int, clu::size_v<TransitionTableFnList>>
->::type;
 
 template<class Def, class ParentRegion>
 class subsm
@@ -136,6 +123,8 @@ class subsm
         using def_type = Def;
         using context_type = typename subsm_context<Def, ParentRegion>::type;
         using root_sm_type = root_sm_of_t<subsm>;
+
+        using transition_table_fn_list_type = tlu::at_t<typename Def::conf, static_cast<int>(sm_option::transition_tables)>;
 
         template<class... ContextArgs>
         subsm(root_sm_type& root_sm, ContextArgs&&... ctx_args):
@@ -242,13 +231,11 @@ class subsm
         }
 
     private:
-        using transition_table_fn_list_type = tlu::at_t<typename Def::conf, static_cast<int>(sm_option::transition_tables)>;
-
-        using region_tuple_type = tt_list_to_region_tuple_t
+        using region_tuple_type = typename region_tuple
         <
             subsm,
-            transition_table_fn_list_type
-        >;
+            std::make_integer_sequence<int, clu::size_v<transition_table_fn_list_type>>
+        >::type;
 
         template<class F, class Event>
         void for_each_region(F&& fun, const Event& event)

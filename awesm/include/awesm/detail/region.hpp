@@ -13,6 +13,7 @@
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
+#include "clu.hpp"
 #include "tlu.hpp"
 #include "../sm_conf.hpp"
 #include "../states.hpp"
@@ -40,22 +41,22 @@ namespace
     inline constexpr auto index_of_state_v = index_of_state<StateList, State>::value;
 }
 
-template<class ParentSm, int Index, auto TransitionTableFn>
+template<class ParentSm, int Index>
 class region;
 
-template<class ParentSm, int Index, auto TransitionTableFn>
-struct region_path_of<region<ParentSm, Index, TransitionTableFn>>
+template<class ParentSm, int Index>
+struct region_path_of<region<ParentSm, Index>>
 {
     using type = typename region_path_of_t<ParentSm>::template add<typename ParentSm::def_type, Index>;
 };
 
-template<class ParentSm, int Index, auto TransitionTableFn>
-struct root_sm_of<region<ParentSm, Index, TransitionTableFn>>
+template<class ParentSm, int Index>
+struct root_sm_of<region<ParentSm, Index>>
 {
     using type = root_sm_of_t<ParentSm>;
 };
 
-template<class ParentSm, int Index, auto TransitionTableFn>
+template<class ParentSm, int Index>
 class region
 {
     public:
@@ -137,7 +138,7 @@ class region
         using root_sm_type = root_sm_of_t<ParentSm>;
         using root_sm_conf = typename root_sm_type::conf;
 
-        using transition_table_type = decltype(TransitionTableFn());
+        using transition_table_type = decltype(clu::at_v<typename ParentSm::transition_table_fn_list_type, Index>());
 
         using transition_table_digest_type =
             detail::transition_table_digest<transition_table_type, region>

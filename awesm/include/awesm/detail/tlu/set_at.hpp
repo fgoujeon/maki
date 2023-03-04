@@ -8,7 +8,8 @@
 #define AWESM_DETAIL_TLU_SET_HPP
 
 #include "push_front.hpp"
-#include "size.hpp"
+#include "apply.hpp"
+#include "type_list.hpp"
 
 namespace awesm::detail::tlu
 {
@@ -27,39 +28,42 @@ namespace set_at_detail
         using type = F;
     };
 
-    template<template<class...> class TList, int ReverseIndex, class U, class... Ts>
+    template<int ReverseIndex, class U, class... Ts>
     struct set_at_reverse;
 
-    template<template<class...> class TList, int ReverseIndex, class U, class T, class... Ts>
-    struct set_at_reverse<TList, ReverseIndex, U, T, Ts...>
+    template<int ReverseIndex, class U, class T, class... Ts>
+    struct set_at_reverse<ReverseIndex, U, T, Ts...>
     {
         using type = push_front_t
         <
-            typename set_at_reverse<TList, ReverseIndex, U, Ts...>::type,
+            typename set_at_reverse<ReverseIndex, U, Ts...>::type,
             typename alternative<static_cast<int>(sizeof...(Ts)) == ReverseIndex, U, T>::type
         >;
     };
 
-    template<template<class...> class TList, int ReverseIndex, class U>
-    struct set_at_reverse<TList, ReverseIndex, U>
+    template<int ReverseIndex, class U>
+    struct set_at_reverse<ReverseIndex, U>
     {
-        using type = TList<>;
+        using type = type_list<>;
     };
 }
 
 template<class TList, int Index, class U>
-struct set_at;
+class set_at;
 
 template<template<class...> class TList, class... Ts, int Index, class U>
-struct set_at<TList<Ts...>, Index, U>
+class set_at<TList<Ts...>, Index, U>
 {
-    using type = typename set_at_detail::set_at_reverse
-    <
-        TList,
-        sizeof...(Ts) - Index - 1,
-        U,
-        Ts...
-    >::type;
+    private:
+        using temp_type = typename set_at_detail::set_at_reverse
+        <
+            sizeof...(Ts) - Index - 1,
+            U,
+            Ts...
+        >::type;
+
+    public:
+        using type = apply_t<temp_type, TList>;
 };
 
 template<class TList, int Index, class U>

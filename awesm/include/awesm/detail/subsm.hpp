@@ -79,7 +79,7 @@ struct subsm_context
 template<class Def>
 struct subsm_context<Def, void>
 {
-    using type = typename Def::conf::context_type;
+    using type = tlu::at_t<typename Def::conf, static_cast<int>(sm_option::context)>;
 };
 
 template
@@ -128,11 +128,10 @@ class subsm
 {
     public:
         using conf = state_conf
-        <
-            state_opts::on_entry_any,
-            state_opts::on_event_any,
-            state_opts::on_exit_any
-        >;
+            ::on_entry_any
+            ::on_event_any
+            ::on_exit_any
+        ;
 
         using def_type = Def;
         using context_type = typename subsm_context<Def, ParentRegion>::type;
@@ -243,7 +242,7 @@ class subsm
         }
 
     private:
-        using transition_table_fn_list_type = sm_conf_traits::transition_table_fn_list_t<typename Def::conf>;
+        using transition_table_fn_list_type = tlu::at_t<typename Def::conf, static_cast<int>(sm_option::transition_table_list)>;
 
         using region_tuple_type = tt_list_to_region_tuple_t
         <

@@ -4,16 +4,14 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_DETAIL_MIX_HPP
-#define AWESM_DETAIL_MIX_HPP
+#ifndef AWESM_DETAIL_CONSTANT_LIST_HPP
+#define AWESM_DETAIL_CONSTANT_LIST_HPP
 
 namespace awesm::detail
 {
 
-template<class... Ts>
-struct mix: Ts...
-{
-};
+template<auto... Vs>
+struct constant_list{};
 
 } //namespace
 

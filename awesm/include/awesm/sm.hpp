@@ -10,7 +10,6 @@
 #include "sm_conf.hpp"
 #include "region_path.hpp"
 #include "detail/noinline.hpp"
-#include "detail/sm_conf_traits.hpp"
 #include "detail/subsm.hpp"
 #include "detail/alternative.hpp"
 #include "detail/any_container.hpp"
@@ -31,34 +30,6 @@ namespace detail
         stop,
         process_event
     };
-
-    template<class SmConf>
-    constexpr size_t get_small_event_max_size(overload_priority::low /*ignored*/)
-    {
-        constexpr auto default_max = 16;
-        return default_max;
-    }
-
-    template<class SmConf>
-    constexpr size_t get_small_event_max_alignment_requirement(overload_priority::low /*ignored*/)
-    {
-        constexpr auto default_max = 8;
-        return default_max;
-    }
-
-    template<class SmConf>
-    constexpr auto get_small_event_max_size(overload_priority::high /*ignored*/) ->
-        decltype(SmConf::get_small_event_max_size())
-    {
-        return SmConf::get_small_event_max_size();
-    }
-
-    template<class SmConf>
-    constexpr auto get_small_event_max_alignment_requirement(overload_priority::high /*ignored*/) ->
-        decltype(SmConf::get_small_event_max_alignment_requirement())
-    {
-        return SmConf::get_small_event_max_alignment_requirement();
-    }
 }
 
 template<class Def>
@@ -67,13 +38,13 @@ class sm
     public:
         using def_type = Def;
         using conf = typename Def::conf;
-        using context_type = typename conf::context_type;
+        using context_type = detail::tlu::at_f_t<conf, detail::sm_option::context>;
 
         template<class... ContextArgs>
         explicit sm(ContextArgs&&... ctx_args):
             subsm_(*this, std::forward<ContextArgs>(ctx_args)...)
         {
-            if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::disable_auto_start>)
+            if constexpr(detail::tlu::at_f_t<conf, detail::sm_option::auto_start>::value)
             {
                 //start
                 process_event_now_impl<detail::sm_operation::start>(events::start{});
@@ -155,15 +126,13 @@ class sm
         }
 
     private:
-        using option_mix_type = typename conf::option_mix_type;
-
         struct any_event_queue_holder
         {
             using any_event_type = detail::any_container
             <
                 sm&,
-                detail::get_small_event_max_size<option_mix_type>(detail::overload_priority::probe),
-                detail::get_small_event_max_alignment_requirement<option_mix_type>(detail::overload_priority::probe)
+                detail::tlu::at_f_t<conf, detail::sm_option::small_event_max_size>::value,
+                detail::tlu::at_f_t<conf, detail::sm_option::small_event_max_align>::value
             >;
 
             template<bool = true> //Dummy template for lazy evaluation
@@ -176,15 +145,15 @@ class sm
         };
         using any_event_queue_type = typename detail::alternative_t
         <
-            detail::tlu::contains_v<option_mix_type, sm_opts::unsafe::disable_run_to_completion>,
-            empty_holder,
-            any_event_queue_holder
+            detail::tlu::at_f_t<conf, detail::sm_option::run_to_completion>::value,
+            any_event_queue_holder,
+            empty_holder
         >::template type<>;
 
         template<detail::sm_operation Operation, class Event>
         void process_event_2(const Event& event)
         {
-            if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::unsafe::disable_run_to_completion>)
+            if constexpr(detail::tlu::at_f_t<conf, detail::sm_option::run_to_completion>::value)
             {
                 if(!processing_event_) //If call is not recursive
                 {
@@ -205,7 +174,7 @@ class sm
         template<detail::sm_operation Operation, class Event>
         void process_event_now_impl(const Event& event)
         {
-            if constexpr(!detail::tlu::contains_v<option_mix_type, sm_opts::unsafe::disable_run_to_completion>)
+            if constexpr(detail::tlu::at_f_t<conf, detail::sm_option::run_to_completion>::value)
             {
                 processing_event_ = true;
 
@@ -268,7 +237,7 @@ class sm
 
         void process_exception(const std::exception_ptr& eptr)
         {
-            if constexpr(detail::tlu::contains_v<option_mix_type, sm_opts::on_exception>)
+            if constexpr(detail::tlu::at_f_t<conf, detail::sm_option::on_exception>::value)
             {
                 get_def().on_exception(eptr);
             }

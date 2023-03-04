@@ -9,7 +9,9 @@
 
 #include "subsm_fwd.hpp"
 #include "tlu.hpp"
+#include "../type_filters.hpp"
 #include "../state_conf.hpp"
+#include "../sm_conf.hpp"
 
 namespace awesm::detail::state_traits
 {
@@ -34,33 +36,25 @@ using wrap_t = typename wrap<State, Region>::type;
 
 //other
 
-template<template<class...> class Option, class Event, class... TypeFilters>
-constexpr bool requires_on_xxx_conf(Option<TypeFilters...>* /*tag*/)
-{
-    return (matches_filter_v<Event, TypeFilters> || ...);
-}
-
-template<template<class...> class Option, class Event>
-constexpr bool requires_on_xxx_conf(void* /*tag*/)
-{
-    return false;
-}
+static_assert(static_cast<int>(sm_option::on_entry_any) == static_cast<int>(state_option::on_entry_any));
+static_assert(static_cast<int>(sm_option::on_event) == static_cast<int>(state_option::on_event));
+static_assert(static_cast<int>(sm_option::on_exit_any) == static_cast<int>(state_option::on_exit_any));
 
 template<class State>
 constexpr auto requires_on_entry_v =
-    tlu::contains_v<typename State::conf::option_mix_type, state_opts::on_entry_any>
+    tlu::at_f_t<typename State::conf, sm_option::on_entry_any>::value
 ;
 
 template<class State, class Event>
-constexpr auto requires_on_event_v = requires_on_xxx_conf
+constexpr auto requires_on_event_v = matches_any_filter_v
 <
-    state_opts::on_event,
-    Event
->(static_cast<typename State::conf::option_mix_type*>(nullptr));
+    Event,
+    tlu::at_f_t<typename State::conf, sm_option::on_event>
+>;
 
 template<class State>
 constexpr auto requires_on_exit_v =
-    tlu::contains_v<typename State::conf::option_mix_type, state_opts::on_exit_any>
+    tlu::at_f_t<typename State::conf, sm_option::on_exit_any>::value
 ;
 
 } //namespace

@@ -4,13 +4,18 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef COMMON_EMPTY_STATE_HPP
-#define COMMON_EMPTY_STATE_HPP
+#ifndef AWESM_DETAIL_CONSTANT_HPP
+#define AWESM_DETAIL_CONSTANT_HPP
 
-#define EMPTY_STATE(name) \
-    struct name \
-    { \
-        using conf = awesm::state_conf; \
-    }
+namespace awesm::detail
+{
+
+template<auto Value>
+struct constant
+{
+    static constexpr auto value = Value;
+};
+
+} //namespace
 
 #endif

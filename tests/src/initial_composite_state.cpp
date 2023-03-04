@@ -36,9 +36,8 @@ namespace
         struct off
         {
             using conf = awesm::state_conf
-            <
-                awesm::state_opts::on_entry_any
-            >;
+                ::on_entry_any
+            ;
 
             void on_entry()
             {
@@ -51,9 +50,8 @@ namespace
         struct emitting_red
         {
             using conf = awesm::state_conf
-            <
-                awesm::state_opts::on_entry_any
-            >;
+                ::on_entry_any
+            ;
 
             void on_entry()
             {
@@ -66,9 +64,8 @@ namespace
         struct emitting_green
         {
             using conf = awesm::state_conf
-            <
-                awesm::state_opts::on_entry_any
-            >;
+                ::on_entry_any
+            ;
 
             void on_entry()
             {
@@ -81,9 +78,8 @@ namespace
         struct emitting_blue
         {
             using conf = awesm::state_conf
-            <
-                awesm::state_opts::on_entry_any
-            >;
+                ::on_entry_any
+            ;
 
             void on_entry()
             {
@@ -104,25 +100,9 @@ namespace
 
         struct on
         {
-            using conf = awesm::subsm_conf
-            <
-                on_transition_table
-            >;
-
-            template<class Event>
-            void on_entry(const Event& /*event*/)
-            {
-            }
-
-            template<class Event>
-            void on_event(const Event& /*event*/)
-            {
-            }
-
-            template<class Event>
-            void on_exit(const Event& /*event*/)
-            {
-            }
+            using conf = awesm::sm_conf
+                ::transition_table<on_transition_table>
+            ;
 
             context& ctx;
         };
@@ -137,7 +117,10 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf<sm_transition_table, context>;
+        using conf = awesm::sm_conf
+            ::transition_table<sm_transition_table>
+            ::context<context>
+        ;
     };
 }
 

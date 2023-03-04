@@ -36,12 +36,11 @@ namespace
     struct sm_def
     {
         using conf = awesm::sm_conf
-        <
-            sm_transition_table,
-            context,
-            awesm::sm_opts::unsafe::disable_run_to_completion,
-            awesm::sm_opts::on_exception
-        >;
+            ::transition_table<sm_transition_table>
+            ::context<context>
+            ::no_run_to_completion
+            ::on_exception
+        ;
 
         void on_exception(const std::exception_ptr& /*eptr*/)
         {

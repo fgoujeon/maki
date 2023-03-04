@@ -34,9 +34,8 @@ namespace
         struct on1
         {
             using conf = awesm::state_conf
-            <
-                awesm::state_opts::on_event<events::exception_request>
-            >;
+                ::on_event<events::exception_request>
+            ;
 
             void on_event(const events::exception_request&)
             {
@@ -67,17 +66,16 @@ namespace
     struct sm_def
     {
         using conf = awesm::sm_conf
-        <
-            awesm::transition_table_list
+            ::transition_table_list
             <
                 region_0_transition_table,
                 region_1_transition_table
-            >,
-            context,
-            awesm::sm_opts::on_exception,
-            awesm::sm_opts::before_state_transition,
-            awesm::sm_opts::after_state_transition
-        >;
+            >
+            ::context<context>
+            ::on_exception
+            ::before_state_transition
+            ::after_state_transition
+        ;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>
         void before_state_transition(const Event& /*event*/)

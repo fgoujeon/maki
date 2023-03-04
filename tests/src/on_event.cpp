@@ -32,9 +32,8 @@ namespace
         struct off
         {
             using conf = awesm::state_conf
-            <
-                awesm::state_opts::on_event<events::button_press>
-            >;
+                ::on_event<events::button_press>
+            ;
 
             void on_event(const events::button_press& event)
             {
@@ -47,13 +46,12 @@ namespace
         struct on
         {
             using conf = awesm::state_conf
-            <
-                awesm::state_opts::on_event
+                ::on_event
                 <
                     events::button_press,
                     events::alert_button_press
                 >
-            >;
+            ;
 
             void on_event(const events::button_press& /*event*/)
             {
@@ -80,11 +78,10 @@ namespace
     struct sm_def
     {
         using conf = awesm::sm_conf
-        <
-            sm_transition_table,
-            context,
-            awesm::sm_opts::on_event<events::button_press>
-        >;
+            ::transition_table<sm_transition_table>
+            ::context<context>
+            ::on_event<events::button_press>
+        ;
 
         void on_event(const events::button_press& event)
         {

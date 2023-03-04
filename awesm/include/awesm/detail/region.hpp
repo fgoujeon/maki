@@ -136,7 +136,6 @@ class region
     private:
         using root_sm_type = root_sm_of_t<ParentSm>;
         using root_sm_conf = typename root_sm_type::conf;
-        using option_mix_type = typename root_sm_conf::option_mix_type;
 
         using transition_table_type = decltype(TransitionTableFn());
 
@@ -274,7 +273,7 @@ class region
 
             if constexpr(!is_internal_transition)
             {
-                if constexpr(tlu::contains_v<option_mix_type, sm_opts::before_state_transition>)
+                if constexpr(tlu::at_t<root_sm_conf, static_cast<int>(sm_option::before_state_transition)>::value)
                 {
                     root_sm_.get_def().template before_state_transition
                     <
@@ -312,7 +311,7 @@ class region
 
             if constexpr(!is_internal_transition)
             {
-                if constexpr(tlu::contains_v<option_mix_type, sm_opts::before_entry>)
+                if constexpr(tlu::at_t<root_sm_conf, static_cast<int>(sm_option::before_entry)>::value)
                 {
                     root_sm_.get_def().template before_entry
                     <
@@ -333,7 +332,7 @@ class region
                     );
                 }
 
-                if constexpr(tlu::contains_v<option_mix_type, sm_opts::after_state_transition>)
+                if constexpr(tlu::at_t<root_sm_conf, static_cast<int>(sm_option::after_state_transition)>::value)
                 {
                     root_sm_.get_def().template after_state_transition
                     <

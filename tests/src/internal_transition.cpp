@@ -36,9 +36,8 @@ namespace
         struct benchmarking
         {
             using conf = awesm::state_conf
-            <
-                awesm::state_opts::on_event<events::internal_transition>
-            >;
+                ::on_event<events::internal_transition>
+            ;
 
             void on_event(const events::internal_transition&)
             {
@@ -68,12 +67,11 @@ namespace
     struct sm_def
     {
         using conf = awesm::sm_conf
-        <
-            sm_transition_table,
-            context,
-            awesm::sm_opts::unsafe::disable_run_to_completion,
-            awesm::sm_opts::on_exception
-        >;
+            ::transition_table<sm_transition_table>
+            ::context<context>
+            ::no_run_to_completion
+            ::on_exception
+        ;
 
         void on_exception(const std::exception_ptr& /*eptr*/)
         {

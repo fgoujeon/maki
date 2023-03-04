@@ -20,9 +20,9 @@ namespace detail
     {
         //Common with state_option, don't reorder
         get_pretty_name,
-        on_entry_any,
+        on_entry,
         on_event,
-        on_exit_any
+        on_exit
     };
 }
 
@@ -30,14 +30,12 @@ template<class... Options>
 struct state_conf_tpl
 {
     template<bool B>
-    using set_on_entry_any_enabled = detail::tlu::set_at_f_t
+    using on_entry = detail::tlu::set_at_f_t
     <
         state_conf_tpl,
-        detail::state_option::on_entry_any,
+        detail::state_option::on_entry,
         detail::constant<B>
     >;
-    using on_entry_any = set_on_entry_any_enabled<true>;
-    using no_on_entry_any = set_on_entry_any_enabled<false>;
 
     template<class... EventFilters>
     using on_event = detail::tlu::set_at_f_t
@@ -46,36 +44,31 @@ struct state_conf_tpl
         detail::state_option::on_event,
         detail::tlu::type_list<EventFilters...>
     >;
-    using on_event_any = on_event<any>;
 
     template<bool B>
-    using set_on_exit_any_enabled = detail::tlu::set_at_f_t
+    using on_exit = detail::tlu::set_at_f_t
     <
         state_conf_tpl,
-        detail::state_option::on_exit_any,
+        detail::state_option::on_exit,
         detail::constant<B>
     >;
-    using on_exit_any = set_on_exit_any_enabled<true>;
-    using no_on_exit_any = set_on_exit_any_enabled<false>;
 
     template<bool B>
-    using set_get_pretty_name_enabled = detail::tlu::set_at_f_t
+    using get_pretty_name = detail::tlu::set_at_f_t
     <
         state_conf_tpl,
         detail::state_option::get_pretty_name,
         detail::constant<B>
     >;
-    using get_pretty_name = set_get_pretty_name_enabled<true>;
-    using no_get_pretty_name = set_get_pretty_name_enabled<false>;
 
     static constexpr auto is_composite = false;
 };
 
 using state_conf = state_conf_tpl<void, void, void, void>
     ::on_event<none>
-    ::no_get_pretty_name
-    ::no_on_entry_any
-    ::no_on_exit_any
+    ::get_pretty_name<false>
+    ::on_entry<false>
+    ::on_exit<false>
 ;
 
 } //namespace

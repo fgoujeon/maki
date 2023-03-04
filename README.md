@@ -139,7 +139,6 @@ namespace states
         A state class must define a conf subtype.
         */
         using conf = awesm::state_conf
-        <
             /*
             With this option, we require the state machine to call an on_entry()
             function whenever it enters our state.
@@ -148,7 +147,7 @@ namespace states
                 state.on_entry();
             Where `event` is the event that caused the state transition.
             */
-            awesm::state_opts::on_entry_any,
+            ::on_entry<true>
 
             /*
             Here, we require the state machine to call an on_event() function
@@ -158,7 +157,7 @@ namespace states
             This expression must be valid:
                 state.on_event(event);
             */
-            awesm::state_opts::on_event<button::push_event>,
+            ::on_event<button::push_event>
 
             /*
             Finally, we want the state machine to call on_exit() whenever it
@@ -168,8 +167,8 @@ namespace states
                 state.on_exit();
             Where `event` is the event that caused the state transition.
             */
-            awesm::state_opts::on_exit_any
-        >;
+            ::on_exit<true>
+        ;
 
         void on_entry(const button::push_event& event)
         {
@@ -200,10 +199,10 @@ namespace states
     /*
     These are minimal valid state classes.
     */
-    struct emitting_white { using conf = awesm::state_conf<>; };
-    struct emitting_red { using conf = awesm::state_conf<>; };
-    struct emitting_green { using conf = awesm::state_conf<>; };
-    struct emitting_blue { using conf = awesm::state_conf<>; };
+    struct emitting_white { using conf = awesm::state_conf; };
+    struct emitting_red { using conf = awesm::state_conf; };
+    struct emitting_green { using conf = awesm::state_conf; };
+    struct emitting_blue { using conf = awesm::state_conf; };
 }
 
 /*
@@ -296,7 +295,10 @@ the transition table, but we can put many options in it.
 */
 struct sm_def
 {
-    using conf = awesm::sm_conf<sm_transition_table, context>;
+    using conf = awesm::sm_conf
+        ::transition_table_list<sm_transition_table>
+        ::context<context>
+    ;
 };
 
 /*

@@ -20,8 +20,8 @@ namespace
         struct s0
         {
             using conf = awesm::state_conf
-                ::on_entry_any
-                ::on_exit_any
+                ::on_entry<true>
+                ::on_exit<true>
             ;
 
             void on_entry()
@@ -40,8 +40,8 @@ namespace
         struct s1
         {
             using conf = awesm::state_conf
-                ::on_entry_any
-                ::on_exit_any
+                ::on_entry<true>
+                ::on_exit<true>
             ;
 
             void on_entry()
@@ -76,7 +76,7 @@ namespace
         using conf = awesm::sm_conf
             ::transition_table<sm_transition_table>
             ::context<context>
-            ::no_auto_start
+            ::auto_start<false>
         ;
     };
 

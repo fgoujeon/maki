@@ -36,13 +36,13 @@ using wrap_t = typename wrap<State, Region>::type;
 
 //other
 
-static_assert(static_cast<int>(sm_option::on_entry_any) == static_cast<int>(state_option::on_entry_any));
+static_assert(static_cast<int>(sm_option::on_entry) == static_cast<int>(state_option::on_entry));
 static_assert(static_cast<int>(sm_option::on_event) == static_cast<int>(state_option::on_event));
-static_assert(static_cast<int>(sm_option::on_exit_any) == static_cast<int>(state_option::on_exit_any));
+static_assert(static_cast<int>(sm_option::on_exit) == static_cast<int>(state_option::on_exit));
 
 template<class State>
 constexpr auto requires_on_entry_v =
-    tlu::at_f_t<typename State::conf, sm_option::on_entry_any>::value
+    tlu::at_f_t<typename State::conf, sm_option::on_entry>::value
 ;
 
 template<class State, class Event>
@@ -54,7 +54,7 @@ constexpr auto requires_on_event_v = matches_any_filter_v
 
 template<class State>
 constexpr auto requires_on_exit_v =
-    tlu::at_f_t<typename State::conf, sm_option::on_exit_any>::value
+    tlu::at_f_t<typename State::conf, sm_option::on_exit>::value
 ;
 
 } //namespace

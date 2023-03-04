@@ -22,9 +22,9 @@ namespace detail
     {
         //Common with state_option, don't reorder
         get_pretty_name,
-        on_entry_any,
+        on_entry,
         on_event,
-        on_exit_any,
+        on_exit,
 
         //Specific
         after_state_transition,
@@ -44,77 +44,63 @@ template<class... Options>
 struct sm_conf_tpl
 {
     template<bool B>
-    using set_after_state_transition_enabled = detail::tlu::set_at_f_t
+    using after_state_transition = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
         detail::sm_option::after_state_transition,
         detail::constant<B>
     >;
-    using after_state_transition = set_after_state_transition_enabled<true>;
-    using no_after_state_transition = set_after_state_transition_enabled<false>;
 
     template<bool B>
-    using set_auto_start_enabled = detail::tlu::set_at_f_t
+    using auto_start = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
         detail::sm_option::auto_start,
         detail::constant<B>
     >;
-    using auto_start = set_auto_start_enabled<true>;
-    using no_auto_start = set_auto_start_enabled<false>;
 
     template<bool B>
-    using set_before_entry_enabled = detail::tlu::set_at_f_t
+    using before_entry = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
         detail::sm_option::before_entry,
         detail::constant<B>
     >;
-    using before_entry = set_before_entry_enabled<true>;
-    using no_before_entry = set_before_entry_enabled<false>;
 
     template<bool B>
-    using set_before_state_transition_enabled = detail::tlu::set_at_f_t
+    using before_state_transition = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
         detail::sm_option::before_state_transition,
         detail::constant<B>
     >;
-    using before_state_transition = set_before_state_transition_enabled<true>;
-    using no_before_state_transition = set_before_state_transition_enabled<false>;
 
     template<class T>
     using context = detail::tlu::set_at_f_t<sm_conf_tpl, detail::sm_option::context, T>;
 
     template<bool B>
-    using set_run_to_completion_enabled = detail::tlu::set_at_f_t
+    using run_to_completion = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
         detail::sm_option::run_to_completion,
         detail::constant<B>
     >;
-    using run_to_completion = set_run_to_completion_enabled<true>;
-    using no_run_to_completion = set_run_to_completion_enabled<false>;
 
     template<bool B>
-    using set_get_pretty_name_enabled = detail::tlu::set_at_f_t
+    using get_pretty_name = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
         detail::sm_option::get_pretty_name,
         detail::constant<B>
     >;
-    using get_pretty_name = set_get_pretty_name_enabled<true>;
-    using no_get_pretty_name = set_get_pretty_name_enabled<false>;
 
     template<bool B>
-    using set_on_exception_enabled = detail::tlu::set_at_f_t
+    using on_exception = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
         detail::sm_option::on_exception,
         detail::constant<B>
     >;
-    using on_exception = set_on_exception_enabled<true>;
-    using no_on_exception = set_on_exception_enabled<false>;
 
     template<std::size_t Value>
     using small_event_max_align = detail::tlu::set_at_f_t
@@ -141,24 +127,20 @@ struct sm_conf_tpl
     >;
 
     template<bool B>
-    using set_on_entry_enabled = detail::tlu::set_at_f_t
+    using on_entry = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
-        detail::sm_option::on_entry_any,
+        detail::sm_option::on_entry,
         detail::constant<B>
     >;
-    using on_entry_any = set_on_entry_enabled<true>;
-    using no_on_entry_any = set_on_entry_enabled<false>;
 
     template<bool B>
-    using set_on_exit_enabled = detail::tlu::set_at_f_t
+    using on_exit = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
-        detail::sm_option::on_exit_any,
+        detail::sm_option::on_exit,
         detail::constant<B>
     >;
-    using on_exit_any = set_on_exit_enabled<true>;
-    using no_on_exit_any = set_on_exit_enabled<false>;
 
     template<auto... Fns>
     using transition_table_list = detail::tlu::set_at_f_t
@@ -178,16 +160,16 @@ inline constexpr auto small_event_max_align = 8;
 inline constexpr auto small_event_max_size = 16;
 
 using sm_conf = sm_conf_tpl<void, void, void, void, void, void, void, void, void, void, void, void, void, void>
-    ::auto_start
-    ::no_after_state_transition
-    ::no_before_entry
-    ::no_before_state_transition
-    ::no_on_entry_any
-    ::no_on_exception
-    ::no_on_exit_any
-    ::no_get_pretty_name
+    ::after_state_transition<false>
+    ::auto_start<true>
+    ::before_entry<false>
+    ::before_state_transition<false>
+    ::get_pretty_name<false>
+    ::on_entry<false>
     ::on_event<none>
-    ::run_to_completion
+    ::on_exception<false>
+    ::on_exit<false>
+    ::run_to_completion<true>
     ::small_event_max_align<small_event_max_align>
     ::small_event_max_size<small_event_max_size>
 ;

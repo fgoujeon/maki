@@ -30,9 +30,9 @@ namespace
         struct english
         {
             using conf = awesm::state_conf
-                ::on_entry_any
+                ::on_entry<true>
                 ::on_event<events::say_dog>
-                ::on_exit_any
+                ::on_exit<true>
             ;
 
             void on_entry()
@@ -56,9 +56,9 @@ namespace
         struct french
         {
             using conf = awesm::state_conf
-                ::on_entry_any
+                ::on_entry<true>
                 ::on_event<events::say_dog>
-                ::on_exit_any
+                ::on_exit<true>
             ;
 
             template<class Sm, class Event>

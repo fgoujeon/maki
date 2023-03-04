@@ -36,7 +36,7 @@ namespace
         struct off
         {
             using conf = awesm::state_conf
-                ::on_entry_any
+                ::on_entry<true>
             ;
 
             void on_entry()
@@ -50,7 +50,7 @@ namespace
         struct emitting_red
         {
             using conf = awesm::state_conf
-                ::on_entry_any
+                ::on_entry<true>
             ;
 
             void on_entry()
@@ -64,7 +64,7 @@ namespace
         struct emitting_green
         {
             using conf = awesm::state_conf
-                ::on_entry_any
+                ::on_entry<true>
             ;
 
             void on_entry()
@@ -78,7 +78,7 @@ namespace
         struct emitting_blue
         {
             using conf = awesm::state_conf
-                ::on_entry_any
+                ::on_entry<true>
             ;
 
             void on_entry()

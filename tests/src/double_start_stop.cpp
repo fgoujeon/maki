@@ -46,9 +46,9 @@ namespace
         using conf = awesm::sm_conf
             ::transition_table<sm_transition_table>
             ::context<context>
-            ::before_state_transition
-            ::after_state_transition
-            ::get_pretty_name
+            ::before_state_transition<true>
+            ::after_state_transition<true>
+            ::get_pretty_name<true>
         ;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>

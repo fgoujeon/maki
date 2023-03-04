@@ -69,7 +69,7 @@ namespace
             {
                 using conf = awesm::sm_conf
                     ::transition_table<emitting_red_ns::make_transition_table>
-                    ::on_entry_any
+                    ::on_entry<true>
                 ;
 
                 void on_entry()
@@ -98,7 +98,7 @@ namespace
             using conf = awesm::sm_conf
                 ::transition_table<on_ns::make_transition_table>
                 ::context<on_ns::context>
-                ::on_exit_any
+                ::on_exit<true>
             ;
 
             void on_exit()

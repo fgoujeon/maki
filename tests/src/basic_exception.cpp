@@ -25,8 +25,8 @@ namespace
         struct off
         {
             using conf = awesm::state_conf
-                ::on_entry_any
-                ::on_exit_any
+                ::on_entry<true>
+                ::on_exit<true>
             ;
 
             void on_entry()
@@ -51,8 +51,8 @@ namespace
         struct on
         {
             using conf = awesm::state_conf
-                ::on_entry_any
-                ::on_exit_any
+                ::on_entry<true>
+                ::on_exit<true>
             ;
 
             void on_entry()

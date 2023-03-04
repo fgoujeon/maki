@@ -25,8 +25,8 @@ namespace
         struct off
         {
             using conf = awesm::state_conf
-                ::on_entry_any
-                ::on_exit_any
+                ::on_entry<true>
+                ::on_exit<true>
             ;
 
             void on_entry()
@@ -45,8 +45,8 @@ namespace
         struct on
         {
             using conf = awesm::state_conf
-                ::on_entry_any
-                ::on_exit_any
+                ::on_entry<true>
+                ::on_exit<true>
             ;
 
             void on_entry()
@@ -80,7 +80,7 @@ namespace
         using conf = awesm::sm_conf
             ::transition_table<sm_transition_table>
             ::context<context>
-            ::before_entry
+            ::before_entry<true>
         ;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>

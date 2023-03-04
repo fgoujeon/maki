@@ -26,9 +26,9 @@ namespace
         struct idle
         {
             using conf = awesm::state_conf
-                ::on_entry_any
-                ::on_event_any
-                ::on_exit_any
+                ::on_entry<true>
+                ::on_event<awesm::any>
+                ::on_exit<true>
             ;
 
             void on_entry()
@@ -53,9 +53,9 @@ namespace
         struct running
         {
             using conf = awesm::state_conf
-                ::on_entry_any
-                ::on_event_any
-                ::on_exit_any
+                ::on_entry<true>
+                ::on_event<awesm::any>
+                ::on_exit<true>
             ;
 
             void on_entry()

@@ -72,9 +72,9 @@ namespace
                 region_1_transition_table
             >
             ::context<context>
-            ::on_exception
-            ::before_state_transition
-            ::after_state_transition
+            ::on_exception<true>
+            ::before_state_transition<true>
+            ::after_state_transition<true>
         ;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>

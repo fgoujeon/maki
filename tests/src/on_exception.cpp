@@ -21,8 +21,8 @@ namespace
         struct off
         {
             using conf = awesm::state_conf
-                ::on_entry_any
-                ::on_exit_any
+                ::on_entry<true>
+                ::on_exit<true>
             ;
 
             void on_entry()
@@ -41,9 +41,9 @@ namespace
         struct on
         {
             using conf = awesm::state_conf
-                ::on_entry_any
+                ::on_entry<true>
                 ::on_event<awesm::events::exception>
-                ::on_exit_any
+                ::on_exit<true>
             ;
 
             void on_entry()
@@ -106,7 +106,7 @@ namespace
         using conf = awesm::sm_conf
             ::transition_table<sm_transition_table>
             ::context<context>
-            ::on_exception
+            ::on_exception<true>
         ;
 
         void on_exception(const std::exception_ptr& eptr)

@@ -38,9 +38,9 @@ namespace
         struct on_0
         {
             using conf = awesm::state_conf
-                ::on_entry_any
+                ::on_entry<true>
                 ::on_event<events::internal>
-                ::on_exit_any
+                ::on_exit<true>
             ;
 
             void on_entry(const events::button_press& event)
@@ -72,9 +72,9 @@ namespace
         {
             using conf = awesm::sm_conf
                 ::transition_table<on_transition_table>
-                ::on_entry_any
+                ::on_entry<true>
                 ::on_event<events::internal>
-                ::on_exit_any
+                ::on_exit<true>
             ;
 
             void on_entry(const events::button_press& event)

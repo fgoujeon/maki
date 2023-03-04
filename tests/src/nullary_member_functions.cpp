@@ -33,8 +33,8 @@ namespace nullary_member_functions_ns
         struct on
         {
             using conf = awesm::state_conf
-                ::on_entry_any
-                ::on_exit_any
+                ::on_entry<true>
+                ::on_exit<true>
             ;
 
             void on_entry(const events::e1&)

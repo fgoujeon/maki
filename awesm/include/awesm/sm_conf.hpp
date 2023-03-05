@@ -42,63 +42,63 @@ namespace detail
 template<class... Options>
 struct sm_conf_tpl
 {
-    template<bool B>
+    template<bool Enable = true>
     using after_state_transition = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
         detail::sm_option::after_state_transition,
-        detail::constant<B>
+        detail::constant<Enable>
     >;
 
-    template<bool B>
+    template<bool Enable = true>
     using auto_start = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
         detail::sm_option::auto_start,
-        detail::constant<B>
+        detail::constant<Enable>
     >;
 
-    template<bool B>
+    template<bool Enable = true>
     using before_entry = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
         detail::sm_option::before_entry,
-        detail::constant<B>
+        detail::constant<Enable>
     >;
 
-    template<bool B>
+    template<bool Enable = true>
     using before_state_transition = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
         detail::sm_option::before_state_transition,
-        detail::constant<B>
+        detail::constant<Enable>
     >;
 
     template<class T>
     using context = detail::tlu::set_at_f_t<sm_conf_tpl, detail::sm_option::context, T>;
 
-    template<bool B>
+    template<bool Enable = true>
     using run_to_completion = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
         detail::sm_option::run_to_completion,
-        detail::constant<B>
+        detail::constant<Enable>
     >;
 
-    template<bool B>
+    template<bool Enable = true>
     using get_pretty_name = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
         detail::sm_option::get_pretty_name,
-        detail::constant<B>
+        detail::constant<Enable>
     >;
 
-    template<bool B>
+    template<bool Enable = true>
     using on_exception = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
         detail::sm_option::on_exception,
-        detail::constant<B>
+        detail::constant<Enable>
     >;
 
     template<std::size_t Value>
@@ -125,20 +125,20 @@ struct sm_conf_tpl
         detail::tlu::type_list<EventFilters...>
     >;
 
-    template<bool B>
+    template<bool Enable = true>
     using on_entry = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
         detail::sm_option::on_entry,
-        detail::constant<B>
+        detail::constant<Enable>
     >;
 
-    template<bool B>
+    template<bool Enable = true>
     using on_exit = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
         detail::sm_option::on_exit,
-        detail::constant<B>
+        detail::constant<Enable>
     >;
 
     template<class... Ts>

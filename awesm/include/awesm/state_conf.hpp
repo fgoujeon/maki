@@ -29,12 +29,12 @@ namespace detail
 template<class... Options>
 struct state_conf_tpl
 {
-    template<bool B>
+    template<bool Enable = true>
     using on_entry = detail::tlu::set_at_f_t
     <
         state_conf_tpl,
         detail::state_option::on_entry,
-        detail::constant<B>
+        detail::constant<Enable>
     >;
 
     template<class... EventFilters>
@@ -45,20 +45,20 @@ struct state_conf_tpl
         detail::tlu::type_list<EventFilters...>
     >;
 
-    template<bool B>
+    template<bool Enable = true>
     using on_exit = detail::tlu::set_at_f_t
     <
         state_conf_tpl,
         detail::state_option::on_exit,
-        detail::constant<B>
+        detail::constant<Enable>
     >;
 
-    template<bool B>
+    template<bool Enable = true>
     using get_pretty_name = detail::tlu::set_at_f_t
     <
         state_conf_tpl,
         detail::state_option::get_pretty_name,
-        detail::constant<B>
+        detail::constant<Enable>
     >;
 
     static constexpr auto is_composite = false;

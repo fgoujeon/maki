@@ -23,6 +23,7 @@ namespace detail
         get_pretty_name,
         on_entry,
         on_event,
+        on_event_auto,
         on_exit,
 
         //Specific
@@ -126,6 +127,14 @@ struct sm_conf_tpl
     >;
 
     template<bool Enable = true>
+    using on_event_auto = detail::tlu::set_at_f_t
+    <
+        sm_conf_tpl,
+        detail::sm_option::on_event_auto,
+        detail::constant<Enable>
+    >;
+
+    template<bool Enable = true>
     using on_entry = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
@@ -155,7 +164,7 @@ struct sm_conf_tpl
 inline constexpr auto small_event_max_align = 8;
 inline constexpr auto small_event_max_size = 16;
 
-using sm_conf = sm_conf_tpl<void, void, void, void, void, void, void, void, void, void, void, void, void, void>
+using sm_conf = sm_conf_tpl<void, void, void, void, void, void, void, void, void, void, void, void, void, void, void>
     ::after_state_transition<false>
     ::auto_start<true>
     ::before_entry<false>
@@ -163,6 +172,7 @@ using sm_conf = sm_conf_tpl<void, void, void, void, void, void, void, void, void
     ::get_pretty_name<false>
     ::on_entry<false>
     ::on_event<none>
+    ::on_event_auto<false>
     ::on_exception<false>
     ::on_exit<false>
     ::run_to_completion<true>

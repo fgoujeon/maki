@@ -22,6 +22,7 @@ namespace detail
         get_pretty_name,
         on_entry,
         on_event,
+        on_event_auto,
         on_exit
     };
 }
@@ -46,6 +47,14 @@ struct state_conf_tpl
     >;
 
     template<bool Enable = true>
+    using on_event_auto = detail::tlu::set_at_f_t
+    <
+        state_conf_tpl,
+        detail::state_option::on_event_auto,
+        detail::constant<Enable>
+    >;
+
+    template<bool Enable = true>
     using on_exit = detail::tlu::set_at_f_t
     <
         state_conf_tpl,
@@ -64,10 +73,11 @@ struct state_conf_tpl
     static constexpr auto is_composite = false;
 };
 
-using state_conf = state_conf_tpl<void, void, void, void>
-    ::on_event<none>
+using state_conf = state_conf_tpl<void, void, void, void, void>
     ::get_pretty_name<false>
     ::on_entry<false>
+    ::on_event<none>
+    ::on_event_auto<false>
     ::on_exit<false>
 ;
 

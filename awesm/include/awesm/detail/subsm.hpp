@@ -200,18 +200,30 @@ public:
     }
 
     template<class Event>
-    void on_event(const Event& event)
+    bool on_event(const Event& event)
     {
-        call_on_event(def_holder_.get(), event);
+        auto processed = false;
+
+        if constexpr(state_traits::requires_on_event_v<Def, Event>)
+        {
+            call_on_event(def_holder_.get(), event);
+            processed = true;
+        }
 
         for_each_region
         (
-            [](auto& reg, const Event& event)
+            [](auto& reg, const Event& event, bool& processed)
             {
-                reg.process_event(event);
+                if(reg.process_event(event))
+                {
+                    processed = true;
+                }
             },
-            event
+            event,
+            processed
         );
+
+        return processed;
     }
 
     template<class Event>
@@ -236,25 +248,25 @@ private:
         std::make_integer_sequence<int, tlu::size_v<transition_table_type_list>>
     >::type;
 
-    template<class F, class Event>
-    void for_each_region(F&& fun, const Event& event)
+    template<class F, class... Args>
+    void for_each_region(F&& fun, Args&... args)
     {
         tlu::apply_t<region_tuple_type, for_each_region_helper>::call
         (
             *this,
             std::forward<F>(fun),
-            event
+            args...
         );
     }
 
     template<class... Regions>
     struct for_each_region_helper
     {
-        template<class F, class Event>
-        static void call(subsm& self, F&& fun, const Event& event)
+        template<class F, class... Args>
+        static void call(subsm& self, F&& fun, Args&... args)
         {
             (
-                fun(get<Regions>(self.regions_), event),
+                fun(get<Regions>(self.regions_), args...),
                 ...
             );
         }

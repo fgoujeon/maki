@@ -262,7 +262,17 @@ private:
             }
             else
             {
-                subsm_.on_event(event);
+                if constexpr(detail::tlu::get_f_t<conf, detail::sm_option::on_unprocessed>::value)
+                {
+                    if(!subsm_.on_event(event))
+                    {
+                        get_def().on_unprocessed(event);
+                    }
+                }
+                else
+                {
+                    subsm_.on_event(event);
+                }
             }
         }
         catch(...)

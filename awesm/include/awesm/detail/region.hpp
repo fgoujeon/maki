@@ -125,12 +125,12 @@ public:
     }
 
     template<class Event>
-    void process_event(const Event& event)
+    bool process_event(const Event& event)
     {
-        if(!process_event_in_transition_table(event))
-        {
-            process_event_in_active_state(event);
-        }
+        return
+            process_event_in_transition_table(event) ||
+            process_event_in_active_state(event)
+        ;
     }
 
 private:
@@ -228,12 +228,7 @@ private:
         }
     };
 
-    template
-    <
-        class TargetState,
-        const auto& Action,
-        const auto& Guard
-    >
+    template<class TargetState, const auto& Action, const auto& Guard>
     struct try_processing_event_in_transition_2
     {
         template<class SourceState, class Event>
@@ -355,7 +350,7 @@ private:
     Call active_state.on_event(event)
     */
     template<class Event>
-    void process_event_in_active_state([[maybe_unused]] const Event& event)
+    bool process_event_in_active_state([[maybe_unused]] const Event& event)
     {
         using filtered_state_type_list =
             state_type_list_filters::by_required_on_event_t
@@ -368,11 +363,15 @@ private:
 
         if constexpr(!tlu::empty_v<filtered_state_type_list>)
         {
-            tlu::for_each_or
+            return tlu::for_each_or
             <
                 filtered_state_type_list,
                 process_event_in_active_state_2
             >(*this, event);
+        }
+        else
+        {
+            return false;
         }
     }
 
@@ -387,9 +386,7 @@ private:
             }
 
             auto& state = self.get_state<State>();
-            call_on_event(state, event);
-
-            return true;
+            return call_on_event(state, event);
         }
     };
 

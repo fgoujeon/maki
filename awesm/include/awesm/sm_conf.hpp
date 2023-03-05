@@ -33,6 +33,7 @@ namespace detail
         before_state_transition,
         context,
         on_exception,
+        on_unprocessed,
         run_to_completion,
         small_event_max_align,
         small_event_max_size,
@@ -109,6 +110,9 @@ public:
     template<bool Enable = true>
     using on_exception = set_constant<detail::sm_option::on_exception, Enable>;
 
+    template<bool Enable = true>
+    using on_unprocessed = set_constant<detail::sm_option::on_unprocessed, Enable>;
+
     template<std::size_t Value>
     using small_event_max_align = set_constant
     <
@@ -144,7 +148,7 @@ public:
 inline constexpr auto small_event_max_align = 8;
 inline constexpr auto small_event_max_size = 16;
 
-using sm_conf = sm_conf_tpl<void, void, void, void, void, void, void, void, void, void, void, void, void, void, void>
+using sm_conf = sm_conf_tpl<void, void, void, void, void, void, void, void, void, void, void, void, void, void, void, void>
     ::after_state_transition<false>
     ::auto_start<true>
     ::before_entry<false>
@@ -155,6 +159,7 @@ using sm_conf = sm_conf_tpl<void, void, void, void, void, void, void, void, void
     ::on_event_auto<false>
     ::on_exception<false>
     ::on_exit<false>
+    ::on_unprocessed<false>
     ::run_to_completion<true>
     ::small_event_max_align<small_event_max_align>
     ::small_event_max_size<small_event_max_size>

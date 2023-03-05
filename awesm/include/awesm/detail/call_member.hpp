@@ -8,6 +8,7 @@
 #define AWESM_DETAIL_CALL_MEMBER_HPP
 
 #include "state_traits.hpp"
+#include "subsm_fwd.hpp"
 #include "../whatever.hpp"
 #include <type_traits>
 #include <utility>
@@ -50,17 +51,31 @@ void call_on_entry
     }
 }
 
-template<class State, class Event>
-void call_on_event
-(
-    [[maybe_unused]] State& state,
-    [[maybe_unused]] const Event& event
-)
+template<class State>
+struct call_on_event_helper
 {
-    if constexpr(state_traits::requires_on_event_v<State, Event>)
+    template<class Event>
+    static bool call(State& state, const Event& event)
     {
         state.on_event(event);
+        return true;
     }
+};
+
+template<class Def, class ParentRegion>
+struct call_on_event_helper<subsm<Def, ParentRegion>>
+{
+    template<class Event>
+    static bool call(subsm<Def, ParentRegion>& state, const Event& event)
+    {
+        return state.on_event(event);
+    }
+};
+
+template<class State, class Event>
+bool call_on_event(State& state, const Event& event)
+{
+    return call_on_event_helper<State>::call(state, event);
 }
 
 template<class State, class Sm, class Event>

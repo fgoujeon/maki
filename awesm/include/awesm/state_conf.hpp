@@ -32,7 +32,7 @@ struct state_conf_tpl
 {
 private:
     template<detail::state_option Option, class... Ts>
-    using set_types = detail::tlu::set_at_f_t
+    using set_types = detail::tlu::set_f_t
     <
         state_conf_tpl,
         Option,
@@ -40,7 +40,7 @@ private:
     >;
 
     template<detail::state_option Option, auto C>
-    using set_constant = detail::tlu::set_at_f_t
+    using set_constant = detail::tlu::set_f_t
     <
         state_conf_tpl,
         Option,

@@ -48,14 +48,14 @@ const T& get(const tuple<Ts...>& tpl)
 template<int Index, class... Ts>
 auto& get(tuple<Ts...>& tpl)
 {
-    using type_t = tlu::at_t<tuple<Ts...>, Index>;
+    using type_t = tlu::get_t<tuple<Ts...>, Index>;
     return get<type_t>(tpl);
 }
 
 template<int Index, class... Ts>
 const auto& get(const tuple<Ts...>& tpl)
 {
-    using type_t = tlu::at_t<tuple<Ts...>, Index>;
+    using type_t = tlu::get_t<tuple<Ts...>, Index>;
     return get<type_t>(tpl);
 }
 

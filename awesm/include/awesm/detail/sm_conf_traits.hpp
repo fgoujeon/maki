@@ -28,11 +28,11 @@ namespace context_detail
     <
         class SmConf,
         class DefaultContext,
-        std::enable_if_t<!std::is_void_v<tlu::at_f_t<SmConf, sm_option::context>>, bool> = true
+        std::enable_if_t<!std::is_void_v<tlu::get_f_t<SmConf, sm_option::context>>, bool> = true
     >
     inline auto get_context(overload_priority::high /*unused*/)
     {
-        return type_tag<tlu::at_f_t<SmConf, sm_option::context>>{};
+        return type_tag<tlu::get_f_t<SmConf, sm_option::context>>{};
     }
 }
 

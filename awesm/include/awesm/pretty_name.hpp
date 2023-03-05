@@ -36,7 +36,7 @@ namespace detail
         class T,
         std::enable_if_t
         <
-            tlu::at_f_t<typename T::conf, sm_option::get_pretty_name>::value,
+            tlu::get_f_t<typename T::conf, sm_option::get_pretty_name>::value,
             bool
         > = true
     >

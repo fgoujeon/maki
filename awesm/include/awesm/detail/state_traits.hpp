@@ -41,7 +41,7 @@ static_assert(static_cast<int>(sm_option::on_entry) == static_cast<int>(state_op
 
 template<class State>
 constexpr auto requires_on_entry_v =
-    tlu::at_f_t<typename State::conf, sm_option::on_entry>::value
+    tlu::get_f_t<typename State::conf, sm_option::on_entry>::value
 ;
 
 
@@ -51,7 +51,7 @@ static_assert(static_cast<int>(sm_option::on_exit) == static_cast<int>(state_opt
 
 template<class State>
 constexpr auto requires_on_exit_v =
-    tlu::at_f_t<typename State::conf, sm_option::on_exit>::value
+    tlu::get_f_t<typename State::conf, sm_option::on_exit>::value
 ;
 
 //on_event
@@ -84,12 +84,12 @@ inline constexpr auto has_on_event_v = has_on_event<State, Event>::value;
 
 template<class State, class Event>
 constexpr auto requires_on_event_v =
-    tlu::at_f_t<typename State::conf, sm_option::on_event_auto>::value ?
+    tlu::get_f_t<typename State::conf, sm_option::on_event_auto>::value ?
     has_on_event_v<State, Event> :
     matches_any_filter_v
     <
         Event,
-        tlu::at_f_t<typename State::conf, sm_option::on_event>
+        tlu::get_f_t<typename State::conf, sm_option::on_event>
     >
 ;
 

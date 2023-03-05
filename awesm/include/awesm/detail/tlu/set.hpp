@@ -14,7 +14,7 @@
 namespace awesm::detail::tlu
 {
 
-namespace set_at_detail
+namespace set_detail
 {
     template<bool B, class T, class F>
     struct alternative
@@ -29,33 +29,33 @@ namespace set_at_detail
     };
 
     template<int ReverseIndex, class U, class... Ts>
-    struct set_at_reverse;
+    struct set_reverse;
 
     template<int ReverseIndex, class U, class T, class... Ts>
-    struct set_at_reverse<ReverseIndex, U, T, Ts...>
+    struct set_reverse<ReverseIndex, U, T, Ts...>
     {
         using type = push_front_t
         <
-            typename set_at_reverse<ReverseIndex, U, Ts...>::type,
+            typename set_reverse<ReverseIndex, U, Ts...>::type,
             typename alternative<static_cast<int>(sizeof...(Ts)) == ReverseIndex, U, T>::type
         >;
     };
 
     template<int ReverseIndex, class U>
-    struct set_at_reverse<ReverseIndex, U>
+    struct set_reverse<ReverseIndex, U>
     {
         using type = type_list<>;
     };
 }
 
 template<class TList, int Index, class U>
-class set_at;
+class set;
 
 template<template<class...> class TList, class... Ts, int Index, class U>
-class set_at<TList<Ts...>, Index, U>
+class set<TList<Ts...>, Index, U>
 {
 private:
-    using temp_type = typename set_at_detail::set_at_reverse
+    using temp_type = typename set_detail::set_reverse
     <
         sizeof...(Ts) - Index - 1,
         U,
@@ -67,10 +67,10 @@ public:
 };
 
 template<class TList, int Index, class U>
-using set_at_t = typename set_at<TList, Index, U>::type;
+using set_t = typename set<TList, Index, U>::type;
 
 template<class TList, auto Index, class U>
-using set_at_f_t = set_at_t<TList, static_cast<int>(Index), U>;
+using set_f_t = set_t<TList, static_cast<int>(Index), U>;
 
 } //namespace
 

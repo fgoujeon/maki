@@ -38,13 +38,13 @@ class sm
 public:
     using def_type = Def;
     using conf = typename Def::conf;
-    using context_type = detail::tlu::at_f_t<conf, detail::sm_option::context>;
+    using context_type = detail::tlu::get_f_t<conf, detail::sm_option::context>;
 
     template<class... ContextArgs>
     explicit sm(ContextArgs&&... ctx_args):
         subsm_(*this, std::forward<ContextArgs>(ctx_args)...)
     {
-        if constexpr(detail::tlu::at_f_t<conf, detail::sm_option::auto_start>::value)
+        if constexpr(detail::tlu::get_f_t<conf, detail::sm_option::auto_start>::value)
         {
             //start
             process_event_now_impl<detail::sm_operation::start>(events::start{});
@@ -131,8 +131,8 @@ private:
         using any_event_type = detail::any_container
         <
             sm&,
-            detail::tlu::at_f_t<conf, detail::sm_option::small_event_max_size>::value,
-            detail::tlu::at_f_t<conf, detail::sm_option::small_event_max_align>::value
+            detail::tlu::get_f_t<conf, detail::sm_option::small_event_max_size>::value,
+            detail::tlu::get_f_t<conf, detail::sm_option::small_event_max_align>::value
         >;
 
         template<bool = true> //Dummy template for lazy evaluation
@@ -145,7 +145,7 @@ private:
     };
     using any_event_queue_type = typename detail::alternative_t
     <
-        detail::tlu::at_f_t<conf, detail::sm_option::run_to_completion>::value,
+        detail::tlu::get_f_t<conf, detail::sm_option::run_to_completion>::value,
         any_event_queue_holder,
         empty_holder
     >::template type<>;
@@ -153,7 +153,7 @@ private:
     template<detail::sm_operation Operation, class Event>
     void process_event_2(const Event& event)
     {
-        if constexpr(detail::tlu::at_f_t<conf, detail::sm_option::run_to_completion>::value)
+        if constexpr(detail::tlu::get_f_t<conf, detail::sm_option::run_to_completion>::value)
         {
             if(!processing_event_) //If call is not recursive
             {
@@ -174,7 +174,7 @@ private:
     template<detail::sm_operation Operation, class Event>
     void process_event_now_impl(const Event& event)
     {
-        if constexpr(detail::tlu::at_f_t<conf, detail::sm_option::run_to_completion>::value)
+        if constexpr(detail::tlu::get_f_t<conf, detail::sm_option::run_to_completion>::value)
         {
             processing_event_ = true;
 
@@ -237,7 +237,7 @@ private:
 
     void process_exception(const std::exception_ptr& eptr)
     {
-        if constexpr(detail::tlu::at_f_t<conf, detail::sm_option::on_exception>::value)
+        if constexpr(detail::tlu::get_f_t<conf, detail::sm_option::on_exception>::value)
         {
             get_def().on_exception(eptr);
         }

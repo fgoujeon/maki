@@ -45,7 +45,7 @@ class sm_conf_tpl
 {
 private:
     template<detail::sm_option Option, class T>
-    using set_type = detail::tlu::set_at_f_t
+    using set_type = detail::tlu::set_f_t
     <
         sm_conf_tpl,
         Option,
@@ -53,7 +53,7 @@ private:
     >;
 
     template<detail::sm_option Option, class... Ts>
-    using set_types = detail::tlu::set_at_f_t
+    using set_types = detail::tlu::set_f_t
     <
         sm_conf_tpl,
         Option,
@@ -61,7 +61,7 @@ private:
     >;
 
     template<detail::sm_option Option, auto C>
-    using set_constant = detail::tlu::set_at_f_t
+    using set_constant = detail::tlu::set_f_t
     <
         sm_conf_tpl,
         Option,

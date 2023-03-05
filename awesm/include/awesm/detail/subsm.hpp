@@ -78,7 +78,7 @@ struct subsm_context
 template<class Def>
 struct subsm_context<Def, void>
 {
-    using type = tlu::at_t<typename Def::conf, static_cast<int>(sm_option::context)>;
+    using type = tlu::get_t<typename Def::conf, static_cast<int>(sm_option::context)>;
 };
 
 template
@@ -123,7 +123,7 @@ public:
     using context_type = typename subsm_context<Def, ParentRegion>::type;
     using root_sm_type = root_sm_of_t<subsm>;
 
-    using transition_table_type_list = tlu::at_t<typename Def::conf, static_cast<int>(sm_option::transition_tables)>;
+    using transition_table_type_list = tlu::get_t<typename Def::conf, static_cast<int>(sm_option::transition_tables)>;
 
     template<class... ContextArgs>
     subsm(root_sm_type& root_sm, ContextArgs&&... ctx_args):

@@ -65,7 +65,7 @@ namespace transition_table_digest_detail
     >;
 
     template<class TransitionTable>
-    using initial_state_t = typename tlu::at_t<TransitionTable, 0>::source_state_type_filter;
+    using initial_state_t = typename tlu::get_t<TransitionTable, 0>::source_state_type_filter;
 
     template<class InitialState>
     struct initial_digest

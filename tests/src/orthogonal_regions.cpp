@@ -68,14 +68,14 @@ namespace
         template<class RegionPath, class SourceState, class Event, class TargetState>
         void before_state_transition(const Event& /*event*/)
         {
-            constexpr auto region_index = awesm::detail::tlu::at_t<RegionPath, 0>::region_index;
+            constexpr auto region_index = awesm::detail::tlu::get_t<RegionPath, 0>::region_index;
             ctx.out += "before_state_transition[" + std::to_string(region_index) + "];";
         }
 
         template<class RegionPath, class SourceState, class Event, class TargetState>
         void after_state_transition(const Event& /*event*/)
         {
-            constexpr auto region_index = awesm::detail::tlu::at_t<RegionPath, 0>::region_index;
+            constexpr auto region_index = awesm::detail::tlu::get_t<RegionPath, 0>::region_index;
             ctx.out += "after_state_transition[" + std::to_string(region_index) + "];";
         }
 

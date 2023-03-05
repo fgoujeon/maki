@@ -30,45 +30,38 @@ namespace detail
 template<class... Options>
 struct state_conf_tpl
 {
-    template<bool Enable = true>
-    using on_entry = detail::tlu::set_at_f_t
+private:
+    template<detail::state_option Option, class... Ts>
+    using set_types = detail::tlu::set_at_f_t
     <
         state_conf_tpl,
-        detail::state_option::on_entry,
-        detail::constant<Enable>
+        Option,
+        detail::tlu::type_list<Ts...>
     >;
+
+    template<detail::state_option Option, auto C>
+    using set_constant = detail::tlu::set_at_f_t
+    <
+        state_conf_tpl,
+        Option,
+        detail::constant<C>
+    >;
+
+public:
+    template<bool Enable = true>
+    using on_entry = set_constant<detail::state_option::on_entry, Enable>;
 
     template<class... EventFilters>
-    using on_event = detail::tlu::set_at_f_t
-    <
-        state_conf_tpl,
-        detail::state_option::on_event,
-        detail::tlu::type_list<EventFilters...>
-    >;
+    using on_event = set_types<detail::state_option::on_event, EventFilters...>;
 
     template<bool Enable = true>
-    using on_event_auto = detail::tlu::set_at_f_t
-    <
-        state_conf_tpl,
-        detail::state_option::on_event_auto,
-        detail::constant<Enable>
-    >;
+    using on_event_auto = set_constant<detail::state_option::on_event_auto, Enable>;
 
     template<bool Enable = true>
-    using on_exit = detail::tlu::set_at_f_t
-    <
-        state_conf_tpl,
-        detail::state_option::on_exit,
-        detail::constant<Enable>
-    >;
+    using on_exit = set_constant<detail::state_option::on_exit, Enable>;
 
     template<bool Enable = true>
-    using get_pretty_name = detail::tlu::set_at_f_t
-    <
-        state_conf_tpl,
-        detail::state_option::get_pretty_name,
-        detail::constant<Enable>
-    >;
+    using get_pretty_name = set_constant<detail::state_option::get_pretty_name, Enable>;
 
     static constexpr auto is_composite = false;
 };

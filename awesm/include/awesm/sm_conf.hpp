@@ -41,122 +41,102 @@ namespace detail
 }
 
 template<class... Options>
-struct sm_conf_tpl
+class sm_conf_tpl
 {
-    template<bool Enable = true>
-    using after_state_transition = detail::tlu::set_at_f_t
+private:
+    template<detail::sm_option Option, class T>
+    using set_type = detail::tlu::set_at_f_t
     <
         sm_conf_tpl,
+        Option,
+        T
+    >;
+
+    template<detail::sm_option Option, class... Ts>
+    using set_types = detail::tlu::set_at_f_t
+    <
+        sm_conf_tpl,
+        Option,
+        detail::tlu::type_list<Ts...>
+    >;
+
+    template<detail::sm_option Option, auto C>
+    using set_constant = detail::tlu::set_at_f_t
+    <
+        sm_conf_tpl,
+        Option,
+        detail::constant<C>
+    >;
+
+public:
+    template<bool Enable = true>
+    using after_state_transition = set_constant
+    <
         detail::sm_option::after_state_transition,
-        detail::constant<Enable>
+        Enable
     >;
 
     template<bool Enable = true>
-    using auto_start = detail::tlu::set_at_f_t
-    <
-        sm_conf_tpl,
-        detail::sm_option::auto_start,
-        detail::constant<Enable>
-    >;
+    using auto_start = set_constant<detail::sm_option::auto_start, Enable>;
 
     template<bool Enable = true>
-    using before_entry = detail::tlu::set_at_f_t
-    <
-        sm_conf_tpl,
-        detail::sm_option::before_entry,
-        detail::constant<Enable>
-    >;
+    using before_entry = set_constant<detail::sm_option::before_entry, Enable>;
 
     template<bool Enable = true>
-    using before_state_transition = detail::tlu::set_at_f_t
+    using before_state_transition = set_constant
     <
-        sm_conf_tpl,
         detail::sm_option::before_state_transition,
-        detail::constant<Enable>
+        Enable
     >;
 
     template<class T>
-    using context = detail::tlu::set_at_f_t<sm_conf_tpl, detail::sm_option::context, T>;
+    using context = set_type<detail::sm_option::context, T>;
 
     template<bool Enable = true>
-    using run_to_completion = detail::tlu::set_at_f_t
+    using run_to_completion = set_constant
     <
-        sm_conf_tpl,
         detail::sm_option::run_to_completion,
-        detail::constant<Enable>
+        Enable
     >;
 
     template<bool Enable = true>
-    using get_pretty_name = detail::tlu::set_at_f_t
+    using get_pretty_name = set_constant
     <
-        sm_conf_tpl,
         detail::sm_option::get_pretty_name,
-        detail::constant<Enable>
+        Enable
     >;
 
     template<bool Enable = true>
-    using on_exception = detail::tlu::set_at_f_t
-    <
-        sm_conf_tpl,
-        detail::sm_option::on_exception,
-        detail::constant<Enable>
-    >;
+    using on_exception = set_constant<detail::sm_option::on_exception, Enable>;
 
     template<std::size_t Value>
-    using small_event_max_align = detail::tlu::set_at_f_t
+    using small_event_max_align = set_constant
     <
-        sm_conf_tpl,
         detail::sm_option::small_event_max_align,
-        detail::constant<Value>
+        Value
     >;
 
     template<std::size_t Value>
-    using small_event_max_size = detail::tlu::set_at_f_t
+    using small_event_max_size = set_constant
     <
-        sm_conf_tpl,
         detail::sm_option::small_event_max_size,
-        detail::constant<Value>
+        Value
     >;
 
     template<class... EventFilters>
-    using on_event = detail::tlu::set_at_f_t
-    <
-        sm_conf_tpl,
-        detail::sm_option::on_event,
-        detail::tlu::type_list<EventFilters...>
-    >;
+    using on_event = set_types<detail::sm_option::on_event, EventFilters...>;
 
     template<bool Enable = true>
-    using on_event_auto = detail::tlu::set_at_f_t
-    <
-        sm_conf_tpl,
-        detail::sm_option::on_event_auto,
-        detail::constant<Enable>
-    >;
+    using on_event_auto = set_constant<detail::sm_option::on_event_auto, Enable>;
 
     template<bool Enable = true>
-    using on_entry = detail::tlu::set_at_f_t
-    <
-        sm_conf_tpl,
-        detail::sm_option::on_entry,
-        detail::constant<Enable>
-    >;
+    using on_entry = set_constant<detail::sm_option::on_entry, Enable>;
 
     template<bool Enable = true>
-    using on_exit = detail::tlu::set_at_f_t
-    <
-        sm_conf_tpl,
-        detail::sm_option::on_exit,
-        detail::constant<Enable>
-    >;
+    using on_exit = set_constant<detail::sm_option::on_exit, Enable>;
 
     template<class... Ts>
-    using transition_tables = detail::tlu::set_at_f_t
-    <
-        sm_conf_tpl,
-        detail::sm_option::transition_tables,
-        detail::tlu::type_list<Ts...>
-    >;
+    using transition_tables = set_types<detail::sm_option::transition_tables, Ts...>;
 
     static constexpr auto is_composite = true;
 };

@@ -26,53 +26,53 @@ construct the objects.
 template<class T>
 class sm_object_holder: private T
 {
-    public:
-        using object_type = T;
+public:
+    using object_type = T;
 
-        template
-        <
-            class RootSm,
-            class Context,
-            class U = T,
-            std::enable_if_t<is_brace_constructible<U, RootSm&, Context&>, bool> = true
-        >
-        sm_object_holder(RootSm& root_sm, Context& ctx):
-            T{root_sm, ctx}
-        {
-        }
+    template
+    <
+        class RootSm,
+        class Context,
+        class U = T,
+        std::enable_if_t<is_brace_constructible<U, RootSm&, Context&>, bool> = true
+    >
+    sm_object_holder(RootSm& root_sm, Context& ctx):
+        T{root_sm, ctx}
+    {
+    }
 
-        template
-        <
-            class RootSm,
-            class Context,
-            class U = T,
-            std::enable_if_t<is_brace_constructible<U, Context&>, bool> = true
-        >
-        sm_object_holder(RootSm& /*root_sm*/, Context& ctx):
-            T{ctx}
-        {
-        }
+    template
+    <
+        class RootSm,
+        class Context,
+        class U = T,
+        std::enable_if_t<is_brace_constructible<U, Context&>, bool> = true
+    >
+    sm_object_holder(RootSm& /*root_sm*/, Context& ctx):
+        T{ctx}
+    {
+    }
 
-        template
-        <
-            class RootSm,
-            class Context,
-            class U = T,
-            std::enable_if_t<std::is_default_constructible_v<U>, bool> = true
-        >
-        sm_object_holder(RootSm& /*root_sm*/, Context& /*ctx*/)
-        {
-        }
+    template
+    <
+        class RootSm,
+        class Context,
+        class U = T,
+        std::enable_if_t<std::is_default_constructible_v<U>, bool> = true
+    >
+    sm_object_holder(RootSm& /*root_sm*/, Context& /*ctx*/)
+    {
+    }
 
-        T& get()
-        {
-            return static_cast<T&>(*this);
-        }
+    T& get()
+    {
+        return static_cast<T&>(*this);
+    }
 
-        const T& get() const
-        {
-            return static_cast<const T&>(*this);
-        }
+    const T& get() const
+    {
+        return static_cast<const T&>(*this);
+    }
 };
 
 } //namespace

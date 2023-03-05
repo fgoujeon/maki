@@ -112,158 +112,158 @@ struct region_tuple
 template<class Def, class ParentRegion>
 class subsm
 {
-    public:
-        using conf = state_conf
-            ::on_entry<true>
-            ::on_event<awesm::any>
-            ::on_exit<true>
-        ;
+public:
+    using conf = state_conf
+        ::on_entry<true>
+        ::on_event<awesm::any>
+        ::on_exit<true>
+    ;
 
-        using def_type = Def;
-        using context_type = typename subsm_context<Def, ParentRegion>::type;
-        using root_sm_type = root_sm_of_t<subsm>;
+    using def_type = Def;
+    using context_type = typename subsm_context<Def, ParentRegion>::type;
+    using root_sm_type = root_sm_of_t<subsm>;
 
-        using transition_table_type_list = tlu::at_t<typename Def::conf, static_cast<int>(sm_option::transition_tables)>;
+    using transition_table_type_list = tlu::at_t<typename Def::conf, static_cast<int>(sm_option::transition_tables)>;
 
-        template<class... ContextArgs>
-        subsm(root_sm_type& root_sm, ContextArgs&&... ctx_args):
-            root_sm_(root_sm),
-            ctx_holder_(root_sm, std::forward<ContextArgs>(ctx_args)...),
-            def_holder_(root_sm, get_context()),
-            regions_(*this)
-        {
-        }
+    template<class... ContextArgs>
+    subsm(root_sm_type& root_sm, ContextArgs&&... ctx_args):
+        root_sm_(root_sm),
+        ctx_holder_(root_sm, std::forward<ContextArgs>(ctx_args)...),
+        def_holder_(root_sm, get_context()),
+        regions_(*this)
+    {
+    }
 
-        root_sm_type& get_root_sm()
-        {
-            return root_sm_;
-        }
+    root_sm_type& get_root_sm()
+    {
+        return root_sm_;
+    }
 
-        context_type& get_context()
-        {
-            return ctx_holder_.get();
-        }
+    context_type& get_context()
+    {
+        return ctx_holder_.get();
+    }
 
-        Def& get_def()
-        {
-            return def_holder_.get();
-        }
+    Def& get_def()
+    {
+        return def_holder_.get();
+    }
 
-        template<class StateRegionPath, class State>
-        [[nodiscard]] bool is_active_state() const
-        {
-            static_assert
-            (
-                std::is_same_v
-                <
-                    typename detail::tlu::front_t<StateRegionPath>::sm_type,
-                    Def
-                >
-            );
+    template<class StateRegionPath, class State>
+    [[nodiscard]] bool is_active_state() const
+    {
+        static_assert
+        (
+            std::is_same_v
+            <
+                typename detail::tlu::front_t<StateRegionPath>::sm_type,
+                Def
+            >
+        );
 
-            static constexpr auto region_index = tlu::front_t<StateRegionPath>::region_index;
-            return get<region_index>(regions_).template is_active_state<tlu::pop_front_t<StateRegionPath>, State>();
-        }
+        static constexpr auto region_index = tlu::front_t<StateRegionPath>::region_index;
+        return get<region_index>(regions_).template is_active_state<tlu::pop_front_t<StateRegionPath>, State>();
+    }
 
-        template<class State>
-        [[nodiscard]] bool is_active_state() const
-        {
-            static_assert(tlu::size_v<transition_table_type_list> == 1);
+    template<class State>
+    [[nodiscard]] bool is_active_state() const
+    {
+        static_assert(tlu::size_v<transition_table_type_list> == 1);
 
-            return get<0>(regions_).template is_active_state<region_path<>, State>();
-        }
+        return get<0>(regions_).template is_active_state<region_path<>, State>();
+    }
 
-        template<class RegionPath>
-        [[nodiscard]] bool is_running() const
-        {
-            return !is_active_state<RegionPath, states::stopped>();
-        }
+    template<class RegionPath>
+    [[nodiscard]] bool is_running() const
+    {
+        return !is_active_state<RegionPath, states::stopped>();
+    }
 
-        [[nodiscard]] bool is_running() const
-        {
-            return !is_active_state<states::stopped>();
-        }
+    [[nodiscard]] bool is_running() const
+    {
+        return !is_active_state<states::stopped>();
+    }
 
-        template<class Event>
-        void on_entry(const Event& event)
-        {
-            call_on_entry(def_holder_.get(), root_sm_, event);
+    template<class Event>
+    void on_entry(const Event& event)
+    {
+        call_on_entry(def_holder_.get(), root_sm_, event);
 
-            for_each_region
-            (
-                [](auto& reg, const Event& event)
-                {
-                    reg.start(event);
-                },
-                event
-            );
-        }
-
-        template<class Event>
-        void on_event(const Event& event)
-        {
-            call_on_event(def_holder_.get(), event);
-
-            for_each_region
-            (
-                [](auto& reg, const Event& event)
-                {
-                    reg.process_event(event);
-                },
-                event
-            );
-        }
-
-        template<class Event>
-        void on_exit(const Event& event)
-        {
-            for_each_region
-            (
-                [](auto& reg, const Event& event)
-                {
-                    reg.stop(event);
-                },
-                event
-            );
-
-            call_on_exit(def_holder_.get(), root_sm_, event);
-        }
-
-    private:
-        using region_tuple_type = typename region_tuple
-        <
-            subsm,
-            std::make_integer_sequence<int, tlu::size_v<transition_table_type_list>>
-        >::type;
-
-        template<class F, class Event>
-        void for_each_region(F&& fun, const Event& event)
-        {
-            tlu::apply_t<region_tuple_type, for_each_region_helper>::call
-            (
-                *this,
-                std::forward<F>(fun),
-                event
-            );
-        }
-
-        template<class... Regions>
-        struct for_each_region_helper
-        {
-            template<class F, class Event>
-            static void call(subsm& self, F&& fun, const Event& event)
+        for_each_region
+        (
+            [](auto& reg, const Event& event)
             {
-                (
-                    fun(get<Regions>(self.regions_), event),
-                    ...
-                );
-            }
-        };
+                reg.start(event);
+            },
+            event
+        );
+    }
 
-        root_sm_type& root_sm_;
-        context_holder<context_type> ctx_holder_;
-        detail::sm_object_holder<Def> def_holder_;
-        region_tuple_type regions_;
+    template<class Event>
+    void on_event(const Event& event)
+    {
+        call_on_event(def_holder_.get(), event);
+
+        for_each_region
+        (
+            [](auto& reg, const Event& event)
+            {
+                reg.process_event(event);
+            },
+            event
+        );
+    }
+
+    template<class Event>
+    void on_exit(const Event& event)
+    {
+        for_each_region
+        (
+            [](auto& reg, const Event& event)
+            {
+                reg.stop(event);
+            },
+            event
+        );
+
+        call_on_exit(def_holder_.get(), root_sm_, event);
+    }
+
+private:
+    using region_tuple_type = typename region_tuple
+    <
+        subsm,
+        std::make_integer_sequence<int, tlu::size_v<transition_table_type_list>>
+    >::type;
+
+    template<class F, class Event>
+    void for_each_region(F&& fun, const Event& event)
+    {
+        tlu::apply_t<region_tuple_type, for_each_region_helper>::call
+        (
+            *this,
+            std::forward<F>(fun),
+            event
+        );
+    }
+
+    template<class... Regions>
+    struct for_each_region_helper
+    {
+        template<class F, class Event>
+        static void call(subsm& self, F&& fun, const Event& event)
+        {
+            (
+                fun(get<Regions>(self.regions_), event),
+                ...
+            );
+        }
+    };
+
+    root_sm_type& root_sm_;
+    context_holder<context_type> ctx_holder_;
+    detail::sm_object_holder<Def> def_holder_;
+    region_tuple_type regions_;
 };
 
 } //namespace

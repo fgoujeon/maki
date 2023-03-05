@@ -106,21 +106,21 @@ namespace transition_table_digest_detail
 template<class TransitionTable, class Region>
 class transition_table_digest
 {
-    private:
-        using digest_type = transition_table_digest_detail::digest_with_type_lists
-        <
-            TransitionTable
-        >;
+private:
+    using digest_type = transition_table_digest_detail::digest_with_type_lists
+    <
+        TransitionTable
+    >;
 
-    public:
-        using state_tuple_type = typename digest_type::state_tuple_type;
-        using wrapped_state_holder_tuple_type = tlu::apply_t
-        <
-            state_tuple_type,
-            transition_table_digest_detail::state_wrapper_tuple_holder<Region>::template type
-        >;
+public:
+    using state_tuple_type = typename digest_type::state_tuple_type;
+    using wrapped_state_holder_tuple_type = tlu::apply_t
+    <
+        state_tuple_type,
+        transition_table_digest_detail::state_wrapper_tuple_holder<Region>::template type
+    >;
 
-        static constexpr auto has_null_events = digest_type::has_null_events;
+    static constexpr auto has_null_events = digest_type::has_null_events;
 };
 
 } //namespace

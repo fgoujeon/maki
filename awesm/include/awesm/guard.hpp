@@ -28,29 +28,29 @@ namespace detail
     template<auto Operator, class Lhs, class Rhs>
     class binary_operator
     {
-        public:
-            using lhs_type = storable_function_t<Lhs>;
-            using rhs_type = storable_function_t<Rhs>;
+    public:
+        using lhs_type = storable_function_t<Lhs>;
+        using rhs_type = storable_function_t<Rhs>;
 
-            constexpr binary_operator(const lhs_type& lhs, const rhs_type& rhs):
-                lhs_(lhs),
-                rhs_(rhs)
-            {
-            }
+        constexpr binary_operator(const lhs_type& lhs, const rhs_type& rhs):
+            lhs_(lhs),
+            rhs_(rhs)
+        {
+        }
 
-            template<class Sm, class Context, class Event>
-            bool operator()(Sm& mach, Context& ctx, const Event& event) const
-            {
-                return Operator
-                (
-                    call_action_or_guard(lhs_, &mach, ctx, &event),
-                    call_action_or_guard(rhs_, &mach, ctx, &event)
-                );
-            }
+        template<class Sm, class Context, class Event>
+        bool operator()(Sm& mach, Context& ctx, const Event& event) const
+        {
+            return Operator
+            (
+                call_action_or_guard(lhs_, &mach, ctx, &event),
+                call_action_or_guard(rhs_, &mach, ctx, &event)
+            );
+        }
 
-        private:
-            lhs_type lhs_;
-            rhs_type rhs_;
+    private:
+        lhs_type lhs_;
+        rhs_type rhs_;
     };
 
     inline bool and_(const bool lhs, const bool rhs)
@@ -89,22 +89,22 @@ namespace detail
     template<class Guard>
     class not_t
     {
-        public:
-            using guard_type = storable_function_t<Guard>;
+    public:
+        using guard_type = storable_function_t<Guard>;
 
-            explicit constexpr not_t(const guard_type& grd):
-                grd_(grd)
-            {
-            }
+        explicit constexpr not_t(const guard_type& grd):
+            grd_(grd)
+        {
+        }
 
-            template<class Sm, class Context, class Event>
-            bool operator()(Sm& mach, Context& ctx, const Event& event) const
-            {
-                return !call_action_or_guard(grd_, &mach, ctx, &event);
-            }
+        template<class Sm, class Context, class Event>
+        bool operator()(Sm& mach, Context& ctx, const Event& event) const
+        {
+            return !call_action_or_guard(grd_, &mach, ctx, &event);
+        }
 
-        private:
-            guard_type grd_;
+    private:
+        guard_type grd_;
     };
 
     template<class Guard>
@@ -114,33 +114,33 @@ namespace detail
 template<class Guard>
 class guard_t
 {
-    public:
-        using guard_type = detail::storable_function_t<Guard>;
+public:
+    using guard_type = detail::storable_function_t<Guard>;
 
-        explicit constexpr guard_t(const guard_type& grd):
-            grd_(grd)
-        {
-        }
+    explicit constexpr guard_t(const guard_type& grd):
+        grd_(grd)
+    {
+    }
 
-        template<class Guard2>
-        constexpr guard_t(const guard_t<Guard2>& grd):
-            grd_(grd.grd_)
-        {
-        }
+    template<class Guard2>
+    constexpr guard_t(const guard_t<Guard2>& grd):
+        grd_(grd.grd_)
+    {
+    }
 
-        template<class Sm, class Context, class Event>
-        bool operator()(Sm& mach, Context& ctx, const Event& event) const
-        {
-            return detail::call_action_or_guard(grd_, &mach, ctx, &event);
-        }
+    template<class Sm, class Context, class Event>
+    bool operator()(Sm& mach, Context& ctx, const Event& event) const
+    {
+        return detail::call_action_or_guard(grd_, &mach, ctx, &event);
+    }
 
-        constexpr const guard_type& get() const
-        {
-            return grd_;
-        }
+    constexpr const guard_type& get() const
+    {
+        return grd_;
+    }
 
-    private:
-        guard_type grd_;
+private:
+    guard_type grd_;
 };
 
 template<class F>

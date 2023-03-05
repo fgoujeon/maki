@@ -14,51 +14,51 @@ the user pushes the button.
 */
 class button
 {
-    public:
-        struct push_event
-        {
-            //Push duration, in milliseconds
-            int duration_ms = 0;
-        };
+public:
+    struct push_event
+    {
+        //Push duration, in milliseconds
+        int duration_ms = 0;
+    };
 
-        using event_handler = std::function<void(const push_event&)>;
+    using event_handler = std::function<void(const push_event&)>;
 
-        button(const event_handler& /*eh*/)
-        {
-            //--snip--
-        }
-
-    private:
+    button(const event_handler& /*eh*/)
+    {
         //--snip--
+    }
+
+private:
+    //--snip--
 };
 
 //This class drives the RGB LED.
 class rgb_led
 {
-    public:
-        enum class color
-        {
-            off,
-            white,
-            red,
-            green,
-            blue
-        };
+public:
+    enum class color
+    {
+        off,
+        white,
+        red,
+        green,
+        blue
+    };
 
-        color get_color() const
-        {
-            return color_;
-        }
+    color get_color() const
+    {
+        return color_;
+    }
 
-        void set_color(const color c)
-        {
-            color_ = c;
-            //--snip--
-        }
-
-    private:
-        color color_ = color::off;
+    void set_color(const color c)
+    {
+        color_ = c;
         //--snip--
+    }
+
+private:
+    color color_ = color::off;
+    //--snip--
 };
 
 /*

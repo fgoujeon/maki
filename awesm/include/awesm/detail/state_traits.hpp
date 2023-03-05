@@ -62,22 +62,21 @@ static_assert(static_cast<int>(sm_option::on_event_auto) == static_cast<int>(sta
 template<class State, class Event>
 class has_on_event
 {
-    private:
-        template<class State2 = State, class Event2 = Event>
-        static constexpr auto has_impl(overload_priority::high /*unused*/) ->
-            decltype(std::declval<State2&>().on_event(std::declval<const Event2&>()), bool())
-        {
-            return true;
-        }
+private:
+    template<class State2 = State, class Event2 = Event>
+    static constexpr auto has_impl(overload_priority::high /*unused*/) ->
+        decltype(std::declval<State2&>().on_event(std::declval<const Event2&>()), bool())
+    {
+        return true;
+    }
 
-        template<bool Dummy = false>
-        static constexpr bool has_impl(overload_priority::low /*unused*/)
-        {
-            return false;
-        }
+    static constexpr bool has_impl(overload_priority::low /*unused*/)
+    {
+        return false;
+    }
 
-    public:
-        static constexpr auto value = has_impl(overload_priority::probe);
+public:
+    static constexpr auto value = has_impl(overload_priority::probe);
 };
 
 template<class State, class Event>

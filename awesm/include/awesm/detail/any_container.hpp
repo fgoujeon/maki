@@ -24,82 +24,82 @@ template
 >
 class any_container
 {
-    public:
-        template<class Object, class Visitor>
-        explicit any_container(const Object& obj, type_tag<Visitor> /*unused*/):
-            pobj_(copy_object(obj)),
-            pvisit_(&visit_impl<Object, Visitor>),
-            pdelete_(&delete_object<Object>)
+public:
+    template<class Object, class Visitor>
+    explicit any_container(const Object& obj, type_tag<Visitor> /*unused*/):
+        pobj_(copy_object(obj)),
+        pvisit_(&visit_impl<Object, Visitor>),
+        pdelete_(&delete_object<Object>)
+    {
+    }
+
+    any_container(const any_container&) = delete;
+    any_container(any_container&& other) = delete;
+
+    ~any_container()
+    {
+        pdelete_(pobj_);
+    }
+
+    void operator=(const any_container&) = delete;
+    void operator=(any_container&& other) = delete;
+
+    void visit(Arg arg) const
+    {
+        pvisit_(pobj_, arg);
+    }
+
+private:
+    template<class Object>
+    void* copy_object(const Object& obj)
+    {
+        if constexpr(suitable_for_static_storage<Object>())
         {
+            return new(static_storage_) Object{obj}; //NOLINT
         }
-
-        any_container(const any_container&) = delete;
-        any_container(any_container&& other) = delete;
-
-        ~any_container()
+        else
         {
-            pdelete_(pobj_);
+            return new Object{obj}; //NOLINT
         }
+    }
 
-        void operator=(const any_container&) = delete;
-        void operator=(any_container&& other) = delete;
-
-        void visit(Arg arg) const
+    template<class Object>
+    static void delete_object(const void* const pobj)
+    {
+        if constexpr(suitable_for_static_storage<Object>())
         {
-            pvisit_(pobj_, arg);
+            reinterpret_cast<const Object*>(pobj)->~Object(); //NOLINT
         }
-
-    private:
-        template<class Object>
-        void* copy_object(const Object& obj)
+        else
         {
-            if constexpr(suitable_for_static_storage<Object>())
-            {
-                return new(static_storage_) Object{obj}; //NOLINT
-            }
-            else
-            {
-                return new Object{obj}; //NOLINT
-            }
+            delete reinterpret_cast<const Object*>(pobj); //NOLINT
         }
+    }
 
-        template<class Object>
-        static void delete_object(const void* const pobj)
-        {
-            if constexpr(suitable_for_static_storage<Object>())
-            {
-                reinterpret_cast<const Object*>(pobj)->~Object(); //NOLINT
-            }
-            else
-            {
-                delete reinterpret_cast<const Object*>(pobj); //NOLINT
-            }
-        }
+    template<class Object, class Visitor>
+    static void visit_impl(const void* const pobj, Arg arg)
+    {
+        const Object& obj = *reinterpret_cast<const Object*>(pobj); //NOLINT
+        Visitor::call(obj, arg);
+    }
 
-        template<class Object, class Visitor>
-        static void visit_impl(const void* const pobj, Arg arg)
-        {
-            const Object& obj = *reinterpret_cast<const Object*>(pobj); //NOLINT
-            Visitor::call(obj, arg);
-        }
+    template<class Object>
+    static constexpr bool suitable_for_static_storage()
+    {
+        return
+            sizeof(Object) <= StaticStorageSize &&
+            alignof(Object) <= StaticStorageAlignment
+        ;
+    }
 
-        template<class Object>
-        static constexpr bool suitable_for_static_storage()
-        {
-            return
-                sizeof(Object) <= StaticStorageSize &&
-                alignof(Object) <= StaticStorageAlignment
-            ;
-        }
+    //Storage for small object optimization, properly aligned for an object
+    //whose alignment requirement is less than or equal to
+    //StaticStorageAlignment
+    alignas(StaticStorageAlignment) char static_storage_[StaticStorageSize]; //NOLINT
 
-        //Storage for small object optimization, properly aligned for an object
-        //whose alignment requirement is less than or equal to
-        //StaticStorageAlignment
-        alignas(StaticStorageAlignment) char static_storage_[StaticStorageSize]; //NOLINT
-
-        void* pobj_ = nullptr;
-        void(*pvisit_)(const void*, Arg) = nullptr;
-        void(*pdelete_)(const void*) = nullptr;
+    void* pobj_ = nullptr;
+    void(*pvisit_)(const void*, Arg) = nullptr;
+    void(*pdelete_)(const void*) = nullptr;
 };
 
 } //namespace

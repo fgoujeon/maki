@@ -54,16 +54,16 @@ class set_at;
 template<template<class...> class TList, class... Ts, int Index, class U>
 class set_at<TList<Ts...>, Index, U>
 {
-    private:
-        using temp_type = typename set_at_detail::set_at_reverse
-        <
-            sizeof...(Ts) - Index - 1,
-            U,
-            Ts...
-        >::type;
+private:
+    using temp_type = typename set_at_detail::set_at_reverse
+    <
+        sizeof...(Ts) - Index - 1,
+        U,
+        Ts...
+    >::type;
 
-    public:
-        using type = apply_t<temp_type, TList>;
+public:
+    using type = apply_t<temp_type, TList>;
 };
 
 template<class TList, int Index, class U>

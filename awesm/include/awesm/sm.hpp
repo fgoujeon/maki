@@ -35,245 +35,245 @@ namespace detail
 template<class Def>
 class sm
 {
-    public:
-        using def_type = Def;
-        using conf = typename Def::conf;
-        using context_type = detail::tlu::at_f_t<conf, detail::sm_option::context>;
+public:
+    using def_type = Def;
+    using conf = typename Def::conf;
+    using context_type = detail::tlu::at_f_t<conf, detail::sm_option::context>;
 
-        template<class... ContextArgs>
-        explicit sm(ContextArgs&&... ctx_args):
-            subsm_(*this, std::forward<ContextArgs>(ctx_args)...)
+    template<class... ContextArgs>
+    explicit sm(ContextArgs&&... ctx_args):
+        subsm_(*this, std::forward<ContextArgs>(ctx_args)...)
+    {
+        if constexpr(detail::tlu::at_f_t<conf, detail::sm_option::auto_start>::value)
         {
-            if constexpr(detail::tlu::at_f_t<conf, detail::sm_option::auto_start>::value)
-            {
-                //start
-                process_event_now_impl<detail::sm_operation::start>(events::start{});
-            }
+            //start
+            process_event_now_impl<detail::sm_operation::start>(events::start{});
         }
+    }
 
-        sm(const sm&) = delete;
-        sm(sm&&) = delete;
-        sm& operator=(const sm&) = delete;
-        sm& operator=(sm&&) = delete;
-        ~sm() = default;
+    sm(const sm&) = delete;
+    sm(sm&&) = delete;
+    sm& operator=(const sm&) = delete;
+    sm& operator=(sm&&) = delete;
+    ~sm() = default;
 
-        Def& get_def()
-        {
-            return subsm_.get_def();
-        }
+    Def& get_def()
+    {
+        return subsm_.get_def();
+    }
 
-        const Def& get_def() const
-        {
-            return subsm_.get_def();
-        }
+    const Def& get_def() const
+    {
+        return subsm_.get_def();
+    }
 
-        context_type& get_context()
-        {
-            return subsm_.get_context();
-        }
+    context_type& get_context()
+    {
+        return subsm_.get_context();
+    }
 
-        const context_type& get_context() const
-        {
-            return subsm_.get_context();
-        }
+    const context_type& get_context() const
+    {
+        return subsm_.get_context();
+    }
 
-        template<class RegionPath>
-        [[nodiscard]] bool is_running() const
-        {
-            return subsm_.template is_running<RegionPath>();
-        }
+    template<class RegionPath>
+    [[nodiscard]] bool is_running() const
+    {
+        return subsm_.template is_running<RegionPath>();
+    }
 
-        template<bool Dummy = true>
-        [[nodiscard]] bool is_running() const
-        {
-            return subsm_.is_running();
-        }
+    template<bool Dummy = true>
+    [[nodiscard]] bool is_running() const
+    {
+        return subsm_.is_running();
+    }
 
-        template<class StateRegionPath, class State>
-        [[nodiscard]] bool is_active_state() const
-        {
-            return subsm_.template is_active_state<StateRegionPath, State>();
-        }
+    template<class StateRegionPath, class State>
+    [[nodiscard]] bool is_active_state() const
+    {
+        return subsm_.template is_active_state<StateRegionPath, State>();
+    }
 
-        template<class State>
-        [[nodiscard]] bool is_active_state() const
-        {
-            return subsm_.template is_active_state<State>();
-        }
+    template<class State>
+    [[nodiscard]] bool is_active_state() const
+    {
+        return subsm_.template is_active_state<State>();
+    }
 
-        template<class Event = events::start>
-        void start(const Event& event = {})
-        {
-            process_event_2<detail::sm_operation::start>(event);
-        }
+    template<class Event = events::start>
+    void start(const Event& event = {})
+    {
+        process_event_2<detail::sm_operation::start>(event);
+    }
 
-        template<class Event = events::stop>
-        void stop(const Event& event = {})
-        {
-            process_event_2<detail::sm_operation::stop>(event);
-        }
+    template<class Event = events::stop>
+    void stop(const Event& event = {})
+    {
+        process_event_2<detail::sm_operation::stop>(event);
+    }
 
-        template<class Event>
-        void process_event(const Event& event)
-        {
-            process_event_2<detail::sm_operation::process_event>(event);
-        }
+    template<class Event>
+    void process_event(const Event& event)
+    {
+        process_event_2<detail::sm_operation::process_event>(event);
+    }
 
-        template<class Event>
-        AWESM_NOINLINE void queue_event(const Event& event)
-        {
-            queue_event_impl<detail::sm_operation::process_event>(event);
-        }
+    template<class Event>
+    AWESM_NOINLINE void queue_event(const Event& event)
+    {
+        queue_event_impl<detail::sm_operation::process_event>(event);
+    }
 
-    private:
-        struct any_event_queue_holder
-        {
-            using any_event_type = detail::any_container
-            <
-                sm&,
-                detail::tlu::at_f_t<conf, detail::sm_option::small_event_max_size>::value,
-                detail::tlu::at_f_t<conf, detail::sm_option::small_event_max_align>::value
-            >;
-
-            template<bool = true> //Dummy template for lazy evaluation
-            using type = std::queue<any_event_type>;
-        };
-        struct empty_holder
-        {
-            template<bool = true> //Dummy template for lazy evaluation
-            struct type{};
-        };
-        using any_event_queue_type = typename detail::alternative_t
+private:
+    struct any_event_queue_holder
+    {
+        using any_event_type = detail::any_container
         <
-            detail::tlu::at_f_t<conf, detail::sm_option::run_to_completion>::value,
-            any_event_queue_holder,
-            empty_holder
-        >::template type<>;
+            sm&,
+            detail::tlu::at_f_t<conf, detail::sm_option::small_event_max_size>::value,
+            detail::tlu::at_f_t<conf, detail::sm_option::small_event_max_align>::value
+        >;
 
-        template<detail::sm_operation Operation, class Event>
-        void process_event_2(const Event& event)
+        template<bool = true> //Dummy template for lazy evaluation
+        using type = std::queue<any_event_type>;
+    };
+    struct empty_holder
+    {
+        template<bool = true> //Dummy template for lazy evaluation
+        struct type{};
+    };
+    using any_event_queue_type = typename detail::alternative_t
+    <
+        detail::tlu::at_f_t<conf, detail::sm_option::run_to_completion>::value,
+        any_event_queue_holder,
+        empty_holder
+    >::template type<>;
+
+    template<detail::sm_operation Operation, class Event>
+    void process_event_2(const Event& event)
+    {
+        if constexpr(detail::tlu::at_f_t<conf, detail::sm_option::run_to_completion>::value)
         {
-            if constexpr(detail::tlu::at_f_t<conf, detail::sm_option::run_to_completion>::value)
+            if(!processing_event_) //If call is not recursive
             {
-                if(!processing_event_) //If call is not recursive
-                {
-                    process_event_now_impl<Operation>(event);
-                }
-                else
-                {
-                    //Queue event in case of recursive call
-                    queue_event_impl<Operation>(event);
-                }
+                process_event_now_impl<Operation>(event);
             }
             else
             {
-                process_event_once<Operation>(event);
+                //Queue event in case of recursive call
+                queue_event_impl<Operation>(event);
             }
         }
-
-        template<detail::sm_operation Operation, class Event>
-        void process_event_now_impl(const Event& event)
+        else
         {
-            if constexpr(detail::tlu::at_f_t<conf, detail::sm_option::run_to_completion>::value)
-            {
-                processing_event_ = true;
-
-                process_event_once<Operation>(event);
-
-                //Process queued events, if any
-                while(!event_queue_.empty())
-                {
-                    event_queue_.front().visit(*this);
-                    event_queue_.pop();
-                }
-
-                processing_event_ = false;
-            }
-            else
-            {
-                process_event_once<Operation>(event);
-            }
+            process_event_once<Operation>(event);
         }
+    }
 
-        template<detail::sm_operation Operation, class Event>
-        void queue_event_impl(const Event& event)
+    template<detail::sm_operation Operation, class Event>
+    void process_event_now_impl(const Event& event)
+    {
+        if constexpr(detail::tlu::at_f_t<conf, detail::sm_option::run_to_completion>::value)
         {
-            if constexpr(std::is_nothrow_copy_constructible_v<Event>)
+            processing_event_ = true;
+
+            process_event_once<Operation>(event);
+
+            //Process queued events, if any
+            while(!event_queue_.empty())
             {
-                queue_event_impl_2<Operation>(event);
+                event_queue_.front().visit(*this);
+                event_queue_.pop();
             }
-            else
-            {
-                try
-                {
-                    queue_event_impl_2<Operation>(event);
-                }
-                catch(...)
-                {
-                    process_exception(std::current_exception());
-                }
-            }
+
+            processing_event_ = false;
         }
-
-        template<detail::sm_operation Operation, class Event>
-        void queue_event_impl_2(const Event& event)
+        else
         {
-            event_queue_.emplace
-            (
-                event,
-                detail::type_tag<any_event_visitor<Operation>>{}
-            );
+            process_event_once<Operation>(event);
         }
+    }
 
-        template<detail::sm_operation Operation>
-        struct any_event_visitor
+    template<detail::sm_operation Operation, class Event>
+    void queue_event_impl(const Event& event)
+    {
+        if constexpr(std::is_nothrow_copy_constructible_v<Event>)
         {
-            template<class Event>
-            static void call(const Event& event, sm& self)
-            {
-                self.process_event_once<Operation>(event);
-            }
-        };
-
-        void process_exception(const std::exception_ptr& eptr)
-        {
-            if constexpr(detail::tlu::at_f_t<conf, detail::sm_option::on_exception>::value)
-            {
-                get_def().on_exception(eptr);
-            }
-            else
-            {
-                queue_event(events::exception{eptr});
-            }
+            queue_event_impl_2<Operation>(event);
         }
-
-        template<detail::sm_operation Operation, class Event>
-        void process_event_once(const Event& event)
+        else
         {
             try
             {
-                if constexpr(Operation == detail::sm_operation::start)
-                {
-                    subsm_.on_entry(event);
-                }
-                else if constexpr(Operation == detail::sm_operation::stop)
-                {
-                    subsm_.on_exit(event);
-                }
-                else
-                {
-                    subsm_.on_event(event);
-                }
+                queue_event_impl_2<Operation>(event);
             }
             catch(...)
             {
                 process_exception(std::current_exception());
             }
         }
+    }
 
-        detail::subsm<Def, void> subsm_;
-        bool processing_event_ = false;
-        any_event_queue_type event_queue_;
+    template<detail::sm_operation Operation, class Event>
+    void queue_event_impl_2(const Event& event)
+    {
+        event_queue_.emplace
+        (
+            event,
+            detail::type_tag<any_event_visitor<Operation>>{}
+        );
+    }
+
+    template<detail::sm_operation Operation>
+    struct any_event_visitor
+    {
+        template<class Event>
+        static void call(const Event& event, sm& self)
+        {
+            self.process_event_once<Operation>(event);
+        }
+    };
+
+    void process_exception(const std::exception_ptr& eptr)
+    {
+        if constexpr(detail::tlu::at_f_t<conf, detail::sm_option::on_exception>::value)
+        {
+            get_def().on_exception(eptr);
+        }
+        else
+        {
+            queue_event(events::exception{eptr});
+        }
+    }
+
+    template<detail::sm_operation Operation, class Event>
+    void process_event_once(const Event& event)
+    {
+        try
+        {
+            if constexpr(Operation == detail::sm_operation::start)
+            {
+                subsm_.on_entry(event);
+            }
+            else if constexpr(Operation == detail::sm_operation::stop)
+            {
+                subsm_.on_exit(event);
+            }
+            else
+            {
+                subsm_.on_event(event);
+            }
+        }
+        catch(...)
+        {
+            process_exception(std::current_exception());
+        }
+    }
+
+    detail::subsm<Def, void> subsm_;
+    bool processing_event_ = false;
+    any_event_queue_type event_queue_;
 };
 
 } //namespace

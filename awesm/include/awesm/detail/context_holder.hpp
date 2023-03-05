@@ -22,52 +22,52 @@ Contexts can be constructed with one of these statements:
 template<class T>
 class context_holder
 {
-    public:
-        using context_type = T;
+public:
+    using context_type = T;
 
-        template
-        <
-            class RootSm,
-            class... Args,
-            std::enable_if_t<is_brace_constructible<T, RootSm&, Args...>, bool> = true
-        >
-        context_holder(RootSm& root_sm, Args&&... args):
-            ctx_{root_sm, std::forward<Args>(args)...}
-        {
-        }
+    template
+    <
+        class RootSm,
+        class... Args,
+        std::enable_if_t<is_brace_constructible<T, RootSm&, Args...>, bool> = true
+    >
+    context_holder(RootSm& root_sm, Args&&... args):
+        ctx_{root_sm, std::forward<Args>(args)...}
+    {
+    }
 
-        template
-        <
-            class... Args,
-            std::enable_if_t<is_brace_constructible<T, Args...>, bool> = true
-        >
-        context_holder(whatever /*root_sm*/, Args&&... args):
-            ctx_{std::forward<Args>(args)...}
-        {
-        }
+    template
+    <
+        class... Args,
+        std::enable_if_t<is_brace_constructible<T, Args...>, bool> = true
+    >
+    context_holder(whatever /*root_sm*/, Args&&... args):
+        ctx_{std::forward<Args>(args)...}
+    {
+    }
 
-        template
-        <
-            class U = T,
-            std::enable_if_t<std::is_reference_v<U>, bool> = true
-        >
-        context_holder(whatever /*root_sm*/, T& ctx):
-            ctx_{ctx}
-        {
-        }
+    template
+    <
+        class U = T,
+        std::enable_if_t<std::is_reference_v<U>, bool> = true
+    >
+    context_holder(whatever /*root_sm*/, T& ctx):
+        ctx_{ctx}
+    {
+    }
 
-        T& get()
-        {
-            return ctx_;
-        }
+    T& get()
+    {
+        return ctx_;
+    }
 
-        const T& get() const
-        {
-            return ctx_;
-        }
+    const T& get() const
+    {
+        return ctx_;
+    }
 
-    private:
-        T ctx_;
+private:
+    T ctx_;
 };
 
 } //namespace

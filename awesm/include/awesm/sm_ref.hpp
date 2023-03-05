@@ -21,58 +21,58 @@ namespace detail
     template<class Event, class... Events>
     class sm_ref_impl<Event, Events...>: sm_ref_impl<Events...>
     {
-        public:
-            template<class SmDef>
-            sm_ref_impl(sm<SmDef>& machine):
-                sm_ref_impl<Events...>{machine},
-                pprocess_event_
+    public:
+        template<class SmDef>
+        sm_ref_impl(sm<SmDef>& machine):
+            sm_ref_impl<Events...>{machine},
+            pprocess_event_
+            {
+                [](void* const vpsm, const Event& event)
                 {
-                    [](void* const vpsm, const Event& event)
-                    {
-                        using sm_t = sm<SmDef>;
-                        const auto psm = reinterpret_cast<sm_t*>(vpsm); //NOLINT
-                        psm->process_event(event);
-                    }
+                    using sm_t = sm<SmDef>;
+                    const auto psm = reinterpret_cast<sm_t*>(vpsm); //NOLINT
+                    psm->process_event(event);
                 }
-            {
             }
+        {
+        }
 
-            using sm_ref_impl<Events...>::process_event;
+        using sm_ref_impl<Events...>::process_event;
 
-            void process_event(const Event& event)
-            {
-                (*pprocess_event_)(get_vpsm(), event);
-            }
+        void process_event(const Event& event)
+        {
+            (*pprocess_event_)(get_vpsm(), event);
+        }
 
-        protected:
-            using sm_ref_impl<Events...>::get_vpsm;
+    protected:
+        using sm_ref_impl<Events...>::get_vpsm;
 
-        private:
-            void(*pprocess_event_)(void*, const Event&) = nullptr;
+    private:
+        void(*pprocess_event_)(void*, const Event&) = nullptr;
     };
 
     template<>
     class sm_ref_impl<>
     {
-        public:
-            template<class SmDef>
-            sm_ref_impl(sm<SmDef>& machine):
-                vpsm_(&machine)
-            {
-            }
+    public:
+        template<class SmDef>
+        sm_ref_impl(sm<SmDef>& machine):
+            vpsm_(&machine)
+        {
+        }
 
-            void process_event()
-            {
-            }
+        void process_event()
+        {
+        }
 
-        protected:
-            [[nodiscard]] void* get_vpsm() const
-            {
-                return vpsm_;
-            }
+    protected:
+        [[nodiscard]] void* get_vpsm() const
+        {
+            return vpsm_;
+        }
 
-        private:
-            void* vpsm_ = nullptr;
+    private:
+        void* vpsm_ = nullptr;
     };
 }
 
@@ -83,32 +83,32 @@ It exposes the process_event() member function of the held sm.
 template<class... Events>
 class sm_ref
 {
-    public:
-        template<class SmDef>
-        sm_ref(sm<SmDef>& machine):
-            impl_{machine}
-        {
-        }
+public:
+    template<class SmDef>
+    sm_ref(sm<SmDef>& machine):
+        impl_{machine}
+    {
+    }
 
-        sm_ref(const sm_ref&) noexcept = default;
-        sm_ref(sm_ref&&) noexcept = default;
-        sm_ref& operator=(const sm_ref&) noexcept = default;
-        sm_ref& operator=(sm_ref&&) noexcept = default;
-        ~sm_ref() = default;
+    sm_ref(const sm_ref&) noexcept = default;
+    sm_ref(sm_ref&&) noexcept = default;
+    sm_ref& operator=(const sm_ref&) noexcept = default;
+    sm_ref& operator=(sm_ref&&) noexcept = default;
+    ~sm_ref() = default;
 
-        template<class Event>
-        void process_event(const Event& event)
-        {
-            static_assert
-            (
-                detail::tlu::contains_v<detail::tlu::type_list<Events...>, Event>,
-                "Given event type must be part of sm_ref template argument list"
-            );
-            impl_.process_event(event);
-        }
+    template<class Event>
+    void process_event(const Event& event)
+    {
+        static_assert
+        (
+            detail::tlu::contains_v<detail::tlu::type_list<Events...>, Event>,
+            "Given event type must be part of sm_ref template argument list"
+        );
+        impl_.process_event(event);
+    }
 
-    private:
-        detail::sm_ref_impl<Events...> impl_;
+private:
+    detail::sm_ref_impl<Events...> impl_;
 };
 
 } //namespace

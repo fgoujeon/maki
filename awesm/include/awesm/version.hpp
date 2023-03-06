@@ -12,7 +12,7 @@ namespace awesm
 
 constexpr auto version_major = 0;
 constexpr auto version_minor = 3;
-constexpr auto version_patch = 22;
+constexpr auto version_patch = 23;
 
 } //namespace
 

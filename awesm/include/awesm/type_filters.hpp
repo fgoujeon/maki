@@ -51,12 +51,19 @@ namespace detail
     constexpr auto matches_filter_v = matches_filter<T, Filter>::value;
 
     template<class T, class FilterList>
-    struct matches_any_filter;
+    class matches_any_filter;
 
     template<class T, template<class...> class FilterList, class... Filters>
-    struct matches_any_filter<T, FilterList<Filters...>>
+    class matches_any_filter<T, FilterList<Filters...>>
     {
-        static constexpr auto value = (matches_filter<T, Filters>::value || ...);
+    private:
+        static constexpr bool make_value()
+        {
+            return (matches_filter<T, Filters>::value || ...);
+        }
+
+    public:
+        static constexpr auto value = make_value();
     };
 
     template<class T, class FilterList>

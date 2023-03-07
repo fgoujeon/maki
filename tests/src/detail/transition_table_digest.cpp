@@ -45,7 +45,7 @@ namespace
 
     using sm_t = awesm::sm<sm_def>;
 
-    using region_path_t = awesm::make_region_path<sm_t>;
+    using region_path_t = awesm::region_path<sm_t>;
 
     using digest_t = awesm::detail::transition_table_digest<sm_transition_table, sm_t>;
 

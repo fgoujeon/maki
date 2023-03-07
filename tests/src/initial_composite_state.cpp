@@ -125,7 +125,7 @@ TEST_CASE("initial_subsm")
 
     sm.start();
     REQUIRE(sm.is_active_state<states::on>());
-    REQUIRE(sm.is_active_state<awesm::make_region_path<sm_def>::add<states::on>, states::emitting_red>());
+    REQUIRE(sm.is_active_state<awesm::region_path<sm_def>::add<states::on>, states::emitting_red>());
     REQUIRE(ctx.current_led_color == led_color::red);
 
     sm.process_event(events::color_button_press{});

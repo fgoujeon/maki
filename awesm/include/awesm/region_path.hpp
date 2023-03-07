@@ -46,7 +46,7 @@ struct region_path_element
 };
 
 template<class... Ts>
-struct region_path;
+struct region_path_tpl;
 
 namespace detail
 {
@@ -54,28 +54,28 @@ namespace detail
     struct region_path_add;
 
     template<class... Ts, class SmOrCompositeState, int RegionIndex>
-    struct region_path_add<region_path<Ts...>, SmOrCompositeState, RegionIndex>
+    struct region_path_add<region_path_tpl<Ts...>, SmOrCompositeState, RegionIndex>
     {
-        using type = region_path<Ts..., region_path_element<SmOrCompositeState, RegionIndex>>;
+        using type = region_path_tpl<Ts..., region_path_element<SmOrCompositeState, RegionIndex>>;
     };
 
     template<class... Ts, class SmOrCompositeState>
-    struct region_path_add<region_path<Ts...>, SmOrCompositeState, -1>
+    struct region_path_add<region_path_tpl<Ts...>, SmOrCompositeState, -1>
     {
         using conf_type = typename SmOrCompositeState::conf;
         using transition_table_list_type = tlu::get_f_t<conf_type, sm_option::transition_tables>;
         static_assert(tlu::size_v<transition_table_list_type> == 1);
 
-        using type = region_path<Ts..., region_path_element<SmOrCompositeState, 0>>;
+        using type = region_path_tpl<Ts..., region_path_element<SmOrCompositeState, 0>>;
     };
 }
 
 template<class... Ts>
-struct region_path
+struct region_path_tpl
 {
     //RegionIndex MUST be specified for machines or composite states with several regions
     template<class SmOrCompositeState, int RegionIndex = -1>
-    using add = typename detail::region_path_add<region_path, SmOrCompositeState, RegionIndex>::type;
+    using add = typename detail::region_path_add<region_path_tpl, SmOrCompositeState, RegionIndex>::type;
 
     static std::string to_string()
     {
@@ -94,7 +94,7 @@ struct region_path
 
 //RegionIndex MUST be specified for machines with several regions
 template<class Sm, int RegionIndex = -1>
-using make_region_path = region_path<>::add<Sm, RegionIndex>;
+using region_path = region_path_tpl<>::add<Sm, RegionIndex>;
 
 } //namespace
 

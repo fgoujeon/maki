@@ -72,7 +72,7 @@ namespace
 
 TEST_CASE("is_active_state_filter")
 {
-    using sm_on_region_path_t = awesm::make_region_path<sm_def>::add<states::on>;
+    using sm_on_region_path_t = awesm::region_path<sm_def>::add<states::on>;
 
     auto sm = sm_t{};
 

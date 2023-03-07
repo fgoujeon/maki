@@ -138,7 +138,7 @@ TEST_CASE("on_unprocessed")
     ctx.clear();
     sm.start();
     REQUIRE(sm.is_active_state<states::on>());
-    REQUIRE(sm.is_active_state<awesm::make_region_path<sm_def>::add<states::on>, states::emitting_red>());
+    REQUIRE(sm.is_active_state<awesm::region_path<sm_def>::add<states::on>, states::emitting_red>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
@@ -148,7 +148,7 @@ TEST_CASE("on_unprocessed")
     ctx.clear();
     sm.process_event(events::color_button_press{});
     REQUIRE(sm.is_active_state<states::on>());
-    REQUIRE(sm.is_active_state<awesm::make_region_path<sm_def>::add<states::on>, states::emitting_green>());
+    REQUIRE(sm.is_active_state<awesm::region_path<sm_def>::add<states::on>, states::emitting_green>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
@@ -158,7 +158,7 @@ TEST_CASE("on_unprocessed")
     ctx.clear();
     sm.process_event(events::color_button_press{});
     REQUIRE(sm.is_active_state<states::on>());
-    REQUIRE(sm.is_active_state<awesm::make_region_path<sm_def>::add<states::on>, states::emitting_blue>());
+    REQUIRE(sm.is_active_state<awesm::region_path<sm_def>::add<states::on>, states::emitting_blue>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();

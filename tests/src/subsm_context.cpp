@@ -122,7 +122,7 @@ namespace
 
 TEST_CASE("subsm_context")
 {
-    using sm_on_region_path_t = awesm::make_region_path<sm_def>::add<states::on>;
+    using sm_on_region_path_t = awesm::region_path<sm_def>::add<states::on>;
 
     auto sm = sm_t{};
     auto& ctx = sm.get_context();

@@ -79,28 +79,28 @@ namespace
 TEST_CASE("region_path")
 {
     {
-        using region_path_t = awesm::make_region_path<sm_def, 0>;
+        using region_path_t = awesm::region_path<sm_def, 0>;
         REQUIRE(region_path_t::to_string() == "main_sm[0]");
     }
 
     {
-        using region_path_t = awesm::make_region_path<sm_def, 1>;
+        using region_path_t = awesm::region_path<sm_def, 1>;
         REQUIRE(region_path_t::to_string() == "main_sm[1]");
     }
 
     {
-        using region_path_t = awesm::make_region_path<sm_def, 1>::add<states::on1, 0>;
+        using region_path_t = awesm::region_path<sm_def, 1>::add<states::on1, 0>;
         REQUIRE(region_path_t::to_string() == "main_sm[1].on_1");
     }
 
     {
-        using region_path_t = awesm::region_path
+        using region_path_t = awesm::region_path_tpl
         <
             awesm::region_path_element<sm_def, 1>,
             awesm::region_path_element<states::on1, 0>
         >;
 
-        using region_path_2_t = awesm::make_region_path<sm_def, 1>::add<states::on1, 0>;
+        using region_path_2_t = awesm::region_path<sm_def, 1>::add<states::on1, 0>;
 
         REQUIRE(std::is_same_v<region_path_t, region_path_2_t>);
     }

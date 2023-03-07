@@ -110,8 +110,8 @@ TEST_CASE("state_transition_hook_set")
     auto sm = sm_t{};
     auto& ctx = sm.get_context();
 
-    using root_0_path = awesm::make_region_path<sm_def, 0>;
-    using root_1_path = awesm::make_region_path<sm_def, 1>;
+    using root_0_path = awesm::region_path<sm_def, 0>;
+    using root_1_path = awesm::region_path<sm_def, 1>;
     using root_1_on_1_path = root_1_path::add<states::on1>;
 
     sm.start(events::button_press{0});

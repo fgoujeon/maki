@@ -34,7 +34,7 @@ struct region_path_of<subsm<Def, ParentRegion>>
 template<class Def>
 struct region_path_of<subsm<Def, void>>
 {
-    using type = region_path<>;
+    using type = region_path_tpl<>;
 };
 
 template<class Def, class ParentRegion>
@@ -170,7 +170,7 @@ public:
     {
         static_assert(tlu::size_v<transition_table_type_list> == 1);
 
-        return get<0>(regions_).template is_active_state<region_path<>, State>();
+        return get<0>(regions_).template is_active_state<region_path_tpl<>, State>();
     }
 
     template<class RegionPath>

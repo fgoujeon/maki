@@ -57,7 +57,7 @@ class set<TList<Ts...>, Index, U>
 private:
     using temp_type = typename set_detail::set_reverse
     <
-        sizeof...(Ts) - Index - 1,
+        static_cast<int>(sizeof...(Ts)) - Index - 1,
         U,
         Ts...
     >::type;
@@ -68,9 +68,6 @@ public:
 
 template<class TList, int Index, class U>
 using set_t = typename set<TList, Index, U>::type;
-
-template<class TList, auto Index, class U>
-using set_f_t = set_t<TList, static_cast<int>(Index), U>;
 
 } //namespace
 

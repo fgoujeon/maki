@@ -46,26 +46,26 @@ class sm_conf_tpl
 {
 private:
     template<detail::sm_option Option, class T>
-    using set_type = detail::tlu::set_f_t
+    using set_type = detail::tlu::set_t
     <
         sm_conf_tpl,
-        Option,
+        static_cast<int>(Option),
         T
     >;
 
     template<detail::sm_option Option, class... Ts>
-    using set_types = detail::tlu::set_f_t
+    using set_types = detail::tlu::set_t
     <
         sm_conf_tpl,
-        Option,
+        static_cast<int>(Option),
         detail::tlu::type_list<Ts...>
     >;
 
     template<detail::sm_option Option, auto C>
-    using set_constant = detail::tlu::set_f_t
+    using set_constant = detail::tlu::set_t
     <
         sm_conf_tpl,
-        Option,
+        static_cast<int>(Option),
         detail::constant<C>
     >;
 

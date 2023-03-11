@@ -4,7 +4,7 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#include <awesm/detail/any_container.hpp>
+#include <awesm/detail/function_queue.hpp>
 #include "../common.hpp"
 #include <array>
 
@@ -12,7 +12,7 @@ namespace
 {
     using big_array_t = std::array<int, 10>;
 
-    auto new_operator_call_count = 0;
+    auto plain_new_call_count = 0;
     auto destructor_call_count = 0;
 
     struct small_struct
@@ -21,7 +21,7 @@ namespace
 
         static void* operator new(size_t size)
         {
-            ++new_operator_call_count;
+            ++plain_new_call_count;
             return ::operator new(size);
         }
 
@@ -48,7 +48,7 @@ namespace
 
         static void* operator new(size_t size)
         {
-            ++new_operator_call_count;
+            ++plain_new_call_count;
             return ::operator new(size);
         }
 
@@ -64,65 +64,71 @@ namespace
     };
 
     const auto big_array = big_array_t{{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}};
-    const auto number = static_cast<char>(42);
+    const auto number = 42;
 
-    struct small_any_visitor
+    struct copy_small_struct_content
     {
-        static void call(const small_struct& in, const small_struct*& pout)
+        static void call(const small_struct& in, int& out)
         {
-            pout = &in;
+            out = in.i;
         }
     };
 
-    struct big_any_visitor
+    struct copy_big_struct_content
     {
-        static void call(const big_struct& in, const big_struct*& pout)
+        static void call(const big_struct& in, big_array_t& pout)
         {
-            pout = &in;
+            pout = in.numbers;
         }
     };
 }
 
-TEST_CASE("detail::any_container")
+TEST_CASE("detail::function_queue")
 {
     destructor_call_count = 0;
-    new_operator_call_count = 0;
+    plain_new_call_count = 0;
 
     {
         auto psmall = new small_struct{number};
-        REQUIRE(new_operator_call_count == 1);
+        REQUIRE(plain_new_call_count == 1);
 
         auto pbig = new big_struct{big_array};
-        REQUIRE(new_operator_call_count == 2);
+        REQUIRE(plain_new_call_count == 2);
 
-        auto small_any = awesm::detail::any_container
+        auto small_function_queue = awesm::detail::function_queue
         <
-            const small_struct*&,
+            int&,
             sizeof(small_struct)
-        >{*psmall, awesm::detail::type_tag<small_any_visitor>{}};
-        REQUIRE(new_operator_call_count == 2);
+        >{};
+        small_function_queue.push<copy_small_struct_content>(*psmall);
+        REQUIRE(plain_new_call_count == 2); //no call to plain new
 
-        auto big_any = awesm::detail::any_container
+        auto big_function_queue = awesm::detail::function_queue
         <
-            const big_struct*&,
+            big_array_t&,
             sizeof(big_struct) / 2
-        >{*pbig, awesm::detail::type_tag<big_any_visitor>{}};
-        REQUIRE(new_operator_call_count == 3);
+        >{};
+        big_function_queue.push<copy_big_struct_content>(*pbig);
+        REQUIRE(plain_new_call_count == 3);
 
         delete psmall;
         REQUIRE(destructor_call_count == 1);
+
         {
-            const small_struct* ps;
-            small_any.visit(ps);
-            REQUIRE(ps->i == number);
+            auto i = 0;
+            small_function_queue.invoke_and_pop_all(i);
+            REQUIRE(i == number);
+            REQUIRE(destructor_call_count == 2);
         }
 
         delete pbig;
-        REQUIRE(destructor_call_count == 2);
+        REQUIRE(destructor_call_count == 3);
+
         {
-            const big_struct* ps;
-            big_any.visit(ps);
-            REQUIRE(ps->numbers == big_array);
+            auto arr = big_array_t{};
+            big_function_queue.invoke_and_pop_all(arr);
+            REQUIRE(arr == big_array);
+            REQUIRE(destructor_call_count == 4);
         }
     }
 

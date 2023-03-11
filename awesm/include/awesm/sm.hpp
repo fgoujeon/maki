@@ -12,11 +12,10 @@
 #include "detail/noinline.hpp"
 #include "detail/subsm.hpp"
 #include "detail/alternative.hpp"
-#include "detail/any_container.hpp"
+#include "detail/function_queue.hpp"
 #include "detail/tlu.hpp"
 #include "detail/type_tag.hpp"
 #include "detail/overload_priority.hpp"
-#include <queue>
 #include <type_traits>
 
 namespace awesm
@@ -128,15 +127,13 @@ public:
 private:
     struct any_event_queue_holder
     {
-        using any_event_type = detail::any_container
+        template<bool = true> //Dummy template for lazy evaluation
+        using type = detail::function_queue
         <
             sm&,
             detail::tlu::get_f_t<conf, detail::sm_option::small_event_max_size>::value,
             detail::tlu::get_f_t<conf, detail::sm_option::small_event_max_align>::value
         >;
-
-        template<bool = true> //Dummy template for lazy evaluation
-        using type = std::queue<any_event_type>;
     };
     struct empty_holder
     {
@@ -181,11 +178,7 @@ private:
             process_event_once<Operation>(event);
 
             //Process queued events, if any
-            while(!event_queue_.empty())
-            {
-                event_queue_.front().visit(*this);
-                event_queue_.pop();
-            }
+            event_queue_.invoke_and_pop_all(*this);
 
             processing_event_ = false;
         }
@@ -200,29 +193,19 @@ private:
     {
         if constexpr(std::is_nothrow_copy_constructible_v<Event>)
         {
-            queue_event_impl_2<Operation>(event);
+            event_queue_.template push<any_event_visitor<Operation>>(event);
         }
         else
         {
             try
             {
-                queue_event_impl_2<Operation>(event);
+                event_queue_.template push<any_event_visitor<Operation>>(event);
             }
             catch(...)
             {
                 process_exception(std::current_exception());
             }
         }
-    }
-
-    template<detail::sm_operation Operation, class Event>
-    void queue_event_impl_2(const Event& event)
-    {
-        event_queue_.emplace
-        (
-            event,
-            detail::type_tag<any_event_visitor<Operation>>{}
-        );
     }
 
     template<detail::sm_operation Operation>

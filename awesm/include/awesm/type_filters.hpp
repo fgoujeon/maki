@@ -12,43 +12,93 @@
 namespace awesm
 {
 
+struct any{};
+
+template<template<class> class Predicate>
+struct any_if{};
+
+template<template<class> class Predicate>
+struct any_if_not{};
+
+template<class... Ts>
+struct any_of{};
+
+template<class... Ts>
+struct any_but{};
+
+struct none{};
+
+//matches_filter
+namespace detail
+{
+    //Filter is a regular type
+    template<class T, class Filter>
+    struct matches_filter
+    {
+        static constexpr bool regular = true;
+        static constexpr bool value = std::is_same_v<T, Filter>;
+    };
+
+    template<class T>
+    struct matches_filter<T, any>
+    {
+        static constexpr bool value = true;
+    };
+
+    template<class T, template<class> class Predicate>
+    struct matches_filter<T, any_if<Predicate>>
+    {
+        static constexpr bool value = Predicate<T>::value;
+    };
+
+    template<class T, template<class> class Predicate>
+    struct matches_filter<T, any_if_not<Predicate>>
+    {
+        static constexpr bool value = !Predicate<T>::value;
+    };
+
+    template<class T, class... Ts>
+    struct matches_filter<T, any_of<Ts...>>
+    {
+        static constexpr bool value = (std::is_same_v<T, Ts> || ...);
+    };
+
+    template<class T, class... Ts>
+    struct matches_filter<T, any_but<Ts...>>
+    {
+        static constexpr bool value = !(std::is_same_v<T, Ts> || ...);
+    };
+
+    template<class T>
+    struct matches_filter<T, none>
+    {
+        static constexpr bool value = false;
+    };
+
+    template<class T, class Filter>
+    constexpr auto matches_filter_v = matches_filter<T, Filter>::value;
+}
+
 namespace detail
 {
     template<class T, class Enable = void>
     struct is_type_filter
     {
-        static constexpr auto value = false;
-    };
-
-    template<class T>
-    struct is_type_filter<T, std::enable_if_t<std::is_void_v<typename T::type_filter_tag>>>
-    {
         static constexpr auto value = true;
     };
 
     template<class T>
-    constexpr auto is_type_filter_v = is_type_filter<T>::value;
-
-    template<class T, class Filter>
-    struct matches_filter
+    struct is_type_filter
+    <
+        T,
+        std::enable_if_t<matches_filter<void, T>::regular>
+    >
     {
-        static constexpr bool matches()
-        {
-            if constexpr(is_type_filter_v<Filter>)
-            {
-                return Filter::template matches<T>;
-            }
-            else
-            {
-                return std::is_same_v<T, Filter>;
-            }
-        }
-
-        static constexpr bool value = matches();
+        static constexpr auto value = false;
     };
 
-    template<class T, class Filter>
-    constexpr auto matches_filter_v = matches_filter<T, Filter>::value;
+    template<class T>
+    constexpr auto is_type_filter_v = is_type_filter<T>::value;
 
     template<class T, class FilterList>
     class matches_any_filter;
@@ -57,6 +107,7 @@ namespace detail
     class matches_any_filter<T, FilterList<Filters...>>
     {
     private:
+        //MSVC wants a function for the fold expression
         static constexpr bool make_value()
         {
             return (matches_filter<T, Filters>::value || ...);
@@ -69,58 +120,6 @@ namespace detail
     template<class T, class FilterList>
     constexpr auto matches_any_filter_v = matches_any_filter<T, FilterList>::value;
 }
-
-struct any
-{
-    using type_filter_tag = void;
-
-    template<class T>
-    static constexpr bool matches = true;
-};
-
-template<template<class> class Predicate>
-struct any_if
-{
-    using type_filter_tag = void;
-
-    template<class T>
-    static constexpr bool matches = Predicate<T>::value;
-};
-
-template<template<class> class Predicate>
-struct any_if_not
-{
-    using type_filter_tag = void;
-
-    template<class T>
-    static constexpr bool matches = !Predicate<T>::value;
-};
-
-template<class... Ts>
-struct any_of
-{
-    using type_filter_tag = void;
-
-    template<class T>
-    static constexpr bool matches = (std::is_same_v<T, Ts> || ...);
-};
-
-template<class... Ts>
-struct any_but
-{
-    using type_filter_tag = void;
-
-    template<class T>
-    static constexpr bool matches = !(std::is_same_v<T, Ts> || ...);
-};
-
-struct none
-{
-    using type_filter_tag = void;
-
-    template<class T>
-    static constexpr bool matches = false;
-};
 
 } //namespace
 

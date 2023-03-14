@@ -7,37 +7,24 @@
 #ifndef AWESM_DETAIL_TLU_FIND_HPP
 #define AWESM_DETAIL_TLU_FIND_HPP
 
-#include "detail/alternative.hpp"
+#include <type_traits>
 
 namespace awesm::detail::tlu
 {
 
-template<class TList, template<class> class Predicate, class Default>
+template<class TList, template<class> class Predicate, class Default, class Enable = void>
 struct find;
 
 template<template<class...> class TList, class T, class... Ts, template<class> class Predicate, class Default>
-struct find<TList<T, Ts...>, Predicate, Default>
+struct find<TList<T, Ts...>, Predicate, Default, std::enable_if_t<Predicate<T>::value>>
 {
-private:
-    struct this_type_holder
-    {
-        template<bool Dummy = false> //Dummy template for lazy evaluation
-        using type = T;
-    };
+    using type = T;
+};
 
-    struct next_type_holder
-    {
-        template<bool Dummy = false> //Dummy template for lazy evaluation
-        using type = typename find<TList<Ts...>, Predicate, Default>::type;
-    };
-
-public:
-    using type = typename detail::alternative_t
-    <
-        Predicate<T>::value,
-        this_type_holder,
-        next_type_holder
-    >::template type<>;
+template<template<class...> class TList, class T, class... Ts, template<class> class Predicate, class Default>
+struct find<TList<T, Ts...>, Predicate, Default, std::enable_if_t<!Predicate<T>::value>>
+{
+    using type = typename find<TList<Ts...>, Predicate, Default>::type;
 };
 
 template<template<class...> class TList, template<class> class Predicate, class Default>

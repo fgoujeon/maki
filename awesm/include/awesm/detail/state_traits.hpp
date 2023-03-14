@@ -48,7 +48,7 @@ constexpr auto requires_on_entry()
         option_id::on_entry,
         false
     >;
-};
+}
 
 
 //on_exit
@@ -62,7 +62,7 @@ constexpr auto requires_on_exit()
         option_id::on_exit,
         false
     >;
-};
+}
 
 
 //on_event

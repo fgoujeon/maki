@@ -25,9 +25,10 @@ namespace
         struct off
         {
             using conf = awesm::state_conf
-                ::on_entry<true>
-                ::on_exit<true>
-            ;
+            <
+                awesm::state_opts::on_entry<>,
+                awesm::state_opts::on_exit<>
+            >;
 
             void on_entry()
             {
@@ -45,9 +46,10 @@ namespace
         struct on
         {
             using conf = awesm::state_conf
-                ::on_entry<true>
-                ::on_exit<true>
-            ;
+            <
+                awesm::state_opts::on_entry<>,
+                awesm::state_opts::on_exit<>
+            >;
 
             void on_entry()
             {
@@ -75,10 +77,11 @@ namespace
     struct sm_def
     {
         using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
-            ::context<context>
-            ::before_entry<true>
-        ;
+        <
+            awesm::sm_opts::transition_tables<sm_transition_table>,
+            awesm::sm_opts::context<context>,
+            awesm::sm_opts::before_entry
+        >;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>
         void before_entry(const Event& /*event*/)

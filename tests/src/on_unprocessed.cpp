@@ -46,8 +46,9 @@ namespace
         struct off
         {
             using conf = awesm::state_conf
-                ::on_event<events::ignored_by_emitting_blue>
-            ;
+            <
+                awesm::state_opts::on_event<events::ignored_by_emitting_blue>
+            >;
 
             void on_event(const events::ignored_by_emitting_blue & /*unused*/)
             {
@@ -59,8 +60,9 @@ namespace
         struct emitting_red
         {
             using conf = awesm::state_conf
-                ::on_event_auto<>
-            ;
+            <
+                awesm::state_opts::on_event_auto
+            >;
 
             void on_event(const events::ignored_by_emitting_blue & /*unused*/)
             {
@@ -72,8 +74,9 @@ namespace
         struct emitting_green
         {
             using conf = awesm::state_conf
-                ::on_event_auto<>
-            ;
+            <
+                awesm::state_opts::on_event_auto
+            >;
 
             void on_event(const events::ignored_by_emitting_blue & /*unused*/)
             {
@@ -84,7 +87,7 @@ namespace
 
         struct emitting_blue
         {
-            using conf = awesm::state_conf;
+            using conf = awesm::state_conf<>;
         };
 
         using on_transition_table = awesm::transition_table
@@ -96,8 +99,9 @@ namespace
         struct on
         {
             using conf = awesm::sm_conf
-                ::transition_tables<on_transition_table>
-            ;
+            <
+                awesm::sm_opts::transition_tables<on_transition_table>
+            >;
 
             context& ctx;
         };
@@ -110,10 +114,11 @@ namespace
     struct sm_def
     {
         using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
-            ::context<context>
-            ::on_unprocessed<>
-        ;
+        <
+            awesm::sm_opts::transition_tables<sm_transition_table>,
+            awesm::sm_opts::context<context>,
+            awesm::sm_opts::on_unprocessed
+        >;
 
         template<class T>
         void on_unprocessed(const T& /*unused*/)

@@ -11,7 +11,6 @@
 #include "tlu.hpp"
 #include "region.hpp"
 #include "region_path_of.hpp"
-#include "sm_conf_traits.hpp"
 #include "sm_object_holder.hpp"
 #include "context_holder.hpp"
 #include "subsm_fwd.hpp"
@@ -68,9 +67,10 @@ struct subsm_context
     - a reference to the context type of the parent SM (not necessarily the root
       SM).
     */
-    using type = sm_conf_traits::context_t
+    using type = get_option_t
     <
         typename Def::conf,
+        option_id::context,
         typename ParentRegion::parent_sm_type::context_type&
     >;
 };
@@ -78,7 +78,7 @@ struct subsm_context
 template<class Def>
 struct subsm_context<Def, void>
 {
-    using type = tlu::get_t<typename Def::conf, static_cast<int>(sm_option::context)>;
+    using type = get_option_t<typename Def::conf, option_id::context, void>;
 };
 
 template
@@ -114,16 +114,17 @@ class subsm
 {
 public:
     using conf = state_conf
-        ::on_entry<true>
-        ::on_event<awesm::any>
-        ::on_exit<true>
-    ;
+    <
+        awesm::state_opts::on_entry<true>,
+        awesm::state_opts::on_event<awesm::any>,
+        awesm::state_opts::on_exit<true>
+    >;
 
     using def_type = Def;
     using context_type = typename subsm_context<Def, ParentRegion>::type;
     using root_sm_type = root_sm_of_t<subsm>;
 
-    using transition_table_type_list = tlu::get_t<typename Def::conf, static_cast<int>(sm_option::transition_tables)>;
+    using transition_table_type_list = get_option_t<typename Def::conf, option_id::transition_tables, tlu::type_list<>>;
 
     template<class... ContextArgs>
     subsm(root_sm_type& root_sm, ContextArgs&&... ctx_args):

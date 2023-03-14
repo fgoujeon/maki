@@ -37,13 +37,13 @@ class sm
 public:
     using def_type = Def;
     using conf = typename Def::conf;
-    using context_type = detail::tlu::get_f_t<conf, detail::sm_option::context>;
+    using context_type = detail::get_option_t<conf, detail::option_id::context, void>;
 
     template<class... ContextArgs>
     explicit sm(ContextArgs&&... ctx_args):
         subsm_(*this, std::forward<ContextArgs>(ctx_args)...)
     {
-        if constexpr(detail::tlu::get_f_t<conf, detail::sm_option::auto_start>::value)
+        if constexpr(detail::get_option_value<conf, detail::option_id::auto_start, true>)
         {
             //start
             process_event_now_impl<detail::sm_operation::start>(events::start{});
@@ -127,12 +127,15 @@ public:
 private:
     struct any_event_queue_holder
     {
+        static constexpr auto small_event_default_max_size = 16;
+        static constexpr auto small_event_default_max_align = 8;
+
         template<bool = true> //Dummy template for lazy evaluation
         using type = detail::function_queue
         <
             sm&,
-            detail::tlu::get_f_t<conf, detail::sm_option::small_event_max_size>::value,
-            detail::tlu::get_f_t<conf, detail::sm_option::small_event_max_align>::value
+            detail::get_option_value<conf, detail::option_id::small_event_max_size, small_event_default_max_size>,
+            detail::get_option_value<conf, detail::option_id::small_event_max_align, small_event_default_max_align>
         >;
     };
     struct empty_holder
@@ -142,7 +145,7 @@ private:
     };
     using any_event_queue_type = typename detail::alternative_t
     <
-        detail::tlu::get_f_t<conf, detail::sm_option::run_to_completion>::value,
+        detail::get_option_value<conf, detail::option_id::run_to_completion, true>,
         any_event_queue_holder,
         empty_holder
     >::template type<>;
@@ -150,7 +153,7 @@ private:
     template<detail::sm_operation Operation, class Event>
     void process_event_2(const Event& event)
     {
-        if constexpr(detail::tlu::get_f_t<conf, detail::sm_option::run_to_completion>::value)
+        if constexpr(detail::get_option_value<conf, detail::option_id::run_to_completion, true>)
         {
             if(!processing_event_) //If call is not recursive
             {
@@ -171,7 +174,7 @@ private:
     template<detail::sm_operation Operation, class Event>
     void process_event_now_impl(const Event& event)
     {
-        if constexpr(detail::tlu::get_f_t<conf, detail::sm_option::run_to_completion>::value)
+        if constexpr(detail::get_option_value<conf, detail::option_id::run_to_completion, true>)
         {
             processing_event_ = true;
 
@@ -220,7 +223,7 @@ private:
 
     void process_exception(const std::exception_ptr& eptr)
     {
-        if constexpr(detail::tlu::get_f_t<conf, detail::sm_option::on_exception>::value)
+        if constexpr(detail::get_option_value<conf, detail::option_id::on_exception, false>)
         {
             get_def().on_exception(eptr);
         }
@@ -245,7 +248,7 @@ private:
             }
             else
             {
-                if constexpr(detail::tlu::get_f_t<conf, detail::sm_option::on_unprocessed>::value)
+                if constexpr(detail::get_option_value<conf, detail::option_id::on_unprocessed, false>)
                 {
                     if(!subsm_.on_event(event))
                     {

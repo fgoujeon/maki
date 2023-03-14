@@ -10,69 +10,33 @@
 #include "type_filters.hpp"
 #include "detail/constant.hpp"
 #include "detail/tlu.hpp"
+#include "detail/type_tag.hpp"
+#include "detail/conf.hpp"
 
 namespace awesm
 {
 
-namespace detail
+namespace state_opts
 {
-    enum class state_option
-    {
-        //Common with state_option, don't reorder
-        get_pretty_name,
-        on_entry,
-        on_event,
-        on_event_auto,
-        on_exit
-    };
+    template<bool Enable = true>
+    using on_entry = detail::conf_element<detail::option_id::on_entry, detail::constant<Enable>>;
+
+    template<class... EventFilters>
+    using on_event = detail::conf_element<detail::option_id::on_event, detail::tlu::type_list<EventFilters...>>;
+
+    using on_event_auto = detail::conf_element<detail::option_id::on_event_auto, detail::constant<true>>;
+
+    template<bool Enable = true>
+    using on_exit = detail::conf_element<detail::option_id::on_exit, detail::constant<Enable>>;
+
+    using get_pretty_name = detail::conf_element<detail::option_id::get_pretty_name, detail::constant<true>>;
 }
 
 template<class... Options>
-struct state_conf_tpl
+struct state_conf
 {
-private:
-    template<detail::state_option Option, class... Ts>
-    using set_types = detail::tlu::set_t
-    <
-        state_conf_tpl,
-        static_cast<int>(Option),
-        detail::tlu::type_list<Ts...>
-    >;
-
-    template<detail::state_option Option, auto C>
-    using set_constant = detail::tlu::set_t
-    <
-        state_conf_tpl,
-        static_cast<int>(Option),
-        detail::constant<C>
-    >;
-
-public:
-    template<bool Enable = true>
-    using on_entry = set_constant<detail::state_option::on_entry, Enable>;
-
-    template<class... EventFilters>
-    using on_event = set_types<detail::state_option::on_event, EventFilters...>;
-
-    template<bool Enable = true>
-    using on_event_auto = set_constant<detail::state_option::on_event_auto, Enable>;
-
-    template<bool Enable = true>
-    using on_exit = set_constant<detail::state_option::on_exit, Enable>;
-
-    template<bool Enable = true>
-    using get_pretty_name = set_constant<detail::state_option::get_pretty_name, Enable>;
-
     static constexpr auto is_composite = false;
 };
-
-using state_conf = state_conf_tpl<void, void, void, void, void>
-    ::get_pretty_name<false>
-    ::on_entry<false>
-    ::on_event<none>
-    ::on_event_auto<false>
-    ::on_exit<false>
-;
 
 } //namespace
 

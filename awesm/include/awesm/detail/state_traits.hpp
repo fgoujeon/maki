@@ -10,6 +10,7 @@
 #include "subsm_fwd.hpp"
 #include "overload_priority.hpp"
 #include "alternative.hpp"
+#include "conf.hpp"
 #include "tlu.hpp"
 #include "../type_filters.hpp"
 #include "../state_conf.hpp"
@@ -38,28 +39,33 @@ using wrap_t = typename wrap<State, Region>::type;
 
 //on_entry
 
-static_assert(static_cast<int>(sm_option::on_entry) == static_cast<int>(state_option::on_entry));
-
 template<class State>
-constexpr auto requires_on_entry_v =
-    tlu::get_f_t<typename State::conf, sm_option::on_entry>::value
-;
+constexpr auto requires_on_entry()
+{
+    return get_option_value
+    <
+        typename State::conf,
+        option_id::on_entry,
+        false
+    >;
+}
 
 
 //on_exit
 
-static_assert(static_cast<int>(sm_option::on_exit) == static_cast<int>(state_option::on_exit));
-
 template<class State>
-constexpr auto requires_on_exit_v =
-    tlu::get_f_t<typename State::conf, sm_option::on_exit>::value
-;
+constexpr auto requires_on_exit()
+{
+    return get_option_value
+    <
+        typename State::conf,
+        option_id::on_exit,
+        false
+    >;
+}
 
 
 //on_event
-
-static_assert(static_cast<int>(sm_option::on_event) == static_cast<int>(state_option::on_event));
-static_assert(static_cast<int>(sm_option::on_event_auto) == static_cast<int>(state_option::on_event_auto));
 
 class has_on_event
 {
@@ -88,14 +94,14 @@ struct matches_on_event_filter
     static constexpr auto value = matches_any_filter_v
     <
         Event,
-        tlu::get_f_t<typename State::conf, sm_option::on_event>
+        get_option_t<typename State::conf, option_id::on_event, tlu::type_list<>>
     >;
 };
 
 template<class State, class Event>
 constexpr auto requires_on_event_v = alternative_t
 <
-    tlu::get_f_t<typename State::conf, sm_option::on_event_auto>::value,
+    get_option_value<typename State::conf, option_id::on_event_auto, false>,
     has_on_event,
     matches_on_event_filter
 >::template value<State, Event>;

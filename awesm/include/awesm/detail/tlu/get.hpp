@@ -39,9 +39,6 @@ struct get<TList<T, Ts...>, 0>
 template<class TList, int Index>
 using get_t = typename get<TList, Index>::type;
 
-template<class TList, auto Index>
-using get_f_t = get_t<TList, static_cast<int>(Index)>;
-
 } //namespace
 
 #endif

@@ -26,10 +26,11 @@ namespace
         struct idle
         {
             using conf = awesm::state_conf
-                ::on_entry<true>
-                ::on_event<awesm::any>
-                ::on_exit<true>
-            ;
+            <
+                awesm::state_opts::on_entry<>,
+                awesm::state_opts::on_event<awesm::any>,
+                awesm::state_opts::on_exit<>
+            >;
 
             void on_entry()
             {
@@ -53,10 +54,11 @@ namespace
         struct running
         {
             using conf = awesm::state_conf
-                ::on_entry<true>
-                ::on_event<awesm::any>
-                ::on_exit<true>
-            ;
+            <
+                awesm::state_opts::on_entry<>,
+                awesm::state_opts::on_event<awesm::any>,
+                awesm::state_opts::on_exit<>
+            >;
 
             void on_entry()
             {
@@ -95,9 +97,10 @@ namespace
     struct sm_def
     {
         using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
-            ::context<context>
-        ;
+        <
+            awesm::sm_opts::transition_tables<sm_transition_table>,
+            awesm::sm_opts::context<context>
+        >;
     };
 
     using sm_t = awesm::sm<sm_def>;

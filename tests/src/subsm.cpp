@@ -38,8 +38,9 @@ namespace
         struct emitting_red
         {
             using conf = awesm::state_conf
-                ::on_entry<true>
-            ;
+            <
+                awesm::state_opts::on_entry<>
+            >;
 
             void on_entry()
             {
@@ -53,8 +54,9 @@ namespace
         struct emitting_green
         {
             using conf = awesm::state_conf
-                ::on_entry<true>
-            ;
+            <
+                awesm::state_opts::on_entry<>
+            >;
 
             void on_entry()
             {
@@ -68,8 +70,9 @@ namespace
         struct emitting_blue
         {
             using conf = awesm::state_conf
-                ::on_entry<true>
-            ;
+            <
+                awesm::state_opts::on_entry<>
+            >;
 
             void on_entry()
             {
@@ -89,9 +92,10 @@ namespace
         struct on
         {
             using conf = awesm::sm_conf
-                ::transition_tables<on_transition_table>
-                ::on_exit<true>
-            ;
+            <
+                awesm::sm_opts::transition_tables<on_transition_table>,
+                awesm::sm_opts::on_exit<>
+            >;
 
             void on_exit()
             {
@@ -110,9 +114,10 @@ namespace
     struct sm_def
     {
         using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
-            ::context<context>
-        ;
+        <
+            awesm::sm_opts::transition_tables<sm_transition_table>,
+            awesm::sm_opts::context<context>
+        >;
     };
 }
 

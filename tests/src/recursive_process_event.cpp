@@ -29,9 +29,10 @@ namespace
         struct s0
         {
             using conf = awesm::state_conf
-                ::on_entry<true>
-                ::on_exit<true>
-            ;
+            <
+                awesm::state_opts::on_entry<>,
+                awesm::state_opts::on_exit<>
+            >;
 
             void on_entry()
             {
@@ -49,9 +50,10 @@ namespace
         struct s1
         {
             using conf = awesm::state_conf
-                ::on_entry<true>
-                ::on_exit<true>
-            ;
+            <
+                awesm::state_opts::on_entry<>,
+                awesm::state_opts::on_exit<>
+            >;
 
             void on_entry()
             {
@@ -69,9 +71,10 @@ namespace
         struct s2
         {
             using conf = awesm::state_conf
-                ::on_entry<true>
-                ::on_exit<true>
-            ;
+            <
+                awesm::state_opts::on_entry<>,
+                awesm::state_opts::on_exit<>
+            >;
 
             void on_entry()
             {
@@ -119,9 +122,10 @@ namespace
     struct sm_def
     {
         using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
-            ::context<context>
-        ;
+        <
+            awesm::sm_opts::transition_tables<sm_transition_table>,
+            awesm::sm_opts::context<context>
+        >;
     };
 }
 

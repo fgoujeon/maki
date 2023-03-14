@@ -19,12 +19,6 @@ namespace awesm
 
 namespace detail
 {
-    static_assert
-    (
-        static_cast<int>(state_option::get_pretty_name) ==
-        static_cast<int>(sm_option::get_pretty_name)
-    );
-
     template<class T>
     decltype(auto) get_pretty_name_impl(overload_priority::low /*unused*/)
     {
@@ -36,7 +30,7 @@ namespace detail
         class T,
         std::enable_if_t
         <
-            tlu::get_f_t<typename T::conf, sm_option::get_pretty_name>::value,
+            get_option_value<typename T::conf, option_id::get_pretty_name, false>,
             bool
         > = true
     >

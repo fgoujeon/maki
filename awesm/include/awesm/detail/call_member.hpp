@@ -45,7 +45,7 @@ void call_on_entry
     [[maybe_unused]] const Event& event
 )
 {
-    if constexpr(state_traits::requires_on_entry_v<State>)
+    if constexpr(state_traits::requires_on_entry<State>())
     {
         call_on_entry_impl(state, &mach, &event);
     }
@@ -107,7 +107,7 @@ void call_on_exit
     [[maybe_unused]] const Event& event
 )
 {
-    if constexpr(state_traits::requires_on_exit_v<State>)
+    if constexpr(state_traits::requires_on_exit<State>())
     {
         call_on_exit_impl(state, &mach, &event);
     }

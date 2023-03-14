@@ -11,159 +11,83 @@
 #include "type_filters.hpp"
 #include "detail/constant.hpp"
 #include "detail/tlu.hpp"
+#include "detail/conf.hpp"
 
 namespace awesm
 {
 
-namespace detail
+namespace sm_opts
 {
-    enum class sm_option
-    {
-        //Common with state_option, don't reorder
-        get_pretty_name,
-        on_entry,
-        on_event,
-        on_event_auto,
-        on_exit,
-
-        //Specific
-        after_state_transition,
-        auto_start,
-        before_entry,
-        before_state_transition,
-        context,
-        on_exception,
-        on_unprocessed,
-        run_to_completion,
-        small_event_max_align,
-        small_event_max_size,
-        transition_tables,
-    };
-}
-
-template<class... Options>
-class sm_conf_tpl
-{
-private:
-    template<detail::sm_option Option, class T>
-    using set_type = detail::tlu::set_t
+    using after_state_transition = detail::conf_element
     <
-        sm_conf_tpl,
-        static_cast<int>(Option),
-        T
+        detail::option_id::after_state_transition,
+        detail::constant<true>
     >;
 
-    template<detail::sm_option Option, class... Ts>
-    using set_types = detail::tlu::set_t
+    using no_auto_start = detail::conf_element<detail::option_id::auto_start, detail::constant<false>>;
+
+    using before_entry = detail::conf_element<detail::option_id::before_entry, detail::constant<true>>;
+
+    using before_state_transition = detail::conf_element
     <
-        sm_conf_tpl,
-        static_cast<int>(Option),
-        detail::tlu::type_list<Ts...>
-    >;
-
-    template<detail::sm_option Option, auto C>
-    using set_constant = detail::tlu::set_t
-    <
-        sm_conf_tpl,
-        static_cast<int>(Option),
-        detail::constant<C>
-    >;
-
-public:
-    template<bool Enable = true>
-    using after_state_transition = set_constant
-    <
-        detail::sm_option::after_state_transition,
-        Enable
-    >;
-
-    template<bool Enable = true>
-    using auto_start = set_constant<detail::sm_option::auto_start, Enable>;
-
-    template<bool Enable = true>
-    using before_entry = set_constant<detail::sm_option::before_entry, Enable>;
-
-    template<bool Enable = true>
-    using before_state_transition = set_constant
-    <
-        detail::sm_option::before_state_transition,
-        Enable
+        detail::option_id::before_state_transition,
+        detail::constant<true>
     >;
 
     template<class T>
-    using context = set_type<detail::sm_option::context, T>;
+    using context = detail::conf_element<detail::option_id::context, T>;
 
-    template<bool Enable = true>
-    using run_to_completion = set_constant
+    using no_run_to_completion = detail::conf_element
     <
-        detail::sm_option::run_to_completion,
-        Enable
+        detail::option_id::run_to_completion,
+        detail::constant<false>
     >;
 
-    template<bool Enable = true>
-    using get_pretty_name = set_constant
+    using get_pretty_name = detail::conf_element
     <
-        detail::sm_option::get_pretty_name,
-        Enable
+        detail::option_id::get_pretty_name,
+        detail::constant<true>
     >;
 
-    template<bool Enable = true>
-    using on_exception = set_constant<detail::sm_option::on_exception, Enable>;
+    using on_exception = detail::conf_element<detail::option_id::on_exception, detail::constant<true>>;
 
-    template<bool Enable = true>
-    using on_unprocessed = set_constant<detail::sm_option::on_unprocessed, Enable>;
+    using on_unprocessed = detail::conf_element<detail::option_id::on_unprocessed, detail::constant<true>>;
 
     template<std::size_t Value>
-    using small_event_max_align = set_constant
+    using small_event_max_align = detail::conf_element
     <
-        detail::sm_option::small_event_max_align,
-        Value
+        detail::option_id::small_event_max_align,
+        detail::constant<Value>
     >;
 
     template<std::size_t Value>
-    using small_event_max_size = set_constant
+    using small_event_max_size = detail::conf_element
     <
-        detail::sm_option::small_event_max_size,
-        Value
+        detail::option_id::small_event_max_size,
+        detail::constant<Value>
     >;
 
     template<class... EventFilters>
-    using on_event = set_types<detail::sm_option::on_event, EventFilters...>;
+    using on_event = detail::conf_element<detail::option_id::on_event, detail::tlu::type_list<EventFilters...>>;
+
+    using on_event_auto = detail::conf_element<detail::option_id::on_event_auto, detail::constant<true>>;
 
     template<bool Enable = true>
-    using on_event_auto = set_constant<detail::sm_option::on_event_auto, Enable>;
+    using on_entry = detail::conf_element<detail::option_id::on_entry, detail::constant<Enable>>;
 
     template<bool Enable = true>
-    using on_entry = set_constant<detail::sm_option::on_entry, Enable>;
-
-    template<bool Enable = true>
-    using on_exit = set_constant<detail::sm_option::on_exit, Enable>;
+    using on_exit = detail::conf_element<detail::option_id::on_exit, detail::constant<Enable>>;
 
     template<class... Ts>
-    using transition_tables = set_types<detail::sm_option::transition_tables, Ts...>;
+    using transition_tables = detail::conf_element<detail::option_id::transition_tables, detail::tlu::type_list<Ts...>>;
+}
 
+template<class... Options>
+class sm_conf
+{
+public:
     static constexpr auto is_composite = true;
 };
-
-inline constexpr auto small_event_max_align = 8;
-inline constexpr auto small_event_max_size = 16;
-
-using sm_conf = sm_conf_tpl<void, void, void, void, void, void, void, void, void, void, void, void, void, void, void, void>
-    ::after_state_transition<false>
-    ::auto_start<true>
-    ::before_entry<false>
-    ::before_state_transition<false>
-    ::get_pretty_name<false>
-    ::on_entry<false>
-    ::on_event<none>
-    ::on_event_auto<false>
-    ::on_exception<false>
-    ::on_exit<false>
-    ::on_unprocessed<false>
-    ::run_to_completion<true>
-    ::small_event_max_align<small_event_max_align>
-    ::small_event_max_size<small_event_max_size>
-;
 
 } //namespace
 

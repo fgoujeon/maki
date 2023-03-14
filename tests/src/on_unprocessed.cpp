@@ -117,7 +117,7 @@ namespace
         <
             awesm::sm_opts::transition_tables<sm_transition_table>,
             awesm::sm_opts::context<context>,
-            awesm::sm_opts::on_unprocessed<>
+            awesm::sm_opts::on_unprocessed
         >;
 
         template<class T>

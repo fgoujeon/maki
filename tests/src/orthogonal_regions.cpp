@@ -62,9 +62,9 @@ namespace
                     ::add<states::off1, events::button_press, states::on1>
             >,
             awesm::sm_opts::context<context>,
-            awesm::sm_opts::on_exception<true>,
-            awesm::sm_opts::before_state_transition<true>,
-            awesm::sm_opts::after_state_transition<true>
+            awesm::sm_opts::on_exception,
+            awesm::sm_opts::before_state_transition,
+            awesm::sm_opts::after_state_transition
         >;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>

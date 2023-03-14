@@ -18,48 +18,40 @@ namespace awesm
 
 namespace sm_opts
 {
-    template<bool Enable = true>
     using after_state_transition = detail::conf_element
     <
         detail::option_id::after_state_transition,
-        detail::constant<Enable>
+        detail::constant<true>
     >;
 
-    template<bool Enable = true>
-    using auto_start = detail::conf_element<detail::option_id::auto_start, detail::constant<Enable>>;
+    using no_auto_start = detail::conf_element<detail::option_id::auto_start, detail::constant<false>>;
 
-    template<bool Enable = true>
-    using before_entry = detail::conf_element<detail::option_id::before_entry, detail::constant<Enable>>;
+    using before_entry = detail::conf_element<detail::option_id::before_entry, detail::constant<true>>;
 
-    template<bool Enable = true>
     using before_state_transition = detail::conf_element
     <
         detail::option_id::before_state_transition,
-        detail::constant<Enable>
+        detail::constant<true>
     >;
 
     template<class T>
     using context = detail::conf_element<detail::option_id::context, T>;
 
-    template<bool Enable = true>
-    using run_to_completion = detail::conf_element
+    using no_run_to_completion = detail::conf_element
     <
         detail::option_id::run_to_completion,
-        detail::constant<Enable>
+        detail::constant<false>
     >;
 
-    template<bool Enable = true>
     using get_pretty_name = detail::conf_element
     <
         detail::option_id::get_pretty_name,
-        detail::constant<Enable>
+        detail::constant<true>
     >;
 
-    template<bool Enable = true>
-    using on_exception = detail::conf_element<detail::option_id::on_exception, detail::constant<Enable>>;
+    using on_exception = detail::conf_element<detail::option_id::on_exception, detail::constant<true>>;
 
-    template<bool Enable = true>
-    using on_unprocessed = detail::conf_element<detail::option_id::on_unprocessed, detail::constant<Enable>>;
+    using on_unprocessed = detail::conf_element<detail::option_id::on_unprocessed, detail::constant<true>>;
 
     template<std::size_t Value>
     using small_event_max_align = detail::conf_element

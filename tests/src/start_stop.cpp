@@ -76,7 +76,7 @@ namespace
         <
             awesm::sm_opts::transition_tables<sm_transition_table>,
             awesm::sm_opts::context<context>,
-            awesm::sm_opts::auto_start<false>
+            awesm::sm_opts::no_auto_start
         >;
     };
 

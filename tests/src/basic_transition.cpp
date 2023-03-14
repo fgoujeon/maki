@@ -35,9 +35,9 @@ namespace
         <
             awesm::sm_opts::transition_tables<sm_transition_table>,
             awesm::sm_opts::context<context>,
-            awesm::sm_opts::auto_start<false>,
-            awesm::sm_opts::run_to_completion<false>,
-            awesm::sm_opts::on_exception<true>
+            awesm::sm_opts::no_auto_start,
+            awesm::sm_opts::no_run_to_completion,
+            awesm::sm_opts::on_exception
         >;
 
         void on_exception(const std::exception_ptr& /*eptr*/)

@@ -18,7 +18,7 @@ namespace pretty_name_ns
     {
         using conf = awesm::state_conf
         <
-            awesm::state_opts::get_pretty_name<true>
+            awesm::state_opts::get_pretty_name
         >;
 
         static const char* get_pretty_name()
@@ -36,7 +36,7 @@ namespace pretty_name_ns
         using conf = awesm::sm_conf
         <
             awesm::sm_opts::transition_tables<subsm_transition_table>,
-            awesm::sm_opts::get_pretty_name<true>
+            awesm::sm_opts::get_pretty_name
         >;
 
         static const char* get_pretty_name()
@@ -59,7 +59,7 @@ namespace pretty_name_ns
         <
             awesm::sm_opts::transition_tables<sm_transition_table>,
             awesm::sm_opts::context<context>,
-            awesm::sm_opts::get_pretty_name<true>
+            awesm::sm_opts::get_pretty_name
         >;
 
         static const char* get_pretty_name()

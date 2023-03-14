@@ -80,7 +80,7 @@ namespace
         <
             awesm::sm_opts::transition_tables<sm_transition_table>,
             awesm::sm_opts::context<context>,
-            awesm::sm_opts::before_entry<>
+            awesm::sm_opts::before_entry
         >;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>

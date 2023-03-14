@@ -29,8 +29,7 @@ namespace state_opts
     template<bool Enable = true>
     using on_exit = detail::conf_element<detail::option_id::on_exit, detail::constant<Enable>>;
 
-    template<bool Enable = true>
-    using get_pretty_name = detail::conf_element<detail::option_id::get_pretty_name, detail::constant<Enable>>;
+    using get_pretty_name = detail::conf_element<detail::option_id::get_pretty_name, detail::constant<true>>;
 }
 
 template<class... Options>

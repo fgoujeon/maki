@@ -78,7 +78,7 @@ struct subsm_context
 template<class Def>
 struct subsm_context<Def, void>
 {
-    using type = tlu::get_t<typename Def::conf, static_cast<int>(sm_option::context)>;
+    using type = get_option_t<typename Def::conf, option_id::context, void>;
 };
 
 template
@@ -114,16 +114,17 @@ class subsm
 {
 public:
     using conf = state_conf
-        ::on_entry<true>
-        ::on_event<awesm::any>
-        ::on_exit<true>
-    ;
+    <
+        awesm::state_opts::on_entry<true>,
+        awesm::state_opts::on_event<awesm::any>,
+        awesm::state_opts::on_exit<true>
+    >;
 
     using def_type = Def;
     using context_type = typename subsm_context<Def, ParentRegion>::type;
     using root_sm_type = root_sm_of_t<subsm>;
 
-    using transition_table_type_list = tlu::get_t<typename Def::conf, static_cast<int>(sm_option::transition_tables)>;
+    using transition_table_type_list = get_option_t<typename Def::conf, option_id::transition_tables, tlu::type_list<>>;
 
     template<class... ContextArgs>
     subsm(root_sm_type& root_sm, ContextArgs&&... ctx_args):

@@ -268,7 +268,7 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(tlu::get_t<root_sm_conf, static_cast<int>(sm_option::before_state_transition)>::value)
+            if constexpr(get_option_value<root_sm_conf, option_id::before_state_transition, false>)
             {
                 root_sm_.get_def().template before_state_transition
                 <
@@ -306,7 +306,7 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(tlu::get_t<root_sm_conf, static_cast<int>(sm_option::before_entry)>::value)
+            if constexpr(get_option_value<root_sm_conf, option_id::before_entry, false>)
             {
                 root_sm_.get_def().template before_entry
                 <
@@ -327,7 +327,7 @@ private:
                 );
             }
 
-            if constexpr(tlu::get_t<root_sm_conf, static_cast<int>(sm_option::after_state_transition)>::value)
+            if constexpr(get_option_value<root_sm_conf, option_id::after_state_transition, false>)
             {
                 root_sm_.get_def().template after_state_transition
                 <

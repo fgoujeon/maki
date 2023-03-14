@@ -30,10 +30,11 @@ namespace
         struct english
         {
             using conf = awesm::state_conf
-                ::on_entry<true>
-                ::on_event<events::say_dog>
-                ::on_exit<true>
-            ;
+            <
+                awesm::state_opts::on_entry<>,
+                awesm::state_opts::on_event<events::say_dog>,
+                awesm::state_opts::on_exit<>
+            >;
 
             void on_entry()
             {
@@ -56,10 +57,11 @@ namespace
         struct french
         {
             using conf = awesm::state_conf
-                ::on_entry<true>
-                ::on_event<events::say_dog>
-                ::on_exit<true>
-            ;
+            <
+                awesm::state_opts::on_entry<>,
+                awesm::state_opts::on_event<events::say_dog>,
+                awesm::state_opts::on_exit<>
+            >;
 
             template<class Sm, class Event>
             void on_entry(Sm& mach, const Event& /*event*/)
@@ -91,9 +93,10 @@ namespace
     struct sm_def
     {
         using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
-            ::context<context>
-        ;
+        <
+            awesm::sm_opts::transition_tables<sm_transition_table>,
+            awesm::sm_opts::context<context>
+        >;
     };
 
     using sm_t = awesm::sm<sm_def>;

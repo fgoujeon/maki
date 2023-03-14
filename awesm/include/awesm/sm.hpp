@@ -194,20 +194,13 @@ private:
     template<detail::sm_operation Operation, class Event>
     void queue_event_impl(const Event& event)
     {
-        if constexpr(std::is_nothrow_copy_constructible_v<Event>)
+        try
         {
             event_queue_.template push<any_event_visitor<Operation>>(event);
         }
-        else
+        catch(...)
         {
-            try
-            {
-                event_queue_.template push<any_event_visitor<Operation>>(event);
-            }
-            catch(...)
-            {
-                process_exception(std::current_exception());
-            }
+            process_exception(std::current_exception());
         }
     }
 

@@ -83,49 +83,51 @@ namespace sm_opts
 }
 
 template<class... Options>
-struct sm_conf
+struct sm_conf_tpl
 {
-    using after_state_transition = sm_conf<Options..., sm_opts::after_state_transition>;
+    using after_state_transition = sm_conf_tpl<Options..., sm_opts::after_state_transition>;
 
-    using no_auto_start = sm_conf<Options..., sm_opts::no_auto_start>;
+    using no_auto_start = sm_conf_tpl<Options..., sm_opts::no_auto_start>;
 
-    using before_entry = sm_conf<Options..., sm_opts::before_entry>;
+    using before_entry = sm_conf_tpl<Options..., sm_opts::before_entry>;
 
-    using before_state_transition = sm_conf<Options..., sm_opts::before_state_transition>;
+    using before_state_transition = sm_conf_tpl<Options..., sm_opts::before_state_transition>;
 
     template<class T>
-    using context = sm_conf<Options..., sm_opts::context<T>>;
+    using context = sm_conf_tpl<Options..., sm_opts::context<T>>;
 
-    using no_run_to_completion = sm_conf<Options..., sm_opts::no_run_to_completion>;
+    using no_run_to_completion = sm_conf_tpl<Options..., sm_opts::no_run_to_completion>;
 
-    using get_pretty_name = sm_conf<Options..., sm_opts::get_pretty_name>;
+    using get_pretty_name = sm_conf_tpl<Options..., sm_opts::get_pretty_name>;
 
-    using on_exception = sm_conf<Options..., sm_opts::on_exception>;
+    using on_exception = sm_conf_tpl<Options..., sm_opts::on_exception>;
 
-    using on_unprocessed = sm_conf<Options..., sm_opts::on_unprocessed>;
-
-    template<std::size_t Value>
-    using small_event_max_align = sm_conf<Options..., sm_opts::small_event_max_align<Value>>;
+    using on_unprocessed = sm_conf_tpl<Options..., sm_opts::on_unprocessed>;
 
     template<std::size_t Value>
-    using small_event_max_size = sm_conf<Options..., sm_opts::small_event_max_size<Value>>;
+    using small_event_max_align = sm_conf_tpl<Options..., sm_opts::small_event_max_align<Value>>;
+
+    template<std::size_t Value>
+    using small_event_max_size = sm_conf_tpl<Options..., sm_opts::small_event_max_size<Value>>;
 
     template<class... EventFilters>
-    using on_event = sm_conf<Options..., sm_opts::on_event<EventFilters...>>;
+    using on_event = sm_conf_tpl<Options..., sm_opts::on_event<EventFilters...>>;
 
-    using on_event_auto = sm_conf<Options..., sm_opts::on_event_auto>;
-
-    template<bool Enable = true>
-    using on_entry = sm_conf<Options..., sm_opts::on_entry<Enable>>;
+    using on_event_auto = sm_conf_tpl<Options..., sm_opts::on_event_auto>;
 
     template<bool Enable = true>
-    using on_exit = sm_conf<Options..., sm_opts::on_exit<Enable>>;
+    using on_entry = sm_conf_tpl<Options..., sm_opts::on_entry<Enable>>;
+
+    template<bool Enable = true>
+    using on_exit = sm_conf_tpl<Options..., sm_opts::on_exit<Enable>>;
 
     template<class... Ts>
-    using transition_tables = sm_conf<Options..., sm_opts::transition_tables<Ts...>>;
+    using transition_tables = sm_conf_tpl<Options..., sm_opts::transition_tables<Ts...>>;
 
     static constexpr auto is_composite = true;
 };
+
+using sm_conf = sm_conf_tpl<>;
 
 } //namespace
 

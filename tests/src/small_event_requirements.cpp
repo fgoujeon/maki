@@ -55,7 +55,7 @@ namespace
 
     struct state
     {
-        using conf = awesm::state_conf<>;
+        using conf = awesm::state_conf_tpl<>;
     };
 
     template<class Event>
@@ -72,7 +72,7 @@ namespace
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
     struct sm_def
     {
-        using conf = awesm::sm_conf
+        using conf = awesm::sm_conf_tpl
         <
             awesm::sm_opts::transition_tables<sm_transition_table>,
             awesm::sm_opts::context<context>,

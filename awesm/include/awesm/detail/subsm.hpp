@@ -113,7 +113,7 @@ template<class Def, class ParentRegion>
 class subsm
 {
 public:
-    using conf = state_conf
+    using conf = state_conf_tpl
     <
         awesm::state_opts::on_entry<true>,
         awesm::state_opts::on_event<awesm::any>,

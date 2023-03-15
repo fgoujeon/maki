@@ -37,7 +37,7 @@ namespace
 
         struct on_0
         {
-            using conf = awesm::state_conf
+            using conf = awesm::state_conf_tpl
             <
                 awesm::state_opts::on_entry<>,
                 awesm::state_opts::on_event<events::internal>,
@@ -68,7 +68,7 @@ namespace
 
         struct on
         {
-            using conf = awesm::sm_conf
+            using conf = awesm::sm_conf_tpl
             <
                 awesm::sm_opts::transition_tables<on_transition_table>,
                 awesm::sm_opts::on_entry<>,
@@ -102,7 +102,7 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf
+        using conf = awesm::sm_conf_tpl
         <
             awesm::sm_opts::transition_tables<sm_transition_table>,
             awesm::sm_opts::context<context>

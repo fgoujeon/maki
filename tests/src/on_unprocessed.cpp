@@ -45,7 +45,7 @@ namespace
     {
         struct off
         {
-            using conf = awesm::state_conf
+            using conf = awesm::state_conf_tpl
             <
                 awesm::state_opts::on_event<events::ignored_by_emitting_blue>
             >;
@@ -59,7 +59,7 @@ namespace
 
         struct emitting_red
         {
-            using conf = awesm::state_conf
+            using conf = awesm::state_conf_tpl
             <
                 awesm::state_opts::on_event_auto
             >;
@@ -73,7 +73,7 @@ namespace
 
         struct emitting_green
         {
-            using conf = awesm::state_conf
+            using conf = awesm::state_conf_tpl
             <
                 awesm::state_opts::on_event_auto
             >;
@@ -87,7 +87,7 @@ namespace
 
         struct emitting_blue
         {
-            using conf = awesm::state_conf<>;
+            using conf = awesm::state_conf_tpl<>;
         };
 
         using on_transition_table = awesm::transition_table
@@ -98,7 +98,7 @@ namespace
 
         struct on
         {
-            using conf = awesm::sm_conf
+            using conf = awesm::sm_conf_tpl
             <
                 awesm::sm_opts::transition_tables<on_transition_table>
             >;
@@ -113,7 +113,7 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf
+        using conf = awesm::sm_conf_tpl
         <
             awesm::sm_opts::transition_tables<sm_transition_table>,
             awesm::sm_opts::context<context>,

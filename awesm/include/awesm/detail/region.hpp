@@ -135,7 +135,7 @@ public:
 
 private:
     using root_sm_type = root_sm_of_t<ParentSm>;
-    using root_sm_conf = typename root_sm_type::conf;
+    using root_sm_conf_tpl = typename root_sm_type::conf;
 
     using transition_table_type = tlu::get_t<typename ParentSm::transition_table_type_list, Index>;
 
@@ -268,7 +268,7 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(get_option_value<root_sm_conf, option_id::before_state_transition, false>)
+            if constexpr(get_option_value<root_sm_conf_tpl, option_id::before_state_transition, false>)
             {
                 root_sm_.get_def().template before_state_transition
                 <
@@ -306,7 +306,7 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(get_option_value<root_sm_conf, option_id::before_entry, false>)
+            if constexpr(get_option_value<root_sm_conf_tpl, option_id::before_entry, false>)
             {
                 root_sm_.get_def().template before_entry
                 <
@@ -327,7 +327,7 @@ private:
                 );
             }
 
-            if constexpr(get_option_value<root_sm_conf, option_id::after_state_transition, false>)
+            if constexpr(get_option_value<root_sm_conf_tpl, option_id::after_state_transition, false>)
             {
                 root_sm_.get_def().template after_state_transition
                 <

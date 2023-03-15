@@ -33,23 +33,25 @@ namespace state_opts
 }
 
 template<class... Options>
-struct state_conf
+struct state_conf_tpl
 {
-    using get_pretty_name = state_conf<Options..., state_opts::get_pretty_name>;
+    using get_pretty_name = state_conf_tpl<Options..., state_opts::get_pretty_name>;
 
     template<class... EventFilters>
-    using on_event = state_conf<Options..., state_opts::on_event<EventFilters...>>;
+    using on_event = state_conf_tpl<Options..., state_opts::on_event<EventFilters...>>;
 
-    using on_event_auto = state_conf<Options..., state_opts::on_event_auto>;
-
-    template<bool Enable = true>
-    using on_entry = state_conf<Options..., state_opts::on_entry<Enable>>;
+    using on_event_auto = state_conf_tpl<Options..., state_opts::on_event_auto>;
 
     template<bool Enable = true>
-    using on_exit = state_conf<Options..., state_opts::on_exit<Enable>>;
+    using on_entry = state_conf_tpl<Options..., state_opts::on_entry<Enable>>;
+
+    template<bool Enable = true>
+    using on_exit = state_conf_tpl<Options..., state_opts::on_exit<Enable>>;
 
     static constexpr auto is_composite = false;
 };
+
+using state_conf = state_conf_tpl<>;
 
 } //namespace
 

@@ -33,7 +33,7 @@ namespace
     X(transition_tables<>)
 
 #define X(option) awesm::sm_opts::option,
-    using sm_conf_1_t = awesm::sm_conf
+    using sm_conf_tpl_1_t = awesm::sm_conf_tpl
     <
         SM_OPTIONS
         awesm::sm_opts::get_pretty_name
@@ -41,14 +41,14 @@ namespace
 #undef X
 
 #define X(option) ::option
-    using sm_conf_2_t = awesm::sm_conf<>
+    using sm_conf_tpl_2_t = awesm::sm_conf
         SM_OPTIONS
         ::get_pretty_name
     ;
 #undef X
 
 #define X(option) awesm::state_opts::option,
-    using state_conf_1_t = awesm::state_conf
+    using state_conf_tpl_1_t = awesm::state_conf_tpl
     <
         STATE_OPTIONS
         awesm::state_opts::get_pretty_name
@@ -56,7 +56,7 @@ namespace
 #undef X
 
 #define X(option) ::option
-    using state_conf_2_t = awesm::state_conf<>
+    using state_conf_tpl_2_t = awesm::state_conf
         STATE_OPTIONS
         ::get_pretty_name
     ;
@@ -68,6 +68,6 @@ namespace
 
 TEST_CASE("conf_subtype_chaining")
 {
-    REQUIRE(std::is_same_v<sm_conf_1_t, sm_conf_2_t>);
-    REQUIRE(std::is_same_v<state_conf_1_t, state_conf_2_t>);
+    REQUIRE(std::is_same_v<sm_conf_tpl_1_t, sm_conf_tpl_2_t>);
+    REQUIRE(std::is_same_v<state_conf_tpl_1_t, state_conf_tpl_2_t>);
 }

@@ -25,7 +25,7 @@ namespace
     {
         struct idle
         {
-            using conf = awesm::state_conf
+            using conf = awesm::state_conf_tpl
             <
                 awesm::state_opts::on_entry<>,
                 awesm::state_opts::on_event<awesm::any>,
@@ -53,7 +53,7 @@ namespace
 
         struct running
         {
-            using conf = awesm::state_conf
+            using conf = awesm::state_conf_tpl
             <
                 awesm::state_opts::on_entry<>,
                 awesm::state_opts::on_event<awesm::any>,
@@ -96,7 +96,7 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf
+        using conf = awesm::sm_conf_tpl
         <
             awesm::sm_opts::transition_tables<sm_transition_table>,
             awesm::sm_opts::context<context>

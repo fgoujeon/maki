@@ -138,7 +138,7 @@ namespace states
         /*
         A state class must define a conf subtype.
         */
-        using conf = awesm::state_conf
+        using conf = awesm::state_conf_tpl
             /*
             With this option, we require the state machine to call an on_entry()
             function whenever it enters our state.
@@ -199,10 +199,10 @@ namespace states
     /*
     These are minimal valid state classes.
     */
-    struct emitting_white { using conf = awesm::state_conf; };
-    struct emitting_red { using conf = awesm::state_conf; };
-    struct emitting_green { using conf = awesm::state_conf; };
-    struct emitting_blue { using conf = awesm::state_conf; };
+    struct emitting_white { using conf = awesm::state_conf_tpl; };
+    struct emitting_red { using conf = awesm::state_conf_tpl; };
+    struct emitting_green { using conf = awesm::state_conf_tpl; };
+    struct emitting_blue { using conf = awesm::state_conf_tpl; };
 }
 
 /*
@@ -292,7 +292,7 @@ the transition table, but we can put many options in it.
 */
 struct sm_def
 {
-    using conf = awesm::sm_conf
+    using conf = awesm::sm_conf_tpl
         ::transition_tables<sm_transition_table>
         ::context<context>
     ;

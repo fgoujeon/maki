@@ -32,7 +32,7 @@ namespace
 
         struct s0
         {
-            using conf = awesm::sm_conf
+            using conf = awesm::sm_conf_tpl
             <
                 awesm::sm_opts::transition_tables<s0_transition_table>
             >;
@@ -66,7 +66,7 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf
+        using conf = awesm::sm_conf_tpl
         <
             awesm::sm_opts::transition_tables<sm_transition_table>,
             awesm::sm_opts::context<context>

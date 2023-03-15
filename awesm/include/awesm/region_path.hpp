@@ -15,12 +15,12 @@
 namespace awesm
 {
 
-template<class SmOrCompositeState, int RegionIndex>
+template<class Sm, int RegionIndex>
 struct region_path_element
 {
     static_assert(RegionIndex >= 0);
 
-    using sm_type = SmOrCompositeState;
+    using sm_type = Sm;
     static constexpr auto region_index = RegionIndex;
 
     static std::string to_string()
@@ -51,23 +51,23 @@ struct region_path_tpl;
 
 namespace detail
 {
-    template<class RegionPath, class SmOrCompositeState, int RegionIndex>
+    template<class RegionPath, class Sm, int RegionIndex>
     struct region_path_add;
 
-    template<class... Ts, class SmOrCompositeState, int RegionIndex>
-    struct region_path_add<region_path_tpl<Ts...>, SmOrCompositeState, RegionIndex>
+    template<class... Ts, class Sm, int RegionIndex>
+    struct region_path_add<region_path_tpl<Ts...>, Sm, RegionIndex>
     {
-        using type = region_path_tpl<Ts..., region_path_element<SmOrCompositeState, RegionIndex>>;
+        using type = region_path_tpl<Ts..., region_path_element<Sm, RegionIndex>>;
     };
 
-    template<class... Ts, class SmOrCompositeState>
-    struct region_path_add<region_path_tpl<Ts...>, SmOrCompositeState, -1>
+    template<class... Ts, class Sm>
+    struct region_path_add<region_path_tpl<Ts...>, Sm, -1>
     {
-        using conf_type = typename SmOrCompositeState::conf;
+        using conf_type = typename Sm::conf;
         using transition_table_list_type = get_option_t<conf_type, option_id::transition_tables, tlu::type_list<>>;
         static_assert(tlu::size_v<transition_table_list_type> == 1);
 
-        using type = region_path_tpl<Ts..., region_path_element<SmOrCompositeState, 0>>;
+        using type = region_path_tpl<Ts..., region_path_element<Sm, 0>>;
     };
 }
 
@@ -75,8 +75,8 @@ template<class... Ts>
 struct region_path_tpl
 {
     //RegionIndex MUST be specified for machines or composite states with several regions
-    template<class SmOrCompositeState, int RegionIndex = -1>
-    using add = typename detail::region_path_add<region_path_tpl, SmOrCompositeState, RegionIndex>::type;
+    template<class Sm, int RegionIndex = -1>
+    using add = typename detail::region_path_add<region_path_tpl, Sm, RegionIndex>::type;
 
     static std::string to_string()
     {

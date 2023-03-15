@@ -11,42 +11,63 @@ namespace
 {
     struct context{};
 
-#define OPTIONS \
+#define STATE_OPTIONS \
+    X(get_pretty_name) \
+    X(on_event<>) \
+    X(on_event_auto) \
+    X(on_entry<>) \
+    X(on_exit<>)
+
+#define SM_OPTIONS \
+    STATE_OPTIONS \
     X(after_state_transition) \
     X(no_auto_start) \
     X(before_entry) \
     X(before_state_transition) \
     X(context<context>) \
     X(no_run_to_completion) \
-    X(get_pretty_name) \
     X(on_exception) \
     X(on_unprocessed) \
     X(small_event_max_align<0>) \
     X(small_event_max_size<1>) \
-    X(on_event<>) \
-    X(on_event_auto) \
-    X(on_entry<>) \
-    X(on_exit<>)
+    X(transition_tables<>)
 
+#define X(option) awesm::sm_opts::option,
     using sm_conf_1_t = awesm::sm_conf
     <
-#define X(option) awesm::sm_opts::option,
-    OPTIONS
-#undef X
-        awesm::sm_opts::transition_tables<>
+        SM_OPTIONS
+        awesm::sm_opts::get_pretty_name
     >;
-
-    using sm_conf_2_t = awesm::sm_conf<>
-#define X(option) ::option
-    OPTIONS
 #undef X
-        ::transition_tables<>
-    ;
 
-#undef OPTIONS
+#define X(option) ::option
+    using sm_conf_2_t = awesm::sm_conf<>
+        SM_OPTIONS
+        ::get_pretty_name
+    ;
+#undef X
+
+#define X(option) awesm::state_opts::option,
+    using state_conf_1_t = awesm::state_conf
+    <
+        STATE_OPTIONS
+        awesm::state_opts::get_pretty_name
+    >;
+#undef X
+
+#define X(option) ::option
+    using state_conf_2_t = awesm::state_conf<>
+        STATE_OPTIONS
+        ::get_pretty_name
+    ;
+#undef X
+
+#undef SM_OPTIONS
+#undef STATE_OPTIONS
 }
 
 TEST_CASE("conf_subtype_chaining")
 {
     REQUIRE(std::is_same_v<sm_conf_1_t, sm_conf_2_t>);
+    REQUIRE(std::is_same_v<state_conf_1_t, state_conf_2_t>);
 }

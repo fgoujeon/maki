@@ -37,13 +37,13 @@ class sm
 public:
     using def_type = Def;
     using conf = typename Def::conf;
-    using context_type = detail::get_option_t<conf, detail::option_id::context, void>;
+    using context_type = detail::option_t<conf, detail::option_id::context>;
 
     template<class... ContextArgs>
     explicit sm(ContextArgs&&... ctx_args):
         subsm_(*this, std::forward<ContextArgs>(ctx_args)...)
     {
-        if constexpr(detail::get_option_value<conf, detail::option_id::auto_start, true>)
+        if constexpr(detail::option_v<conf, detail::option_id::auto_start>)
         {
             //start
             process_event_now_impl<detail::sm_operation::start>(events::start{});
@@ -121,7 +121,7 @@ public:
     template<class Event>
     AWESM_NOINLINE void queue_event(const Event& event)
     {
-        static_assert(detail::get_option_value<conf, detail::option_id::run_to_completion, true>);
+        static_assert(detail::option_v<conf, detail::option_id::run_to_completion>);
         try
         {
             queue_event_impl<detail::sm_operation::process_event>(event);
@@ -167,15 +167,12 @@ private:
 
     struct any_event_queue_holder
     {
-        static constexpr auto small_event_default_max_size = 16;
-        static constexpr auto small_event_default_max_align = 8;
-
         template<bool = true> //Dummy template for lazy evaluation
         using type = detail::function_queue
         <
             sm&,
-            detail::get_option_value<conf, detail::option_id::small_event_max_size, small_event_default_max_size>,
-            detail::get_option_value<conf, detail::option_id::small_event_max_align, small_event_default_max_align>
+            detail::option_v<conf, detail::option_id::small_event_max_size>,
+            detail::option_v<conf, detail::option_id::small_event_max_align>
         >;
     };
     struct empty_holder
@@ -185,7 +182,7 @@ private:
     };
     using any_event_queue_type = typename detail::alternative_t
     <
-        detail::get_option_value<conf, detail::option_id::run_to_completion, true>,
+        detail::option_v<conf, detail::option_id::run_to_completion>,
         any_event_queue_holder,
         empty_holder
     >::template type<>;
@@ -195,7 +192,7 @@ private:
     {
         try
         {
-            if constexpr(detail::get_option_value<conf, detail::option_id::run_to_completion, true>)
+            if constexpr(detail::option_v<conf, detail::option_id::run_to_completion>)
             {
                 if(!processing_event_) //If call is not recursive
                 {
@@ -221,7 +218,7 @@ private:
     template<detail::sm_operation Operation, class Event>
     void process_event_now_impl(const Event& event)
     {
-        if constexpr(detail::get_option_value<conf, detail::option_id::run_to_completion, true>)
+        if constexpr(detail::option_v<conf, detail::option_id::run_to_completion>)
         {
             auto guard = processing_event_guard{*this};
 
@@ -254,7 +251,7 @@ private:
 
     void process_exception(const std::exception_ptr& eptr)
     {
-        if constexpr(detail::get_option_value<conf, detail::option_id::on_exception, false>)
+        if constexpr(detail::option_v<conf, detail::option_id::on_exception>)
         {
             get_def().on_exception(eptr);
         }
@@ -277,7 +274,7 @@ private:
         }
         else
         {
-            if constexpr(detail::get_option_value<conf, detail::option_id::on_unprocessed, false>)
+            if constexpr(detail::option_v<conf, detail::option_id::on_unprocessed>)
             {
                 if(!subsm_.on_event(event))
                 {

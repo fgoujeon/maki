@@ -30,7 +30,7 @@ namespace detail
         class T,
         std::enable_if_t
         <
-            get_option_value<typename T::conf, option_id::get_pretty_name, false>,
+            option_v<typename T::conf, option_id::get_pretty_name>,
             bool
         > = true
     >

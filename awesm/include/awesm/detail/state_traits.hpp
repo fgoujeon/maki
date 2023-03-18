@@ -42,12 +42,7 @@ using wrap_t = typename wrap<State, Region>::type;
 template<class State>
 constexpr auto requires_on_entry()
 {
-    return get_option_value
-    <
-        typename State::conf,
-        option_id::on_entry,
-        false
-    >;
+    return option_v<typename State::conf, option_id::on_entry>;
 }
 
 
@@ -56,12 +51,7 @@ constexpr auto requires_on_entry()
 template<class State>
 constexpr auto requires_on_exit()
 {
-    return get_option_value
-    <
-        typename State::conf,
-        option_id::on_exit,
-        false
-    >;
+    return option_v<typename State::conf, option_id::on_exit>;
 }
 
 
@@ -94,14 +84,14 @@ struct matches_on_event_filter
     static constexpr auto value = matches_any_filter_v
     <
         Event,
-        get_option_t<typename State::conf, option_id::on_event, tlu::type_list<>>
+        option_t<typename State::conf, option_id::on_event>
     >;
 };
 
 template<class State, class Event>
 constexpr auto requires_on_event_v = alternative_t
 <
-    get_option_value<typename State::conf, option_id::on_event_auto, false>,
+    option_v<typename State::conf, option_id::on_event_auto>,
     has_on_event,
     matches_on_event_filter
 >::template value<State, Event>;

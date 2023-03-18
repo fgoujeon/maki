@@ -67,7 +67,7 @@ struct subsm_context
     - a reference to the context type of the parent SM (not necessarily the root
       SM).
     */
-    using type = get_option_t
+    using type = option_or_t
     <
         typename Def::conf,
         option_id::context,
@@ -78,7 +78,7 @@ struct subsm_context
 template<class Def>
 struct subsm_context<Def, void>
 {
-    using type = get_option_t<typename Def::conf, option_id::context, void>;
+    using type = option_t<typename Def::conf, option_id::context>;
 };
 
 template
@@ -124,7 +124,7 @@ public:
     using context_type = typename subsm_context<Def, ParentRegion>::type;
     using root_sm_type = root_sm_of_t<subsm>;
 
-    using transition_table_type_list = get_option_t<typename Def::conf, option_id::transition_tables, tlu::type_list<>>;
+    using transition_table_type_list = option_t<typename Def::conf, option_id::transition_tables>;
 
     template<class... ContextArgs>
     subsm(root_sm_type& root_sm, ContextArgs&&... ctx_args):

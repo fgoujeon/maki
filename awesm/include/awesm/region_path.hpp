@@ -25,11 +25,10 @@ struct region_path_element
 
     static std::string to_string()
     {
-        using transition_table_list_type = detail::get_option_t
+        using transition_table_list_type = detail::option_t
         <
             typename sm_type::conf,
-            detail::option_id::transition_tables,
-            detail::tlu::type_list<>
+            detail::option_id::transition_tables
         >;
 
         auto str = std::string{};
@@ -64,7 +63,7 @@ namespace detail
     struct region_path_add<region_path_tpl<Ts...>, Sm, -1>
     {
         using conf_type = typename Sm::conf;
-        using transition_table_list_type = get_option_t<conf_type, option_id::transition_tables, tlu::type_list<>>;
+        using transition_table_list_type = option_t<conf_type, option_id::transition_tables>;
         static_assert(tlu::size_v<transition_table_list_type> == 1);
 
         using type = region_path_tpl<Ts..., region_path_element<Sm, 0>>;

@@ -268,7 +268,7 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(get_option_value<root_sm_conf_tpl, option_id::before_state_transition, false>)
+            if constexpr(option_v<root_sm_conf_tpl, option_id::before_state_transition>)
             {
                 root_sm_.get_def().template before_state_transition
                 <
@@ -306,7 +306,7 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(get_option_value<root_sm_conf_tpl, option_id::before_entry, false>)
+            if constexpr(option_v<root_sm_conf_tpl, option_id::before_entry>)
             {
                 root_sm_.get_def().template before_entry
                 <
@@ -327,7 +327,7 @@ private:
                 );
             }
 
-            if constexpr(get_option_value<root_sm_conf_tpl, option_id::after_state_transition, false>)
+            if constexpr(option_v<root_sm_conf_tpl, option_id::after_state_transition>)
             {
                 root_sm_.get_def().template after_state_transition
                 <

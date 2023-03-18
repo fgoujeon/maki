@@ -70,7 +70,7 @@ namespace transition_table_digest_detail
     template<class InitialState>
     struct initial_digest
     {
-        using state_tuple_type = tlu::type_list<InitialState>;
+        using state_tuple_type = type_list<InitialState>;
         static constexpr auto has_null_events = false;
     };
 

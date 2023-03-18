@@ -9,6 +9,7 @@
 
 #include "tlu.hpp"
 #include "type_tag.hpp"
+#include "type_list.hpp"
 #include "constant.hpp"
 #include <type_traits>
 
@@ -26,7 +27,7 @@ static constexpr auto small_event_default_max_align = 8;
     X(context,                 void) \
     X(get_pretty_name,         constant<false>) \
     X(on_entry,                constant<false>) \
-    X(on_event,                tlu::type_list<>) \
+    X(on_event,                type_list<>) \
     X(on_event_auto,           constant<false>) \
     X(on_exception,            constant<false>) \
     X(on_exit,                 constant<false>) \
@@ -34,7 +35,7 @@ static constexpr auto small_event_default_max_align = 8;
     X(run_to_completion,       constant<true>) \
     X(small_event_max_align,   constant<small_event_default_max_align>) \
     X(small_event_max_size,    constant<small_event_default_max_size>) \
-    X(transition_tables,       tlu::type_list<>)
+    X(transition_tables,       type_list<>)
 
 enum class option_id
 {

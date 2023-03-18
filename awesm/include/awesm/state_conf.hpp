@@ -22,7 +22,7 @@ namespace state_opts
     using on_entry = detail::conf_element<detail::option_id::on_entry, detail::constant<Enable>>;
 
     template<class... EventFilters>
-    using on_event = detail::conf_element<detail::option_id::on_event, detail::tlu::type_list<EventFilters...>>;
+    using on_event = detail::conf_element<detail::option_id::on_event, detail::type_list<EventFilters...>>;
 
     using on_event_auto = detail::conf_element<detail::option_id::on_event_auto, detail::constant<true>>;
 

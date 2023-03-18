@@ -68,7 +68,7 @@ namespace sm_opts
     >;
 
     template<class... EventFilters>
-    using on_event = detail::conf_element<detail::option_id::on_event, detail::tlu::type_list<EventFilters...>>;
+    using on_event = detail::conf_element<detail::option_id::on_event, detail::type_list<EventFilters...>>;
 
     using on_event_auto = detail::conf_element<detail::option_id::on_event_auto, detail::constant<true>>;
 
@@ -79,7 +79,7 @@ namespace sm_opts
     using on_exit = detail::conf_element<detail::option_id::on_exit, detail::constant<Enable>>;
 
     template<class... Ts>
-    using transition_tables = detail::conf_element<detail::option_id::transition_tables, detail::tlu::type_list<Ts...>>;
+    using transition_tables = detail::conf_element<detail::option_id::transition_tables, detail::type_list<Ts...>>;
 }
 
 template<class... Options>

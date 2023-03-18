@@ -9,6 +9,7 @@
 
 #include "sm_fwd.hpp"
 #include "detail/tlu.hpp"
+#include "detail/type_list.hpp"
 
 namespace awesm
 {
@@ -101,7 +102,7 @@ public:
     {
         static_assert
         (
-            detail::tlu::contains_v<detail::tlu::type_list<Events...>, Event>,
+            detail::tlu::contains_v<detail::type_list<Events...>, Event>,
             "Given event type must be part of sm_ref template argument list"
         );
         impl_.process_event(event);

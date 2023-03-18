@@ -149,20 +149,27 @@ public:
     }
 
 private:
-    struct processing_event_guard
+    class processing_event_guard
     {
+    public:
         processing_event_guard(sm& self):
-            self(self)
+            self_(self)
         {
-            self.processing_event_ = true;
+            self_.processing_event_ = true;
         }
+
+        processing_event_guard(const processing_event_guard&) = delete;
+        processing_event_guard(processing_event_guard&&) = delete;
+        processing_event_guard& operator=(const processing_event_guard&) = delete;
+        processing_event_guard& operator=(processing_event_guard&&) = delete;
 
         ~processing_event_guard()
         {
-            self.processing_event_ = false;
+            self_.processing_event_ = false;
         }
 
-        sm& self;
+    private:
+        sm& self_;
     };
 
     struct any_event_queue_holder

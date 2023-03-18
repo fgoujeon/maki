@@ -121,10 +121,50 @@ public:
     template<class Event>
     AWESM_NOINLINE void queue_event(const Event& event)
     {
-        queue_event_impl<detail::sm_operation::process_event>(event);
+        static_assert(detail::get_option_value<conf, detail::option_id::run_to_completion, true>);
+        try
+        {
+            queue_event_impl<detail::sm_operation::process_event>(event);
+        }
+        catch(...)
+        {
+            process_exception(std::current_exception());
+        }
+    }
+
+    void process_queued_events()
+    {
+        if(!processing_event_)
+        {
+            auto guard = processing_event_guard{*this};
+            try
+            {
+                event_queue_.invoke_and_pop_all(*this);
+            }
+            catch(...)
+            {
+                process_exception(std::current_exception());
+            }
+        }
     }
 
 private:
+    struct processing_event_guard
+    {
+        processing_event_guard(sm& self):
+            self(self)
+        {
+            self.processing_event_ = true;
+        }
+
+        ~processing_event_guard()
+        {
+            self.processing_event_ = false;
+        }
+
+        sm& self;
+    };
+
     struct any_event_queue_holder
     {
         static constexpr auto small_event_default_max_size = 16;
@@ -153,21 +193,28 @@ private:
     template<detail::sm_operation Operation, class Event>
     void process_event_2(const Event& event)
     {
-        if constexpr(detail::get_option_value<conf, detail::option_id::run_to_completion, true>)
+        try
         {
-            if(!processing_event_) //If call is not recursive
+            if constexpr(detail::get_option_value<conf, detail::option_id::run_to_completion, true>)
             {
-                process_event_now_impl<Operation>(event);
+                if(!processing_event_) //If call is not recursive
+                {
+                    process_event_now_impl<Operation>(event);
+                }
+                else
+                {
+                    //Queue event in case of recursive call
+                    queue_event_impl<Operation>(event);
+                }
             }
             else
             {
-                //Queue event in case of recursive call
-                queue_event_impl<Operation>(event);
+                process_event_once<Operation>(event);
             }
         }
-        else
+        catch(...)
         {
-            process_event_once<Operation>(event);
+            process_exception(std::current_exception());
         }
     }
 
@@ -176,14 +223,12 @@ private:
     {
         if constexpr(detail::get_option_value<conf, detail::option_id::run_to_completion, true>)
         {
-            processing_event_ = true;
+            auto guard = processing_event_guard{*this};
 
             process_event_once<Operation>(event);
 
             //Process queued events, if any
             event_queue_.invoke_and_pop_all(*this);
-
-            processing_event_ = false;
         }
         else
         {
@@ -194,14 +239,7 @@ private:
     template<detail::sm_operation Operation, class Event>
     void queue_event_impl(const Event& event)
     {
-        try
-        {
-            event_queue_.template push<any_event_visitor<Operation>>(event);
-        }
-        catch(...)
-        {
-            process_exception(std::current_exception());
-        }
+        event_queue_.template push<any_event_visitor<Operation>>(event);
     }
 
     template<detail::sm_operation Operation>
@@ -222,41 +260,34 @@ private:
         }
         else
         {
-            queue_event(events::exception{eptr});
+            process_event(events::exception{eptr});
         }
     }
 
     template<detail::sm_operation Operation, class Event>
     void process_event_once(const Event& event)
     {
-        try
+        if constexpr(Operation == detail::sm_operation::start)
         {
-            if constexpr(Operation == detail::sm_operation::start)
+            subsm_.on_entry(event);
+        }
+        else if constexpr(Operation == detail::sm_operation::stop)
+        {
+            subsm_.on_exit(event);
+        }
+        else
+        {
+            if constexpr(detail::get_option_value<conf, detail::option_id::on_unprocessed, false>)
             {
-                subsm_.on_entry(event);
-            }
-            else if constexpr(Operation == detail::sm_operation::stop)
-            {
-                subsm_.on_exit(event);
+                if(!subsm_.on_event(event))
+                {
+                    get_def().on_unprocessed(event);
+                }
             }
             else
             {
-                if constexpr(detail::get_option_value<conf, detail::option_id::on_unprocessed, false>)
-                {
-                    if(!subsm_.on_event(event))
-                    {
-                        get_def().on_unprocessed(event);
-                    }
-                }
-                else
-                {
-                    subsm_.on_event(event);
-                }
+                subsm_.on_event(event);
             }
-        }
-        catch(...)
-        {
-            process_exception(std::current_exception());
         }
     }
 

@@ -12,7 +12,7 @@ namespace awesm::detail
 
 //A type holder
 template<class T>
-struct type_tag
+struct type_t
 {
     using type = T;
 };

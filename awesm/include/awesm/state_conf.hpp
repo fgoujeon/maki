@@ -10,7 +10,7 @@
 #include "type_filters.hpp"
 #include "detail/constant.hpp"
 #include "detail/tlu.hpp"
-#include "detail/type_tag.hpp"
+#include "detail/type.hpp"
 #include "detail/conf.hpp"
 
 namespace awesm

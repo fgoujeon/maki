@@ -8,7 +8,7 @@
 #define AWESM_DETAIL_CONF_HPP
 
 #include "tlu.hpp"
-#include "type_tag.hpp"
+#include "type.hpp"
 #include "type_list.hpp"
 #include "constant.hpp"
 #include <type_traits>
@@ -84,7 +84,7 @@ using option_t = typename tlu::find_t
 <
     Conf,
     for_option_id<Id>::template has_id,
-    type_tag<default_option_t<Id>>
+    type_t<default_option_t<Id>>
 >::type;
 
 template<class Conf, option_id Id, class Default>
@@ -92,7 +92,7 @@ using option_or_t = typename tlu::find_t
 <
     Conf,
     for_option_id<Id>::template has_id,
-    type_tag<Default>
+    type_t<Default>
 >::type;
 
 //Get the value associated with the given option ID

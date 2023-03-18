@@ -14,7 +14,7 @@
 #include "detail/alternative.hpp"
 #include "detail/function_queue.hpp"
 #include "detail/tlu.hpp"
-#include "detail/type_tag.hpp"
+#include "detail/type.hpp"
 #include "detail/overload_priority.hpp"
 #include <type_traits>
 

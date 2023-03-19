@@ -102,11 +102,10 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf_tpl
-        <
-            awesm::sm_opts::transition_tables<sm_transition_table>,
-            awesm::sm_opts::context<context>
-        >;
+        using conf = awesm::root_sm_conf
+            ::transition_tables<sm_transition_table>
+            ::context<context>
+        ;
     };
 }
 

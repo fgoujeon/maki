@@ -7,7 +7,7 @@
 #ifndef AWESM_SM_HPP
 #define AWESM_SM_HPP
 
-#include "sm_conf.hpp"
+#include "root_sm_conf.hpp"
 #include "region_path.hpp"
 #include "detail/noinline.hpp"
 #include "detail/subsm.hpp"
@@ -38,6 +38,8 @@ public:
     using def_type = Def;
     using conf = typename Def::conf;
     using context_type = detail::option_t<conf, detail::option_id::context>;
+
+    static_assert(detail::is_root_sm_conf_v<conf>, "Root SM must define a using conf = root_sm_conf::...");
 
     template<class... ContextArgs>
     explicit sm(ContextArgs&&... ctx_args):

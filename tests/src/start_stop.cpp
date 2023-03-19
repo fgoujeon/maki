@@ -72,12 +72,11 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf_tpl
-        <
-            awesm::sm_opts::transition_tables<sm_transition_table>,
-            awesm::sm_opts::context<context>,
-            awesm::sm_opts::no_auto_start
-        >;
+        using conf = awesm::root_sm_conf
+            ::transition_tables<sm_transition_table>
+            ::context<context>
+            ::no_auto_start
+        ;
     };
 
     using sm_t = awesm::sm<sm_def>;

@@ -148,10 +148,10 @@ namespace states
     /*
     These are minimal valid state classes.
     */
-    struct emitting_white { using conf = awesm::state_conf_tpl<>; };
-    struct emitting_red { using conf = awesm::state_conf_tpl<>; };
-    struct emitting_green { using conf = awesm::state_conf_tpl<>; };
-    struct emitting_blue { using conf = awesm::state_conf_tpl<>; };
+    struct emitting_white { using conf = awesm::state_conf; };
+    struct emitting_red { using conf = awesm::state_conf; };
+    struct emitting_green { using conf = awesm::state_conf; };
+    struct emitting_blue { using conf = awesm::state_conf; };
 }
 
 /*
@@ -241,11 +241,10 @@ the transition table, but we can put many options in it.
 */
 struct sm_def
 {
-    using conf = awesm::sm_conf_tpl
-    <
-        awesm::sm_opts::transition_tables<sm_transition_table>,
-        awesm::sm_opts::context<context>
-    >;
+    using conf = awesm::root_sm_conf
+        ::transition_tables<sm_transition_table>
+        ::context<context>
+    ;
 };
 
 /*

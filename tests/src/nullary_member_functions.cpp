@@ -98,10 +98,10 @@ namespace nullary_member_functions_ns
 
     struct sm_def
     {
-        using conf = awesm::root_sm_conf_tpl
+        using conf = awesm::sm_conf_tpl
         <
-            awesm::sm_opts::transition_tables<sm_transition_table>,
-            awesm::sm_opts::context<context>
+            awesm::subsm_opts::transition_tables<sm_transition_table>,
+            awesm::subsm_opts::context<context>
         >;
     };
 

@@ -14,7 +14,7 @@
 #include "tlu.hpp"
 #include "../type_filters.hpp"
 #include "../state_conf.hpp"
-#include "../sm_conf.hpp"
+#include "../subsm_conf.hpp"
 
 namespace awesm::detail::state_traits
 {

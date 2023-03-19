@@ -32,9 +32,9 @@ namespace
 
         struct s0
         {
-            using conf = awesm::sm_conf_tpl
+            using conf = awesm::subsm_conf_tpl
             <
-                awesm::sm_opts::transition_tables<s0_transition_table>
+                awesm::subsm_opts::transition_tables<s0_transition_table>
             >;
 
             template<class Event>
@@ -66,7 +66,7 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::root_sm_conf
+        using conf = awesm::sm_conf
             ::transition_tables<sm_transition_table>
             ::context<context>
         ;

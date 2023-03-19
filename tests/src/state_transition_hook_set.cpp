@@ -35,10 +35,10 @@ namespace
 
         struct on1
         {
-            using conf = awesm::sm_conf_tpl
+            using conf = awesm::subsm_conf_tpl
             <
-                awesm::sm_opts::transition_tables<on1_transition_table>,
-                awesm::sm_opts::get_pretty_name
+                awesm::subsm_opts::transition_tables<on1_transition_table>,
+                awesm::subsm_opts::get_pretty_name
             >;
 
             static auto get_pretty_name()
@@ -58,7 +58,7 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::root_sm_conf
+        using conf = awesm::sm_conf
             ::transition_tables<sm_transition_table_0, sm_transition_table_1>
             ::context<context>
             ::before_state_transition

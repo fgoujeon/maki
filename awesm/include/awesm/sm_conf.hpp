@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_SM_CONF_HPP
-#define AWESM_SM_CONF_HPP
+#ifndef AWESM_ROOT_SM_CONF_HPP
+#define AWESM_ROOT_SM_CONF_HPP
 
 #include "transition_table.hpp"
 #include "type_filters.hpp"
@@ -18,13 +18,53 @@ namespace awesm
 
 namespace sm_opts
 {
+    using after_state_transition = detail::conf_element
+    <
+        detail::option_id::after_state_transition,
+        detail::constant<true>
+    >;
+
+    using no_auto_start = detail::conf_element<detail::option_id::auto_start, detail::constant<false>>;
+
+    using before_entry = detail::conf_element<detail::option_id::before_entry, detail::constant<true>>;
+
+    using before_state_transition = detail::conf_element
+    <
+        detail::option_id::before_state_transition,
+        detail::constant<true>
+    >;
+
     template<class T>
     using context = detail::conf_element<detail::option_id::context, T>;
+
+    using no_run_to_completion = detail::conf_element
+    <
+        detail::option_id::run_to_completion,
+        detail::constant<false>
+    >;
 
     using get_pretty_name = detail::conf_element
     <
         detail::option_id::get_pretty_name,
         detail::constant<true>
+    >;
+
+    using on_exception = detail::conf_element<detail::option_id::on_exception, detail::constant<true>>;
+
+    using on_unprocessed = detail::conf_element<detail::option_id::on_unprocessed, detail::constant<true>>;
+
+    template<std::size_t Value>
+    using small_event_max_align = detail::conf_element
+    <
+        detail::option_id::small_event_max_align,
+        detail::constant<Value>
+    >;
+
+    template<std::size_t Value>
+    using small_event_max_size = detail::conf_element
+    <
+        detail::option_id::small_event_max_size,
+        detail::constant<Value>
     >;
 
     template<class... EventFilters>
@@ -45,10 +85,30 @@ namespace sm_opts
 template<class... Options>
 struct sm_conf_tpl
 {
+    using after_state_transition = sm_conf_tpl<Options..., sm_opts::after_state_transition>;
+
+    using no_auto_start = sm_conf_tpl<Options..., sm_opts::no_auto_start>;
+
+    using before_entry = sm_conf_tpl<Options..., sm_opts::before_entry>;
+
+    using before_state_transition = sm_conf_tpl<Options..., sm_opts::before_state_transition>;
+
     template<class T>
     using context = sm_conf_tpl<Options..., sm_opts::context<T>>;
 
+    using no_run_to_completion = sm_conf_tpl<Options..., sm_opts::no_run_to_completion>;
+
     using get_pretty_name = sm_conf_tpl<Options..., sm_opts::get_pretty_name>;
+
+    using on_exception = sm_conf_tpl<Options..., sm_opts::on_exception>;
+
+    using on_unprocessed = sm_conf_tpl<Options..., sm_opts::on_unprocessed>;
+
+    template<std::size_t Value>
+    using small_event_max_align = sm_conf_tpl<Options..., sm_opts::small_event_max_align<Value>>;
+
+    template<std::size_t Value>
+    using small_event_max_size = sm_conf_tpl<Options..., sm_opts::small_event_max_size<Value>>;
 
     template<class... EventFilters>
     using on_event = sm_conf_tpl<Options..., sm_opts::on_event<EventFilters...>>;
@@ -64,10 +124,28 @@ struct sm_conf_tpl
     template<class... Ts>
     using transition_tables = sm_conf_tpl<Options..., sm_opts::transition_tables<Ts...>>;
 
-    static constexpr auto is_composite = true;
+    static constexpr auto is_root = true;
 };
 
 using sm_conf = sm_conf_tpl<>;
+
+namespace detail
+{
+    template<class T>
+    struct is_root_sm_conf
+    {
+        static constexpr auto value = false;
+    };
+
+    template<class... Options>
+    struct is_root_sm_conf<sm_conf_tpl<Options...>>
+    {
+        static constexpr auto value = true;
+    };
+
+    template<class T>
+    constexpr auto is_root_sm_conf_v = is_root_sm_conf<T>::value;
+}
 
 } //namespace
 

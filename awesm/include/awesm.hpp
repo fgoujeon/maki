@@ -9,7 +9,7 @@
 #include "awesm/pretty_name.hpp"
 #include "awesm/region_path.hpp"
 #include "awesm/sm.hpp"
-#include "awesm/sm_conf.hpp"
+#include "awesm/subsm_conf.hpp"
 #include "awesm/sm_fwd.hpp"
 #include "awesm/sm_ref.hpp"
 #include "awesm/state_conf.hpp"

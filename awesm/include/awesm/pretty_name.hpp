@@ -7,7 +7,7 @@
 #ifndef AWESM_PRETTY_NAME_HPP
 #define AWESM_PRETTY_NAME_HPP
 
-#include "sm_conf.hpp"
+#include "subsm_conf.hpp"
 #include "state_conf.hpp"
 #include "detail/type_name.hpp"
 #include "detail/tlu.hpp"

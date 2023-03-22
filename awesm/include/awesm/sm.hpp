@@ -78,6 +78,18 @@ public:
         return subsm_.get_context();
     }
 
+    template<class RegionPath, class State>
+    State& get_state()
+    {
+        return subsm_.template get_state<RegionPath, State>();
+    }
+
+    template<class RegionPath, class State>
+    const State& get_state() const
+    {
+        return subsm_.template get_state<RegionPath, State>();
+    }
+
     template<class RegionPath>
     [[nodiscard]] bool is_running() const
     {

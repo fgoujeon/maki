@@ -151,6 +151,38 @@ public:
     }
 
     template<class StateRegionPath, class State>
+    State& get_state()
+    {
+        static_assert
+        (
+            std::is_same_v
+            <
+                typename detail::tlu::front_t<StateRegionPath>::sm_type,
+                Def
+            >
+        );
+
+        static constexpr auto region_index = tlu::front_t<StateRegionPath>::region_index;
+        return get<region_index>(regions_).template get_state<tlu::pop_front_t<StateRegionPath>, State>();
+    }
+
+    template<class StateRegionPath, class State>
+    const State& get_state() const
+    {
+        static_assert
+        (
+            std::is_same_v
+            <
+                typename detail::tlu::front_t<StateRegionPath>::sm_type,
+                Def
+            >
+        );
+
+        static constexpr auto region_index = tlu::front_t<StateRegionPath>::region_index;
+        return get<region_index>(regions_).template get_state<tlu::pop_front_t<StateRegionPath>, State>();
+    }
+
+    template<class StateRegionPath, class State>
     [[nodiscard]] bool is_active_state() const
     {
         static_assert

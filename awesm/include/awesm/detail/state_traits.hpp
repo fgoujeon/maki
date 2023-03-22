@@ -19,6 +19,24 @@
 namespace awesm::detail::state_traits
 {
 
+//is_subsm
+
+template<class State>
+struct is_subsm
+{
+    static constexpr auto value = false;
+};
+
+template<class Def, class ParentRegion>
+struct is_subsm<subsm<Def, ParentRegion>>
+{
+    static constexpr auto value = true;
+};
+
+template<class State>
+constexpr auto is_subsm_v = is_subsm<State>::value;
+
+
 //wrap
 
 template<class State, class Region, class Enable = void>

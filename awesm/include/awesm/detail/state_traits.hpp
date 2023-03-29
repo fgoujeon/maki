@@ -9,12 +9,12 @@
 
 #include "subsm_fwd.hpp"
 #include "overload_priority.hpp"
-#include "alternative.hpp"
 #include "conf.hpp"
 #include "tlu.hpp"
 #include "../type_filters.hpp"
 #include "../state_conf.hpp"
 #include "../subsm_conf.hpp"
+#include <type_traits>
 
 namespace awesm::detail::state_traits
 {
@@ -107,7 +107,7 @@ struct matches_on_event_filter
 };
 
 template<class State, class Event>
-constexpr auto requires_on_event_v = alternative_t
+constexpr auto requires_on_event_v = std::conditional_t
 <
     option_v<typename State::conf, option_id::on_event_auto>,
     has_on_event,

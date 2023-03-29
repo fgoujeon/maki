@@ -11,7 +11,6 @@
 #include "region_path.hpp"
 #include "detail/noinline.hpp"
 #include "detail/subsm.hpp"
-#include "detail/alternative.hpp"
 #include "detail/function_queue.hpp"
 #include "detail/tlu.hpp"
 #include "detail/type.hpp"
@@ -201,7 +200,7 @@ private:
         template<bool = true> //Dummy template for lazy evaluation
         struct type{};
     };
-    using any_event_queue_type = typename detail::alternative_t
+    using any_event_queue_type = typename std::conditional_t
     <
         detail::option_v<conf, detail::option_id::run_to_completion>,
         any_event_queue_holder,

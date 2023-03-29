@@ -8,7 +8,6 @@
 #define AWESM_GUARD_HPP
 
 #include "detail/call_member.hpp"
-#include "detail/alternative.hpp"
 #include <type_traits>
 
 namespace awesm
@@ -18,7 +17,7 @@ namespace detail
 {
     //Variables can't have function types, we must use a pointer.
     template<class F>
-    using storable_function_t = detail::alternative_t
+    using storable_function_t = std::conditional_t
     <
         std::is_function_v<F>,
         const F*,

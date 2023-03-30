@@ -22,7 +22,7 @@ An empty struct with a generic unary constructor that does nothing.
 It is typically used in function parameter lists for parameters whose type and
 value are unused.
 
-For example, here is an action that only needs the \ref sm and the context, but
+For example, here is an action that only needs the @ref sm and the context, but
 doesn't care about the event:
 ```cpp
 template<class Sm>

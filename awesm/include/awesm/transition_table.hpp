@@ -10,22 +10,44 @@
 namespace awesm
 {
 
-/*
+/**
+@defgroup TransitionTable Transition Table
+@brief These are the types and functions that must be used to define transition tables.
+@{
+*/
+
+/**
 Represents either:
 - a null event (for anonymous transitions);
 - a null target state (for internal transitions in transition table).
 */
 struct null{};
 
+/**
+@brief An action that does nothing.
+*/
 inline constexpr void noop()
 {
 }
 
+/**
+@brief A guard that returns `true`.
+*/
 inline constexpr bool yes()
 {
     return true;
 }
 
+/**
+@brief Used in the context of a @ref transition_table_tpl "transition table".
+Represents a possible state transition.
+
+@tparam SourceStateFilter the active state (or states, plural, if it's a @ref TypeFilters "type filter") from which the transition can occur
+@tparam EventFilter the event type (or types, plural, if it's a @ref TypeFilters "type filter") that can cause the transition to occur
+@tparam TargetState the state that becomes active after the transition occurs
+@tparam Action the function invoked when the transition occurs
+@tparam Guard the function that must return `true` for the transition to occur
+*/
 template
 <
     class SourceStateFilter,
@@ -51,9 +73,41 @@ struct transition
     }
 };
 
+/**
+A transition table lists all the possible transitions from a state (the source
+state) to another (the target state) in a region.
+
+You can define a transition table by using this class template directly:
+```cpp
+using transition_table_t = awesm::transition_table_tpl
+<
+    awesm::transition<off, button_press, on,  turn_light_on, has_enough_power>,
+    awesm::transition<on,  button_press, off, turn_light_off>
+>;
+```
+
+… but using the @ref transition_table alias and the @ref add subtype template is
+usually the preferred, more concise way to do so:
+```cpp
+using transition_table_t = awesm::transition_table
+    ::add<off, button_press, on,  turn_light_on, has_enough_power>
+    ::add<on,  button_press, off, turn_light_off>
+;
+```
+
+Note that the first usage may be more appropriate in the context of a template
+in order to avoid awkward `typename`s and `::template`s.
+
+@tparam the transitions, which must be instances of @ref transition
+*/
 template<class... Transitions>
 struct transition_table_tpl
 {
+    /**
+    A type alias to a @ref transition_table_tpl with an appended @ref
+    transition.
+    See @ref transition for a description of the template parameters.
+    */
     template
     <
         class SourceStateFilter,
@@ -69,7 +123,14 @@ struct transition_table_tpl
     >;
 };
 
+/**
+A handy type alias for defining a transition table. See @ref transition_table_tpl.
+*/
 using transition_table = transition_table_tpl<>;
+
+/**
+@}
+*/
 
 } //namespace
 

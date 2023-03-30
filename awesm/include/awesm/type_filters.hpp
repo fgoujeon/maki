@@ -60,13 +60,25 @@ namespace detail
     template<class T, class... Ts>
     struct matches_filter<T, any_of<Ts...>>
     {
-        static constexpr bool value = (std::is_same_v<T, Ts> || ...);
+        //MSVC wants a function for the fold expression
+        static constexpr bool make_value()
+        {
+            return (std::is_same_v<T, Ts> || ...);
+        }
+
+        static constexpr bool value = make_value();
     };
 
     template<class T, class... Ts>
     struct matches_filter<T, any_but<Ts...>>
     {
-        static constexpr bool value = !(std::is_same_v<T, Ts> || ...);
+        //MSVC wants a function for the fold expression
+        static constexpr bool make_value()
+        {
+            return !(std::is_same_v<T, Ts> || ...);
+        }
+
+        static constexpr bool value = make_value();
     };
 
     template<class T>

@@ -149,7 +149,7 @@ public:
     {
         if(!processing_event_)
         {
-            auto guard = processing_event_guard{*this};
+            auto grd = processing_event_guard{*this};
             try
             {
                 event_queue_.invoke_and_pop_all(*this);
@@ -240,7 +240,7 @@ private:
     {
         if constexpr(detail::option_v<conf, detail::option_id::run_to_completion>)
         {
-            auto guard = processing_event_guard{*this};
+            auto grd = processing_event_guard{*this};
 
             process_event_once<Operation>(event);
 

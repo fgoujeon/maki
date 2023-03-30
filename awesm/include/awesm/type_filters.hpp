@@ -14,8 +14,9 @@ namespace awesm
 
 /**
 @defgroup TypeFilters Type Filters
-Type filters can be used in some places of the API (such as in transition
+@brief Type filters can be used in some places of the API (such as in transition
 tables) in lieu of single types to concisely express a set of types.
+
 @{
 */
 

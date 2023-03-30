@@ -12,8 +12,8 @@ namespace awesm
 
 /**
 @defgroup Utility
-Some general-purpose utility types and functions that can be handy when using
-the AweSM API.
+@brief Some general-purpose utility types and functions that can be handy when
+using the AweSM API.
 */
 
 /**

@@ -13,6 +13,7 @@ namespace awesm
 /**
 @defgroup TransitionTable Transition Table
 @brief These are the types and functions that must be used to define transition tables.
+
 @{
 */
 

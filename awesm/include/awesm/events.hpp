@@ -12,16 +12,25 @@
 namespace awesm::events
 {
 
-//Default event sent by sm::start()
+/**
+@brief Default event given to `sm::start()`.
+*/
 struct start{};
 
-//Default event sent by sm::stop()
+/**
+@brief Default event given to `sm::stop()`.
+*/
 struct stop{};
 
-//Event sent by the default on_exception policy of sm whenever it catches an
-//exception
+/**
+@brief Event sent by the default exception handler of @ref sm whenever it
+catches an exception.
+*/
 struct exception
 {
+    /**
+    @brief Pointer to the caught exception
+    */
     std::exception_ptr eptr;
 };
 

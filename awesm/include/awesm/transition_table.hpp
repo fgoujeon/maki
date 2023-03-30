@@ -17,6 +17,8 @@ namespace awesm
 */
 
 /**
+@brief A null event or target state.
+
 Represents either:
 - a null event (for anonymous transitions);
 - a null target state (for internal transitions in transition table).
@@ -39,8 +41,9 @@ inline constexpr bool yes()
 }
 
 /**
-@brief Used in the context of a @ref transition_table_tpl "transition table".
-Represents a possible state transition.
+@brief Represents a possible state transition.
+
+Used as a template argument of @ref transition_table_tpl.
 
 @tparam SourceStateFilter the active state (or states, plural, if it's a @ref TypeFilters "type filter") from which the transition can occur
 @tparam EventFilter the event type (or types, plural, if it's a @ref TypeFilters "type filter") that can cause the transition to occur
@@ -74,6 +77,8 @@ struct transition
 };
 
 /**
+@brief Represents a transition table.
+
 A transition table lists all the possible transitions from a state (the source
 state) to another (the target state) in a region.
 
@@ -124,7 +129,9 @@ struct transition_table_tpl
 };
 
 /**
-A handy type alias for defining a transition table. See @ref transition_table_tpl.
+@brief A handy type alias for defining a transition table.
+
+See @ref transition_table_tpl for a usage.
 */
 using transition_table = transition_table_tpl<>;
 

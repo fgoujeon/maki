@@ -20,40 +20,40 @@ tables) in lieu of single types to concisely express a set of types.
 */
 
 /**
-A type filter that matches with any type.
+@brief A type filter that matches with any type.
 */
 struct any{};
 
 /**
-A type filter that matches with any type that verifies `Predicate<T>::value == true`.
+@brief A type filter that matches with any type that verifies `Predicate<T>::value == true`.
 @tparam Predicate the predicate against which types are tested
 */
 template<template<class> class Predicate>
 struct any_if{};
 
 /**
-A type filter that matches with any type that verifies `Predicate<T>::value == false`.
+@brief A type filter that matches with any type that verifies `Predicate<T>::value == false`.
 @tparam Predicate the predicate against which types are tested
 */
 template<template<class> class Predicate>
 struct any_if_not{};
 
 /**
-A type filter that matches with the given types.
+@brief A type filter that matches with the given types.
 @tparam Ts the types the filter matches with
 */
 template<class... Ts>
 struct any_of{};
 
 /**
-A type filter that matches with any type but the given ones.
+@brief A type filter that matches with any type but the given ones.
 @tparam Ts the types the filter doesn't match with
 */
 template<class... Ts>
 struct any_but{};
 
 /**
-A type filter that doesn't match with any type.
+@brief A type filter that doesn't match with any type.
 */
 struct none{};
 

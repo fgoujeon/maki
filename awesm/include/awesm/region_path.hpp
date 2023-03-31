@@ -79,26 +79,6 @@ struct region_path_element
     using sm_def_type = SmDef;
     static constexpr auto region_index = RegionIndex;
 
-    static std::string to_string()
-    {
-        using transition_table_list_type = detail::option_t
-        <
-            typename sm_def_type::conf,
-            detail::option_id::transition_tables
-        >;
-
-        auto str = std::string{};
-        str += awesm::get_pretty_name<sm_def_type>();
-
-        if constexpr(detail::tlu::size_v<transition_table_list_type> > 1)
-        {
-            str += "[";
-            str += std::to_string(region_index);
-            str += "]";
-        }
-
-        return str;
-    }
 };
 
 template<class... Ts>
@@ -127,6 +107,34 @@ namespace detail
         );
 
         using type = region_path_tpl<Ts..., region_path_element<SmDef, 0>>;
+    };
+
+    template<class Element>
+    struct region_path_element_to_string_holder;
+
+    template<class SmDef, int RegionIndex>
+    struct region_path_element_to_string_holder<region_path_element<SmDef, RegionIndex>>
+    {
+        static std::string to_string()
+        {
+            using transition_table_list_type = detail::option_t
+            <
+                typename SmDef::conf,
+                detail::option_id::transition_tables
+            >;
+
+            auto str = std::string{};
+            str += awesm::get_pretty_name<SmDef>();
+
+            if constexpr(detail::tlu::size_v<transition_table_list_type> > 1)
+            {
+                str += "[";
+                str += std::to_string(RegionIndex);
+                str += "]";
+            }
+
+            return str;
+        }
     };
 }
 
@@ -173,7 +181,10 @@ struct region_path_tpl
         }
         else
         {
-            auto str = ((Ts::to_string() + ".") + ...);
+            auto str = (
+                (detail::region_path_element_to_string_holder<Ts>::to_string() + ".")
+                + ...
+            );
             str.resize(str.size() - 1);
             return str;
         }

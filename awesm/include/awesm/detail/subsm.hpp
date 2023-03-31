@@ -157,7 +157,7 @@ public:
         (
             std::is_same_v
             <
-                typename detail::tlu::front_t<StateRegionPath>::sm_type,
+                typename detail::tlu::front_t<StateRegionPath>::sm_def_type,
                 Def
             >
         );
@@ -173,7 +173,7 @@ public:
         (
             std::is_same_v
             <
-                typename detail::tlu::front_t<StateRegionPath>::sm_type,
+                typename detail::tlu::front_t<StateRegionPath>::sm_def_type,
                 Def
             >
         );
@@ -189,7 +189,7 @@ public:
         (
             std::is_same_v
             <
-                typename detail::tlu::front_t<StateRegionPath>::sm_type,
+                typename detail::tlu::front_t<StateRegionPath>::sm_def_type,
                 Def
             >
         );

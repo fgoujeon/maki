@@ -68,27 +68,27 @@ using same_region_path_t = awesm::region_path<sm_def>::add<some_subsm, 1>;
 /**
 @brief Represents an element of a path to a region.
 
-@tparam Sm an @ref sm or subsm definition
-@tparam RegionIndex the index of the region among the regions of @ref Sm
+@tparam SmDef an @ref sm or subsm definition
+@tparam RegionIndex the index of the region among the regions of @ref SmDef
 */
-template<class Sm, int RegionIndex>
+template<class SmDef, int RegionIndex>
 struct region_path_element
 {
     static_assert(RegionIndex >= 0);
 
-    using sm_type = Sm;
+    using sm_def_type = SmDef;
     static constexpr auto region_index = RegionIndex;
 
     static std::string to_string()
     {
         using transition_table_list_type = detail::option_t
         <
-            typename sm_type::conf,
+            typename sm_def_type::conf,
             detail::option_id::transition_tables
         >;
 
         auto str = std::string{};
-        str += awesm::get_pretty_name<sm_type>();
+        str += awesm::get_pretty_name<sm_def_type>();
 
         if constexpr(detail::tlu::size_v<transition_table_list_type> > 1)
         {
@@ -106,19 +106,19 @@ struct region_path_tpl;
 
 namespace detail
 {
-    template<class RegionPath, class Sm, int RegionIndex>
+    template<class RegionPath, class SmDef, int RegionIndex>
     struct region_path_add;
 
-    template<class... Ts, class Sm, int RegionIndex>
-    struct region_path_add<region_path_tpl<Ts...>, Sm, RegionIndex>
+    template<class... Ts, class SmDef, int RegionIndex>
+    struct region_path_add<region_path_tpl<Ts...>, SmDef, RegionIndex>
     {
-        using type = region_path_tpl<Ts..., region_path_element<Sm, RegionIndex>>;
+        using type = region_path_tpl<Ts..., region_path_element<SmDef, RegionIndex>>;
     };
 
-    template<class... Ts, class Sm>
-    struct region_path_add<region_path_tpl<Ts...>, Sm, -1>
+    template<class... Ts, class SmDef>
+    struct region_path_add<region_path_tpl<Ts...>, SmDef, -1>
     {
-        using conf_type = typename Sm::conf;
+        using conf_type = typename SmDef::conf;
         using transition_table_list_type = option_t<conf_type, option_id::transition_tables>;
         static_assert
         (
@@ -126,7 +126,7 @@ namespace detail
             "RegionIndex must be specified for multiple-region SMs"
         );
 
-        using type = region_path_tpl<Ts..., region_path_element<Sm, 0>>;
+        using type = region_path_tpl<Ts..., region_path_element<SmDef, 0>>;
     };
 }
 
@@ -142,12 +142,12 @@ struct region_path_tpl
     @brief A type alias to a @ref region_path_tpl with an appended @ref
     region_path_element.
 
-    @tparam Sm see @ref region_path_element
+    @tparam SmDef see @ref region_path_element
     @tparam RegionIndex see @ref region_path_element; can be omitted if (and
-    only if) `Sm` contains only one region
+    only if) `SmDef` contains only one region
     */
-    template<class Sm, int RegionIndex = -1>
-    using add = typename detail::region_path_add<region_path_tpl, Sm, RegionIndex>::type;
+    template<class SmDef, int RegionIndex = -1>
+    using add = typename detail::region_path_add<region_path_tpl, SmDef, RegionIndex>::type;
 
     /**
     @brief Builds a textual representation of the path.
@@ -184,12 +184,12 @@ struct region_path_tpl
 @brief A handy type alias for defining a @ref region_path_tpl with a single @ref
 region_path_element.
 
-@tparam Sm see @ref region_path_element
+@tparam SmDef see @ref region_path_element
 @tparam RegionIndex see @ref region_path_element; can be omitted if (and
-only if) `Sm` contains only one region
+only if) `SmDef` contains only one region
 */
-template<class Sm, int RegionIndex = -1>
-using region_path = region_path_tpl<>::add<Sm, RegionIndex>;
+template<class SmDef, int RegionIndex = -1>
+using region_path = region_path_tpl<>::add<SmDef, RegionIndex>;
 
 /**
 @}

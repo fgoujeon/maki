@@ -96,7 +96,7 @@ public:
         }
         else
         {
-            using subsm_t = typename tlu::front_t<StateRegionPath>::sm_type;
+            using subsm_t = typename tlu::front_t<StateRegionPath>::sm_def_type;
             const auto& state = get_wrapped_state<subsm_t>();
             return state.template get_state<StateRegionPath, State>();
         }
@@ -111,7 +111,7 @@ public:
         }
         else
         {
-            using subsm_t = typename tlu::front_t<StateRegionPath>::sm_type;
+            using subsm_t = typename tlu::front_t<StateRegionPath>::sm_def_type;
             auto& state = get_wrapped_state<subsm_t>();
             return state.template get_state<StateRegionPath, State>();
         }
@@ -126,7 +126,7 @@ public:
         }
         else
         {
-            using subsm_t = typename tlu::front_t<StateRelativeRegionPath>::sm_type;
+            using subsm_t = typename tlu::front_t<StateRelativeRegionPath>::sm_def_type;
             const auto& state = get_wrapped_state<subsm_t>();
             return state.template is_active_state<StateRelativeRegionPath, State>();
         }

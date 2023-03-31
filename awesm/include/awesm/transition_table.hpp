@@ -104,7 +104,7 @@ struct transition
 /**
 @brief Represents a transition table.
 
-@tparam the transitions, which must be instances of @ref transition
+@tparam Transitions the transitions, which must be instances of @ref transition
 */
 template<class... Transitions>
 struct transition_table_tpl

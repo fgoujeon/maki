@@ -15,6 +15,62 @@
 namespace awesm
 {
 
+/**
+@defgroup RegionPath Region Path
+
+@brief A path to a region or subregion of an @ref sm.
+
+In some places in the API, you must provide or are provided a path to a region.
+
+Conceptually, a path to a region consists in a sequence of
+`(sm_def, region_index)` pairs, starting from a region of the root @ref sm.
+This is the same concept as a path to a directory on a filesystem, which
+consists in a sequence of directories, starting from the root directory.
+
+In terms of C++ code, a `(sm_def, region_index)` pair is defined with an
+instance of the @ref region_path_element struct template. These instances are
+sequenced in the template argument list given to the @ref region_path_tpl
+template instance.
+Here is an example:
+```cpp
+//A subsm with multiple regions, used sm_def
+struct some_subsm
+{
+    //...
+};
+
+//An sm with a single region
+struct sm_def
+{
+    //...
+};
+
+using sm_t = awesm::sm<sm_def>;
+
+//Path to the second region (index 1) of some_subsm
+using region_path_t = awesm::region_path_tpl
+<
+    awesm::region_path_element<sm_def, 0>,
+    awesm::region_path_element<some_subsm, 1>
+>;
+```
+
+This is admittedly verbose and inconvenient. This is why the library provides
+@ref region_path and @ref region_path_tpl.add to make things much more terse:
+```cpp
+//Path to the exam same region
+using same_region_path_t = awesm::region_path<sm_def>::add<some_subsm, 1>;
+```
+
+@{
+*/
+
+/**
+@brief Represents an element of a path to a region.
+
+@tparam Sm an @ref sm or subsm definition
+@tparam RegionIndex the index of the region among the regions of @ref Sm
+*/
 template<class Sm, int RegionIndex>
 struct region_path_element
 {
@@ -64,19 +120,51 @@ namespace detail
     {
         using conf_type = typename Sm::conf;
         using transition_table_list_type = option_t<conf_type, option_id::transition_tables>;
-        static_assert(tlu::size_v<transition_table_list_type> == 1);
+        static_assert
+        (
+            tlu::size_v<transition_table_list_type> == 1,
+            "RegionIndex must be specified for multiple-region SMs"
+        );
 
         using type = region_path_tpl<Ts..., region_path_element<Sm, 0>>;
     };
 }
 
+/**
+@brief Represents a path to a region.
+
+@tparam Ts the elements, which must be instances of @ref region_path_element
+*/
 template<class... Ts>
 struct region_path_tpl
 {
-    //RegionIndex MUST be specified for machines or composite states with several regions
+    /**
+    @brief A type alias to a @ref region_path_tpl with an appended @ref
+    region_path_element.
+
+    @tparam Sm see @ref region_path_element
+    @tparam RegionIndex see @ref region_path_element; can be omitted if (and
+    only if) `Sm` contains only one region
+    */
     template<class Sm, int RegionIndex = -1>
     using add = typename detail::region_path_add<region_path_tpl, Sm, RegionIndex>::type;
 
+    /**
+    @brief Builds a textual representation of the path.
+
+    This function builds strings such as `"root-sm[0].subsm[2].subsubsm"`,
+    where:
+
+    - `root-sm` is the @ref PrettyPrinting "pretty name" of an `sm` that
+    defines several regions;
+    - `[0]` references the first region defined by `root-sm`;
+    - `subsm` is the @ref PrettyPrinting "pretty name" of a submachine, direct
+    child of `root-sm`, that defines several regions;
+    - `[2]` references the third region defined by `subsm`;
+    - `subsubsm` is the @ref PrettyPrinting "pretty name" of another submachine,
+    direct child of `subsm`, that defines only one region (hence the absence
+    of region index).
+    */
     static std::string to_string()
     {
         if constexpr(sizeof...(Ts) == 0)
@@ -92,9 +180,20 @@ struct region_path_tpl
     }
 };
 
-//RegionIndex MUST be specified for machines with several regions
+/**
+@brief A handy type alias for defining a @ref region_path_tpl with a single @ref
+region_path_element.
+
+@tparam Sm see @ref region_path_element
+@tparam RegionIndex see @ref region_path_element; can be omitted if (and
+only if) `Sm` contains only one region
+*/
 template<class Sm, int RegionIndex = -1>
 using region_path = region_path_tpl<>::add<Sm, RegionIndex>;
+
+/**
+@}
+*/
 
 } //namespace
 

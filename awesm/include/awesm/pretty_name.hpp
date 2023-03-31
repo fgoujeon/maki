@@ -17,6 +17,10 @@
 namespace awesm
 {
 
+/**
+@defgroup PrettyPrinting Pretty Printing
+*/
+
 namespace detail
 {
     template<class T>
@@ -40,6 +44,11 @@ namespace detail
     }
 }
 
+/**
+@ingroup PrettyPrinting
+@brief Gets the pretty name of a type, typically an @ref sm definition type or state
+type.
+*/
 template<class T>
 decltype(auto) get_pretty_name()
 {

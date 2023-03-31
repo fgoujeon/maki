@@ -14,6 +14,30 @@ namespace awesm
 @defgroup TransitionTable Transition Table
 @brief These are the types and functions that must be used to define transition tables.
 
+A transition table lists all the possible transitions from a state (the source
+state) to another (the target state) in a region of a state machine.
+
+You can define a transition table by using this class template directly:
+```cpp
+using transition_table_t = awesm::transition_table_tpl
+<
+    awesm::transition<off, button_press, on,  turn_light_on, has_enough_power>,
+    awesm::transition<on,  button_press, off, turn_light_off>
+>;
+```
+
+… but using the @ref transition_table alias and the @ref add subtype template is
+usually the preferred, more concise way to do so:
+```cpp
+using transition_table_t = awesm::transition_table
+    ::add<off, button_press, on,  turn_light_on, has_enough_power>
+    ::add<on,  button_press, off, turn_light_off>
+;
+```
+
+Note that the first usage may be more appropriate in the context of a template
+in order to avoid awkward `typename`s and `::template`s.
+
 @{
 */
 
@@ -79,30 +103,6 @@ struct transition
 
 /**
 @brief Represents a transition table.
-
-A transition table lists all the possible transitions from a state (the source
-state) to another (the target state) in a region.
-
-You can define a transition table by using this class template directly:
-```cpp
-using transition_table_t = awesm::transition_table_tpl
-<
-    awesm::transition<off, button_press, on,  turn_light_on, has_enough_power>,
-    awesm::transition<on,  button_press, off, turn_light_off>
->;
-```
-
-… but using the @ref transition_table alias and the @ref add subtype template is
-usually the preferred, more concise way to do so:
-```cpp
-using transition_table_t = awesm::transition_table
-    ::add<off, button_press, on,  turn_light_on, has_enough_power>
-    ::add<on,  button_press, off, turn_light_off>
-;
-```
-
-Note that the first usage may be more appropriate in the context of a template
-in order to avoid awkward `typename`s and `::template`s.
 
 @tparam the transitions, which must be instances of @ref transition
 */

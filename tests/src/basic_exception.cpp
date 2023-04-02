@@ -102,10 +102,10 @@ TEST_CASE("basic_exception")
     auto sm = sm_t{};
 
     REQUIRE(sm.is_active_state<states::off>());
-    REQUIRE(sm.get_context().out == "off::on_entry;");
+    REQUIRE(sm.context().out == "off::on_entry;");
 
-    sm.get_context().out.clear();
+    sm.context().out.clear();
     sm.process_event(events::button_press{});
     REQUIRE(sm.is_active_state<states::off>());
-    REQUIRE(sm.get_context().out == "off::on_exit;");
+    REQUIRE(sm.context().out == "off::on_exit;");
 }

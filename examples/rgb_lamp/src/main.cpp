@@ -264,7 +264,7 @@ int main()
     destruction happens during state transitions.
     */
     auto sm = sm_t{};
-    auto& ctx = sm.get_context();
+    auto& ctx = sm.context();
 
 #if TESTING
     auto simulate_push = [&](const int duration_ms)

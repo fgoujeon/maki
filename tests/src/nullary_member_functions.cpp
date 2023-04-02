@@ -113,7 +113,7 @@ TEST_CASE("nullary_member_functions")
     using namespace nullary_member_functions_ns;
 
     auto sm = sm_t{};
-    auto& ctx = sm.get_context();
+    auto& ctx = sm.context();
 
     sm.start();
 

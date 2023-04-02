@@ -36,10 +36,10 @@ namespace
             using conf = awesm::subsm_conf_tpl
             <
                 awesm::subsm_opts::transition_tables<on1_transition_table>,
-                awesm::subsm_opts::get_pretty_name
+                awesm::subsm_opts::pretty_name
             >;
 
-            static auto get_pretty_name()
+            static auto pretty_name()
             {
                 return "on_1";
             }
@@ -64,10 +64,10 @@ namespace
                 sm_transition_table_1
             >,
             awesm::subsm_opts::context<context>,
-            awesm::subsm_opts::get_pretty_name
+            awesm::subsm_opts::pretty_name
         >;
 
-        static auto get_pretty_name()
+        static auto pretty_name()
         {
             return "main_sm";
         }

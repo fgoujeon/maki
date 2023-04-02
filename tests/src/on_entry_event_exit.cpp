@@ -66,7 +66,7 @@ namespace
             template<class Sm, class Event>
             void on_entry(Sm& mach, const Event& /*event*/)
             {
-                mach.get_context().hello = "bonjour";
+                mach.context().hello = "bonjour";
             }
 
             void on_event(const events::say_dog&)
@@ -77,7 +77,7 @@ namespace
             template<class Sm, class Event>
             void on_exit(Sm& mach, const Event& /*event*/)
             {
-                mach.get_context().goodbye = "au revoir";
+                mach.context().goodbye = "au revoir";
             }
 
             context& ctx;
@@ -105,7 +105,7 @@ namespace
 TEST_CASE("on_entry_event_exit")
 {
     auto sm = sm_t{};
-    auto& ctx = sm.get_context();
+    auto& ctx = sm.context();
 
     sm.start();
 

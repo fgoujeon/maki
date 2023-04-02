@@ -93,7 +93,7 @@ namespace
 TEST_CASE("on_event_auto")
 {
     auto sm = sm_t{};
-    auto& ctx = sm.get_context();
+    auto& ctx = sm.context();
 
     sm.start();
 

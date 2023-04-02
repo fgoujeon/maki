@@ -25,13 +25,13 @@ static constexpr auto small_event_default_max_align = 8;
     X(before_entry,            constant<false>) \
     X(before_state_transition, constant<false>) \
     X(context,                 void) \
-    X(get_pretty_name,         constant<false>) \
     X(on_entry,                constant<false>) \
     X(on_event,                type_list<>) \
     X(on_event_auto,           constant<false>) \
     X(on_exception,            constant<false>) \
     X(on_exit,                 constant<false>) \
     X(on_unprocessed,          constant<false>) \
+    X(pretty_name,             constant<false>) \
     X(run_to_completion,       constant<true>) \
     X(small_event_max_align,   constant<small_event_default_max_align>) \
     X(small_event_max_size,    constant<small_event_default_max_size>) \

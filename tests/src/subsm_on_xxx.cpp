@@ -112,7 +112,7 @@ namespace
 TEST_CASE("subsm_on_xxx")
 {
     auto sm = sm_t{};
-    auto& ctx = sm.get_context();
+    auto& ctx = sm.context();
 
     sm.start();
 

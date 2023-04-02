@@ -57,36 +57,36 @@ public:
     sm& operator=(sm&&) = delete;
     ~sm() = default;
 
-    Def& get_def()
+    Def& def()
     {
-        return subsm_.get_def();
+        return subsm_.def();
     }
 
-    const Def& get_def() const
+    const Def& def() const
     {
-        return subsm_.get_def();
+        return subsm_.def();
     }
 
-    context_type& get_context()
+    context_type& context()
     {
-        return subsm_.get_context();
+        return subsm_.context();
     }
 
-    const context_type& get_context() const
+    const context_type& context() const
     {
-        return subsm_.get_context();
-    }
-
-    template<class RegionPath, class State>
-    State& get_state()
-    {
-        return subsm_.template get_state<RegionPath, State>();
+        return subsm_.context();
     }
 
     template<class RegionPath, class State>
-    const State& get_state() const
+    State& state()
     {
-        return subsm_.template get_state<RegionPath, State>();
+        return subsm_.template state<RegionPath, State>();
+    }
+
+    template<class RegionPath, class State>
+    const State& state() const
+    {
+        return subsm_.template state<RegionPath, State>();
     }
 
     template<class RegionPath>
@@ -273,7 +273,7 @@ private:
     {
         if constexpr(detail::option_v<conf, detail::option_id::on_exception>)
         {
-            get_def().on_exception(eptr);
+            def().on_exception(eptr);
         }
         else
         {
@@ -298,7 +298,7 @@ private:
             {
                 if(!subsm_.on_event(event))
                 {
-                    get_def().on_unprocessed(event);
+                    def().on_unprocessed(event);
                 }
             }
             else

@@ -44,7 +44,7 @@ namespace
     {
         if constexpr(state_traits::is_subsm_v<State>)
         {
-            return state.get_def();
+            return state.def();
         }
         else
         {
@@ -76,7 +76,7 @@ public:
 
     explicit region(ParentSm& parent_sm):
         root_sm_(root_sm_of<ParentSm>::get(parent_sm)),
-        ctx_(parent_sm.get_context()),
+        ctx_(parent_sm.context()),
         state_holders_(root_sm_, ctx_)
     {
     }
@@ -88,32 +88,32 @@ public:
     ~region() = default;
 
     template<class StateRegionPath, class State>
-    const State& get_state() const
+    const State& state() const
     {
         if constexpr(tlu::size_v<StateRegionPath> == 0)
         {
-            return unwrap_state(get_wrapped_state<State>());
+            return unwrap_state(wrapped_state<State>());
         }
         else
         {
             using subsm_t = typename tlu::front_t<StateRegionPath>::sm_def_type;
-            const auto& state = get_wrapped_state<subsm_t>();
-            return state.template get_state<StateRegionPath, State>();
+            const auto& state = wrapped_state<subsm_t>();
+            return state.template state<StateRegionPath, State>();
         }
     }
 
     template<class StateRegionPath, class State>
-    State& get_state()
+    State& state()
     {
         if constexpr(tlu::size_v<StateRegionPath> == 0)
         {
-            return unwrap_state(get_wrapped_state<State>());
+            return unwrap_state(wrapped_state<State>());
         }
         else
         {
             using subsm_t = typename tlu::front_t<StateRegionPath>::sm_def_type;
-            auto& state = get_wrapped_state<subsm_t>();
-            return state.template get_state<StateRegionPath, State>();
+            auto& state = wrapped_state<subsm_t>();
+            return state.template state<StateRegionPath, State>();
         }
     }
 
@@ -127,7 +127,7 @@ public:
         else
         {
             using subsm_t = typename tlu::front_t<StateRelativeRegionPath>::sm_def_type;
-            const auto& state = get_wrapped_state<subsm_t>();
+            const auto& state = wrapped_state<subsm_t>();
             return state.template is_active_state<StateRelativeRegionPath, State>();
         }
     }
@@ -313,7 +313,7 @@ private:
         {
             if constexpr(option_v<sm_conf_tpl, option_id::before_state_transition>)
             {
-                root_sm_.get_def().template before_state_transition
+                root_sm_.def().template before_state_transition
                 <
                     path_t,
                     SourceState,
@@ -326,7 +326,7 @@ private:
             {
                 detail::call_on_exit
                 (
-                    get_wrapped_state<SourceState>(),
+                    wrapped_state<SourceState>(),
                     root_sm_,
                     event
                 );
@@ -351,7 +351,7 @@ private:
         {
             if constexpr(option_v<sm_conf_tpl, option_id::before_entry>)
             {
-                root_sm_.get_def().template before_entry
+                root_sm_.def().template before_entry
                 <
                     path_t,
                     SourceState,
@@ -364,7 +364,7 @@ private:
             {
                 detail::call_on_entry
                 (
-                    get_wrapped_state<TargetState>(),
+                    wrapped_state<TargetState>(),
                     root_sm_,
                     event
                 );
@@ -372,7 +372,7 @@ private:
 
             if constexpr(option_v<sm_conf_tpl, option_id::after_state_transition>)
             {
-                root_sm_.get_def().template after_state_transition
+                root_sm_.def().template after_state_transition
                 <
                     path_t,
                     SourceState,
@@ -428,7 +428,7 @@ private:
                 return false;
             }
 
-            auto& state = self.get_wrapped_state<State>();
+            auto& state = self.wrapped_state<State>();
             return call_on_event(state, event);
         }
     };
@@ -501,14 +501,14 @@ private:
     };
 
     template<class State>
-    auto& get_wrapped_state()
+    auto& wrapped_state()
     {
         using wrapped_state_t = state_traits::wrap_t<State, region>;
         return get<sm_object_holder<wrapped_state_t>>(state_holders_).get();
     }
 
     template<class State>
-    const auto& get_wrapped_state() const
+    const auto& wrapped_state() const
     {
         using wrapped_state_t = state_traits::wrap_t<State, region>;
         return get<sm_object_holder<wrapped_state_t>>(state_holders_).get();

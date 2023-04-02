@@ -38,10 +38,10 @@ namespace
             using conf = awesm::subsm_conf_tpl
             <
                 awesm::subsm_opts::transition_tables<on1_transition_table>,
-                awesm::subsm_opts::get_pretty_name
+                awesm::subsm_opts::pretty_name
             >;
 
-            static auto get_pretty_name()
+            static auto pretty_name()
             {
                 return "on_1";
             }
@@ -64,7 +64,7 @@ namespace
             ::before_state_transition
             ::after_state_transition
             ::no_auto_start
-            ::get_pretty_name
+            ::pretty_name
         ;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>
@@ -73,9 +73,9 @@ namespace
             ctx.out += "Transition in ";
             ctx.out += RegionPath::to_string();
             ctx.out += ": ";
-            ctx.out += awesm::get_pretty_name<SourceState>();
+            ctx.out += awesm::pretty_name<SourceState>();
             ctx.out += " -> ";
-            ctx.out += awesm::get_pretty_name<TargetState>();
+            ctx.out += awesm::pretty_name<TargetState>();
             ctx.out += "...;";
 
             ctx.out += std::to_string(event.pressure) + ";";
@@ -89,13 +89,13 @@ namespace
             ctx.out += "Transition in ";
             ctx.out += RegionPath::to_string();
             ctx.out += ": ";
-            ctx.out += awesm::get_pretty_name<SourceState>();
+            ctx.out += awesm::pretty_name<SourceState>();
             ctx.out += " -> ";
-            ctx.out += awesm::get_pretty_name<TargetState>();
+            ctx.out += awesm::pretty_name<TargetState>();
             ctx.out += ";";
         }
 
-        static auto get_pretty_name()
+        static auto pretty_name()
         {
             return "main_sm";
         }
@@ -109,7 +109,7 @@ namespace
 TEST_CASE("state_transition_hook_set")
 {
     auto sm = sm_t{};
-    auto& ctx = sm.get_context();
+    auto& ctx = sm.context();
 
     using root_0_path = awesm::region_path<sm_def, 0>;
     using root_1_path = awesm::region_path<sm_def, 1>;

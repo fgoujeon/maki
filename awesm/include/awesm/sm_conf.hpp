@@ -43,9 +43,9 @@ namespace sm_opts
         detail::constant<false>
     >;
 
-    using get_pretty_name = detail::conf_element
+    using pretty_name = detail::conf_element
     <
-        detail::option_id::get_pretty_name,
+        detail::option_id::pretty_name,
         detail::constant<true>
     >;
 
@@ -98,7 +98,7 @@ struct sm_conf_tpl
 
     using no_run_to_completion = sm_conf_tpl<Options..., sm_opts::no_run_to_completion>;
 
-    using get_pretty_name = sm_conf_tpl<Options..., sm_opts::get_pretty_name>;
+    using pretty_name = sm_conf_tpl<Options..., sm_opts::pretty_name>;
 
     using on_exception = sm_conf_tpl<Options..., sm_opts::on_exception>;
 

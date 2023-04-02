@@ -122,7 +122,7 @@ namespace
     using sm_t = awesm::sm<sm_def>;
 }
 
-TEST_CASE("get_state")
+TEST_CASE("state")
 {
     auto sm = sm_t{};
     const auto& const_sm = sm;
@@ -130,15 +130,15 @@ TEST_CASE("get_state")
     using root_region_path = awesm::region_path<sm_def>;
     using on_region_path = root_region_path::add<states::on>;
 
-    auto& red_state = sm.get_state<on_region_path, states::emitting_red>();
+    auto& red_state = sm.state<on_region_path, states::emitting_red>();
     REQUIRE(red_state.color == led_color::red);
 
-    const auto& green_state = const_sm.get_state<on_region_path, states::emitting_green>();
+    const auto& green_state = const_sm.state<on_region_path, states::emitting_green>();
     REQUIRE(green_state.color == led_color::green);
 
-    auto& blue_state = sm.get_state<on_region_path, states::emitting_blue>();
+    auto& blue_state = sm.state<on_region_path, states::emitting_blue>();
     REQUIRE(blue_state.color == led_color::blue);
 
-    auto& on_state = sm.get_state<root_region_path, states::on>();
+    auto& on_state = sm.state<root_region_path, states::on>();
     REQUIRE(on_state.is_on_state);
 }

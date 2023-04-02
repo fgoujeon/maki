@@ -12,7 +12,7 @@ namespace
     struct context{};
 
 #define STATE_OPTIONS \
-    X(get_pretty_name) \
+    X(pretty_name) \
     X(on_event<>) \
     X(on_event_auto) \
     X(on_entry<>) \
@@ -39,14 +39,14 @@ namespace
     using state_conf_tpl_1_t = awesm::state_conf_tpl
     <
         STATE_OPTIONS
-        awesm::state_opts::get_pretty_name
+        awesm::state_opts::pretty_name
     >;
 #undef X
 
 #define X(option) ::option
     using state_conf_tpl_2_t = awesm::state_conf
         STATE_OPTIONS
-        ::get_pretty_name
+        ::pretty_name
     ;
 #undef X
 
@@ -54,14 +54,14 @@ namespace
     using subsm_conf_tpl_1_t = awesm::subsm_conf_tpl
     <
         SM_OPTIONS
-        awesm::subsm_opts::get_pretty_name
+        awesm::subsm_opts::pretty_name
     >;
 #undef X
 
 #define X(option) ::option
     using subsm_conf_tpl_2_t = awesm::subsm_conf
         SM_OPTIONS
-        ::get_pretty_name
+        ::pretty_name
     ;
 #undef X
 
@@ -69,14 +69,14 @@ namespace
     using sm_conf_tpl_1_t = awesm::sm_conf_tpl
     <
         ROOT_SM_OPTIONS
-        awesm::sm_opts::get_pretty_name
+        awesm::sm_opts::pretty_name
     >;
 #undef X
 
 #define X(option) ::option
     using sm_conf_tpl_2_t = awesm::sm_conf
         ROOT_SM_OPTIONS
-        ::get_pretty_name
+        ::pretty_name
     ;
 #undef X
 

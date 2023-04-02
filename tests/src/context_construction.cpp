@@ -71,7 +71,7 @@ namespace
 TEST_CASE("context_construction")
 {
     auto sm = sm_t{};
-    auto& ctx = sm.get_context();
+    auto& ctx = sm.context();
 
     REQUIRE(&ctx.sm == &sm);
     REQUIRE(ctx.i == 42);

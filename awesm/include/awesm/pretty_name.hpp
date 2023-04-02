@@ -24,9 +24,9 @@ namespace awesm
 namespace detail
 {
     template<class T>
-    decltype(auto) get_pretty_name_impl(overload_priority::low /*unused*/)
+    decltype(auto) pretty_name_impl(overload_priority::low /*unused*/)
     {
-        return get_decayed_type_name<T>();
+        return decayed_type_name<T>();
     }
 
     template
@@ -34,13 +34,13 @@ namespace detail
         class T,
         std::enable_if_t
         <
-            option_v<typename T::conf, option_id::get_pretty_name>,
+            option_v<typename T::conf, option_id::pretty_name>,
             bool
         > = true
     >
-    static decltype(auto) get_pretty_name_impl(overload_priority::high /*unused*/)
+    static decltype(auto) pretty_name_impl(overload_priority::high /*unused*/)
     {
-        return T::get_pretty_name();
+        return T::pretty_name();
     }
 }
 
@@ -50,9 +50,9 @@ namespace detail
 type.
 */
 template<class T>
-decltype(auto) get_pretty_name()
+decltype(auto) pretty_name()
 {
-    return detail::get_pretty_name_impl<T>(detail::overload_priority::probe);
+    return detail::pretty_name_impl<T>(detail::overload_priority::probe);
 }
 
 } //namespace

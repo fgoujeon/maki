@@ -21,9 +21,9 @@ namespace subsm_opts
     template<class T>
     using context = detail::conf_element<detail::option_id::context, T>;
 
-    using get_pretty_name = detail::conf_element
+    using pretty_name = detail::conf_element
     <
-        detail::option_id::get_pretty_name,
+        detail::option_id::pretty_name,
         detail::constant<true>
     >;
 
@@ -48,7 +48,7 @@ struct subsm_conf_tpl
     template<class T>
     using context = subsm_conf_tpl<Options..., subsm_opts::context<T>>;
 
-    using get_pretty_name = subsm_conf_tpl<Options..., subsm_opts::get_pretty_name>;
+    using pretty_name = subsm_conf_tpl<Options..., subsm_opts::pretty_name>;
 
     template<class... EventFilters>
     using on_event = subsm_conf_tpl<Options..., subsm_opts::on_event<EventFilters...>>;

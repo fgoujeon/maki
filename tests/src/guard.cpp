@@ -73,7 +73,7 @@ TEST_CASE("guard")
     sm.process_event(events::button_press{});
     REQUIRE(sm.is_active_state<states::off>());
 
-    sm.get_context().has_power = true;
+    sm.context().has_power = true;
     sm.process_event(events::button_press{true});
     REQUIRE(sm.is_active_state<states::on>());
 }

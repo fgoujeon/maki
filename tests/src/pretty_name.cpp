@@ -18,10 +18,10 @@ namespace pretty_name_ns
     {
         using conf = awesm::state_conf_tpl
         <
-            awesm::state_opts::get_pretty_name
+            awesm::state_opts::pretty_name
         >;
 
-        static const char* get_pretty_name()
+        static const char* pretty_name()
         {
             return "my_state";
         }
@@ -36,10 +36,10 @@ namespace pretty_name_ns
         using conf = awesm::subsm_conf_tpl
         <
             awesm::subsm_opts::transition_tables<subsm_transition_table>,
-            awesm::subsm_opts::get_pretty_name
+            awesm::subsm_opts::pretty_name
         >;
 
-        static const char* get_pretty_name()
+        static const char* pretty_name()
         {
             return "my_subsm";
         }
@@ -59,10 +59,10 @@ namespace pretty_name_ns
         <
             awesm::subsm_opts::transition_tables<sm_transition_table>,
             awesm::subsm_opts::context<context>,
-            awesm::subsm_opts::get_pretty_name
+            awesm::subsm_opts::pretty_name
         >;
 
-        static const char* get_pretty_name()
+        static const char* pretty_name()
         {
             return "my_sm";
         }
@@ -77,25 +77,25 @@ TEST_CASE("pretty_name")
 {
     REQUIRE
     (
-        awesm::get_pretty_name<pretty_name_ns::test>() ==
+        awesm::pretty_name<pretty_name_ns::test>() ==
         std::string_view{"test"}
     );
 
     REQUIRE
     (
-        awesm::get_pretty_name<pretty_name_ns::templ<int, pretty_name_ns::test>>() ==
+        awesm::pretty_name<pretty_name_ns::templ<int, pretty_name_ns::test>>() ==
         std::string_view{"templ"}
     );
 
     REQUIRE
     (
-        awesm::get_pretty_name<pretty_name_ns::state>() ==
+        awesm::pretty_name<pretty_name_ns::state>() ==
         std::string_view{"my_state"}
     );
 
     REQUIRE
     (
-        awesm::get_pretty_name<pretty_name_ns::subsm>() ==
+        awesm::pretty_name<pretty_name_ns::subsm>() ==
         std::string_view{"my_subsm"}
     );
 }

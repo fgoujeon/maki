@@ -131,7 +131,7 @@ namespace
 TEST_CASE("recursive process_event")
 {
     auto sm = sm_t{};
-    auto& ctx = sm.get_context();
+    auto& ctx = sm.context();
 
     sm.start();
     REQUIRE(ctx.output == "s0::on_entry;");

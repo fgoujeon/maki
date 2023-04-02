@@ -83,7 +83,7 @@ namespace
 TEST_CASE("internal transition")
 {
     auto sm = sm_t{};
-    auto& ctx = sm.get_context();
+    auto& ctx = sm.context();
 
     sm.start();
 

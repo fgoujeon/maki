@@ -127,7 +127,7 @@ namespace
 TEST_CASE("initial_subsm")
 {
     auto sm = sm_t{};
-    auto& ctx = sm.get_context();
+    auto& ctx = sm.context();
 
     sm.start();
     REQUIRE(sm.is_active_state<states::on>());

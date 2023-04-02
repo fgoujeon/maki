@@ -124,7 +124,7 @@ namespace detail
             >;
 
             auto str = std::string{};
-            str += awesm::get_pretty_name<SmDef>();
+            str += awesm::pretty_name<SmDef>();
 
             if constexpr(detail::tlu::size_v<transition_table_list_type> > 1)
             {

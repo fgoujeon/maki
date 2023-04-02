@@ -63,9 +63,9 @@ TEST_CASE("action")
 
     sm.process_event(events::button_press{});
     REQUIRE(sm.is_active_state<states::on>());
-    REQUIRE(sm.get_context().i == 1);
+    REQUIRE(sm.context().i == 1);
 
     sm.process_event(events::button_press{});
     REQUIRE(sm.is_active_state<states::off>());
-    REQUIRE(sm.get_context().i == 0);
+    REQUIRE(sm.context().i == 0);
 }

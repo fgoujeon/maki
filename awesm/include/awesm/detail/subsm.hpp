@@ -43,7 +43,7 @@ struct root_sm_of<subsm<Def, ParentRegion>>
 
     static type& get(subsm<Def, ParentRegion>& node)
     {
-        return node.get_root_sm();
+        return node.root_sm();
     }
 };
 
@@ -54,7 +54,7 @@ struct root_sm_of<subsm<Def, void>>
 
     static type& get(subsm<Def, void>& node)
     {
-        return node.get_root_sm();
+        return node.root_sm();
     }
 };
 
@@ -130,28 +130,28 @@ public:
     subsm(root_sm_type& root_sm, ContextArgs&&... ctx_args):
         root_sm_(root_sm),
         ctx_holder_(root_sm, std::forward<ContextArgs>(ctx_args)...),
-        def_holder_(root_sm, get_context()),
+        def_holder_(root_sm, context()),
         regions_(*this)
     {
     }
 
-    root_sm_type& get_root_sm()
+    root_sm_type& root_sm()
     {
         return root_sm_;
     }
 
-    context_type& get_context()
+    context_type& context()
     {
         return ctx_holder_.get();
     }
 
-    Def& get_def()
+    Def& def()
     {
         return def_holder_.get();
     }
 
     template<class StateRegionPath, class State>
-    State& get_state()
+    State& state()
     {
         static_assert
         (
@@ -163,11 +163,11 @@ public:
         );
 
         static constexpr auto region_index = tlu::front_t<StateRegionPath>::region_index;
-        return get<region_index>(regions_).template get_state<tlu::pop_front_t<StateRegionPath>, State>();
+        return get<region_index>(regions_).template state<tlu::pop_front_t<StateRegionPath>, State>();
     }
 
     template<class StateRegionPath, class State>
-    const State& get_state() const
+    const State& state() const
     {
         static_assert
         (
@@ -179,7 +179,7 @@ public:
         );
 
         static constexpr auto region_index = tlu::front_t<StateRegionPath>::region_index;
-        return get<region_index>(regions_).template get_state<tlu::pop_front_t<StateRegionPath>, State>();
+        return get<region_index>(regions_).template state<tlu::pop_front_t<StateRegionPath>, State>();
     }
 
     template<class StateRegionPath, class State>

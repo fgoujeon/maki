@@ -32,7 +32,7 @@ namespace type_name_detail
         int suffix_size = 0;
     };
 
-    inline type_name_format get_type_name_format()
+    inline type_name_format make_type_name_format()
     {
         const auto int_name = std::string_view{"int"};
         const auto int_function_name = function_name<int>();
@@ -49,16 +49,16 @@ namespace type_name_detail
         };
     }
 
-    inline type_name_format get_type_name_format_cached()
+    inline type_name_format cached_type_name_format()
     {
-        static const auto format = get_type_name_format();
+        static const auto format = make_type_name_format();
         return format;
     }
 
     template<class T>
-    std::string_view get_type_name()
+    std::string_view type_name()
     {
-        const auto& format = get_type_name_format_cached();
+        const auto& format = cached_type_name_format();
         const auto fn_name = function_name<T>();
         return fn_name.substr
         (
@@ -69,9 +69,9 @@ namespace type_name_detail
 
     //Extract "e" from e.g. a::b<c,d>::e<f::g>
     template<class T>
-    std::string_view get_decayed_type_name()
+    std::string_view decayed_type_name()
     {
-        const auto tname = get_type_name<T>();
+        const auto tname = type_name<T>();
         const auto tname_size = static_cast<int>(tname.size());
 
         auto current_index = tname_size - 1;
@@ -122,16 +122,16 @@ namespace type_name_detail
 }
 
 template<class T>
-auto get_type_name()
+auto type_name()
 {
-    static const auto name = type_name_detail::get_type_name<T>();
+    static const auto name = type_name_detail::type_name<T>();
     return name;
 }
 
 template<class T>
-auto get_decayed_type_name()
+auto decayed_type_name()
 {
-    static const auto name = type_name_detail::get_decayed_type_name<T>();
+    static const auto name = type_name_detail::decayed_type_name<T>();
     return name;
 }
 

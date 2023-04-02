@@ -46,7 +46,7 @@ namespace
             awesm::sm_opts::context<context>,
             awesm::sm_opts::before_state_transition,
             awesm::sm_opts::after_state_transition,
-            awesm::sm_opts::get_pretty_name
+            awesm::sm_opts::pretty_name
         >;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>
@@ -57,9 +57,9 @@ namespace
             ctx.out += "Transition in ";
             ctx.out += RegionPath::to_string();
             ctx.out += ": ";
-            ctx.out += awesm::get_pretty_name<SourceState>();
+            ctx.out += awesm::pretty_name<SourceState>();
             ctx.out += " -> ";
-            ctx.out += awesm::get_pretty_name<TargetState>();
+            ctx.out += awesm::pretty_name<TargetState>();
             ctx.out += "...;";
         }
 
@@ -71,13 +71,13 @@ namespace
             ctx.out += "Transition in ";
             ctx.out += RegionPath::to_string();
             ctx.out += ": ";
-            ctx.out += awesm::get_pretty_name<SourceState>();
+            ctx.out += awesm::pretty_name<SourceState>();
             ctx.out += " -> ";
-            ctx.out += awesm::get_pretty_name<TargetState>();
+            ctx.out += awesm::pretty_name<TargetState>();
             ctx.out += ";";
         }
 
-        static constexpr auto get_pretty_name()
+        static constexpr auto pretty_name()
         {
             return "main_sm";
         }

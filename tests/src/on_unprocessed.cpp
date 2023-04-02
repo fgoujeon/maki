@@ -138,7 +138,7 @@ namespace
 TEST_CASE("on_unprocessed")
 {
     auto sm = sm_t{};
-    auto& ctx = sm.get_context();
+    auto& ctx = sm.context();
 
     ctx.clear();
     sm.start();

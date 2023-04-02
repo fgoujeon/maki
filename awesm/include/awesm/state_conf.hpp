@@ -29,13 +29,13 @@ namespace state_opts
     template<bool Enable = true>
     using on_exit = detail::conf_element<detail::option_id::on_exit, detail::constant<Enable>>;
 
-    using get_pretty_name = detail::conf_element<detail::option_id::get_pretty_name, detail::constant<true>>;
+    using pretty_name = detail::conf_element<detail::option_id::pretty_name, detail::constant<true>>;
 }
 
 template<class... Options>
 struct state_conf_tpl
 {
-    using get_pretty_name = state_conf_tpl<Options..., state_opts::get_pretty_name>;
+    using pretty_name = state_conf_tpl<Options..., state_opts::pretty_name>;
 
     template<class... EventFilters>
     using on_event = state_conf_tpl<Options..., state_opts::on_event<EventFilters...>>;

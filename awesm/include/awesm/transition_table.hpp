@@ -90,15 +90,8 @@ struct transition
     using event_type_filter = EventFilter;
     using target_state_type = TargetState;
 
-    static constexpr const auto& get_action()
-    {
-        return Action;
-    }
-
-    static constexpr const auto& get_guard()
-    {
-        return Guard;
-    }
+    static constexpr const auto& action = Action;
+    static constexpr const auto& guard = Guard;
 };
 
 /**

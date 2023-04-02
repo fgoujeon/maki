@@ -254,8 +254,8 @@ private:
                     try_processing_event_in_transition_2
                     <
                         target_state_t,
-                        Transition::get_action(),
-                        Transition::get_guard()
+                        Transition::action,
+                        Transition::guard
                     >
                 >(self, event);
             }
@@ -264,8 +264,8 @@ private:
                 return try_processing_event_in_transition_2
                 <
                     target_state_t,
-                    Transition::get_action(),
-                    Transition::get_guard()
+                    Transition::action,
+                    Transition::guard
                 >::template call<source_state_t>(self, event);
             }
         }

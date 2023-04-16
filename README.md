@@ -32,6 +32,9 @@ Besides its features, AweSM:
 * **doesn't rely on RTTI**;
 * is licensed under the terms of the very permissive **Boost Software License**, allowing you to use the library in any kind of free or proprietary software or firmware.
 
+## Documentation
+You can access the full documentation [here](https://fgoujeon.github.io/awesm/doc/v1).
+
 ## Example
 The following example is firmware for an RGB lamp. This lamp has a single button and an LED that can emit white, red, green or blue.
 

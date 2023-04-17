@@ -294,7 +294,7 @@ private:
             }
 
             //Check guard
-            if(!detail::call_action_or_guard(Guard, &self.root_sm_, self.ctx_, &event))
+            if(!detail::call_action_or_guard(Guard, &self.root_sm_, &self.ctx_, &event))
             {
                 return false;
             }
@@ -353,7 +353,7 @@ private:
         (
             Action,
             &root_sm_,
-            ctx_,
+            &ctx_,
             &event
         );
 

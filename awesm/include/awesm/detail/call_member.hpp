@@ -9,7 +9,6 @@
 
 #include "state_traits.hpp"
 #include "subsm_fwd.hpp"
-#include "../whatever.hpp"
 #include <type_traits>
 #include <utility>
 
@@ -114,28 +113,28 @@ void call_on_exit
 }
 
 template<class Fn, class Sm, class Context, class Event>
-auto call_action_or_guard(const Fn& fun, Sm* pmach, Context& ctx, const Event* pevent) ->
-    decltype(fun(*pmach, ctx, *pevent))
+auto call_action_or_guard(const Fn& fun, Sm* pmach, Context* pctx, const Event* pevent) ->
+    decltype(fun(*pmach, *pctx, *pevent))
 {
-    return fun(*pmach, ctx, *pevent);
+    return fun(*pmach, *pctx, *pevent);
 }
 
 template<class Fn, class Context, class Event>
-auto call_action_or_guard(const Fn& fun, void* /*pmach*/, Context& ctx, const Event* pevent) ->
-    decltype(fun(ctx, *pevent))
+auto call_action_or_guard(const Fn& fun, void* /*pmach*/, Context* pctx, const Event* pevent) ->
+    decltype(fun(*pctx, *pevent))
 {
-    return fun(ctx, *pevent);
+    return fun(*pctx, *pevent);
 }
 
 template<class Fn, class Context>
-auto call_action_or_guard(const Fn& fun, void* /*pmach*/, Context& ctx, const void* /*pevent*/) ->
-    decltype(fun(ctx))
+auto call_action_or_guard(const Fn& fun, void* /*pmach*/, Context* pctx, const void* /*pevent*/) ->
+    decltype(fun(*pctx))
 {
-    return fun(ctx);
+    return fun(*pctx);
 }
 
 template<class Fn>
-auto call_action_or_guard(const Fn& fun, void* /*pmach*/, whatever /*ctx*/, const void* /*pevent*/) ->
+auto call_action_or_guard(const Fn& fun, void* /*pmach*/, void* /*pctx*/, const void* /*pevent*/) ->
     decltype(fun())
 {
     return fun();

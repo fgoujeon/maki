@@ -17,4 +17,3 @@
 #include "awesm/transition_table.hpp"
 #include "awesm/type_filters.hpp"
 #include "awesm/version.hpp"
-#include "awesm/whatever.hpp"

@@ -8,7 +8,6 @@
 #define AWESM_DETAIL_CONTEXT_HOLDER_HPP
 
 #include "is_brace_constructible.hpp"
-#include "../whatever.hpp"
 #include <type_traits>
 
 namespace awesm::detail
@@ -38,20 +37,22 @@ public:
 
     template
     <
+        class RootSm,
         class... Args,
         std::enable_if_t<is_brace_constructible<T, Args...>, bool> = true
     >
-    context_holder(whatever /*root_sm*/, Args&&... args):
+    context_holder(RootSm& /*root_sm*/, Args&&... args):
         ctx_{std::forward<Args>(args)...}
     {
     }
 
     template
     <
+        class RootSm,
         class U = T,
         std::enable_if_t<std::is_reference_v<U>, bool> = true
     >
-    context_holder(whatever /*root_sm*/, T& ctx):
+    context_holder(RootSm& /*root_sm*/, T& ctx):
         ctx_{ctx}
     {
     }

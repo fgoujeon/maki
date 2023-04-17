@@ -67,7 +67,7 @@ namespace
                 using conf = awesm::subsm_conf_tpl
                 <
                     awesm::subsm_opts::transition_tables<emitting_red_ns::sm_transition_table>,
-                    awesm::state_opts::on_entry<>
+                    awesm::state_opts::on_entry
                 >;
 
                 void on_entry()
@@ -94,7 +94,7 @@ namespace
             <
                 awesm::subsm_opts::transition_tables<on_ns::sm_transition_table>,
                 awesm::subsm_opts::context<on_ns::context>,
-                awesm::state_opts::on_exit<>
+                awesm::state_opts::on_exit
             >;
 
             void on_exit()

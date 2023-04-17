@@ -18,16 +18,14 @@ namespace awesm
 
 namespace state_opts
 {
-    template<bool Enable = true>
-    using on_entry = detail::conf_element<detail::option_id::on_entry, detail::constant<Enable>>;
+    using on_entry = detail::conf_element<detail::option_id::on_entry, detail::constant<true>>;
 
     template<class... EventFilters>
     using on_event = detail::conf_element<detail::option_id::on_event, detail::type_list<EventFilters...>>;
 
     using on_event_auto = detail::conf_element<detail::option_id::on_event_auto, detail::constant<true>>;
 
-    template<bool Enable = true>
-    using on_exit = detail::conf_element<detail::option_id::on_exit, detail::constant<Enable>>;
+    using on_exit = detail::conf_element<detail::option_id::on_exit, detail::constant<true>>;
 
     using pretty_name = detail::conf_element<detail::option_id::pretty_name, detail::constant<true>>;
 }
@@ -42,11 +40,9 @@ struct state_conf_tpl
 
     using on_event_auto = state_conf_tpl<Options..., state_opts::on_event_auto>;
 
-    template<bool Enable = true>
-    using on_entry = state_conf_tpl<Options..., state_opts::on_entry<Enable>>;
+    using on_entry = state_conf_tpl<Options..., state_opts::on_entry>;
 
-    template<bool Enable = true>
-    using on_exit = state_conf_tpl<Options..., state_opts::on_exit<Enable>>;
+    using on_exit = state_conf_tpl<Options..., state_opts::on_exit>;
 
     static constexpr auto is_composite = false;
 };

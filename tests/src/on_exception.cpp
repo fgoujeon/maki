@@ -22,8 +22,8 @@ namespace
         {
             using conf = awesm::state_conf_tpl
             <
-                awesm::state_opts::on_entry<>,
-                awesm::state_opts::on_exit<>
+                awesm::state_opts::on_entry,
+                awesm::state_opts::on_exit
             >;
 
             void on_entry()
@@ -43,9 +43,9 @@ namespace
         {
             using conf = awesm::state_conf_tpl
             <
-                awesm::state_opts::on_entry<>,
+                awesm::state_opts::on_entry,
                 awesm::state_opts::on_event<awesm::events::exception>,
-                awesm::state_opts::on_exit<>
+                awesm::state_opts::on_exit
             >;
 
             void on_entry()

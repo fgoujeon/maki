@@ -72,11 +72,9 @@ namespace sm_opts
 
     using on_event_auto = detail::conf_element<detail::option_id::on_event_auto, detail::constant<true>>;
 
-    template<bool Enable = true>
-    using on_entry = detail::conf_element<detail::option_id::on_entry, detail::constant<Enable>>;
+    using on_entry = detail::conf_element<detail::option_id::on_entry, detail::constant<true>>;
 
-    template<bool Enable = true>
-    using on_exit = detail::conf_element<detail::option_id::on_exit, detail::constant<Enable>>;
+    using on_exit = detail::conf_element<detail::option_id::on_exit, detail::constant<true>>;
 
     template<class... Ts>
     using transition_tables = detail::conf_element<detail::option_id::transition_tables, detail::type_list<Ts...>>;
@@ -115,11 +113,9 @@ struct sm_conf_tpl
 
     using on_event_auto = sm_conf_tpl<Options..., sm_opts::on_event_auto>;
 
-    template<bool Enable = true>
-    using on_entry = sm_conf_tpl<Options..., sm_opts::on_entry<Enable>>;
+    using on_entry = sm_conf_tpl<Options..., sm_opts::on_entry>;
 
-    template<bool Enable = true>
-    using on_exit = sm_conf_tpl<Options..., sm_opts::on_exit<Enable>>;
+    using on_exit = sm_conf_tpl<Options..., sm_opts::on_exit>;
 
     template<class... Ts>
     using transition_tables = sm_conf_tpl<Options..., sm_opts::transition_tables<Ts...>>;

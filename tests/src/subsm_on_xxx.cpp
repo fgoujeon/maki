@@ -39,9 +39,9 @@ namespace
         {
             using conf = awesm::state_conf_tpl
             <
-                awesm::state_opts::on_entry<>,
+                awesm::state_opts::on_entry,
                 awesm::state_opts::on_event<events::internal>,
-                awesm::state_opts::on_exit<>
+                awesm::state_opts::on_exit
             >;
 
             void on_entry(const events::button_press& event)
@@ -71,9 +71,9 @@ namespace
             using conf = awesm::subsm_conf_tpl
             <
                 awesm::subsm_opts::transition_tables<on_transition_table>,
-                awesm::subsm_opts::on_entry<>,
+                awesm::subsm_opts::on_entry,
                 awesm::subsm_opts::on_event<events::internal>,
-                awesm::subsm_opts::on_exit<>
+                awesm::subsm_opts::on_exit
             >;
 
             void on_entry(const events::button_press& event)

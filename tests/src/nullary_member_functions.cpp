@@ -34,8 +34,8 @@ namespace nullary_member_functions_ns
         {
             using conf = awesm::state_conf_tpl
             <
-                awesm::state_opts::on_entry,
-                awesm::state_opts::on_exit
+                awesm::state_opts::on_entry_any,
+                awesm::state_opts::on_exit_any
             >;
 
             void on_entry(const events::e1&)

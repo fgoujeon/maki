@@ -115,9 +115,9 @@ class subsm
 public:
     using conf = state_conf_tpl
     <
-        awesm::state_opts::on_entry,
+        awesm::state_opts::on_entry_any,
         awesm::state_opts::on_event<awesm::any>,
-        awesm::state_opts::on_exit
+        awesm::state_opts::on_exit_any
     >;
 
     using def_type = Def;

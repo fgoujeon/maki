@@ -60,7 +60,7 @@ using wrap_t = typename wrap<State, Region>::type;
 template<class State>
 constexpr auto requires_on_entry()
 {
-    return option_v<typename State::conf, option_id::on_entry>;
+    return option_v<typename State::conf, option_id::on_entry_any>;
 }
 
 
@@ -69,7 +69,7 @@ constexpr auto requires_on_entry()
 template<class State>
 constexpr auto requires_on_exit()
 {
-    return option_v<typename State::conf, option_id::on_exit>;
+    return option_v<typename State::conf, option_id::on_exit_any>;
 }
 
 

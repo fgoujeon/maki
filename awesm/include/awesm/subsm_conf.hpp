@@ -32,9 +32,9 @@ namespace subsm_opts
 
     using on_event_auto = detail::conf_element<detail::option_id::on_event_auto, detail::constant<true>>;
 
-    using on_entry = detail::conf_element<detail::option_id::on_entry, detail::constant<true>>;
+    using on_entry_any = detail::conf_element<detail::option_id::on_entry_any, detail::constant<true>>;
 
-    using on_exit = detail::conf_element<detail::option_id::on_exit, detail::constant<true>>;
+    using on_exit_any = detail::conf_element<detail::option_id::on_exit_any, detail::constant<true>>;
 
     template<class... Ts>
     using transition_tables = detail::conf_element<detail::option_id::transition_tables, detail::type_list<Ts...>>;
@@ -53,9 +53,9 @@ struct subsm_conf_tpl
 
     using on_event_auto = subsm_conf_tpl<Options..., subsm_opts::on_event_auto>;
 
-    using on_entry = subsm_conf_tpl<Options..., subsm_opts::on_entry>;
+    using on_entry_any = subsm_conf_tpl<Options..., subsm_opts::on_entry_any>;
 
-    using on_exit = subsm_conf_tpl<Options..., subsm_opts::on_exit>;
+    using on_exit_any = subsm_conf_tpl<Options..., subsm_opts::on_exit_any>;
 
     template<class... Ts>
     using transition_tables = subsm_conf_tpl<Options..., subsm_opts::transition_tables<Ts...>>;

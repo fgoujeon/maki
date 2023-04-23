@@ -37,7 +37,7 @@ namespace
         {
             using conf = awesm::state_conf_tpl
             <
-                awesm::state_opts::on_entry
+                awesm::state_opts::on_entry_any
             >;
 
             void on_entry()
@@ -53,7 +53,7 @@ namespace
         {
             using conf = awesm::state_conf_tpl
             <
-                awesm::state_opts::on_entry
+                awesm::state_opts::on_entry_any
             >;
 
             void on_entry()
@@ -69,7 +69,7 @@ namespace
         {
             using conf = awesm::state_conf_tpl
             <
-                awesm::state_opts::on_entry
+                awesm::state_opts::on_entry_any
             >;
 
             void on_entry()
@@ -92,7 +92,7 @@ namespace
             using conf = awesm::subsm_conf_tpl
             <
                 awesm::subsm_opts::transition_tables<on_transition_table>,
-                awesm::subsm_opts::on_exit
+                awesm::subsm_opts::on_exit_any
             >;
 
             void on_exit()

@@ -15,8 +15,8 @@ namespace
     X(pretty_name) \
     X(on_event<>) \
     X(on_event_auto) \
-    X(on_entry) \
-    X(on_exit)
+    X(on_entry_any) \
+    X(on_exit_any)
 
 #define SM_OPTIONS \
     STATE_OPTIONS \

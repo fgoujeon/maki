@@ -29,14 +29,14 @@ The diagram shows that:
 
 When suitable, state machines help you:
 
-* improving the readability (and thus maintainability) of your code;
-* organizing your code (by putting each state in its own file, for example);
-* visualizing what your code is doing at a high level (particularly if it is backed by a state diagram and/or a transition table);
-* logging meaningful messages to keep track of the state of your program.
+* improve the readability (and thus maintainability) of your code;
+* organize your code (by putting each state in its own file, for example);
+* visualize what your code is doing at a high level (particularly if it is backed by a state diagram and/or a transition table);
+* log meaningful messages to keep track of the state of your program.
 
 State machines are particularly well suited to implement the event-processing part of an event-driven architecture.
 
-If your code defines many functions like the following, it would most likely benefit from the introduction of a state machine:
+If your code defines many event-handling functions like the following one, it would most likely benefit from the introduction of a state machine:
 
 ```cpp
 void on_button_press()
@@ -63,9 +63,9 @@ void on_button_press()
 
 Admittedly, you don't *need* a library to implement a state machine. A couple of `enum`s and `switch`es can do the trick for simple cases. However, when things get complicated or when you need more advanced features, some sort of state machine framework becomes very handy, if not mandatory.
 
-One of the most important things a library such as AweSM provides are **transition tables**.
+One of the most important things a library such as AweSM provides is a **transition table**.
 
-When you setup a state machine with AweSM, you have to write a transition table. A transition table is a direct representation of a state diagram in your code. Here is the transition table of our lamp, written with AweSM:
+When you set up a state machine with AweSM, you have to write a transition table. A transition table is a direct representation of a state diagram in your code. Here is the transition table of our lamp, written with AweSM:
 
 ```cpp
 using sm_transition_table_t = awesm::transition_table
@@ -78,7 +78,7 @@ using sm_transition_table_t = awesm::transition_table
 This is hopefully self-explanatory, but here is how it is structured:
 
 * each row (enclosed in `::add<>`) of the table represents a possible state transition;
-* when `source state` is the active state and `event` occurs, the state machine executed `action` and activates `target state`.
+* when `source state` is the active state and `event` occurs, the state machine executes `action` and activates `target state`.
 
 This gives you a nice overview of what a program does. Moreover, the more complex a state machine is, the more valuable a transition table is for the readability of your code.
 
@@ -86,7 +86,7 @@ This gives you a nice overview of what a program does. Moreover, the more comple
 
 ## Example program
 
-Here is a test program that uses the transition table we've defined above:
+Here is a test program that uses the transition table we defined above:
 
 ```cpp
 #include <awesm.hpp>

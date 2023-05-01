@@ -8,8 +8,8 @@
 #define AWESM_SM_REF_HPP
 
 #include "sm_fwd.hpp"
+#include "detail/conf.hpp"
 #include "detail/tlu.hpp"
-#include "detail/type_list.hpp"
 
 namespace awesm
 {
@@ -17,15 +17,15 @@ namespace awesm
 namespace detail
 {
     template<class... Events>
-    class sm_ref_impl;
+    class sm_ref_event_impl;
 
     template<class Event, class... Events>
-    class sm_ref_impl<Event, Events...>: sm_ref_impl<Events...>
+    class sm_ref_event_impl<Event, Events...>: sm_ref_event_impl<Events...>
     {
     public:
         template<class SmDef>
-        sm_ref_impl(sm<SmDef>& machine):
-            sm_ref_impl<Events...>{machine},
+        sm_ref_event_impl(sm<SmDef>& machine):
+            sm_ref_event_impl<Events...>{machine},
             pprocess_event_
             {
                 [](void* const vpsm, const Event& event)
@@ -38,7 +38,7 @@ namespace detail
         {
         }
 
-        using sm_ref_impl<Events...>::process_event;
+        using sm_ref_event_impl<Events...>::process_event;
 
         void process_event(const Event& event)
         {
@@ -46,18 +46,18 @@ namespace detail
         }
 
     protected:
-        using sm_ref_impl<Events...>::get_vpsm;
+        using sm_ref_event_impl<Events...>::get_vpsm;
 
     private:
         void(*pprocess_event_)(void*, const Event&) = nullptr;
     };
 
     template<>
-    class sm_ref_impl<>
+    class sm_ref_event_impl<>
     {
     public:
         template<class SmDef>
-        sm_ref_impl(sm<SmDef>& machine):
+        sm_ref_event_impl(sm<SmDef>& machine):
             vpsm_(&machine)
         {
         }
@@ -81,10 +81,12 @@ namespace detail
 sm_ref is a type-erasing container for a reference to a sm of any type.
 It exposes the process_event() member function of the held sm.
 */
-template<class... Events>
+template<class Def>
 class sm_ref
 {
 public:
+    using conf = typename Def::conf;
+
     template<class SmDef>
     sm_ref(sm<SmDef>& machine):
         impl_{machine}
@@ -102,14 +104,26 @@ public:
     {
         static_assert
         (
-            detail::tlu::contains_v<detail::type_list<Events...>, Event>,
-            "Given event type must be part of sm_ref template argument list"
+            detail::tlu::contains_v
+            <
+                detail::option_t<conf, detail::option_id::events>,
+                Event
+            >,
+            "Given event type must be part of the 'events' option template argument list"
         );
         impl_.process_event(event);
     }
 
 private:
-    detail::sm_ref_impl<Events...> impl_;
+    using event_type_list = detail::option_t<conf, detail::option_id::events>;
+
+    using event_impl_type = detail::tlu::apply_t
+    <
+        event_type_list,
+        detail::sm_ref_event_impl
+    >;
+
+    event_impl_type impl_;
 };
 
 } //namespace

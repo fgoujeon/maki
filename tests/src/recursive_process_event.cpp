@@ -94,7 +94,7 @@ namespace
     {
         constexpr auto s0_to_s1 = []
         (
-            awesm::sm_ref<events::s1_to_s2_request> mach,
+            awesm::sm_ref_e<events::s1_to_s2_request> mach,
             context& /*ctx*/,
             const auto& /*event*/
         )
@@ -104,7 +104,7 @@ namespace
 
         constexpr auto s1_to_s2 = []
         (
-            awesm::sm_ref<events::s2_to_s0_request> mach,
+            awesm::sm_ref_e<events::s2_to_s0_request> mach,
             context& /*ctx*/,
             const auto& /*event*/
         )

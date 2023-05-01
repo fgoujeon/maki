@@ -25,6 +25,7 @@ static constexpr auto small_event_default_max_align = 8;
     X(before_entry,            constant<false>) \
     X(before_state_transition, constant<false>) \
     X(context,                 void) \
+    X(events,                  type_list<>) \
     X(on_entry_any,            constant<false>) \
     X(on_event,                type_list<>) \
     X(on_event_auto,           constant<false>) \

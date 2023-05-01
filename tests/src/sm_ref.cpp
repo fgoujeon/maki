@@ -48,24 +48,24 @@ namespace
     using sm_t = awesm::sm<sm_def>;
 }
 
-TEST_CASE("sm_ref")
+TEST_CASE("sm_ref_e")
 {
-    using sm_ref_t =
-        awesm::sm_ref<events::on_button_press, events::off_button_press>
+    using sm_ref_e_t =
+        awesm::sm_ref_e<events::on_button_press, events::off_button_press>
     ;
 
     auto sm = sm_t{};
-    auto psm_ref_temp = std::make_unique<sm_ref_t>(sm); //test ref of ref
-    auto sm_ref = sm_ref_t{*psm_ref_temp};
-    psm_ref_temp.reset();
+    auto psm_ref_e_temp = std::make_unique<sm_ref_e_t>(sm); //test ref of ref
+    auto sm_ref_e = sm_ref_e_t{*psm_ref_e_temp};
+    psm_ref_e_temp.reset();
 
     sm.start();
 
     REQUIRE(sm.is_active_state<states::off>());
 
-    sm_ref.process_event(events::on_button_press{});
+    sm_ref_e.process_event(events::on_button_press{});
     REQUIRE(sm.is_active_state<states::on>());
 
-    sm_ref.process_event(events::off_button_press{});
+    sm_ref_e.process_event(events::off_button_press{});
     REQUIRE(sm.is_active_state<states::off>());
 }

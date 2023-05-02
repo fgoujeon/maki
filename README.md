@@ -22,7 +22,7 @@ AweSM implements the following key features:
   * **internal transition actions**, aka `on_event()` member function;
 * **run-to-completion**, the guarantee that the processing of an event won't be interrupted, even if we ask to handle other events in the process;
 * **orthogonal regions**;
-* **composite states**.
+* **submachines**.
 
 Besides its features, AweSM:
 
@@ -31,6 +31,12 @@ Besides its features, AweSM:
 * **doesn't rely on exceptions**, while still allowing you to be exception-safe;
 * **doesn't rely on RTTI**;
 * is licensed under the terms of the very permissive **Boost Software License**, allowing you to use the library in any kind of free or proprietary software or firmware.
+
+What is *not* implemented (yet):
+
+* elaborate ways to enter and exit a submachine (e.g. forks, history and exit points);
+* event deferral;
+* optional thread safety with mutexes.
 
 ## Documentation
 You can access the full documentation [here](https://fgoujeon.github.io/awesm/doc/v1).

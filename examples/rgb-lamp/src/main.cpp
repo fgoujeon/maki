@@ -169,16 +169,25 @@ namespace actions
         ctx.led.set_color(rgb_led::color::off);
     }
 
-    //We can of course factorize with a template.
-    template<auto Color>
-    void turn_light_tpl(context& ctx)
+    void turn_light_white(context& ctx)
     {
-        ctx.led.set_color(Color);
+        ctx.led.set_color(rgb_led::color::white);
     }
-    constexpr auto turn_light_white = turn_light_tpl<rgb_led::color::white>;
-    constexpr auto turn_light_red   = turn_light_tpl<rgb_led::color::red>;
-    constexpr auto turn_light_green = turn_light_tpl<rgb_led::color::green>;
-    constexpr auto turn_light_blue  = turn_light_tpl<rgb_led::color::blue>;
+
+    void turn_light_red(context& ctx)
+    {
+        ctx.led.set_color(rgb_led::color::red);
+    }
+
+    void turn_light_green(context& ctx)
+    {
+        ctx.led.set_color(rgb_led::color::green);
+    }
+
+    void turn_light_blue(context& ctx)
+    {
+        ctx.led.set_color(rgb_led::color::blue);
+    }
 }
 
 /*

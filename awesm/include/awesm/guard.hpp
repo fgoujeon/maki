@@ -42,8 +42,8 @@ namespace detail
         {
             return Operator
             (
-                call_action_or_guard(lhs_, &mach, &ctx, &event),
-                call_action_or_guard(rhs_, &mach, &ctx, &event)
+                call_action_or_guard(lhs_, mach, ctx, event),
+                call_action_or_guard(rhs_, mach, ctx, event)
             );
         }
 
@@ -99,7 +99,7 @@ namespace detail
         template<class Sm, class Context, class Event>
         bool operator()(Sm& mach, Context& ctx, const Event& event) const
         {
-            return !call_action_or_guard(grd_, &mach, &ctx, &event);
+            return !call_action_or_guard(grd_, mach, ctx, event);
         }
 
     private:
@@ -130,7 +130,7 @@ public:
     template<class Sm, class Context, class Event>
     bool operator()(Sm& mach, Context& ctx, const Event& event) const
     {
-        return detail::call_action_or_guard(grd_, &mach, &ctx, &event);
+        return detail::call_action_or_guard(grd_, mach, ctx, event);
     }
 
     constexpr const guard_type& get() const

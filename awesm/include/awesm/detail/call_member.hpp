@@ -7,6 +7,7 @@
 #ifndef AWESM_DETAIL_CALL_MEMBER_HPP
 #define AWESM_DETAIL_CALL_MEMBER_HPP
 
+#include "type_traits.hpp"
 #include "state_traits.hpp"
 #include "subsm_fwd.hpp"
 #include <type_traits>
@@ -113,31 +114,30 @@ void call_on_exit
 }
 
 template<class Fn, class Sm, class Context, class Event>
-auto call_action_or_guard(const Fn& fun, Sm* pmach, Context* pctx, const Event* pevent) ->
-    decltype(fun(*pmach, *pctx, *pevent))
+auto call_action_or_guard
+(
+    const Fn& fun,
+    [[maybe_unused]] Sm& mach,
+    [[maybe_unused]] Context& ctx,
+    [[maybe_unused]] const Event& event
+)
 {
-    return fun(*pmach, *pctx, *pevent);
-}
-
-template<class Fn, class Context, class Event>
-auto call_action_or_guard(const Fn& fun, void* /*pmach*/, Context* pctx, const Event* pevent) ->
-    decltype(fun(*pctx, *pevent))
-{
-    return fun(*pctx, *pevent);
-}
-
-template<class Fn, class Context>
-auto call_action_or_guard(const Fn& fun, void* /*pmach*/, Context* pctx, const void* /*pevent*/) ->
-    decltype(fun(*pctx))
-{
-    return fun(*pctx);
-}
-
-template<class Fn>
-auto call_action_or_guard(const Fn& fun, void* /*pmach*/, void* /*pctx*/, const void* /*pevent*/) ->
-    decltype(fun())
-{
-    return fun();
+    if constexpr(std::is_invocable_v<Fn, Sm&, Context&, const Event&>)
+    {
+        return fun(mach, ctx, event);
+    }
+    else if constexpr(std::is_invocable_v<Fn, Context&, const Event&>)
+    {
+        return fun(ctx, event);
+    }
+    else if constexpr(std::is_invocable_v<Fn, Context&>)
+    {
+        return fun(ctx);
+    }
+    else if constexpr(is_nullary_v<Fn>)
+    {
+        return fun();
+    }
 }
 
 } //namespace

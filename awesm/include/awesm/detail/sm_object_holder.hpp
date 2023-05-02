@@ -7,7 +7,7 @@
 #ifndef AWESM_DETAIL_SM_OBJECT_HOLDER_HPP
 #define AWESM_DETAIL_SM_OBJECT_HOLDER_HPP
 
-#include "is_brace_constructible.hpp"
+#include "type_traits.hpp"
 #include <type_traits>
 
 namespace awesm::detail

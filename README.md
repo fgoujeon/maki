@@ -14,9 +14,9 @@ AweSM implements the following key features:
 * **transition tables**, featuring:
   * **actions**;
   * **guards**;
-  * **internal transitions**, aka transitions to `null` state;
+  * **internal transitions**, aka transitions to `awesm::null` state;
   * **completion transitions**, aka anonymous transitions, aka transitions through `awesm::null` event;
-  * **type filters** with `any`, `any_of`, `any_but`, `any_if` and `any_if_not` for source states and events;
+  * **type filters** with `awesm::any`, `awesm::any_of`, `awesm::any_but`, `awesm::any_if` and `awesm::any_if_not` for source states and events;
 * **states as classes**, featuring:
   * **entry/exit actions**, aka `on_entry()` and `on_exit()` member functions;
   * **internal transition actions**, aka `on_event()` member function;
@@ -80,11 +80,11 @@ public:
 
     button(const event_handler& /*eh*/)
     {
-        //--snip--
+        //Implementation detail...
     }
 
 private:
-    //--snip--
+    //Implementation detail...
 };
 
 //This class drives the RGB LED.
@@ -108,12 +108,12 @@ public:
     void set_color(const color c)
     {
         color_ = c;
-        //--snip--
+        //Implementation detail...
     }
 
 private:
     color color_ = color::off;
-    //--snip--
+    //Implementation detail...
 };
 
 /*
@@ -141,8 +141,7 @@ namespace states
         /*
         A state class must define a conf subtype.
         */
-        using conf = awesm::state_conf_tpl
-        <
+        using conf = awesm::state_conf
             /*
             With this option, we require the state machine to call an on_entry()
             function whenever it enters our state.
@@ -151,7 +150,7 @@ namespace states
                 state.on_entry();
             Where `event` is the event that caused the state transition.
             */
-            awesm::state_opts::on_entry_any,
+            ::on_entry_any
 
             /*
             Here, we require the state machine to call an on_event() function
@@ -161,7 +160,7 @@ namespace states
             This expression must be valid:
                 state.on_event(event);
             */
-            awesm::state_opts::on_event<button::push_event>,
+            ::on_event<button::push_event>
 
             /*
             Finally, we want the state machine to call on_exit() whenever it
@@ -171,8 +170,8 @@ namespace states
                 state.on_exit();
             Where `event` is the event that caused the state transition.
             */
-            awesm::state_opts::on_exit_any
-        >;
+            ::on_exit_any
+        ;
 
         void on_entry(const button::push_event& event)
         {
@@ -381,4 +380,4 @@ int main()
 ```
 
 ## Acknowledgements
-AweSM is greatly inspired by Boost.MSM. Actually, AweSM was born because Boost.MSM was too slow to build large state machines (which is expected for a library that has been written in a time when variadic templates weren't supported by the language).
+AweSM is greatly inspired by Boost.MSM. Actually, AweSM was born because Boost.MSM was too slow to build large state machines (which is expected for a library that has been written in a time when variadic templates weren't supported by the language). Thank you Christophe Henry for your work.

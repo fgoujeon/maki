@@ -12,6 +12,11 @@
 
 std::string read_text_file(const std::filesystem::path& path)
 {
+    if(!exists(path))
+    {
+        return std::string{};
+    }
+
     auto oss = std::ostringstream{};
     oss << std::ifstream{path}.rdbuf();
     return oss.str();
@@ -23,13 +28,16 @@ int main(int /*argc*/, char** argv)
     const auto expected_output_file_path = argv[2];
 
     const auto cmd = std::string{bin_path} + " > output.txt";
-    if (std::system(cmd.c_str()) != 0)
+    const auto cmd_exit_code = std::system(cmd.c_str());
+    const auto output = read_text_file("output.txt");
+
+    if (cmd_exit_code != 0)
     {
-        std::cout << "Execution failed\n";
+        std::cout << "Execution failed with code " << cmd_exit_code << '\n';
+        std::cout << "Output:\n" << output << '\n';
         return 1;
     }
 
-    const auto output = read_text_file("output.txt");
     const auto expected_output = read_text_file(expected_output_file_path);
 
     if (output != expected_output)

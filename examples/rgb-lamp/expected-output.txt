@@ -1,4 +1,24 @@
 Started state machine
+OK
+OK
+Button push (200 ms)
 Turned on
+OK
+OK
+Button push (200 ms)
+OK
+OK
+Button push (200 ms)
+OK
+OK
+Button push (200 ms)
+OK
+OK
+Button push (200 ms)
+OK
+OK
+Button push (1500 ms)
 Turned off after a 1500 millisecond push
+OK
+OK
 Test succeeded

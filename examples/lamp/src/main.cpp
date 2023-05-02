@@ -4,6 +4,7 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
+//! [all]
 #include <awesm.hpp>
 #include <iostream>
 
@@ -27,12 +28,14 @@ void turn_light_off()
     std::cout << "Light is off\n";
 }
 
+//! [transition-table]
 //The transition table
 using sm_transition_table_t = awesm::transition_table
     //    source state, event,        target state, action
     ::add<off,          button_press, on,           turn_light_on>
     ::add<on,           button_press, off,          turn_light_off>
 ;
+//! [transition-table]
 
 //The definition of the state machine
 struct sm_def
@@ -63,3 +66,4 @@ int main()
 
     return 0;
 }
+//! [all]

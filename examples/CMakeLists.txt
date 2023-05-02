@@ -7,4 +7,4 @@
 cmake_minimum_required(VERSION 3.10)
 
 add_subdirectory(lamp)
-add_subdirectory(rgb_lamp)
+add_subdirectory(rgb-lamp)

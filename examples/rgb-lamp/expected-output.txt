@@ -1,0 +1,4 @@
+Started state machine
+Turned on
+Turned off after a 1500 millisecond push
+Test succeeded

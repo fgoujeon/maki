@@ -6,47 +6,23 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-include(awesm)
+add_subdirectory(tests)
+add_subdirectory(example-checker)
 
-set(TARGET awesm_test)
-
-file(GLOB_RECURSE SOURCE_FILES *)
-source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${SOURCE_FILES})
-add_executable(${TARGET} ${SOURCE_FILES})
-
-awesm_target_common_options(${TARGET})
-
-target_link_libraries(
-    ${TARGET}
-    PRIVATE
-        awesm
-)
-
-if(TARGET Catch2::Catch2WithMain AND NOT AWESM_FORCE_CATCH2_V2) #v3
-    target_compile_definitions(
-        ${TARGET}
-        PRIVATE
-            AWESM_CATCH2_VERSION=3
-    )
-    target_link_libraries(
-        ${TARGET}
-        PRIVATE
-            Catch2::Catch2WithMain
-    )
-else() #v2
-    target_compile_definitions(
-        ${TARGET}
-        PRIVATE
-            AWESM_CATCH2_VERSION=2
-    )
-    target_link_libraries(
-        ${TARGET}
-        PRIVATE
-            Catch2::Catch2
-    )
-endif()
-
-add_test(
-    NAME ${TARGET}
-    COMMAND ${TARGET}
-)
+#Test examples
+set(EXAMPLES_DIR ${CMAKE_SOURCE_DIR}/examples)
+file(
+    GLOB SUBDIRS
+    LIST_DIRECTORIES true
+    RELATIVE ${EXAMPLES_DIR}
+    ${EXAMPLES_DIR}/*)
+foreach(SUBDIR ${SUBDIRS})
+    if(EXISTS ${EXAMPLES_DIR}/${SUBDIR}/CMakeLists.txt)
+        set(EXAMPLE_DIR ${EXAMPLES_DIR}/${SUBDIR})
+        set(EXAMPLE_TARGET example-${SUBDIR})
+        add_test(
+            NAME test-${EXAMPLE_TARGET}
+            COMMAND example-checker $<TARGET_FILE:${EXAMPLE_TARGET}> ${EXAMPLE_DIR}/expected-output.txt
+        )
+    endif()
+endforeach()

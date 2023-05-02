@@ -8,22 +8,10 @@ cmake_minimum_required(VERSION 3.10)
 
 include(awesm)
 
-set(TARGET example-lamp)
+set(TARGET example-checker)
 
 file(GLOB_RECURSE SOURCE_FILES *)
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${SOURCE_FILES})
 add_executable(${TARGET} ${SOURCE_FILES})
 
 awesm_target_common_options(${TARGET})
-
-target_compile_definitions(
-    ${TARGET}
-    PRIVATE
-        TESTING=1
-)
-
-target_link_libraries(
-    ${TARGET}
-    PRIVATE
-        awesm
-)

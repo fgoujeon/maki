@@ -113,31 +113,37 @@ void call_on_exit
 }
 
 template<const auto& Fn, class Sm, class Context, class Event>
-auto call_action_or_guard
-(
-    [[maybe_unused]] Sm& mach,
-    [[maybe_unused]] Context& ctx,
-    [[maybe_unused]] const Event& event
-)
+auto call_action_or_guard_impl(Sm* pmach, Context* pctx, const Event* pevent) ->
+    decltype(Fn(*pmach, *pctx, *pevent))
 {
-    using fn_t = std::decay_t<decltype(Fn)>;
+    return Fn(*pmach, *pctx, *pevent);
+}
 
-    if constexpr(std::is_invocable_v<fn_t, Sm&, Context&, const Event&>)
-    {
-        return Fn(mach, ctx, event);
-    }
-    else if constexpr(std::is_invocable_v<fn_t, Context&, const Event&>)
-    {
-        return Fn(ctx, event);
-    }
-    else if constexpr(std::is_invocable_v<fn_t, Context&>)
-    {
-        return Fn(ctx);
-    }
-    else
-    {
-        return Fn();
-    }
+template<const auto& Fn, class Context, class Event>
+auto call_action_or_guard_impl(void* /*pmach*/, Context* pctx, const Event* pevent) ->
+    decltype(Fn(*pctx, *pevent))
+{
+    return Fn(*pctx, *pevent);
+}
+
+template<const auto& Fn, class Context>
+auto call_action_or_guard_impl(void* /*pmach*/, Context* pctx, const void* /*pevent*/) ->
+    decltype(Fn(*pctx))
+{
+    return Fn(*pctx);
+}
+
+template<const auto& Fn>
+auto call_action_or_guard_impl(void* /*pmach*/, void* /*pctx*/, const void* /*pevent*/) ->
+    decltype(Fn())
+{
+    return Fn();
+}
+
+template<const auto& Fn, class Sm, class Context, class Event>
+auto call_action_or_guard(Sm& mach, Context& ctx, const Event& event)
+{
+    return call_action_or_guard_impl<Fn>(&mach, &ctx, &event);
 }
 
 } //namespace

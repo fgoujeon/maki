@@ -15,198 +15,114 @@ namespace awesm
 
 namespace detail
 {
-    //Variables can't have function types, we must use a pointer.
-    template<class F>
-    using storable_function_t = std::conditional_t
-    <
-        std::is_function_v<F>,
-        const F*,
-        F
-    >;
-
-    template<auto Operator, class Lhs, class Rhs>
-    class binary_operator
+    enum class guard_operator
     {
-    public:
-        using lhs_type = storable_function_t<Lhs>;
-        using rhs_type = storable_function_t<Rhs>;
-
-        constexpr binary_operator(const lhs_type& lhs, const rhs_type& rhs):
-            lhs_(lhs),
-            rhs_(rhs)
-        {
-        }
-
-        template<class Sm, class Context, class Event>
-        bool operator()(Sm& mach, Context& ctx, const Event& event) const
-        {
-            return Operator
-            (
-                call_action_or_guard(lhs_, mach, ctx, event),
-                call_action_or_guard(rhs_, mach, ctx, event)
-            );
-        }
-
-    private:
-        lhs_type lhs_;
-        rhs_type rhs_;
+        none,
+        not_,
+        and_,
+        or_,
+        xor_
     };
-
-    inline bool and_(const bool lhs, const bool rhs)
-    {
-        return lhs && rhs;
-    }
-
-    inline bool or_(const bool lhs, const bool rhs)
-    {
-        return lhs || rhs;
-    }
-
-    inline bool xor_(const bool lhs, const bool rhs)
-    {
-        return lhs != rhs;
-    }
-
-    template<class Lhs, class Rhs>
-    constexpr auto make_and_operator(const Lhs& lhs, const Rhs& rhs)
-    {
-        return binary_operator<and_, Lhs, Rhs>(lhs, rhs);
-    }
-
-    template<class Lhs, class Rhs>
-    constexpr auto make_or_operator(const Lhs& lhs, const Rhs& rhs)
-    {
-        return binary_operator<or_, Lhs, Rhs>(lhs, rhs);
-    }
-
-    template<class Lhs, class Rhs>
-    constexpr auto make_xor_operator(const Lhs& lhs, const Rhs& rhs)
-    {
-        return binary_operator<xor_, Lhs, Rhs>{lhs, rhs};
-    }
-
-    template<class Guard>
-    class not_t
-    {
-    public:
-        using guard_type = storable_function_t<Guard>;
-
-        explicit constexpr not_t(const guard_type& grd):
-            grd_(grd)
-        {
-        }
-
-        template<class Sm, class Context, class Event>
-        bool operator()(Sm& mach, Context& ctx, const Event& event) const
-        {
-            return !call_action_or_guard(grd_, mach, ctx, event);
-        }
-
-    private:
-        guard_type grd_;
-    };
-
-    template<class Guard>
-    not_t(const Guard&) -> not_t<Guard>;
 }
 
-template<class Guard>
-class guard_t
+template<detail::guard_operator Operator, const auto& Operand, const auto& Operand2>
+struct guard_t;
+
+template<const auto& Guard>
+inline constexpr auto guard = guard_t<detail::guard_operator::none, Guard, Guard>{};
+
+template<detail::guard_operator Operator, const auto& Operand, const auto& Operand2>
+inline constexpr auto composable_guard = guard_t<Operator, Operand, Operand2>{};
+
+template<detail::guard_operator Operator, const auto& Operand, const auto& Operand2>
+struct guard_t
 {
-public:
-    using guard_type = detail::storable_function_t<Guard>;
-
-    explicit constexpr guard_t(const guard_type& grd):
-        grd_(grd)
-    {
-    }
-
-    template<class Guard2>
-    constexpr guard_t(const guard_t<Guard2>& grd):
-        grd_(grd.grd_)
-    {
-    }
-
     template<class Sm, class Context, class Event>
     bool operator()(Sm& mach, Context& ctx, const Event& event) const
     {
-        return detail::call_action_or_guard(grd_, mach, ctx, event);
+        if constexpr(Operator == detail::guard_operator::none)
+        {
+            return detail::call_action_or_guard<Operand>(mach, ctx, event);
+        }
+        if constexpr(Operator == detail::guard_operator::not_)
+        {
+            return !Operand(mach, ctx, event);
+        }
+        if constexpr(Operator == detail::guard_operator::and_)
+        {
+            return Operand(mach, ctx, event) && Operand2(mach, ctx, event);
+        }
+        if constexpr(Operator == detail::guard_operator::or_)
+        {
+            return Operand(mach, ctx, event) || Operand2(mach, ctx, event);
+        }
+        if constexpr(Operator == detail::guard_operator::xor_)
+        {
+            return Operand(mach, ctx, event) != Operand2(mach, ctx, event);
+        }
     }
 
-    constexpr const guard_type& get() const
+    template
+    <
+        detail::guard_operator RhsOperator, const auto& RhsOperand, const auto& RhsOperand2
+    >
+    constexpr const auto& operator&&
+    (
+        guard_t<RhsOperator, RhsOperand, RhsOperand2> /*rhs*/
+    ) const
     {
-        return grd_;
+        return composable_guard
+        <
+            detail::guard_operator::and_,
+            composable_guard<Operator, Operand, Operand2>,
+            composable_guard<RhsOperator, RhsOperand, RhsOperand2>
+        >;
     }
 
-private:
-    guard_type grd_;
+    template
+    <
+        detail::guard_operator RhsOperator, const auto& RhsOperand, const auto& RhsOperand2
+    >
+    constexpr const auto& operator||
+    (
+        guard_t<RhsOperator, RhsOperand, RhsOperand2> /*rhs*/
+    ) const
+    {
+        return composable_guard
+        <
+            detail::guard_operator::or_,
+            composable_guard<Operator, Operand, Operand2>,
+            composable_guard<RhsOperator, RhsOperand, RhsOperand2>
+        >;
+    }
+
+    template
+    <
+        detail::guard_operator RhsOperator, const auto& RhsOperand, const auto& RhsOperand2
+    >
+    constexpr const auto& operator!=
+    (
+        guard_t<RhsOperator, RhsOperand, RhsOperand2> /*rhs*/
+    ) const
+    {
+        return composable_guard
+        <
+            detail::guard_operator::xor_,
+            composable_guard<Operator, Operand, Operand2>,
+            composable_guard<RhsOperator, RhsOperand, RhsOperand2>
+        >;
+    }
+
+    constexpr const auto& operator!() const
+    {
+        return composable_guard
+        <
+            detail::guard_operator::not_,
+            composable_guard<Operator, Operand, Operand2>,
+            composable_guard<Operator, Operand, Operand2>
+        >;
+    }
 };
-
-template<class F>
-guard_t(const F&) -> guard_t<F>;
-
-template<class Lhs, class Rhs>
-constexpr auto operator&&(const guard_t<Lhs>& lhs, const guard_t<Rhs>& rhs)
-{
-    return guard_t{detail::make_and_operator(lhs.get(), rhs.get())};
-}
-
-template<class Lhs, class Rhs>
-constexpr auto operator&&(const guard_t<Lhs>& lhs, const Rhs& rhs)
-{
-    return guard_t{detail::make_and_operator(lhs.get(), rhs)};
-}
-
-template<class Lhs, class Rhs>
-constexpr auto operator&&(const Lhs& lhs, const guard_t<Rhs>& rhs)
-{
-    return guard_t{detail::make_and_operator(lhs, rhs.get())};
-}
-
-template<class Lhs, class Rhs>
-constexpr auto operator||(const guard_t<Lhs>& lhs, const guard_t<Rhs>& rhs)
-{
-    return guard_t{detail::make_or_operator(lhs.get(), rhs.get())};
-}
-
-template<class Lhs, class Rhs>
-constexpr auto operator||(const guard_t<Lhs>& lhs, const Rhs& rhs)
-{
-    return guard_t{detail::make_or_operator(lhs.get(), rhs)};
-}
-
-template<class Lhs, class Rhs>
-constexpr auto operator||(const Lhs& lhs, const guard_t<Rhs>& rhs)
-{
-    return guard_t{detail::make_or_operator(lhs, rhs.get())};
-}
-
-template<class Lhs, class Rhs>
-constexpr auto operator!=(const guard_t<Lhs>& lhs, const guard_t<Rhs>& rhs)
-{
-    return guard_t{detail::make_xor_operator(lhs.get(), rhs.get())};
-}
-
-template<class Lhs, class Rhs>
-constexpr auto operator!=(const guard_t<Lhs>& lhs, const Rhs& rhs)
-{
-    return guard_t{detail::make_xor_operator(lhs.get(), rhs)};
-}
-
-template<class Lhs, class Rhs>
-constexpr auto operator!=(const Lhs& lhs, const guard_t<Rhs>& rhs)
-{
-    return guard_t{detail::make_xor_operator(lhs, rhs.get())};
-}
-
-template<class Guard>
-constexpr auto operator!(const guard_t<Guard>& grd)
-{
-    return guard_t{detail::not_t{grd.get()}};
-}
-
-template<const auto& Guard>
-inline constexpr auto guard = guard_t{Guard};
 
 } //namespace
 

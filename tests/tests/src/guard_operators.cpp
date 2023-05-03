@@ -64,26 +64,16 @@ namespace
 
 #undef GUARD
 
-        constexpr auto can_access_state0 = awesm::guard<can_access_state0_0> && can_access_state0_1;
-        [[maybe_unused]] constexpr auto can_access_state0_ww = awesm::guard<can_access_state0_0> && awesm::guard<can_access_state0_1>;
-        [[maybe_unused]] constexpr auto can_access_state0_rw = can_access_state0_0 && awesm::guard<can_access_state0_1>;
-
-        constexpr auto can_access_state1 = can_access_state1_0 || awesm::guard<can_access_state1_1>;
-        [[maybe_unused]] constexpr auto can_access_state1_ww = awesm::guard<can_access_state1_0> || awesm::guard<can_access_state1_1>;
-        [[maybe_unused]] constexpr auto can_access_state1_wr = awesm::guard<can_access_state1_0> || can_access_state1_1;
-
+        constexpr auto can_access_state0 = awesm::guard<can_access_state0_0> && awesm::guard<can_access_state0_1>;
+        constexpr auto can_access_state1 = awesm::guard<can_access_state1_0> || awesm::guard<can_access_state1_1>;
         constexpr auto can_access_state2 = awesm::guard<can_access_state2_0> != awesm::guard<can_access_state2_1>;
-        [[maybe_unused]] constexpr auto can_access_state2_wr = awesm::guard<can_access_state2_0> != can_access_state2_1;
-        [[maybe_unused]] constexpr auto can_access_state2_rw = can_access_state2_0 != awesm::guard<can_access_state2_1>;
-
-        constexpr auto can_access_state3 = !awesm::guard<cant_access_state3>;
     }
 
     using sm_transition_table = awesm::transition_table
         ::add<states::idle, events::start, states::state0, awesm::noop, guards::can_access_state0>
         ::add<states::idle, events::start, states::state1, awesm::noop, guards::can_access_state1>
         ::add<states::idle, events::start, states::state2, awesm::noop, guards::can_access_state2>
-        ::add<states::idle, events::start, states::state3, awesm::noop, guards::can_access_state3>
+        ::add<states::idle, events::start, states::state3, awesm::noop, !awesm::guard<guards::cant_access_state3>>
 
         ::add<states::state0, events::stop, states::idle>
         ::add<states::state1, events::stop, states::idle>

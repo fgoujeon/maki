@@ -26,9 +26,8 @@ namespace detail
 }
 
 template<detail::guard_operator Operator, const auto& Operand, const auto& Operand2>
-class guard_t
+struct guard_t
 {
-public:
     template<class Sm, class Context, class Event>
     bool operator()(Sm& mach, Context& ctx, const Event& event) const
     {
@@ -38,28 +37,19 @@ public:
         }
         if constexpr(Operator == detail::guard_operator::not_)
         {
-            return !detail::call_action_or_guard<Operand>(mach, ctx, event);
+            return !Operand(mach, ctx, event);
         }
         if constexpr(Operator == detail::guard_operator::and_)
         {
-            return
-                detail::call_action_or_guard<Operand>(mach, ctx, event) &&
-                detail::call_action_or_guard<Operand2>(mach, ctx, event)
-            ;
+            return Operand(mach, ctx, event) && Operand2(mach, ctx, event);
         }
         if constexpr(Operator == detail::guard_operator::or_)
         {
-            return
-                detail::call_action_or_guard<Operand>(mach, ctx, event) ||
-                detail::call_action_or_guard<Operand2>(mach, ctx, event)
-            ;
+            return Operand(mach, ctx, event) || Operand2(mach, ctx, event);
         }
         if constexpr(Operator == detail::guard_operator::xor_)
         {
-            return
-                detail::call_action_or_guard<Operand>(mach, ctx, event) !=
-                detail::call_action_or_guard<Operand2>(mach, ctx, event)
-            ;
+            return Operand(mach, ctx, event) != Operand2(mach, ctx, event);
         }
     }
 };

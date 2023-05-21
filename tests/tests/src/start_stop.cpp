@@ -19,11 +19,10 @@ namespace
     {
         struct s0
         {
-            using conf = awesm::state_conf_tpl
-            <
-                awesm::state_opts::on_entry_any,
-                awesm::state_opts::on_exit_any
-            >;
+            using conf = awesm::state_conf
+                ::on_entry_any
+                ::on_exit_any
+            ;
 
             void on_entry()
             {
@@ -40,11 +39,10 @@ namespace
 
         struct s1
         {
-            using conf = awesm::state_conf_tpl
-            <
-                awesm::state_opts::on_entry_any,
-                awesm::state_opts::on_exit_any
-            >;
+            using conf = awesm::state_conf
+                ::on_entry_any
+                ::on_exit_any
+            ;
 
             void on_entry()
             {

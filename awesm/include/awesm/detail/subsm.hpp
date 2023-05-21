@@ -113,12 +113,11 @@ template<class Def, class ParentRegion>
 class subsm
 {
 public:
-    using conf = state_conf_tpl
-    <
-        awesm::state_opts::on_entry_any,
-        awesm::state_opts::on_event<awesm::any>,
-        awesm::state_opts::on_exit_any
-    >;
+    using conf = state_conf
+        ::on_entry_any
+        ::on_event<awesm::any>
+        ::on_exit_any
+    ;
 
     using def_type = Def;
     using context_type = typename subsm_context<Def, ParentRegion>::type;

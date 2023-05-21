@@ -40,14 +40,13 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf_tpl
-        <
-            awesm::sm_opts::transition_tables<sm_transition_table>,
-            awesm::sm_opts::context<context>,
-            awesm::sm_opts::before_state_transition,
-            awesm::sm_opts::after_state_transition,
-            awesm::sm_opts::pretty_name
-        >;
+        using conf = awesm::sm_conf
+            ::transition_tables<sm_transition_table>
+            ::context<context>
+            ::before_state_transition
+            ::after_state_transition
+            ::pretty_name
+        ;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>
         void before_state_transition(const Event& /*event*/)

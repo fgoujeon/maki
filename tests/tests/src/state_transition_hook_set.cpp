@@ -35,11 +35,10 @@ namespace
 
         struct on1
         {
-            using conf = awesm::subsm_conf_tpl
-            <
-                awesm::subsm_opts::transition_tables<on1_transition_table>,
-                awesm::subsm_opts::pretty_name
-            >;
+            using conf = awesm::subsm_conf
+                ::transition_tables<on1_transition_table>
+                ::pretty_name
+            ;
 
             static auto pretty_name()
             {

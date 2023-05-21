@@ -35,11 +35,11 @@ namespace
     X(small_event_max_align<0>) \
     X(small_event_max_size<1>)
 
-#define X(option) awesm::state_opts::option,
+#define X(option) awesm::detail::options::option,
     using state_conf_tpl_1_t = awesm::state_conf_tpl
     <
         STATE_OPTIONS
-        awesm::state_opts::pretty_name
+        awesm::detail::options::pretty_name
     >;
 #undef X
 
@@ -50,11 +50,11 @@ namespace
     ;
 #undef X
 
-#define X(option) awesm::subsm_opts::option,
+#define X(option) awesm::detail::options::option,
     using subsm_conf_tpl_1_t = awesm::subsm_conf_tpl
     <
         SM_OPTIONS
-        awesm::subsm_opts::pretty_name
+        awesm::detail::options::pretty_name
     >;
 #undef X
 
@@ -65,11 +65,11 @@ namespace
     ;
 #undef X
 
-#define X(option) awesm::sm_opts::option,
+#define X(option) awesm::detail::options::option,
     using sm_conf_tpl_1_t = awesm::sm_conf_tpl
     <
         ROOT_SM_OPTIONS
-        awesm::sm_opts::pretty_name
+        awesm::detail::options::pretty_name
     >;
 #undef X
 

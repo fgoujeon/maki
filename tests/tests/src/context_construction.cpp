@@ -45,11 +45,10 @@ namespace
 
         struct on
         {
-            using conf = awesm::sm_conf_tpl
-            <
-                awesm::subsm_opts::transition_tables<on_transition_table>,
-                awesm::subsm_opts::context<on_context>
-            >;
+            using conf = awesm::sm_conf
+                ::transition_tables<on_transition_table>
+                ::context<on_context>
+            ;
         };
     }
 
@@ -60,11 +59,10 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf_tpl
-        <
-            awesm::subsm_opts::transition_tables<sm_transition_table>,
-            awesm::subsm_opts::context<context>
-        >;
+        using conf = awesm::sm_conf
+            ::transition_tables<sm_transition_table>
+            ::context<context>
+        ;
     };
 }
 

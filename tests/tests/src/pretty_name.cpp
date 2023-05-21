@@ -16,10 +16,9 @@ namespace pretty_name_ns
 
     struct state
     {
-        using conf = awesm::state_conf_tpl
-        <
-            awesm::state_opts::pretty_name
-        >;
+        using conf = awesm::state_conf
+            ::pretty_name
+        ;
 
         static const char* pretty_name()
         {
@@ -33,11 +32,10 @@ namespace pretty_name_ns
 
     struct subsm
     {
-        using conf = awesm::subsm_conf_tpl
-        <
-            awesm::subsm_opts::transition_tables<subsm_transition_table>,
-            awesm::subsm_opts::pretty_name
-        >;
+        using conf = awesm::subsm_conf
+            ::transition_tables<subsm_transition_table>
+            ::pretty_name
+        ;
 
         static const char* pretty_name()
         {
@@ -55,12 +53,11 @@ namespace pretty_name_ns
 
     struct sm_def
     {
-        using conf = awesm::subsm_conf_tpl
-        <
-            awesm::subsm_opts::transition_tables<sm_transition_table>,
-            awesm::subsm_opts::context<context>,
-            awesm::subsm_opts::pretty_name
-        >;
+        using conf = awesm::subsm_conf
+            ::transition_tables<sm_transition_table>
+            ::context<context>
+            ::pretty_name
+        ;
 
         static const char* pretty_name()
         {

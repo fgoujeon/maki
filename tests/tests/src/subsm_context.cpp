@@ -51,7 +51,7 @@ namespace
             {
                 struct emitting_cold_red
                 {
-                    using conf = awesm::state_conf_tpl<>;
+                    using conf = awesm::state_conf;
                     on_ns::context& ctx;
                 };
 
@@ -64,11 +64,10 @@ namespace
 
             struct emitting_red
             {
-                using conf = awesm::subsm_conf_tpl
-                <
-                    awesm::subsm_opts::transition_tables<emitting_red_ns::sm_transition_table>,
-                    awesm::state_opts::on_entry_any
-                >;
+                using conf = awesm::subsm_conf
+                    ::transition_tables<emitting_red_ns::sm_transition_table>
+                    ::on_entry_any
+                ;
 
                 void on_entry()
                 {
@@ -90,12 +89,11 @@ namespace
 
         struct on
         {
-            using conf = awesm::subsm_conf_tpl
-            <
-                awesm::subsm_opts::transition_tables<on_ns::sm_transition_table>,
-                awesm::subsm_opts::context<on_ns::context>,
-                awesm::state_opts::on_exit_any
-            >;
+            using conf = awesm::subsm_conf
+                ::transition_tables<on_ns::sm_transition_table>
+                ::context<on_ns::context>
+                ::on_exit_any
+            ;
 
             void on_exit()
             {

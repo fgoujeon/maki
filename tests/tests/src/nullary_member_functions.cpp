@@ -32,11 +32,10 @@ namespace nullary_member_functions_ns
 
         struct on
         {
-            using conf = awesm::state_conf_tpl
-            <
-                awesm::state_opts::on_entry_any,
-                awesm::state_opts::on_exit_any
-            >;
+            using conf = awesm::state_conf
+                ::on_entry_any
+                ::on_exit_any
+            ;
 
             void on_entry(const events::e1&)
             {
@@ -98,11 +97,10 @@ namespace nullary_member_functions_ns
 
     struct sm_def
     {
-        using conf = awesm::sm_conf_tpl
-        <
-            awesm::subsm_opts::transition_tables<sm_transition_table>,
-            awesm::subsm_opts::context<context>
-        >;
+        using conf = awesm::sm_conf
+            ::transition_tables<sm_transition_table>
+            ::context<context>
+        ;
     };
 
     using sm_t = awesm::sm<sm_def>;

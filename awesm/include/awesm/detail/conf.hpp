@@ -100,6 +100,71 @@ using option_or_t = typename tlu::find_t
 template<class Conf, option_id Id>
 constexpr auto option_v = option_t<Conf, Id>::value;
 
+//All options, sorted alphabetically
+namespace options
+{
+    using after_state_transition = conf_element
+    <
+        option_id::after_state_transition,
+        constant<true>
+    >;
+
+    using no_auto_start = conf_element<option_id::auto_start, constant<false>>;
+
+    using before_entry = conf_element<option_id::before_entry, constant<true>>;
+
+    using before_state_transition = conf_element
+    <
+        option_id::before_state_transition,
+        constant<true>
+    >;
+
+    template<class T>
+    using context = conf_element<option_id::context, T>;
+
+    using no_run_to_completion = conf_element
+    <
+        option_id::run_to_completion,
+        constant<false>
+    >;
+
+    using pretty_name = conf_element
+    <
+        option_id::pretty_name,
+        constant<true>
+    >;
+
+    using on_exception = conf_element<option_id::on_exception, constant<true>>;
+
+    using on_unprocessed = conf_element<option_id::on_unprocessed, constant<true>>;
+
+    template<std::size_t Value>
+    using small_event_max_align = conf_element
+    <
+        option_id::small_event_max_align,
+        constant<Value>
+    >;
+
+    template<std::size_t Value>
+    using small_event_max_size = conf_element
+    <
+        option_id::small_event_max_size,
+        constant<Value>
+    >;
+
+    template<class... EventFilters>
+    using on_event = conf_element<option_id::on_event, type_list<EventFilters...>>;
+
+    using on_event_auto = conf_element<option_id::on_event_auto, constant<true>>;
+
+    using on_entry_any = conf_element<option_id::on_entry_any, constant<true>>;
+
+    using on_exit_any = conf_element<option_id::on_exit_any, constant<true>>;
+
+    template<class... Ts>
+    using transition_tables = conf_element<option_id::transition_tables, type_list<Ts...>>;
+}
+
 } //namespace
 
 #endif

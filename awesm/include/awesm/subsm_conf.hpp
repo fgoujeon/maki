@@ -16,49 +16,25 @@
 namespace awesm
 {
 
-namespace subsm_opts
-{
-    template<class T>
-    using context = detail::conf_element<detail::option_id::context, T>;
-
-    using pretty_name = detail::conf_element
-    <
-        detail::option_id::pretty_name,
-        detail::constant<true>
-    >;
-
-    template<class... EventFilters>
-    using on_event = detail::conf_element<detail::option_id::on_event, detail::type_list<EventFilters...>>;
-
-    using on_event_auto = detail::conf_element<detail::option_id::on_event_auto, detail::constant<true>>;
-
-    using on_entry_any = detail::conf_element<detail::option_id::on_entry_any, detail::constant<true>>;
-
-    using on_exit_any = detail::conf_element<detail::option_id::on_exit_any, detail::constant<true>>;
-
-    template<class... Ts>
-    using transition_tables = detail::conf_element<detail::option_id::transition_tables, detail::type_list<Ts...>>;
-}
-
 template<class... Options>
 struct subsm_conf_tpl
 {
     template<class T>
-    using context = subsm_conf_tpl<Options..., subsm_opts::context<T>>;
+    using context = subsm_conf_tpl<Options..., detail::options::context<T>>;
 
-    using pretty_name = subsm_conf_tpl<Options..., subsm_opts::pretty_name>;
+    using pretty_name = subsm_conf_tpl<Options..., detail::options::pretty_name>;
 
     template<class... EventFilters>
-    using on_event = subsm_conf_tpl<Options..., subsm_opts::on_event<EventFilters...>>;
+    using on_event = subsm_conf_tpl<Options..., detail::options::on_event<EventFilters...>>;
 
-    using on_event_auto = subsm_conf_tpl<Options..., subsm_opts::on_event_auto>;
+    using on_event_auto = subsm_conf_tpl<Options..., detail::options::on_event_auto>;
 
-    using on_entry_any = subsm_conf_tpl<Options..., subsm_opts::on_entry_any>;
+    using on_entry_any = subsm_conf_tpl<Options..., detail::options::on_entry_any>;
 
-    using on_exit_any = subsm_conf_tpl<Options..., subsm_opts::on_exit_any>;
+    using on_exit_any = subsm_conf_tpl<Options..., detail::options::on_exit_any>;
 
     template<class... Ts>
-    using transition_tables = subsm_conf_tpl<Options..., subsm_opts::transition_tables<Ts...>>;
+    using transition_tables = subsm_conf_tpl<Options..., detail::options::transition_tables<Ts...>>;
 
     static constexpr auto is_composite = true;
 };

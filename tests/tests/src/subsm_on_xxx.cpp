@@ -37,12 +37,11 @@ namespace
 
         struct on_0
         {
-            using conf = awesm::state_conf_tpl
-            <
-                awesm::state_opts::on_entry_any,
-                awesm::state_opts::on_event<events::internal>,
-                awesm::state_opts::on_exit_any
-            >;
+            using conf = awesm::state_conf
+                ::on_entry_any
+                ::on_event<events::internal>
+                ::on_exit_any
+            ;
 
             void on_entry(const events::button_press& event)
             {
@@ -68,13 +67,12 @@ namespace
 
         struct on
         {
-            using conf = awesm::subsm_conf_tpl
-            <
-                awesm::subsm_opts::transition_tables<on_transition_table>,
-                awesm::subsm_opts::on_entry_any,
-                awesm::subsm_opts::on_event<events::internal>,
-                awesm::subsm_opts::on_exit_any
-            >;
+            using conf = awesm::subsm_conf
+                ::transition_tables<on_transition_table>
+                ::on_entry_any
+                ::on_event<events::internal>
+                ::on_exit_any
+            ;
 
             void on_entry(const events::button_press& event)
             {

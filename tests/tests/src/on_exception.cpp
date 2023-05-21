@@ -20,11 +20,10 @@ namespace
     {
         struct off
         {
-            using conf = awesm::state_conf_tpl
-            <
-                awesm::state_opts::on_entry_any,
-                awesm::state_opts::on_exit_any
-            >;
+            using conf = awesm::state_conf
+                ::on_entry_any
+                ::on_exit_any
+            ;
 
             void on_entry()
             {
@@ -41,12 +40,11 @@ namespace
 
         struct on
         {
-            using conf = awesm::state_conf_tpl
-            <
-                awesm::state_opts::on_entry_any,
-                awesm::state_opts::on_event<awesm::events::exception>,
-                awesm::state_opts::on_exit_any
-            >;
+            using conf = awesm::state_conf
+                ::on_entry_any
+                ::on_event<awesm::events::exception>
+                ::on_exit_any
+            ;
 
             void on_entry()
             {
@@ -92,23 +90,21 @@ namespace
 
     struct default_sm_def
     {
-        using conf = awesm::sm_conf_tpl
-        <
-            awesm::sm_opts::transition_tables<sm_transition_table>,
-            awesm::sm_opts::context<context>
-        >;
+        using conf = awesm::sm_conf
+            ::transition_tables<sm_transition_table>
+            ::context<context>
+        ;
     };
 
     using default_sm_t = awesm::sm<default_sm_def>;
 
     struct custom_sm_def
     {
-        using conf = awesm::sm_conf_tpl
-        <
-            awesm::sm_opts::transition_tables<sm_transition_table>,
-            awesm::sm_opts::context<context>,
-            awesm::sm_opts::on_exception
-        >;
+        using conf = awesm::sm_conf
+            ::transition_tables<sm_transition_table>
+            ::context<context>
+            ::on_exception
+        ;
 
         void on_exception(const std::exception_ptr& eptr)
         {

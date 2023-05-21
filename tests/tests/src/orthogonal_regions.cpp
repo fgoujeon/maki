@@ -33,10 +33,9 @@ namespace
         EMPTY_STATE(on0);
         struct on1
         {
-            using conf = awesm::state_conf_tpl
-            <
-                awesm::state_opts::on_event<events::exception_request>
-            >;
+            using conf = awesm::state_conf
+                ::on_event<events::exception_request>
+            ;
 
             void on_event(const events::exception_request&)
             {

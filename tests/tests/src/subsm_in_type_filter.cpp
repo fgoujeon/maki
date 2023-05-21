@@ -32,36 +32,20 @@ namespace
 
         struct s0
         {
-            using conf = awesm::subsm_conf_tpl
-            <
-                awesm::subsm_opts::transition_tables<s0_transition_table>
-            >;
-
-            template<class Event>
-            void on_entry(const Event& /*event*/)
-            {
-            }
-
-            template<class Event>
-            void on_event(const Event& /*event*/)
-            {
-            }
-
-            template<class Event>
-            void on_exit(const Event& /*event*/)
-            {
-            }
+            using conf = awesm::subsm_conf
+                ::transition_tables<s0_transition_table>
+            ;
         };
     }
 
     using any_but_s0_s1 = awesm::any_but<states::s0, states::s1>;
-    using any = awesm::any_of<states::s0, states::s1>;
+    using any_of_s0_s1 = awesm::any_of<states::s0, states::s1>;
 
     using sm_transition_table = awesm::transition_table
         ::add<states::off,   events::button_press,             states::s0>
         ::add<states::s0,    events::button_press,             states::s1>
         ::add<any_but_s0_s1, events::off_button_press,         states::off>
-        ::add<any,           events::destruction_button_press, states::off>
+        ::add<any_of_s0_s1,  events::destruction_button_press, states::off>
     ;
 
     struct sm_def

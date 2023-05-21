@@ -31,10 +31,9 @@ namespace
     {
         struct off
         {
-            using conf = awesm::state_conf_tpl
-            <
-                awesm::state_opts::on_event_auto
-            >;
+            using conf = awesm::state_conf
+                ::on_event_auto
+            ;
 
             void on_event(const events::button_press& event)
             {
@@ -46,10 +45,9 @@ namespace
 
         struct on
         {
-            using conf = awesm::state_conf_tpl
-            <
-                awesm::state_opts::on_event_auto
-            >;
+            using conf = awesm::state_conf
+                ::on_event_auto
+            ;
 
             void on_event(const events::button_press& /*event*/)
             {
@@ -72,12 +70,11 @@ namespace
 
     struct sm_def
     {
-        using conf = awesm::sm_conf_tpl
-        <
-            awesm::subsm_opts::transition_tables<sm_transition_table>,
-            awesm::subsm_opts::context<context>,
-            awesm::subsm_opts::on_event_auto
-        >;
+        using conf = awesm::sm_conf
+            ::transition_tables<sm_transition_table>
+            ::context<context>
+            ::on_event_auto
+        ;
 
         void on_event(const events::button_press& event)
         {

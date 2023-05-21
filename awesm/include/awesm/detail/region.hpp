@@ -238,16 +238,6 @@ private:
             using source_state_t = typename Transition::source_state_type_filter;
             using target_state_t = typename Transition::target_state_type;
 
-            constexpr auto transition_action = []() -> decltype(auto)
-            {
-                return Transition::action;
-            };
-
-            constexpr auto transition_guard = []() -> decltype(auto)
-            {
-                return Transition::guard;
-            };
-
             if constexpr(is_type_filter_v<source_state_t>)
             {
                 using matching_state_type_list = state_type_list_filters::by_filter_t
@@ -264,8 +254,8 @@ private:
                     try_processing_event_in_transition_2
                     <
                         target_state_t,
-                        transition_action(),
-                        transition_guard()
+                        Transition::action,
+                        Transition::guard
                     >
                 >(self, event);
             }
@@ -274,8 +264,8 @@ private:
                 return try_processing_event_in_transition_2
                 <
                     target_state_t,
-                    transition_action(),
-                    transition_guard()
+                    Transition::action,
+                    Transition::guard
                 >::template call<source_state_t>(self, event);
             }
         }

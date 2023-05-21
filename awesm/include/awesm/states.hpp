@@ -12,9 +12,9 @@
 namespace awesm::states
 {
 
-/*
-Represents the initial state of any region, i.e. the state before start() and
-after stop() are called.
+/**
+@brief Represents the state of any region before @ref sm::start() is called and
+after @ref sm::stop() is called.
 */
 struct stopped
 {

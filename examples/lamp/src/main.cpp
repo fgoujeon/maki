@@ -28,8 +28,8 @@ void turn_light_off()
     std::cout << "Light is off\n";
 }
 
-//! [transition-table]
 //The transition table
+//! [transition-table]
 using sm_transition_table_t = awesm::transition_table
     //    source state, event,        target state, action
     ::add<off,          button_press, on,           turn_light_on>
@@ -38,6 +38,7 @@ using sm_transition_table_t = awesm::transition_table
 //! [transition-table]
 
 //The definition of the state machine
+//! [sm-def]
 struct sm_def
 {
     //The configuration of the state machine
@@ -46,9 +47,12 @@ struct sm_def
         ::context<context>
     ;
 };
+//! [sm-def]
 
 //The state machine
+//! [sm]
 using sm_t = awesm::sm<sm_def>;
+//! [sm]
 
 int main()
 {

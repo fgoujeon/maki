@@ -46,7 +46,7 @@ struct wrap
 };
 
 template<class State, class Region>
-struct wrap<State, Region, std::enable_if_t<State::conf::is_composite>>
+struct wrap<State, Region, std::enable_if_t<is_subsm_conf_v<typename State::conf>>>
 {
     using type = subsm<State, Region>;
 };

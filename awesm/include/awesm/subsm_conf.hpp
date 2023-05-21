@@ -35,11 +35,27 @@ struct subsm_conf_tpl
 
     template<class... Ts>
     using transition_tables = subsm_conf_tpl<Options..., detail::options::transition_tables<Ts...>>;
-
-    static constexpr auto is_composite = true;
 };
 
 using subsm_conf = subsm_conf_tpl<>;
+
+namespace detail
+{
+    template<class T>
+    struct is_subsm_conf
+    {
+        static constexpr auto value = false;
+    };
+
+    template<class... Options>
+    struct is_subsm_conf<subsm_conf_tpl<Options...>>
+    {
+        static constexpr auto value = true;
+    };
+
+    template<class T>
+    constexpr auto is_subsm_conf_v = is_subsm_conf<T>::value;
+}
 
 } //namespace
 

@@ -29,8 +29,6 @@ struct state_conf_tpl
     using on_entry_any = state_conf_tpl<Options..., detail::options::on_entry_any>;
 
     using on_exit_any = state_conf_tpl<Options..., detail::options::on_exit_any>;
-
-    static constexpr auto is_composite = false;
 };
 
 using state_conf = state_conf_tpl<>;

@@ -55,8 +55,6 @@ struct sm_conf_tpl
 
     template<class... Ts>
     using transition_tables = sm_conf_tpl<Options..., detail::options::transition_tables<Ts...>>;
-
-    static constexpr auto is_root = true;
 };
 
 using sm_conf = sm_conf_tpl<>;

@@ -68,13 +68,9 @@ namespace type_name_detail
     }
 
     //Extract "e" from e.g. a::b<c,d>::e<f::g>
-    template<class T>
-    std::string_view decayed_type_name()
+    inline std::string_view decay_type_name(const std::string_view tname)
     {
-        const auto tname = type_name<T>();
-        const auto tname_size = static_cast<int>(tname.size());
-
-        auto current_index = tname_size - 1;
+        auto current_index = static_cast<int>(tname.size() - 1);
 
         //Find end index
         const auto end_index = [&]
@@ -93,11 +89,11 @@ namespace type_name_detail
                     default:
                         if(template_level == 0)
                         {
-                            return current_index;
+                            return static_cast<sv_size_t>(current_index);
                         }
                 }
             }
-            return 0;
+            return 0UL;
         }();
 
         //Find start index
@@ -107,31 +103,34 @@ namespace type_name_detail
             {
                 if(tname[static_cast<sv_size_t>(current_index - 1)] == ':')
                 {
-                    return current_index;
+                    return static_cast<sv_size_t>(current_index);
                 }
             }
-            return 0;
+            return 0UL;
         }();
 
         return tname.substr
         (
-            static_cast<sv_size_t>(start_index),
-            static_cast<sv_size_t>(end_index - start_index + 1)
+            start_index,
+            end_index - start_index + 1
         );
     }
 }
 
 template<class T>
-auto type_name()
+std::string_view type_name()
 {
     static const auto name = type_name_detail::type_name<T>();
     return name;
 }
 
 template<class T>
-auto decayed_type_name()
+std::string_view decayed_type_name()
 {
-    static const auto name = type_name_detail::decayed_type_name<T>();
+    static const auto name = type_name_detail::decay_type_name
+    (
+        type_name_detail::type_name<T>()
+    );
     return name;
 }
 

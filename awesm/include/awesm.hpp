@@ -13,7 +13,6 @@
 #include "awesm/sm_fwd.hpp"
 #include "awesm/sm_ref.hpp"
 #include "awesm/sm_ref_conf.hpp"
-#include "awesm/sm_ref_e.hpp"
 #include "awesm/state_conf.hpp"
 #include "awesm/states.hpp"
 #include "awesm/subsm_conf.hpp"

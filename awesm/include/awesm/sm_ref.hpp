@@ -7,6 +7,7 @@
 #ifndef AWESM_SM_REF_HPP
 #define AWESM_SM_REF_HPP
 
+#include "sm_ref_conf.hpp"
 #include "sm_fwd.hpp"
 #include "detail/conf.hpp"
 #include "detail/tlu.hpp"
@@ -125,6 +126,17 @@ private:
 
     event_impl_type impl_;
 };
+
+template<class... Events>
+struct sm_ref_e_def
+{
+    using conf = sm_ref_conf
+        ::events<Events...>
+    ;
+};
+
+template<class... Events>
+using sm_ref_e = sm_ref<sm_ref_e_def<Events...>>;
 
 } //namespace
 

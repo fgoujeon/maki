@@ -7,7 +7,7 @@
 #ifndef AWESM_STATE_CONF_HPP
 #define AWESM_STATE_CONF_HPP
 
-#include "type_filters.hpp"
+#include "type_patterns.hpp"
 #include "detail/constant.hpp"
 #include "detail/tlu.hpp"
 #include "detail/type.hpp"

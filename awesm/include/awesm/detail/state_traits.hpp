@@ -11,7 +11,7 @@
 #include "overload_priority.hpp"
 #include "conf.hpp"
 #include "tlu.hpp"
-#include "../type_filters.hpp"
+#include "../type_patterns.hpp"
 #include "../state_conf.hpp"
 #include "../subsm_conf.hpp"
 #include <type_traits>
@@ -96,10 +96,10 @@ public:
     static constexpr auto value = has_impl<State, Event>(overload_priority::probe);
 };
 
-struct matches_on_event_filter
+struct matches_on_event_pattern
 {
     template<class State, class Event> //Template here for lazy evaluation
-    static constexpr auto value = matches_any_filter_v
+    static constexpr auto value = matches_any_pattern_v
     <
         Event,
         option_t<typename State::conf, option_id::on_event>
@@ -111,7 +111,7 @@ constexpr auto requires_on_event_v = std::conditional_t
 <
     option_v<typename State::conf, option_id::on_event_auto>,
     has_on_event,
-    matches_on_event_filter
+    matches_on_event_pattern
 >::template value<State, Event>;
 
 } //namespace

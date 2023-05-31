@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_TYPE_FILTERS_HPP
-#define AWESM_TYPE_FILTERS_HPP
+#ifndef AWESM_TYPE_PATTERNS_HPP
+#define AWESM_TYPE_PATTERNS_HPP
 
 #include <type_traits>
 
@@ -13,48 +13,48 @@ namespace awesm
 {
 
 /**
-@defgroup TypeFilters Type Filters
-@brief Type filters can be used in some places of the API (such as in transition
+@defgroup TypePatterns Type Patterns
+@brief Type patterns can be used in some places of the API (such as in transition
 tables) in lieu of single types to concisely express a set of types.
 
 @{
 */
 
 /**
-@brief A type filter that matches with any type.
+@brief A type pattern that matches with any type.
 */
 struct any{};
 
 /**
-@brief A type filter that matches with any type that verifies `Predicate<T>::value == true`.
+@brief A type pattern that matches with any type that verifies `Predicate<T>::value == true`.
 @tparam Predicate the predicate against which types are tested
 */
 template<template<class> class Predicate>
 struct any_if{};
 
 /**
-@brief A type filter that matches with any type that verifies `Predicate<T>::value == false`.
+@brief A type pattern that matches with any type that verifies `Predicate<T>::value == false`.
 @tparam Predicate the predicate against which types are tested
 */
 template<template<class> class Predicate>
 struct any_if_not{};
 
 /**
-@brief A type filter that matches with the given types.
-@tparam Ts the types the filter matches with
+@brief A type pattern that matches with the given types.
+@tparam Ts the types the pattern matches with
 */
 template<class... Ts>
 struct any_of{};
 
 /**
-@brief A type filter that matches with any type but the given ones.
-@tparam Ts the types the filter doesn't match with
+@brief A type pattern that matches with any type but the given ones.
+@tparam Ts the types the pattern doesn't match with
 */
 template<class... Ts>
 struct any_but{};
 
 /**
-@brief A type filter that doesn't match with any type.
+@brief A type pattern that doesn't match with any type.
 */
 struct none{};
 
@@ -62,37 +62,37 @@ struct none{};
 @}
 */
 
-//matches_filter
+//matches_pattern
 namespace detail
 {
     //Filter is a regular type
     template<class T, class Filter>
-    struct matches_filter
+    struct matches_pattern
     {
         static constexpr bool regular = true;
         static constexpr bool value = std::is_same_v<T, Filter>;
     };
 
     template<class T>
-    struct matches_filter<T, any>
+    struct matches_pattern<T, any>
     {
         static constexpr bool value = true;
     };
 
     template<class T, template<class> class Predicate>
-    struct matches_filter<T, any_if<Predicate>>
+    struct matches_pattern<T, any_if<Predicate>>
     {
         static constexpr bool value = Predicate<T>::value;
     };
 
     template<class T, template<class> class Predicate>
-    struct matches_filter<T, any_if_not<Predicate>>
+    struct matches_pattern<T, any_if_not<Predicate>>
     {
         static constexpr bool value = !Predicate<T>::value;
     };
 
     template<class T, class... Ts>
-    struct matches_filter<T, any_of<Ts...>>
+    struct matches_pattern<T, any_of<Ts...>>
     {
         //MSVC wants a function for the fold expression
         static constexpr bool make_value()
@@ -104,7 +104,7 @@ namespace detail
     };
 
     template<class T, class... Ts>
-    struct matches_filter<T, any_but<Ts...>>
+    struct matches_pattern<T, any_but<Ts...>>
     {
         //MSVC wants a function for the fold expression
         static constexpr bool make_value()
@@ -116,47 +116,47 @@ namespace detail
     };
 
     template<class T>
-    struct matches_filter<T, none>
+    struct matches_pattern<T, none>
     {
         static constexpr bool value = false;
     };
 
     template<class T, class Filter>
-    constexpr auto matches_filter_v = matches_filter<T, Filter>::value;
+    constexpr auto matches_pattern_v = matches_pattern<T, Filter>::value;
 }
 
 namespace detail
 {
     template<class T, class Enable = void>
-    struct is_type_filter
+    struct is_type_pattern
     {
         static constexpr auto value = true;
     };
 
     template<class T>
-    struct is_type_filter
+    struct is_type_pattern
     <
         T,
-        std::enable_if_t<matches_filter<void, T>::regular>
+        std::enable_if_t<matches_pattern<void, T>::regular>
     >
     {
         static constexpr auto value = false;
     };
 
     template<class T>
-    constexpr auto is_type_filter_v = is_type_filter<T>::value;
+    constexpr auto is_type_pattern_v = is_type_pattern<T>::value;
 
     template<class T, class FilterList>
-    class matches_any_filter;
+    class matches_any_pattern;
 
     template<class T, template<class...> class FilterList, class... Filters>
-    class matches_any_filter<T, FilterList<Filters...>>
+    class matches_any_pattern<T, FilterList<Filters...>>
     {
     private:
         //MSVC wants a function for the fold expression
         static constexpr bool make_value()
         {
-            return (matches_filter<T, Filters>::value || ...);
+            return (matches_pattern<T, Filters>::value || ...);
         }
 
     public:
@@ -164,7 +164,7 @@ namespace detail
     };
 
     template<class T, class FilterList>
-    constexpr auto matches_any_filter_v = matches_any_filter<T, FilterList>::value;
+    constexpr auto matches_any_pattern_v = matches_any_pattern<T, FilterList>::value;
 }
 
 } //namespace

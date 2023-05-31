@@ -8,7 +8,7 @@
 #define AWESM_SM_CONF_HPP
 
 #include "transition_table.hpp"
-#include "type_filters.hpp"
+#include "type_patterns.hpp"
 #include "detail/constant.hpp"
 #include "detail/tlu.hpp"
 #include "detail/conf.hpp"

@@ -70,24 +70,24 @@ inline constexpr bool yes()
 
 Used as a template argument of @ref transition_table_tpl.
 
-@tparam SourceStateFilter the active state (or states, plural, if it's a @ref TypeFilters "type filter") from which the transition can occur
-@tparam EventFilter the event type (or types, plural, if it's a @ref TypeFilters "type filter") that can cause the transition to occur
+@tparam SourceStatePattern the active state (or states, plural, if it's a @ref TypePatterns "type pattern") from which the transition can occur
+@tparam EventPattern the event type (or types, plural, if it's a @ref TypePatterns "type pattern") that can cause the transition to occur
 @tparam TargetState the state that becomes active after the transition occurs
 @tparam Action the function invoked when the transition occurs
 @tparam Guard the function that must return `true` for the transition to occur
 */
 template
 <
-    class SourceStateFilter,
-    class EventFilter,
+    class SourceStatePattern,
+    class EventPattern,
     class TargetState,
     const auto& Action = noop,
     const auto& Guard = yes
 >
 struct transition
 {
-    using source_state_type_filter = SourceStateFilter;
-    using event_type_filter = EventFilter;
+    using source_state_type_pattern = SourceStatePattern;
+    using event_type_pattern = EventPattern;
     using target_state_type = TargetState;
 
     static constexpr const auto& action = Action;
@@ -109,8 +109,8 @@ struct transition_table_tpl
     */
     template
     <
-        class SourceStateFilter,
-        class EventFilter,
+        class SourceStatePattern,
+        class EventPattern,
         class TargetState,
         const auto& Action = noop,
         const auto& Guard = yes
@@ -118,7 +118,7 @@ struct transition_table_tpl
     using add = transition_table_tpl
     <
         Transitions...,
-        transition<SourceStateFilter, EventFilter, TargetState, Action, Guard>
+        transition<SourceStatePattern, EventPattern, TargetState, Action, Guard>
     >;
 };
 

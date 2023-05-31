@@ -9,30 +9,30 @@
 
 #include "state_traits.hpp"
 #include "tlu.hpp"
-#include "../type_filters.hpp"
+#include "../type_patterns.hpp"
 #include <type_traits>
 
 namespace awesm::detail::state_type_list_filters
 {
 
-namespace by_filter_detail
+namespace by_pattern_detail
 {
-    template<class Filter>
-    struct for_filter
+    template<class Pattern>
+    struct for_pattern
     {
         template<class State>
         struct matches
         {
-            static constexpr auto value = matches_filter_v<State, Filter>;
+            static constexpr auto value = matches_pattern_v<State, Pattern>;
         };
     };
 }
 
-template<class StateList, class Filter>
-using by_filter_t = tlu::filter_t
+template<class StateList, class Pattern>
+using by_pattern_t = tlu::filter_t
 <
     StateList,
-    by_filter_detail::for_filter<Filter>::template matches
+    by_pattern_detail::for_pattern<Pattern>::template matches
 >;
 
 namespace by_required_on_event_detail

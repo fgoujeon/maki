@@ -329,6 +329,7 @@ int main()
 #if TESTING
     auto simulate_push = [&](const int duration_ms)
     {
+        std::cout << "Button push (" << duration_ms << " ms)\n";
         sm.process_event(button::push_event{duration_ms});
     };
 
@@ -336,9 +337,12 @@ int main()
     {
         if(!b)
         {
+            std::cerr << "NOK\n";
             std::cerr << "Test failed\n";
             exit(1);
         }
+
+        std::cout << "OK\n";
     };
 
     check(sm.is_active_state<states::off>());

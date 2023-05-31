@@ -220,56 +220,30 @@ public:
     void on_entry(const Event& event)
     {
         call_on_entry(def_holder_.get(), root_sm_, event);
-
-        for_each_region
-        (
-            [](auto& reg, const Event& event)
-            {
-                reg.start(event);
-            },
-            event
-        );
+        for_each_region<region_start>(event);
     }
 
     template<class Event>
     bool on_event(const Event& event)
     {
-        auto processed = false;
+        //Number of called on_event() + number of state transitions
+        auto process_count = 0;
 
         if constexpr(state_traits::requires_on_event_v<Def, Event>)
         {
             call_on_event(def_holder_.get(), event);
-            processed = true;
+            ++process_count;
         }
 
-        for_each_region
-        (
-            [](auto& reg, const Event& event, bool& processed)
-            {
-                if(reg.process_event(event))
-                {
-                    processed = true;
-                }
-            },
-            event,
-            processed
-        );
+        process_count += for_each_region_plus<region_process_event>(event);
 
-        return processed;
+        return process_count > 0;
     }
 
     template<class Event>
     void on_exit(const Event& event)
     {
-        for_each_region
-        (
-            [](auto& reg, const Event& event)
-            {
-                reg.stop(event);
-            },
-            event
-        );
-
+        for_each_region<region_stop>(event);
         call_on_exit(def_holder_.get(), root_sm_, event);
     }
 
@@ -280,27 +254,70 @@ private:
         std::make_integer_sequence<int, tlu::size_v<transition_table_type_list>>
     >::type;
 
-    template<class F, class... Args>
-    void for_each_region(F&& fun, Args&... args)
+    template<class F, class Event>
+    void for_each_region(const Event& event)
     {
-        tlu::apply_t<region_tuple_type, for_each_region_helper>::call
+        tlu::apply_t<region_tuple_type, for_each_region_helper>::template call<F>
         (
             *this,
-            std::forward<F>(fun),
-            args...
+            event
         );
     }
 
     template<class... Regions>
     struct for_each_region_helper
     {
-        template<class F, class... Args>
-        static void call(subsm& self, F&& fun, Args&... args)
+        template<class F, class Event>
+        static void call(subsm& self, const Event& event)
         {
-            (
-                fun(get<Regions>(self.regions_), args...),
-                ...
-            );
+            (F::call(get<Regions>(self.regions_), event), ...);
+        }
+    };
+
+    template<class F, class Event>
+    int for_each_region_plus(const Event& event)
+    {
+        return tlu::apply_t<region_tuple_type, for_each_region_plus_helper>::template call<F>
+        (
+            *this,
+            event
+        );
+    }
+
+    template<class... Regions>
+    struct for_each_region_plus_helper
+    {
+        template<class F, class Event>
+        static int call(subsm& self, const Event& event)
+        {
+            return (F::call(get<Regions>(self.regions_), event) + ...);
+        }
+    };
+
+    struct region_start
+    {
+        template<class Region, class Event>
+        static void call(Region& reg, const Event& event)
+        {
+            reg.start(event);
+        }
+    };
+
+    struct region_process_event
+    {
+        template<class Region, class Event>
+        static int call(Region& reg, const Event& event)
+        {
+            return static_cast<int>(reg.process_event(event));
+        }
+    };
+
+    struct region_stop
+    {
+        template<class Region, class Event>
+        static void call(Region& reg, const Event& event)
+        {
+            reg.stop(event);
         }
     };
 

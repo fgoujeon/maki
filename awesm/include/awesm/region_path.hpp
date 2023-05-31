@@ -11,6 +11,7 @@
 #include "pretty_name.hpp"
 #include "detail/tlu.hpp"
 #include <string>
+#include <sstream>
 
 namespace awesm
 {
@@ -110,12 +111,12 @@ namespace detail
     };
 
     template<class Element>
-    struct region_path_element_to_string_holder;
+    struct region_path_element_add_pretty_name_holder;
 
     template<class SmDef, int RegionIndex>
-    struct region_path_element_to_string_holder<region_path_element<SmDef, RegionIndex>>
+    struct region_path_element_add_pretty_name_holder<region_path_element<SmDef, RegionIndex>>
     {
-        static std::string to_string()
+        static void add_pretty_name(std::ostringstream& oss, bool& first)
         {
             using transition_table_list_type = detail::option_t
             <
@@ -123,19 +124,44 @@ namespace detail
                 detail::option_id::transition_tables
             >;
 
-            auto str = std::string{};
-            str += awesm::pretty_name<SmDef>();
+            if(first)
+            {
+                first = false;
+            }
+            else
+            {
+                oss << '.';
+            }
+
+            oss << awesm::pretty_name<SmDef>();
 
             if constexpr(detail::tlu::size_v<transition_table_list_type> > 1)
             {
-                str += "[";
-                str += std::to_string(RegionIndex);
-                str += "]";
+                oss << '[' << std::to_string(RegionIndex) << ']';
             }
-
-            return str;
         }
     };
+
+    template<class... Elements>
+    auto region_path_pretty_name()
+    {
+        if constexpr(sizeof...(Elements) == 0)
+        {
+            return "";
+        }
+        else
+        {
+            auto first = true;
+            auto oss = std::ostringstream{};
+
+            (
+                (detail::region_path_element_add_pretty_name_holder<Elements>::add_pretty_name(oss, first)),
+                ...
+            );
+
+            return oss.str();
+        }
+    }
 }
 
 /**
@@ -173,21 +199,10 @@ struct region_path_tpl
     direct child of `subsm`, that defines only one region (hence the absence
     of region index).
     */
-    static std::string to_string()
+    static std::string_view to_string()
     {
-        if constexpr(sizeof...(Ts) == 0)
-        {
-            return "";
-        }
-        else
-        {
-            auto str = (
-                (detail::region_path_element_to_string_holder<Ts>::to_string() + ".")
-                + ...
-            );
-            str.resize(str.size() - 1);
-            return str;
-        }
+        static const auto str = detail::region_path_pretty_name<Ts...>();
+        return str;
     }
 };
 

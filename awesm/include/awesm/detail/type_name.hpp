@@ -93,7 +93,7 @@ namespace type_name_detail
                         }
                 }
             }
-            return 0UL;
+            return sv_size_t{0};
         }();
 
         //Find start index
@@ -106,7 +106,7 @@ namespace type_name_detail
                     return static_cast<sv_size_t>(current_index);
                 }
             }
-            return 0UL;
+            return sv_size_t{0};
         }();
 
         return tname.substr

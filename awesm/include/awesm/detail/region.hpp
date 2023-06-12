@@ -394,6 +394,7 @@ private:
     template<class Event>
     bool process_event_in_active_state([[maybe_unused]] const Event& event)
     {
+        //List the state types that require us to call their on_event()
         using filtered_state_type_list =
             state_type_list_filters::by_required_on_event_t
             <
@@ -405,11 +406,15 @@ private:
 
         if constexpr(!tlu::empty_v<filtered_state_type_list>)
         {
-            return tlu::for_each_or
-            <
-                filtered_state_type_list,
-                process_event_in_active_state_2
-            >(*this, event);
+            auto processed = false;
+            return
+                tlu::for_each_or
+                <
+                    filtered_state_type_list,
+                    process_event_in_active_state_2
+                >(*this, event, processed) &&
+                processed
+            ;
         }
         else
         {
@@ -420,7 +425,7 @@ private:
     struct process_event_in_active_state_2
     {
         template<class State, class Event>
-        static bool call(region& self, const Event& event)
+        static bool call(region& self, const Event& event, bool& processed)
         {
             if(!self.is_active_state_type<State>())
             {
@@ -428,7 +433,8 @@ private:
             }
 
             auto& state = self.wrapped_state<State>();
-            return call_on_event(state, event);
+            processed = call_on_event(state, event);
+            return true;
         }
     };
 

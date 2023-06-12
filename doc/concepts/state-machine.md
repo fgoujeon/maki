@@ -10,7 +10,7 @@ A very simple example of such a system is a lamp. It has:
 * 1 event: a button press;
 * 2 actions: turn light on and turn light off.
 
-State machines are often represented by diagrams. Here is the state machine of our lamp, under the form of a UML State Diagram:
+State machines are often represented by diagrams. Here is the state machine of our lamp, under the form of a UML state diagram:
 
 @startuml{lamp.png} "The state machine of a lamp"
 [*] --> off

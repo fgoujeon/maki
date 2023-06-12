@@ -76,7 +76,7 @@ This is hopefully self-explanatory, but here is how it is structured:
 
 This gives you a nice overview of what a program does. Moreover, the more complex a state machine is, the more valuable a transition table is for the readability of your code.
 
-**[TIP]** If an alignment plugin exists for your code editor, it's time to install it!
+**[TIP]** Transition tables are much more readable when their "columns" are properly aligned. If an alignment plugin exists for your code editor, it's time to install it!
 
 ## Example program
 

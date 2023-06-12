@@ -43,27 +43,6 @@ AWESM_DETAIL_GENERATE_HAS_MEMBER_FUNCTION(on_exit)
 #undef AWESM_DETAIL_GENERATE_HAS_MEMBER_FUNCTION
 
 template<class State, class Sm, class Event>
-auto call_on_entry_impl(State& state, Sm* pmach, const Event* pevent) ->
-    decltype(state.on_entry(*pmach, *pevent))
-{
-    state.on_entry(*pmach, *pevent);
-}
-
-template<class State, class Event>
-auto call_on_entry_impl(State& state, void* /*pmach*/, const Event* pevent) ->
-    decltype(state.on_entry(*pevent))
-{
-    state.on_entry(*pevent);
-}
-
-template<class State>
-auto call_on_entry_impl(State& state, void* /*pmach*/, const void* /*pevent*/) ->
-    decltype(state.on_entry())
-{
-    state.on_entry();
-}
-
-template<class State, class Sm, class Event>
 void call_on_entry
 (
     [[maybe_unused]] State& state,

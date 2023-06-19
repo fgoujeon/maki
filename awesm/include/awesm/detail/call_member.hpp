@@ -72,31 +72,24 @@ void call_on_entry
     }
 }
 
-template<class State>
-struct call_on_event_helper
+template<class State, class Event>
+void call_on_event(State& state, const Event& event)
 {
-    template<class Event>
-    static bool call(State& state, const Event& event)
-    {
-        state.on_event(event);
-        return true;
-    }
-};
-
-template<class Def, class ParentRegion>
-struct call_on_event_helper<subsm<Def, ParentRegion>>
-{
-    template<class Event>
-    static bool call(subsm<Def, ParentRegion>& state, const Event& event)
-    {
-        return state.on_event(event);
-    }
-};
+    state.on_event(event);
+}
 
 template<class State, class Event>
-bool call_on_event(State& state, const Event& event)
+void call_on_event(State& state, const Event& event, bool& processed)
 {
-    return call_on_event_helper<State>::call(state, event);
+    if constexpr(state_traits::is_subsm_v<State>)
+    {
+        state.on_event(event, processed);
+    }
+    else
+    {
+        state.on_event(event);
+        processed = true;
+    }
 }
 
 template<class State, class Sm, class Event>

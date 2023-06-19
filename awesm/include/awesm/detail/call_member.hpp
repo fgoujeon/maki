@@ -66,7 +66,7 @@ void call_on_entry
         }
         else
         {
-            constexpr auto is_false = sizeof(State) == 0;
+            constexpr auto is_false = sizeof(Sm) == 0;
             static_assert(is_false, "No valid on_entry() signature found in state");
         }
     }
@@ -116,7 +116,7 @@ void call_on_exit
         }
         else
         {
-            constexpr auto is_false = sizeof(State) == 0;
+            constexpr auto is_false = sizeof(Sm) == 0;
             static_assert(is_false, "No valid on_exit() signature found in state");
         }
     }
@@ -150,7 +150,7 @@ auto call_action_or_guard
     }
     else
     {
-        constexpr auto is_false = sizeof(Context) == 0;
+        constexpr auto is_false = sizeof(Sm) == 0;
         static_assert(is_false, "No valid signature found for action/guard");
     }
 }

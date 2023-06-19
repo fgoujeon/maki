@@ -220,7 +220,7 @@ public:
     void on_entry(const Event& event)
     {
         call_on_entry(def_holder_.get(), root_sm_, event);
-        for_each_region<region_start>(event);
+        tlu::for_each<region_tuple_type, region_start>(*this, event);
     }
 
     template<class Event>
@@ -231,7 +231,7 @@ public:
             call_on_event(def_holder_.get(), event);
         }
 
-        for_each_region<region_process_event>(event);
+        tlu::for_each<region_tuple_type, region_process_event>(*this, event);
     }
 
     template<class Event>
@@ -240,19 +240,19 @@ public:
         if constexpr(state_traits::requires_on_event_v<Def, Event>)
         {
             call_on_event(def_holder_.get(), event);
+            tlu::for_each<region_tuple_type, region_process_event>(*this, event);
             processed = true;
-            for_each_region<region_process_event>(event);
         }
         else
         {
-            for_each_region<region_process_event>(event, processed);
+            tlu::for_each<region_tuple_type, region_process_event>(*this, event, processed);
         }
     }
 
     template<class Event>
     void on_exit(const Event& event)
     {
-        for_each_region<region_stop>(event);
+        tlu::for_each<region_tuple_type, region_stop>(*this, event);
         call_on_exit(def_holder_.get(), root_sm_, event);
     }
 
@@ -263,50 +263,30 @@ private:
         std::make_integer_sequence<int, tlu::size_v<transition_table_type_list>>
     >::type;
 
-    template<class F, class... Args>
-    void for_each_region(Args&... args)
-    {
-        tlu::for_each
-        <
-            region_tuple_type,
-            for_each_region_helper<F>
-        >(*this, args...);
-    }
-
-    template<class F>
-    struct for_each_region_helper
-    {
-        template<class Region, class... Args>
-        static void call(subsm& self, Args&... args)
-        {
-            F::call(get<Region>(self.regions_), args...);
-        }
-    };
-
     struct region_start
     {
         template<class Region, class Event>
-        static void call(Region& reg, const Event& event)
+        static void call(subsm& self, const Event& event)
         {
-            reg.start(event);
+            get<Region>(self.regions_).start(event);
         }
     };
 
     struct region_process_event
     {
         template<class Region, class Event, class... ExtraArgs>
-        static void call(Region& reg, const Event& event, ExtraArgs&... extra_args)
+        static void call(subsm& self, const Event& event, ExtraArgs&... extra_args)
         {
-            reg.process_event(event, extra_args...);
+            get<Region>(self.regions_).process_event(event, extra_args...);
         }
     };
 
     struct region_stop
     {
         template<class Region, class Event>
-        static void call(Region& reg, const Event& event)
+        static void call(subsm& self, const Event& event)
         {
-            reg.stop(event);
+            get<Region>(self.regions_).stop(event);
         }
     };
 

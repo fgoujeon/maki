@@ -159,7 +159,7 @@ public:
     {
         if(!is_active_state_def_type<states::stopped>())
         {
-            with_active_state_def<stop_2>
+            with_active_state_def<state_def_type_list, stop_2>
             (
                 *this,
                 event
@@ -523,7 +523,11 @@ private:
     [[nodiscard]] bool does_active_state_def_match_pattern() const
     {
         auto matches = false;
-        with_active_state_def_or_stopped<does_active_state_def_match_pattern_2<TypePattern>>(matches);
+        with_active_state_def
+        <
+            tlu::push_back_t<state_def_type_list, states::stopped>,
+            does_active_state_def_match_pattern_2<TypePattern>
+        >(matches);
         return matches;
     }
 
@@ -540,22 +544,12 @@ private:
         }
     };
 
-    template<class F, class... Args>
+    template<class StateDefTypeList, class F, class... Args>
     void with_active_state_def(Args&&... args) const
     {
         tlu::for_each_or
         <
-            state_def_type_list,
-            with_active_state_def_2<F>
-        >(*this, std::forward<Args>(args)...);
-    }
-
-    template<class F, class... Args>
-    void with_active_state_def_or_stopped(Args&&... args) const
-    {
-        tlu::for_each_or
-        <
-            tlu::push_back_t<state_def_type_list, states::stopped>,
+            StateDefTypeList,
             with_active_state_def_2<F>
         >(*this, std::forward<Args>(args)...);
     }

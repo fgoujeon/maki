@@ -266,20 +266,20 @@ private:
     template<class F, class... Args>
     void for_each_region(Args&... args)
     {
-        tlu::apply_t<region_tuple_type, for_each_region_helper>::template call<F>
-        (
-            *this,
-            args...
-        );
+        tlu::for_each
+        <
+            region_tuple_type,
+            for_each_region_helper<F>
+        >(*this, args...);
     }
 
-    template<class... Regions>
+    template<class F>
     struct for_each_region_helper
     {
-        template<class F, class... Args>
+        template<class Region, class... Args>
         static void call(subsm& self, Args&... args)
         {
-            (F::call(get<Regions>(self.regions_), args...), ...);
+            F::call(get<Region>(self.regions_), args...);
         }
     };
 

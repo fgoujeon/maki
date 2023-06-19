@@ -142,7 +142,7 @@ public:
     template<class RegionPath, class State>
     State& state()
     {
-        return subsm_.template state<RegionPath, State>();
+        return subsm_.template state_def<RegionPath, State>();
     }
 
     /**
@@ -155,7 +155,7 @@ public:
     template<class RegionPath, class State>
     const State& state() const
     {
-        return subsm_.template state<RegionPath, State>();
+        return subsm_.template state_def<RegionPath, State>();
     }
 
     /**
@@ -189,7 +189,7 @@ public:
     template<class RegionPath, class State>
     [[nodiscard]] bool is_active_state() const
     {
-        return subsm_.template is_active_state<RegionPath, State>();
+        return subsm_.template is_active_state_def<RegionPath, State>();
     }
 
     /**
@@ -201,7 +201,7 @@ public:
     template<class State>
     [[nodiscard]] bool is_active_state() const
     {
-        return subsm_.template is_active_state<State>();
+        return subsm_.template is_active_state_def<State>();
     }
 
     /**

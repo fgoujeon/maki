@@ -37,22 +37,22 @@ template<class State>
 constexpr auto is_subsm_v = is_subsm<State>::value;
 
 
-//wrap
+//state_def_to_state
 
-template<class State, class Region, class Enable = void>
-struct wrap
+template<class StateDef, class Region, class Enable = void>
+struct state_def_to_state
 {
-    using type = State;
+    using type = StateDef;
 };
 
-template<class State, class Region>
-struct wrap<State, Region, std::enable_if_t<is_subsm_conf_v<typename State::conf>>>
+template<class StateDef, class Region>
+struct state_def_to_state<StateDef, Region, std::enable_if_t<is_subsm_conf_v<typename StateDef::conf>>>
 {
-    using type = subsm<State, Region>;
+    using type = subsm<StateDef, Region>;
 };
 
-template<class State, class Region>
-using wrap_t = typename wrap<State, Region>::type;
+template<class StateDef, class Region>
+using state_def_to_state_t = typename state_def_to_state<StateDef, Region>::type;
 
 
 //on_entry

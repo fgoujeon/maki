@@ -40,12 +40,12 @@ namespace by_required_on_event_detail
     template<class Region, class Event>
     struct with
     {
-        template<class State>
+        template<class StateDef>
         struct requires_on_event
         {
             static constexpr auto value = state_traits::requires_on_event_v
             <
-                state_traits::wrap_t<State, Region>,
+                state_traits::state_def_to_state_t<StateDef, Region>,
                 Event
             >;
         };

@@ -11,6 +11,7 @@
 #include "tuple.hpp"
 #include "sm_object_holder.hpp"
 #include "state_traits.hpp"
+#include "type_list.hpp"
 #include "../type_patterns.hpp"
 #include "../transition_table.hpp"
 #include "../events.hpp"
@@ -36,7 +37,7 @@ For example, the following digest type...:
 ... is equivalent to this type:
     struct digest
     {
-        using state_tuple_type = awesm::detail::type_list<state0, state1, state2, state3>;
+        using state_def_type_list = awesm::detail::type_list<state0, state1, state2, state3>;
         static constexpr auto has_null_events = false;
     };
 */
@@ -44,17 +45,14 @@ For example, the following digest type...:
 namespace transition_table_digest_detail
 {
     template<class Region>
-    struct state_wrapper_tuple_holder
+    struct state_def_type_list_to_state_type_list_holder
     {
         template<class... Ts>
-        using type = tuple
-        <
-            sm_object_holder
-            <
-                state_traits::wrap_t<Ts, Region>
-            >...
-        >;
+        using type = type_list<state_traits::state_def_to_state_t<Ts, Region>...>;
     };
+
+    template<class... Ts>
+    using state_type_list_to_state_holder_tuple_type = tuple<sm_object_holder<Ts>...>;
 
     template<class TList, class U>
     using push_back_unique_if_not_null = tlu::push_back_if_t
@@ -70,16 +68,16 @@ namespace transition_table_digest_detail
     template<class InitialState>
     struct initial_digest
     {
-        using state_tuple_type = type_list<InitialState>;
+        using state_def_type_list = type_list<InitialState>;
         static constexpr auto has_null_events = false;
     };
 
     template<class Digest, class Transition>
     struct add_transition_to_digest
     {
-        using state_tuple_type = push_back_unique_if_not_null
+        using state_def_type_list = push_back_unique_if_not_null
         <
-            typename Digest::state_tuple_type,
+            typename Digest::state_def_type_list,
             typename Transition::target_state_type
         >;
 
@@ -113,11 +111,16 @@ private:
     >;
 
 public:
-    using state_tuple_type = typename digest_type::state_tuple_type;
-    using wrapped_state_holder_tuple_type = tlu::apply_t
+    using state_def_type_list = typename digest_type::state_def_type_list;
+    using state_type_list = tlu::apply_t
     <
-        state_tuple_type,
-        transition_table_digest_detail::state_wrapper_tuple_holder<Region>::template type
+        state_def_type_list,
+        transition_table_digest_detail::state_def_type_list_to_state_type_list_holder<Region>::template type
+    >;
+    using state_holder_tuple_type = tlu::apply_t
+    <
+        state_type_list,
+        transition_table_digest_detail::state_type_list_to_state_holder_tuple_type
     >;
 
     static constexpr auto has_null_events = digest_type::has_null_events;

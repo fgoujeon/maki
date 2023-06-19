@@ -149,8 +149,8 @@ public:
         return def_holder_.get();
     }
 
-    template<class StateRegionPath, class State>
-    State& state()
+    template<class StateRegionPath, class StateDef>
+    StateDef& state_def()
     {
         static_assert
         (
@@ -162,11 +162,11 @@ public:
         );
 
         static constexpr auto region_index = tlu::front_t<StateRegionPath>::region_index;
-        return get<region_index>(regions_).template state<tlu::pop_front_t<StateRegionPath>, State>();
+        return get<region_index>(regions_).template state_def<tlu::pop_front_t<StateRegionPath>, StateDef>();
     }
 
-    template<class StateRegionPath, class State>
-    const State& state() const
+    template<class StateRegionPath, class StateDef>
+    const StateDef& state_def() const
     {
         static_assert
         (
@@ -178,11 +178,11 @@ public:
         );
 
         static constexpr auto region_index = tlu::front_t<StateRegionPath>::region_index;
-        return get<region_index>(regions_).template state<tlu::pop_front_t<StateRegionPath>, State>();
+        return get<region_index>(regions_).template state_def<tlu::pop_front_t<StateRegionPath>, StateDef>();
     }
 
-    template<class StateRegionPath, class State>
-    [[nodiscard]] bool is_active_state() const
+    template<class StateRegionPath, class StateDef>
+    [[nodiscard]] bool is_active_state_def() const
     {
         static_assert
         (
@@ -194,26 +194,26 @@ public:
         );
 
         static constexpr auto region_index = tlu::front_t<StateRegionPath>::region_index;
-        return get<region_index>(regions_).template is_active_state<tlu::pop_front_t<StateRegionPath>, State>();
+        return get<region_index>(regions_).template is_active_state_def<tlu::pop_front_t<StateRegionPath>, StateDef>();
     }
 
-    template<class State>
-    [[nodiscard]] bool is_active_state() const
+    template<class StateDef>
+    [[nodiscard]] bool is_active_state_def() const
     {
         static_assert(tlu::size_v<transition_table_type_list> == 1);
 
-        return get<0>(regions_).template is_active_state<region_path_tpl<>, State>();
+        return get<0>(regions_).template is_active_state_def<region_path_tpl<>, StateDef>();
     }
 
     template<class RegionPath>
     [[nodiscard]] bool is_running() const
     {
-        return !is_active_state<RegionPath, states::stopped>();
+        return !is_active_state_def<RegionPath, states::stopped>();
     }
 
     [[nodiscard]] bool is_running() const
     {
-        return !is_active_state<states::stopped>();
+        return !is_active_state_def<states::stopped>();
     }
 
     template<class Event>

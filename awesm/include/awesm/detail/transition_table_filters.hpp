@@ -16,22 +16,25 @@ namespace awesm::detail::transition_table_filters
 
 namespace by_event_detail
 {
-    template<class Event>
+    template<class SourceState, class Event>
     struct for_event
     {
         template<class Row>
         struct matches_event_pattern
         {
-            static constexpr auto value = matches_pattern_v<Event, typename Row::event_type_pattern>;
+            static constexpr auto value =
+                matches_pattern_v<SourceState, typename Row::source_state_type_pattern> &&
+                matches_pattern_v<Event, typename Row::event_type_pattern>
+            ;
         };
     };
 }
 
-template<class TransitionTable, class Event>
-using by_event_t = tlu::filter_t
+template<class TransitionTable, class SourceState, class Event>
+using by_source_state_and_event_t = tlu::filter_t
 <
     TransitionTable,
-    by_event_detail::for_event<Event>::template matches_event_pattern
+    by_event_detail::for_event<SourceState, Event>::template matches_event_pattern
 >;
 
 } //namespace

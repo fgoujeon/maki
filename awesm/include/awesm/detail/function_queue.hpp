@@ -31,7 +31,7 @@ public:
     {
         if constexpr(std::is_nothrow_copy_constructible_v<Data>)
         {
-            queue_.emplace(&call<Data, FunHolder>, &delete_data<Data>).set_data(data);
+            queue_.emplace(data, &call<Data, FunHolder>, &delete_data<Data>);
         }
         else
         {
@@ -42,8 +42,7 @@ public:
             delete_data().
             */
 
-            auto& cont = queue_.emplace(&call<Data, FunHolder>);
-            cont.set_data(data);
+            auto& cont = queue_.emplace(data, &call<Data, FunHolder>);
             cont.set_delete(&delete_data<Data>);
         }
     }
@@ -71,22 +70,28 @@ private:
     struct data_container
     {
         //To be called when Data copy constructor can throw
+        template<class Data>
         data_container //NOLINT
         (
-            const call_fn_ptr_t pcall_
+            const Data& data,
+            const call_fn_ptr_t pcall
         ):
-            pcall_(pcall_)
+            pdata_(copy_data(data)),
+            pcall_(pcall)
         {
         }
 
         //To be called when Data copy constructor cannot throw
+        template<class Data>
         data_container //NOLINT
         (
-            const call_fn_ptr_t pcall_,
-            const delete_fn_ptr_t pdelete_
+            const Data& data,
+            const call_fn_ptr_t pcall,
+            const delete_fn_ptr_t pdelete
         ):
-            pcall_(pcall_),
-            pdelete_(pdelete_)
+            pdata_(copy_data(data)),
+            pcall_(pcall),
+            pdelete_(pdelete)
         {
         }
 
@@ -101,20 +106,6 @@ private:
         void operator=(const data_container&) = delete;
         void operator=(data_container&& other) = delete;
 
-        template<class Data>
-        void set_data(const Data& data)
-        {
-            //Copy data into the data_container
-            if constexpr(suitable_for_static_storage<Data>())
-            {
-                pdata_ = new(static_storage_) Data{data}; //NOLINT
-            }
-            else
-            {
-                pdata_ = new Data{data}; //NOLINT
-            }
-        }
-
         void set_delete(const delete_fn_ptr_t pdelete)
         {
             pdelete_ = pdelete;
@@ -126,6 +117,20 @@ private:
         }
 
     private:
+        template<class Data>
+        auto copy_data(const Data& data)
+        {
+            //Copy data into the data_container
+            if constexpr(suitable_for_static_storage<Data>())
+            {
+                return new(static_storage_) Data{data}; //NOLINT
+            }
+            else
+            {
+                return new Data{data}; //NOLINT
+            }
+        }
+
         //Storage for small object optimization, properly aligned for an object
         //whose alignment requirement is less than or equal to
         //StaticStorageAlignment

@@ -26,8 +26,9 @@ using transition_table_t = awesm::transition_table_tpl
 >;
 ```
 
-… but using the @ref transition_table alias and the @ref add subtype template is
-usually the preferred, more concise way to do so:
+… but using the @ref transition_table alias and the
+@ref transition_table_tpl::add member type template is usually the preferred,
+more concise way to do so:
 ```cpp
 using transition_table_t = awesm::transition_table
     ::add<off, button_press, on,  turn_light_on, has_enough_power>
@@ -36,7 +37,7 @@ using transition_table_t = awesm::transition_table
 ```
 
 Note that the first usage may be more appropriate in the context of a template
-in order to avoid awkward `typename`s and `::template`s.
+in order to avoid awkward `typename`s and `template`s.
 
 @{
 */

@@ -70,7 +70,7 @@ using same_region_path_t = awesm::region_path<sm_def>::add<some_subsm, 1>;
 @brief Represents an element of a path to a region.
 
 @tparam SmDef an @ref sm or subsm definition
-@tparam RegionIndex the index of the region among the regions of @ref SmDef
+@tparam RegionIndex the index of the region among the regions of `SmDef`
 */
 template<class SmDef, int RegionIndex>
 struct region_path_element

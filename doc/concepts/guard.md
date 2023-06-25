@@ -72,22 +72,16 @@ spinning_high -> spinning_med : minus button press / set speed med
 
 ## How to use guards within AweSM
 
-Within AweSM, guards are simply functions, preferably without side effect, that return a `bool`. They can express conditions based on the arguments that the @ref sm gives to them:
+Within AweSM, guards are non-member functions, preferably without side effect, that return a `bool`. AweSM accepts the following signatures, in this order of priority:
 
-* a reference to the @ref sm itself;
-* a reference to the context;
-* a reference to the event that could lead to the transition;
-
-Guards are free to take (or not) any of these arguments; the @ref sm tries the following signatures, in this order of priority:
-
-@code
+~~~{.cpp}
 bool(sm_type& mach, context_type& ctx, const event_type& evt);
 bool(context_type& ctx, const event_type& evt);
 bool(context_type& ctx);
 bool();
-@endcode
+~~~
 
-As allowed by C++, the @ref sm also transparently accepts `constexpr` callables.
+AweSM also accepts `constexpr` callables with the same signatures for `operator()()`.
 
 Once you've defined your guard, you just have to pass the function name as the fifth argument of the transition of your choice, like so:
 

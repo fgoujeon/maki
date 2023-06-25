@@ -71,7 +71,7 @@ When you set up a state machine with AweSM, you have to write a transition table
 
 This is hopefully self-explanatory, but here is how it is structured:
 
-* each row (enclosed in `::add<>`) of the table represents a possible state transition;
+* each row (i.e. each `awesm::transition_table_tpl::add`) of the table represents a possible state transition;
 * when `source state` is the active state and `event` occurs, the state machine executes `action` and activates `target state`.
 
 This gives you a nice overview of what a program does. Moreover, the more complex a state machine is, the more valuable a transition table is for the readability of your code.

@@ -1,4 +1,4 @@
-# State Machine {#concepts-state-machine}
+# State Machine {#state-machine}
 
 ## Definition
 
@@ -78,7 +78,7 @@ This gives you a nice overview of what a program does. Moreover, the more comple
 
 **[TIP]** Transition tables are much more readable when their "columns" are properly aligned. If an alignment plugin exists for your code editor, it's time to install it!
 
-## Example program
+### Example program
 
 Here is a test program that uses the transition table we defined above:
 

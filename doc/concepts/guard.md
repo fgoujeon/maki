@@ -1,4 +1,4 @@
-# Guard {#concepts-guard}
+# Guard {#guard}
 
 ## Definition
 

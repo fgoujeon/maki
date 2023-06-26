@@ -422,17 +422,6 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(option_v<sm_conf_tpl, option_id::before_entry>)
-            {
-                root_sm_.def().template before_entry
-                <
-                    path_t,
-                    SourceStateDef,
-                    Event,
-                    TargetStateDef
-                >(event);
-            }
-
             if constexpr(!std::is_same_v<TargetStateDef, states::stopped>)
             {
                 detail::call_on_entry

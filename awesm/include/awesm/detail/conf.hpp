@@ -22,7 +22,6 @@ static constexpr auto small_event_default_max_align = 8;
 #define AWESM_DETAIL_OPTIONS \
     X(after_state_transition,  constant<false>) \
     X(auto_start,              constant<true>) \
-    X(before_entry,            constant<false>) \
     X(before_state_transition, constant<false>) \
     X(context,                 void) \
     X(events,                  type_list<>) \
@@ -110,8 +109,6 @@ namespace options
     >;
 
     using no_auto_start = conf_element<option_id::auto_start, constant<false>>;
-
-    using before_entry = conf_element<option_id::before_entry, constant<true>>;
 
     using before_state_transition = conf_element
     <

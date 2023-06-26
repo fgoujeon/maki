@@ -27,7 +27,6 @@ namespace
     SM_OPTIONS \
     X(after_state_transition) \
     X(no_auto_start) \
-    X(before_entry) \
     X(before_state_transition) \
     X(no_run_to_completion) \
     X(on_exception) \

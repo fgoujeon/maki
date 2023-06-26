@@ -98,52 +98,6 @@ struct sm_conf_tpl
     >;
 
     /**
-    @brief Requires the @ref sm to call a user-provided `before_entry()` member
-    function before entering a state (i.e. before calling the `on_entry()`
-    member function of that state).
-
-    The following expression must be valid, for every possible template argument
-    list:
-    @code
-    sm_def.before_entry
-    <
-        region_path_type,
-        source_state_type,
-        event_type,
-        target_state_type
-    >(event);
-    @endcode
-
-    Example:
-    @code
-    struct sm_def
-    {
-        using conf = awesm::sm_conf
-            ::before_entry
-            //...
-        ;
-
-        template<class RegionPath, class SourceState, class Event, class TargetState>
-        void before_entry(const Event& event)
-        {
-            //...
-        }
-
-        //...
-    };
-    @endcode
-    */
-    using before_entry = sm_conf_tpl
-    <
-        Options...,
-#ifdef DOXYGEN
-        implementation-detail
-#else
-        detail::options::before_entry
-#endif
-    >;
-
-    /**
     @brief Requires the @ref sm to call a user-provided
     `before_state_transition()` member function before any external state
     transition.

@@ -9,6 +9,7 @@ For each concept is given:
 
 The concepts are the following:
 * @subpage state-machine
+* @subpage event
 * @subpage action
 * @subpage guard
 * @subpage orthogonal-region

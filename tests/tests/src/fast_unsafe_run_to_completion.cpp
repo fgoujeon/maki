@@ -58,5 +58,5 @@ TEST_CASE("fast_unsafe_run_to_completion")
     REQUIRE(sm.is_active_state<states::off>());
 
     //Just check it compiles
-    sm.process_queued_events();
+    sm.process_enqueued_events();
 }

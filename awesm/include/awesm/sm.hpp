@@ -296,8 +296,8 @@ public:
         }
     }
 
-    //Run-to-completion: Process queued events the same way
-    process_queued_events();
+    //Run-to-completion: Process enqueued events the same way
+    process_enqueued_events();
     @endcode
     */
     template<class Event>
@@ -329,7 +329,7 @@ public:
         static_assert(detail::option_v<conf, detail::option_id::run_to_completion>);
         try
         {
-            enqueue_event_impl<detail::sm_operation::process_event>(event);
+            enqueue_operation<detail::sm_operation::process_event>(event);
         }
         catch(...)
         {
@@ -344,14 +344,14 @@ public:
     Calling this function is only relevant when managing an exception thrown by
     user code and caught by the state machine.
     */
-    void process_queued_events()
+    void process_enqueued_events()
     {
         if(!processing_event_)
         {
             auto grd = processing_event_guard{*this};
             try
             {
-                event_queue_.invoke_and_pop_all(*this);
+                operation_queue_.invoke_and_pop_all(*this);
             }
             catch(...)
             {
@@ -405,7 +405,7 @@ private:
         sm& self_;
     };
 
-    struct any_event_queue_holder
+    struct real_operation_queue_holder
     {
         template<bool = true> //Dummy template for lazy evaluation
         using type = detail::function_queue
@@ -415,16 +415,16 @@ private:
             detail::option_v<conf, detail::option_id::small_event_max_align>
         >;
     };
-    struct empty_holder
+    struct fake_operation_queue_holder
     {
         template<bool = true> //Dummy template for lazy evaluation
         struct type{};
     };
-    using any_event_queue_type = typename std::conditional_t
+    using operation_queue_type = typename std::conditional_t
     <
         detail::option_v<conf, detail::option_id::run_to_completion>,
-        any_event_queue_holder,
-        empty_holder
+        real_operation_queue_holder,
+        fake_operation_queue_holder
     >::template type<>;
 
     template<detail::sm_operation Operation, class Event>
@@ -439,7 +439,7 @@ private:
             else
             {
                 //Enqueue event in case of recursive call
-                enqueue_event_impl<Operation>(event);
+                enqueue_operation<Operation>(event);
             }
         }
         else
@@ -453,19 +453,19 @@ private:
     {
         auto grd = processing_event_guard{*this};
 
-        process_event_once<Operation>(event);
+        execute_one_operation<Operation>(event);
 
         if constexpr(detail::option_v<conf, detail::option_id::run_to_completion>)
         {
-            //Process queued events, if any
-            event_queue_.invoke_and_pop_all(*this);
+            //Process enqueued events, if any
+            operation_queue_.invoke_and_pop_all(*this);
         }
     }
 
     template<detail::sm_operation Operation, class Event>
-    void enqueue_event_impl(const Event& event)
+    void enqueue_operation(const Event& event)
     {
-        event_queue_.template push<any_event_visitor<Operation>>(event);
+        operation_queue_.template push<any_event_visitor<Operation>>(event);
     }
 
     template<detail::sm_operation Operation>
@@ -474,7 +474,7 @@ private:
         template<class Event>
         static void call(const Event& event, sm& self)
         {
-            self.process_event_once<Operation>(event);
+            self.execute_one_operation<Operation>(event);
         }
     };
 
@@ -491,7 +491,7 @@ private:
     }
 
     template<detail::sm_operation Operation, class Event>
-    void process_event_once(const Event& event)
+    void execute_one_operation(const Event& event)
     {
         if constexpr(Operation == detail::sm_operation::start)
         {
@@ -521,7 +521,7 @@ private:
 
     detail::subsm<Def, void> subsm_;
     processing_event_t processing_event_ = {};
-    any_event_queue_type event_queue_;
+    operation_queue_type operation_queue_;
 };
 
 } //namespace

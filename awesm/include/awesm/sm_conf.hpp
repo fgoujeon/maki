@@ -551,6 +551,14 @@ struct sm_conf_tpl
         detail::options::transition_tables<Ts...>
 #endif
     >;
+
+#ifndef DOXYGEN
+    using fast_unsafe_run_to_completion = sm_conf_tpl
+    <
+        Options...,
+        detail::options::fast_unsafe_run_to_completion
+    >;
+#endif
 };
 
 /**

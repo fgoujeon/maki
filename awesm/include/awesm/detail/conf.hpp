@@ -20,22 +20,23 @@ static constexpr auto small_event_default_max_size = 16;
 static constexpr auto small_event_default_max_align = 8;
 
 #define AWESM_DETAIL_OPTIONS \
-    X(after_state_transition,  constant<false>) \
-    X(auto_start,              constant<true>) \
-    X(before_state_transition, constant<false>) \
-    X(context,                 void) \
-    X(events,                  type_list<>) \
-    X(on_entry_any,            constant<false>) \
-    X(on_event,                type_list<>) \
-    X(on_event_auto,           constant<false>) \
-    X(on_exception,            constant<false>) \
-    X(on_exit_any,             constant<false>) \
-    X(on_unprocessed,          constant<false>) \
-    X(pretty_name,             constant<false>) \
-    X(run_to_completion,       constant<true>) \
-    X(small_event_max_align,   constant<small_event_default_max_align>) \
-    X(small_event_max_size,    constant<small_event_default_max_size>) \
-    X(transition_tables,       type_list<>)
+    X(after_state_transition,        constant<false>) \
+    X(auto_start,                    constant<true>) \
+    X(before_state_transition,       constant<false>) \
+    X(context,                       void) \
+    X(events,                        type_list<>) \
+    X(fast_unsafe_run_to_completion, constant<false>) \
+    X(on_entry_any,                  constant<false>) \
+    X(on_event,                      type_list<>) \
+    X(on_event_auto,                 constant<false>) \
+    X(on_exception,                  constant<false>) \
+    X(on_exit_any,                   constant<false>) \
+    X(on_unprocessed,                constant<false>) \
+    X(pretty_name,                   constant<false>) \
+    X(run_to_completion,             constant<true>) \
+    X(small_event_max_align,         constant<small_event_default_max_align>) \
+    X(small_event_max_size,          constant<small_event_default_max_size>) \
+    X(transition_tables,             type_list<>)
 
 enum class option_id
 {
@@ -108,8 +109,6 @@ namespace options
         constant<true>
     >;
 
-    using no_auto_start = conf_element<option_id::auto_start, constant<false>>;
-
     using before_state_transition = conf_element
     <
         option_id::before_state_transition,
@@ -119,21 +118,38 @@ namespace options
     template<class T>
     using context = conf_element<option_id::context, T>;
 
+    using fast_unsafe_run_to_completion = conf_element
+    <
+        option_id::fast_unsafe_run_to_completion,
+        constant<true>
+    >;
+
+    using no_auto_start = conf_element<option_id::auto_start, constant<false>>;
+
     using no_run_to_completion = conf_element
     <
         option_id::run_to_completion,
         constant<false>
     >;
 
+    using on_entry_any = conf_element<option_id::on_entry_any, constant<true>>;
+
+    template<class... EventFilters>
+    using on_event = conf_element<option_id::on_event, type_list<EventFilters...>>;
+
+    using on_event_auto = conf_element<option_id::on_event_auto, constant<true>>;
+
+    using on_exception = conf_element<option_id::on_exception, constant<true>>;
+
+    using on_exit_any = conf_element<option_id::on_exit_any, constant<true>>;
+
+    using on_unprocessed = conf_element<option_id::on_unprocessed, constant<true>>;
+
     using pretty_name = conf_element
     <
         option_id::pretty_name,
         constant<true>
     >;
-
-    using on_exception = conf_element<option_id::on_exception, constant<true>>;
-
-    using on_unprocessed = conf_element<option_id::on_unprocessed, constant<true>>;
 
     template<std::size_t Value>
     using small_event_max_align = conf_element
@@ -148,15 +164,6 @@ namespace options
         option_id::small_event_max_size,
         constant<Value>
     >;
-
-    template<class... EventFilters>
-    using on_event = conf_element<option_id::on_event, type_list<EventFilters...>>;
-
-    using on_event_auto = conf_element<option_id::on_event_auto, constant<true>>;
-
-    using on_entry_any = conf_element<option_id::on_entry_any, constant<true>>;
-
-    using on_exit_any = conf_element<option_id::on_exit_any, constant<true>>;
 
     template<class... Ts>
     using transition_tables = conf_element<option_id::transition_tables, type_list<Ts...>>;

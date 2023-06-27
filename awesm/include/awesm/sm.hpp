@@ -90,7 +90,7 @@ public:
         if constexpr(detail::option_v<conf, detail::option_id::auto_start>)
         {
             //start
-            process_event_now_impl<detail::sm_operation::start>(events::start{});
+            execute_operation_now<detail::sm_operation::start>(events::start{});
         }
     }
 
@@ -218,7 +218,14 @@ public:
     template<class Event = events::start>
     void start(const Event& event = {})
     {
-        process_event_2<detail::sm_operation::start>(event);
+        try
+        {
+            execute_operation<detail::sm_operation::start>(event);
+        }
+        catch(...)
+        {
+            process_exception(std::current_exception());
+        }
     }
 
     /**
@@ -232,7 +239,14 @@ public:
     template<class Event = events::stop>
     void stop(const Event& event = {})
     {
-        process_event_2<detail::sm_operation::stop>(event);
+        try
+        {
+            execute_operation<detail::sm_operation::stop>(event);
+        }
+        catch(...)
+        {
+            process_exception(std::current_exception());
+        }
     }
 
     /**
@@ -247,7 +261,7 @@ public:
     //current processing
     if(processing_event)
     {
-        queue_event(event);
+        enqueue_event(event);
     }
 
     //Process the event
@@ -289,11 +303,18 @@ public:
     template<class Event>
     void process_event(const Event& event)
     {
-        process_event_2<detail::sm_operation::process_event>(event);
+        try
+        {
+            execute_operation<detail::sm_operation::process_event>(event);
+        }
+        catch(...)
+        {
+            process_exception(std::current_exception());
+        }
     }
 
     /**
-    @brief Queues event for later processing
+    @brief Enqueues event for later processing
     @param event the event to be processed
 
     You can call this function instead of doing a recursive call to @ref
@@ -303,12 +324,12 @@ public:
     not sure what you're doing, just call @ref process_event() instead.
     */
     template<class Event>
-    AWESM_NOINLINE void queue_event(const Event& event)
+    AWESM_NOINLINE void enqueue_event(const Event& event)
     {
         static_assert(detail::option_v<conf, detail::option_id::run_to_completion>);
         try
         {
-            queue_event_impl<detail::sm_operation::process_event>(event);
+            enqueue_event_impl<detail::sm_operation::process_event>(event);
         }
         catch(...)
         {
@@ -317,7 +338,7 @@ public:
     }
 
     /**
-    @brief Processes events that have been queued by the run-to-completion
+    @brief Processes events that have been enqueued by the run-to-completion
     mechanism.
 
     Calling this function is only relevant when managing an exception thrown by
@@ -340,13 +361,31 @@ public:
     }
 
 private:
+    /*
+    If run_to_completion is disabled or fast_unsafe_run_to_completion is
+    enabled, we never check if an event is being processed.
+    In this case, use a constant false bool instead of an actual bool.
+    */
+    using processing_event_t = std::conditional_t
+    <
+        (
+            !detail::option_v<conf, detail::option_id::run_to_completion> ||
+            detail::option_v<conf, detail::option_id::fast_unsafe_run_to_completion>
+        ),
+        std::integral_constant<bool, false>,
+        bool
+    >;
+
     class processing_event_guard
     {
     public:
         processing_event_guard(sm& self):
             self_(self)
         {
-            self_.processing_event_ = true;
+            if constexpr(std::is_same_v<processing_event_t, bool>)
+            {
+                self_.processing_event_ = true;
+            }
         }
 
         processing_event_guard(const processing_event_guard&) = delete;
@@ -356,7 +395,10 @@ private:
 
         ~processing_event_guard()
         {
-            self_.processing_event_ = false;
+            if constexpr(std::is_same_v<processing_event_t, bool>)
+            {
+                self_.processing_event_ = false;
+            }
         }
 
     private:
@@ -386,53 +428,42 @@ private:
     >::template type<>;
 
     template<detail::sm_operation Operation, class Event>
-    void process_event_2(const Event& event)
-    {
-        try
-        {
-            if constexpr(detail::option_v<conf, detail::option_id::run_to_completion>)
-            {
-                if(!processing_event_) //If call is not recursive
-                {
-                    process_event_now_impl<Operation>(event);
-                }
-                else
-                {
-                    //Queue event in case of recursive call
-                    queue_event_impl<Operation>(event);
-                }
-            }
-            else
-            {
-                process_event_once<Operation>(event);
-            }
-        }
-        catch(...)
-        {
-            process_exception(std::current_exception());
-        }
-    }
-
-    template<detail::sm_operation Operation, class Event>
-    void process_event_now_impl(const Event& event)
+    void execute_operation(const Event& event)
     {
         if constexpr(detail::option_v<conf, detail::option_id::run_to_completion>)
         {
-            auto grd = processing_event_guard{*this};
-
-            process_event_once<Operation>(event);
-
-            //Process queued events, if any
-            event_queue_.invoke_and_pop_all(*this);
+            if(!processing_event_) //If call is not recursive
+            {
+                execute_operation_now<Operation>(event);
+            }
+            else
+            {
+                //Enqueue event in case of recursive call
+                enqueue_event_impl<Operation>(event);
+            }
         }
         else
         {
-            process_event_once<Operation>(event);
+            execute_operation_now<Operation>(event);
         }
     }
 
     template<detail::sm_operation Operation, class Event>
-    void queue_event_impl(const Event& event)
+    void execute_operation_now(const Event& event)
+    {
+        auto grd = processing_event_guard{*this};
+
+        process_event_once<Operation>(event);
+
+        if constexpr(detail::option_v<conf, detail::option_id::run_to_completion>)
+        {
+            //Process queued events, if any
+            event_queue_.invoke_and_pop_all(*this);
+        }
+    }
+
+    template<detail::sm_operation Operation, class Event>
+    void enqueue_event_impl(const Event& event)
     {
         event_queue_.template push<any_event_visitor<Operation>>(event);
     }
@@ -489,7 +520,7 @@ private:
     }
 
     detail::subsm<Def, void> subsm_;
-    bool processing_event_ = false;
+    processing_event_t processing_event_ = {};
     any_event_queue_type event_queue_;
 };
 

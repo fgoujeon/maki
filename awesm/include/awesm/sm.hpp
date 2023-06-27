@@ -11,6 +11,7 @@
 #include "region_path.hpp"
 #include "detail/noinline.hpp"
 #include "detail/subsm.hpp"
+#include "detail/fake_function_queue.hpp"
 #include "detail/function_queue.hpp"
 #include "detail/tlu.hpp"
 #include "detail/type.hpp"
@@ -326,7 +327,12 @@ public:
     template<class Event>
     AWESM_NOINLINE void enqueue_event(const Event& event)
     {
-        static_assert(detail::option_v<conf, detail::option_id::run_to_completion>);
+        static_assert
+        (
+            detail::option_v<conf, detail::option_id::run_to_completion>,
+            "Run-to-completion is disabled"
+        );
+
         try
         {
             enqueue_operation<detail::sm_operation::process_event>(event);
@@ -418,7 +424,7 @@ private:
     struct fake_operation_queue_holder
     {
         template<bool = true> //Dummy template for lazy evaluation
-        struct type{};
+        using type = detail::fake_function_queue<sm&>;
     };
     using operation_queue_type = typename std::conditional_t
     <
@@ -430,21 +436,14 @@ private:
     template<detail::sm_operation Operation, class Event>
     void execute_operation(const Event& event)
     {
-        if constexpr(detail::option_v<conf, detail::option_id::run_to_completion>)
+        if(!processing_event_) //If call is not recursive
         {
-            if(!processing_event_) //If call is not recursive
-            {
-                execute_operation_now<Operation>(event);
-            }
-            else
-            {
-                //Enqueue event in case of recursive call
-                enqueue_operation<Operation>(event);
-            }
+            execute_operation_now<Operation>(event);
         }
         else
         {
-            execute_operation_now<Operation>(event);
+            //Enqueue event in case of recursive call
+            enqueue_operation<Operation>(event);
         }
     }
 
@@ -455,11 +454,8 @@ private:
 
         execute_one_operation<Operation>(event);
 
-        if constexpr(detail::option_v<conf, detail::option_id::run_to_completion>)
-        {
-            //Process enqueued events, if any
-            operation_queue_.invoke_and_pop_all(*this);
-        }
+        //Process enqueued events, if any
+        operation_queue_.invoke_and_pop_all(*this);
     }
 
     template<detail::sm_operation Operation, class Event>

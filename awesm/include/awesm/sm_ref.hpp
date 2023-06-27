@@ -35,6 +35,15 @@ namespace detail
                     const auto psm = reinterpret_cast<sm_t*>(vpsm); //NOLINT
                     psm->process_event(event);
                 }
+            },
+            penqueue_event_
+            {
+                [](void* const vpsm, const Event& event)
+                {
+                    using sm_t = sm<SmDef>;
+                    const auto psm = reinterpret_cast<sm_t*>(vpsm); //NOLINT
+                    psm->enqueue_event(event);
+                }
             }
         {
         }
@@ -46,11 +55,19 @@ namespace detail
             (*pprocess_event_)(get_vpsm(), event);
         }
 
+        using sm_ref_event_impl<Events...>::enqueue_event;
+
+        void enqueue_event(const Event& event)
+        {
+            (*penqueue_event_)(get_vpsm(), event);
+        }
+
     protected:
         using sm_ref_event_impl<Events...>::get_vpsm;
 
     private:
         void(*pprocess_event_)(void*, const Event&) = nullptr;
+        void(*penqueue_event_)(void*, const Event&) = nullptr;
     };
 
     template<>
@@ -64,6 +81,10 @@ namespace detail
         }
 
         void process_event()
+        {
+        }
+
+        void enqueue_event()
         {
         }
 
@@ -113,6 +134,21 @@ public:
             "Given event type must be part of the 'events' option template argument list"
         );
         impl_.process_event(event);
+    }
+
+    template<class Event>
+    void enqueue_event(const Event& event)
+    {
+        static_assert
+        (
+            detail::tlu::contains_v
+            <
+                detail::option_t<conf, detail::option_id::events>,
+                Event
+            >,
+            "Given event type must be part of the 'events' option template argument list"
+        );
+        impl_.enqueue_event(event);
     }
 
 private:

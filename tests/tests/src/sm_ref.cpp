@@ -35,7 +35,6 @@ namespace
         using conf = awesm::sm_conf
             ::transition_tables<sm_transition_table>
             ::context<context>
-            ::no_run_to_completion
             ::on_exception
         ;
 

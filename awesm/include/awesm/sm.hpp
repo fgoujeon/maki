@@ -90,7 +90,7 @@ public:
         if constexpr(detail::option_v<conf, detail::option_id::auto_start>)
         {
             //start
-            process_event_now_impl<detail::sm_operation::start>(events::start{});
+            execute_operation_now<detail::sm_operation::start>(events::start{});
         }
     }
 
@@ -218,7 +218,7 @@ public:
     template<class Event = events::start>
     void start(const Event& event = {})
     {
-        process_event_2<detail::sm_operation::start>(event);
+        execute_operation<detail::sm_operation::start>(event);
     }
 
     /**
@@ -232,7 +232,7 @@ public:
     template<class Event = events::stop>
     void stop(const Event& event = {})
     {
-        process_event_2<detail::sm_operation::stop>(event);
+        execute_operation<detail::sm_operation::stop>(event);
     }
 
     /**
@@ -245,9 +245,9 @@ public:
     @code
     //Run-to-completion: Don't let potential recursive calls interrupt the
     //current processing
-    if(processing_event)
+    if(executing_operation)
     {
-        queue_event(event);
+        enqueue_event(event);
     }
 
     //Process the event
@@ -282,18 +282,18 @@ public:
         }
     }
 
-    //Run-to-completion: Process queued events the same way
-    process_queued_events();
+    //Run-to-completion: Process enqueued events the same way
+    process_enqueued_events();
     @endcode
     */
     template<class Event>
     void process_event(const Event& event)
     {
-        process_event_2<detail::sm_operation::process_event>(event);
+        execute_operation<detail::sm_operation::process_event>(event);
     }
 
     /**
-    @brief Queues event for later processing
+    @brief Enqueues event for later processing
     @param event the event to be processed
 
     You can call this function instead of doing a recursive call to @ref
@@ -303,12 +303,12 @@ public:
     not sure what you're doing, just call @ref process_event() instead.
     */
     template<class Event>
-    AWESM_NOINLINE void queue_event(const Event& event)
+    AWESM_NOINLINE void enqueue_event(const Event& event)
     {
         static_assert(detail::option_v<conf, detail::option_id::run_to_completion>);
         try
         {
-            queue_event_impl<detail::sm_operation::process_event>(event);
+            enqueue_event_impl<detail::sm_operation::process_event>(event);
         }
         catch(...)
         {
@@ -317,20 +317,20 @@ public:
     }
 
     /**
-    @brief Processes events that have been queued by the run-to-completion
+    @brief Processes events that have been enqueued by the run-to-completion
     mechanism.
 
     Calling this function is only relevant when managing an exception thrown by
     user code and caught by the state machine.
     */
-    void process_queued_events()
+    void process_enqueued_events()
     {
-        if(!processing_event_)
+        if(!executing_operation_)
         {
-            auto grd = processing_event_guard{*this};
+            auto grd = executing_operation_guard{*this};
             try
             {
-                event_queue_.invoke_and_pop_all(*this);
+                operation_queue_.invoke_and_pop_all(*this);
             }
             catch(...)
             {
@@ -340,30 +340,30 @@ public:
     }
 
 private:
-    class processing_event_guard
+    class executing_operation_guard
     {
     public:
-        processing_event_guard(sm& self):
+        executing_operation_guard(sm& self):
             self_(self)
         {
-            self_.processing_event_ = true;
+            self_.executing_operation_ = true;
         }
 
-        processing_event_guard(const processing_event_guard&) = delete;
-        processing_event_guard(processing_event_guard&&) = delete;
-        processing_event_guard& operator=(const processing_event_guard&) = delete;
-        processing_event_guard& operator=(processing_event_guard&&) = delete;
+        executing_operation_guard(const executing_operation_guard&) = delete;
+        executing_operation_guard(executing_operation_guard&&) = delete;
+        executing_operation_guard& operator=(const executing_operation_guard&) = delete;
+        executing_operation_guard& operator=(executing_operation_guard&&) = delete;
 
-        ~processing_event_guard()
+        ~executing_operation_guard()
         {
-            self_.processing_event_ = false;
+            self_.executing_operation_ = false;
         }
 
     private:
         sm& self_;
     };
 
-    struct any_event_queue_holder
+    struct real_operation_queue_holder
     {
         template<bool = true> //Dummy template for lazy evaluation
         using type = detail::function_queue
@@ -378,33 +378,33 @@ private:
         template<bool = true> //Dummy template for lazy evaluation
         struct type{};
     };
-    using any_event_queue_type = typename std::conditional_t
+    using operation_queue_type = typename std::conditional_t
     <
         detail::option_v<conf, detail::option_id::run_to_completion>,
-        any_event_queue_holder,
+        real_operation_queue_holder,
         empty_holder
     >::template type<>;
 
     template<detail::sm_operation Operation, class Event>
-    void process_event_2(const Event& event)
+    void execute_operation(const Event& event)
     {
         try
         {
             if constexpr(detail::option_v<conf, detail::option_id::run_to_completion>)
             {
-                if(!processing_event_) //If call is not recursive
+                if(!executing_operation_) //If call is not recursive
                 {
-                    process_event_now_impl<Operation>(event);
+                    execute_operation_now<Operation>(event);
                 }
                 else
                 {
-                    //Queue event in case of recursive call
-                    queue_event_impl<Operation>(event);
+                    //Enqueue event in case of recursive call
+                    enqueue_event_impl<Operation>(event);
                 }
             }
             else
             {
-                process_event_once<Operation>(event);
+                execute_one_operation<Operation>(event);
             }
         }
         catch(...)
@@ -414,27 +414,27 @@ private:
     }
 
     template<detail::sm_operation Operation, class Event>
-    void process_event_now_impl(const Event& event)
+    void execute_operation_now(const Event& event)
     {
         if constexpr(detail::option_v<conf, detail::option_id::run_to_completion>)
         {
-            auto grd = processing_event_guard{*this};
+            auto grd = executing_operation_guard{*this};
 
-            process_event_once<Operation>(event);
+            execute_one_operation<Operation>(event);
 
-            //Process queued events, if any
-            event_queue_.invoke_and_pop_all(*this);
+            //Process enqueued events, if any
+            operation_queue_.invoke_and_pop_all(*this);
         }
         else
         {
-            process_event_once<Operation>(event);
+            execute_one_operation<Operation>(event);
         }
     }
 
     template<detail::sm_operation Operation, class Event>
-    void queue_event_impl(const Event& event)
+    void enqueue_event_impl(const Event& event)
     {
-        event_queue_.template push<any_event_visitor<Operation>>(event);
+        operation_queue_.template push<any_event_visitor<Operation>>(event);
     }
 
     template<detail::sm_operation Operation>
@@ -443,7 +443,7 @@ private:
         template<class Event>
         static void call(const Event& event, sm& self)
         {
-            self.process_event_once<Operation>(event);
+            self.execute_one_operation<Operation>(event);
         }
     };
 
@@ -460,7 +460,7 @@ private:
     }
 
     template<detail::sm_operation Operation, class Event>
-    void process_event_once(const Event& event)
+    void execute_one_operation(const Event& event)
     {
         if constexpr(Operation == detail::sm_operation::start)
         {
@@ -489,8 +489,8 @@ private:
     }
 
     detail::subsm<Def, void> subsm_;
-    bool processing_event_ = false;
-    any_event_queue_type event_queue_;
+    bool executing_operation_ = false;
+    operation_queue_type operation_queue_;
 };
 
 } //namespace

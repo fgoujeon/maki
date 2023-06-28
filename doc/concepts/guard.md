@@ -46,9 +46,9 @@ What about transitions? Transitions between `spinning *` states should be obviou
 
 This is where we need guards. Starting from `reading memory`, at `memory read`:
 
-* if the guard `memory speed = low`, execute the action `set speed low` and transition to the `spinning low` state;
-* if the guard `memory speed = med`, execute the action `set speed med` and transition to the `spinning med` state;
-* if the guard `memory speed = high`, execute the action `set speed high` and transition to the `spinning high` state.
+* if the guard `memory speed = low`, transition to the `spinning low` state;
+* if the guard `memory speed = med`, transition to the `spinning med` state;
+* if the guard `memory speed = high`, transition to the `spinning high` state.
 
 Here is the state machine diagram of our fan:
 
@@ -56,18 +56,24 @@ Here is the state machine diagram of our fan:
 hide empty description
 
 state "reading memory" as reading_memory
+
 state "spinning low" as spinning_low
+spinning_low : entry / set speed low
+
 state "spinning med" as spinning_med
+spinning_med : entry / set speed med
+
 state "spinning high" as spinning_high
+spinning_high : entry / set speed high
 
-reading_memory --> spinning_low : memory read / set speed low [memory speed = low]
-reading_memory --> spinning_med : memory read / set speed med [memory speed = med]
-reading_memory --> spinning_high : memory read / set speed high [memory speed = high]
+reading_memory --> spinning_low : memory read [memory speed = low]
+reading_memory --> spinning_med : memory read [memory speed = med]
+reading_memory --> spinning_high : memory read [memory speed = high]
 
-spinning_low -> spinning_med : plus button press / set speed med
-spinning_med -> spinning_high : plus button press / set speed high
-spinning_med -> spinning_low : minus button press / set speed low
-spinning_high -> spinning_med : minus button press / set speed med
+spinning_low -> spinning_med : plus button press
+spinning_med -> spinning_high : plus button press
+spinning_med -> spinning_low : minus button press
+spinning_high -> spinning_med : minus button press
 @enduml
 
 ## How to use guards within AweSM

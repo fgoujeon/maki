@@ -31,32 +31,48 @@ struct plus_button_press{};
 
 //States
 struct reading_memory { using conf = awesm::state_conf; };
-struct spinning_low { using conf = awesm::state_conf; };
-struct spinning_med { using conf = awesm::state_conf; };
-struct spinning_high { using conf = awesm::state_conf; };
-
-//Actions
-void set_speed_low()
+struct spinning_low
 {
-    std::cout << "Speed is low\n";
+    using conf = awesm::state_conf
+        ::on_entry_any
+    ;
 
-    //Set fan speed and save speed in memory
-    //...
-}
-void set_speed_med()
+    void on_entry()
+    {
+        std::cout << "Speed is low\n";
+
+        //Set fan speed and save speed in memory
+        //[Implementation detail...]
+    }
+};
+struct spinning_med
 {
-    std::cout << "Speed is med\n";
+    using conf = awesm::state_conf
+        ::on_entry_any
+    ;
 
-    //Set fan speed and save speed in memory
-    //...
-}
-void set_speed_high()
+    void on_entry()
+    {
+        std::cout << "Speed is med\n";
+
+        //Set fan speed and save speed in memory
+        //[Implementation detail...]
+    }
+};
+struct spinning_high
 {
-    std::cout << "Speed is high\n";
+    using conf = awesm::state_conf
+        ::on_entry_any
+    ;
 
-    //Set fan speed and save speed in memory
-    //...
-}
+    void on_entry()
+    {
+        std::cout << "Speed is high\n";
+
+        //Set fan speed and save speed in memory
+        //[Implementation detail...]
+    }
+};
 
 //Guards
 //! [guards]
@@ -77,14 +93,14 @@ bool is_speed_high(context& /*ctx*/, const memory_read& event)
 //Transition table
 //! [transition-table]
 using sm_transition_table_t = awesm::transition_table
-    //    source state,   event,              target state,  action,         guard
-    ::add<reading_memory, memory_read,        spinning_low,  set_speed_low,  is_speed_low>
-    ::add<reading_memory, memory_read,        spinning_med,  set_speed_med,  is_speed_med>
-    ::add<reading_memory, memory_read,        spinning_high, set_speed_high, is_speed_high>
-    ::add<spinning_low,   plus_button_press,  spinning_med,  set_speed_med>
-    ::add<spinning_med,   plus_button_press,  spinning_high, set_speed_high>
-    ::add<spinning_med,   minus_button_press, spinning_low,  set_speed_low>
-    ::add<spinning_high,  minus_button_press, spinning_med,  set_speed_med>
+    //    source state,   event,              target state,  action,      guard
+    ::add<reading_memory, memory_read,        spinning_low,  awesm::noop, is_speed_low>
+    ::add<reading_memory, memory_read,        spinning_med,  awesm::noop, is_speed_med>
+    ::add<reading_memory, memory_read,        spinning_high, awesm::noop, is_speed_high>
+    ::add<spinning_low,   plus_button_press,  spinning_med,  awesm::noop>
+    ::add<spinning_med,   plus_button_press,  spinning_high, awesm::noop>
+    ::add<spinning_med,   minus_button_press, spinning_low,  awesm::noop>
+    ::add<spinning_high,  minus_button_press, spinning_med,  awesm::noop>
 ;
 //! [transition-table]
 

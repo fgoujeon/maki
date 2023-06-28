@@ -1,5 +1,13 @@
 # Event {#event}
 
+## Definition
+
+TODO
+
+## When to use an event
+
+TODO
+
 ## How to use events within AweSM
 
 Within AweSM, an event can be an object of any type. It can carry data that your state machine (more precisely your [actions](@ref action) and [guards](@ref guard), which we'll see later in this manual) will be able to read.

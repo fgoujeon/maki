@@ -37,28 +37,28 @@ inline constexpr auto composable_guard = guard_t<Operator, Operand, Operand2>{};
 template<detail::guard_operator Operator, const auto& Operand, const auto& Operand2>
 struct guard_t
 {
-    template<class Sm, class Context, class Event>
-    bool operator()(Sm& mach, Context& ctx, const Event& event) const
+    template<class... Args>
+    bool operator()(Args&... args) const
     {
         if constexpr(Operator == detail::guard_operator::none)
         {
-            return detail::call_action_or_guard<Operand>(mach, ctx, event);
+            return detail::call_action_or_guard<Operand>(args...);
         }
         if constexpr(Operator == detail::guard_operator::not_)
         {
-            return !Operand(mach, ctx, event);
+            return !Operand(args...);
         }
         if constexpr(Operator == detail::guard_operator::and_)
         {
-            return Operand(mach, ctx, event) && Operand2(mach, ctx, event);
+            return Operand(args...) && Operand2(args...);
         }
         if constexpr(Operator == detail::guard_operator::or_)
         {
-            return Operand(mach, ctx, event) || Operand2(mach, ctx, event);
+            return Operand(args...) || Operand2(args...);
         }
         if constexpr(Operator == detail::guard_operator::xor_)
         {
-            return Operand(mach, ctx, event) != Operand2(mach, ctx, event);
+            return Operand(args...) != Operand2(args...);
         }
     }
 

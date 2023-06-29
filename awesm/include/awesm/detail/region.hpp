@@ -68,6 +68,54 @@ struct root_sm_of<region<ParentSm, Index>>
     using type = root_sm_of_t<ParentSm>;
 };
 
+template<class State>
+struct call_state_on_event_t
+{
+    template<class Region, class Event>
+    auto operator()
+    (
+        [[maybe_unused]] Region& reg,
+        [[maybe_unused]] const Event& event
+    ) const
+    {
+        return reg.template state<State>().on_event(event);
+    }
+};
+
+template<class State>
+inline constexpr auto call_state_on_event = call_state_on_event_t<State>{};
+
+template<class TransitionTable, class State, class Event>
+struct add_internal_transition
+{
+    using state_def_type = state_traits::state_to_state_def_t<State>;
+
+    using transition_type = awesm::transition
+    <
+        state_def_type,
+        Event,
+        awesm::null,
+        call_state_on_event<State>
+    >;
+
+    using type = tlu::push_back_t<TransitionTable, transition_type>;
+};
+
+template<class Event>
+struct add_internal_transition_holder
+{
+    template<class TransitionTable, class State>
+    using add_internal_transition_t = typename add_internal_transition<TransitionTable, State, Event>::type;
+};
+
+template<class TransitionTable, class StateTypeList, class Event>
+using add_internal_transitions_t = tlu::left_fold_t
+<
+    StateTypeList,
+    add_internal_transition_holder<Event>::template add_internal_transition_t,
+    TransitionTable
+>;
+
 template<class ParentSm, int Index>
 class region
 {
@@ -86,6 +134,12 @@ public:
     region& operator=(const region&) = delete;
     region& operator=(region&&) = delete;
     ~region() = default;
+
+    template<class State>
+    State& state()
+    {
+        return get<sm_object_holder<State>>(state_holders_).get();
+    }
 
     template<class StateRegionPath, class StateDef>
     const StateDef& state_def() const
@@ -168,7 +222,7 @@ public:
     }
 
     template<class Event>
-    void process_event(const Event& event)
+    bool process_event(const Event& event)
     {
         //List the transitions whose event type pattern matches Event
         using candidate_transition_type_list = transition_table_filters::by_event_t
@@ -187,68 +241,14 @@ public:
             >
         ;
 
-        constexpr auto must_try_processing_event_in_transitions = !tlu::empty_v<candidate_transition_type_list>;
-        constexpr auto must_try_processing_event_in_active_state = !tlu::empty_v<candidate_state_type_list>;
-
-        if constexpr(must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
-        {
-            if(!try_processing_event_in_transitions<candidate_transition_type_list>(event))
-            {
-                try_processing_event_in_active_state<candidate_state_type_list>(event);
-            }
-        }
-        else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
-        {
-            try_processing_event_in_active_state<candidate_state_type_list>(event);
-        }
-        else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
-        {
-            try_processing_event_in_transitions<candidate_transition_type_list>(event);
-        }
-    }
-
-    template<class Event>
-    void process_event(const Event& event, bool& processed)
-    {
-        //List the transitions whose event type pattern matches Event
-        using candidate_transition_type_list = transition_table_filters::by_event_t
+        using tt = add_internal_transitions_t
         <
-            transition_table_type,
+            candidate_transition_type_list,
+            candidate_state_type_list,
             Event
         >;
 
-        //List the state types that require us to call their on_event()
-        using candidate_state_type_list =
-            state_type_list_filters::by_required_on_event_t
-            <
-                state_type_list,
-                region,
-                Event
-            >
-        ;
-
-        constexpr auto must_try_processing_event_in_transitions = !tlu::empty_v<candidate_transition_type_list>;
-        constexpr auto must_try_processing_event_in_active_state = !tlu::empty_v<candidate_state_type_list>;
-
-        if constexpr(must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
-        {
-            if(try_processing_event_in_transitions<candidate_transition_type_list>(event))
-            {
-                processed = true;
-            }
-            else
-            {
-                try_processing_event_in_active_state<candidate_state_type_list>(event, processed);
-            }
-        }
-        else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
-        {
-            try_processing_event_in_active_state<candidate_state_type_list>(event, processed);
-        }
-        else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
-        {
-            try_processing_event_in_transitions<candidate_transition_type_list>(event, processed);
-        }
+        return try_processing_event_in_transitions<tt>(event);
     }
 
 private:
@@ -285,21 +285,21 @@ private:
         }
     };
 
-    template<class TransitionTypeList, class Event, class... ExtraArgs>
-    bool try_processing_event_in_transitions(const Event& event, ExtraArgs&... extra_args)
+    template<class TransitionTypeList, class Event>
+    bool try_processing_event_in_transitions(const Event& event)
     {
         return tlu::for_each_or
         <
             TransitionTypeList,
             try_processing_event_in_transition
-        >(*this, event, extra_args...);
+        >(*this, event);
     }
 
     //Check active state and guard
     struct try_processing_event_in_transition
     {
-        template<class Transition, class Event, class... ExtraArgs>
-        static bool call(region& self, const Event& event, ExtraArgs&... extra_args)
+        template<class Transition, class Event>
+        static bool call(region& self, const Event& event)
         {
             using source_state_t = typename Transition::source_state_type_pattern;
             using target_state_t = typename Transition::target_state_type;
@@ -324,7 +324,7 @@ private:
                         Transition::action,
                         Transition::guard
                     >
-                >(self, event, extra_args...);
+                >(self, event);
             }
             else
             {
@@ -333,7 +333,7 @@ private:
                     target_state_t,
                     Transition::action,
                     Transition::guard
-                >::template call<source_state_t>(self, event, extra_args...);
+                >::template call<source_state_t>(self, event);
             }
         }
     };
@@ -341,8 +341,8 @@ private:
     template<class TargetStateDef, const auto& Action, const auto& Guard>
     struct try_processing_event_in_transition_2
     {
-        template<class SourceStateDef, class Event, class... ExtraArgs>
-        static bool call(region& self, const Event& event, ExtraArgs&... extra_args)
+        template<class SourceStateDef, class Event>
+        static bool call(region& self, const Event& event)
         {
             //Make sure the transition source state is the active state
             if(!self.is_active_state_def_type<SourceStateDef>())
@@ -351,31 +351,22 @@ private:
             }
 
             //Check guard
-            if(!detail::call_action_or_guard<Guard>(self.root_sm_, self.ctx_, event))
+            if(!detail::call_action_or_guard<Guard>(self.root_sm_, self, self.ctx_, event))
             {
                 return false;
             }
 
-            self.process_event_in_transition
+            return self.process_event_in_transition
             <
                 SourceStateDef,
                 TargetStateDef,
                 Action
-            >(event, extra_args...);
-
-            return true;
+            >(event);
         }
     };
 
     template<class SourceStateDef, class TargetStateDef, const auto& Action, class Event>
-    void process_event_in_transition(const Event& event, bool& processed)
-    {
-        process_event_in_transition<SourceStateDef, TargetStateDef, Action>(event);
-        processed = true;
-    }
-
-    template<class SourceStateDef, class TargetStateDef, const auto& Action, class Event>
-    void process_event_in_transition(const Event& event)
+    bool process_event_in_transition(const Event& event)
     {
         using path_t = region_path_of_t<region>;
 
@@ -413,12 +404,43 @@ private:
             >;
         }
 
-        detail::call_action_or_guard<Action>
-        (
-            root_sm_,
-            ctx_,
-            event
-        );
+        const auto call_action = [&]
+        {
+            return detail::call_action_or_guard<Action>
+            (
+                root_sm_,
+                *this,
+                ctx_,
+                event
+            );
+        };
+
+        using call_action_return_t = decltype(call_action());
+
+        const auto processed = [&]
+        {
+            if constexpr(std::is_void_v<call_action_return_t>)
+            {
+                detail::call_action_or_guard<Action>
+                (
+                    root_sm_,
+                    *this,
+                    ctx_,
+                    event
+                );
+                return true;
+            }
+            else
+            {
+                return detail::call_action_or_guard<Action>
+                (
+                    root_sm_,
+                    *this,
+                    ctx_,
+                    event
+                );
+            }
+        }();
 
         if constexpr(!is_internal_transition)
         {
@@ -455,36 +477,9 @@ private:
                 try_processing_event_in_transitions<candidate_transition_type_list>(null{});
             }
         }
+
+        return processed;
     }
-
-    /*
-    Call active_state.on_event(event)
-    */
-    template<class StateTypeList, class Event, class... ExtraArgs>
-    void try_processing_event_in_active_state(const Event& event, ExtraArgs&... extra_args)
-    {
-        tlu::for_each_or
-        <
-            StateTypeList,
-            try_processing_event_in_active_state_2
-        >(*this, event, extra_args...);
-    }
-
-    struct try_processing_event_in_active_state_2
-    {
-        template<class State, class Event, class... ExtraArgs>
-        static bool call(region& self, const Event& event, ExtraArgs&... extra_args)
-        {
-            if(!self.is_active_state_type<State>())
-            {
-                return false;
-            }
-
-            auto& state = self.state_from_state_def<State>();
-            call_on_event(state, event, extra_args...);
-            return true;
-        }
-    };
 
     template<class State>
     [[nodiscard]] bool is_active_state_type() const

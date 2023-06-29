@@ -224,28 +224,24 @@ public:
     }
 
     template<class Event>
-    void on_event(const Event& event)
+    bool on_event(const Event& event)
     {
         if constexpr(state_traits::requires_on_event_v<Def, Event>)
         {
-            call_on_event(def_holder_.get(), event);
-        }
-
-        tlu::for_each<region_tuple_type, region_process_event>(*this, event);
-    }
-
-    template<class Event>
-    void on_event(const Event& event, bool& processed)
-    {
-        if constexpr(state_traits::requires_on_event_v<Def, Event>)
-        {
-            call_on_event(def_holder_.get(), event);
+            def_holder_.get().on_event(event);
             tlu::for_each<region_tuple_type, region_process_event>(*this, event);
-            processed = true;
+            return true;
         }
         else
         {
-            tlu::for_each<region_tuple_type, region_process_event>(*this, event, processed);
+            return static_cast<bool>
+            (
+                tlu::for_each_plus<region_tuple_type, region_process_event>
+                (
+                    *this,
+                    event
+                )
+            );
         }
     }
 
@@ -274,10 +270,10 @@ private:
 
     struct region_process_event
     {
-        template<class Region, class Event, class... ExtraArgs>
-        static void call(subsm& self, const Event& event, ExtraArgs&... extra_args)
+        template<class Region, class Event>
+        static int call(subsm& self, const Event& event)
         {
-            get<Region>(self.regions_).process_event(event, extra_args...);
+            return static_cast<int>(get<Region>(self.regions_).process_event(event));
         }
     };
 

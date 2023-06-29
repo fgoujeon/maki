@@ -474,9 +474,7 @@ private:
         {
             if constexpr(detail::option_v<conf, detail::option_id::on_unprocessed>)
             {
-                auto processed = false;
-                subsm_.on_event(event, processed);
-                if(!processed)
+                if(!subsm_.on_event(event))
                 {
                     def().on_unprocessed(event);
                 }

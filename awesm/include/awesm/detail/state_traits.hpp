@@ -55,6 +55,34 @@ template<class StateDef, class Region>
 using state_def_to_state_t = typename state_def_to_state<StateDef, Region>::type;
 
 
+//state_to_state_def
+
+namespace state_to_state_def_detail
+{
+    template<class State>
+    struct def_holder
+    {
+        template<class Dummy = void>
+        using type = typename State::def_type;
+    };
+
+    template<class State>
+    struct identity_holder
+    {
+        template<class Dummy = void>
+        using type = State;
+    };
+}
+
+template<class State>
+using state_to_state_def_t = typename std::conditional_t
+<
+    is_subsm_v<State>,
+    state_to_state_def_detail::def_holder<State>,
+    state_to_state_def_detail::identity_holder<State>
+>::template type<>;
+
+
 //on_entry
 
 template<class State>

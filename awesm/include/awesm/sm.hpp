@@ -245,7 +245,7 @@ public:
     @code
     //Run-to-completion: Don't let potential recursive calls interrupt the
     //current processing
-    if(executing_operation)
+    if(processing_event)
     {
         enqueue_event(event);
     }
@@ -290,6 +290,28 @@ public:
     void process_event(const Event& event)
     {
         execute_operation<detail::sm_operation::process_event>(event);
+    }
+
+    /**
+    @brief Like process_event(), but doesn't check if an event is being
+    processed.
+    @param event the event to be processed
+
+    <b>USE WITH CAUTION!</b>
+
+    You can call this function if you're **absolutely** sure that you're not
+    calling this function while process_event() is being called. Otherwise,
+    <b>run-to-completion will be broken</b>.
+
+    Compared to process_event(), process_event_now() is:
+    - faster to build, because the enqueue_event() function template won't be
+    instantiated;
+    - faster to run, because an `if` statement is skipped.
+    */
+    template<class Event>
+    void process_event_now(const Event& event)
+    {
+        execute_operation_now<detail::sm_operation::process_event>(event);
     }
 
     /**

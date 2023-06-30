@@ -102,7 +102,12 @@ struct add_internal_transition
         call_state_on_event<State>
     >;
 
-    using type = tlu::push_back_t<TransitionTable, transition_type>;
+    using type = tlu::push_back_if_t
+    <
+        TransitionTable,
+        transition_type,
+        state_traits::requires_on_event_for_at_least_one_event_v<State>
+    >;
 };
 
 template<class TransitionTable, class State>

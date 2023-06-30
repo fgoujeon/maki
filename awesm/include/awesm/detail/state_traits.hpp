@@ -157,6 +157,12 @@ constexpr auto requires_on_event_v = std::conditional_t
     matches_on_event_pattern
 >::template value<State, Event>;
 
+template<class State>
+constexpr auto requires_on_event_for_at_least_one_event_v =
+    option_v<typename State::conf, option_id::on_event_auto> ||
+    !tlu::empty_v<option_t<typename State::conf, option_id::on_event>>
+;
+
 } //namespace
 
 #endif

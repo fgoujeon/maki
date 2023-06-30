@@ -54,6 +54,13 @@ struct state_def_to_state<StateDef, Region, std::enable_if_t<is_subsm_conf_v<typ
 template<class StateDef, class Region>
 using state_def_to_state_t = typename state_def_to_state<StateDef, Region>::type;
 
+template<class Region>
+struct with_region
+{
+    template<class StateDef>
+    using state_def_to_state_t = state_traits::state_def_to_state_t<StateDef, Region>;
+};
+
 
 //state_def_type_list_to_state_type_list
 

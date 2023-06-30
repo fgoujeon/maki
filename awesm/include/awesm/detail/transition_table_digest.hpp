@@ -44,13 +44,6 @@ For example, the following digest type...:
 
 namespace transition_table_digest_detail
 {
-    template<class Region>
-    struct state_def_type_list_to_state_type_list_holder
-    {
-        template<class... Ts>
-        using type = type_list<state_traits::state_def_to_state_t<Ts, Region>...>;
-    };
-
     template<class... Ts>
     using state_type_list_to_state_holder_tuple_type = tuple<sm_object_holder<Ts>...>;
 
@@ -118,10 +111,10 @@ private:
 
 public:
     using state_def_type_list = typename digest_type::state_def_type_list;
-    using state_type_list = tlu::apply_t
+    using state_type_list = tlu::map_t
     <
         state_def_type_list,
-        transition_table_digest_detail::state_def_type_list_to_state_type_list_holder<Region>::template type
+        state_traits::with_region<Region>::template state_def_to_state_t
     >;
     using state_holder_tuple_type = tlu::apply_t
     <

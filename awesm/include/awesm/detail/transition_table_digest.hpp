@@ -66,23 +66,19 @@ namespace transition_table_digest_detail
         static constexpr auto has_null_events = false;
     };
 
-    template<class Region>
-    struct add_transition_to_digest_holder
+    template<class Digest, class Transition>
+    struct add_transition_to_digest
     {
-        template<class Digest, class Transition>
-        struct add_transition_to_digest
-        {
-            using state_def_type_list = push_back_unique_if_not_null
-            <
-                typename Digest::state_def_type_list,
-                typename Transition::target_state_type
-            >;
+        using state_def_type_list = push_back_unique_if_not_null
+        <
+            typename Digest::state_def_type_list,
+            typename Transition::target_state_type
+        >;
 
-            static constexpr auto has_null_events =
-                Digest::has_null_events ||
-                std::is_same_v<typename Transition::event_type_pattern, null>
-            ;
-        };
+        static constexpr auto has_null_events =
+            Digest::has_null_events ||
+            std::is_same_v<typename Transition::event_type_pattern, null>
+        ;
     };
 
     /*
@@ -90,11 +86,11 @@ namespace transition_table_digest_detail
     awesm::detail::sm_object_holder_tuple, so that we don't instantiate
     intermediate tuples.
     */
-    template<class TransitionTable, class Region>
+    template<class TransitionTable>
     using digest_with_type_lists = tlu::left_fold_t
     <
         TransitionTable,
-        add_transition_to_digest_holder<Region>::template add_transition_to_digest,
+        add_transition_to_digest,
         initial_digest<initial_state_t<TransitionTable>>
     >;
 }
@@ -105,8 +101,7 @@ class transition_table_digest
 private:
     using digest_type = transition_table_digest_detail::digest_with_type_lists
     <
-        TransitionTable,
-        Region
+        TransitionTable
     >;
 
 public:

@@ -288,18 +288,20 @@ private:
     template<class TransitionTypeList, class Event>
     bool try_processing_event_in_transitions(const Event& event)
     {
-        return tlu::for_each_or
+        auto processed = false;
+        tlu::for_each_or
         <
             TransitionTypeList,
             try_processing_event_in_transition
-        >(*this, event);
+        >(*this, event, processed);
+        return processed;
     }
 
     //Check active state and guard
     struct try_processing_event_in_transition
     {
         template<class Transition, class Event>
-        static bool call(region& self, const Event& event)
+        static bool call(region& self, const Event& event, bool& processed)
         {
             using source_state_t = typename Transition::source_state_type_pattern;
             using target_state_t = typename Transition::target_state_type;
@@ -330,7 +332,7 @@ private:
                         Transition::action,
                         Transition::guard
                     >
-                >(self, event);
+                >(self, event, processed);
             }
             else
             {
@@ -339,7 +341,7 @@ private:
                     target_state_t,
                     Transition::action,
                     Transition::guard
-                >::template call<source_state_t>(self, event);
+                >::template call<source_state_t>(self, event, processed);
             }
         }
     };
@@ -348,7 +350,7 @@ private:
     struct try_processing_event_in_transition_2
     {
         template<class SourceState, class Event>
-        static bool call(region& self, const Event& event)
+        static bool call(region& self, const Event& event, bool& processed)
         {
             //Make sure the transition source state is the active state
             if(!self.is_active_state_type<SourceState>())
@@ -362,12 +364,13 @@ private:
                 return false;
             }
 
-            return self.process_event_in_transition
+            processed = self.process_event_in_transition
             <
                 SourceState,
                 TargetState,
                 Action
             >(event);
+            return true;
         }
     };
 

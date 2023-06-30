@@ -88,11 +88,9 @@ inline constexpr auto call_state_on_event = call_state_on_event_t<State>{};
 template<class TransitionTable, class State, class Event>
 struct add_internal_transition
 {
-    using state_def_type = state_traits::state_to_state_def_t<State>;
-
     using transition_type = awesm::transition
     <
-        state_def_type,
+        State,
         Event,
         awesm::null,
         call_state_on_event<State>
@@ -202,18 +200,18 @@ public:
     template<class Event>
     void start(const Event& event)
     {
-        if(is_active_state_def_type<states::stopped>())
+        if(is_active_state_type<states::stopped>())
         {
-            process_event_in_transition<states::stopped, initial_state_def_type, noop>(event);
+            process_event_in_transition<states::stopped, initial_state_type, noop>(event);
         }
     }
 
     template<class Event>
     void stop(const Event& event)
     {
-        if(!is_active_state_def_type<states::stopped>())
+        if(!is_active_state_type<states::stopped>())
         {
-            with_active_state_def<state_def_type_list, stop_2>
+            with_active_state<state_type_list, stop_2>
             (
                 *this,
                 event
@@ -227,7 +225,7 @@ public:
         //List the transitions whose event type pattern matches Event
         using candidate_transition_type_list = transition_table_filters::by_event_t
         <
-            transition_table_type,
+            resolved_transition_table_type,
             Event
         >;
 
@@ -261,6 +259,8 @@ private:
         detail::transition_table_digest<transition_table_type, region>
     ;
 
+    using resolved_transition_table_type = typename transition_table_digest_type::resolved_transition_table;
+
     using state_def_type_list = typename transition_table_digest_type::state_def_type_list;
 
     using state_type_list = typename transition_table_digest_type::state_type_list;
@@ -269,7 +269,7 @@ private:
         typename transition_table_digest_type::state_holder_tuple_type
     ;
 
-    using initial_state_def_type = detail::tlu::front_t<state_def_type_list>;
+    using initial_state_type = detail::tlu::front_t<state_type_list>;
 
     struct stop_2
     {
@@ -313,11 +313,17 @@ private:
                     source_state_t
                 >;
 
+                using matching_state_type_list = state_traits::state_def_type_list_to_state_type_list_t
+                <
+                    matching_state_def_type_list,
+                    region
+                >;
+
                 static_assert(!tlu::empty_v<matching_state_def_type_list>);
 
                 return tlu::for_each_or
                 <
-                    matching_state_def_type_list,
+                    matching_state_type_list,
                     try_processing_event_in_transition_2
                     <
                         target_state_t,
@@ -338,14 +344,14 @@ private:
         }
     };
 
-    template<class TargetStateDef, const auto& Action, const auto& Guard>
+    template<class TargetState, const auto& Action, const auto& Guard>
     struct try_processing_event_in_transition_2
     {
-        template<class SourceStateDef, class Event>
+        template<class SourceState, class Event>
         static bool call(region& self, const Event& event)
         {
             //Make sure the transition source state is the active state
-            if(!self.is_active_state_def_type<SourceStateDef>())
+            if(!self.is_active_state_type<SourceState>())
             {
                 return false;
             }
@@ -358,20 +364,23 @@ private:
 
             return self.process_event_in_transition
             <
-                SourceStateDef,
-                TargetStateDef,
+                SourceState,
+                TargetState,
                 Action
             >(event);
         }
     };
 
-    template<class SourceStateDef, class TargetStateDef, const auto& Action, class Event>
+    template<class SourceState, class TargetState, const auto& Action, class Event>
     bool process_event_in_transition(const Event& event)
     {
         using path_t = region_path_of_t<region>;
 
+        using source_state_def_t = state_traits::state_to_state_def_t<SourceState>;
+        using target_state_def_t = state_traits::state_to_state_def_t<TargetState>;
+
         constexpr auto is_internal_transition =
-            std::is_same_v<TargetStateDef, null>
+            std::is_same_v<TargetState, null>
         ;
 
         if constexpr(!is_internal_transition)
@@ -381,17 +390,17 @@ private:
                 root_sm_.def().template before_state_transition
                 <
                     path_t,
-                    SourceStateDef,
+                    source_state_def_t,
                     Event,
-                    TargetStateDef
+                    target_state_def_t
                 >(event);
             }
 
-            if constexpr(!std::is_same_v<SourceStateDef, states::stopped>)
+            if constexpr(!std::is_same_v<SourceState, states::stopped>)
             {
                 detail::call_on_exit
                 (
-                    state_from_state_def<SourceStateDef>(),
+                    state<SourceState>(),
                     root_sm_,
                     event
                 );
@@ -399,8 +408,8 @@ private:
 
             active_state_index_ = index_of_state_v
             <
-                state_def_type_list,
-                TargetStateDef
+                state_type_list,
+                TargetState
             >;
         }
 
@@ -444,11 +453,11 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(!std::is_same_v<TargetStateDef, states::stopped>)
+            if constexpr(!std::is_same_v<TargetState, states::stopped>)
             {
                 detail::call_on_entry
                 (
-                    state_from_state_def<TargetStateDef>(),
+                    state<TargetState>(),
                     root_sm_,
                     event
                 );
@@ -459,9 +468,9 @@ private:
                 root_sm_.def().template after_state_transition
                 <
                     path_t,
-                    SourceStateDef,
+                    source_state_def_t,
                     Event,
-                    TargetStateDef
+                    target_state_def_t
                 >(event);
             }
 
@@ -470,7 +479,7 @@ private:
             {
                 using candidate_transition_type_list = transition_table_filters::by_event_t
                 <
-                    transition_table_type,
+                    resolved_transition_table_type,
                     null
                 >;
 
@@ -528,6 +537,31 @@ private:
         }
     };
 
+    template<class StateTypeList, class F, class... Args>
+    void with_active_state(Args&&... args) const
+    {
+        tlu::for_each_or
+        <
+            StateTypeList,
+            with_active_state_2<F>
+        >(*this, std::forward<Args>(args)...);
+    }
+
+    template<class F>
+    struct with_active_state_2
+    {
+        template<class State, class... Args>
+        static bool call(const region& self, Args&&... args)
+        {
+            if(self.is_active_state_type<State>())
+            {
+                F::template call<State>(std::forward<Args>(args)...);
+                return true;
+            }
+            return false;
+        }
+    };
+
     template<class StateDefTypeList, class F, class... Args>
     void with_active_state_def(Args&&... args) const
     {
@@ -571,7 +605,7 @@ private:
     std::decay_t<typename ParentSm::context_type>& ctx_;
     state_holder_tuple_type state_holders_;
 
-    int active_state_index_ = index_of_state_v<state_def_type_list, states::stopped>;
+    int active_state_index_ = index_of_state_v<state_type_list, states::stopped>;
 };
 
 } //namespace

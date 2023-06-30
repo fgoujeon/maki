@@ -70,8 +70,6 @@ namespace transition_table_digest_detail
     {
         using state_def_type_list = type_list<InitialState>;
 
-        using resolved_transition_table = transition_table_tpl<>;
-
         static constexpr auto has_null_events = false;
     };
 
@@ -85,19 +83,6 @@ namespace transition_table_digest_detail
             <
                 typename Digest::state_def_type_list,
                 typename Transition::target_state_type
-            >;
-
-            using resolved_transition_table = tlu::push_back_t
-            <
-                typename Digest::resolved_transition_table,
-                transition
-                <
-                    state_traits::state_def_to_state_t<typename Transition::source_state_type_pattern, Region>,
-                    typename Transition::event_type_pattern,
-                    state_traits::state_def_to_state_t<typename Transition::target_state_type, Region>,
-                    Transition::action,
-                    Transition::guard
-                >
             >;
 
             static constexpr auto has_null_events =
@@ -143,8 +128,6 @@ public:
         state_type_list,
         transition_table_digest_detail::state_type_list_to_state_holder_tuple_type
     >;
-
-    using resolved_transition_table = typename digest_type::resolved_transition_table;
 
     static constexpr auto has_null_events = digest_type::has_null_events;
 };

@@ -8,6 +8,7 @@
 #define AWESM_DETAIL_REGION_HPP
 
 #include "region_path_of.hpp"
+#include "transition_traits.hpp"
 #include "state_traits.hpp"
 #include "call_member.hpp"
 #include "transition_table_digest.hpp"
@@ -243,7 +244,11 @@ private:
     ;
 
     //Transition table with state types instead of state def types
-    using resolved_transition_table_type = typename transition_table_digest_type::resolved_transition_table;
+    using resolved_transition_table_type = tlu::map_t
+    <
+        transition_table_type,
+        transition_traits::for_region<region>::template replace_state_defs_with_states
+    >;
 
     using state_def_type_list = typename transition_table_digest_type::state_def_type_list;
 

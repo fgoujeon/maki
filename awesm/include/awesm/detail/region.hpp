@@ -194,12 +194,12 @@ public:
         {
             if(!try_processing_event_in_transitions<candidate_transition_type_list>(event))
             {
-                try_processing_event_in_active_state<candidate_state_type_list>(event);
+                try_processing_event_in_active_state(event);
             }
         }
         else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
         {
-            try_processing_event_in_active_state<candidate_state_type_list>(event);
+            try_processing_event_in_active_state(event);
         }
         else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
         {
@@ -238,12 +238,12 @@ public:
             }
             else
             {
-                try_processing_event_in_active_state<candidate_state_type_list>(event, processed);
+                try_processing_event_in_active_state(event, processed);
             }
         }
         else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
         {
-            try_processing_event_in_active_state<candidate_state_type_list>(event, processed);
+            try_processing_event_in_active_state(event, processed);
         }
         else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
         {
@@ -460,31 +460,57 @@ private:
     /*
     Call active_state.on_event(event)
     */
-    template<class StateTypeList, class Event, class... ExtraArgs>
+    template<class Event, class... ExtraArgs>
     void try_processing_event_in_active_state(const Event& event, ExtraArgs&... extra_args)
     {
-        tlu::for_each_or
-        <
-            StateTypeList,
-            try_processing_event_in_active_state_2
-        >(*this, event, extra_args...);
+        using call_on_event_fn_t = void(region::*)(const Event&, ExtraArgs&...);
+
+        static constexpr call_on_event_fn_t call_on_event_fns[] =
+        {
+            &region::call_state_on_event<-1, Event, ExtraArgs...>,
+            &region::call_state_on_event<0, Event, ExtraArgs...>,
+            &region::call_state_on_event<1, Event, ExtraArgs...>,
+            &region::call_state_on_event<2, Event, ExtraArgs...>,
+            &region::call_state_on_event<3, Event, ExtraArgs...>,
+            &region::call_state_on_event<4, Event, ExtraArgs...>,
+            &region::call_state_on_event<5, Event, ExtraArgs...>,
+            &region::call_state_on_event<6, Event, ExtraArgs...>,
+            &region::call_state_on_event<7, Event, ExtraArgs...>,
+            &region::call_state_on_event<8, Event, ExtraArgs...>,
+            &region::call_state_on_event<9, Event, ExtraArgs...>,
+            &region::call_state_on_event<10, Event, ExtraArgs...>,
+            &region::call_state_on_event<11, Event, ExtraArgs...>,
+            &region::call_state_on_event<12, Event, ExtraArgs...>,
+            &region::call_state_on_event<13, Event, ExtraArgs...>,
+            &region::call_state_on_event<14, Event, ExtraArgs...>,
+            &region::call_state_on_event<15, Event, ExtraArgs...>,
+            &region::call_state_on_event<16, Event, ExtraArgs...>,
+            &region::call_state_on_event<17, Event, ExtraArgs...>,
+            &region::call_state_on_event<18, Event, ExtraArgs...>,
+            &region::call_state_on_event<19, Event, ExtraArgs...>,
+            &region::call_state_on_event<20, Event, ExtraArgs...>,
+            &region::call_state_on_event<21, Event, ExtraArgs...>,
+            &region::call_state_on_event<22, Event, ExtraArgs...>,
+            &region::call_state_on_event<23, Event, ExtraArgs...>,
+            &region::call_state_on_event<24, Event, ExtraArgs...>
+        };
+
+        (this->*call_on_event_fns[active_state_index_ + 1])(event, extra_args...);
     }
 
-    struct try_processing_event_in_active_state_2
+    template<int StateIndex, class Event, class... ExtraArgs>
+    void call_state_on_event(const Event& event, ExtraArgs&... extra_args)
     {
-        template<class State, class Event, class... ExtraArgs>
-        static bool call(region& self, const Event& event, ExtraArgs&... extra_args)
+        if constexpr(StateIndex >= 0 && tlu::size_v<state_type_list> > StateIndex)
         {
-            if(!self.is_active_state_type<State>())
+            using state_t = tlu::nth_t<state_type_list, StateIndex>;
+            if constexpr(state_traits::requires_on_event_v<state_t, Event>)
             {
-                return false;
+                auto& stt = state<state_t>();
+                call_on_event(stt, event, extra_args...);
             }
-
-            auto& state = self.state_from_state_def<State>();
-            call_on_event(state, event, extra_args...);
-            return true;
         }
-    };
+    }
 
     template<class State>
     [[nodiscard]] bool is_active_state_type() const
@@ -557,6 +583,12 @@ private:
             return false;
         }
     };
+
+    template<class State>
+    auto& state()
+    {
+        return get<sm_object_holder<State>>(state_holders_).get();
+    }
 
     template<class StateDef>
     auto& state_from_state_def()

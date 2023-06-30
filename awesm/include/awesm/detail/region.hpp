@@ -85,13 +85,19 @@ struct call_state_on_event_t
 template<class State>
 inline constexpr auto call_state_on_event = call_state_on_event_t<State>{};
 
-template<class TransitionTable, class State, class Event>
+template<class TransitionTable, class State>
 struct add_internal_transition
 {
+    template<class Event>
+    struct requires_on_event
+    {
+        static constexpr auto value = state_traits::requires_on_event_v<State, Event>;
+    };
+
     using transition_type = awesm::transition
     <
         State,
-        Event,
+        any_if<requires_on_event>,
         awesm::null,
         call_state_on_event<State>
     >;
@@ -99,20 +105,8 @@ struct add_internal_transition
     using type = tlu::push_back_t<TransitionTable, transition_type>;
 };
 
-template<class Event>
-struct add_internal_transition_holder
-{
-    template<class TransitionTable, class State>
-    using add_internal_transition_t = typename add_internal_transition<TransitionTable, State, Event>::type;
-};
-
-template<class TransitionTable, class StateTypeList, class Event>
-using add_internal_transitions_t = tlu::left_fold_t
-<
-    StateTypeList,
-    add_internal_transition_holder<Event>::template add_internal_transition_t,
-    TransitionTable
->;
+template<class TransitionTable, class State>
+using add_internal_transition_t = typename add_internal_transition<TransitionTable, State>::type;
 
 template<class ParentSm, int Index>
 class region
@@ -225,40 +219,25 @@ public:
         //List the transitions whose event type pattern matches Event
         using candidate_transition_type_list = transition_table_filters::by_event_t
         <
-            resolved_transition_table_type,
+            extended_transition_table_type,
             Event
         >;
 
-        //List the state types that require us to call their on_event()
-        using candidate_state_type_list =
-            state_type_list_filters::by_required_on_event_t
-            <
-                state_type_list,
-                region,
-                Event
-            >
-        ;
-
-        using tt = add_internal_transitions_t
-        <
-            candidate_transition_type_list,
-            candidate_state_type_list,
-            Event
-        >;
-
-        return try_processing_event_in_transitions<tt>(event);
+        return try_processing_event_in_transitions<candidate_transition_type_list>(event);
     }
 
 private:
     using root_sm_type = root_sm_of_t<ParentSm>;
     using sm_conf_tpl = typename root_sm_type::conf;
 
+    //Transition table as given by client
     using transition_table_type = tlu::get_t<typename ParentSm::transition_table_type_list, Index>;
 
     using transition_table_digest_type =
         detail::transition_table_digest<transition_table_type, region>
     ;
 
+    //Transition table with state types instead of state def types
     using resolved_transition_table_type = typename transition_table_digest_type::resolved_transition_table;
 
     using state_def_type_list = typename transition_table_digest_type::state_def_type_list;
@@ -268,6 +247,15 @@ private:
     using state_holder_tuple_type =
         typename transition_table_digest_type::state_holder_tuple_type
     ;
+
+    //resolved_transition_table_type + internal transitions provided by the
+    //on_event() state functions
+    using extended_transition_table_type = tlu::left_fold_t
+    <
+        state_type_list,
+        add_internal_transition_t,
+        resolved_transition_table_type
+    >;
 
     using initial_state_type = detail::tlu::front_t<state_type_list>;
 

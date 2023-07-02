@@ -13,6 +13,8 @@
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
+#include "sm_object_holder_tuple.hpp"
+#include "not.hpp"
 #include "tlu.hpp"
 #include "../subsm_conf.hpp"
 #include "../states.hpp"
@@ -265,9 +267,8 @@ private:
 
     using state_type_list = typename transition_table_digest_type::state_type_list;
 
-    using state_holder_tuple_type =
-        typename transition_table_digest_type::state_holder_tuple_type
-    ;
+    using non_empty_state_type_list = tlu::filter_t<state_type_list, not_<std::is_empty>::type>;
+    using state_holder_tuple_type = tlu::apply_t<non_empty_state_type_list, sm_object_holder_tuple_t>;
 
     using initial_state_def_type = detail::tlu::front_t<state_def_type_list>;
 
@@ -561,15 +562,36 @@ private:
     template<class StateDef>
     auto& state_from_state_def()
     {
-        using state_t = state_traits::state_def_to_state_t<StateDef, region>;
-        return get<sm_object_holder<state_t>>(state_holders_).get();
+        return static_state_from_state_def<StateDef>(*this);
     }
 
     template<class StateDef>
     const auto& state_from_state_def() const
     {
+        return static_state_from_state_def<StateDef>(*this);
+    }
+
+    template<class StateDef, class Self>
+    static auto& static_state_from_state_def(Self& reg)
+    {
         using state_t = state_traits::state_def_to_state_t<StateDef, region>;
-        return get<sm_object_holder<state_t>>(state_holders_).get();
+        if constexpr(std::is_empty_v<state_t>)
+        {
+            //Optimize empty state case by returning a statically allocated
+            //instance.
+            return static_instance<state_t>();
+        }
+        else
+        {
+            return get<sm_object_holder<state_t>>(reg.state_holders_).get();
+        }
+    }
+
+    template<class T>
+    static auto& static_instance()
+    {
+        static auto obj = T{};
+        return obj;
     }
 
     root_sm_type& root_sm_;

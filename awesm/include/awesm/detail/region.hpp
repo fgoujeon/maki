@@ -481,7 +481,7 @@ private:
                 return false;
             }
 
-            auto& state = self.state_from_state_def<State>();
+            auto& state = self.state<State>();
             call_on_event(state, self.root_sm_, self.ctx_, event, extra_args...);
             return true;
         }
@@ -562,28 +562,41 @@ private:
     template<class StateDef>
     auto& state_from_state_def()
     {
-        return static_state_from_state_def<StateDef>(*this);
+        using state_t = state_traits::state_def_to_state_t<StateDef, region>;
+        return state<state_t>();
     }
 
     template<class StateDef>
     const auto& state_from_state_def() const
     {
-        return static_state_from_state_def<StateDef>(*this);
+        using state_t = state_traits::state_def_to_state_t<StateDef, region>;
+        return state<state_t>();
     }
 
-    template<class StateDef, class Self>
-    static auto& static_state_from_state_def(Self& reg)
+    template<class State>
+    auto& state()
     {
-        using state_t = state_traits::state_def_to_state_t<StateDef, region>;
-        if constexpr(std::is_empty_v<state_t>)
+        return static_state<State>(*this);
+    }
+
+    template<class State>
+    const auto& state() const
+    {
+        return static_state<State>(*this);
+    }
+
+    template<class State, class Self>
+    static auto& static_state(Self& reg)
+    {
+        if constexpr(std::is_empty_v<State>)
         {
             //Optimize empty state case by returning a statically allocated
             //instance.
-            return static_instance<state_t>();
+            return static_instance<State>();
         }
         else
         {
-            return get<sm_object_holder<state_t>>(reg.state_holders_).get();
+            return get<sm_object_holder<State>>(reg.state_holders_).get();
         }
     }
 

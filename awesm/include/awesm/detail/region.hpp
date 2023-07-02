@@ -482,7 +482,7 @@ private:
             }
 
             auto& state = self.state_from_state_def<State>();
-            call_on_event(state, event, extra_args...);
+            call_on_event(state, self.root_sm_, self.ctx_, event, extra_args...);
             return true;
         }
     };

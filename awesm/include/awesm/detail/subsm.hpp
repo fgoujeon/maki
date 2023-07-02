@@ -228,7 +228,7 @@ public:
     {
         if constexpr(state_traits::requires_on_event_v<Def, Event>)
         {
-            call_on_event(def_holder_.get(), event);
+            call_on_event(def_holder_.get(), root_sm_, context(), event);
         }
 
         tlu::for_each<region_tuple_type, region_process_event>(*this, event);
@@ -239,7 +239,7 @@ public:
     {
         if constexpr(state_traits::requires_on_event_v<Def, Event>)
         {
-            call_on_event(def_holder_.get(), event);
+            call_on_event(def_holder_.get(), root_sm_, context(), event);
             tlu::for_each<region_tuple_type, region_process_event>(*this, event);
             processed = true;
         }

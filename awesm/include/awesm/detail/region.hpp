@@ -592,7 +592,7 @@ private:
         {
             //Optimize empty state case by returning a statically allocated
             //instance.
-            return static_instance<State>();
+            return static_instance<State>;
         }
         else
         {
@@ -601,11 +601,7 @@ private:
     }
 
     template<class T>
-    static auto& static_instance()
-    {
-        static auto obj = T{};
-        return obj;
-    }
+    static T static_instance; //NOLINT
 
     root_sm_type& root_sm_;
     std::decay_t<typename ParentSm::context_type>& ctx_;
@@ -613,6 +609,10 @@ private:
 
     int active_state_index_ = index_of_state_v<state_def_type_list, states::stopped>;
 };
+
+template<class ParentSm, int Index>
+template<class T>
+T region<ParentSm, Index>::static_instance; //NOLINT
 
 } //namespace
 

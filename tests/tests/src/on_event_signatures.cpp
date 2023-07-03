@@ -59,14 +59,14 @@ namespace
                 ctx.out = "on_event " + event.value;
             }
 
-            void on_event_ce(context& ctx, const events::event1& event)
+            void on_event_ce(context& ctxt, const events::event1& event)
             {
-                ctx.out = "on_event_ce " + event.value;
+                ctxt.out = "on_event_ce " + event.value;
             }
 
-            void on_event_mce(machine_t& /*mach*/, context& ctx, const events::event2& event)
+            void on_event_mce(machine_t& /*mach*/, context& ctxt, const events::event2& event)
             {
-                ctx.out = "on_event_mce " + event.value;
+                ctxt.out = "on_event_mce " + event.value;
             }
 
             context& ctx;

@@ -13,6 +13,7 @@
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
+#include "sm_object_holder_tuple.hpp"
 #include "tlu.hpp"
 #include "../subsm_conf.hpp"
 #include "../states.hpp"
@@ -265,9 +266,12 @@ private:
 
     using state_type_list = typename transition_table_digest_type::state_type_list;
 
-    using state_holder_tuple_type =
-        typename transition_table_digest_type::state_holder_tuple_type
-    ;
+    using non_empty_state_type_list = tlu::filter_t
+    <
+        state_type_list,
+        state_traits::needs_unique_instance
+    >;
+    using state_holder_tuple_type = tlu::apply_t<non_empty_state_type_list, sm_object_holder_tuple_t>;
 
     using initial_state_def_type = detail::tlu::front_t<state_def_type_list>;
 
@@ -480,8 +484,8 @@ private:
                 return false;
             }
 
-            auto& state = self.state_from_state_def<State>();
-            call_on_event(state, event, extra_args...);
+            auto& state = self.state<State>();
+            call_on_event(state, self.root_sm_, self.ctx_, event, extra_args...);
             return true;
         }
     };
@@ -562,15 +566,45 @@ private:
     auto& state_from_state_def()
     {
         using state_t = state_traits::state_def_to_state_t<StateDef, region>;
-        return get<sm_object_holder<state_t>>(state_holders_).get();
+        return state<state_t>();
     }
 
     template<class StateDef>
     const auto& state_from_state_def() const
     {
         using state_t = state_traits::state_def_to_state_t<StateDef, region>;
-        return get<sm_object_holder<state_t>>(state_holders_).get();
+        return state<state_t>();
     }
+
+    template<class State>
+    auto& state()
+    {
+        return static_state<State>(*this);
+    }
+
+    template<class State>
+    const auto& state() const
+    {
+        return static_state<State>(*this);
+    }
+
+    template<class State, class Self>
+    static auto& static_state(Self& reg)
+    {
+        if constexpr(state_traits::needs_unique_instance<State>::value)
+        {
+            return get<sm_object_holder<State>>(reg.state_holders_).get();
+        }
+        else
+        {
+            //Optimize empty state case by returning a statically allocated
+            //instance.
+            return static_instance<State>;
+        }
+    }
+
+    template<class T>
+    static T static_instance; //NOLINT
 
     root_sm_type& root_sm_;
     std::decay_t<typename ParentSm::context_type>& ctx_;
@@ -578,6 +612,10 @@ private:
 
     int active_state_index_ = index_of_state_v<state_def_type_list, states::stopped>;
 };
+
+template<class ParentSm, int Index>
+template<class T>
+T region<ParentSm, Index>::static_instance; //NOLINT
 
 } //namespace
 

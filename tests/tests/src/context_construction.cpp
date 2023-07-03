@@ -9,18 +9,18 @@
 
 namespace
 {
-    struct sm_def;
-    using sm_t = awesm::sm<sm_def>;
+    struct machine_def;
+    using machine_t = awesm::machine<machine_def>;
 
     struct context
     {
-        sm_t& sm;
+        machine_t& machine;
         int i = 42;
     };
 
     struct on_context
     {
-        sm_t& sm;
+        machine_t& machine;
         context& parent;
     };
 
@@ -45,22 +45,22 @@ namespace
 
         struct on
         {
-            using conf = awesm::sm_conf
+            using conf = awesm::machine_conf
                 ::transition_tables<on_transition_table>
                 ::context<on_context>
             ;
         };
     }
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::off, events::power_button_press, states::on>
         ::add<states::on,  events::power_button_press, states::off>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
@@ -68,9 +68,9 @@ namespace
 
 TEST_CASE("context_construction")
 {
-    auto sm = sm_t{};
-    auto& ctx = sm.context();
+    auto machine = machine_t{};
+    auto& ctx = machine.context();
 
-    REQUIRE(&ctx.sm == &sm);
+    REQUIRE(&ctx.machine == &machine);
     REQUIRE(ctx.i == 42);
 }

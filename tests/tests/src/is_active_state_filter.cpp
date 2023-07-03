@@ -9,8 +9,8 @@
 
 namespace
 {
-    struct sm_def;
-    using sm_t = awesm::sm<sm_def>;
+    struct machine_def;
+    using machine_t = awesm::machine<machine_def>;
 
     enum class led_color
     {
@@ -48,7 +48,7 @@ namespace
 
         struct on
         {
-            using conf = awesm::subsm_conf
+            using conf = awesm::submachine_conf
                 ::transition_tables<on_transition_table>
             ;
 
@@ -56,15 +56,15 @@ namespace
         };
     }
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::off, events::power_button_press, states::on>
         ::add<states::on,  events::power_button_press, states::off>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
@@ -72,38 +72,38 @@ namespace
 
 TEST_CASE("is_active_state_filter")
 {
-    using sm_on_region_path_t = awesm::region_path<sm_def>::add<states::on>;
+    using machine_on_region_path_t = awesm::region_path<machine_def>::add<states::on>;
 
-    auto sm = sm_t{};
+    auto machine = machine_t{};
 
-    sm.start();
+    machine.start();
 
-    REQUIRE(sm.is_active_state<states::off>());
-    REQUIRE(!sm.is_running<sm_on_region_path_t>());
+    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(!machine.is_running<machine_on_region_path_t>());
 
-    sm.process_event(events::power_button_press{});
-    REQUIRE(!sm.is_active_state<states::emitting_red_or_green>());
-    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::emitting_red>());
-    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::emitting_red_or_green>());
-    REQUIRE(!sm.is_active_state<sm_on_region_path_t, states::not_emitting_red>());
+    machine.process_event(events::power_button_press{});
+    REQUIRE(!machine.is_active_state<states::emitting_red_or_green>());
+    REQUIRE(machine.is_active_state<machine_on_region_path_t, states::emitting_red>());
+    REQUIRE(machine.is_active_state<machine_on_region_path_t, states::emitting_red_or_green>());
+    REQUIRE(!machine.is_active_state<machine_on_region_path_t, states::not_emitting_red>());
 
-    sm.process_event(events::color_button_press{});
-    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::emitting_green>());
-    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::emitting_red_or_green>());
-    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::not_emitting_red>());
+    machine.process_event(events::color_button_press{});
+    REQUIRE(machine.is_active_state<machine_on_region_path_t, states::emitting_green>());
+    REQUIRE(machine.is_active_state<machine_on_region_path_t, states::emitting_red_or_green>());
+    REQUIRE(machine.is_active_state<machine_on_region_path_t, states::not_emitting_red>());
 
-    sm.process_event(events::color_button_press{});
-    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::emitting_blue>());
-    REQUIRE(!sm.is_active_state<sm_on_region_path_t, states::emitting_red_or_green>());
-    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::not_emitting_red>());
+    machine.process_event(events::color_button_press{});
+    REQUIRE(machine.is_active_state<machine_on_region_path_t, states::emitting_blue>());
+    REQUIRE(!machine.is_active_state<machine_on_region_path_t, states::emitting_red_or_green>());
+    REQUIRE(machine.is_active_state<machine_on_region_path_t, states::not_emitting_red>());
 
-    sm.process_event(events::power_button_press{});
-    REQUIRE(sm.is_active_state<states::off>());
-    REQUIRE(!sm.is_active_state<states::emitting_red_or_green>());
-    REQUIRE(sm.is_active_state<sm_on_region_path_t, awesm::states::stopped>());
-    REQUIRE(!sm.is_active_state<sm_on_region_path_t, states::emitting_red_or_green>());
-    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::not_emitting_red>());
+    machine.process_event(events::power_button_press{});
+    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(!machine.is_active_state<states::emitting_red_or_green>());
+    REQUIRE(machine.is_active_state<machine_on_region_path_t, awesm::states::stopped>());
+    REQUIRE(!machine.is_active_state<machine_on_region_path_t, states::emitting_red_or_green>());
+    REQUIRE(machine.is_active_state<machine_on_region_path_t, states::not_emitting_red>());
 
-    sm.process_event(events::power_button_press{});
-    REQUIRE(sm.is_active_state<states::on>());
+    machine.process_event(events::power_button_press{});
+    REQUIRE(machine.is_active_state<states::on>());
 }

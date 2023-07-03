@@ -21,12 +21,13 @@ namespace
 
     namespace events
     {
-        struct button_press{};
+        struct on_button_press{};
+        struct off_button_press{};
     }
 
     using transition_table_t = awesm::transition_table
-        ::add<states::off, events::button_press, states::on>
-        ::add<states::on,  events::button_press, states::off>
+        ::add<states::off, events::on_button_press,  states::on>
+        ::add<states::on,  events::off_button_press, states::off>
     ;
 
     struct machine_def
@@ -34,7 +35,6 @@ namespace
         using conf = awesm::machine_conf
             ::transition_tables<transition_table_t>
             ::context<context>
-            ::no_auto_start
             ::no_run_to_completion
             ::on_exception
         ;
@@ -47,18 +47,24 @@ namespace
     using machine_t = awesm::machine<machine_def>;
 }
 
-TEST_CASE("basic_transition")
+TEST_CASE("machine_ref_e")
 {
-    auto machine = machine_t{};
+    using machine_ref_e_t =
+        awesm::machine_ref_e<events::on_button_press, events::off_button_press>
+    ;
 
-    REQUIRE(!machine.is_running());
+    auto machine = machine_t{};
+    auto pmachine_ref_e_temp = std::make_unique<machine_ref_e_t>(machine); //test ref of ref
+    auto machine_ref_e = machine_ref_e_t{*pmachine_ref_e_temp};
+    pmachine_ref_e_temp.reset();
 
     machine.start();
+
     REQUIRE(machine.is_active_state<states::off>());
 
-    machine.process_event(events::button_press{});
+    machine_ref_e.process_event(events::on_button_press{});
     REQUIRE(machine.is_active_state<states::on>());
 
-    machine.process_event(events::button_press{});
+    machine_ref_e.process_event(events::off_button_press{});
     REQUIRE(machine.is_active_state<states::off>());
 }

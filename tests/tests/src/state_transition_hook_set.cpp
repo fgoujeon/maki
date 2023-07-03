@@ -35,7 +35,7 @@ namespace
 
         struct on1
         {
-            using conf = awesm::subsm_conf
+            using conf = awesm::submachine_conf
                 ::transition_tables<on1_transition_table>
                 ::pretty_name
             ;
@@ -47,18 +47,18 @@ namespace
         };
     }
 
-    using sm_transition_table_0 = awesm::transition_table
+    using transition_table_0_t = awesm::transition_table
         ::add<states::off0, events::button_press, states::on0>
     ;
 
-    using sm_transition_table_1 = awesm::transition_table
+    using transition_table_1_t = awesm::transition_table
         ::add<states::off1, events::button_press, states::on1>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table_0, sm_transition_table_1>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_0_t, transition_table_1_t>
             ::context<context>
             ::before_state_transition
             ::after_state_transition
@@ -102,21 +102,21 @@ namespace
         context& ctx;
     };
 
-    using sm_t = awesm::sm<sm_def>;
+    using machine_t = awesm::machine<machine_def>;
 }
 
 TEST_CASE("state_transition_hook_set")
 {
-    auto sm = sm_t{};
-    auto& ctx = sm.context();
+    auto machine = machine_t{};
+    auto& ctx = machine.context();
 
-    using root_0_path = awesm::region_path<sm_def, 0>;
-    using root_1_path = awesm::region_path<sm_def, 1>;
+    using root_0_path = awesm::region_path<machine_def, 0>;
+    using root_1_path = awesm::region_path<machine_def, 1>;
     using root_1_on_1_path = root_1_path::add<states::on1>;
 
-    sm.start(events::button_press{0});
-    REQUIRE(sm.is_active_state<root_0_path, states::off0>());
-    REQUIRE(sm.is_active_state<root_1_path, states::off1>());
+    machine.start(events::button_press{0});
+    REQUIRE(machine.is_active_state<root_0_path, states::off0>());
+    REQUIRE(machine.is_active_state<root_1_path, states::off1>());
     REQUIRE
     (
         ctx.out ==
@@ -127,10 +127,10 @@ TEST_CASE("state_transition_hook_set")
     );
 
     ctx.out.clear();
-    sm.process_event(events::button_press{1});
-    REQUIRE(sm.is_active_state<root_0_path, states::on0>());
-    REQUIRE(sm.is_active_state<root_1_path, states::on1>());
-    REQUIRE(sm.is_active_state<root_1_on_1_path, states::off0>());
+    machine.process_event(events::button_press{1});
+    REQUIRE(machine.is_active_state<root_0_path, states::on0>());
+    REQUIRE(machine.is_active_state<root_1_path, states::on1>());
+    REQUIRE(machine.is_active_state<root_1_on_1_path, states::off0>());
     REQUIRE
     (
         ctx.out ==
@@ -143,10 +143,10 @@ TEST_CASE("state_transition_hook_set")
     );
 
     ctx.out.clear();
-    sm.process_event(events::button_press{2});
-    REQUIRE(sm.is_active_state<root_0_path, states::on0>());
-    REQUIRE(sm.is_active_state<root_1_path, states::on1>());
-    REQUIRE(sm.is_active_state<root_1_on_1_path, states::on0>());
+    machine.process_event(events::button_press{2});
+    REQUIRE(machine.is_active_state<root_0_path, states::on0>());
+    REQUIRE(machine.is_active_state<root_1_path, states::on1>());
+    REQUIRE(machine.is_active_state<root_1_on_1_path, states::on0>());
     REQUIRE
     (
         ctx.out ==

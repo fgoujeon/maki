@@ -19,40 +19,40 @@ namespace awesm
 /**
 @defgroup RegionPath Region Path
 
-@brief A path to a region or subregion of an @ref sm.
+@brief A path to a region or subregion of an @ref machine.
 
 In some places in the API, you must provide or are provided a path to a region.
 
 Conceptually, a path to a region consists in a sequence of
-`(sm_def, region_index)` pairs, starting from a region of the root @ref sm.
+`(machine_def, region_index)` pairs, starting from a region of the root @ref machine.
 This is the same concept as a path to a directory on a filesystem, which
 consists in a sequence of directories, starting from the root directory.
 
-In terms of C++ code, a `(sm_def, region_index)` pair is defined with an
+In terms of C++ code, a `(machine_def, region_index)` pair is defined with an
 instance of the @ref region_path_element struct template. These instances are
 sequenced in the template argument list given to the @ref region_path_tpl
 template instance.
 Here is an example:
 ```cpp
-//A subsm with multiple regions, used sm_def
-struct some_subsm
+//A submachine with multiple regions, used machine_def
+struct some_submachine
 {
     //...
 };
 
-//An sm with a single region
-struct sm_def
+//An machine with a single region
+struct machine_def
 {
     //...
 };
 
-using sm_t = awesm::sm<sm_def>;
+using machine_t = awesm::machine<machine_def>;
 
-//Path to the second region (index 1) of some_subsm
+//Path to the second region (index 1) of some_submachine
 using region_path_t = awesm::region_path_tpl
 <
-    awesm::region_path_element<sm_def, 0>,
-    awesm::region_path_element<some_subsm, 1>
+    awesm::region_path_element<machine_def, 0>,
+    awesm::region_path_element<some_submachine, 1>
 >;
 ```
 
@@ -60,7 +60,7 @@ This is admittedly verbose and inconvenient. This is why the library provides
 @ref region_path and @ref region_path_tpl.add to make things much more terse:
 ```cpp
 //Path to the exam same region
-using same_region_path_t = awesm::region_path<sm_def>::add<some_subsm, 1>;
+using same_region_path_t = awesm::region_path<machine_def>::add<some_submachine, 1>;
 ```
 
 @{
@@ -69,15 +69,15 @@ using same_region_path_t = awesm::region_path<sm_def>::add<some_subsm, 1>;
 /**
 @brief Represents an element of a path to a region.
 
-@tparam SmDef an @ref sm or subsm definition
-@tparam RegionIndex the index of the region among the regions of `SmDef`
+@tparam MachineDef an @ref machine or submachine definition
+@tparam RegionIndex the index of the region among the regions of `MachineDef`
 */
-template<class SmDef, int RegionIndex>
+template<class MachineDef, int RegionIndex>
 struct region_path_element
 {
     static_assert(RegionIndex >= 0);
 
-    using sm_def_type = SmDef;
+    using machine_def_type = MachineDef;
     static constexpr auto region_index = RegionIndex;
 
 };
@@ -87,19 +87,19 @@ struct region_path_tpl;
 
 namespace detail
 {
-    template<class RegionPath, class SmDef, int RegionIndex>
+    template<class RegionPath, class MachineDef, int RegionIndex>
     struct region_path_add;
 
-    template<class... Ts, class SmDef, int RegionIndex>
-    struct region_path_add<region_path_tpl<Ts...>, SmDef, RegionIndex>
+    template<class... Ts, class MachineDef, int RegionIndex>
+    struct region_path_add<region_path_tpl<Ts...>, MachineDef, RegionIndex>
     {
-        using type = region_path_tpl<Ts..., region_path_element<SmDef, RegionIndex>>;
+        using type = region_path_tpl<Ts..., region_path_element<MachineDef, RegionIndex>>;
     };
 
-    template<class... Ts, class SmDef>
-    struct region_path_add<region_path_tpl<Ts...>, SmDef, -1>
+    template<class... Ts, class MachineDef>
+    struct region_path_add<region_path_tpl<Ts...>, MachineDef, -1>
     {
-        using conf_type = typename SmDef::conf;
+        using conf_type = typename MachineDef::conf;
         using transition_table_list_type = option_t<conf_type, option_id::transition_tables>;
         static_assert
         (
@@ -107,20 +107,20 @@ namespace detail
             "RegionIndex must be specified for multiple-region SMs"
         );
 
-        using type = region_path_tpl<Ts..., region_path_element<SmDef, 0>>;
+        using type = region_path_tpl<Ts..., region_path_element<MachineDef, 0>>;
     };
 
     template<class Element>
     struct region_path_element_add_pretty_name_holder;
 
-    template<class SmDef, int RegionIndex>
-    struct region_path_element_add_pretty_name_holder<region_path_element<SmDef, RegionIndex>>
+    template<class MachineDef, int RegionIndex>
+    struct region_path_element_add_pretty_name_holder<region_path_element<MachineDef, RegionIndex>>
     {
         static void add_pretty_name(std::ostringstream& oss, bool& first)
         {
             using transition_table_list_type = detail::option_t
             <
-                typename SmDef::conf,
+                typename MachineDef::conf,
                 detail::option_id::transition_tables
             >;
 
@@ -133,7 +133,7 @@ namespace detail
                 oss << '.';
             }
 
-            oss << awesm::pretty_name<SmDef>();
+            oss << awesm::pretty_name<MachineDef>();
 
             if constexpr(detail::tlu::size_v<transition_table_list_type> > 1)
             {
@@ -176,27 +176,27 @@ struct region_path_tpl
     @brief A type alias to a @ref region_path_tpl with an appended @ref
     region_path_element.
 
-    @tparam SmDef see @ref region_path_element
+    @tparam MachineDef see @ref region_path_element
     @tparam RegionIndex see @ref region_path_element; can be omitted if (and
-    only if) `SmDef` contains only one region
+    only if) `MachineDef` contains only one region
     */
-    template<class SmDef, int RegionIndex = -1>
-    using add = typename detail::region_path_add<region_path_tpl, SmDef, RegionIndex>::type;
+    template<class MachineDef, int RegionIndex = -1>
+    using add = typename detail::region_path_add<region_path_tpl, MachineDef, RegionIndex>::type;
 
     /**
     @brief Builds a textual representation of the path.
 
-    This function builds strings such as `"root-sm[0].subsm[2].subsubsm"`,
+    This function builds strings such as `"root-machine[0].submachine[2].subsubmachine"`,
     where:
 
-    - `root-sm` is the @ref PrettyPrinting "pretty name" of an `sm` that
+    - `root-machine` is the @ref PrettyPrinting "pretty name" of an `machine` that
     defines several regions;
-    - `[0]` references the first region defined by `root-sm`;
-    - `subsm` is the @ref PrettyPrinting "pretty name" of a submachine, direct
-    child of `root-sm`, that defines several regions;
-    - `[2]` references the third region defined by `subsm`;
-    - `subsubsm` is the @ref PrettyPrinting "pretty name" of another submachine,
-    direct child of `subsm`, that defines only one region (hence the absence
+    - `[0]` references the first region defined by `root-machine`;
+    - `submachine` is the @ref PrettyPrinting "pretty name" of a submachine, direct
+    child of `root-machine`, that defines several regions;
+    - `[2]` references the third region defined by `submachine`;
+    - `subsubmachine` is the @ref PrettyPrinting "pretty name" of another submachine,
+    direct child of `submachine`, that defines only one region (hence the absence
     of region index).
     */
     static std::string_view to_string()
@@ -210,12 +210,12 @@ struct region_path_tpl
 @brief A handy type alias for defining a @ref region_path_tpl with a single @ref
 region_path_element.
 
-@tparam SmDef see @ref region_path_element
+@tparam MachineDef see @ref region_path_element
 @tparam RegionIndex see @ref region_path_element; can be omitted if (and
-only if) `SmDef` contains only one region
+only if) `MachineDef` contains only one region
 */
-template<class SmDef, int RegionIndex = -1>
-using region_path = region_path_tpl<>::add<SmDef, RegionIndex>;
+template<class MachineDef, int RegionIndex = -1>
+using region_path = region_path_tpl<>::add<MachineDef, RegionIndex>;
 
 /**
 @}

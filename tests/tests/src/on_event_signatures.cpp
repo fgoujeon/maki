@@ -10,9 +10,9 @@
 
 namespace
 {
-    struct sm_def;
+    struct machine_def;
 
-    using sm_t = awesm::sm<sm_def>;
+    using machine_t = awesm::machine<machine_def>;
 
     struct context
     {
@@ -64,7 +64,7 @@ namespace
                 ctx.out = "on_event_ce " + event.value;
             }
 
-            void on_event_mce(sm_t& /*mach*/, context& ctx, const events::event2& event)
+            void on_event_mce(machine_t& /*mach*/, context& ctx, const events::event2& event)
             {
                 ctx.out = "on_event_mce " + event.value;
             }
@@ -73,14 +73,14 @@ namespace
         };
     }
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::state0, events::unused, awesm::null>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
         ;
 
@@ -90,18 +90,18 @@ namespace
 
 TEST_CASE("on_event_signatures")
 {
-    auto sm = sm_t{};
-    auto& ctx = sm.context();
+    auto machine = machine_t{};
+    auto& ctx = machine.context();
 
     ctx.out.clear();
-    sm.process_event(events::event0{"0"});
+    machine.process_event(events::event0{"0"});
     REQUIRE(ctx.out == "on_event 0");
 
     ctx.out.clear();
-    sm.process_event(events::event1{"1"});
+    machine.process_event(events::event1{"1"});
     REQUIRE(ctx.out == "on_event_ce 1");
 
     ctx.out.clear();
-    sm.process_event(events::event2{"2"});
+    machine.process_event(events::event2{"2"});
     REQUIRE(ctx.out == "on_event_mce 2");
 }

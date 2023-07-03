@@ -86,36 +86,36 @@ namespace
         }
     }
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::idle,    events::power_button_press, states::running>
         ::add<states::running, events::power_button_press, states::idle>
         ::add<states::running, events::beep_button_press,  awesm::null,      actions::beep>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
 
-    using sm_t = awesm::sm<sm_def>;
+    using machine_t = awesm::machine<machine_def>;
 }
 
 TEST_CASE("internal_transition_in_transition_table")
 {
-    auto sm = sm_t{};
-    auto& ctx = sm.context();
+    auto machine = machine_t{};
+    auto& ctx = machine.context();
 
-    sm.start();
+    machine.start();
     REQUIRE(ctx.out == "idle::on_entry;");
 
     ctx.out.clear();
-    sm.process_event(events::power_button_press{});
+    machine.process_event(events::power_button_press{});
     REQUIRE(ctx.out == "idle::on_exit;running::on_entry;");
 
     ctx.out.clear();
-    sm.process_event(events::beep_button_press{});
+    machine.process_event(events::beep_button_press{});
     REQUIRE(ctx.out == "beep;");
 }

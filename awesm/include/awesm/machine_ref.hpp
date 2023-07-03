@@ -4,11 +4,11 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_SM_REF_HPP
-#define AWESM_SM_REF_HPP
+#ifndef AWESM_MACHINE_REF_HPP
+#define AWESM_MACHINE_REF_HPP
 
-#include "sm_ref_conf.hpp"
-#include "sm_fwd.hpp"
+#include "machine_ref_conf.hpp"
+#include "machine_fwd.hpp"
 #include "detail/conf.hpp"
 #include "detail/tlu.hpp"
 
@@ -18,28 +18,28 @@ namespace awesm
 namespace detail
 {
     template<class... Events>
-    class sm_ref_event_impl;
+    class machine_ref_event_impl;
 
     template<class Event, class... Events>
-    class sm_ref_event_impl<Event, Events...>: sm_ref_event_impl<Events...>
+    class machine_ref_event_impl<Event, Events...>: machine_ref_event_impl<Events...>
     {
     public:
-        template<class SmDef>
-        sm_ref_event_impl(sm<SmDef>& machine):
-            sm_ref_event_impl<Events...>{machine},
+        template<class MachineDef>
+        machine_ref_event_impl(machine<MachineDef>& mach):
+            machine_ref_event_impl<Events...>{mach},
             pprocess_event_
             {
                 [](void* const vpsm, const Event& event)
                 {
-                    using sm_t = sm<SmDef>;
-                    const auto psm = reinterpret_cast<sm_t*>(vpsm); //NOLINT
+                    using machine_t = machine<MachineDef>;
+                    const auto psm = reinterpret_cast<machine_t*>(vpsm); //NOLINT
                     psm->process_event(event);
                 }
             }
         {
         }
 
-        using sm_ref_event_impl<Events...>::process_event;
+        using machine_ref_event_impl<Events...>::process_event;
 
         void process_event(const Event& event)
         {
@@ -47,19 +47,19 @@ namespace detail
         }
 
     protected:
-        using sm_ref_event_impl<Events...>::get_vpsm;
+        using machine_ref_event_impl<Events...>::get_vpsm;
 
     private:
         void(*pprocess_event_)(void*, const Event&) = nullptr;
     };
 
     template<>
-    class sm_ref_event_impl<>
+    class machine_ref_event_impl<>
     {
     public:
-        template<class SmDef>
-        sm_ref_event_impl(sm<SmDef>& machine):
-            vpsm_(&machine)
+        template<class MachineDef>
+        machine_ref_event_impl(machine<MachineDef>& mach):
+            vpsm_(&mach)
         {
         }
 
@@ -79,26 +79,27 @@ namespace detail
 }
 
 /*
-sm_ref is a type-erasing container for a reference to a sm of any type.
-It exposes the process_event() member function of the held sm.
+machine_ref is a type-erasing container for a reference to a machine of any
+type.
+It exposes the process_event() member function of the held machine.
 */
 template<class Def>
-class sm_ref
+class machine_ref
 {
 public:
     using conf = typename Def::conf;
 
-    template<class SmDef>
-    sm_ref(sm<SmDef>& machine):
-        impl_{machine}
+    template<class MachineDef>
+    machine_ref(machine<MachineDef>& mach):
+        impl_{mach}
     {
     }
 
-    sm_ref(const sm_ref&) noexcept = default;
-    sm_ref(sm_ref&&) noexcept = default;
-    sm_ref& operator=(const sm_ref&) noexcept = default;
-    sm_ref& operator=(sm_ref&&) noexcept = default;
-    ~sm_ref() = default;
+    machine_ref(const machine_ref&) noexcept = default;
+    machine_ref(machine_ref&&) noexcept = default;
+    machine_ref& operator=(const machine_ref&) noexcept = default;
+    machine_ref& operator=(machine_ref&&) noexcept = default;
+    ~machine_ref() = default;
 
     template<class Event>
     void process_event(const Event& event)
@@ -121,22 +122,22 @@ private:
     using event_impl_type = detail::tlu::apply_t
     <
         event_type_list,
-        detail::sm_ref_event_impl
+        detail::machine_ref_event_impl
     >;
 
     event_impl_type impl_;
 };
 
 template<class... Events>
-struct sm_ref_e_def
+struct machine_ref_e_def
 {
-    using conf = sm_ref_conf
+    using conf = machine_ref_conf
         ::events<Events...>
     ;
 };
 
 template<class... Events>
-using sm_ref_e = sm_ref<sm_ref_e_def<Events...>>;
+using machine_ref_e = machine_ref<machine_ref_e_def<Events...>>;
 
 } //namespace
 

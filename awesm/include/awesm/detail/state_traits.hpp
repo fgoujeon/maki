@@ -7,34 +7,34 @@
 #ifndef AWESM_DETAIL_STATE_TRAITS_HPP
 #define AWESM_DETAIL_STATE_TRAITS_HPP
 
-#include "subsm_fwd.hpp"
+#include "submachine_fwd.hpp"
 #include "overload_priority.hpp"
 #include "conf.hpp"
 #include "tlu.hpp"
 #include "../type_patterns.hpp"
 #include "../state_conf.hpp"
-#include "../subsm_conf.hpp"
+#include "../submachine_conf.hpp"
 #include <type_traits>
 
 namespace awesm::detail::state_traits
 {
 
-//is_subsm
+//is_submachine
 
 template<class State>
-struct is_subsm
+struct is_submachine
 {
     static constexpr auto value = false;
 };
 
 template<class Def, class ParentRegion>
-struct is_subsm<subsm<Def, ParentRegion>>
+struct is_submachine<submachine<Def, ParentRegion>>
 {
     static constexpr auto value = true;
 };
 
 template<class State>
-constexpr auto is_subsm_v = is_subsm<State>::value;
+constexpr auto is_submachine_v = is_submachine<State>::value;
 
 
 //state_def_to_state
@@ -46,9 +46,9 @@ struct state_def_to_state
 };
 
 template<class StateDef, class Region>
-struct state_def_to_state<StateDef, Region, std::enable_if_t<is_subsm_conf_v<typename StateDef::conf>>>
+struct state_def_to_state<StateDef, Region, std::enable_if_t<is_submachine_conf_v<typename StateDef::conf>>>
 {
-    using type = subsm<StateDef, Region>;
+    using type = submachine<StateDef, Region>;
 };
 
 template<class StateDef, class Region>

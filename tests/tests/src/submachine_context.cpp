@@ -57,15 +57,15 @@ namespace
 
                 EMPTY_STATE(emitting_hot_red);
 
-                using sm_transition_table = awesm::transition_table
+                using transition_table_t = awesm::transition_table
                     ::add<emitting_cold_red, events::color_button_press, emitting_hot_red>
                 ;
             }
 
             struct emitting_red
             {
-                using conf = awesm::subsm_conf
-                    ::transition_tables<emitting_red_ns::sm_transition_table>
+                using conf = awesm::submachine_conf
+                    ::transition_tables<emitting_red_ns::transition_table_t>
                     ::on_entry_any
                 ;
 
@@ -80,7 +80,7 @@ namespace
             EMPTY_STATE(emitting_green);
             EMPTY_STATE(emitting_blue);
 
-            using sm_transition_table = awesm::transition_table
+            using transition_table_t = awesm::transition_table
                 ::add<emitting_red,   events::color_button_press, emitting_green>
                 ::add<emitting_green, events::color_button_press, emitting_blue>
                 ::add<emitting_blue,  events::color_button_press, emitting_red>
@@ -89,8 +89,8 @@ namespace
 
         struct on
         {
-            using conf = awesm::subsm_conf
-                ::transition_tables<on_ns::sm_transition_table>
+            using conf = awesm::submachine_conf
+                ::transition_tables<on_ns::transition_table_t>
                 ::context<on_ns::context>
                 ::on_exit_any
             ;
@@ -104,46 +104,46 @@ namespace
         };
     }
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::off, events::power_button_press, states::on>
         ::add<states::on,  events::power_button_press, states::off>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
 
-    using sm_t = awesm::sm<sm_def>;
+    using machine_t = awesm::machine<machine_def>;
 }
 
-TEST_CASE("subsm_context")
+TEST_CASE("submachine_context")
 {
-    using sm_on_region_path_t = awesm::region_path<sm_def>::add<states::on>;
+    using machine_on_region_path_t = awesm::region_path<machine_def>::add<states::on>;
 
-    auto sm = sm_t{};
-    auto& ctx = sm.context();
+    auto machine = machine_t{};
+    auto& ctx = machine.context();
 
-    sm.process_event(events::power_button_press{});
-    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::on_ns::emitting_red>());
+    machine.process_event(events::power_button_press{});
+    REQUIRE(machine.is_active_state<machine_on_region_path_t, states::on_ns::emitting_red>());
 
-    sm.process_event(events::color_button_press{});
-    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::on_ns::emitting_green>());
+    machine.process_event(events::color_button_press{});
+    REQUIRE(machine.is_active_state<machine_on_region_path_t, states::on_ns::emitting_green>());
 
-    sm.process_event(events::color_button_press{});
-    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::on_ns::emitting_blue>());
+    machine.process_event(events::color_button_press{});
+    REQUIRE(machine.is_active_state<machine_on_region_path_t, states::on_ns::emitting_blue>());
 
-    sm.process_event(events::color_button_press{});
-    REQUIRE(sm.is_active_state<sm_on_region_path_t, states::on_ns::emitting_red>());
+    machine.process_event(events::color_button_press{});
+    REQUIRE(machine.is_active_state<machine_on_region_path_t, states::on_ns::emitting_red>());
 
-    sm.process_event(events::power_button_press{});
-    REQUIRE(sm.is_active_state<states::off>());
+    machine.process_event(events::power_button_press{});
+    REQUIRE(machine.is_active_state<states::off>());
 
     REQUIRE(ctx.out == "2");
 
-    sm.process_event(events::power_button_press{});
-    REQUIRE(sm.is_active_state<states::on>());
+    machine.process_event(events::power_button_press{});
+    REQUIRE(machine.is_active_state<states::on>());
 }

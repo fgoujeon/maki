@@ -4,18 +4,18 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_DETAIL_SUBSM_HPP
-#define AWESM_DETAIL_SUBSM_HPP
+#ifndef AWESM_DETAIL_SUBMACHINE_HPP
+#define AWESM_DETAIL_SUBMACHINE_HPP
 
 #include "call_member.hpp"
 #include "tlu.hpp"
 #include "region.hpp"
 #include "region_path_of.hpp"
-#include "sm_object_holder.hpp"
+#include "machine_object_holder.hpp"
 #include "context_holder.hpp"
-#include "subsm_fwd.hpp"
+#include "submachine_fwd.hpp"
 #include "tuple.hpp"
-#include "../sm_fwd.hpp"
+#include "../machine_fwd.hpp"
 #include "../state_conf.hpp"
 #include "../transition_table.hpp"
 #include "../region_path.hpp"
@@ -25,45 +25,45 @@ namespace awesm::detail
 {
 
 template<class Def, class ParentRegion>
-struct region_path_of<subsm<Def, ParentRegion>>
+struct region_path_of<submachine<Def, ParentRegion>>
 {
     using type = region_path_of_t<ParentRegion>;
 };
 
 template<class Def>
-struct region_path_of<subsm<Def, void>>
+struct region_path_of<submachine<Def, void>>
 {
     using type = region_path_tpl<>;
 };
 
 template<class Def, class ParentRegion>
-struct root_sm_of<subsm<Def, ParentRegion>>
+struct machine_of<submachine<Def, ParentRegion>>
 {
     using type = root_sm_of_t<ParentRegion>;
 
-    static type& get(subsm<Def, ParentRegion>& node)
+    static type& get(submachine<Def, ParentRegion>& node)
     {
         return node.root_sm();
     }
 };
 
 template<class Def>
-struct root_sm_of<subsm<Def, void>>
+struct machine_of<submachine<Def, void>>
 {
-    using type = sm<Def>;
+    using type = machine<Def>;
 
-    static type& get(subsm<Def, void>& node)
+    static type& get(submachine<Def, void>& node)
     {
         return node.root_sm();
     }
 };
 
 template<class Def, class ParentRegion>
-struct subsm_context
+struct submachine_context
 {
     /*
     Context type is either (in this order of priority):
-    - the one specified in the subsm_opts::context option, if any;
+    - the one specified in the submachine_opts::context option, if any;
     - a reference to the context type of the parent SM (not necessarily the root
       SM).
     */
@@ -76,7 +76,7 @@ struct subsm_context
 };
 
 template<class Def>
-struct subsm_context<Def, void>
+struct submachine_context<Def, void>
 {
     using type = option_t<typename Def::conf, option_id::context>;
 };
@@ -110,7 +110,7 @@ struct region_tuple
 };
 
 template<class Def, class ParentRegion>
-class subsm
+class submachine
 {
 public:
     using conf = state_conf
@@ -120,13 +120,13 @@ public:
     ;
 
     using def_type = Def;
-    using context_type = typename subsm_context<Def, ParentRegion>::type;
-    using root_sm_type = root_sm_of_t<subsm>;
+    using context_type = typename submachine_context<Def, ParentRegion>::type;
+    using root_sm_type = root_sm_of_t<submachine>;
 
     using transition_table_type_list = option_t<typename Def::conf, option_id::transition_tables>;
 
     template<class... ContextArgs>
-    subsm(root_sm_type& root_sm, ContextArgs&&... ctx_args):
+    submachine(root_sm_type& root_sm, ContextArgs&&... ctx_args):
         root_sm_(root_sm),
         ctx_holder_(root_sm, std::forward<ContextArgs>(ctx_args)...),
         def_holder_(root_sm, context()),
@@ -156,7 +156,7 @@ public:
         (
             std::is_same_v
             <
-                typename detail::tlu::front_t<StateRegionPath>::sm_def_type,
+                typename detail::tlu::front_t<StateRegionPath>::machine_def_type,
                 Def
             >
         );
@@ -172,7 +172,7 @@ public:
         (
             std::is_same_v
             <
-                typename detail::tlu::front_t<StateRegionPath>::sm_def_type,
+                typename detail::tlu::front_t<StateRegionPath>::machine_def_type,
                 Def
             >
         );
@@ -188,7 +188,7 @@ public:
         (
             std::is_same_v
             <
-                typename detail::tlu::front_t<StateRegionPath>::sm_def_type,
+                typename detail::tlu::front_t<StateRegionPath>::machine_def_type,
                 Def
             >
         );
@@ -259,14 +259,14 @@ public:
 private:
     using region_tuple_type = typename region_tuple
     <
-        subsm,
+        submachine,
         std::make_integer_sequence<int, tlu::size_v<transition_table_type_list>>
     >::type;
 
     struct region_start
     {
         template<class Region, class Event>
-        static void call(subsm& self, const Event& event)
+        static void call(submachine& self, const Event& event)
         {
             get<Region>(self.regions_).start(event);
         }
@@ -275,7 +275,7 @@ private:
     struct region_process_event
     {
         template<class Region, class Event, class... ExtraArgs>
-        static void call(subsm& self, const Event& event, ExtraArgs&... extra_args)
+        static void call(submachine& self, const Event& event, ExtraArgs&... extra_args)
         {
             get<Region>(self.regions_).process_event(event, extra_args...);
         }
@@ -284,7 +284,7 @@ private:
     struct region_stop
     {
         template<class Region, class Event>
-        static void call(subsm& self, const Event& event)
+        static void call(submachine& self, const Event& event)
         {
             get<Region>(self.regions_).stop(event);
         }
@@ -292,7 +292,7 @@ private:
 
     root_sm_type& root_sm_;
     context_holder<context_type> ctx_holder_;
-    detail::sm_object_holder<Def> def_holder_;
+    detail::machine_object_holder<Def> def_holder_;
     region_tuple_type regions_;
 };
 

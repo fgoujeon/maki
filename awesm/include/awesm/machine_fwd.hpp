@@ -4,14 +4,14 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_DETAIL_SUBSM_FWD_HPP
-#define AWESM_DETAIL_SUBSM_FWD_HPP
+#ifndef AWESM_MACHINE_FWD_HPP
+#define AWESM_MACHINE_FWD_HPP
 
-namespace awesm::detail
+namespace awesm
 {
 
-template<class Def, class ParentRegion>
-class subsm;
+template<class Def>
+class machine;
 
 } //namespace
 

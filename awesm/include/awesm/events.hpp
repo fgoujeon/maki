@@ -13,17 +13,17 @@ namespace awesm::events
 {
 
 /**
-@brief Default event given to `sm::start()`.
+@brief Default event given to `machine::start()`.
 */
 struct start{};
 
 /**
-@brief Default event given to `sm::stop()`.
+@brief Default event given to `machine::stop()`.
 */
 struct stop{};
 
 /**
-@brief Event sent by the default exception handler of @ref sm whenever it
+@brief Event sent by the default exception handler of @ref machine whenever it
 catches an exception.
 */
 struct exception

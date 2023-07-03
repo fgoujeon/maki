@@ -29,19 +29,19 @@ namespace
         EMPTY_STATE(off);
     }
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::off, events::button_press, states::on>
         ::add<states::on,  events::button_press, states::off>
     ;
 
-    struct sm_def;
+    struct machine_def;
 
-    using sm_t = awesm::sm<sm_def>;
+    using machine_t = awesm::machine<machine_def>;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
             ::before_state_transition
             ::after_state_transition
@@ -51,7 +51,7 @@ namespace
         template<class RegionPath, class SourceState, class Event, class TargetState>
         void before_state_transition(const Event& /*event*/)
         {
-            static_assert(std::is_same_v<RegionPath, awesm::region_path<sm_def>>);
+            static_assert(std::is_same_v<RegionPath, awesm::region_path<machine_def>>);
 
             ctx.out += "Transition in ";
             ctx.out += RegionPath::to_string();
@@ -65,7 +65,7 @@ namespace
         template<class RegionPath, class SourceState, class Event, class TargetState>
         void after_state_transition(const Event& /*event*/)
         {
-            static_assert(std::is_same_v<RegionPath, awesm::region_path<sm_def>>);
+            static_assert(std::is_same_v<RegionPath, awesm::region_path<machine_def>>);
 
             ctx.out += "Transition in ";
             ctx.out += RegionPath::to_string();
@@ -88,12 +88,12 @@ namespace
 TEST_CASE("double_start_stop")
 {
     auto out = std::string{};
-    auto sm = sm_t{out};
+    auto machine = machine_t{out};
 
-    sm.start();
-    sm.start();
+    machine.start();
+    machine.start();
 
-    REQUIRE(sm.is_active_state<states::off>());
+    REQUIRE(machine.is_active_state<states::off>());
     REQUIRE
     (
         out ==
@@ -102,8 +102,8 @@ TEST_CASE("double_start_stop")
     );
 
     out.clear();
-    sm.stop();
-    REQUIRE(!sm.is_running());
+    machine.stop();
+    REQUIRE(!machine.is_running());
     REQUIRE
     (
         out ==
@@ -112,7 +112,7 @@ TEST_CASE("double_start_stop")
     );
 
     out.clear();
-    sm.stop();
-    REQUIRE(!sm.is_running());
+    machine.stop();
+    REQUIRE(!machine.is_running());
     REQUIRE(out == "");
 }

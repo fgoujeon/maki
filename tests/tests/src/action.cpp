@@ -38,33 +38,33 @@ namespace
         }
     }
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::off, events::button_press, states::on,  actions::beep>
         ::add<states::on,  events::button_press, states::off, actions::boop>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
 
-    using sm_t = awesm::sm<sm_def>;
+    using machine_t = awesm::machine<machine_def>;
 }
 
 TEST_CASE("action")
 {
-    auto sm = sm_t{};
+    auto machine = machine_t{};
 
-    sm.start();
+    machine.start();
 
-    sm.process_event(events::button_press{});
-    REQUIRE(sm.is_active_state<states::on>());
-    REQUIRE(sm.context().i == 1);
+    machine.process_event(events::button_press{});
+    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.context().i == 1);
 
-    sm.process_event(events::button_press{});
-    REQUIRE(sm.is_active_state<states::off>());
-    REQUIRE(sm.context().i == 0);
+    machine.process_event(events::button_press{});
+    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.context().i == 0);
 }

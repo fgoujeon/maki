@@ -85,7 +85,7 @@ There are two ways to define and associate an action:
 The action is the fourth (optional) parameter of `awesm::transition`. In this context, AweSM expects the name of a non-member function with one of the following signatures (in this order of priority):
 
 ~~~{.cpp}
-void(sm_type& mach, context_type& ctx, const event_type& evt);
+void(machine_type& mach, context_type& ctx, const event_type& evt);
 void(context_type& ctx, const event_type& evt);
 void(context_type& ctx);
 void();
@@ -110,11 +110,11 @@ To associate an action to a state, you have to set an option of the configuratio
 * for an internal action, set the `on_event` option (or alternatively the `on_event_auto` option);
 * for an exit action, set the `on_exit_any` option.
 
-By setting these options, you require `awesm::sm` to call a specific member function of the associated state. These are the accepted names and signatures:
+By setting these options, you require `awesm::machine` to call a specific member function of the associated state. These are the accepted names and signatures:
 
 ~~~{.cpp}
 //For entry actions, in this order of priority
-void on_entry(sm_type& mach, const event_type& event);
+void on_entry(machine_type& mach, const event_type& event);
 void on_entry(const event_type& event);
 void on_entry();
 
@@ -122,7 +122,7 @@ void on_entry();
 void on_event(const event_type& event);
 
 //For exit actions, in this order of priority
-void on_exit(sm_type& mach, const event_type& event);
+void on_exit(machine_type& mach, const event_type& event);
 void on_exit(const event_type& event);
 void on_exit();
 ~~~

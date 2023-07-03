@@ -13,9 +13,9 @@
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
-#include "sm_object_holder_tuple.hpp"
+#include "machine_object_holder_tuple.hpp"
 #include "tlu.hpp"
-#include "../subsm_conf.hpp"
+#include "../submachine_conf.hpp"
 #include "../states.hpp"
 #include <type_traits>
 #include <exception>
@@ -43,7 +43,7 @@ namespace
     template<class State>
     auto& state_def_of(State& state)
     {
-        if constexpr(state_traits::is_subsm_v<State>)
+        if constexpr(state_traits::is_submachine_v<State>)
         {
             return state.def();
         }
@@ -64,7 +64,7 @@ struct region_path_of<region<ParentSm, Index>>
 };
 
 template<class ParentSm, int Index>
-struct root_sm_of<region<ParentSm, Index>>
+struct machine_of<region<ParentSm, Index>>
 {
     using type = root_sm_of_t<ParentSm>;
 };
@@ -76,7 +76,7 @@ public:
     using parent_sm_type = ParentSm;
 
     explicit region(ParentSm& parent_sm):
-        root_sm_(root_sm_of<ParentSm>::get(parent_sm)),
+        root_sm_(machine_of<ParentSm>::get(parent_sm)),
         ctx_(parent_sm.context()),
         state_holders_(root_sm_, ctx_)
     {
@@ -97,8 +97,8 @@ public:
         }
         else
         {
-            using subsm_t = typename tlu::front_t<StateRegionPath>::sm_def_type;
-            const auto& state = state_from_state_def<subsm_t>();
+            using submachine_t = typename tlu::front_t<StateRegionPath>::machine_def_type;
+            const auto& state = state_from_state_def<submachine_t>();
             return state.template state_def<StateRegionPath, StateDef>();
         }
     }
@@ -112,8 +112,8 @@ public:
         }
         else
         {
-            using subsm_t = typename tlu::front_t<StateRegionPath>::sm_def_type;
-            auto& state = state_from_state_def<subsm_t>();
+            using submachine_t = typename tlu::front_t<StateRegionPath>::machine_def_type;
+            auto& state = state_from_state_def<submachine_t>();
             return state.template state_def<StateRegionPath, StateDef>();
         }
     }
@@ -127,8 +127,8 @@ public:
         }
         else
         {
-            using subsm_t = typename tlu::front_t<StateRelativeRegionPath>::sm_def_type;
-            const auto& state = state_from_state_def<subsm_t>();
+            using submachine_t = typename tlu::front_t<StateRelativeRegionPath>::machine_def_type;
+            const auto& state = state_from_state_def<submachine_t>();
             return state.template is_active_state_def<StateRelativeRegionPath, StateDef>();
         }
     }
@@ -254,7 +254,7 @@ public:
 
 private:
     using root_sm_type = root_sm_of_t<ParentSm>;
-    using sm_conf_tpl = typename root_sm_type::conf;
+    using machine_conf_tpl = typename root_sm_type::conf;
 
     using transition_table_type = tlu::get_t<typename ParentSm::transition_table_type_list, Index>;
 
@@ -271,7 +271,7 @@ private:
         state_type_list,
         state_traits::needs_unique_instance
     >;
-    using state_holder_tuple_type = tlu::apply_t<non_empty_state_type_list, sm_object_holder_tuple_t>;
+    using state_holder_tuple_type = tlu::apply_t<non_empty_state_type_list, machine_object_holder_tuple_t>;
 
     using initial_state_def_type = detail::tlu::front_t<state_def_type_list>;
 
@@ -389,7 +389,7 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(option_v<sm_conf_tpl, option_id::before_state_transition>)
+            if constexpr(option_v<machine_conf_tpl, option_id::before_state_transition>)
             {
                 root_sm_.def().template before_state_transition
                 <
@@ -436,7 +436,7 @@ private:
                 );
             }
 
-            if constexpr(option_v<sm_conf_tpl, option_id::after_state_transition>)
+            if constexpr(option_v<machine_conf_tpl, option_id::after_state_transition>)
             {
                 root_sm_.def().template after_state_transition
                 <
@@ -593,7 +593,7 @@ private:
     {
         if constexpr(state_traits::needs_unique_instance<State>::value)
         {
-            return get<sm_object_holder<State>>(reg.state_holders_).get();
+            return get<machine_object_holder<State>>(reg.state_holders_).get();
         }
         else
         {

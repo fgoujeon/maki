@@ -9,7 +9,7 @@
 
 #include "type_traits.hpp"
 #include "state_traits.hpp"
-#include "subsm_fwd.hpp"
+#include "submachine_fwd.hpp"
 #include "overload_priority.hpp"
 #include <type_traits>
 #include <utility>
@@ -100,7 +100,7 @@ void call_on_event(State& state, Sm& mach, Context& ctx, const Event& event)
 template<class State, class Sm, class Context, class Event>
 void call_on_event(State& state, Sm& /*mach*/, Context& /*ctx*/, const Event& event, bool& processed)
 {
-    if constexpr(state_traits::is_subsm_v<State>)
+    if constexpr(state_traits::is_submachine_v<State>)
     {
         state.on_event(event, processed);
     }

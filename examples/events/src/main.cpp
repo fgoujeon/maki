@@ -14,36 +14,36 @@
 #include "motor.hpp"
 #include <awesm.hpp>
 
-//The context, instantiated by sm_t and accessible to all the actions and guards
+//The context, instantiated by machine_t and accessible to all the actions and guards
 struct context
 {
     /*
-    Note: Sm is always sm_t (defined below).
+    Note: Sm is always machine_t (defined below).
     We need a template to break circular dependency.
     */
     template<class Sm>
-    context(Sm& sm):
-        user_itf(make_event_callback(sm)),
-        mtr(make_event_callback(sm))
+    context(Sm& machine):
+        user_itf(make_event_callback(machine)),
+        mtr(make_event_callback(machine))
     {
     }
 
     /*
     Forward events (from event variants) to state machine.
 
-    Note: Sm is always sm_t (defined below).
+    Note: Sm is always machine_t (defined below).
     We need a template to break circular dependency.
     */
     template<class Sm>
-    static auto make_event_callback(Sm& sm)
+    static auto make_event_callback(Sm& machine)
     {
-        return [&sm](const auto& event_variant)
+        return [&machine](const auto& event_variant)
         {
             std::visit
             (
-                [&sm](const auto& event)
+                [&machine](const auto& event)
                 {
-                    sm.process_event(event);
+                    machine.process_event(event);
                 },
                 event_variant
             );
@@ -71,7 +71,7 @@ void stop_motor(context& ctx)
 }
 
 //Transition table
-using sm_transition_table_t = awesm::transition_table
+using transition_table_t = awesm::transition_table
     //    source state, event,                         target state, action
     ::add<idle,         user_interface::start_request, starting,     start_motor>
     ::add<starting,     motor::start_event,            running>
@@ -80,21 +80,21 @@ using sm_transition_table_t = awesm::transition_table
 ;
 
 //State machine definition
-struct sm_def
+struct machine_def
 {
-    using conf = awesm::sm_conf
-        ::transition_tables<sm_transition_table_t>
+    using conf = awesm::machine_conf
+        ::transition_tables<transition_table_t>
         ::context<context>
     ;
 };
 
 //State machine
-using sm_t = awesm::sm<sm_def>;
+using machine_t = awesm::machine<machine_def>;
 
 int main()
 {
     //Instantiate the state machine
-    auto sm = sm_t{};
+    auto machine = machine_t{};
 
     //Run indefinitely...
     //[Implementation detail...]
@@ -108,32 +108,32 @@ int main()
 //We want to test this program without spamming the doc with testing details.
 int main()
 {
-    auto sm = sm_t{};
-    if(sm.is_active_state<idle>())
+    auto machine = machine_t{};
+    if(machine.is_active_state<idle>())
     {
         std::cout << "1\n";
     }
 
-    sm.process_event(user_interface::start_request{});
-    if(sm.is_active_state<starting>())
+    machine.process_event(user_interface::start_request{});
+    if(machine.is_active_state<starting>())
     {
         std::cout << "2\n";
     }
 
-    sm.process_event(motor::start_event{});
-    if(sm.is_active_state<running>())
+    machine.process_event(motor::start_event{});
+    if(machine.is_active_state<running>())
     {
         std::cout << "3\n";
     }
 
-    sm.process_event(user_interface::stop_request{});
-    if(sm.is_active_state<stopping>())
+    machine.process_event(user_interface::stop_request{});
+    if(machine.is_active_state<stopping>())
     {
         std::cout << "4\n";
     }
 
-    sm.process_event(motor::stop_event{});
-    if(sm.is_active_state<idle>())
+    machine.process_event(motor::stop_event{});
+    if(machine.is_active_state<idle>())
     {
         std::cout << "5\n";
     }

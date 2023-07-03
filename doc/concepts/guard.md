@@ -81,7 +81,7 @@ spinning_high -> spinning_med : minus button press
 Within AweSM, guards are non-member functions, preferably without side effect, that return a `bool`. AweSM accepts the following signatures, in this order of priority:
 
 ~~~{.cpp}
-bool(sm_type& mach, context_type& ctx, const event_type& evt);
+bool(machine_type& mach, context_type& ctx, const event_type& evt);
 bool(context_type& ctx, const event_type& evt);
 bool(context_type& ctx);
 bool();
@@ -92,7 +92,7 @@ AweSM also accepts `constexpr` callables with the same signatures for `operator(
 Once you've defined your guard, you just have to pass the function name as the fifth argument of the transition of your choice, like so:
 
 @code
-using sm_transition_table_t = awesm::transition_table
+using transition_table_t = awesm::transition_table
     ::add<source_state_type, event_type, target_state_type, action, guard>
     //...
 ;

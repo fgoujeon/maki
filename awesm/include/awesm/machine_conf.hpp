@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_ROOT_SM_CONF_HPP
-#define AWESM_ROOT_SM_CONF_HPP
+#ifndef AWESM_MACHINE_CONF_HPP
+#define AWESM_MACHINE_CONF_HPP
 
 #include "transition_table.hpp"
 #include "type_patterns.hpp"
@@ -17,34 +17,34 @@ namespace awesm
 {
 
 /**
-@brief The configuration type template for an @ref sm.
+@brief The configuration type template for an @ref machine.
 
 State machine definitions must expose a `conf` type alias to an instance of this
 template. To instantiate this template, you have to write a chain of subtypes,
-starting from `sm_conf` (a type alias of `sm_conf_tpl<>`), where each subtype
+starting from `machine_conf` (a type alias of `machine_conf_tpl<>`), where each subtype
 sets/activates an option.
 
 Example:
 @code
-using conf = awesm::sm_conf
-    ::transition_tables<sm_transition_table_t> //sets the transition_tables option
+using conf = awesm::machine_conf
+    ::transition_tables<transition_table_t> //sets the transition_tables option
     ::context<context> //sets the context option
     ::pretty_name //activates the pretty_name option
 ;
 @endcode
 */
 template<class... Options>
-struct sm_conf_tpl
+struct machine_conf_tpl
 {
     /**
-    @brief Requires the @ref sm to call a user-provided
+    @brief Requires the @ref machine to call a user-provided
     `after_state_transition()` member function after any external state
     transition.
 
     The following expression must be valid, for every possible template argument
     list:
     @code
-    sm_def.after_state_transition
+    machine_def.after_state_transition
     <
         region_path_type,
         source_state_type,
@@ -57,9 +57,9 @@ struct sm_conf_tpl
 
     Example:
     @code
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
+        using conf = awesm::machine_conf
             ::after_state_transition
             //...
         ;
@@ -74,7 +74,7 @@ struct sm_conf_tpl
     };
     @endcode
     */
-    using after_state_transition = sm_conf_tpl
+    using after_state_transition = machine_conf_tpl
     <
         Options...,
 #ifdef DOXYGEN
@@ -85,9 +85,9 @@ struct sm_conf_tpl
     >;
 
     /**
-    @brief Prevents the constructor of @ref sm from calling @ref sm::start().
+    @brief Prevents the constructor of @ref machine from calling @ref machine::start().
     */
-    using no_auto_start = sm_conf_tpl
+    using no_auto_start = machine_conf_tpl
     <
         Options...,
 #ifdef DOXYGEN
@@ -98,14 +98,14 @@ struct sm_conf_tpl
     >;
 
     /**
-    @brief Requires the @ref sm to call a user-provided
+    @brief Requires the @ref machine to call a user-provided
     `before_state_transition()` member function before any external state
     transition.
 
     The following expression must be valid, for every possible template argument
     list:
     @code
-    sm_def.before_state_transition
+    machine_def.before_state_transition
     <
         region_path_type,
         source_state_type,
@@ -118,9 +118,9 @@ struct sm_conf_tpl
 
     Example:
     @code
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
+        using conf = awesm::machine_conf
             ::before_state_transition
             //...
         ;
@@ -135,7 +135,7 @@ struct sm_conf_tpl
     };
     @endcode
     */
-    using before_state_transition = sm_conf_tpl
+    using before_state_transition = machine_conf_tpl
     <
         Options...,
 #ifdef DOXYGEN
@@ -149,7 +149,7 @@ struct sm_conf_tpl
     @brief Specifies the context type.
     */
     template<class Context>
-    using context = sm_conf_tpl
+    using context = machine_conf_tpl
     <
         Options...,
 #ifdef DOXYGEN
@@ -163,11 +163,11 @@ struct sm_conf_tpl
     @brief Disables run-to-completion.
 
     This makes the state machine much faster, but you have to make sure you
-    <b>never</b> call @ref sm::process_event() recursively.
+    <b>never</b> call @ref machine::process_event() recursively.
 
     Use it at your own risk!
     */
-    using no_run_to_completion = sm_conf_tpl
+    using no_run_to_completion = machine_conf_tpl
     <
         Options...,
 #ifdef DOXYGEN
@@ -178,16 +178,16 @@ struct sm_conf_tpl
     >;
 
     /**
-    @brief Requires the @ref sm to call a user-provided `pretty_name()` static
+    @brief Requires the @ref machine to call a user-provided `pretty_name()` static
     member function to get the pretty name of the state machine.
 
     See @ref PrettyPrinting.
 
     Example:
     @code
-    struct sm_def
+    struct machine_def
     {
-        using conf = sm_conf
+        using conf = machine_conf
             ::pretty_name
             //...
         ;
@@ -201,7 +201,7 @@ struct sm_conf_tpl
     };
     @endcode
     */
-    using pretty_name = sm_conf_tpl
+    using pretty_name = machine_conf_tpl
     <
         Options...,
 #ifdef DOXYGEN
@@ -212,15 +212,15 @@ struct sm_conf_tpl
     >;
 
     /**
-    @brief Requires the @ref sm to call a user-provided `on_exception()`
+    @brief Requires the @ref machine to call a user-provided `on_exception()`
     member function whenever it catches an exception.
 
     The following expression must be valid:
     @code
-    sm_def.on_exception(std::current_exception());
+    machine_def.on_exception(std::current_exception());
     @endcode
 
-    If this option isn't set, the @ref sm will send itself a @ref
+    If this option isn't set, the @ref machine will send itself a @ref
     events::exception event, like so:
     @code
     process_event(events::exception{std::current_exception()});
@@ -228,9 +228,9 @@ struct sm_conf_tpl
 
     Example:
     @code
-    struct sm_def
+    struct machine_def
     {
-        using conf = sm_conf
+        using conf = machine_conf
             ::pretty_name
             //...
         ;
@@ -244,7 +244,7 @@ struct sm_conf_tpl
     };
     @endcode
     */
-    using on_exception = sm_conf_tpl
+    using on_exception = machine_conf_tpl
     <
         Options...,
 #ifdef DOXYGEN
@@ -255,8 +255,8 @@ struct sm_conf_tpl
     >;
 
     /**
-    @brief Requires the @ref sm to call a user-provided `on_unprocessed()`
-    member function whenever a call to @ref sm::process_event() doesn't lead to
+    @brief Requires the @ref machine to call a user-provided `on_unprocessed()`
+    member function whenever a call to @ref machine::process_event() doesn't lead to
     any state transition.
 
     The said member function must have the following form:
@@ -269,9 +269,9 @@ struct sm_conf_tpl
 
     Example:
     @code
-    struct sm_def
+    struct machine_def
     {
-        using conf = sm_conf
+        using conf = machine_conf
             ::on_unprocessed
             //...
         ;
@@ -298,7 +298,7 @@ struct sm_conf_tpl
     @endcode
 
     */
-    using on_unprocessed = sm_conf_tpl
+    using on_unprocessed = machine_conf_tpl
     <
         Options...,
 #ifdef DOXYGEN
@@ -314,7 +314,7 @@ struct sm_conf_tpl
     allocation).
     */
     template<std::size_t Value>
-    using small_event_max_align = sm_conf_tpl
+    using small_event_max_align = machine_conf_tpl
     <
         Options...,
 #ifdef DOXYGEN
@@ -329,7 +329,7 @@ struct sm_conf_tpl
     small object optimization (and thus avoid an extra memory allocation).
     */
     template<std::size_t Value>
-    using small_event_max_size = sm_conf_tpl
+    using small_event_max_size = machine_conf_tpl
     <
         Options...,
 #ifdef DOXYGEN
@@ -340,17 +340,17 @@ struct sm_conf_tpl
     >;
 
     /**
-    @brief Requires the @ref sm to call a user-provided `on_event()` member
+    @brief Requires the @ref machine to call a user-provided `on_event()` member
     function whenever it is about to process an event. Run-to-completion
     guarantee applies.
-    @tparam EventFilters the list of events for which we want the @ref sm to
+    @tparam EventFilters the list of events for which we want the @ref machine to
     call `on_event()`
 
     One of these expressions must be valid, for every given event type:
     @code
-    sm_def.on_event(fsm, event);
-    sm_def.on_event(event);
-    sm_def.on_event();
+    machine_def.on_event(fsm, event);
+    machine_def.on_event(event);
+    machine_def.on_event();
     @endcode
 
     This hook can be useful when there are certain event types that you always
@@ -359,9 +359,9 @@ struct sm_conf_tpl
 
     Example:
     @code
-    struct sm_def
+    struct machine_def
     {
-        using conf = sm_conf
+        using conf = machine_conf
             ::on_event<event_type_0, event_type_1>
             //...
         ;
@@ -385,7 +385,7 @@ struct sm_conf_tpl
     inconvenient, you can use @ref on_event_auto.
     */
     template<class... EventFilters>
-    using on_event = sm_conf_tpl
+    using on_event = machine_conf_tpl
     <
         Options...,
 #ifdef DOXYGEN
@@ -403,9 +403,9 @@ struct sm_conf_tpl
     In the following example, `on_event()` will only be called for
     `event_type_0` and `event_type_1`:
     @code
-    struct sm_def
+    struct machine_def
     {
-        using conf = sm_conf
+        using conf = machine_conf
             ::on_event_auto
             //...
         ;
@@ -425,7 +425,7 @@ struct sm_conf_tpl
     };
     @endcode
     */
-    using on_event_auto = sm_conf_tpl
+    using on_event_auto = machine_conf_tpl
     <
         Options...,
 #ifdef DOXYGEN
@@ -436,21 +436,21 @@ struct sm_conf_tpl
     >;
 
     /**
-    @brief Requires the @ref sm to call a user-provided `on_entry()` member
+    @brief Requires the @ref machine to call a user-provided `on_entry()` member
     function whenever it starts.
 
     One of these expressions must be valid, for every given event type:
     @code
-    sm_def.on_entry(fsm, event);
-    sm_def.on_entry(event);
-    sm_def.on_entry();
+    machine_def.on_entry(fsm, event);
+    machine_def.on_entry(event);
+    machine_def.on_entry();
     @endcode
 
     Example:
     @code
-    struct sm_def
+    struct machine_def
     {
-        using conf = sm_conf
+        using conf = machine_conf
             ::on_entry_any
             //...
         ;
@@ -476,7 +476,7 @@ struct sm_conf_tpl
     };
     @endcode
     */
-    using on_entry_any = sm_conf_tpl
+    using on_entry_any = machine_conf_tpl
     <
         Options...,
 #ifdef DOXYGEN
@@ -487,21 +487,21 @@ struct sm_conf_tpl
     >;
 
     /**
-    @brief Requires the @ref sm to call a user-provided `on_exit()` member
+    @brief Requires the @ref machine to call a user-provided `on_exit()` member
     function whenever it stops.
 
     One of these expressions must be valid, for every given event type:
     @code
-    sm_def.on_exit(fsm, event);
-    sm_def.on_exit(event);
-    sm_def.on_exit();
+    machine_def.on_exit(fsm, event);
+    machine_def.on_exit(event);
+    machine_def.on_exit();
     @endcode
 
     Example:
     @code
-    struct sm_def
+    struct machine_def
     {
-        using conf = sm_conf
+        using conf = machine_conf
             ::on_exit_any
             //...
         ;
@@ -527,7 +527,7 @@ struct sm_conf_tpl
     };
     @endcode
     */
-    using on_exit_any = sm_conf_tpl
+    using on_exit_any = machine_conf_tpl
     <
         Options...,
 #ifdef DOXYGEN
@@ -542,7 +542,7 @@ struct sm_conf_tpl
     is created.
     */
     template<class... Ts>
-    using transition_tables = sm_conf_tpl
+    using transition_tables = machine_conf_tpl
     <
         Options...,
 #ifdef DOXYGEN
@@ -555,9 +555,9 @@ struct sm_conf_tpl
 
 /**
 @brief Handy type alias to an empty (i.e. with default options) @ref
-sm_conf_tpl.
+machine_conf_tpl.
 */
-using sm_conf = sm_conf_tpl<>;
+using machine_conf = machine_conf_tpl<>;
 
 namespace detail
 {
@@ -568,7 +568,7 @@ namespace detail
     };
 
     template<class... Options>
-    struct is_root_sm_conf<sm_conf_tpl<Options...>>
+    struct is_root_sm_conf<machine_conf_tpl<Options...>>
     {
         static constexpr auto value = true;
     };

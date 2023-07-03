@@ -86,7 +86,7 @@ namespace
 
         struct on
         {
-            using conf = awesm::subsm_conf
+            using conf = awesm::submachine_conf
                 ::transition_tables<on_transition_table>
                 ::on_exit_any
             ;
@@ -101,39 +101,39 @@ namespace
         };
     }
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::off, events::power_button_press, states::on>
         ::add<states::on,  events::power_button_press, states::off>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
 
-    using sm_t = awesm::sm<sm_def>;
+    using machine_t = awesm::machine<machine_def>;
 }
 
 TEST_CASE("state")
 {
-    auto sm = sm_t{};
-    const auto& const_sm = sm;
+    auto machine = machine_t{};
+    const auto& const_sm = machine;
 
-    using root_region_path = awesm::region_path<sm_def>;
+    using root_region_path = awesm::region_path<machine_def>;
     using on_region_path = root_region_path::add<states::on>;
 
-    auto& red_state = sm.state<on_region_path, states::emitting_red>();
+    auto& red_state = machine.state<on_region_path, states::emitting_red>();
     REQUIRE(red_state.color == led_color::red);
 
     const auto& green_state = const_sm.state<on_region_path, states::emitting_green>();
     REQUIRE(green_state.color == led_color::green);
 
-    auto& blue_state = sm.state<on_region_path, states::emitting_blue>();
+    auto& blue_state = machine.state<on_region_path, states::emitting_blue>();
     REQUIRE(blue_state.color == led_color::blue);
 
-    auto& on_state = sm.state<root_region_path, states::on>();
+    auto& on_state = machine.state<root_region_path, states::on>();
     REQUIRE(on_state.is_on_state);
 }

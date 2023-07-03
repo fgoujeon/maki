@@ -32,7 +32,7 @@ namespace
 
         struct s0
         {
-            using conf = awesm::subsm_conf
+            using conf = awesm::submachine_conf
                 ::transition_tables<s0_transition_table>
             ;
         };
@@ -41,43 +41,43 @@ namespace
     using any_but_s0_s1 = awesm::any_but<states::s0, states::s1>;
     using any_of_s0_s1 = awesm::any_of<states::s0, states::s1>;
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::off,   events::button_press,             states::s0>
         ::add<states::s0,    events::button_press,             states::s1>
         ::add<any_but_s0_s1, events::off_button_press,         states::off>
         ::add<any_of_s0_s1,  events::destruction_button_press, states::off>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
 
-    using sm_t = awesm::sm<sm_def>;
+    using machine_t = awesm::machine<machine_def>;
 }
 
-TEST_CASE("subsm_in_type_filter")
+TEST_CASE("submachine_in_type_filter")
 {
-    auto sm = sm_t{};
+    auto machine = machine_t{};
 
-    sm.start();
-    REQUIRE(sm.is_active_state<states::off>());
+    machine.start();
+    REQUIRE(machine.is_active_state<states::off>());
 
-    sm.process_event(events::button_press{});
-    REQUIRE(sm.is_active_state<states::s0>());
+    machine.process_event(events::button_press{});
+    REQUIRE(machine.is_active_state<states::s0>());
 
-    sm.process_event(events::off_button_press{});
-    REQUIRE(sm.is_active_state<states::s0>());
+    machine.process_event(events::off_button_press{});
+    REQUIRE(machine.is_active_state<states::s0>());
 
-    sm.process_event(events::button_press{});
-    REQUIRE(sm.is_active_state<states::s1>());
+    machine.process_event(events::button_press{});
+    REQUIRE(machine.is_active_state<states::s1>());
 
-    sm.process_event(events::off_button_press{});
-    REQUIRE(sm.is_active_state<states::s1>());
+    machine.process_event(events::off_button_press{});
+    REQUIRE(machine.is_active_state<states::s1>());
 
-    sm.process_event(events::destruction_button_press{});
-    REQUIRE(sm.is_active_state<states::off>());
+    machine.process_event(events::destruction_button_press{});
+    REQUIRE(machine.is_active_state<states::off>());
 }

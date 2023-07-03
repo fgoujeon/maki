@@ -25,7 +25,7 @@ namespace
         EMPTY_STATE(s4);
     };
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::s0, events::go_on, states::s1>
         ::add<states::s1, awesm::null,   states::s2>
         ::add<states::s2, events::go_on, states::s3>
@@ -33,26 +33,26 @@ namespace
         ::add<states::s4, awesm::null,   states::s0>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
 
-    using sm_t = awesm::sm<sm_def>;
+    using machine_t = awesm::machine<machine_def>;
 }
 
 TEST_CASE("anonymous transition")
 {
-    auto sm = sm_t{};
+    auto machine = machine_t{};
 
-    sm.start();
+    machine.start();
 
-    sm.process_event(events::go_on{});
-    REQUIRE(sm.is_active_state<states::s2>());
+    machine.process_event(events::go_on{});
+    REQUIRE(machine.is_active_state<states::s2>());
 
-    sm.process_event(events::go_on{});
-    REQUIRE(sm.is_active_state<states::s0>());
+    machine.process_event(events::go_on{});
+    REQUIRE(machine.is_active_state<states::s0>());
 }

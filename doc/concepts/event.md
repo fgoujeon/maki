@@ -55,4 +55,4 @@ And here is `main.cpp`, which implements the state machine:
 
 Don't worry too much about the details for now. Just notice that:
 * all the event types are defined into `user_interface` and `motor`, which don't depend on AweSM;
-* all the events sent by `user_interface` and `motor` are forwarded to our `sm_t` instance through a call to [sm_t::process_event()](@ref awesm::sm::process_event).
+* all the events sent by `user_interface` and `motor` are forwarded to our `machine_t` instance through a call to [machine_t::process_event()](@ref awesm::machine::process_event).

@@ -9,8 +9,8 @@
 
 namespace
 {
-    struct sm_def;
-    using sm_t = awesm::sm<sm_def>;
+    struct machine_def;
+    using machine_t = awesm::machine<machine_def>;
 
     enum class led_color
     {
@@ -95,7 +95,7 @@ namespace
 
         struct on
         {
-            using conf = awesm::subsm_conf
+            using conf = awesm::submachine_conf
                 ::transition_tables<on_transition_table>
             ;
 
@@ -103,14 +103,14 @@ namespace
         };
     }
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::on, events::power_button_press, states::off>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
             ::on_unprocessed
         ;
@@ -132,41 +132,41 @@ namespace
 
 TEST_CASE("on_unprocessed")
 {
-    auto sm = sm_t{};
-    auto& ctx = sm.context();
+    auto machine = machine_t{};
+    auto& ctx = machine.context();
 
     ctx.clear();
-    sm.start();
-    REQUIRE(sm.is_active_state<states::on>());
-    REQUIRE(sm.is_active_state<awesm::region_path<sm_def>::add<states::on>, states::emitting_red>());
+    machine.start();
+    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.is_active_state<awesm::region_path<machine_def>::add<states::on>, states::emitting_red>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
-    sm.process_event(events::ignored_by_emitting_blue{});
+    machine.process_event(events::ignored_by_emitting_blue{});
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
-    sm.process_event(events::color_button_press{});
-    REQUIRE(sm.is_active_state<states::on>());
-    REQUIRE(sm.is_active_state<awesm::region_path<sm_def>::add<states::on>, states::emitting_green>());
+    machine.process_event(events::color_button_press{});
+    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.is_active_state<awesm::region_path<machine_def>::add<states::on>, states::emitting_green>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
-    sm.process_event(events::ignored_by_emitting_blue{});
+    machine.process_event(events::ignored_by_emitting_blue{});
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
-    sm.process_event(events::color_button_press{});
-    REQUIRE(sm.is_active_state<states::on>());
-    REQUIRE(sm.is_active_state<awesm::region_path<sm_def>::add<states::on>, states::emitting_blue>());
+    machine.process_event(events::color_button_press{});
+    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.is_active_state<awesm::region_path<machine_def>::add<states::on>, states::emitting_blue>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
-    sm.process_event(events::ignored_by_emitting_blue{42});
+    machine.process_event(events::ignored_by_emitting_blue{42});
     REQUIRE(ctx.ignored_event == "ignored_by_emitting_blue{42}");
 
     ctx.clear();
-    sm.process_event(events::power_button_press{});
-    REQUIRE(sm.is_active_state<states::off>());
+    machine.process_event(events::power_button_press{});
+    REQUIRE(machine.is_active_state<states::off>());
     REQUIRE(ctx.ignored_event.empty());
 }

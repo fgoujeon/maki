@@ -83,25 +83,25 @@ namespace
         struct button_press{};
     }
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::off, events::button_press, states::on>
         ::add<states::on,  events::button_press, states::off>
     ;
 
     struct default_sm_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
 
-    using default_sm_t = awesm::sm<default_sm_def>;
+    using default_sm_t = awesm::machine<default_sm_def>;
 
     struct custom_sm_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
             ::on_exception
         ;
@@ -122,32 +122,32 @@ namespace
         context& ctx;
     };
 
-    using custom_sm_t = awesm::sm<custom_sm_def>;
+    using custom_sm_t = awesm::machine<custom_sm_def>;
 }
 
 TEST_CASE("on_exception")
 {
     {
-        auto sm = default_sm_t{};
-        auto& ctx = sm.context();
+        auto machine = default_sm_t{};
+        auto& ctx = machine.context();
 
-        sm.start();
+        machine.start();
         ctx.out.clear();
 
-        sm.process_event(events::button_press{});
-        REQUIRE(sm.is_active_state<states::on>());
+        machine.process_event(events::button_press{});
+        REQUIRE(machine.is_active_state<states::on>());
         REQUIRE(ctx.out == "off::on_exit;on::on_entry;default;test;");
     }
 
     {
-        auto sm = custom_sm_t{};
-        auto& ctx = sm.context();
+        auto machine = custom_sm_t{};
+        auto& ctx = machine.context();
 
-        sm.start();
+        machine.start();
         ctx.out.clear();
 
-        sm.process_event(events::button_press{});
-        REQUIRE(sm.is_active_state<states::on>());
+        machine.process_event(events::button_press{});
+        REQUIRE(machine.is_active_state<states::on>());
         REQUIRE(ctx.out == "off::on_exit;on::on_entry;custom;test;");
     }
 }

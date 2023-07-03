@@ -27,7 +27,7 @@ namespace
     bool guard0(){return true;}
     bool guard1(){return true;}
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<state0,     event0, state1>
         ::add<state1,     event1, state2,  awesm::noop, guard0>
         ::add<state2,     event2, state3,  action0>
@@ -35,19 +35,19 @@ namespace
         ::add<awesm::any, event3, state0>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
 
-    using sm_t = awesm::sm<sm_def>;
+    using machine_t = awesm::machine<machine_def>;
 
-    using region_path_t = awesm::region_path<sm_t>;
+    using region_path_t = awesm::region_path<machine_t>;
 
-    using digest_t = awesm::detail::transition_table_digest<sm_transition_table, sm_t>;
+    using digest_t = awesm::detail::transition_table_digest<transition_table_t, machine_t>;
 
     using state_tuple_t = awesm::detail::type_list<state0, state1, state2, state3>;
 }

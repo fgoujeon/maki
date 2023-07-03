@@ -25,36 +25,36 @@ namespace
         struct error{};
     }
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::idle,    events::start_button_press, states::running>
         ::add<states::running, events::stop_button_press,  states::idle>
         ::add<states::failed,  events::stop_button_press,  states::idle>
         ::add<awesm::any,      events::error,              states::failed>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
 
-    using sm_t = awesm::sm<sm_def>;
+    using machine_t = awesm::machine<machine_def>;
 }
 
 TEST_CASE("any state")
 {
-    auto sm = sm_t{};
+    auto machine = machine_t{};
 
-    sm.start();
+    machine.start();
 
-    sm.process_event(events::stop_button_press{});
-    sm.process_event(events::error{});
-    REQUIRE(sm.is_active_state<states::failed>());
+    machine.process_event(events::stop_button_press{});
+    machine.process_event(events::error{});
+    REQUIRE(machine.is_active_state<states::failed>());
 
-    sm.process_event(events::stop_button_press{});
-    sm.process_event(events::start_button_press{});
-    sm.process_event(events::error{});
-    REQUIRE(sm.is_active_state<states::failed>());
+    machine.process_event(events::stop_button_press{});
+    machine.process_event(events::start_button_press{});
+    machine.process_event(events::error{});
+    REQUIRE(machine.is_active_state<states::failed>());
 }

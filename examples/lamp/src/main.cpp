@@ -30,7 +30,7 @@ void turn_light_off()
 
 //The transition table
 //! [transition-table]
-using sm_transition_table_t = awesm::transition_table
+using transition_table_t = awesm::transition_table
     //    source state, event,        target state, action
     ::add<off,          button_press, on,           turn_light_on>
     ::add<on,           button_press, off,          turn_light_off>
@@ -38,35 +38,35 @@ using sm_transition_table_t = awesm::transition_table
 //! [transition-table]
 
 //The definition of the state machine
-//! [sm-def]
-struct sm_def
+//! [machine-def]
+struct machine_def
 {
     //The configuration of the state machine
-    using conf = awesm::sm_conf
-        ::transition_tables<sm_transition_table_t>
+    using conf = awesm::machine_conf
+        ::transition_tables<transition_table_t>
         ::context<context>
     ;
 };
-//! [sm-def]
+//! [machine-def]
 
 //The state machine
-//! [sm]
-using sm_t = awesm::sm<sm_def>;
-//! [sm]
+//! [machine]
+using machine_t = awesm::machine<machine_def>;
+//! [machine]
 
 int main()
 {
     //Instantiation of the state machine.
     //Initial state is `off`.
-    auto sm = sm_t{};
+    auto machine = machine_t{};
 
     //Process a button press event. This will call turn_light_on() and activate
     //the `on` state.
-    sm.process_event(button_press{});
+    machine.process_event(button_press{});
 
     //Process a button press event again. This will call turn_light_off() and
     //activate the `off` state.
-    sm.process_event(button_press{});
+    machine.process_event(button_press{});
 
     return 0;
 }

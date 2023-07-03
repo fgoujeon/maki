@@ -272,8 +272,8 @@ using awesm::any_but;
 /*
 This is the transition table. This is where we define the actions that must be
 executed depending on the active state and the event we receive.
-Basically, whenever awesm::sm::process_event() is called, AweSM iterates over
-the transitions of this table until it finds a match, i.e. when:
+Basically, whenever awesm::machine::process_event() is called, AweSM iterates
+over the transitions of this table until it finds a match, i.e. when:
 - 'source_state' is the currently active state (or is awesm::any);
 - 'event' is the type of the processed event;
 - and the 'guard' returns true (or is void).
@@ -285,7 +285,7 @@ When a match is found, AweSM:
 The initial active state of the state machine is the first state encountered in
 the transition table ('off', is our case).
 */
-using sm_transition_table = awesm::transition_table
+using transition_table_t = awesm::transition_table
     //    source_state,   event,       target_state,   action,           guard
     ::add<off,            button_push, emitting_white, turn_light_white>
     ::add<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
@@ -299,10 +299,10 @@ using sm_transition_table = awesm::transition_table
 We have to define this struct to define our state machine. Here we just specify
 the transition table, but we can put many options in it.
 */
-struct sm_def
+struct machine_def
 {
-    using conf = awesm::sm_conf
-        ::transition_tables<sm_transition_table>
+    using conf = awesm::machine_conf
+        ::transition_tables<transition_table_t>
         ::context<context>
     ;
 };
@@ -312,7 +312,7 @@ We finally have our state machine.
 Note that we can pass a configuration struct as second template argument to fine
 tune the behavior of our state machine.
 */
-using sm_t = awesm::sm<sm_def>;
+using machine_t = awesm::machine<machine_def>;
 
 int main()
 {
@@ -323,14 +323,14 @@ int main()
     Note that the states are instantiated once and for all: no construction or
     destruction happens during state transitions.
     */
-    auto sm = sm_t{};
-    auto& ctx = sm.context();
+    auto machine = machine_t{};
+    auto& ctx = machine.context();
 
 #if TESTING
     auto simulate_push = [&](const int duration_ms)
     {
         std::cout << "Button push (" << duration_ms << " ms)\n";
-        sm.process_event(button::push_event{duration_ms});
+        machine.process_event(button::push_event{duration_ms});
     };
 
     auto check = [](const bool b)
@@ -345,31 +345,31 @@ int main()
         std::cout << "OK\n";
     };
 
-    check(sm.is_active_state<states::off>());
+    check(machine.is_active_state<states::off>());
     check(ctx.led.get_color() == rgb_led::color::off);
 
     simulate_push(200);
-    check(sm.is_active_state<states::emitting_white>());
+    check(machine.is_active_state<states::emitting_white>());
     check(ctx.led.get_color() == rgb_led::color::white);
 
     simulate_push(200);
-    check(sm.is_active_state<states::emitting_red>());
+    check(machine.is_active_state<states::emitting_red>());
     check(ctx.led.get_color() == rgb_led::color::red);
 
     simulate_push(200);
-    check(sm.is_active_state<states::emitting_green>());
+    check(machine.is_active_state<states::emitting_green>());
     check(ctx.led.get_color() == rgb_led::color::green);
 
     simulate_push(200);
-    check(sm.is_active_state<states::emitting_blue>());
+    check(machine.is_active_state<states::emitting_blue>());
     check(ctx.led.get_color() == rgb_led::color::blue);
 
     simulate_push(200);
-    check(sm.is_active_state<states::emitting_white>());
+    check(machine.is_active_state<states::emitting_white>());
     check(ctx.led.get_color() == rgb_led::color::white);
 
     simulate_push(1500);
-    check(sm.is_active_state<states::off>());
+    check(machine.is_active_state<states::off>());
     check(ctx.led.get_color() == rgb_led::color::off);
 
     std::cout << "Test succeeded\n";
@@ -380,7 +380,7 @@ int main()
     {
         [&](const auto& event)
         {
-            sm.process_event(event);
+            machine.process_event(event);
         }
     };
 

@@ -13,8 +13,8 @@ namespace awesm::states
 {
 
 /**
-@brief Represents the state of any region before @ref sm::start() is called and
-after @ref sm::stop() is called.
+@brief Represents the state of any region before @ref machine::start() is called and
+after @ref machine::stop() is called.
 */
 struct stopped
 {

@@ -7,7 +7,7 @@
 #ifndef AWESM_PRETTY_NAME_HPP
 #define AWESM_PRETTY_NAME_HPP
 
-#include "subsm_conf.hpp"
+#include "submachine_conf.hpp"
 #include "state_conf.hpp"
 #include "detail/type_name.hpp"
 #include "detail/tlu.hpp"
@@ -46,7 +46,7 @@ namespace detail
 
 /**
 @ingroup PrettyPrinting
-@brief Gets the pretty name of a type, typically an @ref sm definition type or state
+@brief Gets the pretty name of a type, typically an @ref machine definition type or state
 type.
 */
 template<class T>

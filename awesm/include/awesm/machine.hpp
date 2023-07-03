@@ -4,13 +4,13 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/awesm
 
-#ifndef AWESM_SM_HPP
-#define AWESM_SM_HPP
+#ifndef AWESM_MACHINE_HPP
+#define AWESM_MACHINE_HPP
 
-#include "sm_conf.hpp"
+#include "machine_conf.hpp"
 #include "region_path.hpp"
 #include "detail/noinline.hpp"
-#include "detail/subsm.hpp"
+#include "detail/submachine.hpp"
 #include "detail/function_queue.hpp"
 #include "detail/tlu.hpp"
 #include "detail/type.hpp"
@@ -22,7 +22,7 @@ namespace awesm
 
 namespace detail
 {
-    enum class sm_operation
+    enum class machine_operation
     {
         start,
         stop,
@@ -33,21 +33,21 @@ namespace detail
 /**
 @brief The state machine implementation template.
 @tparam Def the state machine definition, a class that must at least define a
-`using conf` to an @ref sm_conf_tpl instance whose `transition_tables` and
+`using conf` to an @ref machine_conf_tpl instance whose `transition_tables` and
 `context` options are set
 
 Here is an example of valid state machine definition, where:
-- `sm_transition_table_t` is a user-provided `using` of a @ref
+- `transition_table_t` is a user-provided `using` of a @ref
 transition_table_tpl instance;
 - `context` is a user-provided class.
 
-@snippet lamp/src/main.cpp sm-def
+@snippet lamp/src/main.cpp machine-def
 
 The state machine type itself can then be defined like so:
-@snippet lamp/src/main.cpp sm
+@snippet lamp/src/main.cpp machine
 */
 template<class Def>
-class sm
+class machine
 {
 public:
     /**
@@ -65,7 +65,7 @@ public:
     */
     using context_type = detail::option_t<conf, detail::option_id::context>;
 
-    static_assert(detail::is_root_sm_conf_v<conf>, "The root state machine definition must include a using conf = sm_conf::...");
+    static_assert(detail::is_root_sm_conf_v<conf>, "The root state machine definition must include a using conf = machine_conf::...");
 
     /**
     @brief The constructor.
@@ -84,28 +84,28 @@ public:
     Finally, unless the `no_auto_start` option is defined, `start()` is called.
     */
     template<class... ContextArgs>
-    explicit sm(ContextArgs&&... ctx_args):
-        subsm_(*this, std::forward<ContextArgs>(ctx_args)...)
+    explicit machine(ContextArgs&&... ctx_args):
+        submachine_(*this, std::forward<ContextArgs>(ctx_args)...)
     {
         if constexpr(detail::option_v<conf, detail::option_id::auto_start>)
         {
             //start
-            execute_operation_now<detail::sm_operation::start>(events::start{});
+            execute_operation_now<detail::machine_operation::start>(events::start{});
         }
     }
 
-    sm(const sm&) = delete;
-    sm(sm&&) = delete;
-    sm& operator=(const sm&) = delete;
-    sm& operator=(sm&&) = delete;
-    ~sm() = default;
+    machine(const machine&) = delete;
+    machine(machine&&) = delete;
+    machine& operator=(const machine&) = delete;
+    machine& operator=(machine&&) = delete;
+    ~machine() = default;
 
     /**
     @brief Returns the definition instantiated at construction.
     */
     Def& def()
     {
-        return subsm_.def();
+        return submachine_.def();
     }
 
     /**
@@ -113,7 +113,7 @@ public:
     */
     const Def& def() const
     {
-        return subsm_.def();
+        return submachine_.def();
     }
 
     /**
@@ -121,7 +121,7 @@ public:
     */
     context_type& context()
     {
-        return subsm_.context();
+        return submachine_.context();
     }
 
     /**
@@ -129,7 +129,7 @@ public:
     */
     const context_type& context() const
     {
-        return subsm_.context();
+        return submachine_.context();
     }
 
     /**
@@ -142,7 +142,7 @@ public:
     template<class RegionPath, class State>
     State& state()
     {
-        return subsm_.template state_def<RegionPath, State>();
+        return submachine_.template state_def<RegionPath, State>();
     }
 
     /**
@@ -155,7 +155,7 @@ public:
     template<class RegionPath, class State>
     const State& state() const
     {
-        return subsm_.template state_def<RegionPath, State>();
+        return submachine_.template state_def<RegionPath, State>();
     }
 
     /**
@@ -166,7 +166,7 @@ public:
     template<class RegionPath>
     [[nodiscard]] bool is_running() const
     {
-        return subsm_.template is_running<RegionPath>();
+        return submachine_.template is_running<RegionPath>();
     }
 
     /**
@@ -176,7 +176,7 @@ public:
     */
     [[nodiscard]] bool is_running() const
     {
-        return subsm_.is_running();
+        return submachine_.is_running();
     }
 
     /**
@@ -189,7 +189,7 @@ public:
     template<class RegionPath, class State>
     [[nodiscard]] bool is_active_state() const
     {
-        return subsm_.template is_active_state_def<RegionPath, State>();
+        return submachine_.template is_active_state_def<RegionPath, State>();
     }
 
     /**
@@ -201,7 +201,7 @@ public:
     template<class State>
     [[nodiscard]] bool is_active_state() const
     {
-        return subsm_.template is_active_state_def<State>();
+        return submachine_.template is_active_state_def<State>();
     }
 
     /**
@@ -218,7 +218,7 @@ public:
     template<class Event = events::start>
     void start(const Event& event = {})
     {
-        execute_operation<detail::sm_operation::start>(event);
+        execute_operation<detail::machine_operation::start>(event);
     }
 
     /**
@@ -232,7 +232,7 @@ public:
     template<class Event = events::stop>
     void stop(const Event& event = {})
     {
-        execute_operation<detail::sm_operation::stop>(event);
+        execute_operation<detail::machine_operation::stop>(event);
     }
 
     /**
@@ -289,7 +289,7 @@ public:
     template<class Event>
     void process_event(const Event& event)
     {
-        execute_operation<detail::sm_operation::process_event>(event);
+        execute_operation<detail::machine_operation::process_event>(event);
     }
 
     /**
@@ -311,7 +311,7 @@ public:
     template<class Event>
     void process_event_now(const Event& event)
     {
-        execute_operation_now<detail::sm_operation::process_event>(event);
+        execute_operation_now<detail::machine_operation::process_event>(event);
     }
 
     /**
@@ -330,7 +330,7 @@ public:
         static_assert(detail::option_v<conf, detail::option_id::run_to_completion>);
         try
         {
-            enqueue_event_impl<detail::sm_operation::process_event>(event);
+            enqueue_event_impl<detail::machine_operation::process_event>(event);
         }
         catch(...)
         {
@@ -365,7 +365,7 @@ private:
     class executing_operation_guard
     {
     public:
-        executing_operation_guard(sm& self):
+        executing_operation_guard(machine& self):
             self_(self)
         {
             self_.executing_operation_ = true;
@@ -382,7 +382,7 @@ private:
         }
 
     private:
-        sm& self_;
+        machine& self_;
     };
 
     struct real_operation_queue_holder
@@ -390,7 +390,7 @@ private:
         template<bool = true> //Dummy template for lazy evaluation
         using type = detail::function_queue
         <
-            sm&,
+            machine&,
             detail::option_v<conf, detail::option_id::small_event_max_size>,
             detail::option_v<conf, detail::option_id::small_event_max_align>
         >;
@@ -407,7 +407,7 @@ private:
         empty_holder
     >::template type<>;
 
-    template<detail::sm_operation Operation, class Event>
+    template<detail::machine_operation Operation, class Event>
     void execute_operation(const Event& event)
     {
         try
@@ -435,7 +435,7 @@ private:
         }
     }
 
-    template<detail::sm_operation Operation, class Event>
+    template<detail::machine_operation Operation, class Event>
     void execute_operation_now(const Event& event)
     {
         if constexpr(detail::option_v<conf, detail::option_id::run_to_completion>)
@@ -453,17 +453,17 @@ private:
         }
     }
 
-    template<detail::sm_operation Operation, class Event>
+    template<detail::machine_operation Operation, class Event>
     void enqueue_event_impl(const Event& event)
     {
         operation_queue_.template push<any_event_visitor<Operation>>(event);
     }
 
-    template<detail::sm_operation Operation>
+    template<detail::machine_operation Operation>
     struct any_event_visitor
     {
         template<class Event>
-        static void call(const Event& event, sm& self)
+        static void call(const Event& event, machine& self)
         {
             self.execute_one_operation<Operation>(event);
         }
@@ -481,23 +481,23 @@ private:
         }
     }
 
-    template<detail::sm_operation Operation, class Event>
+    template<detail::machine_operation Operation, class Event>
     void execute_one_operation(const Event& event)
     {
-        if constexpr(Operation == detail::sm_operation::start)
+        if constexpr(Operation == detail::machine_operation::start)
         {
-            subsm_.on_entry(event);
+            submachine_.on_entry(event);
         }
-        else if constexpr(Operation == detail::sm_operation::stop)
+        else if constexpr(Operation == detail::machine_operation::stop)
         {
-            subsm_.on_exit(event);
+            submachine_.on_exit(event);
         }
         else
         {
             if constexpr(detail::option_v<conf, detail::option_id::on_unprocessed>)
             {
                 auto processed = false;
-                subsm_.on_event(event, processed);
+                submachine_.on_event(event, processed);
                 if(!processed)
                 {
                     def().on_unprocessed(event);
@@ -505,12 +505,12 @@ private:
             }
             else
             {
-                subsm_.on_event(event);
+                submachine_.on_event(event);
             }
         }
     }
 
-    detail::subsm<Def, void> subsm_;
+    detail::submachine<Def, void> submachine_;
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;
 };

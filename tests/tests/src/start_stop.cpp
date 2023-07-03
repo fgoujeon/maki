@@ -63,37 +63,37 @@ namespace
         struct button_press{};
     }
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::s0, awesm::null,          states::s1>
         ::add<states::s1, events::button_press, states::s0>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
             ::no_auto_start
         ;
     };
 
-    using sm_t = awesm::sm<sm_def>;
+    using machine_t = awesm::machine<machine_def>;
 }
 
 TEST_CASE("start_stop")
 {
-    auto sm = sm_t{};
-    auto& ctx = sm.context();
+    auto machine = machine_t{};
+    auto& ctx = machine.context();
 
-    REQUIRE(!sm.is_running());
+    REQUIRE(!machine.is_running());
     REQUIRE(ctx.out == "");
 
-    sm.start();
-    REQUIRE(sm.is_active_state<states::s1>());
+    machine.start();
+    REQUIRE(machine.is_active_state<states::s1>());
     REQUIRE(ctx.out == "s0::on_entry;s0::on_exit;s1::on_entry;");
 
     ctx.out.clear();
-    sm.stop();
-    REQUIRE(!sm.is_running());
+    machine.stop();
+    REQUIRE(!machine.is_running());
     REQUIRE(ctx.out == "s1::on_exit;");
 }

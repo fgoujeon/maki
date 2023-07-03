@@ -92,7 +92,7 @@ bool is_speed_high(context& /*ctx*/, const memory_read& event)
 
 //Transition table
 //! [transition-table]
-using sm_transition_table_t = awesm::transition_table
+using transition_table_t = awesm::transition_table
     //    source state,   event,              target state,  action,      guard
     ::add<reading_memory, memory_read,        spinning_low,  awesm::noop, is_speed_low>
     ::add<reading_memory, memory_read,        spinning_med,  awesm::noop, is_speed_med>
@@ -105,43 +105,43 @@ using sm_transition_table_t = awesm::transition_table
 //! [transition-table]
 
 //State machine definition
-struct sm_def
+struct machine_def
 {
     //The configuration of the state machine
-    using conf = awesm::sm_conf
-        ::transition_tables<sm_transition_table_t>
+    using conf = awesm::machine_conf
+        ::transition_tables<transition_table_t>
         ::context<context>
     ;
 };
 
 //State machine
-using sm_t = awesm::sm<sm_def>;
+using machine_t = awesm::machine<machine_def>;
 
 int main()
 {
-    auto sm = sm_t{};
+    auto machine = machine_t{};
 
     //Simulate a memory read that returns a "med" speed.
     //This eventually sets the fan speed to "med".
-    sm.process_event(memory_read{speed::med});
+    machine.process_event(memory_read{speed::med});
 
     //Simulate button presses
     {
         //Set fan speed to "high"
-        sm.process_event(plus_button_press{});
+        machine.process_event(plus_button_press{});
 
         //Doesn't do anything, as the highest possible speed is already reached
-        sm.process_event(plus_button_press{});
-        sm.process_event(plus_button_press{});
+        machine.process_event(plus_button_press{});
+        machine.process_event(plus_button_press{});
 
         //Set fan speed to "med"
-        sm.process_event(minus_button_press{});
+        machine.process_event(minus_button_press{});
 
         //Set fan speed to "low"
-        sm.process_event(minus_button_press{});
+        machine.process_event(minus_button_press{});
 
         //Doesn't do anything, as the lowest possible speed is already reached
-        sm.process_event(minus_button_press{});
+        machine.process_event(minus_button_press{});
     }
 
     return 0;

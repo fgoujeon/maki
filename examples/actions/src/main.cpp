@@ -85,7 +85,7 @@ void some_other_action(context& /*ctx*/, const some_other_event& event)
 }
 
 //Transition table
-using sm_transition_table_t = awesm::transition_table
+using transition_table_t = awesm::transition_table
     //    source state, event,             target state, action
     ::add<state0,       some_event,        state1,       some_action /*state transition action*/>
     ::add<state0,       some_other_event,  awesm::null,  some_other_action /*internal transition action*/>
@@ -96,39 +96,39 @@ using sm_transition_table_t = awesm::transition_table
 //! [short-in-transition]
 
 //State machine definition
-struct sm_def
+struct machine_def
 {
     //The configuration of the state machine
-    using conf = awesm::sm_conf
-        ::transition_tables<sm_transition_table_t>
+    using conf = awesm::machine_conf
+        ::transition_tables<transition_table_t>
         ::context<context>
     ;
 };
 
 //State machine
-using sm_t = awesm::sm<sm_def>;
+using machine_t = awesm::machine<machine_def>;
 
 int main()
 {
-    auto sm = sm_t{};
+    auto machine = machine_t{};
 
     //Calls some_other_action()
-    sm.process_event(some_other_event{42});
+    machine.process_event(some_other_event{42});
 
     //Exits state0, calls some_action() and enters state1
-    sm.process_event(some_event{});
+    machine.process_event(some_event{});
 
     //No effect, because no action is associated to state1 and some_event
-    sm.process_event(some_event{});
+    machine.process_event(some_event{});
 
     //Exits state1 and enters state2 (which calls state2::on_entry())
-    sm.process_event(yet_another_event{});
+    machine.process_event(yet_another_event{});
 
     //Calls state2::on_event(some_other_event{123})
-    sm.process_event(some_other_event{1337});
+    machine.process_event(some_other_event{1337});
 
     //Exits state2 (which calls state2::on_exit()) and enter state0
-    sm.process_event(yet_another_event{});
+    machine.process_event(yet_another_event{});
 
     return 0;
 }

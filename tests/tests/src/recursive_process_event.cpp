@@ -9,8 +9,8 @@
 
 namespace
 {
-    struct sm_def;
-    using sm_t = awesm::sm<sm_def>;
+    struct machine_def;
+    using machine_t = awesm::machine<machine_def>;
 
     struct context
     {
@@ -91,7 +91,7 @@ namespace
     {
         constexpr auto s0_to_s1 = []
         (
-            awesm::sm_ref_e<events::s1_to_s2_request> mach,
+            awesm::machine_ref_e<events::s1_to_s2_request> mach,
             context& /*ctx*/,
             const auto& /*event*/
         )
@@ -101,7 +101,7 @@ namespace
 
         constexpr auto s1_to_s2 = []
         (
-            awesm::sm_ref_e<events::s2_to_s0_request> mach,
+            awesm::machine_ref_e<events::s2_to_s0_request> mach,
             context& /*ctx*/,
             const auto& /*event*/
         )
@@ -110,16 +110,16 @@ namespace
         };
     }
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::s0, events::s0_to_s1_request, states::s1, actions::s0_to_s1>
         ::add<states::s1, events::s1_to_s2_request, states::s2, actions::s1_to_s2>
         ::add<states::s2, events::s2_to_s0_request, states::s0>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
@@ -127,15 +127,15 @@ namespace
 
 TEST_CASE("recursive process_event")
 {
-    auto sm = sm_t{};
-    auto& ctx = sm.context();
+    auto machine = machine_t{};
+    auto& ctx = machine.context();
 
-    sm.start();
+    machine.start();
     REQUIRE(ctx.output == "s0::on_entry;");
 
     //Indirectly process s1_to_s2_request and s2_to_s0_request
     ctx.output.clear();
-    sm.process_event(events::s0_to_s1_request{});
+    machine.process_event(events::s0_to_s1_request{});
     REQUIRE
     (
         ctx.output ==

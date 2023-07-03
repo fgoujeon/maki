@@ -59,21 +59,21 @@ namespace
     };
 
     template<class Event>
-    inline constexpr auto process_event = [](auto& sm, context& /*ctx*/, const auto& /*event*/)
+    inline constexpr auto process_event = [](auto& machine, context& /*ctx*/, const auto& /*event*/)
     {
-        sm.process_event(Event{});
+        machine.process_event(Event{});
     };
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<state, event_processing_request<small_event>, awesm::null, process_event<small_event>>
         ::add<state, event_processing_request<big_event>,   awesm::null, process_event<big_event>>
     ;
 
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
-    struct sm_def
+    struct machine_def
     {
-        using conf = typename awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = typename awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
             ::template small_event_max_size<SmallEventMaxSize>
             ::template small_event_max_align<SmallEventMaxAlign>
@@ -81,7 +81,7 @@ namespace
     };
 
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
-    using sm_t = awesm::sm<sm_def<SmallEventMaxSize, SmallEventMaxAlign>>;
+    using machine_t = awesm::machine<machine_def<SmallEventMaxSize, SmallEventMaxAlign>>;
 
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
     void test
@@ -91,14 +91,14 @@ namespace
     )
     {
         auto ctx = context{};
-        auto sm = sm_t<SmallEventMaxSize, SmallEventMaxAlign>{ctx};
+        auto machine = machine_t<SmallEventMaxSize, SmallEventMaxAlign>{ctx};
 
-        sm.start();
+        machine.start();
 
-        sm.process_event(event_processing_request<small_event>{});
+        machine.process_event(event_processing_request<small_event>{});
         REQUIRE(called_new_operator_type == expected_new_operator_type_for_small_event);
 
-        sm.process_event(event_processing_request<big_event>{});
+        machine.process_event(event_processing_request<big_event>{});
         REQUIRE(called_new_operator_type == expected_new_operator_type_for_big_event);
     }
 }

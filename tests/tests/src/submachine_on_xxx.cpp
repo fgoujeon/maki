@@ -10,8 +10,8 @@
 
 namespace
 {
-    struct sm_def;
-    using sm_t = awesm::sm<sm_def>;
+    struct machine_def;
+    using machine_t = awesm::machine<machine_def>;
 
     struct context
     {
@@ -67,7 +67,7 @@ namespace
 
         struct on
         {
-            using conf = awesm::subsm_conf
+            using conf = awesm::submachine_conf
                 ::transition_tables<on_transition_table>
                 ::on_entry_any
                 ::on_event<events::internal>
@@ -93,35 +93,35 @@ namespace
         };
     }
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::off, events::button_press, states::on>
         ::add<states::on,  events::button_press, states::off>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
 }
 
-TEST_CASE("subsm_on_xxx")
+TEST_CASE("submachine_on_xxx")
 {
-    auto sm = sm_t{};
-    auto& ctx = sm.context();
+    auto machine = machine_t{};
+    auto& ctx = machine.context();
 
-    sm.start();
+    machine.start();
 
-    sm.process_event(events::button_press{"a"});
+    machine.process_event(events::button_press{"a"});
     REQUIRE(ctx.out == "a1a2");
 
     ctx.out.clear();
-    sm.process_event(events::internal{"b"});
+    machine.process_event(events::internal{"b"});
     REQUIRE(ctx.out == "b1b2");
 
     ctx.out.clear();
-    sm.process_event(events::button_press{"c"});
+    machine.process_event(events::button_press{"c"});
     REQUIRE(ctx.out == "c1c2");
 }

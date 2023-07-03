@@ -40,32 +40,32 @@ namespace
         {};
     }
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
+        using conf = awesm::machine_conf
             ::transition_tables<decltype(make_sm_transition_table())>
             ::context<context>
         ;
     };
 
-    using sm_t = awesm::sm<sm_def>;
+    using machine_t = awesm::machine<machine_def>;
 }
 
 TEST_CASE("event_pattern")
 {
-    auto sm = sm_t{};
+    auto machine = machine_t{};
 
-    REQUIRE(sm.is_active_state<states::off>());
+    REQUIRE(machine.is_active_state<states::off>());
 
-    sm.process_event(events::power_button_press{});
-    REQUIRE(sm.is_active_state<states::on>());
+    machine.process_event(events::power_button_press{});
+    REQUIRE(machine.is_active_state<states::on>());
 
-    sm.process_event(events::power_button_press{});
-    REQUIRE(sm.is_active_state<states::off>());
+    machine.process_event(events::power_button_press{});
+    REQUIRE(machine.is_active_state<states::off>());
 
-    sm.process_event(events::alert_button_press{});
-    REQUIRE(sm.is_active_state<states::on>());
+    machine.process_event(events::alert_button_press{});
+    REQUIRE(machine.is_active_state<states::on>());
 
-    sm.process_event(events::alert_button_press{});
-    REQUIRE(sm.is_active_state<states::on>());
+    machine.process_event(events::alert_button_press{});
+    REQUIRE(machine.is_active_state<states::on>());
 }

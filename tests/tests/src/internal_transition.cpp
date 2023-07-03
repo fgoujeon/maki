@@ -48,7 +48,7 @@ namespace
         };
     }
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::state0, events::next_state, states::state1>
         ::add<states::state1, events::next_state, states::state2>
         ::add<states::state2, events::next_state, states::state3>
@@ -61,10 +61,10 @@ namespace
         ::add<states::state9, events::next_state, states::benchmarking>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
             ::no_run_to_completion
             ::on_exception
@@ -75,22 +75,22 @@ namespace
         }
     };
 
-    using sm_t = awesm::sm<sm_def>;
+    using machine_t = awesm::machine<machine_def>;
 }
 
 TEST_CASE("internal transition")
 {
-    auto sm = sm_t{};
-    auto& ctx = sm.context();
+    auto machine = machine_t{};
+    auto& ctx = machine.context();
 
-    sm.start();
+    machine.start();
 
     for(auto i = 0; i < 10; ++i)
     {
-        sm.process_event(events::next_state{});
+        machine.process_event(events::next_state{});
     }
-    REQUIRE(sm.is_active_state<states::benchmarking>());
+    REQUIRE(machine.is_active_state<states::benchmarking>());
 
-    sm.process_event(events::internal_transition{});
+    machine.process_event(events::internal_transition{});
     REQUIRE(ctx.side_effect == 1);
 }

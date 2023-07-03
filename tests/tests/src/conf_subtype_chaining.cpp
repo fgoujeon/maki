@@ -18,13 +18,13 @@ namespace
     X(on_entry_any) \
     X(on_exit_any)
 
-#define SM_OPTIONS \
+#define SUBMACHINE_OPTIONS \
     STATE_OPTIONS \
     X(context<context>) \
     X(transition_tables<>)
 
-#define ROOT_SM_OPTIONS \
-    SM_OPTIONS \
+#define MACHINE_OPTIONS \
+    SUBMACHINE_OPTIONS \
     X(after_state_transition) \
     X(no_auto_start) \
     X(before_state_transition) \
@@ -50,43 +50,43 @@ namespace
 #undef X
 
 #define X(option) awesm::detail::options::option,
-    using subsm_conf_tpl_1_t = awesm::subsm_conf_tpl
+    using submachine_conf_tpl_1_t = awesm::submachine_conf_tpl
     <
-        SM_OPTIONS
+        SUBMACHINE_OPTIONS
         awesm::detail::options::pretty_name
     >;
 #undef X
 
 #define X(option) ::option
-    using subsm_conf_tpl_2_t = awesm::subsm_conf
-        SM_OPTIONS
+    using submachine_conf_tpl_2_t = awesm::submachine_conf
+        SUBMACHINE_OPTIONS
         ::pretty_name
     ;
 #undef X
 
 #define X(option) awesm::detail::options::option,
-    using sm_conf_tpl_1_t = awesm::sm_conf_tpl
+    using machine_conf_tpl_1_t = awesm::machine_conf_tpl
     <
-        ROOT_SM_OPTIONS
+        MACHINE_OPTIONS
         awesm::detail::options::pretty_name
     >;
 #undef X
 
 #define X(option) ::option
-    using sm_conf_tpl_2_t = awesm::sm_conf
-        ROOT_SM_OPTIONS
+    using machine_conf_tpl_2_t = awesm::machine_conf
+        MACHINE_OPTIONS
         ::pretty_name
     ;
 #undef X
 
-#undef ROOT_SM_OPTIONS
-#undef SM_OPTIONS
+#undef MACHINE_OPTIONS
+#undef SUBMACHINE_OPTIONS
 #undef STATE_OPTIONS
 }
 
 TEST_CASE("conf_subtype_chaining")
 {
     REQUIRE(std::is_same_v<state_conf_tpl_1_t, state_conf_tpl_2_t>);
-    REQUIRE(std::is_same_v<subsm_conf_tpl_1_t, subsm_conf_tpl_2_t>);
-    REQUIRE(std::is_same_v<sm_conf_tpl_1_t, sm_conf_tpl_2_t>);
+    REQUIRE(std::is_same_v<submachine_conf_tpl_1_t, submachine_conf_tpl_2_t>);
+    REQUIRE(std::is_same_v<machine_conf_tpl_1_t, machine_conf_tpl_2_t>);
 }

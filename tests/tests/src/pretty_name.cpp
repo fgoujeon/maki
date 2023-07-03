@@ -26,20 +26,20 @@ namespace pretty_name_ns
         }
     };
 
-    using subsm_transition_table = awesm::transition_table
+    using submachine_transition_table = awesm::transition_table
         ::add<state, awesm::null, awesm::null>
     ;
 
-    struct subsm
+    struct submachine
     {
-        using conf = awesm::subsm_conf
-            ::transition_tables<subsm_transition_table>
+        using conf = awesm::submachine_conf
+            ::transition_tables<submachine_transition_table>
             ::pretty_name
         ;
 
         static const char* pretty_name()
         {
-            return "my_subsm";
+            return "my_submachine";
         }
     };
 
@@ -47,14 +47,14 @@ namespace pretty_name_ns
     {
     };
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<state, awesm::null, awesm::null>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::subsm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::submachine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
             ::pretty_name
         ;
@@ -65,7 +65,7 @@ namespace pretty_name_ns
         }
     };
 
-    using sm_t = awesm::sm<sm_def>;
+    using machine_t = awesm::machine<machine_def>;
 
     struct region_path{};
 }
@@ -92,7 +92,7 @@ TEST_CASE("pretty_name")
 
     REQUIRE
     (
-        awesm::pretty_name<pretty_name_ns::subsm>() ==
-        std::string_view{"my_subsm"}
+        awesm::pretty_name<pretty_name_ns::submachine>() ==
+        std::string_view{"my_submachine"}
     );
 }

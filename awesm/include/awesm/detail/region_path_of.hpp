@@ -19,10 +19,10 @@ using region_path_of_t = typename region_path_of<T>::type;
 
 //Must be specialized by each type
 template<class T>
-struct root_sm_of;
+struct machine_of;
 
 template<class T>
-using root_sm_of_t = typename root_sm_of<T>::type;
+using root_sm_of_t = typename machine_of<T>::type;
 
 } //namespace
 

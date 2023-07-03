@@ -49,9 +49,9 @@ namespace
         };
     }
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
+        using conf = awesm::machine_conf
             ::transition_tables
             <
                 awesm::transition_table
@@ -94,29 +94,29 @@ namespace
         context& ctx;
     };
 
-    using sm_t = awesm::sm<sm_def>;
+    using machine_t = awesm::machine<machine_def>;
 }
 
 TEST_CASE("orthogonal_regions")
 {
-    auto sm = sm_t{};
-    auto& ctx = sm.context();
+    auto machine = machine_t{};
+    auto& ctx = machine.context();
 
-    using sm_region_0_path = awesm::region_path<sm_def, 0>;
-    using sm_region_1_path = awesm::region_path<sm_def, 1>;
+    using machine_region_0_path = awesm::region_path<machine_def, 0>;
+    using machine_region_1_path = awesm::region_path<machine_def, 1>;
 
-    sm.start();
-    REQUIRE(sm.is_active_state<sm_region_0_path, states::off0>());
-    REQUIRE(sm.is_active_state<sm_region_1_path, states::off1>());
+    machine.start();
+    REQUIRE(machine.is_active_state<machine_region_0_path, states::off0>());
+    REQUIRE(machine.is_active_state<machine_region_1_path, states::off1>());
     REQUIRE(ctx.out == "before_state_transition[0];after_state_transition[0];before_state_transition[1];after_state_transition[1];");
 
     ctx.out.clear();
-    sm.process_event(events::button_press{});
-    REQUIRE(sm.is_active_state<sm_region_0_path, states::on0>());
-    REQUIRE(sm.is_active_state<sm_region_1_path, states::on1>());
+    machine.process_event(events::button_press{});
+    REQUIRE(machine.is_active_state<machine_region_0_path, states::on0>());
+    REQUIRE(machine.is_active_state<machine_region_1_path, states::on1>());
     REQUIRE(ctx.out == "before_state_transition[0];after_state_transition[0];before_state_transition[1];after_state_transition[1];");
 
     ctx.out.clear();
-    sm.process_event(events::exception_request{});
+    machine.process_event(events::exception_request{});
     REQUIRE(ctx.out == "on_exception:exception;");
 }

@@ -61,7 +61,7 @@ namespace nullary_member_functions_ns
         };
     }
 
-    constexpr auto action = [](auto& /*sm*/, context& ctx, const auto& event)
+    constexpr auto action = [](auto& /*machine*/, context& ctx, const auto& event)
     {
         using event_type = std::decay_t<decltype(event)>;
         if constexpr(std::is_same_v<event_type, events::e1>)
@@ -74,7 +74,7 @@ namespace nullary_member_functions_ns
         }
     };
 
-    constexpr auto guard = [](auto& /*sm*/, context& ctx, const auto& event)
+    constexpr auto guard = [](auto& /*machine*/, context& ctx, const auto& event)
     {
         using event_type = std::decay_t<decltype(event)>;
         if constexpr(std::is_same_v<event_type, events::e1>)
@@ -88,46 +88,46 @@ namespace nullary_member_functions_ns
         return true;
     };
 
-    using sm_transition_table = awesm::transition_table
+    using transition_table_t = awesm::transition_table
         ::add<states::off, events::e1, states::on,  action, guard>
         ::add<states::off, events::e2, states::on,  action, guard>
         ::add<states::on,  events::e1, states::off, action, guard>
         ::add<states::on,  events::e2, states::off, action, guard>
     ;
 
-    struct sm_def
+    struct machine_def
     {
-        using conf = awesm::sm_conf
-            ::transition_tables<sm_transition_table>
+        using conf = awesm::machine_conf
+            ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
 
-    using sm_t = awesm::sm<sm_def>;
+    using machine_t = awesm::machine<machine_def>;
 }
 
 TEST_CASE("nullary_member_functions")
 {
     using namespace nullary_member_functions_ns;
 
-    auto sm = sm_t{};
-    auto& ctx = sm.context();
+    auto machine = machine_t{};
+    auto& ctx = machine.context();
 
-    sm.start();
+    machine.start();
 
     ctx.out.clear();
-    sm.process_event(events::e1{});
+    machine.process_event(events::e1{});
     REQUIRE(ctx.out == "check(e1);execute(e1);on_entry(e1);");
 
     ctx.out.clear();
-    sm.process_event(events::e1{});
+    machine.process_event(events::e1{});
     REQUIRE(ctx.out == "check(e1);on_exit(e1);execute(e1);");
 
     ctx.out.clear();
-    sm.process_event(events::e2{});
+    machine.process_event(events::e2{});
     REQUIRE(ctx.out == "check();execute();on_entry();");
 
     ctx.out.clear();
-    sm.process_event(events::e2{});
+    machine.process_event(events::e2{});
     REQUIRE(ctx.out == "check();on_exit();execute();");
 }

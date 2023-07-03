@@ -9,7 +9,7 @@
 
 #include "tlu.hpp"
 #include "tuple.hpp"
-#include "sm_object_holder.hpp"
+#include "machine_object_holder.hpp"
 #include "state_traits.hpp"
 #include "type_list.hpp"
 #include "../type_patterns.hpp"
@@ -86,7 +86,7 @@ namespace transition_table_digest_detail
 
     /*
     First step with tlu::type_list instead of
-    awesm::detail::sm_object_holder_tuple, so that we don't instantiate
+    awesm::detail::machine_object_holder_tuple, so that we don't instantiate
     intermediate tuples.
     */
     template<class TransitionTable>

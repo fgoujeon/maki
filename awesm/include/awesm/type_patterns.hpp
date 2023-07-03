@@ -65,12 +65,12 @@ struct none{};
 //matches_pattern
 namespace detail
 {
-    //Filter is a regular type
-    template<class T, class Filter>
+    //Pattern is a regular type
+    template<class T, class Pattern>
     struct matches_pattern
     {
         static constexpr bool regular = true;
-        static constexpr bool value = std::is_same_v<T, Filter>;
+        static constexpr bool value = std::is_same_v<T, Pattern>;
     };
 
     template<class T>
@@ -109,7 +109,7 @@ namespace detail
         //MSVC wants a function for the fold expression
         static constexpr bool make_value()
         {
-            return !(std::is_same_v<T, Ts> || ...);
+            return (!std::is_same_v<T, Ts> && ...);
         }
 
         static constexpr bool value = make_value();
@@ -121,8 +121,8 @@ namespace detail
         static constexpr bool value = false;
     };
 
-    template<class T, class Filter>
-    constexpr auto matches_pattern_v = matches_pattern<T, Filter>::value;
+    template<class T, class Pattern>
+    constexpr auto matches_pattern_v = matches_pattern<T, Pattern>::value;
 }
 
 namespace detail
@@ -146,25 +146,25 @@ namespace detail
     template<class T>
     constexpr auto is_type_pattern_v = is_type_pattern<T>::value;
 
-    template<class T, class FilterList>
+    template<class T, class PatternList>
     class matches_any_pattern;
 
-    template<class T, template<class...> class FilterList, class... Filters>
-    class matches_any_pattern<T, FilterList<Filters...>>
+    template<class T, template<class...> class PatternList, class... Patterns>
+    class matches_any_pattern<T, PatternList<Patterns...>>
     {
     private:
         //MSVC wants a function for the fold expression
         static constexpr bool make_value()
         {
-            return (matches_pattern<T, Filters>::value || ...);
+            return (matches_pattern<T, Patterns>::value || ...);
         }
 
     public:
         static constexpr auto value = make_value();
     };
 
-    template<class T, class FilterList>
-    constexpr auto matches_any_pattern_v = matches_any_pattern<T, FilterList>::value;
+    template<class T, class PatternList>
+    constexpr auto matches_any_pattern_v = matches_any_pattern<T, PatternList>::value;
 }
 
 } //namespace

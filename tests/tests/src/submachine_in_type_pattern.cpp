@@ -59,7 +59,7 @@ namespace
     using machine_t = awesm::machine<machine_def>;
 }
 
-TEST_CASE("submachine_in_type_filter")
+TEST_CASE("submachine_in_type_pattern")
 {
     auto machine = machine_t{};
 

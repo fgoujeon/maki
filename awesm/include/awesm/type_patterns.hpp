@@ -73,6 +73,9 @@ namespace detail
         static constexpr bool value = std::is_same_v<T, Pattern>;
     };
 
+    template<class T, class Pattern>
+    constexpr auto matches_pattern_v = matches_pattern<T, Pattern>::value;
+
     template<class T>
     struct matches_pattern<T, any>
     {
@@ -97,7 +100,7 @@ namespace detail
         //MSVC wants a function for the fold expression
         static constexpr bool make_value()
         {
-            return (std::is_same_v<T, Ts> || ...);
+            return (matches_pattern_v<T, Ts> || ...);
         }
 
         static constexpr bool value = make_value();
@@ -109,7 +112,7 @@ namespace detail
         //MSVC wants a function for the fold expression
         static constexpr bool make_value()
         {
-            return (!std::is_same_v<T, Ts> && ...);
+            return (!matches_pattern_v<T, Ts> && ...);
         }
 
         static constexpr bool value = make_value();
@@ -120,9 +123,6 @@ namespace detail
     {
         static constexpr bool value = false;
     };
-
-    template<class T, class Pattern>
-    constexpr auto matches_pattern_v = matches_pattern<T, Pattern>::value;
 }
 
 namespace detail

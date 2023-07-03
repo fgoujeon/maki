@@ -114,6 +114,15 @@ constexpr auto requires_on_event_v = std::conditional_t
     matches_on_event_pattern
 >::template value<State, Event>;
 
+
+//needs_unique_instance
+
+template<class State>
+struct needs_unique_instance
+{
+    static constexpr auto value = !(std::is_empty_v<State> && std::is_trivially_default_constructible_v<State>);
+};
+
 } //namespace
 
 #endif

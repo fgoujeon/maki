@@ -14,7 +14,6 @@
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
 #include "sm_object_holder_tuple.hpp"
-#include "not.hpp"
 #include "tlu.hpp"
 #include "../subsm_conf.hpp"
 #include "../states.hpp"
@@ -267,7 +266,11 @@ private:
 
     using state_type_list = typename transition_table_digest_type::state_type_list;
 
-    using non_empty_state_type_list = tlu::filter_t<state_type_list, not_<std::is_empty>::type>;
+    using non_empty_state_type_list = tlu::filter_t
+    <
+        state_type_list,
+        state_traits::needs_unique_instance
+    >;
     using state_holder_tuple_type = tlu::apply_t<non_empty_state_type_list, sm_object_holder_tuple_t>;
 
     using initial_state_def_type = detail::tlu::front_t<state_def_type_list>;
@@ -588,15 +591,15 @@ private:
     template<class State, class Self>
     static auto& static_state(Self& reg)
     {
-        if constexpr(std::is_empty_v<State>)
+        if constexpr(state_traits::needs_unique_instance<State>::value)
+        {
+            return get<sm_object_holder<State>>(reg.state_holders_).get();
+        }
+        else
         {
             //Optimize empty state case by returning a statically allocated
             //instance.
             return static_instance<State>;
-        }
-        else
-        {
-            return get<sm_object_holder<State>>(reg.state_holders_).get();
         }
     }
 

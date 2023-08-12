@@ -2,10 +2,10 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
 //! [all]
-#include <awesm.hpp>
+#include <maki.hpp>
 #include <functional>
 #include <iostream>
 
@@ -30,10 +30,10 @@ struct plus_button_press{};
 //! [events-and-datatypes]
 
 //States
-struct reading_memory { using conf = awesm::state_conf; };
+struct reading_memory { using conf = maki::state_conf; };
 struct spinning_low
 {
-    using conf = awesm::state_conf
+    using conf = maki::state_conf
         ::on_entry_any
     ;
 
@@ -47,7 +47,7 @@ struct spinning_low
 };
 struct spinning_med
 {
-    using conf = awesm::state_conf
+    using conf = maki::state_conf
         ::on_entry_any
     ;
 
@@ -61,7 +61,7 @@ struct spinning_med
 };
 struct spinning_high
 {
-    using conf = awesm::state_conf
+    using conf = maki::state_conf
         ::on_entry_any
     ;
 
@@ -92,15 +92,15 @@ bool is_speed_high(context& /*ctx*/, const memory_read& event)
 
 //Transition table
 //! [transition-table]
-using transition_table_t = awesm::transition_table
+using transition_table_t = maki::transition_table
     //    source state,   event,              target state,  action,      guard
-    ::add<reading_memory, memory_read,        spinning_low,  awesm::noop, is_speed_low>
-    ::add<reading_memory, memory_read,        spinning_med,  awesm::noop, is_speed_med>
-    ::add<reading_memory, memory_read,        spinning_high, awesm::noop, is_speed_high>
-    ::add<spinning_low,   plus_button_press,  spinning_med,  awesm::noop>
-    ::add<spinning_med,   plus_button_press,  spinning_high, awesm::noop>
-    ::add<spinning_med,   minus_button_press, spinning_low,  awesm::noop>
-    ::add<spinning_high,  minus_button_press, spinning_med,  awesm::noop>
+    ::add<reading_memory, memory_read,        spinning_low,  maki::noop, is_speed_low>
+    ::add<reading_memory, memory_read,        spinning_med,  maki::noop, is_speed_med>
+    ::add<reading_memory, memory_read,        spinning_high, maki::noop, is_speed_high>
+    ::add<spinning_low,   plus_button_press,  spinning_med,  maki::noop>
+    ::add<spinning_med,   plus_button_press,  spinning_high, maki::noop>
+    ::add<spinning_med,   minus_button_press, spinning_low,  maki::noop>
+    ::add<spinning_high,  minus_button_press, spinning_med,  maki::noop>
 ;
 //! [transition-table]
 
@@ -108,14 +108,14 @@ using transition_table_t = awesm::transition_table
 struct machine_def
 {
     //The configuration of the state machine
-    using conf = awesm::machine_conf
+    using conf = maki::machine_conf
         ::transition_tables<transition_table_t>
         ::context<context>
     ;
 };
 
 //State machine
-using machine_t = awesm::machine<machine_def>;
+using machine_t = maki::machine<machine_def>;
 
 int main()
 {

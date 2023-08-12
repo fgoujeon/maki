@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
-#include <awesm.hpp>
+#include <maki.hpp>
 #include "common.hpp"
 #include <string>
 
@@ -20,7 +20,7 @@ namespace
     {
         struct off
         {
-            using conf = awesm::state_conf
+            using conf = maki::state_conf
                 ::on_entry_any
                 ::on_exit_any
             ;
@@ -40,9 +40,9 @@ namespace
 
         struct on
         {
-            using conf = awesm::state_conf
+            using conf = maki::state_conf
                 ::on_entry_any
-                ::on_event<awesm::events::exception>
+                ::on_event<maki::events::exception>
                 ::on_exit_any
             ;
 
@@ -56,7 +56,7 @@ namespace
                 }
             }
 
-            void on_event(const awesm::events::exception& event)
+            void on_event(const maki::events::exception& event)
             {
                 try
                 {
@@ -83,24 +83,24 @@ namespace
         struct button_press{};
     }
 
-    using transition_table_t = awesm::transition_table
+    using transition_table_t = maki::transition_table
         ::add<states::off, events::button_press, states::on>
         ::add<states::on,  events::button_press, states::off>
     ;
 
     struct default_sm_def
     {
-        using conf = awesm::machine_conf
+        using conf = maki::machine_conf
             ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
 
-    using default_sm_t = awesm::machine<default_sm_def>;
+    using default_sm_t = maki::machine<default_sm_def>;
 
     struct custom_sm_def
     {
-        using conf = awesm::machine_conf
+        using conf = maki::machine_conf
             ::transition_tables<transition_table_t>
             ::context<context>
             ::on_exception
@@ -122,7 +122,7 @@ namespace
         context& ctx;
     };
 
-    using custom_sm_t = awesm::machine<custom_sm_def>;
+    using custom_sm_t = maki::machine<custom_sm_def>;
 }
 
 TEST_CASE("on_exception")

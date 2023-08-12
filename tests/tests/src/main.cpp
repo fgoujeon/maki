@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
-#if AWESM_CATCH2_VERSION == 2
+#if MAKI_CATCH2_VERSION == 2
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
 #endif

@@ -73,7 +73,7 @@ When you want to execute an action during a state transition however, you have s
 ** calling functions that are semantically associated with the state name (e.g. `start_motor()`/`stop_motor()` for a state named `running_motor`).
 * State transition actions are well suited for executing functions that have more to do with the specific transition it's associated to than with the source or target state.
 
-## How to use actions within AweSM
+## How to use actions within Maki
 
 There are two ways to define and associate an action:
 
@@ -82,7 +82,7 @@ There are two ways to define and associate an action:
 
 ### Within the transition table
 
-The action is the fourth (optional) parameter of `awesm::transition`. In this context, AweSM expects the name of a non-member function with one of the following signatures (in this order of priority):
+The action is the fourth (optional) parameter of `maki::transition`. In this context, Maki expects the name of a non-member function with one of the following signatures (in this order of priority):
 
 ~~~{.cpp}
 void(machine_type& mach, context_type& ctx, const event_type& evt);
@@ -91,9 +91,9 @@ void(context_type& ctx);
 void();
 ~~~
 
-What determines the type of the action (between a state transition action or an internal action) is the target state (the third parameter) of the `awesm::transition` instance:
+What determines the type of the action (between a state transition action or an internal action) is the target state (the third parameter) of the `maki::transition` instance:
 
-* if the target state is `awesm::null`, the action is an internal action;
+* if the target state is `maki::null`, the action is an internal action;
 * if the target state is a valid state, the action is a state transition action.
 
 Note: A transition without target state is called an internal transition. No state exit or entry happen in this case.
@@ -104,13 +104,13 @@ Here is an example of two actions, with their definition and their association w
 
 ### Within the associated state
 
-To associate an action to a state, you have to set an option of the configuration (see `awesm::state_conf_tpl`) of that state:
+To associate an action to a state, you have to set an option of the configuration (see `maki::state_conf_tpl`) of that state:
 
 * for an entry action, set the `on_entry_any` option;
 * for an internal action, set the `on_event` option (or alternatively the `on_event_auto` option);
 * for an exit action, set the `on_exit_any` option.
 
-By setting these options, you require `awesm::machine` to call a specific member function of the associated state. These are the accepted names and signatures:
+By setting these options, you require `maki::machine` to call a specific member function of the associated state. These are the accepted names and signatures:
 
 ~~~{.cpp}
 //For entry actions, in this order of priority

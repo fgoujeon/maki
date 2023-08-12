@@ -1,22 +1,23 @@
-[![Windows Build status](https://ci.appveyor.com/api/projects/status/1jvbol4cwrfivd3y/branch/master?svg=true)](https://ci.appveyor.com/project/fgoujeon/awesm/branch/master)
-[![Linux build status](https://github.com/fgoujeon/awesm/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/fgoujeon/awesm/actions/workflows/ci.yml)
+[![Windows Build status](https://ci.appveyor.com/api/projects/status/2vc1wsgwg7bo9y45/branch/master?svg=true)](https://ci.appveyor.com/project/fgoujeon/maki/branch/master)
+
+[![Linux build status](https://github.com/fgoujeon/maki/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/fgoujeon/maki/actions/workflows/ci.yml)
 
 ---
 
-# AweSM
-AweSM is a C++17 finite-state machine library.
+# Maki
+Maki is a C++17 finite-state machine library.
 
 **This library is still in early development stage: it is functional and tested, but its API is subject to change.**
 
 ## Features
-AweSM implements the following key features:
+Maki implements the following key features:
 
 * **transition tables**, featuring:
   * **actions**;
   * **guards**;
-  * **internal transitions**, aka transitions to `awesm::null` state;
-  * **completion transitions**, aka anonymous transitions, aka transitions through `awesm::null` event;
-  * **type patterns**, aka `awesm::any`, `awesm::any_of`, `awesm::any_but`, `awesm::any_if` and `awesm::any_if_not` for source states and events;
+  * **internal transitions**, aka transitions to `maki::null` state;
+  * **completion transitions**, aka anonymous transitions, aka transitions through `maki::null` event;
+  * **type patterns**, aka `maki::any`, `maki::any_of`, `maki::any_but`, `maki::any_if` and `maki::any_if_not` for source states and events;
 * **states as classes**, featuring:
   * **entry/exit actions**, aka `on_entry()` and `on_exit()` member functions;
   * **internal transition actions**, aka `on_event()` member function;
@@ -24,7 +25,7 @@ AweSM implements the following key features:
 * **orthogonal regions**;
 * **submachines**.
 
-Besides its features, AweSM:
+Besides its features, Maki:
 
 * **has excellent performance**, both at build time and runtime (see [benchmark](https://github.com/fgoujeon/fsm-benchmark));
 * **doesn't depend on any library** other than the C++ standard library;
@@ -39,7 +40,7 @@ What is *not* implemented (yet):
 * optional thread safety with mutexes.
 
 ## Documentation
-You can access the full documentation [here](https://fgoujeon.github.io/awesm/doc/v1).
+You can access the full documentation [here](https://fgoujeon.github.io/maki/doc/v1).
 
 ## Example
 The following example is firmware for an RGB lamp. This lamp has a single button and an LED that can emit white, red, green or blue.
@@ -52,7 +53,7 @@ The expected behavior is:
 
 This behavior can be expressed with the following transition table:
 ```c++
-awesm::transition_table
+maki::transition_table
     //    source_state,   event,       target_state,   action,           guard
     ::add<off,            button_push, emitting_white, turn_light_white>
     ::add<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
@@ -65,7 +66,7 @@ awesm::transition_table
 
 Here is the full program:
 ```c++
-#include <awesm.hpp>
+#include <maki.hpp>
 #include <functional>
 #include <iostream>
 
@@ -147,7 +148,7 @@ namespace states
         /*
         A state class must define a conf subtype.
         */
-        using conf = awesm::state_conf
+        using conf = maki::state_conf
             /*
             With this option, we require the state machine to call an on_entry()
             function whenever it enters our state.
@@ -185,7 +186,7 @@ namespace states
             std::cout << event.duration_ms << " millisecond push\n";
         }
 
-        void on_entry(const awesm::events::start& /*event*/)
+        void on_entry(const maki::events::start& /*event*/)
         {
             std::cout << "Started state machine\n";
         }
@@ -208,10 +209,10 @@ namespace states
     /*
     These are minimal valid state classes.
     */
-    struct emitting_white { using conf = awesm::state_conf; };
-    struct emitting_red { using conf = awesm::state_conf; };
-    struct emitting_green { using conf = awesm::state_conf; };
-    struct emitting_blue { using conf = awesm::state_conf; };
+    struct emitting_white { using conf = maki::state_conf; };
+    struct emitting_red { using conf = maki::state_conf; };
+    struct emitting_green { using conf = maki::state_conf; };
+    struct emitting_blue { using conf = maki::state_conf; };
 }
 
 /*
@@ -259,25 +260,25 @@ namespace guards
         return event.duration_ms > 1000;
     }
 
-    //We can use awesm::guard and boolean operators to compose guards.
-    constexpr auto is_short_push = !awesm::guard<is_long_push>;
+    //We can use maki::guard and boolean operators to compose guards.
+    constexpr auto is_short_push = !maki::guard<is_long_push>;
 }
 
 using namespace states;
 using namespace actions;
 using namespace guards;
 using button_push = button::push_event;
-using awesm::any_but;
+using maki::any_but;
 
 /*
 This is the transition table. This is where we define the actions that must be
 executed depending on the active state and the event we receive.
-Basically, whenever awesm::machine::process_event() is called, AweSM iterates
+Basically, whenever maki::machine::process_event() is called, Maki iterates
 over the transitions of this table until it finds a match, i.e. when:
-- 'source_state' is the currently active state (or is awesm::any);
+- 'source_state' is the currently active state (or is maki::any);
 - 'event' is the type of the processed event;
 - and the 'guard' returns true (or is void).
-When a match is found, AweSM:
+When a match is found, Maki:
 - exits 'source_state';
 - marks 'target_state' as the new active state;
 - executes the 'action';
@@ -285,7 +286,7 @@ When a match is found, AweSM:
 The initial active state of the state machine is the first state encountered in
 the transition table ('off', is our case).
 */
-using transition_table_t = awesm::transition_table
+using transition_table_t = maki::transition_table
     //    source_state,   event,       target_state,   action,           guard
     ::add<off,            button_push, emitting_white, turn_light_white>
     ::add<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
@@ -301,7 +302,7 @@ the transition table, but we can put many options in it.
 */
 struct machine_def
 {
-    using conf = awesm::machine_conf
+    using conf = maki::machine_conf
         ::transition_tables<transition_table_t>
         ::context<context>
     ;
@@ -312,7 +313,7 @@ We finally have our state machine.
 Note that we can pass a configuration struct as second template argument to fine
 tune the behavior of our state machine.
 */
-using machine_t = awesm::machine<machine_def>;
+using machine_t = maki::machine<machine_def>;
 
 int main()
 {
@@ -390,4 +391,4 @@ int main()
 ```
 
 ## Acknowledgements
-AweSM is greatly inspired by Boost.MSM. Actually, AweSM was born because Boost.MSM was too slow to build large state machines (which is expected for a library that has been written in a time when variadic templates weren't supported by the language). Thank you Christophe Henry for your work.
+Maki is greatly inspired by Boost.MSM. Actually, Maki was born because Boost.MSM was too slow to build large state machines (which is expected for a library that has been written in a time when variadic templates weren't supported by the language). Thank you Christophe Henry for your work.

@@ -2,15 +2,15 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
-#include <awesm.hpp>
+#include <maki.hpp>
 #include "common.hpp"
 
 namespace
 {
     struct machine_def;
-    using machine_t = awesm::machine<machine_def>;
+    using machine_t = maki::machine<machine_def>;
 
     struct context
     {
@@ -28,7 +28,7 @@ namespace
     {
         struct s0
         {
-            using conf = awesm::state_conf
+            using conf = maki::state_conf
                 ::on_entry_any
                 ::on_exit_any
             ;
@@ -48,7 +48,7 @@ namespace
 
         struct s1
         {
-            using conf = awesm::state_conf
+            using conf = maki::state_conf
                 ::on_entry_any
                 ::on_exit_any
             ;
@@ -68,7 +68,7 @@ namespace
 
         struct s2
         {
-            using conf = awesm::state_conf
+            using conf = maki::state_conf
                 ::on_entry_any
                 ::on_exit_any
             ;
@@ -91,7 +91,7 @@ namespace
     {
         constexpr auto s0_to_s1 = []
         (
-            awesm::machine_ref_e<events::s1_to_s2_request> mach,
+            maki::machine_ref_e<events::s1_to_s2_request> mach,
             context& /*ctx*/,
             const auto& /*event*/
         )
@@ -101,7 +101,7 @@ namespace
 
         constexpr auto s1_to_s2 = []
         (
-            awesm::machine_ref_e<events::s2_to_s0_request> mach,
+            maki::machine_ref_e<events::s2_to_s0_request> mach,
             context& /*ctx*/,
             const auto& /*event*/
         )
@@ -110,7 +110,7 @@ namespace
         };
     }
 
-    using transition_table_t = awesm::transition_table
+    using transition_table_t = maki::transition_table
         ::add<states::s0, events::s0_to_s1_request, states::s1, actions::s0_to_s1>
         ::add<states::s1, events::s1_to_s2_request, states::s2, actions::s1_to_s2>
         ::add<states::s2, events::s2_to_s0_request, states::s0>
@@ -118,7 +118,7 @@ namespace
 
     struct machine_def
     {
-        using conf = awesm::machine_conf
+        using conf = maki::machine_conf
             ::transition_tables<transition_table_t>
             ::context<context>
         ;

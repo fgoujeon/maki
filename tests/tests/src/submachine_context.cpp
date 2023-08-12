@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
-#include <awesm.hpp>
+#include <maki.hpp>
 #include "common.hpp"
 
 namespace
@@ -51,20 +51,20 @@ namespace
             {
                 struct emitting_cold_red
                 {
-                    using conf = awesm::state_conf;
+                    using conf = maki::state_conf;
                     on_ns::context& ctx;
                 };
 
                 EMPTY_STATE(emitting_hot_red);
 
-                using transition_table_t = awesm::transition_table
+                using transition_table_t = maki::transition_table
                     ::add<emitting_cold_red, events::color_button_press, emitting_hot_red>
                 ;
             }
 
             struct emitting_red
             {
-                using conf = awesm::submachine_conf
+                using conf = maki::submachine_conf
                     ::transition_tables<emitting_red_ns::transition_table_t>
                     ::on_entry_any
                 ;
@@ -80,7 +80,7 @@ namespace
             EMPTY_STATE(emitting_green);
             EMPTY_STATE(emitting_blue);
 
-            using transition_table_t = awesm::transition_table
+            using transition_table_t = maki::transition_table
                 ::add<emitting_red,   events::color_button_press, emitting_green>
                 ::add<emitting_green, events::color_button_press, emitting_blue>
                 ::add<emitting_blue,  events::color_button_press, emitting_red>
@@ -89,7 +89,7 @@ namespace
 
         struct on
         {
-            using conf = awesm::submachine_conf
+            using conf = maki::submachine_conf
                 ::transition_tables<on_ns::transition_table_t>
                 ::context<on_ns::context>
                 ::on_exit_any
@@ -104,25 +104,25 @@ namespace
         };
     }
 
-    using transition_table_t = awesm::transition_table
+    using transition_table_t = maki::transition_table
         ::add<states::off, events::power_button_press, states::on>
         ::add<states::on,  events::power_button_press, states::off>
     ;
 
     struct machine_def
     {
-        using conf = awesm::machine_conf
+        using conf = maki::machine_conf
             ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
 
-    using machine_t = awesm::machine<machine_def>;
+    using machine_t = maki::machine<machine_def>;
 }
 
 TEST_CASE("submachine_context")
 {
-    using machine_on_region_path_t = awesm::region_path<machine_def>::add<states::on>;
+    using machine_on_region_path_t = maki::region_path<machine_def>::add<states::on>;
 
     auto machine = machine_t{};
     auto& ctx = machine.context();

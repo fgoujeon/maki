@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
-#include <awesm/detail/tlu/left_fold.hpp>
+#include <maki/detail/tlu/left_fold.hpp>
 #include "../../common.hpp"
 #include <tuple>
 
@@ -27,7 +27,7 @@ TEST_CASE("detail::tlu::left_fold")
 {
     using type_list_t = std::tuple<char, short, int, long>;
 
-    using result_t = awesm::detail::tlu::left_fold_t
+    using result_t = maki::detail::tlu::left_fold_t
     <
         type_list_t,
         push_back_twice,

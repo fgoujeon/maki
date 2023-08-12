@@ -2,7 +2,7 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
 //I lied muahahahahaha!
 #define main fake_main
@@ -12,7 +12,7 @@
 //! [all]
 #include "user_interface.hpp"
 #include "motor.hpp"
-#include <awesm.hpp>
+#include <maki.hpp>
 
 //The context, instantiated by machine_t and accessible to all the actions and guards
 struct context
@@ -55,10 +55,10 @@ struct context
 };
 
 //States
-struct idle { using conf = awesm::state_conf; };
-struct starting { using conf = awesm::state_conf; };
-struct running { using conf = awesm::state_conf; };
-struct stopping { using conf = awesm::state_conf; };
+struct idle { using conf = maki::state_conf; };
+struct starting { using conf = maki::state_conf; };
+struct running { using conf = maki::state_conf; };
+struct stopping { using conf = maki::state_conf; };
 
 //Actions
 void start_motor(context& ctx)
@@ -71,7 +71,7 @@ void stop_motor(context& ctx)
 }
 
 //Transition table
-using transition_table_t = awesm::transition_table
+using transition_table_t = maki::transition_table
     //    source state, event,                         target state, action
     ::add<idle,         user_interface::start_request, starting,     start_motor>
     ::add<starting,     motor::start_event,            running>
@@ -82,14 +82,14 @@ using transition_table_t = awesm::transition_table
 //State machine definition
 struct machine_def
 {
-    using conf = awesm::machine_conf
+    using conf = maki::machine_conf
         ::transition_tables<transition_table_t>
         ::context<context>
     ;
 };
 
 //State machine
-using machine_t = awesm::machine<machine_def>;
+using machine_t = maki::machine<machine_def>;
 
 int main()
 {

@@ -2,31 +2,31 @@
 #Distributed under the Boost Software License, Version 1.0.
 #(See accompanying file LICENSE or copy at
 #https://www.boost.org/LICENSE_1_0.txt)
-#Official repository: https://github.com/fgoujeon/awesm
+#Official repository: https://github.com/fgoujeon/maki
 
 cmake_minimum_required(VERSION 3.10)
 
-include(awesm)
+include(maki)
 
-set(TARGET awesm-test)
+set(TARGET maki-test)
 
 file(GLOB_RECURSE SOURCE_FILES *)
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${SOURCE_FILES})
 add_executable(${TARGET} ${SOURCE_FILES})
 
-awesm_target_common_options(${TARGET})
+maki_target_common_options(${TARGET})
 
 target_link_libraries(
     ${TARGET}
     PRIVATE
-        awesm
+        maki
 )
 
-if(TARGET Catch2::Catch2WithMain AND NOT AWESM_FORCE_CATCH2_V2) #v3
+if(TARGET Catch2::Catch2WithMain AND NOT MAKI_FORCE_CATCH2_V2) #v3
     target_compile_definitions(
         ${TARGET}
         PRIVATE
-            AWESM_CATCH2_VERSION=3
+            MAKI_CATCH2_VERSION=3
     )
     target_link_libraries(
         ${TARGET}
@@ -37,7 +37,7 @@ else() #v2
     target_compile_definitions(
         ${TARGET}
         PRIVATE
-            AWESM_CATCH2_VERSION=2
+            MAKI_CATCH2_VERSION=2
     )
     target_link_libraries(
         ${TARGET}

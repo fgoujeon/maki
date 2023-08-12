@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
-#include <awesm.hpp>
+#include <maki.hpp>
 #include "common.hpp"
 
 namespace
@@ -34,46 +34,46 @@ namespace
     X(small_event_max_align<0>) \
     X(small_event_max_size<1>)
 
-#define X(option) awesm::detail::options::option,
-    using state_conf_tpl_1_t = awesm::state_conf_tpl
+#define X(option) maki::detail::options::option,
+    using state_conf_tpl_1_t = maki::state_conf_tpl
     <
         STATE_OPTIONS
-        awesm::detail::options::pretty_name
+        maki::detail::options::pretty_name
     >;
 #undef X
 
 #define X(option) ::option
-    using state_conf_tpl_2_t = awesm::state_conf
+    using state_conf_tpl_2_t = maki::state_conf
         STATE_OPTIONS
         ::pretty_name
     ;
 #undef X
 
-#define X(option) awesm::detail::options::option,
-    using submachine_conf_tpl_1_t = awesm::submachine_conf_tpl
+#define X(option) maki::detail::options::option,
+    using submachine_conf_tpl_1_t = maki::submachine_conf_tpl
     <
         SUBMACHINE_OPTIONS
-        awesm::detail::options::pretty_name
+        maki::detail::options::pretty_name
     >;
 #undef X
 
 #define X(option) ::option
-    using submachine_conf_tpl_2_t = awesm::submachine_conf
+    using submachine_conf_tpl_2_t = maki::submachine_conf
         SUBMACHINE_OPTIONS
         ::pretty_name
     ;
 #undef X
 
-#define X(option) awesm::detail::options::option,
-    using machine_conf_tpl_1_t = awesm::machine_conf_tpl
+#define X(option) maki::detail::options::option,
+    using machine_conf_tpl_1_t = maki::machine_conf_tpl
     <
         MACHINE_OPTIONS
-        awesm::detail::options::pretty_name
+        maki::detail::options::pretty_name
     >;
 #undef X
 
 #define X(option) ::option
-    using machine_conf_tpl_2_t = awesm::machine_conf
+    using machine_conf_tpl_2_t = maki::machine_conf
         MACHINE_OPTIONS
         ::pretty_name
     ;

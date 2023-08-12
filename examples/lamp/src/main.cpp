@@ -2,10 +2,10 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
 //! [all]
-#include <awesm.hpp>
+#include <maki.hpp>
 #include <iostream>
 
 //The context (more about that later)
@@ -15,8 +15,8 @@ struct context{};
 struct button_press{};
 
 //States are types (more about that later)
-struct off { using conf = awesm::state_conf; };
-struct on { using conf = awesm::state_conf; };
+struct off { using conf = maki::state_conf; };
+struct on { using conf = maki::state_conf; };
 
 //Actions are functions (more about that later)
 void turn_light_on()
@@ -30,7 +30,7 @@ void turn_light_off()
 
 //The transition table
 //! [transition-table]
-using transition_table_t = awesm::transition_table
+using transition_table_t = maki::transition_table
     //    source state, event,        target state, action
     ::add<off,          button_press, on,           turn_light_on>
     ::add<on,           button_press, off,          turn_light_off>
@@ -42,7 +42,7 @@ using transition_table_t = awesm::transition_table
 struct machine_def
 {
     //The configuration of the state machine
-    using conf = awesm::machine_conf
+    using conf = maki::machine_conf
         ::transition_tables<transition_table_t>
         ::context<context>
     ;
@@ -51,7 +51,7 @@ struct machine_def
 
 //The state machine
 //! [machine]
-using machine_t = awesm::machine<machine_def>;
+using machine_t = maki::machine<machine_def>;
 //! [machine]
 
 int main()

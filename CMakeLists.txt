@@ -2,29 +2,29 @@
 #Distributed under the Boost Software License, Version 1.0.
 #(See accompanying file LICENSE or copy at
 #https://www.boost.org/LICENSE_1_0.txt)
-#Official repository: https://github.com/fgoujeon/awesm
+#Official repository: https://github.com/fgoujeon/maki
 
 cmake_minimum_required(VERSION 3.10)
 
-project(awesm)
+project(maki)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
-option(AWESM_BUILD_EXAMPLES "Build example executables" OFF)
-option(AWESM_BUILD_TESTS "Build test executable" OFF)
-option(AWESM_FORCE_CATCH2_V2 "Force version 2 of catch2" OFF)
+option(MAKI_BUILD_EXAMPLES "Build example executables" OFF)
+option(MAKI_BUILD_TESTS "Build test executable" OFF)
+option(MAKI_FORCE_CATCH2_V2 "Force version 2 of catch2" OFF)
 
-if(AWESM_BUILD_TESTS)
+if(MAKI_BUILD_TESTS)
     find_package(Catch2 REQUIRED)
 endif()
 
-add_subdirectory(awesm)
+add_subdirectory(maki)
 
-if(AWESM_BUILD_EXAMPLES)
+if(MAKI_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-if(AWESM_BUILD_TESTS)
+if(MAKI_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()

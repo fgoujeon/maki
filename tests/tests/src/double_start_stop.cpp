@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
-#include <awesm.hpp>
+#include <maki.hpp>
 #include "common.hpp"
 #include <string>
 
@@ -29,18 +29,18 @@ namespace
         EMPTY_STATE(off);
     }
 
-    using transition_table_t = awesm::transition_table
+    using transition_table_t = maki::transition_table
         ::add<states::off, events::button_press, states::on>
         ::add<states::on,  events::button_press, states::off>
     ;
 
     struct machine_def;
 
-    using machine_t = awesm::machine<machine_def>;
+    using machine_t = maki::machine<machine_def>;
 
     struct machine_def
     {
-        using conf = awesm::machine_conf
+        using conf = maki::machine_conf
             ::transition_tables<transition_table_t>
             ::context<context>
             ::before_state_transition
@@ -51,28 +51,28 @@ namespace
         template<class RegionPath, class SourceState, class Event, class TargetState>
         void before_state_transition(const Event& /*event*/)
         {
-            static_assert(std::is_same_v<RegionPath, awesm::region_path<machine_def>>);
+            static_assert(std::is_same_v<RegionPath, maki::region_path<machine_def>>);
 
             ctx.out += "Transition in ";
             ctx.out += RegionPath::to_string();
             ctx.out += ": ";
-            ctx.out += awesm::pretty_name<SourceState>();
+            ctx.out += maki::pretty_name<SourceState>();
             ctx.out += " -> ";
-            ctx.out += awesm::pretty_name<TargetState>();
+            ctx.out += maki::pretty_name<TargetState>();
             ctx.out += "...;";
         }
 
         template<class RegionPath, class SourceState, class Event, class TargetState>
         void after_state_transition(const Event& /*event*/)
         {
-            static_assert(std::is_same_v<RegionPath, awesm::region_path<machine_def>>);
+            static_assert(std::is_same_v<RegionPath, maki::region_path<machine_def>>);
 
             ctx.out += "Transition in ";
             ctx.out += RegionPath::to_string();
             ctx.out += ": ";
-            ctx.out += awesm::pretty_name<SourceState>();
+            ctx.out += maki::pretty_name<SourceState>();
             ctx.out += " -> ";
-            ctx.out += awesm::pretty_name<TargetState>();
+            ctx.out += maki::pretty_name<TargetState>();
             ctx.out += ";";
         }
 

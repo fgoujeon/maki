@@ -2,15 +2,15 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
-#include <awesm.hpp>
+#include <maki.hpp>
 #include "common.hpp"
 
 namespace
 {
     struct machine_def;
-    using machine_t = awesm::machine<machine_def>;
+    using machine_t = maki::machine<machine_def>;
 
     enum class led_color
     {
@@ -45,7 +45,7 @@ namespace
     {
         struct off
         {
-            using conf = awesm::state_conf
+            using conf = maki::state_conf
                 ::on_event<events::ignored_by_emitting_blue>
             ;
 
@@ -58,7 +58,7 @@ namespace
 
         struct emitting_red
         {
-            using conf = awesm::state_conf
+            using conf = maki::state_conf
                 ::on_event_auto
             ;
 
@@ -71,7 +71,7 @@ namespace
 
         struct emitting_green
         {
-            using conf = awesm::state_conf
+            using conf = maki::state_conf
                 ::on_event_auto
             ;
 
@@ -84,10 +84,10 @@ namespace
 
         struct emitting_blue
         {
-            using conf = awesm::state_conf;
+            using conf = maki::state_conf;
         };
 
-        using on_transition_table = awesm::transition_table
+        using on_transition_table = maki::transition_table
             ::add<states::emitting_red,   events::color_button_press, states::emitting_green>
             ::add<states::emitting_green, events::color_button_press, states::emitting_blue>
             ::add<states::emitting_blue,  events::color_button_press, states::emitting_red>
@@ -95,7 +95,7 @@ namespace
 
         struct on
         {
-            using conf = awesm::submachine_conf
+            using conf = maki::submachine_conf
                 ::transition_tables<on_transition_table>
             ;
 
@@ -103,13 +103,13 @@ namespace
         };
     }
 
-    using transition_table_t = awesm::transition_table
+    using transition_table_t = maki::transition_table
         ::add<states::on, events::power_button_press, states::off>
     ;
 
     struct machine_def
     {
-        using conf = awesm::machine_conf
+        using conf = maki::machine_conf
             ::transition_tables<transition_table_t>
             ::context<context>
             ::on_unprocessed
@@ -138,7 +138,7 @@ TEST_CASE("on_unprocessed")
     ctx.clear();
     machine.start();
     REQUIRE(machine.is_active_state<states::on>());
-    REQUIRE(machine.is_active_state<awesm::region_path<machine_def>::add<states::on>, states::emitting_red>());
+    REQUIRE(machine.is_active_state<maki::region_path<machine_def>::add<states::on>, states::emitting_red>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
@@ -148,7 +148,7 @@ TEST_CASE("on_unprocessed")
     ctx.clear();
     machine.process_event(events::color_button_press{});
     REQUIRE(machine.is_active_state<states::on>());
-    REQUIRE(machine.is_active_state<awesm::region_path<machine_def>::add<states::on>, states::emitting_green>());
+    REQUIRE(machine.is_active_state<maki::region_path<machine_def>::add<states::on>, states::emitting_green>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
@@ -158,7 +158,7 @@ TEST_CASE("on_unprocessed")
     ctx.clear();
     machine.process_event(events::color_button_press{});
     REQUIRE(machine.is_active_state<states::on>());
-    REQUIRE(machine.is_active_state<awesm::region_path<machine_def>::add<states::on>, states::emitting_blue>());
+    REQUIRE(machine.is_active_state<maki::region_path<machine_def>::add<states::on>, states::emitting_blue>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();

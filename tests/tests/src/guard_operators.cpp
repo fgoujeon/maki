@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
-#include <awesm.hpp>
+#include <maki.hpp>
 #include "common.hpp"
 
 namespace
@@ -64,16 +64,16 @@ namespace
 
 #undef GUARD
 
-        constexpr auto can_access_state0 = awesm::guard<can_access_state0_0> && awesm::guard<can_access_state0_1>;
-        constexpr auto can_access_state1 = awesm::guard<can_access_state1_0> || awesm::guard<can_access_state1_1>;
-        constexpr auto can_access_state2 = awesm::guard<can_access_state2_0> != awesm::guard<can_access_state2_1>;
+        constexpr auto can_access_state0 = maki::guard<can_access_state0_0> && maki::guard<can_access_state0_1>;
+        constexpr auto can_access_state1 = maki::guard<can_access_state1_0> || maki::guard<can_access_state1_1>;
+        constexpr auto can_access_state2 = maki::guard<can_access_state2_0> != maki::guard<can_access_state2_1>;
     }
 
-    using transition_table_t = awesm::transition_table
-        ::add<states::idle, events::start, states::state0, awesm::noop, guards::can_access_state0>
-        ::add<states::idle, events::start, states::state1, awesm::noop, guards::can_access_state1>
-        ::add<states::idle, events::start, states::state2, awesm::noop, guards::can_access_state2>
-        ::add<states::idle, events::start, states::state3, awesm::noop, !awesm::guard<guards::cant_access_state3>>
+    using transition_table_t = maki::transition_table
+        ::add<states::idle, events::start, states::state0, maki::noop, guards::can_access_state0>
+        ::add<states::idle, events::start, states::state1, maki::noop, guards::can_access_state1>
+        ::add<states::idle, events::start, states::state2, maki::noop, guards::can_access_state2>
+        ::add<states::idle, events::start, states::state3, maki::noop, !maki::guard<guards::cant_access_state3>>
 
         ::add<states::state0, events::stop, states::idle>
         ::add<states::state1, events::stop, states::idle>
@@ -83,13 +83,13 @@ namespace
 
     struct machine_def
     {
-        using conf = awesm::machine_conf
+        using conf = maki::machine_conf
             ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
 
-    using machine_t = awesm::machine<machine_def>;
+    using machine_t = maki::machine<machine_def>;
 }
 
 TEST_CASE("guard operators")

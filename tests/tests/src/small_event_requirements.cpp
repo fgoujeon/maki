@@ -2,10 +2,10 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
 #include "common.hpp"
-#include <awesm.hpp>
+#include <maki.hpp>
 
 namespace
 {
@@ -55,7 +55,7 @@ namespace
 
     struct state
     {
-        using conf = awesm::state_conf_tpl<>;
+        using conf = maki::state_conf_tpl<>;
     };
 
     template<class Event>
@@ -64,15 +64,15 @@ namespace
         machine.process_event(Event{});
     };
 
-    using transition_table_t = awesm::transition_table
-        ::add<state, event_processing_request<small_event>, awesm::null, process_event<small_event>>
-        ::add<state, event_processing_request<big_event>,   awesm::null, process_event<big_event>>
+    using transition_table_t = maki::transition_table
+        ::add<state, event_processing_request<small_event>, maki::null, process_event<small_event>>
+        ::add<state, event_processing_request<big_event>,   maki::null, process_event<big_event>>
     ;
 
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
     struct machine_def
     {
-        using conf = typename awesm::machine_conf
+        using conf = typename maki::machine_conf
             ::transition_tables<transition_table_t>
             ::context<context>
             ::template small_event_max_size<SmallEventMaxSize>
@@ -81,7 +81,7 @@ namespace
     };
 
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
-    using machine_t = awesm::machine<machine_def<SmallEventMaxSize, SmallEventMaxAlign>>;
+    using machine_t = maki::machine<machine_def<SmallEventMaxSize, SmallEventMaxAlign>>;
 
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
     void test

@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
-#include <awesm.hpp>
+#include <maki.hpp>
 #include <functional>
 #include <iostream>
 
@@ -86,7 +86,7 @@ namespace states
         /*
         A state class must define a conf subtype.
         */
-        using conf = awesm::state_conf
+        using conf = maki::state_conf
             /*
             With this option, we require the state machine to call an on_entry()
             function whenever it enters our state.
@@ -124,7 +124,7 @@ namespace states
             std::cout << event.duration_ms << " millisecond push\n";
         }
 
-        void on_entry(const awesm::events::start& /*event*/)
+        void on_entry(const maki::events::start& /*event*/)
         {
             std::cout << "Started state machine\n";
         }
@@ -147,10 +147,10 @@ namespace states
     /*
     These are minimal valid state classes.
     */
-    struct emitting_white { using conf = awesm::state_conf; };
-    struct emitting_red { using conf = awesm::state_conf; };
-    struct emitting_green { using conf = awesm::state_conf; };
-    struct emitting_blue { using conf = awesm::state_conf; };
+    struct emitting_white { using conf = maki::state_conf; };
+    struct emitting_red { using conf = maki::state_conf; };
+    struct emitting_green { using conf = maki::state_conf; };
+    struct emitting_blue { using conf = maki::state_conf; };
 }
 
 /*
@@ -198,25 +198,25 @@ namespace guards
         return event.duration_ms > 1000;
     }
 
-    //We can use awesm::guard and boolean operators to compose guards.
-    constexpr auto is_short_push = !awesm::guard<is_long_push>;
+    //We can use maki::guard and boolean operators to compose guards.
+    constexpr auto is_short_push = !maki::guard<is_long_push>;
 }
 
 using namespace states;
 using namespace actions;
 using namespace guards;
 using button_push = button::push_event;
-using awesm::any_but;
+using maki::any_but;
 
 /*
 This is the transition table. This is where we define the actions that must be
 executed depending on the active state and the event we receive.
-Basically, whenever awesm::machine::process_event() is called, AweSM iterates
+Basically, whenever maki::machine::process_event() is called, Maki iterates
 over the transitions of this table until it finds a match, i.e. when:
-- 'source_state' is the currently active state (or is awesm::any);
+- 'source_state' is the currently active state (or is maki::any);
 - 'event' is the type of the processed event;
 - and the 'guard' returns true (or is void).
-When a match is found, AweSM:
+When a match is found, Maki:
 - exits 'source_state';
 - marks 'target_state' as the new active state;
 - executes the 'action';
@@ -224,7 +224,7 @@ When a match is found, AweSM:
 The initial active state of the state machine is the first state encountered in
 the transition table ('off', is our case).
 */
-using transition_table_t = awesm::transition_table
+using transition_table_t = maki::transition_table
     //    source_state,   event,       target_state,   action,           guard
     ::add<off,            button_push, emitting_white, turn_light_white>
     ::add<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
@@ -240,7 +240,7 @@ the transition table, but we can put many options in it.
 */
 struct machine_def
 {
-    using conf = awesm::machine_conf
+    using conf = maki::machine_conf
         ::transition_tables<transition_table_t>
         ::context<context>
     ;
@@ -251,7 +251,7 @@ We finally have our state machine.
 Note that we can pass a configuration struct as second template argument to fine
 tune the behavior of our state machine.
 */
-using machine_t = awesm::machine<machine_def>;
+using machine_t = maki::machine<machine_def>;
 
 int main()
 {

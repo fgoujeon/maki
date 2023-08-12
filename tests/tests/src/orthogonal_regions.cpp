@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
-#include <awesm.hpp>
+#include <maki.hpp>
 #include "common.hpp"
 
 namespace
@@ -33,7 +33,7 @@ namespace
         EMPTY_STATE(on0);
         struct on1
         {
-            using conf = awesm::state_conf
+            using conf = maki::state_conf
                 ::on_event<events::exception_request>
             ;
 
@@ -51,12 +51,12 @@ namespace
 
     struct machine_def
     {
-        using conf = awesm::machine_conf
+        using conf = maki::machine_conf
             ::transition_tables
             <
-                awesm::transition_table
+                maki::transition_table
                     ::add<states::off0, events::button_press, states::on0>,
-                awesm::transition_table
+                maki::transition_table
                     ::add<states::off1, events::button_press, states::on1>
             >
             ::context<context>
@@ -68,14 +68,14 @@ namespace
         template<class RegionPath, class SourceState, class Event, class TargetState>
         void before_state_transition(const Event& /*event*/)
         {
-            constexpr auto region_index = awesm::detail::tlu::get_t<RegionPath, 0>::region_index;
+            constexpr auto region_index = maki::detail::tlu::get_t<RegionPath, 0>::region_index;
             ctx.out += "before_state_transition[" + std::to_string(region_index) + "];";
         }
 
         template<class RegionPath, class SourceState, class Event, class TargetState>
         void after_state_transition(const Event& /*event*/)
         {
-            constexpr auto region_index = awesm::detail::tlu::get_t<RegionPath, 0>::region_index;
+            constexpr auto region_index = maki::detail::tlu::get_t<RegionPath, 0>::region_index;
             ctx.out += "after_state_transition[" + std::to_string(region_index) + "];";
         }
 
@@ -94,7 +94,7 @@ namespace
         context& ctx;
     };
 
-    using machine_t = awesm::machine<machine_def>;
+    using machine_t = maki::machine<machine_def>;
 }
 
 TEST_CASE("orthogonal_regions")
@@ -102,8 +102,8 @@ TEST_CASE("orthogonal_regions")
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
-    using machine_region_0_path = awesm::region_path<machine_def, 0>;
-    using machine_region_1_path = awesm::region_path<machine_def, 1>;
+    using machine_region_0_path = maki::region_path<machine_def, 0>;
+    using machine_region_1_path = maki::region_path<machine_def, 1>;
 
     machine.start();
     REQUIRE(machine.is_active_state<machine_region_0_path, states::off0>());

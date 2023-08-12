@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
-#include <awesm.hpp>
+#include <maki.hpp>
 #include "common.hpp"
 #include <string>
 
@@ -25,9 +25,9 @@ namespace
     {
         struct idle
         {
-            using conf = awesm::state_conf
+            using conf = maki::state_conf
                 ::on_entry_any
-                ::on_event<awesm::any>
+                ::on_event<maki::any>
                 ::on_exit_any
             ;
 
@@ -52,9 +52,9 @@ namespace
 
         struct running
         {
-            using conf = awesm::state_conf
+            using conf = maki::state_conf
                 ::on_entry_any
-                ::on_event<awesm::any>
+                ::on_event<maki::any>
                 ::on_exit_any
             ;
 
@@ -86,21 +86,21 @@ namespace
         }
     }
 
-    using transition_table_t = awesm::transition_table
+    using transition_table_t = maki::transition_table
         ::add<states::idle,    events::power_button_press, states::running>
         ::add<states::running, events::power_button_press, states::idle>
-        ::add<states::running, events::beep_button_press,  awesm::null,      actions::beep>
+        ::add<states::running, events::beep_button_press,  maki::null, actions::beep>
     ;
 
     struct machine_def
     {
-        using conf = awesm::machine_conf
+        using conf = maki::machine_conf
             ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
 
-    using machine_t = awesm::machine<machine_def>;
+    using machine_t = maki::machine<machine_def>;
 }
 
 TEST_CASE("internal_transition_in_transition_table")

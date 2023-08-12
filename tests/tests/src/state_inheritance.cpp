@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
-#include <awesm.hpp>
+#include <maki.hpp>
 #include "common.hpp"
 
 namespace
@@ -27,20 +27,20 @@ namespace
         struct button_press{};
     }
 
-    using transition_table_t = awesm::transition_table
+    using transition_table_t = maki::transition_table
         ::add<states::off, events::button_press, states::on>
         ::add<states::on,  events::button_press, states::off>
     ;
 
     struct machine_def
     {
-        using conf = awesm::machine_conf
+        using conf = maki::machine_conf
             ::transition_tables<transition_table_t>
             ::context<context>
         ;
     };
 
-    using machine_t = awesm::machine<machine_def>;
+    using machine_t = maki::machine<machine_def>;
 }
 
 TEST_CASE("state_inheritance")

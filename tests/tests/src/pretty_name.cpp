@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
-#include <awesm.hpp>
+#include <maki.hpp>
 #include "common.hpp"
 
 namespace pretty_name_ns
@@ -16,7 +16,7 @@ namespace pretty_name_ns
 
     struct state
     {
-        using conf = awesm::state_conf
+        using conf = maki::state_conf
             ::pretty_name
         ;
 
@@ -26,13 +26,13 @@ namespace pretty_name_ns
         }
     };
 
-    using submachine_transition_table = awesm::transition_table
-        ::add<state, awesm::null, awesm::null>
+    using submachine_transition_table = maki::transition_table
+        ::add<state, maki::null, maki::null>
     ;
 
     struct submachine
     {
-        using conf = awesm::submachine_conf
+        using conf = maki::submachine_conf
             ::transition_tables<submachine_transition_table>
             ::pretty_name
         ;
@@ -47,13 +47,13 @@ namespace pretty_name_ns
     {
     };
 
-    using transition_table_t = awesm::transition_table
-        ::add<state, awesm::null, awesm::null>
+    using transition_table_t = maki::transition_table
+        ::add<state, maki::null, maki::null>
     ;
 
     struct machine_def
     {
-        using conf = awesm::submachine_conf
+        using conf = maki::submachine_conf
             ::transition_tables<transition_table_t>
             ::context<context>
             ::pretty_name
@@ -65,7 +65,7 @@ namespace pretty_name_ns
         }
     };
 
-    using machine_t = awesm::machine<machine_def>;
+    using machine_t = maki::machine<machine_def>;
 
     struct region_path{};
 }
@@ -74,25 +74,25 @@ TEST_CASE("pretty_name")
 {
     REQUIRE
     (
-        awesm::pretty_name<pretty_name_ns::test>() ==
+        maki::pretty_name<pretty_name_ns::test>() ==
         std::string_view{"test"}
     );
 
     REQUIRE
     (
-        awesm::pretty_name<pretty_name_ns::templ<int, pretty_name_ns::test>>() ==
+        maki::pretty_name<pretty_name_ns::templ<int, pretty_name_ns::test>>() ==
         std::string_view{"templ"}
     );
 
     REQUIRE
     (
-        awesm::pretty_name<pretty_name_ns::state>() ==
+        maki::pretty_name<pretty_name_ns::state>() ==
         std::string_view{"my_state"}
     );
 
     REQUIRE
     (
-        awesm::pretty_name<pretty_name_ns::submachine>() ==
+        maki::pretty_name<pretty_name_ns::submachine>() ==
         std::string_view{"my_submachine"}
     );
 }

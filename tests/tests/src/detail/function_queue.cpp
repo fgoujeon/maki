@@ -2,9 +2,9 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
-#include <awesm/detail/function_queue.hpp>
+#include <maki/detail/function_queue.hpp>
 #include "../common.hpp"
 #include <array>
 
@@ -95,7 +95,7 @@ TEST_CASE("detail::function_queue")
         auto pbig = new big_struct{big_array};
         REQUIRE(plain_new_call_count == 2);
 
-        auto small_function_queue = awesm::detail::function_queue
+        auto small_function_queue = maki::detail::function_queue
         <
             int&,
             sizeof(small_struct)
@@ -103,7 +103,7 @@ TEST_CASE("detail::function_queue")
         small_function_queue.push<copy_small_struct_content>(*psmall);
         REQUIRE(plain_new_call_count == 2); //no call to plain new
 
-        auto big_function_queue = awesm::detail::function_queue
+        auto big_function_queue = maki::detail::function_queue
         <
             big_array_t&,
             sizeof(big_struct) / 2

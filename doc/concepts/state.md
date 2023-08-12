@@ -8,6 +8,6 @@ TODO
 
 TODO
 
-## How to define states within AweSM
+## How to define states within Maki
 
 TODO

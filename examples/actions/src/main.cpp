@@ -2,10 +2,10 @@
 //Distributed under the Boost Software License, Version 1.0.
 //(See accompanying file LICENSE or copy at
 //https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/awesm
+//Official repository: https://github.com/fgoujeon/maki
 
 //! [all]
-#include <awesm.hpp>
+#include <maki.hpp>
 #include <iostream>
 
 struct context{};
@@ -19,12 +19,12 @@ struct some_other_event
 struct yet_another_event{};
 
 //States
-struct state0 { using conf = awesm::state_conf; };
-struct state1 { using conf = awesm::state_conf; };
+struct state0 { using conf = maki::state_conf; };
+struct state1 { using conf = maki::state_conf; };
 //! [short-in-state]
 struct state2
 {
-    using conf = awesm::state_conf
+    using conf = maki::state_conf
         //Require the state machine to call on_entry() on state entry
         ::on_entry_any
 
@@ -85,10 +85,10 @@ void some_other_action(context& /*ctx*/, const some_other_event& event)
 }
 
 //Transition table
-using transition_table_t = awesm::transition_table
+using transition_table_t = maki::transition_table
     //    source state, event,             target state, action
     ::add<state0,       some_event,        state1,       some_action /*state transition action*/>
-    ::add<state0,       some_other_event,  awesm::null,  some_other_action /*internal transition action*/>
+    ::add<state0,       some_other_event,  maki::null,   some_other_action /*internal transition action*/>
     ::add<state0,       yet_another_event, state2>
     ::add<state1,       yet_another_event, state2>
     ::add<state2,       yet_another_event, state0>
@@ -99,14 +99,14 @@ using transition_table_t = awesm::transition_table
 struct machine_def
 {
     //The configuration of the state machine
-    using conf = awesm::machine_conf
+    using conf = maki::machine_conf
         ::transition_tables<transition_table_t>
         ::context<context>
     ;
 };
 
 //State machine
-using machine_t = awesm::machine<machine_def>;
+using machine_t = maki::machine<machine_def>;
 
 int main()
 {

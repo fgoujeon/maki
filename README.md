@@ -1,4 +1,5 @@
-[![Windows Build status](https://ci.appveyor.com/api/projects/status/1jvbol4cwrfivd3y/branch/master?svg=true)](https://ci.appveyor.com/project/fgoujeon/maki/branch/master)
+[![Windows Build status](https://ci.appveyor.com/api/projects/status/2vc1wsgwg7bo9y45/branch/master?svg=true)](https://ci.appveyor.com/project/fgoujeon/maki/branch/master)
+
 [![Linux build status](https://github.com/fgoujeon/maki/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/fgoujeon/maki/actions/workflows/ci.yml)
 
 ---

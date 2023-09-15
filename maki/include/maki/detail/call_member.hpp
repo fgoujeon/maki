@@ -45,6 +45,28 @@ MAKI_DETAIL_GENERATE_HAS_MEMBER_FUNCTION(on_exit)
 
 #undef MAKI_DETAIL_GENERATE_HAS_MEMBER_FUNCTION
 
+template<class Fn, class Machine, class Event>
+void call_me(Fn&& fun, Machine& mach, const Event& event)
+{
+    if constexpr(std::is_invocable_v<Fn, Machine&, const Event&>)
+    {
+        fun(mach, event);
+    }
+    else if constexpr(std::is_invocable_v<Fn, const Event&>)
+    {
+        fun(event);
+    }
+    else if constexpr(is_nullary_v<Fn>)
+    {
+        fun();
+    }
+    else
+    {
+        constexpr auto is_false = sizeof(Machine) == 0;
+        static_assert(is_false, "No valid signature found");
+    }
+}
+
 template<class State, class Sm, class Event>
 void call_on_entry
 (

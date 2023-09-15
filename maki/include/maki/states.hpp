@@ -7,19 +7,16 @@
 #ifndef MAKI_DETAIL_STATES_HPP
 #define MAKI_DETAIL_STATES_HPP
 
-#include "state_conf.hpp"
+#include "state.hpp"
 
 namespace maki::states
 {
 
 /**
-@brief Represents the state of any region before @ref machine::start() is called and
-after @ref machine::stop() is called.
+@brief Represents the state of any region before @ref machine::start() is called
+and after @ref machine::stop() is called.
 */
-struct stopped
-{
-    using conf = state_conf_tpl<>;
-};
+inline constexpr auto stopped = state_c;
 
 } //namespace
 

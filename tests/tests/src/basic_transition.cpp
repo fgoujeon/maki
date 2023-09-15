@@ -54,11 +54,11 @@ TEST_CASE("basic_transition")
     REQUIRE(!machine.is_running());
 
     machine.start();
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.is_active_state(states::off));
 
     machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.is_active_state(states::on));
 
     machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.is_active_state(states::off));
 }

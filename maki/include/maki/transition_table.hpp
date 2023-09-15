@@ -7,6 +7,8 @@
 #ifndef MAKI_TRANSITION_TABLE_HPP
 #define MAKI_TRANSITION_TABLE_HPP
 
+#include "noop.hpp"
+
 namespace maki
 {
 
@@ -49,14 +51,8 @@ Represents either:
 - a null event (for anonymous transitions);
 - a null target state (for internal transitions in transition table).
 */
-struct null{};
-
-/**
-@brief An action that does nothing.
-*/
-inline constexpr void noop()
-{
-}
+struct null_t{};
+inline constexpr null_t null;
 
 /**
 @brief A guard that returns `true`.
@@ -79,18 +75,18 @@ Used as a template argument of @ref transition_table_tpl.
 */
 template
 <
-    class SourceStatePattern,
+    const auto& SourceState,
     class EventPattern,
-    class TargetState,
+    const auto& TargetState,
     const auto& Action = noop,
     const auto& Guard = yes
 >
 struct transition
 {
-    using source_state_type_pattern = SourceStatePattern;
     using event_type_pattern = EventPattern;
-    using target_state_type = TargetState;
 
+    static constexpr const auto& source_state = SourceState;
+    static constexpr const auto& target_state = TargetState;
     static constexpr const auto& action = Action;
     static constexpr const auto& guard = Guard;
 };
@@ -110,16 +106,16 @@ struct transition_table_tpl
     */
     template
     <
-        class SourceStatePattern,
+        const auto& SourceState,
         class EventPattern,
-        class TargetState,
+        const auto& TargetState,
         const auto& Action = noop,
         const auto& Guard = yes
     >
     using add = transition_table_tpl
     <
         Transitions...,
-        transition<SourceStatePattern, EventPattern, TargetState, Action, Guard>
+        transition<SourceState, EventPattern, TargetState, Action, Guard>
     >;
 };
 

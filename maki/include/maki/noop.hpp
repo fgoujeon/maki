@@ -4,10 +4,21 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef COMMON_EMPTY_STATE_HPP
-#define COMMON_EMPTY_STATE_HPP
+#ifndef MAKI_NOOP_HPP
+#define MAKI_NOOP_HPP
 
-#define EMPTY_STATE(name) \
-    constexpr auto name = maki::state<>{};
+namespace maki
+{
+
+/**
+@brief An action that does nothing.
+*/
+inline constexpr void noop()
+{
+}
+
+using noop_t = decltype(&noop);
+
+} //namespace
 
 #endif

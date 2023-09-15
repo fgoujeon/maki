@@ -187,9 +187,9 @@ public:
     @tparam State the state type
     */
     template<class RegionPath, class State>
-    [[nodiscard]] bool is_active_state() const
+    [[nodiscard]] bool is_active_state(const State& stt) const
     {
-        return submachine_.template is_active_state_def<RegionPath, State>();
+        return submachine_.template is_active_state_def<RegionPath>(stt);
     }
 
     /**
@@ -199,9 +199,9 @@ public:
     @tparam State the state type
     */
     template<class State>
-    [[nodiscard]] bool is_active_state() const
+    [[nodiscard]] bool is_active_state(const State& stt) const
     {
-        return submachine_.template is_active_state_def<State>();
+        return submachine_.is_active_state_def(stt);
     }
 
     /**

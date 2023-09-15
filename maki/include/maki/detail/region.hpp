@@ -25,20 +25,20 @@ namespace maki::detail
 
 namespace
 {
-    template<class StateList, class State>
-    struct index_of_state
-    {
-        static constexpr auto value = tlu::index_of_v<StateList, State>;
-    };
-
-    template<class StateList>
-    struct index_of_state<StateList, states::stopped>
-    {
-        static constexpr auto value = -1;
-    };
-
-    template<class StateList, class State>
-    inline constexpr auto index_of_state_v = index_of_state<StateList, State>::value;
+//    template<class StateList, class State>
+//    struct index_of_state
+//    {
+//        static constexpr auto value = tlu::index_of_v<StateList, State>;
+//    };
+//
+//    template<class StateList>
+//    struct index_of_state<StateList, states::stopped>
+//    {
+//        static constexpr auto value = -1;
+//    };
+//
+//    template<class StateList, class State>
+//    inline constexpr auto index_of_state_v = index_of_state<StateList, State>::value;
 
     template<class State>
     auto& state_def_of(State& state)
@@ -77,8 +77,8 @@ public:
 
     explicit region(ParentSm& parent_sm):
         root_sm_(machine_of<ParentSm>::get(parent_sm)),
-        ctx_(parent_sm.context()),
-        state_holders_(root_sm_, ctx_)
+        ctx_(parent_sm.context())/*,
+        state_holders_(root_sm_, ctx_)*/
     {
     }
 
@@ -119,11 +119,11 @@ public:
     }
 
     template<class StateRelativeRegionPath, class StateDef>
-    [[nodiscard]] bool is_active_state_def() const
+    [[nodiscard]] bool is_active_state_def(const StateDef& stt) const
     {
         if constexpr(tlu::size_v<StateRelativeRegionPath> == 0)
         {
-            return is_active_state_def<StateDef>();
+            return is_active_state_def(stt);
         }
         else
         {
@@ -134,121 +134,135 @@ public:
     }
 
     template<class StateDef>
-    [[nodiscard]] bool is_active_state_def() const
+    [[nodiscard]] bool is_active_state_def(const StateDef& state) const
     {
-        if constexpr(is_type_pattern_v<StateDef>)
+        //if constexpr(is_type_pattern_v<StateDef>)
+        //{
+        //    return does_active_state_def_match_pattern<StateDef>();
+        //}
+        //else
         {
-            return does_active_state_def_match_pattern<StateDef>();
-        }
-        else
-        {
-            return is_active_state_def_type<StateDef>();
+            return is_active_state_def_type(state);
         }
     }
 
     template<class Event>
     void start(const Event& event)
     {
-        if(is_active_state_def_type<states::stopped>())
+        if(is_active_state_def_type(states::stopped))
         {
-            process_event_in_transition<states::stopped, initial_state_def_type, noop>(event);
+            process_event_in_transition<states::stopped, initial_state, noop>(event);
         }
     }
 
     template<class Event>
-    void stop(const Event& event)
+    void stop(const Event& /*event*/)
     {
-        if(!is_active_state_def_type<states::stopped>())
+        if(!is_active_state_def_type(states::stopped))
         {
-            with_active_state_def<state_def_type_list, stop_2>
-            (
-                *this,
-                event
-            );
+            //with_active_state_def<state_def_type_list, stop_2>
+            //(
+            //    *this,
+            //    event
+            //);
         }
     }
 
     template<class Event>
     void process_event(const Event& event)
     {
-        //List the transitions whose event type pattern matches Event
-        using candidate_transition_type_list = transition_table_filters::by_event_t
-        <
-            transition_table_type,
-            Event
-        >;
+//        //List the transitions whose event type pattern matches Event
+//        using candidate_transition_type_list = transition_table_filters::by_event_t
+//        <
+//            transition_table_type,
+//            Event
+//        >;
+//
+//        //List the state types that require us to call their on_event()
+//        using candidate_state_type_list =
+//            state_type_list_filters::by_required_on_event_t
+//            <
+//                state_type_list,
+//                region,
+//                Event
+//            >
+//        ;
+//
+//        constexpr auto must_try_processing_event_in_transitions = !tlu::empty_v<candidate_transition_type_list>;
+//        constexpr auto must_try_processing_event_in_active_state = !tlu::empty_v<candidate_state_type_list>;
+//
+//        if constexpr(must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
+//        {
+//            if(!try_processing_event_in_transitions<candidate_transition_type_list>(event))
+//            {
+//                try_processing_event_in_active_state<candidate_state_type_list>(event);
+//            }
+//        }
+//        else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
+//        {
+//            try_processing_event_in_active_state<candidate_state_type_list>(event);
+//        }
+//        else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
+//        {
+//            try_processing_event_in_transitions<candidate_transition_type_list>(event);
+//        }
 
-        //List the state types that require us to call their on_event()
-        using candidate_state_type_list =
-            state_type_list_filters::by_required_on_event_t
-            <
-                state_type_list,
-                region,
-                Event
-            >
-        ;
-
-        constexpr auto must_try_processing_event_in_transitions = !tlu::empty_v<candidate_transition_type_list>;
-        constexpr auto must_try_processing_event_in_active_state = !tlu::empty_v<candidate_state_type_list>;
-
-        if constexpr(must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
+        if(!try_processing_event_in_transitions<transition_table_type>(event))
         {
-            if(!try_processing_event_in_transitions<candidate_transition_type_list>(event))
-            {
-                try_processing_event_in_active_state<candidate_state_type_list>(event);
-            }
-        }
-        else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
-        {
-            try_processing_event_in_active_state<candidate_state_type_list>(event);
-        }
-        else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
-        {
-            try_processing_event_in_transitions<candidate_transition_type_list>(event);
+            //try_processing_event_in_active_state<transition_table_type>(event);
         }
     }
 
     template<class Event>
     void process_event(const Event& event, bool& processed)
     {
-        //List the transitions whose event type pattern matches Event
-        using candidate_transition_type_list = transition_table_filters::by_event_t
-        <
-            transition_table_type,
-            Event
-        >;
+//        //List the transitions whose event type pattern matches Event
+//        using candidate_transition_type_list = transition_table_filters::by_event_t
+//        <
+//            transition_table_type,
+//            Event
+//        >;
+//
+//        //List the state types that require us to call their on_event()
+//        using candidate_state_type_list =
+//            state_type_list_filters::by_required_on_event_t
+//            <
+//                state_type_list,
+//                region,
+//                Event
+//            >
+//        ;
+//
+//        constexpr auto must_try_processing_event_in_transitions = !tlu::empty_v<candidate_transition_type_list>;
+//        constexpr auto must_try_processing_event_in_active_state = !tlu::empty_v<candidate_state_type_list>;
+//
+//        if constexpr(must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
+//        {
+//            if(try_processing_event_in_transitions<candidate_transition_type_list>(event))
+//            {
+//                processed = true;
+//            }
+//            else
+//            {
+//                try_processing_event_in_active_state<candidate_state_type_list>(event, processed);
+//            }
+//        }
+//        else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
+//        {
+//            try_processing_event_in_active_state<candidate_state_type_list>(event, processed);
+//        }
+//        else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
+//        {
+//            try_processing_event_in_transitions<candidate_transition_type_list>(event, processed);
+//        }
 
-        //List the state types that require us to call their on_event()
-        using candidate_state_type_list =
-            state_type_list_filters::by_required_on_event_t
-            <
-                state_type_list,
-                region,
-                Event
-            >
-        ;
-
-        constexpr auto must_try_processing_event_in_transitions = !tlu::empty_v<candidate_transition_type_list>;
-        constexpr auto must_try_processing_event_in_active_state = !tlu::empty_v<candidate_state_type_list>;
-
-        if constexpr(must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
+        if(try_processing_event_in_transitions<transition_table_type>(event))
         {
-            if(try_processing_event_in_transitions<candidate_transition_type_list>(event))
-            {
-                processed = true;
-            }
-            else
-            {
-                try_processing_event_in_active_state<candidate_state_type_list>(event, processed);
-            }
+            processed = true;
         }
-        else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
+        else
         {
-            try_processing_event_in_active_state<candidate_state_type_list>(event, processed);
-        }
-        else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
-        {
-            try_processing_event_in_transitions<candidate_transition_type_list>(event, processed);
+            try_processing_event_in_active_state<transition_table_type>(event, processed);
         }
     }
 
@@ -258,22 +272,24 @@ private:
 
     using transition_table_type = tlu::get_t<typename ParentSm::transition_table_type_list, Index>;
 
-    using transition_table_digest_type =
-        detail::transition_table_digest<transition_table_type, region>
-    ;
+//    using transition_table_digest_type =
+//        detail::transition_table_digest<transition_table_type, region>
+//    ;
+//
+//    using state_def_type_list = typename transition_table_digest_type::state_def_type_list;
+//
+//    using state_type_list = typename transition_table_digest_type::state_type_list;
+//
+//    using non_empty_state_type_list = tlu::filter_t
+//    <
+//        state_type_list,
+//        state_traits::needs_unique_instance
+//    >;
+//    using state_holder_tuple_type = tlu::apply_t<non_empty_state_type_list, machine_object_holder_tuple_t>;
 
-    using state_def_type_list = typename transition_table_digest_type::state_def_type_list;
+//    using initial_state_def_type = detail::tlu::front_t<state_def_type_list>;
 
-    using state_type_list = typename transition_table_digest_type::state_type_list;
-
-    using non_empty_state_type_list = tlu::filter_t
-    <
-        state_type_list,
-        state_traits::needs_unique_instance
-    >;
-    using state_holder_tuple_type = tlu::apply_t<non_empty_state_type_list, machine_object_holder_tuple_t>;
-
-    using initial_state_def_type = detail::tlu::front_t<state_def_type_list>;
+    static constexpr const auto& initial_state = tlu::get_t<transition_table_type, 0>::source_state;
 
     struct stop_2
     {
@@ -305,51 +321,51 @@ private:
         template<class Transition, class Event, class... ExtraArgs>
         static bool call(region& self, const Event& event, ExtraArgs&... extra_args)
         {
-            using source_state_t = typename Transition::source_state_type_pattern;
-            using target_state_t = typename Transition::target_state_type;
+            static constexpr const auto& source_state = Transition::source_state;
+            static constexpr const auto& target_state = Transition::target_state;
 
-            if constexpr(is_type_pattern_v<source_state_t>)
-            {
-                //List of state defs that match with the source state pattern
-                using matching_state_def_type_list = state_type_list_filters::by_pattern_t
-                <
-                    state_def_type_list,
-                    source_state_t
-                >;
+            //if constexpr(is_type_pattern_v<source_state_t>)
+            //{
+            //    //List of state defs that match with the source state pattern
+            //    using matching_state_def_type_list = state_type_list_filters::by_pattern_t
+            //    <
+            //        state_def_type_list,
+            //        source_state_t
+            //    >;
 
-                static_assert(!tlu::empty_v<matching_state_def_type_list>);
+            //    static_assert(!tlu::empty_v<matching_state_def_type_list>);
 
-                return tlu::for_each_or
-                <
-                    matching_state_def_type_list,
-                    try_processing_event_in_transition_2
-                    <
-                        target_state_t,
-                        Transition::action,
-                        Transition::guard
-                    >
-                >(self, event, extra_args...);
-            }
-            else
+            //    return tlu::for_each_or
+            //    <
+            //        matching_state_def_type_list,
+            //        try_processing_event_in_transition_2
+            //        <
+            //            target_state_t,
+            //            Transition::action,
+            //            Transition::guard
+            //        >
+            //    >(self, event, extra_args...);
+            //}
+            //else
             {
                 return try_processing_event_in_transition_2
                 <
-                    target_state_t,
+                    target_state,
                     Transition::action,
                     Transition::guard
-                >::template call<source_state_t>(self, event, extra_args...);
+                >::template call<source_state>(self, event, extra_args...);
             }
         }
     };
 
-    template<class TargetStateDef, const auto& Action, const auto& Guard>
+    template<const auto& TargetStateDef, const auto& Action, const auto& Guard>
     struct try_processing_event_in_transition_2
     {
-        template<class SourceStateDef, class Event, class... ExtraArgs>
+        template<const auto& SourceStateDef, class Event, class... ExtraArgs>
         static bool call(region& self, const Event& event, ExtraArgs&... extra_args)
         {
             //Make sure the transition source state is the active state
-            if(!self.is_active_state_def_type<SourceStateDef>())
+            if(!self.is_active_state_def_type(SourceStateDef))
             {
                 return false;
             }
@@ -371,21 +387,20 @@ private:
         }
     };
 
-    template<class SourceStateDef, class TargetStateDef, const auto& Action, class Event>
+    template<const auto& SourceState, const auto& TargetState, const auto& Action, class Event>
     void process_event_in_transition(const Event& event, bool& processed)
     {
-        process_event_in_transition<SourceStateDef, TargetStateDef, Action>(event);
+        process_event_in_transition<SourceState, TargetState, Action>(event);
         processed = true;
     }
 
-    template<class SourceStateDef, class TargetStateDef, const auto& Action, class Event>
+    template<const auto& SourceStateDef, const auto& TargetStateDef, const auto& Action, class Event>
     void process_event_in_transition(const Event& event)
     {
         using path_t = region_path_of_t<region>;
 
         constexpr auto is_internal_transition =
-            std::is_same_v<TargetStateDef, null>
-        ;
+            static_cast<const void*>(&TargetStateDef) == &null;
 
         if constexpr(!is_internal_transition)
         {
@@ -400,21 +415,18 @@ private:
                 >(event);
             }
 
-            if constexpr(!std::is_same_v<SourceStateDef, states::stopped>)
+            if constexpr(&SourceStateDef != static_cast<const void*>(&states::stopped))
             {
-                detail::call_on_exit
+                detail::call_me
                 (
-                    state_from_state_def<SourceStateDef>(),
+                    //state_from_state_def<SourceStateDef>(),
+                    TargetStateDef.on_exit,
                     root_sm_,
                     event
                 );
             }
 
-            active_state_index_ = index_of_state_v
-            <
-                state_def_type_list,
-                TargetStateDef
-            >;
+            pactive_state_ = &TargetStateDef;
         }
 
         detail::call_action_or_guard<Action>
@@ -426,11 +438,12 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(!std::is_same_v<TargetStateDef, states::stopped>)
+            if constexpr(&TargetStateDef != static_cast<const void*>(&states::stopped))
             {
-                detail::call_on_entry
+                detail::call_me
                 (
-                    state_from_state_def<TargetStateDef>(),
+                    //state_from_state_def<TargetStateDef>(),
+                    TargetStateDef.on_entry,
                     root_sm_,
                     event
                 );
@@ -448,16 +461,16 @@ private:
             }
 
             //Anonymous transition
-            if constexpr(transition_table_digest_type::has_null_events)
-            {
-                using candidate_transition_type_list = transition_table_filters::by_event_t
-                <
-                    transition_table_type,
-                    null
-                >;
+            //if constexpr(transition_table_digest_type::has_null_events)
+            //{
+            //    using candidate_transition_type_list = transition_table_filters::by_event_t
+            //    <
+            //        transition_table_type,
+            //        null
+            //    >;
 
-                try_processing_event_in_transitions<candidate_transition_type_list>(null{});
-            }
+            //    try_processing_event_in_transitions<candidate_transition_type_list>(null{});
+            //}
         }
     }
 
@@ -491,38 +504,28 @@ private:
     };
 
     template<class State>
-    [[nodiscard]] bool is_active_state_type() const
+    [[nodiscard]] bool is_active_state_type(const State& stt) const
     {
-        constexpr auto given_state_index = index_of_state_v
-        <
-            state_type_list,
-            State
-        >;
-        return given_state_index == active_state_index_;
+        return &stt == pactive_state_;
     }
 
     template<class StateDef>
-    [[nodiscard]] bool is_active_state_def_type() const
+    [[nodiscard]] bool is_active_state_def_type(const StateDef& stt) const
     {
-        constexpr auto given_state_index = index_of_state_v
-        <
-            state_def_type_list,
-            StateDef
-        >;
-        return given_state_index == active_state_index_;
+        return &stt == pactive_state_;
     }
 
-    template<class TypePattern>
-    [[nodiscard]] bool does_active_state_def_match_pattern() const
-    {
-        auto matches = false;
-        with_active_state_def
-        <
-            tlu::push_back_t<state_def_type_list, states::stopped>,
-            does_active_state_def_match_pattern_2<TypePattern>
-        >(matches);
-        return matches;
-    }
+    //template<class TypePattern>
+    //[[nodiscard]] bool does_active_state_def_match_pattern() const
+    //{
+    //    auto matches = false;
+    //    with_active_state_def
+    //    <
+    //        tlu::push_back_t<state_def_type_list, states::stopped>,
+    //        does_active_state_def_match_pattern_2<TypePattern>
+    //    >(matches);
+    //    return matches;
+    //}
 
     template<class TypePattern>
     struct does_active_state_def_match_pattern_2
@@ -608,9 +611,10 @@ private:
 
     root_sm_type& root_sm_;
     std::decay_t<typename ParentSm::context_type>& ctx_;
-    state_holder_tuple_type state_holders_;
+    //state_holder_tuple_type state_holders_;
 
-    int active_state_index_ = index_of_state_v<state_def_type_list, states::stopped>;
+    //int active_state_index_ = index_of_state_v<state_def_type_list, states::stopped>;
+    const void* pactive_state_ = &states::stopped;
 };
 
 template<class ParentSm, int Index>

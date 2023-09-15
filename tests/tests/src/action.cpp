@@ -61,10 +61,10 @@ TEST_CASE("action")
     machine.start();
 
     machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.is_active_state(states::on));
     REQUIRE(machine.context().i == 1);
 
     machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.is_active_state(states::off));
     REQUIRE(machine.context().i == 0);
 }

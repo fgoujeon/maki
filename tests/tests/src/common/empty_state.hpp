@@ -8,6 +8,6 @@
 #define COMMON_EMPTY_STATE_HPP
 
 #define EMPTY_STATE(name) \
-    constexpr auto name = maki::state<>{}.set_pretty_name(#name);
+    constexpr auto name = maki::state_c.set_pretty_name(#name);
 
 #endif

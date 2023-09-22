@@ -476,15 +476,15 @@ private:
 
             //Anonymous transition
             //if constexpr(transition_table_digest_type::has_null_events)
-            //{
-            //    using candidate_transition_type_list = transition_table_filters::by_event_t
-            //    <
-            //        transition_table_type,
-            //        null
-            //    >;
+            {
+                using candidate_transition_type_list = transition_table_filters::by_event_t
+                <
+                    transition_table_type,
+                    null_t
+                >;
 
-            //    try_processing_event_in_transitions<candidate_transition_type_list>(null{});
-            //}
+                try_processing_event_in_transitions<candidate_transition_type_list>(null);
+            }
         }
     }
 

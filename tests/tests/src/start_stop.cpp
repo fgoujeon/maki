@@ -17,45 +17,27 @@ namespace
 
     namespace states
     {
-        struct s0
-        {
-            using conf = maki::state_conf
-                ::on_entry_any
-                ::on_exit_any
-            ;
-
-            void on_entry()
+        constexpr auto s0 = maki::state_c
+            .set_on_entry([](auto& mach, const auto& /*event*/)
             {
-                ctx.out += "s0::on_entry;";
-            }
-
-            void on_exit()
+                mach.context().out += "s0::on_entry;";
+            })
+            .set_on_exit([](auto& mach, const auto& /*event*/)
             {
-                ctx.out += "s0::on_exit;";
-            }
+                mach.context().out += "s0::on_exit;";
+            })
+        ;
 
-            context& ctx;
-        };
-
-        struct s1
-        {
-            using conf = maki::state_conf
-                ::on_entry_any
-                ::on_exit_any
-            ;
-
-            void on_entry()
+        constexpr auto s1 = maki::state_c
+            .set_on_entry([](auto& mach, const auto& /*event*/)
             {
-                ctx.out += "s1::on_entry;";
-            }
-
-            void on_exit()
+                mach.context().out += "s1::on_entry;";
+            })
+            .set_on_exit([](auto& mach, const auto& /*event*/)
             {
-                ctx.out += "s1::on_exit;";
-            }
-
-            context& ctx;
-        };
+                mach.context().out += "s1::on_exit;";
+            })
+        ;
     }
 
     namespace events
@@ -64,7 +46,7 @@ namespace
     }
 
     using transition_table_t = maki::transition_table
-        ::add<states::s0, maki::null,           states::s1>
+        ::add<states::s0, maki::null_t,         states::s1>
         ::add<states::s1, events::button_press, states::s0>
     ;
 
@@ -89,7 +71,7 @@ TEST_CASE("start_stop")
     REQUIRE(ctx.out == "");
 
     machine.start();
-    REQUIRE(machine.is_active_state<states::s1>());
+    REQUIRE(machine.is_active_state(states::s1));
     REQUIRE(ctx.out == "s0::on_entry;s0::on_exit;s1::on_entry;");
 
     ctx.out.clear();

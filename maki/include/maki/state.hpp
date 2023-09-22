@@ -13,6 +13,18 @@
 namespace maki
 {
 
+namespace detail
+{
+    template<class OnEntry = noop_t, class OnEvent = noop_t, class OnExit = noop_t>
+    constexpr auto make_state
+    (
+        const std::string_view pretty_name = "",
+        const OnEntry& on_entry = noop,
+        const OnEvent& on_event = noop,
+        const OnExit& on_exit = noop
+    );
+}
+
 template<class OnEntry = noop_t, class OnEvent = noop_t, class OnExit = noop_t>
 struct state
 {
@@ -23,27 +35,42 @@ struct state
 
     constexpr auto set_pretty_name(const std::string_view value) const
     {
-        return state{value, on_entry, on_event, on_exit};
+        return detail::make_state(value, on_entry, on_event, on_exit);
     }
 
     template<class Value>
     constexpr auto set_on_entry(const Value& value) const
     {
-        return state{pretty_name, value, on_event, on_exit};
+        return detail::make_state(pretty_name, value, on_event, on_exit);
     }
 
     template<class Value>
     constexpr auto set_on_event(const Value& value) const
     {
-        return state{pretty_name, on_entry, value, on_exit};
+        return detail::make_state(pretty_name, on_entry, value, on_exit);
     }
 
     template<class Value>
     constexpr auto set_on_exit(const Value& value) const
     {
-        return state{pretty_name, on_entry, on_event, value};
+        return detail::make_state(pretty_name, on_entry, on_event, value);
     }
 };
+
+namespace detail
+{
+    template<class OnEntry, class OnEvent, class OnExit>
+    constexpr auto make_state
+    (
+        const std::string_view pretty_name,
+        const OnEntry& on_entry,
+        const OnEvent& on_event,
+        const OnExit& on_exit
+    )
+    {
+        return state<OnEntry, OnEvent, OnExit>{pretty_name, on_entry, on_event, on_exit};
+    }
+}
 
 inline constexpr auto state_c = state<>{};
 

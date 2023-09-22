@@ -171,13 +171,13 @@ public:
     template<class Event>
     void process_event(const Event& event)
     {
-//        //List the transitions whose event type pattern matches Event
-//        using candidate_transition_type_list = transition_table_filters::by_event_t
-//        <
-//            transition_table_type,
-//            Event
-//        >;
-//
+        //List the transitions whose event type pattern matches Event
+        using candidate_transition_type_list = transition_table_filters::by_event_t
+        <
+            transition_table_type,
+            Event
+        >;
+
 //        //List the state types that require us to call their on_event()
 //        using candidate_state_type_list =
 //            state_type_list_filters::by_required_on_event_t
@@ -188,7 +188,7 @@ public:
 //            >
 //        ;
 //
-//        constexpr auto must_try_processing_event_in_transitions = !tlu::empty_v<candidate_transition_type_list>;
+        constexpr auto must_try_processing_event_in_transitions = !tlu::empty_v<candidate_transition_type_list>;
 //        constexpr auto must_try_processing_event_in_active_state = !tlu::empty_v<candidate_state_type_list>;
 //
 //        if constexpr(must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
@@ -207,9 +207,12 @@ public:
 //            try_processing_event_in_transitions<candidate_transition_type_list>(event);
 //        }
 
-        if(!try_processing_event_in_transitions<transition_table_type>(event))
+        if constexpr(must_try_processing_event_in_transitions)
         {
-            //try_processing_event_in_active_state<transition_table_type>(event);
+            if(!try_processing_event_in_transitions<transition_table_type>(event))
+            {
+                //try_processing_event_in_active_state<transition_table_type>(event);
+            }
         }
     }
 

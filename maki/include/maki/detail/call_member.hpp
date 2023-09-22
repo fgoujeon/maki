@@ -97,6 +97,42 @@ void call_on_entry
     }
 }
 
+template<class State, class Sm, class Context, class Event>
+void call_on_event(State& state, Sm& mach, Context& ctx, const Event& event)
+{
+    if constexpr(has_on_event<State&, const Event&>())
+    {
+        state.on_event(event);
+    }
+    else if constexpr(has_on_event_ce<State&, Context&, const Event&>())
+    {
+        state.on_event_ce(ctx, event);
+    }
+    else if constexpr(has_on_event_mce<State&, Sm&, Context&, const Event&>())
+    {
+        state.on_event_mce(mach, ctx, event);
+    }
+    else
+    {
+        constexpr auto is_false = sizeof(Sm) == 0;
+        static_assert(is_false, "No valid on_event() signature found in state");
+    }
+}
+
+template<class State, class Sm, class Context, class Event>
+void call_on_event(State& state, Sm& /*mach*/, Context& /*ctx*/, const Event& event, bool& processed)
+{
+    if constexpr(state_traits::is_submachine_v<State>)
+    {
+        state.on_event(event, processed);
+    }
+    else
+    {
+        state.on_event(event);
+        processed = true;
+    }
+}
+
 template<class State, class Sm, class Event>
 void call_on_exit
 (

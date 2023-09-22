@@ -29,42 +29,29 @@ namespace
 
     namespace states
     {
-        struct off
-        {
-            using conf = maki::state_conf
-                ::on_event<events::button_press>
-            ;
-
-            void on_event(const events::button_press& event)
+        constexpr auto off = maki::state_c
+            .set_on_event([](auto& mach, const auto& event)
             {
-                ctx.out += event.data + "2;";
-            }
+                if constexpr(std::is_same_v<std::decay_t<decltype(event)>, events::button_press>)
+                {
+                    mach.context().out += event.data + "2;";
+                }
+            })
+        ;
 
-            context& ctx;
-        };
-
-        struct on
-        {
-            using conf = maki::state_conf
-                ::on_event
-                <
-                    events::button_press,
-                    events::alert_button_press
-                >
-            ;
-
-            void on_event(const events::button_press& /*event*/)
+        constexpr auto on = maki::state_c
+            .set_on_event([](auto& mach, const auto& event)
             {
-                ctx.out += "_";
-            }
-
-            void on_event(const events::alert_button_press& /*event*/)
-            {
-                ctx.out += "beep;";
-            }
-
-            context& ctx;
-        };
+                if constexpr(std::is_same_v<std::decay_t<decltype(event)>, events::button_press>)
+                {
+                    mach.context().out += "_";
+                }
+                else if constexpr(std::is_same_v<std::decay_t<decltype(event)>, events::alert_button_press>)
+                {
+                    mach.context().out += "beep;";
+                }
+            })
+        ;
     }
 
     using transition_table_t = maki::transition_table
@@ -100,11 +87,11 @@ TEST_CASE("on_event")
 
     ctx.out.clear();
     machine.process_event(events::button_press{"a"});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.is_active_state(states::on));
     REQUIRE(ctx.out == "a1;");
 
     ctx.out.clear();
     machine.process_event(events::alert_button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.is_active_state(states::on));
     REQUIRE(ctx.out == "beep;");
 }

@@ -49,30 +49,40 @@ namespace
         ;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>
-        void before_state_transition(const Event& /*event*/)
+        void before_state_transition
+        (
+            const SourceState& source_state,
+            const Event& /*event*/,
+            const TargetState& target_state
+        )
         {
             static_assert(std::is_same_v<RegionPath, maki::region_path<machine_def>>);
 
             ctx.out += "Transition in ";
             ctx.out += RegionPath::to_string();
             ctx.out += ": ";
-            ctx.out += maki::pretty_name<SourceState>();
+            ctx.out += source_state.pretty_name;
             ctx.out += " -> ";
-            ctx.out += maki::pretty_name<TargetState>();
+            ctx.out += target_state.pretty_name;
             ctx.out += "...;";
         }
 
         template<class RegionPath, class SourceState, class Event, class TargetState>
-        void after_state_transition(const Event& /*event*/)
+        void after_state_transition
+        (
+            const SourceState& source_state,
+            const Event& /*event*/,
+            const TargetState& target_state
+        )
         {
             static_assert(std::is_same_v<RegionPath, maki::region_path<machine_def>>);
 
             ctx.out += "Transition in ";
             ctx.out += RegionPath::to_string();
             ctx.out += ": ";
-            ctx.out += maki::pretty_name<SourceState>();
+            ctx.out += source_state.pretty_name;
             ctx.out += " -> ";
-            ctx.out += maki::pretty_name<TargetState>();
+            ctx.out += target_state.pretty_name;
             ctx.out += ";";
         }
 
@@ -93,7 +103,7 @@ TEST_CASE("double_start_stop")
     machine.start();
     machine.start();
 
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.is_active_state(states::off));
     REQUIRE
     (
         out ==

@@ -134,7 +134,7 @@ public:
     }
 
     template<class StateDef>
-    [[nodiscard]] bool is_active_state_def(const StateDef& state) const
+    [[nodiscard]] bool is_active_state_def(const StateDef& stt) const
     {
         //if constexpr(is_type_pattern_v<StateDef>)
         //{
@@ -142,7 +142,7 @@ public:
         //}
         //else
         {
-            return is_active_state_def_type(state);
+            return is_active_state_def_type(stt);
         }
     }
 
@@ -151,20 +151,20 @@ public:
     {
         if(is_active_state_def_type(states::stopped))
         {
-            process_event_in_transition<states::stopped, initial_state, noop>(event);
+            process_event_in_transition(states::stopped, event, initial_state, noop);
         }
     }
 
     template<class Event>
-    void stop(const Event& /*event*/)
+    void stop(const Event& event)
     {
         if(!is_active_state_def_type(states::stopped))
         {
-            //with_active_state_def<state_def_type_list, stop_2>
-            //(
-            //    *this,
-            //    event
-            //);
+            with_active_state_def<stop_2>
+            (
+                *this,
+                event
+            );
         }
     }
 
@@ -272,6 +272,10 @@ private:
 
     using transition_table_type = tlu::get_t<typename ParentSm::transition_table_type_list, Index>;
 
+    using transition_table_digest_type =
+        detail::transition_table_digest<transition_table_type>
+    ;
+
 //    using transition_table_digest_type =
 //        detail::transition_table_digest<transition_table_type, region>
 //    ;
@@ -289,19 +293,16 @@ private:
 
 //    using initial_state_def_type = detail::tlu::front_t<state_def_type_list>;
 
-    static constexpr const auto& initial_state = tlu::get_t<transition_table_type, 0>::source_state;
+    static constexpr auto& initial_state = tlu::front_t<transition_table_type>::source_state;
+
+    static constexpr auto state_ptrs = transition_table_digest<transition_table_type>::states;
 
     struct stop_2
     {
-        template<class ActiveState, class Event>
-        static void call(region& self, const Event& event)
+        template<class Event, class ActiveState>
+        static void call(region& self, const Event& event, const ActiveState& stt)
         {
-            self.process_event_in_transition
-            <
-                ActiveState,
-                states::stopped,
-                noop
-            >(event);
+            self.process_event_in_transition(stt, event, states::stopped, noop);
         }
     };
 
@@ -350,114 +351,124 @@ private:
             {
                 return try_processing_event_in_transition_2
                 <
-                    target_state,
                     Transition::action,
                     Transition::guard
-                >::template call<source_state>(self, event, extra_args...);
+                >::template call(self, source_state, event, target_state, extra_args...);
             }
         }
     };
 
-    template<const auto& TargetStateDef, const auto& Action, const auto& Guard>
+    template<const auto& Action, const auto& Guard>
     struct try_processing_event_in_transition_2
     {
-        template<const auto& SourceStateDef, class Event, class... ExtraArgs>
-        static bool call(region& self, const Event& event, ExtraArgs&... extra_args)
+        template<class SourceState, class Event, class TargetState, class... ExtraArgs>
+        static bool call
+        (
+            region& self,
+            const SourceState& source_state,
+            const Event& event,
+            const TargetState& target_state,
+            ExtraArgs&... extra_args
+        )
         {
             //Make sure the transition source state is the active state
-            if(!self.is_active_state_def_type(SourceStateDef))
+            if(!self.is_active_state_def_type(source_state))
             {
                 return false;
             }
 
             //Check guard
-            if(!detail::call_action_or_guard<Guard>(self.root_sm_, self.ctx_, event))
+            if(!detail::call_action_or_guard(Guard, self.root_sm_, self.ctx_, event))
             {
                 return false;
             }
 
             self.process_event_in_transition
-            <
-                SourceStateDef,
-                TargetStateDef,
-                Action
-            >(event, extra_args...);
+            (
+                source_state,
+                event,
+                target_state,
+                Action,
+                extra_args...
+            );
 
             return true;
         }
     };
 
-    template<const auto& SourceState, const auto& TargetState, const auto& Action, class Event>
-    void process_event_in_transition(const Event& event, bool& processed)
+    template<class SourceState, class Event, class TargetState, class Action>
+    void process_event_in_transition
+    (
+        const SourceState& source_state,
+        const Event& event,
+        const TargetState& target_state,
+        const Action& action,
+        bool& processed
+    )
     {
-        process_event_in_transition<SourceState, TargetState, Action>(event);
+        process_event_in_transition(source_state, event, target_state, action);
         processed = true;
     }
 
-    template<const auto& SourceStateDef, const auto& TargetStateDef, const auto& Action, class Event>
-    void process_event_in_transition(const Event& event)
+    template<class SourceState, class Event, class TargetState, class Action>
+    void process_event_in_transition
+    (
+        const SourceState& source_state,
+        const Event& event,
+        const TargetState& target_state,
+        const Action& action
+    )
     {
         using path_t = region_path_of_t<region>;
 
-        constexpr auto is_internal_transition =
-            static_cast<const void*>(&TargetStateDef) == &null;
+        const auto is_internal_transition =
+            static_cast<const void*>(&target_state) == &null;
 
-        if constexpr(!is_internal_transition)
+        if(!is_internal_transition)
         {
             if constexpr(option_v<machine_conf_tpl, option_id::before_state_transition>)
             {
-                root_sm_.def().template before_state_transition
-                <
-                    path_t,
-                    SourceStateDef,
-                    Event,
-                    TargetStateDef
-                >(event);
-            }
-
-            if constexpr(&SourceStateDef != static_cast<const void*>(&states::stopped))
-            {
-                detail::call_me
+                root_sm_.def().template before_state_transition<path_t>
                 (
-                    //state_from_state_def<SourceStateDef>(),
-                    TargetStateDef.on_exit,
-                    root_sm_,
-                    event
+                    source_state,
+                    event,
+                    target_state
                 );
             }
 
-            pactive_state_ = &TargetStateDef;
+            detail::call_me
+            (
+                source_state.on_exit,
+                root_sm_,
+                event
+            );
+
+            pactive_state_ = &target_state;
         }
 
-        detail::call_action_or_guard<Action>
+        detail::call_action_or_guard
         (
+            action,
             root_sm_,
             ctx_,
             event
         );
 
-        if constexpr(!is_internal_transition)
+        if(!is_internal_transition)
         {
-            if constexpr(&TargetStateDef != static_cast<const void*>(&states::stopped))
-            {
-                detail::call_me
-                (
-                    //state_from_state_def<TargetStateDef>(),
-                    TargetStateDef.on_entry,
-                    root_sm_,
-                    event
-                );
-            }
+            detail::call_me
+            (
+                target_state.on_entry,
+                root_sm_,
+                event
+            );
 
             if constexpr(option_v<machine_conf_tpl, option_id::after_state_transition>)
             {
                 root_sm_.def().template after_state_transition
                 <
-                    path_t,
-                    SourceStateDef,
-                    Event,
-                    TargetStateDef
-                >(event);
+                    path_t
+                >(source_state, event, target_state);
             }
 
             //Anonymous transition
@@ -540,14 +551,20 @@ private:
         }
     };
 
-    template<class StateDefTypeList, class F, class... Args>
+    template<class F, class... Args>
     void with_active_state_def(Args&&... args) const
     {
-        tlu::for_each_or
-        <
-            StateDefTypeList,
-            with_active_state_def_2<F>
-        >(*this, std::forward<Args>(args)...);
+        for_each_element
+        (
+            state_ptrs,
+            [&](const auto pstate)
+            {
+                if(pactive_state_ == pstate)
+                {
+                    F::call(args..., *pstate);
+                }
+            }
+        );
     }
 
     template<class F>

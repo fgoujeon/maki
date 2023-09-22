@@ -163,31 +163,32 @@ void call_on_exit
     }
 }
 
-template<const auto& Fn, class Sm, class Context, class Event>
+template<class ActionOrGuard, class Sm, class Context, class Event>
 auto call_action_or_guard
 (
+    const ActionOrGuard& action_or_guard,
     [[maybe_unused]] Sm& mach,
     [[maybe_unused]] Context& ctx,
     [[maybe_unused]] const Event& event
 )
 {
-    using fn_t = std::decay_t<decltype(Fn)>;
+    using fn_t = std::decay_t<ActionOrGuard>;
 
     if constexpr(std::is_invocable_v<fn_t, Sm&, Context&, const Event&>)
     {
-        return Fn(mach, ctx, event);
+        return action_or_guard(mach, ctx, event);
     }
     else if constexpr(std::is_invocable_v<fn_t, Context&, const Event&>)
     {
-        return Fn(ctx, event);
+        return action_or_guard(ctx, event);
     }
     else if constexpr(std::is_invocable_v<fn_t, Context&>)
     {
-        return Fn(ctx);
+        return action_or_guard(ctx);
     }
     else if constexpr(is_nullary_v<fn_t>)
     {
-        return Fn();
+        return action_or_guard();
     }
     else
     {

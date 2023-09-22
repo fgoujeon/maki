@@ -7,6 +7,7 @@
 #ifndef MAKI_DETAIL_TUPLE_2_HPP
 #define MAKI_DETAIL_TUPLE_2_HPP
 
+#include <functional>
 #include <utility>
 
 namespace maki::detail
@@ -92,17 +93,28 @@ struct apply_helper;
 template<std::size_t... Indexes>
 struct apply_helper<std::index_sequence<Indexes...>>
 {
-    template<class Tuple, class F>
-    static void call(const Tuple& tpl, F&& fun)
+    template<class... Ts, class F, class... Args>
+    static void call(const tuple_2<Ts...>& tpl, F&& fun, Args&&... args)
     {
-        fun(tpl.template get<Indexes>()...);
+        std::invoke
+        (
+            std::forward<F>(fun),
+            std::forward<Args>(args)...,
+            tpl.template get<Indexes>()...
+        );
     }
 };
 
-template<class... Ts, class F>
-void apply(const tuple_2<Ts...>& tpl, F&& fun)
+template<class... Ts, class F, class... Args>
+void apply(const tuple_2<Ts...>& tpl, F&& fun, Args&&... args)
 {
-    apply_helper<std::make_index_sequence<sizeof...(Ts)>>::call(tpl, fun);
+    using index_sequence_t = std::make_index_sequence<sizeof...(Ts)>;
+    apply_helper<index_sequence_t>::call
+    (
+        tpl,
+        std::forward<F>(fun),
+        std::forward<Args>(args)...
+    );
 }
 
 
@@ -139,17 +151,67 @@ struct for_each_element_helper;
 template<std::size_t... Indexes>
 struct for_each_element_helper<std::index_sequence<Indexes...>>
 {
-    template<class Tuple, class F>
-    static void call(const Tuple& tpl, F&& fun)
+    template<class... Ts, class F, class... Args>
+    static void call(const tuple_2<Ts...>& tpl, F&& fun, Args&&... args)
     {
-        (fun(tpl.template get<Indexes>()), ...);
+        (
+            std::invoke
+            (
+                std::forward<F>(fun),
+                tpl.template get<Indexes>(),
+                std::forward<Args>(args)...
+            ),
+            ...
+        );
     }
 };
 
-template<class... Ts, class F>
-void for_each_element(const tuple_2<Ts...>& tpl, F&& fun)
+template<class... Ts, class F, class... Args>
+void for_each_element(const tuple_2<Ts...>& tpl, F&& fun, Args&&... args)
 {
-    for_each_element_helper<std::make_index_sequence<sizeof...(Ts)>>::call(tpl, fun);
+    for_each_element_helper<std::make_index_sequence<sizeof...(Ts)>>::call
+    (
+        tpl,
+        std::forward<F>(fun),
+        std::forward<Args>(args)...
+    );
+}
+
+
+/*
+for_each_element_or
+*/
+
+template<class IndexSequence>
+struct for_each_element_or_helper;
+
+template<std::size_t... Indexes>
+struct for_each_element_or_helper<std::index_sequence<Indexes...>>
+{
+    template<class... Ts, class F, class... Args>
+    static bool call(const tuple_2<Ts...>& tpl, F&& fun, Args&&... args)
+    {
+        return (
+            std::invoke
+            (
+                std::forward<F>(fun),
+                tpl.template get<Indexes>(),
+                std::forward<Args>(args)...
+            ) ||
+            ...
+        );
+    }
+};
+
+template<class... Ts, class F, class... Args>
+bool for_each_element_or(const tuple_2<Ts...>& tpl, F&& fun, Args&&... args)
+{
+    return for_each_element_or_helper<std::make_index_sequence<sizeof...(Ts)>>::call
+    (
+        tpl,
+        std::forward<F>(fun),
+        std::forward<Args>(args)...
+    );
 }
 
 

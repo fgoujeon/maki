@@ -30,25 +30,25 @@ namespace
     namespace states
     {
         constexpr auto off = maki::state_c
-            .set_on_event([](auto& mach, const auto& event)
+            .set_on_event([](context& ctx, const auto& event)
             {
                 if constexpr(std::is_same_v<std::decay_t<decltype(event)>, events::button_press>)
                 {
-                    mach.context().out += event.data + "2;";
+                    ctx.out += event.data + "2;";
                 }
             })
         ;
 
         constexpr auto on = maki::state_c
-            .set_on_event([](auto& mach, const auto& event)
+            .set_on_event([](context& ctx, const auto& event)
             {
                 if constexpr(std::is_same_v<std::decay_t<decltype(event)>, events::button_press>)
                 {
-                    mach.context().out += "_";
+                    ctx.out += "_";
                 }
                 else if constexpr(std::is_same_v<std::decay_t<decltype(event)>, events::alert_button_press>)
                 {
-                    mach.context().out += "beep;";
+                    ctx.out += "beep;";
                 }
             })
         ;

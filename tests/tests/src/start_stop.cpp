@@ -18,24 +18,24 @@ namespace
     namespace states
     {
         constexpr auto s0 = maki::state_c
-            .set_on_entry([](auto& mach, const auto& /*event*/)
+            .set_on_entry([](context& ctx)
             {
-                mach.context().out += "s0::on_entry;";
+                ctx.out += "s0::on_entry;";
             })
-            .set_on_exit([](auto& mach, const auto& /*event*/)
+            .set_on_exit([](context& ctx)
             {
-                mach.context().out += "s0::on_exit;";
+                ctx.out += "s0::on_exit;";
             })
         ;
 
         constexpr auto s1 = maki::state_c
-            .set_on_entry([](auto& mach, const auto& /*event*/)
+            .set_on_entry([](context& ctx)
             {
-                mach.context().out += "s1::on_entry;";
+                ctx.out += "s1::on_entry;";
             })
-            .set_on_exit([](auto& mach, const auto& /*event*/)
+            .set_on_exit([](context& ctx)
             {
-                mach.context().out += "s1::on_exit;";
+                ctx.out += "s1::on_exit;";
             })
         ;
     }

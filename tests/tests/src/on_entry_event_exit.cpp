@@ -28,38 +28,38 @@ namespace
         EMPTY_STATE(idle);
 
         constexpr auto english = maki::state_c
-            .set_on_entry([](auto& mach, const auto& /*event*/)
+            .set_on_entry([](context& ctx)
             {
-                mach.context().hello = "hello";
+                ctx.hello = "hello";
             })
-            .set_on_event([](auto& mach, const auto& event)
+            .set_on_event([](context& ctx, const auto& event)
             {
                 if constexpr(std::is_same_v<std::decay_t<decltype(event)>, events::say_dog>)
                 {
-                    mach.context().dog = "dog";
+                    ctx.dog = "dog";
                 }
             })
-            .set_on_exit([](auto& mach, const auto& /*event*/)
+            .set_on_exit([](context& ctx)
             {
-                mach.context().goodbye = "goodbye";
+                ctx.goodbye = "goodbye";
             })
         ;
 
         constexpr auto french = maki::state_c
-            .set_on_entry([](auto& mach, const auto& /*event*/)
+            .set_on_entry([](context& ctx)
             {
-                mach.context().hello = "bonjour";
+                ctx.hello = "bonjour";
             })
-            .set_on_event([](auto& mach, const auto& event)
+            .set_on_event([](context& ctx, const auto& event)
             {
                 if constexpr(std::is_same_v<std::decay_t<decltype(event)>, events::say_dog>)
                 {
-                    mach.context().dog = "chien";
+                    ctx.dog = "chien";
                 }
             })
-            .set_on_exit([](auto& mach, const auto& /*event*/)
+            .set_on_exit([](context& ctx)
             {
-                mach.context().goodbye = "au revoir";
+                ctx.goodbye = "au revoir";
             })
         ;
     }

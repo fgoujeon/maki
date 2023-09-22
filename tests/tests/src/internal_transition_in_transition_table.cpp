@@ -24,32 +24,32 @@ namespace
     namespace states
     {
         constexpr auto idle = maki::state_c
-            .set_on_entry([](auto& mach, const auto& /*event*/)
+            .set_on_entry([](context& ctx)
             {
-                mach.context().out += "idle::on_entry;";
+                ctx.out += "idle::on_entry;";
             })
-            .set_on_event([](auto& mach, const auto& /*event*/)
+            .set_on_event([](context& ctx)
             {
-                mach.context().out += "idle::on_event;";
+                ctx.out += "idle::on_event;";
             })
-            .set_on_exit([](auto& mach, const auto& /*event*/)
+            .set_on_exit([](context& ctx)
             {
-                mach.context().out += "idle::on_exit;";
+                ctx.out += "idle::on_exit;";
             })
         ;
 
         constexpr auto running = maki::state_c
-            .set_on_entry([](auto& mach, const auto& /*event*/)
+            .set_on_entry([](context& ctx)
             {
-                mach.context().out += "running::on_entry;";
+                ctx.out += "running::on_entry;";
             })
-            .set_on_event([](auto& mach, const auto& /*event*/)
+            .set_on_event([](context& ctx)
             {
-                mach.context().out += "running::on_event;";
+                ctx.out += "running::on_event;";
             })
-            .set_on_exit([](auto& mach, const auto& /*event*/)
+            .set_on_exit([](context& ctx)
             {
-                mach.context().out += "running::on_exit;";
+                ctx.out += "running::on_exit;";
             })
         ;
     }

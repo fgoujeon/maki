@@ -45,16 +45,20 @@ MAKI_DETAIL_GENERATE_HAS_MEMBER_FUNCTION(on_exit)
 
 #undef MAKI_DETAIL_GENERATE_HAS_MEMBER_FUNCTION
 
-template<class Fn, class Machine, class Event>
-void call_me(Fn&& fun, Machine& mach, const Event& event)
+template<class Fn, class Machine, class Context, class Event>
+void call_mce(Fn&& fun, Machine& mach, Context& ctx, const Event& event)
 {
-    if constexpr(std::is_invocable_v<Fn, Machine&, const Event&>)
+    if constexpr(std::is_invocable_v<Fn, Machine&, Context&, const Event&>)
     {
-        fun(mach, event);
+        fun(mach, ctx, event);
     }
-    else if constexpr(std::is_invocable_v<Fn, const Event&>)
+    else if constexpr(std::is_invocable_v<Fn, Context&, const Event&>)
     {
-        fun(event);
+        fun(ctx, event);
+    }
+    else if constexpr(std::is_invocable_v<Fn, Context&>)
+    {
+        fun(ctx);
     }
     else if constexpr(is_nullary_v<Fn>)
     {

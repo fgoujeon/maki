@@ -307,7 +307,7 @@ private:
     struct stop_2
     {
         template<class Event, class ActiveState>
-        static void call(region& self, const Event& event, const ActiveState& stt)
+        static void call(const ActiveState& stt, region& self, const Event& event)
         {
             self.process_event_in_transition(stt, event, states::stopped, noop);
         }
@@ -442,10 +442,11 @@ private:
                 );
             }
 
-            detail::call_me
+            detail::call_mce
             (
                 source_state.on_exit,
                 root_sm_,
+                ctx_,
                 event
             );
 
@@ -462,10 +463,11 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            detail::call_me
+            detail::call_mce
             (
                 target_state.on_entry,
                 root_sm_,
+                ctx_,
                 event
             );
 
@@ -497,30 +499,36 @@ private:
     template<class StateTypeList, class Event, class... ExtraArgs>
     void try_processing_event_in_active_state(const Event& event, ExtraArgs&... extra_args)
     {
+        const auto try_processing = [](region& self, const auto& stt, const Event& event, ExtraArgs&... /*extra_args*/)
+        {
+            if(!self.is_active_state_type(stt))
+            {
+                return false;
+            }
+
+            if constexpr(!std::is_same_v<std::decay_t<decltype(stt)>, null_t>)
+            {
+                call_mce(stt.on_event, self.root_sm_, self.ctx_, event);
+            }
+
+            return true;
+        };
+
         apply
         (
             state_ptrs,
-            [&](const auto... pstates)
+            [](region& self, const auto& try_processing, const auto& event, /*auto&... extra_args,*/ const auto... pstates)
             {
-                (try_processing_event_in_active_state_2(*pstates, event, extra_args...) || ...);
-            }
+                (
+                    try_processing(self, *pstates, event/*, extra_args...*/) ||
+                    ...
+                );
+            },
+            *this,
+            try_processing,
+            event/*,
+            extra_args...*/
         );
-    }
-
-    template<class State, class Event, class... ExtraArgs>
-    bool try_processing_event_in_active_state_2(const State& stt, const Event& event, ExtraArgs&... /*extra_args*/)
-    {
-        if(!is_active_state_type(stt))
-        {
-            return false;
-        }
-
-        if constexpr(!std::is_same_v<State, null_t>)
-        {
-            stt.on_event(root_sm_, event);
-        }
-
-        return true;
     }
 
     template<class State>
@@ -563,33 +571,26 @@ private:
     template<class F, class... Args>
     void with_active_state_def(Args&&... args) const
     {
-        for_each_element
+        for_each_element_or
         (
             state_ptrs,
-            [&](const auto pstate)
+            [](const auto pstate, const auto pactive_state, auto&&... args)
             {
-                if(pactive_state_ == pstate)
+                if(pactive_state == pstate)
                 {
-                    F::call(args..., *pstate);
+                    F::call
+                    (
+                        *pstate,
+                        std::forward<decltype(args)>(args)...
+                    );
+                    return true;
                 }
-            }
+                return false;
+            },
+            pactive_state_,
+            std::forward<Args>(args)...
         );
     }
-
-    template<class F>
-    struct with_active_state_def_2
-    {
-        template<class StateDef, class... Args>
-        static bool call(const region& self, Args&&... args)
-        {
-            if(self.is_active_state_def_type<StateDef>())
-            {
-                F::template call<StateDef>(std::forward<Args>(args)...);
-                return true;
-            }
-            return false;
-        }
-    };
 
     template<class StateDef>
     auto& state_from_state_def()

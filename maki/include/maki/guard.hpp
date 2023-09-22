@@ -42,7 +42,7 @@ struct guard_t
     {
         if constexpr(Operator == detail::guard_operator::none)
         {
-            return detail::call_action_or_guard<Operand>(mach, ctx, event);
+            return detail::call_action_or_guard(Operand, mach, ctx, event);
         }
         if constexpr(Operator == detail::guard_operator::not_)
         {

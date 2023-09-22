@@ -22,20 +22,15 @@ namespace
 
     namespace states
     {
-        struct off
-        {
-            using conf = maki::state_conf
-                ::on_entry_any
-                ::on_exit_any
-            ;
-
-            void on_entry()
+        constexpr auto off = maki::state_c
+            .set_on_entry([](auto& mach, const auto& /*event*/)
             {
-                ctx.out += "off::on_entry;";
-            }
-
-            void on_exit()
+                mach.context().out += "off::on_entry;";
+            })
+            .set_on_exit([](auto& mach, const auto& /*event*/)
             {
+                auto& ctx = mach.context();
+
                 ctx.out += "off::on_exit;";
 
                 if(!ctx.exception_thrown)
@@ -43,30 +38,19 @@ namespace
                     ctx.exception_thrown = true;
                     throw std::runtime_error{"error"};
                 }
-            }
+            })
+        ;
 
-            context& ctx;
-        };
-
-        struct on
-        {
-            using conf = maki::state_conf
-                ::on_entry_any
-                ::on_exit_any
-            ;
-
-            void on_entry()
+        constexpr auto on = maki::state_c
+            .set_on_entry([](auto& mach, const auto& /*event*/)
             {
-                ctx.out += "on::on_entry;";
-            }
-
-            void on_exit()
+                mach.context().out += "on::on_entry;";
+            })
+            .set_on_exit([](auto& mach, const auto& /*event*/)
             {
-                ctx.out += "on::on_exit;";
-            }
-
-            context& ctx;
-        };
+                mach.context().out += "on::on_exit;";
+            })
+        ;
     }
 
     namespace actions
@@ -98,11 +82,11 @@ TEST_CASE("basic_exception")
 {
     auto machine = machine_t{};
 
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.is_active_state(states::off));
     REQUIRE(machine.context().out == "off::on_entry;");
 
     machine.context().out.clear();
     machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.is_active_state(states::off));
     REQUIRE(machine.context().out == "off::on_exit;");
 }

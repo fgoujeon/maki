@@ -36,7 +36,6 @@ namespace
         constexpr auto benchmarking = maki::state_c
             .set_on_event([](auto& mach, const auto& event)
             {
-                //static_assert(false);
                 using event_t = std::decay_t<decltype(event)>;
                 if constexpr(std::is_same_v<event_t, events::internal_transition>)
                 {

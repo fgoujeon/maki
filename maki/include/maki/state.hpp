@@ -13,6 +13,9 @@
 namespace maki
 {
 
+template<class OnEntry = noop_t, class OnEvent = noop_t, class OnExit = noop_t>
+struct state;
+
 namespace detail
 {
     template<class OnEntry = noop_t, class OnEvent = noop_t, class OnExit = noop_t>
@@ -22,10 +25,13 @@ namespace detail
         const OnEntry& on_entry = noop,
         const OnEvent& on_event = noop,
         const OnExit& on_exit = noop
-    );
+    )
+    {
+        return state<OnEntry, OnEvent, OnExit>{pretty_name, on_entry, on_event, on_exit};
+    }
 }
 
-template<class OnEntry = noop_t, class OnEvent = noop_t, class OnExit = noop_t>
+template<class OnEntry, class OnEvent, class OnExit>
 struct state
 {
     std::string_view pretty_name;
@@ -57,20 +63,6 @@ struct state
     }
 };
 
-namespace detail
-{
-    template<class OnEntry, class OnEvent, class OnExit>
-    constexpr auto make_state
-    (
-        const std::string_view pretty_name,
-        const OnEntry& on_entry,
-        const OnEvent& on_event,
-        const OnExit& on_exit
-    )
-    {
-        return state<OnEntry, OnEvent, OnExit>{pretty_name, on_entry, on_event, on_exit};
-    }
-}
 
 inline constexpr auto state_c = state<>{};
 

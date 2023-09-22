@@ -7,7 +7,7 @@
 #ifndef MAKI_DETAIL_TUPLE_2_HPP
 #define MAKI_DETAIL_TUPLE_2_HPP
 
-#include "tlu.hpp"
+#include <utility>
 
 namespace maki::detail
 {
@@ -51,7 +51,7 @@ class tuple_2: private tuple_2_base<std::make_index_sequence<sizeof...(Ts)>, Ts.
 public:
     template<class... Args>
     constexpr tuple_2(Args&&... args):
-        base_type{std::forward<Args>(args)...}
+        base_type({std::forward<Args>(args)...})
     {
     }
 
@@ -113,11 +113,11 @@ contains
 template<class... Ts, class U>
 constexpr bool contains(const tuple_2<Ts...>& tpl, const U& elem)
 {
-    constexpr auto equals = [](const auto& a, const auto& b)
+    constexpr auto equals = [](const auto& lhs, const auto& rhs)
     {
-        if constexpr(std::is_same_v<decltype(a), decltype(b)>)
+        if constexpr(std::is_same_v<decltype(lhs), decltype(rhs)>)
         {
-            return a == b;
+            return lhs == rhs;
         }
         else
         {
@@ -125,7 +125,7 @@ constexpr bool contains(const tuple_2<Ts...>& tpl, const U& elem)
         }
     };
 
-    return (equals(get<Ts>(tpl), elem) || ...);
+    return (equals(tpl.template get<Ts>(), elem) || ...);
 }
 
 

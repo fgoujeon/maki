@@ -39,30 +39,29 @@ struct state
     OnEvent on_event = noop;
     OnExit on_exit = noop;
 
-    constexpr auto set_pretty_name(const std::string_view value) const
+    [[nodiscard]] constexpr auto set_pretty_name(const std::string_view value) const
     {
         return detail::make_state(value, on_entry, on_event, on_exit);
     }
 
     template<class Value>
-    constexpr auto set_on_entry(const Value& value) const
+    [[nodiscard]] constexpr auto set_on_entry(const Value& value) const
     {
         return detail::make_state(pretty_name, value, on_event, on_exit);
     }
 
     template<class Value>
-    constexpr auto set_on_event(const Value& value) const
+    [[nodiscard]] constexpr auto set_on_event(const Value& value) const
     {
         return detail::make_state(pretty_name, on_entry, value, on_exit);
     }
 
     template<class Value>
-    constexpr auto set_on_exit(const Value& value) const
+    [[nodiscard]] constexpr auto set_on_exit(const Value& value) const
     {
         return detail::make_state(pretty_name, on_entry, on_event, value);
     }
 };
-
 
 inline constexpr auto state_c = state<>{};
 

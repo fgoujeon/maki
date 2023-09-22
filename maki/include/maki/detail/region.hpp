@@ -300,7 +300,7 @@ private:
 
 //    using initial_state_def_type = detail::tlu::front_t<state_def_type_list>;
 
-    static constexpr auto& initial_state = tlu::front_t<transition_table_type>::source_state;
+    static constexpr const auto& initial_state = tlu::front_t<transition_table_type>::source_state;
 
     static constexpr auto state_ptrs = transition_table_digest<transition_table_type>::states;
 

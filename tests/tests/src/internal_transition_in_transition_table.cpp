@@ -23,59 +23,35 @@ namespace
 
     namespace states
     {
-        struct idle
-        {
-            using conf = maki::state_conf
-                ::on_entry_any
-                ::on_event<maki::any>
-                ::on_exit_any
-            ;
-
-            void on_entry()
+        constexpr auto idle = maki::state_c
+            .set_on_entry([](auto& mach, const auto& /*event*/)
             {
-                ctx.out += "idle::on_entry;";
-            }
-
-            template<class Event>
-            void on_event(const Event&)
+                mach.context().out += "idle::on_entry;";
+            })
+            .set_on_event([](auto& mach, const auto& /*event*/)
             {
-                ctx.out += "idle::on_event;";
-            }
-
-            void on_exit()
+                mach.context().out += "idle::on_event;";
+            })
+            .set_on_exit([](auto& mach, const auto& /*event*/)
             {
-                ctx.out += "idle::on_exit;";
-            }
+                mach.context().out += "idle::on_exit;";
+            })
+        ;
 
-            context& ctx;
-        };
-
-        struct running
-        {
-            using conf = maki::state_conf
-                ::on_entry_any
-                ::on_event<maki::any>
-                ::on_exit_any
-            ;
-
-            void on_entry()
+        constexpr auto running = maki::state_c
+            .set_on_entry([](auto& mach, const auto& /*event*/)
             {
-                ctx.out += "running::on_entry;";
-            }
-
-            template<class Event>
-            void on_event(const Event&)
+                mach.context().out += "running::on_entry;";
+            })
+            .set_on_event([](auto& mach, const auto& /*event*/)
             {
-                ctx.out += "running::on_event;";
-            }
-
-            void on_exit()
+                mach.context().out += "running::on_event;";
+            })
+            .set_on_exit([](auto& mach, const auto& /*event*/)
             {
-                ctx.out += "running::on_exit;";
-            }
-
-            context& ctx;
-        };
+                mach.context().out += "running::on_exit;";
+            })
+        ;
     }
 
     namespace actions

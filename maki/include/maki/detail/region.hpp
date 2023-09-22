@@ -209,7 +209,7 @@ public:
 
         if constexpr(must_try_processing_event_in_transitions)
         {
-            if(!try_processing_event_in_transitions<transition_table_type>(event))
+            if(!try_processing_event_in_transitions<candidate_transition_type_list>(event))
             {
                 try_processing_event_in_active_state<transition_table_type>(event);
             }
@@ -515,7 +515,11 @@ private:
             return false;
         }
 
-        stt.on_event(root_sm_, event);
+        if constexpr(!std::is_same_v<State, null_t>)
+        {
+            stt.on_event(root_sm_, event);
+        }
+
         return true;
     }
 

@@ -55,17 +55,17 @@ TEST_CASE("event_pattern")
 {
     auto machine = machine_t{};
 
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.is_active_state(states::off));
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.is_active_state(states::on));
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.is_active_state(states::off));
 
     machine.process_event(events::alert_button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.is_active_state(states::on));
 
     machine.process_event(events::alert_button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.is_active_state(states::on));
 }

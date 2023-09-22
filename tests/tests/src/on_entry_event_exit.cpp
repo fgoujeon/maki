@@ -27,59 +27,41 @@ namespace
     {
         EMPTY_STATE(idle);
 
-        struct english
-        {
-            using conf = maki::state_conf
-                ::on_entry_any
-                ::on_event<events::say_dog>
-                ::on_exit_any
-            ;
-
-            void on_entry()
+        constexpr auto english = maki::state_c
+            .set_on_entry([](auto& mach, const auto& /*event*/)
             {
-                ctx.hello = "hello";
-            }
-
-            void on_event(const events::say_dog&)
+                mach.context().hello = "hello";
+            })
+            .set_on_event([](auto& mach, const auto& event)
             {
-                ctx.dog = "dog";
-            }
-
-            void on_exit()
+                if constexpr(std::is_same_v<std::decay_t<decltype(event)>, events::say_dog>)
+                {
+                    mach.context().dog = "dog";
+                }
+            })
+            .set_on_exit([](auto& mach, const auto& /*event*/)
             {
-                ctx.goodbye = "goodbye";
-            }
+                mach.context().goodbye = "goodbye";
+            })
+        ;
 
-            context& ctx;
-        };
-
-        struct french
-        {
-            using conf = maki::state_conf
-                ::on_entry_any
-                ::on_event<events::say_dog>
-                ::on_exit_any
-            ;
-
-            template<class Sm, class Event>
-            void on_entry(Sm& mach, const Event& /*event*/)
+        constexpr auto french = maki::state_c
+            .set_on_entry([](auto& mach, const auto& /*event*/)
             {
                 mach.context().hello = "bonjour";
-            }
-
-            void on_event(const events::say_dog&)
+            })
+            .set_on_event([](auto& mach, const auto& event)
             {
-                ctx.dog = "chien";
-            }
-
-            template<class Sm, class Event>
-            void on_exit(Sm& mach, const Event& /*event*/)
+                if constexpr(std::is_same_v<std::decay_t<decltype(event)>, events::say_dog>)
+                {
+                    mach.context().dog = "chien";
+                }
+            })
+            .set_on_exit([](auto& mach, const auto& /*event*/)
             {
                 mach.context().goodbye = "au revoir";
-            }
-
-            context& ctx;
-        };
+            })
+        ;
     }
 
     using transition_table_t = maki::transition_table
@@ -106,37 +88,37 @@ TEST_CASE("on_entry_event_exit")
 
     machine.start();
 
-    REQUIRE(machine.is_active_state<states::idle>());
+    REQUIRE(machine.is_active_state(states::idle));
     REQUIRE(ctx.hello == "");
     REQUIRE(ctx.dog == "");
     REQUIRE(ctx.goodbye == "");
 
     machine.process_event(events::next_language_request{});
-    REQUIRE(machine.is_active_state<states::english>());
+    REQUIRE(machine.is_active_state(states::english));
     REQUIRE(ctx.hello == "hello");
     REQUIRE(ctx.dog == "");
     REQUIRE(ctx.goodbye == "");
 
     machine.process_event(events::say_dog{});
-    REQUIRE(machine.is_active_state<states::english>());
+    REQUIRE(machine.is_active_state(states::english));
     REQUIRE(ctx.hello == "hello");
     REQUIRE(ctx.dog == "dog");
     REQUIRE(ctx.goodbye == "");
 
     machine.process_event(events::next_language_request{});
-    REQUIRE(machine.is_active_state<states::french>());
+    REQUIRE(machine.is_active_state(states::french));
     REQUIRE(ctx.hello == "bonjour");
     REQUIRE(ctx.dog == "dog");
     REQUIRE(ctx.goodbye == "goodbye");
 
     machine.process_event(events::say_dog{});
-    REQUIRE(machine.is_active_state<states::french>());
+    REQUIRE(machine.is_active_state(states::french));
     REQUIRE(ctx.hello == "bonjour");
     REQUIRE(ctx.dog == "chien");
     REQUIRE(ctx.goodbye == "goodbye");
 
     machine.process_event(events::next_language_request{});
-    REQUIRE(machine.is_active_state<states::idle>());
+    REQUIRE(machine.is_active_state(states::idle));
     REQUIRE(ctx.hello == "bonjour");
     REQUIRE(ctx.dog == "chien");
     REQUIRE(ctx.goodbye == "au revoir");

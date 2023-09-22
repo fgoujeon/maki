@@ -211,8 +211,12 @@ public:
         {
             if(!try_processing_event_in_transitions<transition_table_type>(event))
             {
-                //try_processing_event_in_active_state<transition_table_type>(event);
+                try_processing_event_in_active_state<transition_table_type>(event);
             }
+        }
+        else
+        {
+            try_processing_event_in_active_state<transition_table_type>(event);
         }
     }
 
@@ -424,10 +428,9 @@ private:
     {
         using path_t = region_path_of_t<region>;
 
-        const auto is_internal_transition =
-            static_cast<const void*>(&target_state) == &null;
+        const auto is_internal_transition = std::is_same_v<TargetState, null_t>;
 
-        if(!is_internal_transition)
+        if constexpr(!is_internal_transition)
         {
             if constexpr(option_v<machine_conf_tpl, option_id::before_state_transition>)
             {
@@ -457,7 +460,7 @@ private:
             event
         );
 
-        if(!is_internal_transition)
+        if constexpr(!is_internal_transition)
         {
             detail::call_me
             (
@@ -494,28 +497,27 @@ private:
     template<class StateTypeList, class Event, class... ExtraArgs>
     void try_processing_event_in_active_state(const Event& event, ExtraArgs&... extra_args)
     {
-        tlu::for_each_or
-        <
-            StateTypeList,
-            try_processing_event_in_active_state_2
-        >(*this, event, extra_args...);
+        apply
+        (
+            state_ptrs,
+            [&](const auto... pstates)
+            {
+                (try_processing_event_in_active_state_2(*pstates, event, extra_args...) || ...);
+            }
+        );
     }
 
-    struct try_processing_event_in_active_state_2
+    template<class State, class Event, class... ExtraArgs>
+    bool try_processing_event_in_active_state_2(const State& stt, const Event& event, ExtraArgs&... /*extra_args*/)
     {
-        template<class State, class Event, class... ExtraArgs>
-        static bool call(region& self, const Event& event, ExtraArgs&... extra_args)
+        if(!is_active_state_type(stt))
         {
-            if(!self.is_active_state_type<State>())
-            {
-                return false;
-            }
-
-            auto& state = self.state<State>();
-            call_on_event(state, self.root_sm_, self.ctx_, event, extra_args...);
-            return true;
+            return false;
         }
-    };
+
+        stt.on_event(root_sm_, event);
+        return true;
+    }
 
     template<class State>
     [[nodiscard]] bool is_active_state_type(const State& stt) const

@@ -33,19 +33,17 @@ namespace
         EMPTY_STATE(state8);
         EMPTY_STATE(state9);
 
-        struct benchmarking
-        {
-            using conf = maki::state_conf
-                ::on_event<events::internal_transition>
-            ;
-
-            void on_event(const events::internal_transition&)
+        constexpr auto benchmarking = maki::state_c
+            .set_on_event([](auto& mach, const auto& event)
             {
-                ++ctx.side_effect;
-            }
-
-            context& ctx;
-        };
+                //static_assert(false);
+                using event_t = std::decay_t<decltype(event)>;
+                if constexpr(std::is_same_v<event_t, events::internal_transition>)
+                {
+                    ++mach.context().side_effect;
+                }
+            })
+        ;
     }
 
     using transition_table_t = maki::transition_table
@@ -89,7 +87,7 @@ TEST_CASE("internal transition")
     {
         machine.process_event(events::next_state{});
     }
-    REQUIRE(machine.is_active_state<states::benchmarking>());
+    REQUIRE(machine.is_active_state(states::benchmarking));
 
     machine.process_event(events::internal_transition{});
     REQUIRE(ctx.side_effect == 1);

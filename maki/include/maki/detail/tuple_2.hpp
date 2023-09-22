@@ -76,11 +76,39 @@ private:
 template<>
 class tuple_2<>
 {
-public:
 };
 
 template<class... Args>
 tuple_2(Args&&... args) -> tuple_2<std::decay_t<Args>...>;
+
+
+/*
+apply
+*/
+
+template<class IndexSequence>
+struct apply_helper;
+
+template<std::size_t... Indexes>
+struct apply_helper<std::index_sequence<Indexes...>>
+{
+    template<class Tuple, class F>
+    static void call(const Tuple& tpl, F&& fun)
+    {
+        fun(tpl.template get<Indexes>()...);
+    }
+};
+
+template<class... Ts, class F>
+void apply(const tuple_2<Ts...>& tpl, F&& fun)
+{
+    apply_helper<std::make_index_sequence<sizeof...(Ts)>>::call(tpl, fun);
+}
+
+
+/*
+contains
+*/
 
 template<class... Ts, class U>
 constexpr bool contains(const tuple_2<Ts...>& tpl, const U& elem)
@@ -100,6 +128,11 @@ constexpr bool contains(const tuple_2<Ts...>& tpl, const U& elem)
     return (equals(get<Ts>(tpl), elem) || ...);
 }
 
+
+/*
+for_each_element
+*/
+
 template<class IndexSequence>
 struct for_each_element_helper;
 
@@ -118,6 +151,11 @@ void for_each_element(const tuple_2<Ts...>& tpl, F&& fun)
 {
     for_each_element_helper<std::make_index_sequence<sizeof...(Ts)>>::call(tpl, fun);
 }
+
+
+/*
+push_back
+*/
 
 template<class... Ts, class U>
 constexpr auto push_back(const tuple_2<Ts...>& tpl, const U& elem)

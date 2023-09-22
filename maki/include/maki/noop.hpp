@@ -13,11 +13,15 @@ namespace maki
 /**
 @brief An action that does nothing.
 */
-inline constexpr void noop()
+struct noop_t
 {
-}
+    template<class... Args>
+    constexpr void operator()(const Args&... /*args*/) const
+    {
+    }
+};
 
-using noop_t = decltype(&noop);
+inline constexpr auto noop = noop_t{};
 
 } //namespace
 

@@ -32,12 +32,9 @@ namespace
             {
                 ctx.hello = "hello";
             })
-            .set_on_event([](context& ctx, const auto& event)
+            .add_on_event(maki::type_c<events::say_dog>, [](context& ctx)
             {
-                if constexpr(std::is_same_v<std::decay_t<decltype(event)>, events::say_dog>)
-                {
-                    ctx.dog = "dog";
-                }
+                ctx.dog = "dog";
             })
             .set_on_exit([](context& ctx)
             {
@@ -50,12 +47,9 @@ namespace
             {
                 ctx.hello = "bonjour";
             })
-            .set_on_event([](context& ctx, const auto& event)
+            .add_on_event<events::say_dog>([](context& ctx)
             {
-                if constexpr(std::is_same_v<std::decay_t<decltype(event)>, events::say_dog>)
-                {
-                    ctx.dog = "chien";
-                }
+                ctx.dog = "chien";
             })
             .set_on_exit([](context& ctx)
             {

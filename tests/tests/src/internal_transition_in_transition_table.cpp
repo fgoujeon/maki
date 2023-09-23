@@ -28,7 +28,11 @@ namespace
             {
                 ctx.out += "idle::on_entry;";
             })
-            .set_on_event([](context& ctx)
+            .add_on_event<events::power_button_press>([](context& ctx)
+            {
+                ctx.out += "idle::on_event;";
+            })
+            .add_on_event<events::beep_button_press>([](context& ctx)
             {
                 ctx.out += "idle::on_event;";
             })
@@ -43,7 +47,11 @@ namespace
             {
                 ctx.out += "running::on_entry;";
             })
-            .set_on_event([](context& ctx)
+            .add_on_event<events::power_button_press>([](context& ctx)
+            {
+                ctx.out += "running::on_event;";
+            })
+            .add_on_event<events::beep_button_press>([](context& ctx)
             {
                 ctx.out += "running::on_event;";
             })

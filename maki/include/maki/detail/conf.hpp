@@ -8,9 +8,9 @@
 #define MAKI_DETAIL_CONF_HPP
 
 #include "tlu.hpp"
-#include "type.hpp"
 #include "type_list.hpp"
 #include "constant.hpp"
+#include "../type.hpp"
 #include <type_traits>
 
 namespace maki::detail

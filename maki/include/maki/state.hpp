@@ -8,58 +8,76 @@
 #define MAKI_STATE_HPP
 
 #include "noop.hpp"
+#include "type.hpp"
+#include "detail/tuple_2.hpp"
 #include <string_view>
 
 namespace maki
 {
 
-template<class OnEntry = noop_t, class OnEvent = noop_t, class OnExit = noop_t>
+template<class OnEntry = noop_t, class OnEvent = detail::tuple_2<>, class OnExit = noop_t>
 struct state;
 
 namespace detail
 {
-    template<class OnEntry = noop_t, class OnEvent = noop_t, class OnExit = noop_t>
+    template<class OnEntry = noop_t, class OnEvent = detail::tuple_2<>, class OnExit = noop_t>
     constexpr auto make_state
     (
-        const std::string_view pretty_name = "",
-        const OnEntry& on_entry = noop,
-        const OnEvent& on_event = noop,
-        const OnExit& on_exit = noop
+        const OnEntry& on_entry,
+        const OnEvent& on_event,
+        const OnExit& on_exit,
+        const std::string_view pretty_name
     )
     {
-        return state<OnEntry, OnEvent, OnExit>{pretty_name, on_entry, on_event, on_exit};
+        return state<OnEntry, OnEvent, OnExit>{on_entry, on_event, on_exit, pretty_name};
     }
 }
 
-template<class OnEntry, class OnEvent, class OnExit>
+template<class OnEntry, class OnEventTuple, class OnExit>
 struct state
 {
-    std::string_view pretty_name;
     OnEntry on_entry = noop;
-    OnEvent on_event = noop;
+    OnEventTuple on_events = detail::make_tuple_2(); //Tuple of {event-type, lambda} pairs
     OnExit on_exit = noop;
-
-    [[nodiscard]] constexpr auto set_pretty_name(const std::string_view value) const
-    {
-        return detail::make_state(value, on_entry, on_event, on_exit);
-    }
+    std::string_view pretty_name;
 
     template<class Value>
     [[nodiscard]] constexpr auto set_on_entry(const Value& value) const
     {
-        return detail::make_state(pretty_name, value, on_event, on_exit);
+        return detail::make_state(value, on_events, on_exit, pretty_name);
     }
 
-    template<class Value>
-    [[nodiscard]] constexpr auto set_on_event(const Value& value) const
+    template<class Event, class Value>
+    [[nodiscard]] constexpr auto add_on_event
+    (
+        const type_t<Event> event_type,
+        const Value& value
+    ) const
     {
-        return detail::make_state(pretty_name, on_entry, value, on_exit);
+        return detail::make_state
+        (
+            on_entry,
+            detail::push_back(on_events, detail::make_tuple_2(event_type, value)),
+            on_exit,
+            pretty_name
+        );
+    }
+
+    template<class Event, class Value>
+    [[nodiscard]] constexpr auto add_on_event(const Value& value) const
+    {
+        return add_on_event(type_t<Event>{}, value);
     }
 
     template<class Value>
     [[nodiscard]] constexpr auto set_on_exit(const Value& value) const
     {
-        return detail::make_state(pretty_name, on_entry, on_event, value);
+        return detail::make_state(on_entry, on_events, value, pretty_name);
+    }
+
+    [[nodiscard]] constexpr auto set_pretty_name(const std::string_view value) const
+    {
+        return detail::make_state(on_entry, on_events, on_exit, value);
     }
 };
 

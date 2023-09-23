@@ -27,7 +27,7 @@ struct transition_table_digest;
 template<class Transition, class... Transitions>
 struct transition_table_digest<transition_table_tpl<Transition, Transitions...>>
 {
-    static constexpr auto states = tuple_2{&Transition::source_state, &Transition::target_state, &Transitions::target_state...};
+    static constexpr auto states = make_tuple_2(&Transition::source_state, &Transition::target_state, &Transitions::target_state...);
 };
 
 } //namespace

@@ -9,6 +9,7 @@
 
 #include <functional>
 #include <utility>
+#include <type_traits>
 
 namespace maki::detail
 {
@@ -22,12 +23,12 @@ template<std::size_t Index, class T>
 class tuple_2_element
 {
 public:
-    T& get_element(const std::integral_constant<std::size_t, Index> /*tag*/)
+    constexpr T& get_element(const std::integral_constant<std::size_t, Index> /*tag*/)
     {
         return value;
     }
 
-    const T& get_element(const std::integral_constant<std::size_t, Index> /*tag*/) const
+    constexpr const T& get_element(const std::integral_constant<std::size_t, Index> /*tag*/) const
     {
         return value;
     }
@@ -36,10 +37,10 @@ public:
 };
 
 template<class IndexSequence, class... Ts>
-class tuple_2_base;
+class tuple_2_impl;
 
 template<std::size_t... Indexes, class... Ts>
-class tuple_2_base<std::index_sequence<Indexes...>, Ts...>:
+class tuple_2_impl<std::index_sequence<Indexes...>, Ts...>:
     public tuple_2_element<Indexes, Ts>...
 {
 public:
@@ -47,40 +48,46 @@ public:
 };
 
 template<class... Ts>
-class tuple_2: private tuple_2_base<std::make_index_sequence<sizeof...(Ts)>, Ts...>
+class tuple_2
 {
 public:
-    template<class... Args>
-    constexpr tuple_2(Args&&... args):
-        base_type({std::forward<Args>(args)...})
+    explicit constexpr tuple_2(const Ts&... args):
+        impl_{args...}
     {
     }
 
     template<std::size_t Index>
     constexpr auto& get()
     {
-        return get_element(std::integral_constant<std::size_t, Index>{});
+        return impl_.get_element(std::integral_constant<std::size_t, Index>{});
     }
 
     template<std::size_t Index>
     constexpr const auto& get() const
     {
-        return get_element(std::integral_constant<std::size_t, Index>{});
+        return impl_.get_element(std::integral_constant<std::size_t, Index>{});
     }
 
 private:
-    using base_type = tuple_2_base<std::make_index_sequence<sizeof...(Ts)>, Ts...>;
-
-    using base_type::get_element;
+    tuple_2_impl<std::make_index_sequence<sizeof...(Ts)>, Ts...> impl_;
 };
 
-template<>
-class tuple_2<>
+template<class... Ts>
+constexpr tuple_2<Ts...> make_tuple_2(const Ts&... elems)
 {
-};
+    return tuple_2<Ts...>{elems...};
+}
 
-template<class... Args>
-tuple_2(Args&&... args) -> tuple_2<std::decay_t<Args>...>;
+
+/*
+get
+*/
+
+template<std::size_t Index, class... Ts>
+constexpr const auto& get(const tuple_2<Ts...>& tpl)
+{
+    return tpl.template get<Index>();
+}
 
 
 /*
@@ -93,51 +100,27 @@ struct apply_helper;
 template<std::size_t... Indexes>
 struct apply_helper<std::index_sequence<Indexes...>>
 {
-    template<class... Ts, class F, class... Args>
-    static void call(const tuple_2<Ts...>& tpl, F&& fun, Args&&... args)
+    template<class F, class... Ts, class... Args>
+    static constexpr auto call(F&& fun, const tuple_2<Ts...>& tpl, Args&&... args)
     {
-        std::invoke
+        return std::forward<F>(fun)
         (
-            std::forward<F>(fun),
-            std::forward<Args>(args)...,
-            tpl.template get<Indexes>()...
+            get<Indexes>(tpl)...,
+            std::forward<Args>(args)...
         );
     }
 };
 
-template<class... Ts, class F, class... Args>
-void apply(const tuple_2<Ts...>& tpl, F&& fun, Args&&... args)
+template<class F, class... Ts, class... Args>
+constexpr auto apply(F&& fun, const tuple_2<Ts...>& tpl, Args&&... args)
 {
     using index_sequence_t = std::make_index_sequence<sizeof...(Ts)>;
-    apply_helper<index_sequence_t>::call
+    return apply_helper<index_sequence_t>::call
     (
-        tpl,
         std::forward<F>(fun),
+        tpl,
         std::forward<Args>(args)...
     );
-}
-
-
-/*
-contains
-*/
-
-template<class... Ts, class U>
-constexpr bool contains(const tuple_2<Ts...>& tpl, const U& elem)
-{
-    constexpr auto equals = [](const auto& lhs, const auto& rhs)
-    {
-        if constexpr(std::is_same_v<decltype(lhs), decltype(rhs)>)
-        {
-            return lhs == rhs;
-        }
-        else
-        {
-            return false;
-        }
-    };
-
-    return (equals(tpl.template get<Ts>(), elem) || ...);
 }
 
 
@@ -151,14 +134,13 @@ struct for_each_element_helper;
 template<std::size_t... Indexes>
 struct for_each_element_helper<std::index_sequence<Indexes...>>
 {
-    template<class... Ts, class F, class... Args>
-    static void call(const tuple_2<Ts...>& tpl, F&& fun, Args&&... args)
+    template<class F, class... Ts, class... Args>
+    static void call(F&& fun, const tuple_2<Ts...>& tpl, Args&&... args)
     {
         (
-            std::invoke
+            fun
             (
-                std::forward<F>(fun),
-                tpl.template get<Indexes>(),
+                get<Indexes>(tpl),
                 std::forward<Args>(args)...
             ),
             ...
@@ -166,13 +148,13 @@ struct for_each_element_helper<std::index_sequence<Indexes...>>
     }
 };
 
-template<class... Ts, class F, class... Args>
-void for_each_element(const tuple_2<Ts...>& tpl, F&& fun, Args&&... args)
+template<class F, class... Ts, class... Args>
+void for_each_element(F&& fun, const tuple_2<Ts...>& tpl, Args&&... args)
 {
     for_each_element_helper<std::make_index_sequence<sizeof...(Ts)>>::call
     (
-        tpl,
         std::forward<F>(fun),
+        tpl,
         std::forward<Args>(args)...
     );
 }
@@ -188,8 +170,8 @@ struct for_each_element_or_helper;
 template<std::size_t... Indexes>
 struct for_each_element_or_helper<std::index_sequence<Indexes...>>
 {
-    template<class... Ts, class F, class... Args>
-    static bool call(const tuple_2<Ts...>& tpl, F&& fun, Args&&... args)
+    template<class F, class... Ts, class... Args>
+    static bool call(F&& fun, const tuple_2<Ts...>& tpl, Args&&... args)
     {
         return (
             std::invoke
@@ -203,13 +185,13 @@ struct for_each_element_or_helper<std::index_sequence<Indexes...>>
     }
 };
 
-template<class... Ts, class F, class... Args>
-bool for_each_element_or(const tuple_2<Ts...>& tpl, F&& fun, Args&&... args)
+template<class F, class... Ts, class... Args>
+bool for_each_element_or(F&& fun, const tuple_2<Ts...>& tpl, Args&&... args)
 {
     return for_each_element_or_helper<std::make_index_sequence<sizeof...(Ts)>>::call
     (
-        tpl,
         std::forward<F>(fun),
+        tpl,
         std::forward<Args>(args)...
     );
 }
@@ -222,7 +204,12 @@ push_back
 template<class... Ts, class U>
 constexpr auto push_back(const tuple_2<Ts...>& tpl, const U& elem)
 {
-    return tuple_2{tpl, elem};
+    return apply
+    (
+        make_tuple_2<Ts..., U>,
+        tpl,
+        elem
+    );
 }
 
 } //namespace

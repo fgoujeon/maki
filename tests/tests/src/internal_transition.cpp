@@ -34,13 +34,9 @@ namespace
         EMPTY_STATE(state9);
 
         constexpr auto benchmarking = maki::state_c
-            .set_on_event([](context& ctx, const auto& event)
+            .add_on_event<events::internal_transition>([](context& ctx)
             {
-                using event_t = std::decay_t<decltype(event)>;
-                if constexpr(std::is_same_v<event_t, events::internal_transition>)
-                {
-                    ++ctx.side_effect;
-                }
+                ++ctx.side_effect;
             })
         ;
     }

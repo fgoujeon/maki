@@ -14,6 +14,7 @@
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
 #include "machine_object_holder_tuple.hpp"
+#include "tuple_2.hpp"
 #include "tlu.hpp"
 #include "../submachine_conf.hpp"
 #include "../states.hpp"
@@ -211,12 +212,12 @@ public:
         {
             if(!try_processing_event_in_transitions<candidate_transition_type_list>(event))
             {
-                try_processing_event_in_active_state<transition_table_type>(event);
+                try_processing_event_in_active_state(state_ptrs, event);
             }
         }
         else
         {
-            try_processing_event_in_active_state<transition_table_type>(event);
+            try_processing_event_in_active_state(state_ptrs, event);
         }
     }
 
@@ -269,7 +270,7 @@ public:
         }
         else
         {
-            try_processing_event_in_active_state<transition_table_type>(event, processed);
+            try_processing_event_in_active_state(state_ptrs, event, processed);
         }
     }
 
@@ -496,39 +497,57 @@ private:
     /*
     Call active_state.on_event(event)
     */
-    template<class StateTypeList, class Event, class... ExtraArgs>
-    void try_processing_event_in_active_state(const Event& event, ExtraArgs&... extra_args)
+    template<class... StatePtrs, class Event, class... ExtraArgs>
+    void try_processing_event_in_active_state(const tuple_2<StatePtrs...>& /*pstates*/, const Event& event, ExtraArgs&... extra_args)
     {
-        const auto try_processing = [](region& self, const auto& stt, const Event& event, ExtraArgs&... /*extra_args*/)
-        {
-            if(!self.is_active_state_type(stt))
-            {
-                return false;
-            }
-
-            if constexpr(!std::is_same_v<std::decay_t<decltype(stt)>, null_t>)
-            {
-                call_mce(stt.on_event, self.root_sm_, self.ctx_, event);
-            }
-
-            return true;
-        };
-
         apply
         (
+            try_processing_event_in_active_state_2<const StatePtrs...>::template call<const Event&, ExtraArgs&...>,
             state_ptrs,
-            [](region& self, const auto& try_processing, const auto& event, /*auto&... extra_args,*/ const auto... pstates)
-            {
-                (
-                    try_processing(self, *pstates, event/*, extra_args...*/) ||
-                    ...
-                );
-            },
             *this,
-            try_processing,
-            event/*,
-            extra_args...*/
+            event,
+            extra_args...
         );
+    }
+
+    template<class... StatePtrs>
+    struct try_processing_event_in_active_state_2
+    {
+        template<class Event, class... ExtraArgs>
+        static void call
+        (
+            const StatePtrs... pstates,
+            region& self,
+            const Event& event,
+            ExtraArgs&... extra_args
+        )
+        {
+            (
+                self.try_processing_event_in_active_state_3(*pstates, event, extra_args...) ||
+                ...
+            );
+        }
+    };
+
+    template<class State, class Event, class... ExtraArgs>
+    bool try_processing_event_in_active_state_3
+    (
+        const State& stt,
+        const Event& event,
+        ExtraArgs&... extra_args
+    )
+    {
+        if(!is_active_state_type(stt))
+        {
+            return false;
+        }
+
+        if constexpr(!std::is_same_v<std::decay_t<decltype(stt)>, null_t>)
+        {
+            call_state_on_event(stt.on_events, root_sm_, ctx_, event);
+        }
+
+        return true;
     }
 
     template<class State>
@@ -573,7 +592,6 @@ private:
     {
         for_each_element_or
         (
-            state_ptrs,
             [](const auto pstate, const auto pactive_state, auto&&... args)
             {
                 if(pactive_state == pstate)
@@ -587,6 +605,7 @@ private:
                 }
                 return false;
             },
+            state_ptrs,
             pactive_state_,
             std::forward<Args>(args)...
         );

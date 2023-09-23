@@ -11,6 +11,7 @@
 #include "state_traits.hpp"
 #include "submachine_fwd.hpp"
 #include "overload_priority.hpp"
+#include "tuple_2.hpp"
 #include <type_traits>
 #include <utility>
 
@@ -69,6 +70,33 @@ void call_mce(Fn&& fun, Machine& mach, Context& ctx, const Event& event)
         constexpr auto is_false = sizeof(Machine) == 0;
         static_assert(is_false, "No valid signature found");
     }
+}
+
+struct call_state_on_event_helper_t
+{
+    template<class EventType, class OnEvent, class Machine, class Context, class Event>
+    void operator()(const tuple_2<type_t<EventType>, OnEvent>& event_type_and_on_event, Machine& mach, Context& ctx, const Event& event) const
+    {
+        if constexpr(std::is_same_v<EventType, Event>)
+        {
+            const auto& on_event = get<1>(event_type_and_on_event);
+            call_mce(on_event, mach, ctx, event);
+        }
+    }
+};
+inline constexpr auto call_state_on_event_helper = call_state_on_event_helper_t{};
+
+template<class OnEventTuple, class Machine, class Context, class Event>
+void call_state_on_event(const OnEventTuple& on_events, Machine& mach, Context& ctx, const Event& event)
+{
+    for_each_element
+    (
+        call_state_on_event_helper,
+        on_events,
+        mach,
+        ctx,
+        event
+    );
 }
 
 template<class State, class Sm, class Event>

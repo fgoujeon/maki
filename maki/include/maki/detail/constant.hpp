@@ -16,6 +16,18 @@ struct constant
     static constexpr auto value = Value;
 };
 
+template<class T, T Value>
+struct constant_2
+{
+    static constexpr T value = Value;
+};
+
+template<auto Value>
+inline constexpr auto constant_c = std::integral_constant<decltype(Value), Value>{};
+
+template<const auto& Value>
+inline constexpr auto constant_reference_c = std::integral_constant<decltype(Value), Value>{};
+
 } //namespace
 
 #endif

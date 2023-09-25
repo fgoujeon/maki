@@ -53,6 +53,24 @@ namespace
             return state;
         }
     }
+
+    template<class Event>
+    struct requires_on_event_for
+    {
+        template<class State>
+        static constexpr bool call(const State* pstate)
+        {
+            const auto& stt = *pstate;
+            return for_each_element_or
+            (
+                [](const auto& on_event)
+                {
+                    return get<0>(on_event) == type_t<Event>{};
+                },
+                stt.on_events
+            );
+        }
+    };
 }
 
 template<class ParentSm, int Index>
@@ -179,45 +197,30 @@ public:
             Event
         >;
 
-//        //List the state types that require us to call their on_event()
-//        using candidate_state_type_list =
-//            state_type_list_filters::by_required_on_event_t
-//            <
-//                state_type_list,
-//                region,
-//                Event
-//            >
-//        ;
-//
-        constexpr auto must_try_processing_event_in_transitions = !tlu::empty_v<candidate_transition_type_list>;
-//        constexpr auto must_try_processing_event_in_active_state = !tlu::empty_v<candidate_state_type_list>;
-//
-//        if constexpr(must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
-//        {
-//            if(!try_processing_event_in_transitions<candidate_transition_type_list>(event))
-//            {
-//                try_processing_event_in_active_state<candidate_state_type_list>(event);
-//            }
-//        }
-//        else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
-//        {
-//            try_processing_event_in_active_state<candidate_state_type_list>(event);
-//        }
-//        else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
-//        {
-//            try_processing_event_in_transitions<candidate_transition_type_list>(event);
-//        }
+        //List the state types that require us to call their on_event()
+        static constexpr auto candidate_state_ptrs = filter
+        <
+            state_ptrs,
+            requires_on_event_for<Event>
+        >();
 
-        if constexpr(must_try_processing_event_in_transitions)
+        static constexpr auto must_try_processing_event_in_transitions = !tlu::empty_v<candidate_transition_type_list>;
+        static constexpr auto must_try_processing_event_in_active_state = size(candidate_state_ptrs) != 0;
+
+        if constexpr(must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
         {
             if(!try_processing_event_in_transitions<candidate_transition_type_list>(event))
             {
-                try_processing_event_in_active_state(state_ptrs, event);
+                try_processing_event_in_active_state(candidate_state_ptrs, event);
             }
         }
-        else
+        else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
         {
-            try_processing_event_in_active_state(state_ptrs, event);
+            try_processing_event_in_active_state(candidate_state_ptrs, event);
+        }
+        else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
+        {
+            try_processing_event_in_transitions<candidate_transition_type_list>(event);
         }
     }
 
@@ -498,12 +501,12 @@ private:
     Call active_state.on_event(event)
     */
     template<class... StatePtrs, class Event, class... ExtraArgs>
-    void try_processing_event_in_active_state(const tuple_2<StatePtrs...>& /*pstates*/, const Event& event, ExtraArgs&... extra_args)
+    void try_processing_event_in_active_state(const tuple_2<StatePtrs...>& pstates, const Event& event, ExtraArgs&... extra_args)
     {
         apply
         (
             try_processing_event_in_active_state_2<const StatePtrs...>::template call<const Event&, ExtraArgs&...>,
-            state_ptrs,
+            pstates,
             *this,
             event,
             extra_args...

@@ -7,6 +7,7 @@
 #ifndef MAKI_DETAIL_TUPLE_2_HPP
 #define MAKI_DETAIL_TUPLE_2_HPP
 
+#include "constant.hpp"
 #include <functional>
 #include <utility>
 #include <type_traits>
@@ -18,64 +19,32 @@ namespace maki::detail
 A minimal std::tuple-like container.
 Using this instead of std::tuple improves build time.
 */
-
-template<std::size_t Index, class T>
-class tuple_2_element
-{
-public:
-    constexpr T& get_element(const std::integral_constant<std::size_t, Index> /*tag*/)
-    {
-        return value;
-    }
-
-    constexpr const T& get_element(const std::integral_constant<std::size_t, Index> /*tag*/) const
-    {
-        return value;
-    }
-
-    T value;
-};
-
-template<class IndexSequence, class... Ts>
-class tuple_2_impl;
-
-template<std::size_t... Indexes, class... Ts>
-class tuple_2_impl<std::index_sequence<Indexes...>, Ts...>:
-    public tuple_2_element<Indexes, Ts>...
-{
-public:
-    using tuple_2_element<Indexes, Ts>::get_element...;
-};
-
 template<class... Ts>
-class tuple_2
+struct tuple_2;
+
+template<class T, class... Ts>
+struct tuple_2<T, Ts...>
 {
-public:
-    explicit constexpr tuple_2(const Ts&... args):
-        impl_{args...}
-    {
-    }
-
-    template<std::size_t Index>
-    constexpr auto& get()
-    {
-        return impl_.get_element(std::integral_constant<std::size_t, Index>{});
-    }
-
-    template<std::size_t Index>
-    constexpr const auto& get() const
-    {
-        return impl_.get_element(std::integral_constant<std::size_t, Index>{});
-    }
-
-private:
-    tuple_2_impl<std::make_index_sequence<sizeof...(Ts)>, Ts...> impl_;
+    T head;
+    tuple_2<Ts...> tail;
 };
 
-template<class... Ts>
-constexpr tuple_2<Ts...> make_tuple_2(const Ts&... elems)
+template<>
+struct tuple_2<>
 {
-    return tuple_2<Ts...>{elems...};
+};
+
+inline constexpr auto empty_tuple_c = tuple_2<>{};
+
+constexpr tuple_2<> make_tuple_2()
+{
+    return tuple_2<>{};
+}
+
+template<class T, class... Ts>
+constexpr tuple_2<T, Ts...> make_tuple_2(const T& elem, const Ts&... elems)
+{
+    return tuple_2<T, Ts...>{elem, make_tuple_2(elems...)};
 }
 
 
@@ -86,8 +55,34 @@ get
 template<std::size_t Index, class... Ts>
 constexpr const auto& get(const tuple_2<Ts...>& tpl)
 {
-    return tpl.template get<Index>();
+    if constexpr(Index == 0)
+    {
+        return tpl.head;
+    }
+    else
+    {
+        return get<Index - 1>(tpl.tail);
+    }
 }
+
+
+/*
+size
+*/
+
+template<class... Ts>
+constexpr std::size_t size(const tuple_2<Ts...>& /*tpl*/)
+{
+    return sizeof...(Ts);
+}
+
+
+/*
+head
+*/
+
+template<const auto& Tuple>
+inline constexpr auto head_c = Tuple.head;
 
 
 /*
@@ -122,6 +117,14 @@ constexpr auto apply(F&& fun, const tuple_2<Ts...>& tpl, Args&&... args)
         std::forward<Args>(args)...
     );
 }
+
+
+/*
+tail
+*/
+
+template<const auto& Tuple>
+constexpr auto tail_c = Tuple.tail;
 
 
 /*
@@ -171,13 +174,13 @@ template<std::size_t... Indexes>
 struct for_each_element_or_helper<std::index_sequence<Indexes...>>
 {
     template<class F, class... Ts, class... Args>
-    static bool call(F&& fun, const tuple_2<Ts...>& tpl, Args&&... args)
+    static constexpr bool call(F&& fun, const tuple_2<Ts...>& tpl, Args&&... args)
     {
-        return (
-            std::invoke
+        return
+        (
+            fun
             (
-                std::forward<F>(fun),
-                tpl.template get<Indexes>(),
+                get<Indexes>(tpl),
                 std::forward<Args>(args)...
             ) ||
             ...
@@ -186,7 +189,7 @@ struct for_each_element_or_helper<std::index_sequence<Indexes...>>
 };
 
 template<class F, class... Ts, class... Args>
-bool for_each_element_or(F&& fun, const tuple_2<Ts...>& tpl, Args&&... args)
+constexpr bool for_each_element_or(F&& fun, const tuple_2<Ts...>& tpl, Args&&... args)
 {
     return for_each_element_or_helper<std::make_index_sequence<sizeof...(Ts)>>::call
     (
@@ -194,6 +197,59 @@ bool for_each_element_or(F&& fun, const tuple_2<Ts...>& tpl, Args&&... args)
         tpl,
         std::forward<Args>(args)...
     );
+}
+
+
+/*
+left_fold
+*/
+
+template<class Operation, class OutputValue, class... Ts>
+constexpr OutputValue left_fold
+(
+    const Operation& op,
+    const OutputValue& initial_value,
+    const tuple_2<Ts...>& tpl
+)
+{
+    if constexpr(sizeof...(Ts) == 0)
+    {
+        return initial_value;
+    }
+    else
+    {
+        return left_fold(op, op(initial_value, tpl.head), tpl.tail);
+    }
+}
+
+template
+<
+    class Operation,
+    class InitialValueRefConstant,
+    class TupleRefConstant
+>
+constexpr auto left_fold_const
+(
+    const InitialValueRefConstant initial_value_ref_constant,
+    const TupleRefConstant
+)
+{
+    if constexpr(size(TupleRefConstant::value) == 0)
+    {
+        return initial_value_ref_constant;
+    }
+    else
+    {
+        return left_fold_const<Operation>
+        (
+            Operation::call
+            (
+                initial_value_ref_constant,
+                constant_reference_c<head_c<TupleRefConstant::value>>
+            ),
+            constant_reference_c<tail_c<TupleRefConstant::value>>
+        );
+    }
 }
 
 
@@ -210,6 +266,68 @@ constexpr auto push_back(const tuple_2<Ts...>& tpl, const U& elem)
         tpl,
         elem
     );
+}
+
+template<class TupleRefConstant, class ElemRefConstant>
+inline constexpr auto push_back_c = push_back(TupleRefConstant::value, ElemRefConstant::value);
+
+
+/*
+push_back_if
+*/
+
+template<bool Condition, class... Ts, class U>
+constexpr auto push_back_if(const tuple_2<Ts...>& tpl, const U& elem)
+{
+    if constexpr(Condition)
+    {
+        return push_back(tpl, elem);
+    }
+    else
+    {
+        return tpl;
+    }
+}
+
+
+
+/*
+filter
+*/
+
+template<class Predicate>
+struct filter_operation
+{
+    template
+    <
+        class OutputTupleRefConstant,
+        class InputTupleElemRefConstant
+    >
+    static constexpr auto call
+    (
+        const OutputTupleRefConstant output_tuple_ref_constant,
+        const InputTupleElemRefConstant /**/
+    )
+    {
+        if constexpr(Predicate::call(InputTupleElemRefConstant::value))
+        {
+            return constant_reference_c<push_back_c<OutputTupleRefConstant, InputTupleElemRefConstant>>;
+        }
+        else
+        {
+            return output_tuple_ref_constant;
+        }
+    }
+};
+
+template<const auto& Tuple, class Predicate>
+constexpr auto filter()
+{
+    return left_fold_const<filter_operation<Predicate>>
+    (
+        constant_reference_c<empty_tuple_c>, //Initial OutputTuple
+        constant_reference_c<Tuple> //InputTuple
+    )();
 }
 
 } //namespace

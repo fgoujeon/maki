@@ -503,54 +503,24 @@ private:
     template<class... StatePtrs, class Event, class... ExtraArgs>
     void try_processing_event_in_active_state(const tuple_2<StatePtrs...>& pstates, const Event& event, ExtraArgs&... extra_args)
     {
-        apply
+        for_each_element_or
         (
-            try_processing_event_in_active_state_2<const StatePtrs...>::template call<const Event&, ExtraArgs&...>,
+            [](const auto* pstate, region& self, const Event& event, ExtraArgs&... extra_args)
+            {
+                if(!self.is_active_state_type(*pstate))
+                {
+                    return false;
+                }
+
+                call_state_on_event(pstate->on_events, self.root_sm_, self.ctx_, event);
+
+                return true;
+            },
             pstates,
             *this,
             event,
             extra_args...
         );
-    }
-
-    template<class... StatePtrs>
-    struct try_processing_event_in_active_state_2
-    {
-        template<class Event, class... ExtraArgs>
-        static void call
-        (
-            const StatePtrs... pstates,
-            region& self,
-            const Event& event,
-            ExtraArgs&... extra_args
-        )
-        {
-            (
-                self.try_processing_event_in_active_state_3(*pstates, event, extra_args...) ||
-                ...
-            );
-        }
-    };
-
-    template<class State, class Event, class... ExtraArgs>
-    bool try_processing_event_in_active_state_3
-    (
-        const State& stt,
-        const Event& event,
-        ExtraArgs&... extra_args
-    )
-    {
-        if(!is_active_state_type(stt))
-        {
-            return false;
-        }
-
-        if constexpr(!std::is_same_v<std::decay_t<decltype(stt)>, null_t>)
-        {
-            call_state_on_event(stt.on_events, root_sm_, ctx_, event);
-        }
-
-        return true;
     }
 
     template<class State>

@@ -211,12 +211,12 @@ public:
         {
             if(!try_processing_event_in_transitions<candidate_transition_type_list>(event))
             {
-                try_processing_event_in_active_state(candidate_state_ptrs, event);
+                try_processing_event_in_active_state<candidate_state_ptrs>(event);
             }
         }
         else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
         {
-            try_processing_event_in_active_state(candidate_state_ptrs, event);
+            try_processing_event_in_active_state<candidate_state_ptrs>(event);
         }
         else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
         {
@@ -500,10 +500,10 @@ private:
     /*
     Call active_state.on_event(event)
     */
-    template<class... StatePtrs, class Event, class... ExtraArgs>
-    void try_processing_event_in_active_state(const tuple_2<StatePtrs...>& pstates, const Event& event, ExtraArgs&... extra_args)
+    template<const auto& CandidateStatePtrs, class Event, class... ExtraArgs>
+    void try_processing_event_in_active_state(const Event& event, ExtraArgs&... extra_args)
     {
-        for_each_element_or
+        for_each_element_or_const<CandidateStatePtrs>
         (
             [](const auto* pstate, region& self, const Event& event, ExtraArgs&... extra_args)
             {
@@ -516,7 +516,6 @@ private:
 
                 return true;
             },
-            pstates,
             *this,
             event,
             extra_args...

@@ -201,6 +201,42 @@ constexpr bool for_each_element_or(F&& fun, const tuple_2<Ts...>& tpl, Args&&...
 
 
 /*
+for_each_element_or_const
+*/
+
+template<const auto& Tuple, class IndexSequence>
+struct for_each_element_or_const_helper;
+
+template<const auto& Tuple, std::size_t... Indexes>
+struct for_each_element_or_const_helper<Tuple, std::index_sequence<Indexes...>>
+{
+    template<class F, class... Args>
+    static constexpr bool call(F&& fun, Args&&... args)
+    {
+        return
+        (
+            fun
+            (
+                get<Indexes>(Tuple),
+                std::forward<Args>(args)...
+            ) ||
+            ...
+        );
+    }
+};
+
+template<const auto& Tuple, class F, class... Args>
+constexpr bool for_each_element_or_const(F&& fun, Args&&... args)
+{
+    return for_each_element_or_const_helper<Tuple, std::make_index_sequence<size(Tuple)>>::call
+    (
+        std::forward<F>(fun),
+        std::forward<Args>(args)...
+    );
+}
+
+
+/*
 left_fold
 */
 

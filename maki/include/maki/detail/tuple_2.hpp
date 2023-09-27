@@ -282,6 +282,7 @@ namespace tuple_util
     >
     constexpr auto left_fold_const
     (
+        const Operation& op,
         const InitialValueRefConstant initial_value_ref_constant,
         const TupleRefConstant
     )
@@ -292,9 +293,10 @@ namespace tuple_util
         }
         else
         {
-            return left_fold_const<Operation>
+            return left_fold_const
             (
-                Operation::call
+                op,
+                op
                 (
                     initial_value_ref_constant,
                     constant_reference_c<head_c<TupleRefConstant::value>>
@@ -347,36 +349,33 @@ namespace tuple_util
     filter
     */
 
-    template<class Predicate>
-    struct filter_operation
-    {
-        template
-        <
-            class OutputTupleRefConstant,
-            class InputTupleElemRefConstant
-        >
-        static constexpr auto call
-        (
-            const OutputTupleRefConstant output_tuple_ref_constant,
-            const InputTupleElemRefConstant /**/
-        )
-        {
-            if constexpr(Predicate::call(InputTupleElemRefConstant::value))
-            {
-                return constant_reference_c<push_back_c<OutputTupleRefConstant, InputTupleElemRefConstant>>;
-            }
-            else
-            {
-                return output_tuple_ref_constant;
-            }
-        }
-    };
-
     template<const auto& Tuple, class Predicate>
     constexpr auto filter()
     {
-        return left_fold_const<filter_operation<Predicate>>
+        return left_fold_const
         (
+            []
+            (
+                const auto output_tuple_ref_constant,
+                const auto input_tuple_elem_ref_constant
+            )
+            {
+                if constexpr(Predicate::call(input_tuple_elem_ref_constant.value))
+                {
+                    return constant_reference_c
+                    <
+                        push_back_c
+                        <
+                            std::decay_t<decltype(output_tuple_ref_constant)>,
+                            std::decay_t<decltype(input_tuple_elem_ref_constant)>
+                        >
+                    >;
+                }
+                else
+                {
+                    return output_tuple_ref_constant;
+                }
+            },
             constant_reference_c<empty_tuple_c>, //Initial OutputTuple
             constant_reference_c<Tuple> //InputTuple
         )();

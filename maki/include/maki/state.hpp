@@ -57,7 +57,7 @@ struct state
         return detail::make_state
         (
             on_entry,
-            detail::push_back(on_events, detail::make_tuple_2(event_type, value)),
+            detail::tuple_util::push_back(on_events, detail::make_tuple_2(event_type, value)),
             on_exit,
             pretty_name
         );

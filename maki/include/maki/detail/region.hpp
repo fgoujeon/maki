@@ -61,11 +61,11 @@ namespace
         static constexpr bool call(const State* pstate)
         {
             const auto& stt = *pstate;
-            return for_each_element_or
+            return tuple_util::for_each_element_or
             (
                 [](const auto& on_event)
                 {
-                    return get<0>(on_event) == type_t<Event>{};
+                    return tuple_util::get<0>(on_event) == type_t<Event>{};
                 },
                 stt.on_events
             );
@@ -198,14 +198,14 @@ public:
         >;
 
         //List the state types that require us to call their on_event()
-        static constexpr auto candidate_state_ptrs = filter
+        static constexpr auto candidate_state_ptrs = tuple_util::filter
         <
             state_ptrs,
             requires_on_event_for<Event>
         >();
 
         static constexpr auto must_try_processing_event_in_transitions = !tlu::empty_v<candidate_transition_type_list>;
-        static constexpr auto must_try_processing_event_in_active_state = size(candidate_state_ptrs) != 0;
+        static constexpr auto must_try_processing_event_in_active_state = tuple_util::size_of(candidate_state_ptrs) != 0;
 
         if constexpr(must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
         {
@@ -503,7 +503,7 @@ private:
     template<const auto& CandidateStatePtrs, class Event, class... ExtraArgs>
     void try_processing_event_in_active_state(const Event& event, ExtraArgs&... extra_args)
     {
-        for_each_element_or_const<CandidateStatePtrs>
+        tuple_util::for_each_element_or
         (
             [](const auto* pstate, region& self, const Event& event, ExtraArgs&... extra_args)
             {
@@ -516,6 +516,7 @@ private:
 
                 return true;
             },
+            constant_reference_c<CandidateStatePtrs>,
             *this,
             event,
             extra_args...
@@ -562,7 +563,7 @@ private:
     template<class F, class... Args>
     void with_active_state_def(Args&&... args) const
     {
-        for_each_element_or
+        tuple_util::for_each_element_or
         (
             [](const auto pstate, const auto pactive_state, auto&&... args)
             {

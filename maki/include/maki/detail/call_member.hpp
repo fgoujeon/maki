@@ -79,7 +79,7 @@ struct call_state_on_event_helper_t
     {
         if constexpr(std::is_same_v<EventType, Event>)
         {
-            const auto& on_event = get<1>(event_type_and_on_event);
+            const auto& on_event = tuple_util::get<1>(event_type_and_on_event);
             call_mce(on_event, mach, ctx, event);
         }
     }
@@ -89,7 +89,7 @@ inline constexpr auto call_state_on_event_helper = call_state_on_event_helper_t{
 template<class OnEventTuple, class Machine, class Context, class Event>
 void call_state_on_event(const OnEventTuple& on_events, Machine& mach, Context& ctx, const Event& event)
 {
-    for_each_element
+    tuple_util::for_each_element
     (
         call_state_on_event_helper,
         on_events,

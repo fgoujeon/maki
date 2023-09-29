@@ -36,7 +36,7 @@ struct submachine_conf
     bool on_event_auto = false; //NOLINT(misc-non-private-member-variables-in-classes)
     bool on_exit = false; //NOLINT(misc-non-private-member-variables-in-classes)
     bool pretty_name_fn = false; //NOLINT(misc-non-private-member-variables-in-classes)
-    TransitionTableTypeList transition_table_types; //NOLINT(misc-non-private-member-variables-in-classes)
+    TransitionTableTypeList transition_tables; //NOLINT(misc-non-private-member-variables-in-classes)
 
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(changed_var_name, new_value) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto arg_context_type = context_type; \
@@ -45,7 +45,7 @@ struct submachine_conf
     [[maybe_unused]] const auto arg_on_event_auto = on_event_auto; \
     [[maybe_unused]] const auto arg_on_exit = on_exit; \
     [[maybe_unused]] const auto arg_pretty_name_fn = pretty_name_fn; \
-    [[maybe_unused]] const auto arg_transition_table_types = transition_table_types; \
+    [[maybe_unused]] const auto arg_transition_tables = transition_tables; \
  \
     { \
         const auto arg_##changed_var_name = new_value; \
@@ -58,7 +58,7 @@ struct submachine_conf
             arg_on_event_auto, \
             arg_on_exit, \
             arg_pretty_name_fn, \
-            arg_transition_table_types \
+            arg_transition_tables \
         ); \
     }
 
@@ -97,7 +97,7 @@ struct submachine_conf
     template<class... Ts>
     [[nodiscard]] constexpr auto set_transition_tables() const
     {
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(transition_table_types, detail::type_list<Ts...>{})
+        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(transition_tables, detail::type_list<Ts...>{})
     }
 
 #undef MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY

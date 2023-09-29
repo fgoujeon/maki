@@ -419,7 +419,7 @@ struct machine_conf
     @brief The list of transition table types. One region per transmission table
     is created.
     */
-    TransitionTableTypeList transition_table_types; //NOLINT(misc-non-private-member-variables-in-classes)
+    TransitionTableTypeList transition_tables; //NOLINT(misc-non-private-member-variables-in-classes)
 
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(changed_var_name, new_value) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto arg_after_state_transition = after_state_transition; \
@@ -436,7 +436,7 @@ struct machine_conf
     [[maybe_unused]] const auto arg_on_event_auto = on_event_auto; \
     [[maybe_unused]] const auto arg_on_entry = on_entry; \
     [[maybe_unused]] const auto arg_on_exit = on_exit; \
-    [[maybe_unused]] const auto arg_transition_table_types = transition_table_types; \
+    [[maybe_unused]] const auto arg_transition_tables = transition_tables; \
  \
     { \
         const auto arg_##changed_var_name = new_value; \
@@ -457,7 +457,7 @@ struct machine_conf
             arg_on_event_auto, \
             arg_on_entry, \
             arg_on_exit, \
-            arg_transition_table_types \
+            arg_transition_tables \
         ); \
     }
 
@@ -536,7 +536,7 @@ struct machine_conf
     template<class... Ts>
     [[nodiscard]] constexpr auto set_transition_tables() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(transition_table_types, detail::type_list<Ts...>{})
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(transition_tables, detail::type_list<Ts...>{})
     }
 
 #undef MAKI_DETAIL_MAKE_MACHINE_CONF_COPY

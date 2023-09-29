@@ -33,8 +33,8 @@ namespace detail
 /**
 @brief The state machine implementation template.
 @tparam Def the state machine definition, a class that must at least define a
-`using conf` to an @ref machine_conf_tpl instance whose `transition_tables` and
-`context` options are set
+`static constexpr auto conf` of a @ref machine_conf type, with defined
+machine_conf::transition_tables and machine_conf::context_type options
 
 Here is an example of valid state machine definition, where:
 - `transition_table_t` is a user-provided `using` of a @ref
@@ -85,7 +85,7 @@ public:
     auto obj = object_type{};
     @endcode
 
-    Finally, unless the `no_auto_start` option is defined, `start()` is called.
+    Finally, unless the `auto_start` option is `false`, `start()` is called.
     */
     template<class... ContextArgs>
     explicit machine(ContextArgs&&... ctx_args):

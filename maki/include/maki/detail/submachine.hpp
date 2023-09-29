@@ -124,7 +124,7 @@ public:
     using context_type = typename submachine_context<Def, ParentRegion>::type;
     using root_sm_type = root_sm_of_t<submachine>;
 
-    using transition_table_type_list = decltype(Def::conf.transition_table_types);
+    using transition_table_type_list = decltype(Def::conf.transition_tables);
 
     template<class... ContextArgs>
     submachine(root_sm_type& root_sm, ContextArgs&&... ctx_args):

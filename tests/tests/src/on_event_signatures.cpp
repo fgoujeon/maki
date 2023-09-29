@@ -46,7 +46,7 @@ namespace
         struct state0
         {
             static constexpr auto conf = maki::state_conf_c
-                .on_event<events::event0, events::event1, events::event2>()
+                .enable_on_event<events::event0, events::event1, events::event2>()
             ;
 
             void on_event(const events::event0& event)

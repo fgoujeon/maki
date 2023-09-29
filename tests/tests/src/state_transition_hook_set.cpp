@@ -37,7 +37,7 @@ namespace
         {
             static constexpr auto conf = maki::submachine_conf_c
                 .set_transition_tables<on1_transition_table>()
-                .pretty_name_fn()
+                .enable_pretty_name_fn()
             ;
 
             static auto pretty_name()
@@ -63,7 +63,7 @@ namespace
             .before_state_transition()
             .after_state_transition()
             .disable_auto_start()
-            .pretty_name_fn()
+            .enable_pretty_name_fn()
         ;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>

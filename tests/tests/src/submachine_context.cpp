@@ -66,7 +66,7 @@ namespace
             {
                 static constexpr auto conf = maki::submachine_conf_c
                     .set_transition_tables<emitting_red_ns::transition_table_t>()
-                    .on_entry_any()
+                    .enable_on_entry_any()
                 ;
 
                 void on_entry()
@@ -92,7 +92,7 @@ namespace
             static constexpr auto conf = maki::submachine_conf_c
                 .set_transition_tables<on_ns::transition_table_t>()
                 .set_context_type<on_ns::context>()
-                .on_exit_any()
+                .enable_on_exit_any()
             ;
 
             void on_exit()

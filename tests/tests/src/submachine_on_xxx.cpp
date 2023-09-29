@@ -38,9 +38,9 @@ namespace
         struct on_0
         {
             static constexpr auto conf = maki::state_conf_c
-                .on_entry_any()
-                .on_event<events::internal>()
-                .on_exit_any()
+                .enable_on_entry_any()
+                .enable_on_event<events::internal>()
+                .enable_on_exit_any()
             ;
 
             void on_entry(const events::button_press& event)
@@ -69,9 +69,9 @@ namespace
         {
             static constexpr auto conf = maki::submachine_conf_c
                 .set_transition_tables<on_transition_table>()
-                .on_entry_any()
-                .on_event<events::internal>()
-                .on_exit_any()
+                .enable_on_entry_any()
+                .enable_on_event<events::internal>()
+                .enable_on_exit_any()
             ;
 
             void on_entry(const events::button_press& event)

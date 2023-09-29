@@ -45,7 +45,7 @@ namespace
             .set_context_type<context>()
             .before_state_transition()
             .after_state_transition()
-            .pretty_name_fn()
+            .enable_pretty_name_fn()
         ;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>

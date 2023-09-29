@@ -29,8 +29,8 @@ namespace
         struct s0
         {
             static constexpr auto conf = maki::state_conf_c
-                .on_entry_any()
-                .on_exit_any()
+                .enable_on_entry_any()
+                .enable_on_exit_any()
             ;
 
             void on_entry()
@@ -49,8 +49,8 @@ namespace
         struct s1
         {
             static constexpr auto conf = maki::state_conf_c
-                .on_entry_any()
-                .on_exit_any()
+                .enable_on_entry_any()
+                .enable_on_exit_any()
             ;
 
             void on_entry()
@@ -69,8 +69,8 @@ namespace
         struct s2
         {
             static constexpr auto conf = maki::state_conf_c
-                .on_entry_any()
-                .on_exit_any()
+                .enable_on_entry_any()
+                .enable_on_exit_any()
             ;
 
             void on_entry()

@@ -104,7 +104,7 @@ Here is an example of two actions, with their definition and their association w
 
 ### Within the associated state
 
-To associate an action to a state, you have to set an option of the configuration (see `maki::state_conf_tpl`) of that state:
+To associate an action to a state, you have to set an option of the configuration (see `maki::state_conf`) of that state:
 
 * for an entry action, set the `on_entry_any` option;
 * for an internal action, set the `on_event` option (or alternatively the `on_event_auto` option);

@@ -17,7 +17,7 @@ namespace pretty_name_ns
     struct state
     {
         static constexpr auto conf = maki::state_conf_c
-            .pretty_name_fn()
+            .enable_pretty_name_fn()
         ;
 
         static const char* pretty_name()
@@ -34,7 +34,7 @@ namespace pretty_name_ns
     {
         static constexpr auto conf = maki::submachine_conf_c
             .set_transition_tables<submachine_transition_table>()
-            .pretty_name_fn()
+            .enable_pretty_name_fn()
         ;
 
         static const char* pretty_name()
@@ -56,7 +56,7 @@ namespace pretty_name_ns
         static constexpr auto conf = maki::submachine_conf_c
             .set_transition_tables<transition_table_t>()
             .set_context_type<context>()
-            .pretty_name_fn()
+            .enable_pretty_name_fn()
         ;
 
         static const char* pretty_name()

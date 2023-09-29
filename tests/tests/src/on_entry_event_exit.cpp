@@ -30,9 +30,9 @@ namespace
         struct english
         {
             static constexpr auto conf = maki::state_conf_c
-                .on_entry_any()
-                .on_event<events::say_dog>()
-                .on_exit_any()
+                .enable_on_entry_any()
+                .enable_on_event<events::say_dog>()
+                .enable_on_exit_any()
             ;
 
             void on_entry()
@@ -56,9 +56,9 @@ namespace
         struct french
         {
             static constexpr auto conf = maki::state_conf_c
-                .on_entry_any()
-                .on_event<events::say_dog>()
-                .on_exit_any()
+                .enable_on_entry_any()
+                .enable_on_event<events::say_dog>()
+                .enable_on_exit_any()
             ;
 
             template<class Sm, class Event>

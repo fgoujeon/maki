@@ -46,7 +46,7 @@ namespace
         struct off
         {
             static constexpr auto conf = maki::state_conf_c
-                .on_event<events::ignored_by_emitting_blue>()
+                .enable_on_event<events::ignored_by_emitting_blue>()
             ;
 
             void on_event(const events::ignored_by_emitting_blue & /*unused*/)

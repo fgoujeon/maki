@@ -26,14 +26,14 @@ struct state2
 {
     static constexpr auto conf = maki::state_conf_c
         //Require the state machine to call on_entry() on state entry
-        .on_entry_any()
+        .enable_on_entry_any()
 
         //Require the state machine to call on_event() whenever it processes
         //some_event or some_other_event while this state is active
-        .on_event<some_event, some_other_event>()
+        .enable_on_event<some_event, some_other_event>()
 
         //Require the state machine to call on_exit() on state exit
-        .on_exit_any()
+        .enable_on_exit_any()
     ;
 
     //Entry action.

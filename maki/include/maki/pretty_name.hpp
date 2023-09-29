@@ -34,7 +34,7 @@ namespace detail
         class T,
         std::enable_if_t
         <
-            T::conf.has_pretty_name_fn,
+            T::conf.pretty_name_fn,
             bool
         > = true
     >

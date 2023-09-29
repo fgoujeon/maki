@@ -36,7 +36,7 @@ namespace
         struct off
         {
             static constexpr auto conf = maki::state_conf_c
-                .on_entry_any()
+                .enable_on_entry_any()
             ;
 
             void on_entry()
@@ -50,7 +50,7 @@ namespace
         struct emitting_red
         {
             static constexpr auto conf = maki::state_conf_c
-                .on_entry_any()
+                .enable_on_entry_any()
             ;
 
             void on_entry()
@@ -64,7 +64,7 @@ namespace
         struct emitting_green
         {
             static constexpr auto conf = maki::state_conf_c
-                .on_entry_any()
+                .enable_on_entry_any()
             ;
 
             void on_entry()
@@ -78,7 +78,7 @@ namespace
         struct emitting_blue
         {
             static constexpr auto conf = maki::state_conf_c
-                .on_entry_any()
+                .enable_on_entry_any()
             ;
 
             void on_entry()

@@ -91,7 +91,7 @@ public:
     explicit machine(ContextArgs&&... ctx_args):
         submachine_(*this, std::forward<ContextArgs>(ctx_args)...)
     {
-        if constexpr(conf.auto_start_enabled)
+        if constexpr(conf.auto_start)
         {
             //start
             execute_operation_now<detail::machine_operation::start>(events::start{});

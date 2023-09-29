@@ -35,7 +35,7 @@ namespace
             .set_transition_tables<transition_table_t>()
             .set_context_type<context>()
             .disable_auto_start()
-            .no_run_to_completion()
+            .disable_run_to_completion()
             .on_exception()
         ;
 

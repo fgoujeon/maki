@@ -95,7 +95,7 @@ namespace states
                 state.on_entry();
             Where `event` is the event that caused the state transition.
             */
-            .on_entry_any()
+            .enable_on_entry_any()
 
             /*
             Here, we require the state machine to call an on_event() function
@@ -105,7 +105,7 @@ namespace states
             This expression must be valid:
                 state.on_event(event);
             */
-            .on_event<button::push_event>()
+            .enable_on_event<button::push_event>()
 
             /*
             Finally, we want the state machine to call on_exit() whenever it
@@ -115,7 +115,7 @@ namespace states
                 state.on_exit();
             Where `event` is the event that caused the state transition.
             */
-            .on_exit_any()
+            .enable_on_exit_any()
         ;
 
         void on_entry(const button::push_event& event)

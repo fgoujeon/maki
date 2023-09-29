@@ -12,23 +12,32 @@ function(maki_target_common_options TARGET)
         CXX_STANDARD 17
     )
 
+    unset(WERROR)
+    if(MAKI_WARNINGS_AS_ERRORS)
+        if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+            set(WERROR "/WX")
+        else()
+            set(WERROR "-Werror")
+        endif()
+    endif()
+
     if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         target_compile_options(
             ${TARGET}
             PRIVATE
-                -Wall -Wextra -Wsign-conversion -pedantic -Werror
+                -Wall -Wextra -Wsign-conversion -pedantic ${WERROR}
         )
     elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         target_compile_options(
             ${TARGET}
             PRIVATE
-                -Wall -Wextra -Wsign-conversion -pedantic -Werror
+                -Wall -Wextra -Wsign-conversion -pedantic ${WERROR}
         )
     elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         target_compile_options(
             ${TARGET}
             PRIVATE
-                /W4 /WX /permissive-
+                /W4 /permissive- ${WERROR}
         )
     endif()
 endfunction()

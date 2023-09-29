@@ -13,6 +13,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 option(MAKI_BUILD_EXAMPLES "Build example executables" OFF)
 option(MAKI_BUILD_TESTS "Build test executable" OFF)
 option(MAKI_FORCE_CATCH2_V2 "Force version 2 of catch2" OFF)
+option(MAKI_WARNINGS_AS_ERRORS "Consider warnings as errors" OFF)
 
 if(MAKI_BUILD_TESTS)
     find_package(Catch2 REQUIRED)

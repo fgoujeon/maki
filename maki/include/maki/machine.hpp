@@ -58,7 +58,7 @@ public:
     /**
     @brief The state machine configuration type.
     */
-    static constexpr auto conf = Def::conf;
+    static constexpr const auto& conf = Def::conf;
 
     /**
     @brief The state machine context type.

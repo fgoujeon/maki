@@ -86,7 +86,7 @@ template<class Def>
 class machine_ref
 {
 public:
-    static constexpr auto conf = Def::conf;
+    static constexpr const auto& conf = Def::conf;
 
     template<class MachineDef>
     machine_ref(machine<MachineDef>& mach):
@@ -107,16 +107,16 @@ public:
         (
             detail::tlu::contains_v
             <
-                decltype(conf.event_types),
+                decltype(conf.on_event),
                 Event
             >,
-            "Given event type must be part of the 'events' option template argument list"
+            "Given event type must be part of the 'on_event' option type list"
         );
         impl_.process_event(event);
     }
 
 private:
-    using event_type_list = decltype(conf.event_types);
+    using event_type_list = decltype(conf.on_event);
 
     using event_impl_type = detail::tlu::apply_t
     <
@@ -131,7 +131,7 @@ template<class... Events>
 struct machine_ref_e_def
 {
     static constexpr auto conf = machine_ref_conf_c
-        .set_event_types<Events...>()
+        .enable_on_event<Events...>()
     ;
 };
 

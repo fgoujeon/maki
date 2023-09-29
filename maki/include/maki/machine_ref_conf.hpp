@@ -17,10 +17,10 @@ namespace maki
 template<class EventTypeList = detail::type_list<>>
 struct machine_ref_conf
 {
-    EventTypeList event_types;
+    EventTypeList on_event;
 
     template<class... Ts>
-    [[nodiscard]] constexpr auto set_event_types() const
+    [[nodiscard]] constexpr auto enable_on_event() const
     {
         return machine_ref_conf<detail::type_list<Ts...>>{};
     }

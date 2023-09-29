@@ -9,7 +9,6 @@
 
 #include "machine_ref_conf.hpp"
 #include "machine_fwd.hpp"
-#include "detail/conf.hpp"
 #include "detail/tlu.hpp"
 
 namespace maki
@@ -87,7 +86,7 @@ template<class Def>
 class machine_ref
 {
 public:
-    using conf = typename Def::conf;
+    static constexpr auto conf = Def::conf;
 
     template<class MachineDef>
     machine_ref(machine<MachineDef>& mach):
@@ -108,7 +107,7 @@ public:
         (
             detail::tlu::contains_v
             <
-                detail::option_t<conf, detail::option_id::events>,
+                decltype(conf.event_types),
                 Event
             >,
             "Given event type must be part of the 'events' option template argument list"
@@ -117,7 +116,7 @@ public:
     }
 
 private:
-    using event_type_list = detail::option_t<conf, detail::option_id::events>;
+    using event_type_list = decltype(conf.event_types);
 
     using event_impl_type = detail::tlu::apply_t
     <
@@ -131,8 +130,8 @@ private:
 template<class... Events>
 struct machine_ref_e_def
 {
-    using conf = machine_ref_conf
-        ::events<Events...>
+    static constexpr auto conf = machine_ref_conf_c
+        .set_event_types<Events...>()
     ;
 };
 

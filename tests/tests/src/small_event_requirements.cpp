@@ -55,7 +55,7 @@ namespace
 
     struct state
     {
-        using conf = maki::state_conf_tpl<>;
+        static constexpr auto conf = maki::state_conf_c;
     };
 
     template<class Event>
@@ -72,11 +72,11 @@ namespace
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
     struct machine_def
     {
-        using conf = typename maki::machine_conf
-            ::transition_tables<transition_table_t>
-            ::context<context>
-            ::template small_event_max_size<SmallEventMaxSize>
-            ::template small_event_max_align<SmallEventMaxAlign>
+        static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables<transition_table_t>()
+            .set_context_type<context>()
+            .set_small_event_max_size(SmallEventMaxSize)
+            .set_small_event_max_align(SmallEventMaxAlign)
         ;
     };
 

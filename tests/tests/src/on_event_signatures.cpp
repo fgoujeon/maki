@@ -45,13 +45,8 @@ namespace
     {
         struct state0
         {
-            using conf = maki::state_conf
-                ::on_event
-                <
-                    events::event0,
-                    events::event1,
-                    events::event2
-                >
+            static constexpr auto conf = maki::state_conf_c
+                .on_event<events::event0, events::event1, events::event2>()
             ;
 
             void on_event(const events::event0& event)
@@ -79,9 +74,9 @@ namespace
 
     struct machine_def
     {
-        using conf = maki::machine_conf
-            ::transition_tables<transition_table_t>
-            ::context<context>
+        static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables<transition_table_t>()
+            .set_context_type<context>()
         ;
 
         context& ctx;

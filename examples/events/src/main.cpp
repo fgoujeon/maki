@@ -55,10 +55,10 @@ struct context
 };
 
 //States
-struct idle { using conf = maki::state_conf; };
-struct starting { using conf = maki::state_conf; };
-struct running { using conf = maki::state_conf; };
-struct stopping { using conf = maki::state_conf; };
+struct idle { static constexpr auto conf = maki::state_conf_c; };
+struct starting { static constexpr auto conf = maki::state_conf_c; };
+struct running { static constexpr auto conf = maki::state_conf_c; };
+struct stopping { static constexpr auto conf = maki::state_conf_c; };
 
 //Actions
 void start_motor(context& ctx)
@@ -82,9 +82,9 @@ using transition_table_t = maki::transition_table
 //State machine definition
 struct machine_def
 {
-    using conf = maki::machine_conf
-        ::transition_tables<transition_table_t>
-        ::context<context>
+    static constexpr auto conf = maki::machine_conf_c
+        .set_transition_tables<transition_table_t>()
+        .set_context_type<context>()
     ;
 };
 

@@ -7,31 +7,102 @@
 #ifndef MAKI_STATE_CONF_HPP
 #define MAKI_STATE_CONF_HPP
 
-#include "type_patterns.hpp"
-#include "detail/constant.hpp"
 #include "detail/tlu.hpp"
+#include "detail/type_list.hpp"
 #include "detail/type.hpp"
-#include "detail/conf.hpp"
 
 namespace maki
 {
 
-template<class... Options>
-struct state_conf_tpl
+namespace detail
 {
-    using pretty_name = state_conf_tpl<Options..., detail::options::pretty_name>;
+    template<class... Args>
+    constexpr auto make_state_conf(const Args&... args);
+}
 
-    template<class... EventFilters>
-    using on_event = state_conf_tpl<Options..., detail::options::on_event<EventFilters...>>;
+template<class OnEventTypeList = detail::type_list<>>
+struct state_conf
+{
+    bool has_on_entry_any = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    bool on_event_auto = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    OnEventTypeList on_event_types; //NOLINT(misc-non-private-member-variables-in-classes)
+    bool has_on_exit_any = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    bool has_pretty_name_fn = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
-    using on_event_auto = state_conf_tpl<Options..., detail::options::on_event_auto>;
+    [[nodiscard]] constexpr auto on_entry_any() const
+    {
+        return detail::make_state_conf
+        (
+            true,
+            on_event_auto,
+            on_event_types,
+            has_on_exit_any,
+            has_pretty_name_fn
+        );
+    }
 
-    using on_entry_any = state_conf_tpl<Options..., detail::options::on_entry_any>;
+    [[nodiscard]] constexpr auto enable_on_event_auto() const
+    {
+        return detail::make_state_conf
+        (
+            has_on_entry_any,
+            true,
+            on_event_types,
+            has_on_exit_any,
+            has_pretty_name_fn
+        );
+    }
 
-    using on_exit_any = state_conf_tpl<Options..., detail::options::on_exit_any>;
+    template<class... Types>
+    [[nodiscard]] constexpr auto on_event() const
+    {
+        return detail::make_state_conf
+        (
+            has_on_entry_any,
+            on_event_auto,
+            detail::type_list_c<Types...>,
+            has_on_exit_any,
+            has_pretty_name_fn
+        );
+    }
+
+    [[nodiscard]] constexpr auto on_exit_any() const
+    {
+        return detail::make_state_conf
+        (
+            has_on_entry_any,
+            on_event_auto,
+            on_event_types,
+            true,
+            has_pretty_name_fn
+        );
+    }
+
+    [[nodiscard]] constexpr auto pretty_name_fn() const
+    {
+        return detail::make_state_conf
+        (
+            has_on_entry_any,
+            on_event_auto,
+            on_event_types,
+            has_on_exit_any,
+            true
+        );
+    }
 };
 
-using state_conf = state_conf_tpl<>;
+inline constexpr auto state_conf_c = state_conf<>{};
+
+namespace detail
+{
+    template<class... Args>
+    constexpr auto make_state_conf(const Args&... args)
+    {
+        using args_t = detail::type_list<Args...>;
+        using on_event_type_list = tlu::get_t<args_t, 2>;
+        return state_conf<on_event_type_list>{args...};
+    }
+}
 
 } //namespace
 

@@ -7,28 +7,26 @@
 #ifndef MAKI_MACHINE_REF_CONF_HPP
 #define MAKI_MACHINE_REF_CONF_HPP
 
-#include "detail/constant.hpp"
 #include "detail/tlu.hpp"
+#include "detail/type_list.hpp"
 #include "detail/type.hpp"
-#include "detail/conf.hpp"
 
 namespace maki
 {
 
-namespace machine_ref_opts
+template<class EventTypeList = detail::type_list<>>
+struct machine_ref_conf
 {
-    template<class... Events>
-    using events = detail::conf_element<detail::option_id::events, detail::type_list<Events...>>;
-}
+    EventTypeList event_types;
 
-template<class... Options>
-struct machine_ref_conf_tpl
-{
-    template<class... Events>
-    using events = machine_ref_conf_tpl<Options..., machine_ref_opts::events<Events...>>;
+    template<class... Ts>
+    [[nodiscard]] constexpr auto set_event_types() const
+    {
+        return machine_ref_conf<detail::type_list<Ts...>>{};
+    }
 };
 
-using machine_ref_conf = machine_ref_conf_tpl<>;
+inline constexpr auto machine_ref_conf_c = machine_ref_conf<>{};
 
 } //namespace
 

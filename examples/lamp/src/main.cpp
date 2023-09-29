@@ -15,8 +15,8 @@ struct context{};
 struct button_press{};
 
 //States are types (more about that later)
-struct off { using conf = maki::state_conf; };
-struct on { using conf = maki::state_conf; };
+struct off { static constexpr auto conf = maki::state_conf_c; };
+struct on { static constexpr auto conf = maki::state_conf_c; };
 
 //Actions are functions (more about that later)
 void turn_light_on()
@@ -42,9 +42,9 @@ using transition_table_t = maki::transition_table
 struct machine_def
 {
     //The configuration of the state machine
-    using conf = maki::machine_conf
-        ::transition_tables<transition_table_t>
-        ::context<context>
+    static constexpr auto conf = maki::machine_conf_c
+        .set_transition_tables<transition_table_t>()
+        .set_context_type<context>()
     ;
 };
 //! [machine-def]

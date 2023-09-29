@@ -35,9 +35,9 @@ namespace
 
         struct on1
         {
-            using conf = maki::submachine_conf
-                ::transition_tables<on1_transition_table>
-                ::pretty_name
+            static constexpr auto conf = maki::submachine_conf_c
+                .set_transition_tables<on1_transition_table>()
+                .pretty_name_fn()
             ;
 
             static auto pretty_name()
@@ -57,13 +57,13 @@ namespace
 
     struct machine_def
     {
-        using conf = maki::machine_conf
-            ::transition_tables<transition_table_0_t, transition_table_1_t>
-            ::context<context>
-            ::before_state_transition
-            ::after_state_transition
-            ::no_auto_start
-            ::pretty_name
+        static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables<transition_table_0_t, transition_table_1_t>()
+            .set_context_type<context>()
+            .before_state_transition()
+            .after_state_transition()
+            .disable_auto_start()
+            .pretty_name_fn()
         ;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>

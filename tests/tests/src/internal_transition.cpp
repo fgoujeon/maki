@@ -35,8 +35,8 @@ namespace
 
         struct benchmarking
         {
-            using conf = maki::state_conf
-                ::on_event<events::internal_transition>
+            static constexpr auto conf = maki::state_conf_c
+                .on_event<events::internal_transition>()
             ;
 
             void on_event(const events::internal_transition&)
@@ -63,11 +63,11 @@ namespace
 
     struct machine_def
     {
-        using conf = maki::machine_conf
-            ::transition_tables<transition_table_t>
-            ::context<context>
-            ::no_run_to_completion
-            ::on_exception
+        static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables<transition_table_t>()
+            .set_context_type<context>()
+            .no_run_to_completion()
+            .on_exception()
         ;
 
         void on_exception(const std::exception_ptr& /*eptr*/)

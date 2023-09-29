@@ -13,6 +13,9 @@ namespace maki::detail
 template<class... Ts>
 struct type_list{};
 
+template<class... Ts>
+inline constexpr auto type_list_c = type_list<Ts...>{};
+
 } //namespace
 
 #endif

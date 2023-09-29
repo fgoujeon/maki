@@ -58,14 +58,18 @@ public:
     /**
     @brief The state machine configuration type.
     */
-    using conf = typename Def::conf;
+    static constexpr auto conf = Def::conf;
 
     /**
     @brief The state machine context type.
     */
-    using context_type = detail::option_t<conf, detail::option_id::context>;
+    using context_type = typename decltype(conf.context_type)::type;
 
-    static_assert(detail::is_root_sm_conf_v<conf>, "The root state machine definition must include a using conf = machine_conf::...");
+    static_assert
+    (
+        detail::is_root_sm_conf_v<std::decay_t<decltype(conf)>>,
+        "The root state machine definition must include a static constexpr auto conf = machine_conf_c.[...];"
+    );
 
     /**
     @brief The constructor.
@@ -87,7 +91,7 @@ public:
     explicit machine(ContextArgs&&... ctx_args):
         submachine_(*this, std::forward<ContextArgs>(ctx_args)...)
     {
-        if constexpr(detail::option_v<conf, detail::option_id::auto_start>)
+        if constexpr(conf.auto_start_enabled)
         {
             //start
             execute_operation_now<detail::machine_operation::start>(events::start{});
@@ -327,7 +331,7 @@ public:
     template<class Event>
     MAKI_NOINLINE void enqueue_event(const Event& event)
     {
-        static_assert(detail::option_v<conf, detail::option_id::run_to_completion>);
+        static_assert(conf.run_to_completion);
         try
         {
             enqueue_event_impl<detail::machine_operation::process_event>(event);
@@ -382,7 +386,7 @@ private:
         }
 
     private:
-        machine& self_;
+        machine& self_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
     };
 
     struct real_operation_queue_holder
@@ -391,8 +395,8 @@ private:
         using type = detail::function_queue
         <
             machine&,
-            detail::option_v<conf, detail::option_id::small_event_max_size>,
-            detail::option_v<conf, detail::option_id::small_event_max_align>
+            conf.small_event_max_size,
+            conf.small_event_max_align
         >;
     };
     struct empty_holder
@@ -402,7 +406,7 @@ private:
     };
     using operation_queue_type = typename std::conditional_t
     <
-        detail::option_v<conf, detail::option_id::run_to_completion>,
+        conf.run_to_completion,
         real_operation_queue_holder,
         empty_holder
     >::template type<>;
@@ -412,7 +416,7 @@ private:
     {
         try
         {
-            if constexpr(detail::option_v<conf, detail::option_id::run_to_completion>)
+            if constexpr(conf.run_to_completion)
             {
                 if(!executing_operation_) //If call is not recursive
                 {
@@ -438,7 +442,7 @@ private:
     template<detail::machine_operation Operation, class Event>
     void execute_operation_now(const Event& event)
     {
-        if constexpr(detail::option_v<conf, detail::option_id::run_to_completion>)
+        if constexpr(conf.run_to_completion)
         {
             auto grd = executing_operation_guard{*this};
 
@@ -471,7 +475,7 @@ private:
 
     void process_exception(const std::exception_ptr& eptr)
     {
-        if constexpr(detail::option_v<conf, detail::option_id::on_exception>)
+        if constexpr(conf.on_exception_enabled)
         {
             def().on_exception(eptr);
         }
@@ -494,7 +498,7 @@ private:
         }
         else
         {
-            if constexpr(detail::option_v<conf, detail::option_id::on_unprocessed>)
+            if constexpr(conf.on_unprocessed_enabled)
             {
                 auto processed = false;
                 submachine_.on_event(event, processed);

@@ -18,7 +18,7 @@ after @ref machine::stop() is called.
 */
 struct stopped
 {
-    using conf = state_conf_tpl<>;
+    static constexpr auto conf = state_conf_c;
 };
 
 } //namespace

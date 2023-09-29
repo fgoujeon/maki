@@ -31,8 +31,8 @@ namespace
     {
         struct off
         {
-            using conf = maki::state_conf
-                ::on_event<events::button_press>
+            static constexpr auto conf = maki::state_conf_c
+                .on_event<events::button_press>()
             ;
 
             void on_event(const events::button_press& event)
@@ -45,12 +45,12 @@ namespace
 
         struct on
         {
-            using conf = maki::state_conf
-                ::on_event
+            static constexpr auto conf = maki::state_conf_c
+                .on_event
                 <
                     events::button_press,
                     events::alert_button_press
-                >
+                >()
             ;
 
             void on_event(const events::button_press& /*event*/)
@@ -74,10 +74,10 @@ namespace
 
     struct machine_def
     {
-        using conf = maki::machine_conf
-            ::transition_tables<transition_table_t>
-            ::context<context>
-            ::on_event<events::button_press>
+        static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables<transition_table_t>()
+            .set_context_type<context>()
+            .on_event<events::button_press>()
         ;
 
         void on_event(const events::button_press& event)

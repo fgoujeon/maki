@@ -30,11 +30,11 @@ struct plus_button_press{};
 //! [events-and-datatypes]
 
 //States
-struct reading_memory { using conf = maki::state_conf; };
+struct reading_memory { static constexpr auto conf = maki::state_conf_c; };
 struct spinning_low
 {
-    using conf = maki::state_conf
-        ::on_entry_any
+    static constexpr auto conf = maki::state_conf_c
+        .on_entry_any()
     ;
 
     void on_entry()
@@ -47,8 +47,8 @@ struct spinning_low
 };
 struct spinning_med
 {
-    using conf = maki::state_conf
-        ::on_entry_any
+    static constexpr auto conf = maki::state_conf_c
+        .on_entry_any()
     ;
 
     void on_entry()
@@ -61,8 +61,8 @@ struct spinning_med
 };
 struct spinning_high
 {
-    using conf = maki::state_conf
-        ::on_entry_any
+    static constexpr auto conf = maki::state_conf_c
+        .on_entry_any()
     ;
 
     void on_entry()
@@ -108,9 +108,9 @@ using transition_table_t = maki::transition_table
 struct machine_def
 {
     //The configuration of the state machine
-    using conf = maki::machine_conf
-        ::transition_tables<transition_table_t>
-        ::context<context>
+    static constexpr auto conf = maki::machine_conf_c
+        .set_transition_tables<transition_table_t>()
+        .set_context_type<context>()
     ;
 };
 

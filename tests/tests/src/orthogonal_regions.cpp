@@ -33,8 +33,8 @@ namespace
         EMPTY_STATE(on0);
         struct on1
         {
-            using conf = maki::state_conf
-                ::on_event<events::exception_request>
+            static constexpr auto conf = maki::state_conf_c
+                .on_event<events::exception_request>()
             ;
 
             void on_event(const events::exception_request&)
@@ -51,18 +51,18 @@ namespace
 
     struct machine_def
     {
-        using conf = maki::machine_conf
-            ::transition_tables
+        static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables
             <
                 maki::transition_table
                     ::add<states::off0, events::button_press, states::on0>,
                 maki::transition_table
                     ::add<states::off1, events::button_press, states::on1>
-            >
-            ::context<context>
-            ::on_exception
-            ::before_state_transition
-            ::after_state_transition
+            >()
+            .set_context_type<context>()
+            .on_exception()
+            .before_state_transition()
+            .after_state_transition()
         ;
 
         template<class RegionPath, class SourceState, class Event, class TargetState>

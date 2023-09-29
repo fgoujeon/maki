@@ -42,9 +42,9 @@ namespace
 
     struct machine_def
     {
-        using conf = maki::machine_conf
-            ::transition_tables<decltype(make_sm_transition_table())>
-            ::context<context>
+        static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables<decltype(make_sm_transition_table())>()
+            .set_context_type<context>()
         ;
     };
 

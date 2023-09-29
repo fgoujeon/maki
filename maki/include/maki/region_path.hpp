@@ -99,8 +99,7 @@ namespace detail
     template<class... Ts, class MachineDef>
     struct region_path_add<region_path_tpl<Ts...>, MachineDef, -1>
     {
-        using conf_type = typename MachineDef::conf;
-        using transition_table_list_type = option_t<conf_type, option_id::transition_tables>;
+        using transition_table_list_type = decltype(MachineDef::conf.transition_table_types);
         static_assert
         (
             tlu::size_v<transition_table_list_type> == 1,
@@ -118,11 +117,7 @@ namespace detail
     {
         static void add_pretty_name(std::ostringstream& oss, bool& first)
         {
-            using transition_table_list_type = detail::option_t
-            <
-                typename MachineDef::conf,
-                detail::option_id::transition_tables
-            >;
+            using transition_table_list_type = decltype(MachineDef::conf.transition_table_types);
 
             if(first)
             {

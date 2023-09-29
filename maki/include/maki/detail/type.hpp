@@ -7,6 +7,8 @@
 #ifndef MAKI_DETAIL_TYPE_TAG_HPP
 #define MAKI_DETAIL_TYPE_TAG_HPP
 
+#include <type_traits>
+
 namespace maki::detail
 {
 
@@ -16,6 +18,15 @@ struct type_t
 {
     using type = T;
 };
+
+template<class T, class U>
+constexpr bool operator==(const type_t<T> /*lhs*/, const type_t<U> /*rhs*/)
+{
+    return std::is_same_v<T, U>;
+}
+
+template<class T>
+constexpr auto type_c = type_t<T>{};
 
 } //namespace
 

@@ -254,7 +254,7 @@ public:
 
 private:
     using root_sm_type = root_sm_of_t<ParentSm>;
-    using machine_conf_tpl = typename root_sm_type::conf;
+    static constexpr auto machine_conf = root_sm_type::conf;
 
     using transition_table_type = tlu::get_t<typename ParentSm::transition_table_type_list, Index>;
 
@@ -389,7 +389,7 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(option_v<machine_conf_tpl, option_id::before_state_transition>)
+            if constexpr(machine_conf.before_state_transition_enabled)
             {
                 root_sm_.def().template before_state_transition
                 <
@@ -436,7 +436,7 @@ private:
                 );
             }
 
-            if constexpr(option_v<machine_conf_tpl, option_id::after_state_transition>)
+            if constexpr(machine_conf.after_state_transition_enabled)
             {
                 root_sm_.def().template after_state_transition
                 <
@@ -606,8 +606,10 @@ private:
     template<class T>
     static T static_instance; //NOLINT
 
-    root_sm_type& root_sm_;
-    std::decay_t<typename ParentSm::context_type>& ctx_;
+    //Store references for faster access
+    root_sm_type& root_sm_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+    std::decay_t<typename ParentSm::context_type>& ctx_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+
     state_holder_tuple_type state_holders_;
 
     int active_state_index_ = index_of_state_v<state_def_type_list, states::stopped>;

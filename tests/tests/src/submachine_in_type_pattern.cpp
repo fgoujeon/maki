@@ -32,8 +32,8 @@ namespace
 
         struct s0
         {
-            using conf = maki::submachine_conf
-                ::transition_tables<s0_transition_table>
+            static constexpr auto conf = maki::submachine_conf_c
+                .set_transition_tables<s0_transition_table>()
             ;
         };
     }
@@ -50,9 +50,9 @@ namespace
 
     struct machine_def
     {
-        using conf = maki::machine_conf
-            ::transition_tables<transition_table_t>
-            ::context<context>
+        static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables<transition_table_t>()
+            .set_context_type<context>()
         ;
     };
 

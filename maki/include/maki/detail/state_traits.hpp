@@ -9,7 +9,6 @@
 
 #include "submachine_fwd.hpp"
 #include "overload_priority.hpp"
-#include "conf.hpp"
 #include "tlu.hpp"
 #include "../type_patterns.hpp"
 #include "../state_conf.hpp"
@@ -46,7 +45,7 @@ struct state_def_to_state
 };
 
 template<class StateDef, class Region>
-struct state_def_to_state<StateDef, Region, std::enable_if_t<is_submachine_conf_v<typename StateDef::conf>>>
+struct state_def_to_state<StateDef, Region, std::enable_if_t<is_submachine_conf_v<std::decay_t<decltype(StateDef::conf)>>>>
 {
     using type = submachine<StateDef, Region>;
 };
@@ -60,7 +59,7 @@ using state_def_to_state_t = typename state_def_to_state<StateDef, Region>::type
 template<class State>
 constexpr auto requires_on_entry()
 {
-    return option_v<typename State::conf, option_id::on_entry_any>;
+    return State::conf.has_on_entry_any;
 }
 
 
@@ -69,7 +68,7 @@ constexpr auto requires_on_entry()
 template<class State>
 constexpr auto requires_on_exit()
 {
-    return option_v<typename State::conf, option_id::on_exit_any>;
+    return State::conf.has_on_exit_any;
 }
 
 
@@ -102,14 +101,14 @@ struct matches_on_event_pattern
     static constexpr auto value = matches_any_pattern_v
     <
         Event,
-        option_t<typename State::conf, option_id::on_event>
+        decltype(State::conf.on_event_types)
     >;
 };
 
 template<class State, class Event>
 constexpr auto requires_on_event_v = std::conditional_t
 <
-    option_v<typename State::conf, option_id::on_event_auto>,
+    State::conf.on_event_auto,
     has_on_event,
     matches_on_event_pattern
 >::template value<State, Event>;

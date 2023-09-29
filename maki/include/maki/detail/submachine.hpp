@@ -67,18 +67,18 @@ struct submachine_context
     - a reference to the context type of the parent SM (not necessarily the root
       SM).
     */
-    using type = option_or_t
+    using type = std::conditional_t
     <
-        typename Def::conf,
-        option_id::context,
-        typename ParentRegion::parent_sm_type::context_type&
+        Def::conf.context_type == type_c<void>,
+        typename ParentRegion::parent_sm_type::context_type&,
+        typename decltype(Def::conf.context_type)::type
     >;
 };
 
 template<class Def>
 struct submachine_context<Def, void>
 {
-    using type = option_t<typename Def::conf, option_id::context>;
+    using type = typename decltype(Def::conf.context_type)::type;
 };
 
 template
@@ -113,17 +113,17 @@ template<class Def, class ParentRegion>
 class submachine
 {
 public:
-    using conf = state_conf
-        ::on_entry_any
-        ::on_event<maki::any>
-        ::on_exit_any
+    static constexpr auto conf = state_conf_c
+        .on_entry_any()
+        .on_event<maki::any>()
+        .on_exit_any()
     ;
 
     using def_type = Def;
     using context_type = typename submachine_context<Def, ParentRegion>::type;
     using root_sm_type = root_sm_of_t<submachine>;
 
-    using transition_table_type_list = option_t<typename Def::conf, option_id::transition_tables>;
+    using transition_table_type_list = decltype(Def::conf.transition_table_types);
 
     template<class... ContextArgs>
     submachine(root_sm_type& root_sm, ContextArgs&&... ctx_args):
@@ -290,7 +290,9 @@ private:
         }
     };
 
-    root_sm_type& root_sm_;
+    //Store references for faster access
+    root_sm_type& root_sm_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+
     context_holder<context_type> ctx_holder_;
     detail::machine_object_holder<Def> def_holder_;
     region_tuple_type regions_;

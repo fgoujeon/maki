@@ -84,7 +84,7 @@ namespace states
     struct off
     {
         /*
-        A state class must define a conf subtype.
+        A state class must define a conf variable.
         */
         static constexpr auto conf = maki::state_conf_c
             /*

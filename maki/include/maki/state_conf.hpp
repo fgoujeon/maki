@@ -23,82 +23,82 @@ namespace detail
 template<class OnEventTypeList = detail::type_list<>>
 struct state_conf
 {
-    bool on_entry_any = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    bool on_entry = false; //NOLINT(misc-non-private-member-variables-in-classes)
     bool on_event_auto = false; //NOLINT(misc-non-private-member-variables-in-classes)
-    OnEventTypeList on_event_types; //NOLINT(misc-non-private-member-variables-in-classes)
-    bool on_exit_any = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    OnEventTypeList on_event; //NOLINT(misc-non-private-member-variables-in-classes)
+    bool on_exit = false; //NOLINT(misc-non-private-member-variables-in-classes)
     bool pretty_name_fn = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
-    [[nodiscard]] constexpr auto enable_on_entry_any() const
+    [[nodiscard]] constexpr auto enable_on_entry() const
     {
         return detail::make_state_conf
         (
             true,
             on_event_auto,
-            on_event_types,
-            on_exit_any,
+            on_event,
+            on_exit,
             pretty_name_fn
         );
     }
 
-    [[nodiscard]] constexpr auto set_on_event_types_auto() const
+    [[nodiscard]] constexpr auto enable_on_event_auto() const
     {
         return detail::make_state_conf
         (
-            on_entry_any,
+            on_entry,
             true,
-            on_event_types,
-            on_exit_any,
+            on_event,
+            on_exit,
             pretty_name_fn
         );
     }
 
     template<class... Types>
-    [[nodiscard]] constexpr auto set_on_event_types() const
+    [[nodiscard]] constexpr auto enable_on_event() const
     {
         return detail::make_state_conf
         (
-            on_entry_any,
+            on_entry,
             on_event_auto,
             detail::type_list_c<Types...>,
-            on_exit_any,
+            on_exit,
             pretty_name_fn
         );
     }
 
     template<class... Types>
-    [[nodiscard]] constexpr auto set_on_event_types(const detail::type_list<Types...> value) const
+    [[nodiscard]] constexpr auto enable_on_event(const detail::type_list<Types...> value) const
     {
         return detail::make_state_conf
         (
-            on_entry_any,
+            on_entry,
             on_event_auto,
             value,
-            on_exit_any,
+            on_exit,
             pretty_name_fn
         );
     }
 
-    [[nodiscard]] constexpr auto enable_on_exit_any() const
+    [[nodiscard]] constexpr auto enable_on_exit() const
     {
         return detail::make_state_conf
         (
-            on_entry_any,
+            on_entry,
             on_event_auto,
-            on_event_types,
+            on_event,
             true,
             pretty_name_fn
         );
     }
 
-    [[nodiscard]] constexpr auto enable_pretty_name_fn() const
+    [[nodiscard]] constexpr auto enable_pretty_name() const
     {
         return detail::make_state_conf
         (
-            on_entry_any,
+            on_entry,
             on_event_auto,
-            on_event_types,
-            on_exit_any,
+            on_event,
+            on_exit,
             true
         );
     }

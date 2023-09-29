@@ -31,19 +31,19 @@ template
 struct submachine_conf
 {
     ContextType context_type; //NOLINT(misc-non-private-member-variables-in-classes)
-    bool on_entry_any = false; //NOLINT(misc-non-private-member-variables-in-classes)
-    OnEventTypeList on_event_types; //NOLINT(misc-non-private-member-variables-in-classes)
+    bool on_entry = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    OnEventTypeList on_event; //NOLINT(misc-non-private-member-variables-in-classes)
     bool on_event_auto = false; //NOLINT(misc-non-private-member-variables-in-classes)
-    bool on_exit_any = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    bool on_exit = false; //NOLINT(misc-non-private-member-variables-in-classes)
     bool pretty_name_fn = false; //NOLINT(misc-non-private-member-variables-in-classes)
     TransitionTableTypeList transition_table_types; //NOLINT(misc-non-private-member-variables-in-classes)
 
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(changed_var_name, new_value) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto arg_context_type = context_type; \
-    [[maybe_unused]] const auto arg_on_entry_any = on_entry_any; \
-    [[maybe_unused]] const auto arg_on_event_types = on_event_types; \
+    [[maybe_unused]] const auto arg_on_entry = on_entry; \
+    [[maybe_unused]] const auto arg_on_event = on_event; \
     [[maybe_unused]] const auto arg_on_event_auto = on_event_auto; \
-    [[maybe_unused]] const auto arg_on_exit_any = on_exit_any; \
+    [[maybe_unused]] const auto arg_on_exit = on_exit; \
     [[maybe_unused]] const auto arg_pretty_name_fn = pretty_name_fn; \
     [[maybe_unused]] const auto arg_transition_table_types = transition_table_types; \
  \
@@ -53,10 +53,10 @@ struct submachine_conf
         return detail::make_submachine_conf \
         ( \
             arg_context_type, \
-            arg_on_entry_any, \
-            arg_on_event_types, \
+            arg_on_entry, \
+            arg_on_event, \
             arg_on_event_auto, \
-            arg_on_exit_any, \
+            arg_on_exit, \
             arg_pretty_name_fn, \
             arg_transition_table_types \
         ); \
@@ -68,28 +68,28 @@ struct submachine_conf
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(context_type, detail::type_c<Context>)
     }
 
-    [[nodiscard]] constexpr auto enable_on_entry_any() const
+    [[nodiscard]] constexpr auto enable_on_entry() const
     {
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(on_entry_any, true)
+        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(on_entry, true)
     }
 
-    [[nodiscard]] constexpr auto set_on_event_types_auto() const
+    [[nodiscard]] constexpr auto enable_on_event_auto() const
     {
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(on_event_auto, true)
     }
 
     template<class... Types>
-    [[nodiscard]] constexpr auto set_on_event_types() const
+    [[nodiscard]] constexpr auto enable_on_event() const
     {
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(on_event_types, detail::type_list<Types...>{})
+        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(on_event, detail::type_list<Types...>{})
     }
 
-    [[nodiscard]] constexpr auto enable_on_exit_any() const
+    [[nodiscard]] constexpr auto enable_on_exit() const
     {
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(on_exit_any, true)
+        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(on_exit, true)
     }
 
-    [[nodiscard]] constexpr auto enable_pretty_name_fn() const
+    [[nodiscard]] constexpr auto enable_pretty_name() const
     {
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(pretty_name_fn, true)
     }

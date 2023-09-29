@@ -34,7 +34,7 @@ struct reading_memory { static constexpr auto conf = maki::state_conf_c; };
 struct spinning_low
 {
     static constexpr auto conf = maki::state_conf_c
-        .enable_on_entry_any()
+        .enable_on_entry()
     ;
 
     void on_entry()
@@ -48,7 +48,7 @@ struct spinning_low
 struct spinning_med
 {
     static constexpr auto conf = maki::state_conf_c
-        .enable_on_entry_any()
+        .enable_on_entry()
     ;
 
     void on_entry()
@@ -62,7 +62,7 @@ struct spinning_med
 struct spinning_high
 {
     static constexpr auto conf = maki::state_conf_c
-        .enable_on_entry_any()
+        .enable_on_entry()
     ;
 
     void on_entry()

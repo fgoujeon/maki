@@ -115,9 +115,9 @@ class submachine
 {
 public:
     static constexpr auto conf = state_conf_c
-        .enable_on_entry_any()
-        .set_on_event_types(type_list_c<maki::any>)
-        .enable_on_exit_any()
+        .enable_on_entry()
+        .enable_on_event(type_list_c<maki::any>)
+        .enable_on_exit()
     ;
 
     using def_type = Def;

@@ -36,7 +36,7 @@ namespace
             .set_context_type<context>()
             .disable_auto_start()
             .disable_run_to_completion()
-            .on_exception()
+            .enable_on_exception()
         ;
 
         void on_exception(const std::exception_ptr& /*eptr*/)

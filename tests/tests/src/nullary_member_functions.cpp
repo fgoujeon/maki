@@ -33,8 +33,8 @@ namespace nullary_member_functions_ns
         struct on
         {
             static constexpr auto conf = maki::state_conf_c
-                .enable_on_entry_any()
-                .enable_on_exit_any()
+                .enable_on_entry()
+                .enable_on_exit()
             ;
 
             void on_entry(const events::e1&)

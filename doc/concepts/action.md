@@ -106,9 +106,9 @@ Here is an example of two actions, with their definition and their association w
 
 To associate an action to a state, you have to set an option of the configuration (see `maki::state_conf`) of that state:
 
-* for an entry action, set the `on_entry_any` option;
+* for an entry action, set the `on_entry` option;
 * for an internal action, set the `on_event` option (or alternatively the `on_event_auto` option);
-* for an exit action, set the `on_exit_any` option.
+* for an exit action, set the `on_exit` option.
 
 By setting these options, you require `maki::machine` to call a specific member function of the associated state. These are the accepted names and signatures:
 

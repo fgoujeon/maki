@@ -46,7 +46,7 @@ namespace
         struct off
         {
             static constexpr auto conf = maki::state_conf_c
-                .set_on_event_types<events::ignored_by_emitting_blue>()
+                .enable_on_event<events::ignored_by_emitting_blue>()
             ;
 
             void on_event(const events::ignored_by_emitting_blue & /*unused*/)
@@ -59,7 +59,7 @@ namespace
         struct emitting_red
         {
             static constexpr auto conf = maki::state_conf_c
-                .set_on_event_types_auto()
+                .enable_on_event_auto()
             ;
 
             void on_event(const events::ignored_by_emitting_blue & /*unused*/)
@@ -72,7 +72,7 @@ namespace
         struct emitting_green
         {
             static constexpr auto conf = maki::state_conf_c
-                .set_on_event_types_auto()
+                .enable_on_event_auto()
             ;
 
             void on_event(const events::ignored_by_emitting_blue & /*unused*/)
@@ -112,7 +112,7 @@ namespace
         static constexpr auto conf = maki::machine_conf_c
             .set_transition_tables<transition_table_t>()
             .set_context_type<context>()
-            .on_unprocessed()
+            .enable_on_unprocessed()
         ;
 
         template<class T>

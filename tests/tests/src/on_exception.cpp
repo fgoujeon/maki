@@ -21,8 +21,8 @@ namespace
         struct off
         {
             static constexpr auto conf = maki::state_conf_c
-                .enable_on_entry_any()
-                .enable_on_exit_any()
+                .enable_on_entry()
+                .enable_on_exit()
             ;
 
             void on_entry()
@@ -41,9 +41,9 @@ namespace
         struct on
         {
             static constexpr auto conf = maki::state_conf_c
-                .enable_on_entry_any()
-                .set_on_event_types<maki::events::exception>()
-                .enable_on_exit_any()
+                .enable_on_entry()
+                .enable_on_event<maki::events::exception>()
+                .enable_on_exit()
             ;
 
             void on_entry()
@@ -103,7 +103,7 @@ namespace
         static constexpr auto conf = maki::machine_conf_c
             .set_transition_tables<transition_table_t>()
             .set_context_type<context>()
-            .on_exception()
+            .enable_on_exception()
         ;
 
         void on_exception(const std::exception_ptr& eptr)

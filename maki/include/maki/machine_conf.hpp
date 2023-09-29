@@ -68,7 +68,7 @@ struct machine_conf
     };
     @endcode
     */
-    bool after_state_transition_enabled = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    bool after_state_transition = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
     @brief Prevents the constructor of @ref machine from calling @ref machine::start().
@@ -113,7 +113,7 @@ struct machine_conf
     };
     @endcode
     */
-    bool before_state_transition_enabled = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    bool before_state_transition = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
     @brief Specifies the context type.
@@ -189,7 +189,7 @@ struct machine_conf
     };
     @endcode
     */
-    bool on_exception_enabled = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    bool on_exception = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
     @brief Requires the @ref machine to call a user-provided `on_unprocessed_en()`
@@ -235,7 +235,7 @@ struct machine_conf
     @endcode
 
     */
-    bool on_unprocessed_enabled = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    bool on_unprocessed = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
     @brief Maximum object alignment requirement for the run-to-completion event
@@ -295,7 +295,7 @@ struct machine_conf
     If manually listing all the event type you're insterested in is too
     inconvenient, you can use @ref on_event_auto.
     */
-    OnEventTypeList on_event_types; //NOLINT(misc-non-private-member-variables-in-classes)
+    OnEventTypeList on_event; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
     @brief Behaves like the @ref on_event option, except that the event type
@@ -345,7 +345,7 @@ struct machine_conf
     struct machine_def
     {
         using conf = machine_conf
-            ::enable_on_entry_any
+            ::enable_on_entry
             //...
         ;
 
@@ -370,7 +370,7 @@ struct machine_conf
     };
     @endcode
     */
-    bool on_entry_any = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    bool on_entry = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
     @brief Requires the @ref machine to call a user-provided `on_exit()` member
@@ -388,7 +388,7 @@ struct machine_conf
     struct machine_def
     {
         using conf = machine_conf
-            ::enable_on_exit_any
+            ::enable_on_exit
             //...
         ;
 
@@ -413,7 +413,7 @@ struct machine_conf
     };
     @endcode
     */
-    bool on_exit_any = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    bool on_exit = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
     @brief The list of transition table types. One region per transmission table
@@ -422,48 +422,48 @@ struct machine_conf
     TransitionTableTypeList transition_table_types; //NOLINT(misc-non-private-member-variables-in-classes)
 
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(changed_var_name, new_value) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    [[maybe_unused]] const auto arg_after_state_transition_enabled  = after_state_transition_enabled; \
-    [[maybe_unused]] const auto arg_auto_start                      = auto_start; \
-    [[maybe_unused]] const auto arg_before_state_transition_enabled = before_state_transition_enabled; \
-    [[maybe_unused]] const auto arg_context_type                    = context_type; \
-    [[maybe_unused]] const auto arg_run_to_completion               = run_to_completion; \
-    [[maybe_unused]] const auto arg_pretty_name_fn                  = pretty_name_fn; \
-    [[maybe_unused]] const auto arg_on_exception_enabled            = on_exception_enabled; \
-    [[maybe_unused]] const auto arg_on_unprocessed_enabled          = on_unprocessed_enabled; \
-    [[maybe_unused]] const auto arg_small_event_max_align           = small_event_max_align; \
-    [[maybe_unused]] const auto arg_small_event_max_size            = small_event_max_size; \
-    [[maybe_unused]] const auto arg_on_event_types                  = on_event_types; \
-    [[maybe_unused]] const auto arg_on_event_auto                   = on_event_auto; \
-    [[maybe_unused]] const auto arg_on_entry_any                    = on_entry_any; \
-    [[maybe_unused]] const auto arg_on_exit_any                     = on_exit_any; \
-    [[maybe_unused]] const auto arg_transition_table_types          = transition_table_types; \
+    [[maybe_unused]] const auto arg_after_state_transition = after_state_transition; \
+    [[maybe_unused]] const auto arg_auto_start = auto_start; \
+    [[maybe_unused]] const auto arg_before_state_transition = before_state_transition; \
+    [[maybe_unused]] const auto arg_context_type = context_type; \
+    [[maybe_unused]] const auto arg_run_to_completion = run_to_completion; \
+    [[maybe_unused]] const auto arg_pretty_name_fn = pretty_name_fn; \
+    [[maybe_unused]] const auto arg_on_exception = on_exception; \
+    [[maybe_unused]] const auto arg_on_unprocessed = on_unprocessed; \
+    [[maybe_unused]] const auto arg_small_event_max_align = small_event_max_align; \
+    [[maybe_unused]] const auto arg_small_event_max_size = small_event_max_size; \
+    [[maybe_unused]] const auto arg_on_event = on_event; \
+    [[maybe_unused]] const auto arg_on_event_auto = on_event_auto; \
+    [[maybe_unused]] const auto arg_on_entry = on_entry; \
+    [[maybe_unused]] const auto arg_on_exit = on_exit; \
+    [[maybe_unused]] const auto arg_transition_table_types = transition_table_types; \
  \
     { \
         const auto arg_##changed_var_name = new_value; \
  \
         return detail::make_machine_conf \
         ( \
-            arg_after_state_transition_enabled, \
+            arg_after_state_transition, \
             arg_auto_start, \
-            arg_before_state_transition_enabled, \
+            arg_before_state_transition, \
             arg_context_type, \
             arg_run_to_completion, \
             arg_pretty_name_fn, \
-            arg_on_exception_enabled, \
-            arg_on_unprocessed_enabled, \
+            arg_on_exception, \
+            arg_on_unprocessed, \
             arg_small_event_max_align, \
             arg_small_event_max_size, \
-            arg_on_event_types, \
+            arg_on_event, \
             arg_on_event_auto, \
-            arg_on_entry_any, \
-            arg_on_exit_any, \
+            arg_on_entry, \
+            arg_on_exit, \
             arg_transition_table_types \
         ); \
     }
 
-    [[nodiscard]] constexpr auto after_state_transition() const
+    [[nodiscard]] constexpr auto enable_after_state_transition() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(after_state_transition_enabled, true)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(after_state_transition, true)
     }
 
     [[nodiscard]] constexpr auto disable_auto_start() const
@@ -471,9 +471,9 @@ struct machine_conf
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(auto_start, false)
     }
 
-    [[nodiscard]] constexpr auto before_state_transition() const
+    [[nodiscard]] constexpr auto enable_before_state_transition() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(before_state_transition_enabled, true)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(before_state_transition, true)
     }
 
     template<class Context>
@@ -487,19 +487,19 @@ struct machine_conf
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(run_to_completion, false)
     }
 
-    [[nodiscard]] constexpr auto enable_pretty_name_fn() const
+    [[nodiscard]] constexpr auto enable_pretty_name() const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(pretty_name_fn, true)
     }
 
-    [[nodiscard]] constexpr auto on_exception() const
+    [[nodiscard]] constexpr auto enable_on_exception() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_exception_enabled, true)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_exception, true)
     }
 
-    [[nodiscard]] constexpr auto on_unprocessed() const
+    [[nodiscard]] constexpr auto enable_on_unprocessed() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_unprocessed_enabled, true)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_unprocessed, true)
     }
 
     [[nodiscard]] constexpr auto set_small_event_max_align(const std::size_t value) const
@@ -513,24 +513,24 @@ struct machine_conf
     }
 
     template<class... Ts>
-    [[nodiscard]] constexpr auto set_on_event_types() const
+    [[nodiscard]] constexpr auto enable_on_event() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_event_types, detail::type_list<Ts...>{})
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_event, detail::type_list<Ts...>{})
     }
 
-    [[nodiscard]] constexpr auto set_on_event_types_auto() const
+    [[nodiscard]] constexpr auto enable_on_event_auto() const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_event_auto, true)
     }
 
-    [[nodiscard]] constexpr auto enable_on_entry_any() const
+    [[nodiscard]] constexpr auto enable_on_entry() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_entry_any, true)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_entry, true)
     }
 
-    [[nodiscard]] constexpr auto enable_on_exit_any() const
+    [[nodiscard]] constexpr auto enable_on_exit() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_exit_any, true)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_exit, true)
     }
 
     template<class... Ts>

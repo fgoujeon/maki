@@ -32,7 +32,7 @@ namespace
         struct off
         {
             static constexpr auto conf = maki::state_conf_c
-                .enable_on_event_auto()
+                .set_on_event_types_auto()
             ;
 
             void on_event(const events::button_press& event)
@@ -46,7 +46,7 @@ namespace
         struct on
         {
             static constexpr auto conf = maki::state_conf_c
-                .enable_on_event_auto()
+                .set_on_event_types_auto()
             ;
 
             void on_event(const events::button_press& /*event*/)
@@ -73,7 +73,7 @@ namespace
         static constexpr auto conf = maki::machine_conf_c
             .set_transition_tables<transition_table_t>()
             .set_context_type<context>()
-            .enable_on_event_auto()
+            .set_on_event_types_auto()
         ;
 
         void on_event(const events::button_press& event)

@@ -31,7 +31,7 @@ namespace
         {
             static constexpr auto conf = maki::state_conf_c
                 .enable_on_entry_any()
-                .enable_on_event<events::say_dog>()
+                .set_on_event_types<events::say_dog>()
                 .enable_on_exit_any()
             ;
 
@@ -57,7 +57,7 @@ namespace
         {
             static constexpr auto conf = maki::state_conf_c
                 .enable_on_entry_any()
-                .enable_on_event<events::say_dog>()
+                .set_on_event_types<events::say_dog>()
                 .enable_on_exit_any()
             ;
 

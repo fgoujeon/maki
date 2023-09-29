@@ -73,13 +73,13 @@ struct submachine_conf
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(on_entry_any, true)
     }
 
-    [[nodiscard]] constexpr auto enable_on_event_auto() const
+    [[nodiscard]] constexpr auto set_on_event_types_auto() const
     {
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(on_event_auto, true)
     }
 
     template<class... Types>
-    [[nodiscard]] constexpr auto enable_on_event() const
+    [[nodiscard]] constexpr auto set_on_event_types() const
     {
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(on_event_types, detail::type_list<Types...>{})
     }

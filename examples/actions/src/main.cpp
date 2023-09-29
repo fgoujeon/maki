@@ -30,7 +30,7 @@ struct state2
 
         //Require the state machine to call on_event() whenever it processes
         //some_event or some_other_event while this state is active
-        .enable_on_event<some_event, some_other_event>()
+        .set_on_event_types<some_event, some_other_event>()
 
         //Require the state machine to call on_exit() on state exit
         .enable_on_exit_any()

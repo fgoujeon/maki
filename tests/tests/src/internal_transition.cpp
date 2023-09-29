@@ -36,7 +36,7 @@ namespace
         struct benchmarking
         {
             static constexpr auto conf = maki::state_conf_c
-                .enable_on_event<events::internal_transition>()
+                .set_on_event_types<events::internal_transition>()
             ;
 
             void on_event(const events::internal_transition&)

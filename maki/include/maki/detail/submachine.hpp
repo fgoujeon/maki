@@ -19,6 +19,7 @@
 #include "../state_conf.hpp"
 #include "../transition_table.hpp"
 #include "../region_path.hpp"
+#include "../type_patterns.hpp"
 #include <type_traits>
 
 namespace maki::detail
@@ -115,7 +116,7 @@ class submachine
 public:
     static constexpr auto conf = state_conf_c
         .enable_on_entry_any()
-        .enable_on_event<maki::any>()
+        .set_on_event_types(type_list_c<maki::any>)
         .enable_on_exit_any()
     ;
 

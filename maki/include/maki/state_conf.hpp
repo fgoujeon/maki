@@ -41,7 +41,7 @@ struct state_conf
         );
     }
 
-    [[nodiscard]] constexpr auto enable_on_event_auto() const
+    [[nodiscard]] constexpr auto set_on_event_types_auto() const
     {
         return detail::make_state_conf
         (
@@ -54,13 +54,26 @@ struct state_conf
     }
 
     template<class... Types>
-    [[nodiscard]] constexpr auto enable_on_event() const
+    [[nodiscard]] constexpr auto set_on_event_types() const
     {
         return detail::make_state_conf
         (
             on_entry_any,
             on_event_auto,
             detail::type_list_c<Types...>,
+            on_exit_any,
+            pretty_name_fn
+        );
+    }
+
+    template<class... Types>
+    [[nodiscard]] constexpr auto set_on_event_types(const detail::type_list<Types...> value) const
+    {
+        return detail::make_state_conf
+        (
+            on_entry_any,
+            on_event_auto,
+            value,
             on_exit_any,
             pretty_name_fn
         );

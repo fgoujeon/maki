@@ -513,12 +513,12 @@ struct machine_conf
     }
 
     template<class... Ts>
-    [[nodiscard]] constexpr auto enable_on_event() const
+    [[nodiscard]] constexpr auto set_on_event_types() const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_event_types, detail::type_list<Ts...>{})
     }
 
-    [[nodiscard]] constexpr auto enable_on_event_auto() const
+    [[nodiscard]] constexpr auto set_on_event_types_auto() const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_event_auto, true)
     }

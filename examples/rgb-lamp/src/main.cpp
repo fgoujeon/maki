@@ -105,7 +105,7 @@ namespace states
             This expression must be valid:
                 state.on_event(event);
             */
-            .enable_on_event<button::push_event>()
+            .set_on_event_types<button::push_event>()
 
             /*
             Finally, we want the state machine to call on_exit() whenever it

@@ -140,8 +140,8 @@ struct machine_conf
     @code
     struct machine_def
     {
-        using conf = machine_conf
-            ::pretty_name
+        static constexpr auto conf = machine_conf_c
+            .enable_pretty_name()
             //...
         ;
 
@@ -157,12 +157,12 @@ struct machine_conf
     bool pretty_name_fn = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
-    @brief Requires the @ref machine to call a user-provided `on_exception_en()`
+    @brief Requires the @ref machine to call a user-provided `on_exception()`
     member function whenever it catches an exception.
 
     The following expression must be valid:
     @code
-    machine_def.on_exception_en(std::current_exception());
+    machine_def.on_exception(std::current_exception());
     @endcode
 
     If this option isn't set, the @ref machine will send itself a @ref
@@ -175,12 +175,12 @@ struct machine_conf
     @code
     struct machine_def
     {
-        using conf = machine_conf
-            ::pretty_name
+        static constexpr auto conf = machine_conf_c
+            .enable_pretty_name()
             //...
         ;
 
-        void on_exception_en(const std::exception_ptr& eptr)
+        void on_exception(const std::exception_ptr& eptr)
         {
             //...
         }
@@ -192,13 +192,13 @@ struct machine_conf
     bool on_exception = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
-    @brief Requires the @ref machine to call a user-provided `on_unprocessed_en()`
+    @brief Requires the @ref machine to call a user-provided `on_unprocessed()`
     member function whenever a call to @ref machine::process_event() doesn't lead to
     any state transition.
 
     The said member function must have the following form:
     @code
-    void on_unprocessed_en(const event_type& event);
+    void on_unprocessed(const event_type& event);
     @endcode
 
     State machine definitions typically define several overloads of this
@@ -208,24 +208,24 @@ struct machine_conf
     @code
     struct machine_def
     {
-        using conf = machine_conf
-            ::on_unprocessed_en
+        static constexpr auto conf = machine_conf_c
+            .enable_on_unprocessed()
             //...
         ;
 
-        void on_unprocessed_en(const some_event_type& event)
+        void on_unprocessed(const some_event_type& event)
         {
             //...
         }
 
-        void on_unprocessed_en(const some_other_event_type& event)
+        void on_unprocessed(const some_other_event_type& event)
         {
             //...
         }
 
         //Ignore all other event types
         template<class Event>
-        void on_unprocessed_en(const Event&)
+        void on_unprocessed(const Event&)
         {
             //nothing
         }
@@ -272,8 +272,8 @@ struct machine_conf
     @code
     struct machine_def
     {
-        using conf = machine_conf
-            ::on_event<event_type_0, event_type_1>
+        static constexpr auto conf = machine_conf_c
+            .enable_on_event<event_type_0, event_type_1>()
             //...
         ;
 
@@ -307,8 +307,8 @@ struct machine_conf
     @code
     struct machine_def
     {
-        using conf = machine_conf
-            ::on_event_auto
+        static constexpr auto conf = machine_conf_c
+            .enable_on_event_auto()
             //...
         ;
 
@@ -344,8 +344,8 @@ struct machine_conf
     @code
     struct machine_def
     {
-        using conf = machine_conf
-            ::enable_on_entry
+        static constexpr auto conf = machine_conf_c
+            .enable_on_entry()
             //...
         ;
 
@@ -387,8 +387,8 @@ struct machine_conf
     @code
     struct machine_def
     {
-        using conf = machine_conf
-            ::enable_on_exit
+        static constexpr auto conf = machine_conf_c
+            .enable_on_exit()
             //...
         ;
 

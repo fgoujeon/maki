@@ -16,12 +16,6 @@
 namespace maki
 {
 
-namespace detail
-{
-    template<class... Args>
-    constexpr auto make_machine_conf(const Args&... args);
-}
-
 template
 <
     class ContextType = type<void>,
@@ -441,8 +435,13 @@ struct machine_conf
     { \
         const auto arg_##changed_var_name = new_value; \
  \
-        return detail::make_machine_conf \
-        ( \
+        return machine_conf \
+        < \
+            std::decay_t<decltype(arg_context_type)>, \
+            std::decay_t<decltype(arg_on_event)>, \
+            std::decay_t<decltype(arg_transition_tables)> \
+        > \
+        { \
             arg_after_state_transition, \
             arg_auto_start, \
             arg_before_state_transition, \
@@ -458,7 +457,7 @@ struct machine_conf
             arg_on_entry, \
             arg_on_exit, \
             arg_transition_tables \
-        ); \
+        }; \
     }
 
     [[nodiscard]] constexpr auto enable_after_state_transition() const
@@ -515,7 +514,7 @@ struct machine_conf
     template<class... Ts>
     [[nodiscard]] constexpr auto enable_on_event() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_event, type_list<Ts...>{})
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_event, type_list_c<Ts...>)
     }
 
     [[nodiscard]] constexpr auto enable_on_event_auto() const
@@ -546,21 +545,6 @@ inline constexpr auto machine_conf_c = machine_conf<>{};
 
 namespace detail
 {
-    template<class... Args>
-    constexpr auto make_machine_conf(const Args&... args)
-    {
-        using args_t = type_list<Args...>;
-        constexpr auto context_type_arg_index = 3;
-        constexpr auto on_event_type_list_arg_index = 10;
-        constexpr auto transition_table_list_type_index = 14;
-        return machine_conf
-        <
-            tlu::get_t<args_t, context_type_arg_index>,
-            tlu::get_t<args_t, on_event_type_list_arg_index>,
-            tlu::get_t<args_t, transition_table_list_type_index>
-        >{args...};
-    }
-
     template<class T>
     struct is_root_sm_conf
     {

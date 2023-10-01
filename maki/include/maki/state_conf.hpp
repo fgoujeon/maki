@@ -24,84 +24,67 @@ template<class OnEventTypeList = type_list<>>
 struct state_conf
 {
     bool on_entry = false; //NOLINT(misc-non-private-member-variables-in-classes)
-    bool on_event_auto = false; //NOLINT(misc-non-private-member-variables-in-classes)
     OnEventTypeList on_event; //NOLINT(misc-non-private-member-variables-in-classes)
+    bool on_event_auto = false; //NOLINT(misc-non-private-member-variables-in-classes)
     bool on_exit = false; //NOLINT(misc-non-private-member-variables-in-classes)
     bool pretty_name_fn = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
+#define MAKI_DETAIL_MAKE_STATE_CONF_COPY(changed_var_name, new_value) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    [[maybe_unused]] const auto arg_on_entry = on_entry; \
+    [[maybe_unused]] const auto arg_on_event = on_event; \
+    [[maybe_unused]] const auto arg_on_event_auto = on_event_auto; \
+    [[maybe_unused]] const auto arg_on_exit = on_exit; \
+    [[maybe_unused]] const auto arg_pretty_name_fn = pretty_name_fn; \
+ \
+    { \
+        const auto arg_##changed_var_name = new_value; \
+ \
+        return state_conf \
+        < \
+            std::decay_t<decltype(arg_on_event)> \
+        > \
+        { \
+            arg_on_entry, \
+            arg_on_event, \
+            arg_on_event_auto, \
+            arg_on_exit, \
+            arg_pretty_name_fn \
+        }; \
+    }
+
     [[nodiscard]] constexpr auto enable_on_entry() const
     {
-        return detail::make_state_conf
-        (
-            true,
-            on_event_auto,
-            on_event,
-            on_exit,
-            pretty_name_fn
-        );
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY(on_entry, true)
     }
 
     [[nodiscard]] constexpr auto enable_on_event_auto() const
     {
-        return detail::make_state_conf
-        (
-            on_entry,
-            true,
-            on_event,
-            on_exit,
-            pretty_name_fn
-        );
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY(on_event_auto, true)
     }
 
     template<class... Types>
     [[nodiscard]] constexpr auto enable_on_event() const
     {
-        return detail::make_state_conf
-        (
-            on_entry,
-            on_event_auto,
-            type_list_c<Types...>,
-            on_exit,
-            pretty_name_fn
-        );
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY(on_event, type_list_c<Types...>)
     }
 
     template<class... Types>
-    [[nodiscard]] constexpr auto enable_on_event(const type_list<Types...> value) const
+    [[nodiscard]] constexpr auto enable_on_event(const type_list<Types...> /*value*/) const
     {
-        return detail::make_state_conf
-        (
-            on_entry,
-            on_event_auto,
-            value,
-            on_exit,
-            pretty_name_fn
-        );
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY(on_event, type_list_c<Types...>)
     }
 
     [[nodiscard]] constexpr auto enable_on_exit() const
     {
-        return detail::make_state_conf
-        (
-            on_entry,
-            on_event_auto,
-            on_event,
-            true,
-            pretty_name_fn
-        );
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY(on_exit, true)
     }
 
     [[nodiscard]] constexpr auto enable_pretty_name() const
     {
-        return detail::make_state_conf
-        (
-            on_entry,
-            on_event_auto,
-            on_event,
-            on_exit,
-            true
-        );
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY(pretty_name_fn, true)
     }
+
+#undef MAKI_DETAIL_MAKE_STATE_CONF_COPY
 };
 
 inline constexpr auto state_conf_c = state_conf<>{};

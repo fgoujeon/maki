@@ -77,16 +77,16 @@ namespace
         }
     }
 
-    using transition_table_t = maki::transition_table
-        ::add<states::off, events::button_press, states::on>
-        ::add<states::off, events::button_press, states::on,  actions::unreachable>
-        ::add<states::on,  events::button_press, states::off, actions::unreachable>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<states::off, events::button_press, states::on>
+        .add<states::off, events::button_press, states::on,  actions::unreachable>
+        .add<states::on,  events::button_press, states::off, actions::unreachable>
     ;
 
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf_c
-            .set_transition_tables<transition_table_t>()
+            .set_transition_tables(transition_table)
             .set_context_type<context>()
         ;
     };

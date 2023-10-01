@@ -19,20 +19,20 @@ state) to another (the target state) in a region of a state machine.
 
 You can define a transition table by using this class template directly:
 ```cpp
-using transition_table_t = maki::transition_table_tpl
+constexpr auto transition_table = maki::transition_table
 <
     maki::transition<off, button_press, on,  turn_light_on, has_enough_power>,
     maki::transition<on,  button_press, off, turn_light_off>
->;
+>{};
 ```
 
-… but using the @ref transition_table alias and the
-@ref transition_table_tpl::add member type template is usually the preferred,
+… but using the @ref transition_table_c variable template and the
+@ref transition_table::add member type template is usually the preferred,
 more concise way to do so:
 ```cpp
-using transition_table_t = maki::transition_table
-    ::add<off, button_press, on,  turn_light_on, has_enough_power>
-    ::add<on,  button_press, off, turn_light_off>
+constexpr auto transition_table = maki::transition_table_c
+    .add<off, button_press, on,  turn_light_on, has_enough_power>
+    .add<on,  button_press, off, turn_light_off>
 ;
 ```
 
@@ -69,7 +69,7 @@ inline constexpr bool yes()
 /**
 @brief Represents a possible state transition.
 
-Used as a template argument of @ref transition_table_tpl.
+Used as a template argument of @ref transition_table.
 
 @tparam SourceStatePattern the active state (or states, plural, if it's a @ref TypePatterns "type pattern") from which the transition can occur
 @tparam EventPattern the event type (or types, plural, if it's a @ref TypePatterns "type pattern") that can cause the transition to occur
@@ -101,11 +101,10 @@ struct transition
 @tparam Transitions the transitions, which must be instances of @ref transition
 */
 template<class... Transitions>
-struct transition_table_tpl
+struct transition_table
 {
     /**
-    A type alias to a @ref transition_table_tpl with an appended @ref
-    transition.
+    A type alias to a @ref transition_table with an appended @ref transition.
     See @ref transition for a description of the template parameters.
     */
     template
@@ -116,19 +115,19 @@ struct transition_table_tpl
         const auto& Action = noop,
         const auto& Guard = yes
     >
-    using add = transition_table_tpl
+    static constexpr auto add = transition_table
     <
         Transitions...,
         transition<SourceStatePattern, EventPattern, TargetState, Action, Guard>
-    >;
+    >{};
 };
 
 /**
-@brief A handy type alias for defining a transition table.
+@brief A constexpr empty transition_table
 
-See @ref transition_table_tpl for a usage.
+See @ref transition_table for a usage.
 */
-using transition_table = transition_table_tpl<>;
+inline constexpr auto transition_table_c = transition_table<>{};
 
 /**
 @}

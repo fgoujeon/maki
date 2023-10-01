@@ -94,12 +94,11 @@ struct submachine_conf
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(pretty_name_fn, true)
     }
 
-    template<class... Ts>
-    [[nodiscard]] constexpr auto set_transition_tables() const
+    template<class... TransitionTables>
+    [[nodiscard]] constexpr auto set_transition_tables(const TransitionTables&... /*tables*/) const
     {
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(transition_tables, detail::type_list<Ts...>{})
+        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY(transition_tables, detail::type_list_c<TransitionTables...>)
     }
-
 #undef MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY
 };
 

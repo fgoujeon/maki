@@ -25,18 +25,18 @@ namespace
         EMPTY_STATE(s4);
     };
 
-    using transition_table_t = maki::transition_table
-        ::add<states::s0, events::go_on, states::s1>
-        ::add<states::s1, maki::null,    states::s2>
-        ::add<states::s2, events::go_on, states::s3>
-        ::add<states::s3, maki::null,    states::s4>
-        ::add<states::s4, maki::null,    states::s0>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<states::s0, events::go_on, states::s1>
+        .add<states::s1, maki::null,    states::s2>
+        .add<states::s2, events::go_on, states::s3>
+        .add<states::s3, maki::null,    states::s4>
+        .add<states::s4, maki::null,    states::s0>
     ;
 
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf_c
-            .set_transition_tables<transition_table_t>()
+            .set_transition_tables(transition_table)
             .set_context_type<context>()
         ;
     };

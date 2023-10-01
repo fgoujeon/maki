@@ -88,17 +88,17 @@ namespace nullary_member_functions_ns
         return true;
     };
 
-    using transition_table_t = maki::transition_table
-        ::add<states::off, events::e1, states::on,  action, guard>
-        ::add<states::off, events::e2, states::on,  action, guard>
-        ::add<states::on,  events::e1, states::off, action, guard>
-        ::add<states::on,  events::e2, states::off, action, guard>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<states::off, events::e1, states::on,  action, guard>
+        .add<states::off, events::e2, states::on,  action, guard>
+        .add<states::on,  events::e1, states::off, action, guard>
+        .add<states::on,  events::e2, states::off, action, guard>
     ;
 
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf_c
-            .set_transition_tables<transition_table_t>()
+            .set_transition_tables(transition_table)
             .set_context_type<context>()
         ;
     };

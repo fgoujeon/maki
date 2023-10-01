@@ -87,30 +87,30 @@ namespace
             static constexpr auto conf = maki::state_conf_c;
         };
 
-        using on_transition_table = maki::transition_table
-            ::add<states::emitting_red,   events::color_button_press, states::emitting_green>
-            ::add<states::emitting_green, events::color_button_press, states::emitting_blue>
-            ::add<states::emitting_blue,  events::color_button_press, states::emitting_red>
+        constexpr auto on_transition_table = maki::transition_table_c
+            .add<states::emitting_red,   events::color_button_press, states::emitting_green>
+            .add<states::emitting_green, events::color_button_press, states::emitting_blue>
+            .add<states::emitting_blue,  events::color_button_press, states::emitting_red>
         ;
 
         struct on
         {
             static constexpr auto conf = maki::submachine_conf_c
-                .set_transition_tables<on_transition_table>()
+                .set_transition_tables(on_transition_table)
             ;
 
             context& ctx;
         };
     }
 
-    using transition_table_t = maki::transition_table
-        ::add<states::on, events::power_button_press, states::off>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<states::on, events::power_button_press, states::off>
     ;
 
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf_c
-            .set_transition_tables<transition_table_t>()
+            .set_transition_tables(transition_table)
             .set_context_type<context>()
             .enable_on_unprocessed()
         ;

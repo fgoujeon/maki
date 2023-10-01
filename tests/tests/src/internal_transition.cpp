@@ -48,23 +48,23 @@ namespace
         };
     }
 
-    using transition_table_t = maki::transition_table
-        ::add<states::state0, events::next_state, states::state1>
-        ::add<states::state1, events::next_state, states::state2>
-        ::add<states::state2, events::next_state, states::state3>
-        ::add<states::state3, events::next_state, states::state4>
-        ::add<states::state4, events::next_state, states::state5>
-        ::add<states::state5, events::next_state, states::state6>
-        ::add<states::state6, events::next_state, states::state7>
-        ::add<states::state7, events::next_state, states::state8>
-        ::add<states::state8, events::next_state, states::state9>
-        ::add<states::state9, events::next_state, states::benchmarking>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<states::state0, events::next_state, states::state1>
+        .add<states::state1, events::next_state, states::state2>
+        .add<states::state2, events::next_state, states::state3>
+        .add<states::state3, events::next_state, states::state4>
+        .add<states::state4, events::next_state, states::state5>
+        .add<states::state5, events::next_state, states::state6>
+        .add<states::state6, events::next_state, states::state7>
+        .add<states::state7, events::next_state, states::state8>
+        .add<states::state8, events::next_state, states::state9>
+        .add<states::state9, events::next_state, states::benchmarking>
     ;
 
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf_c
-            .set_transition_tables<transition_table_t>()
+            .set_transition_tables(transition_table)
             .set_context_type<context>()
             .disable_run_to_completion()
             .enable_on_exception()

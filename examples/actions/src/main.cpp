@@ -85,13 +85,13 @@ void some_other_action(context& /*ctx*/, const some_other_event& event)
 }
 
 //Transition table
-using transition_table_t = maki::transition_table
-    //    source state, event,             target state, action
-    ::add<state0,       some_event,        state1,       some_action /*state transition action*/>
-    ::add<state0,       some_other_event,  maki::null,   some_other_action /*internal transition action*/>
-    ::add<state0,       yet_another_event, state2>
-    ::add<state1,       yet_another_event, state2>
-    ::add<state2,       yet_another_event, state0>
+constexpr auto transition_table = maki::transition_table_c
+    //   source state, event,             target state, action
+    .add<state0,       some_event,        state1,       some_action /*state transition action*/>
+    .add<state0,       some_other_event,  maki::null,   some_other_action /*internal transition action*/>
+    .add<state0,       yet_another_event, state2>
+    .add<state1,       yet_another_event, state2>
+    .add<state2,       yet_another_event, state0>
 ;
 //! [short-in-transition]
 
@@ -100,7 +100,7 @@ struct machine_def
 {
     //The configuration of the state machine
     static constexpr auto conf = maki::machine_conf_c
-        .set_transition_tables<transition_table_t>()
+        .set_transition_tables(transition_table)
         .set_context_type<context>()
     ;
 };

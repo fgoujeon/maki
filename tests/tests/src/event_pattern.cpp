@@ -34,16 +34,16 @@ namespace
             events::alert_button_press
         >;
 
-        return maki::transition_table
-            ::add<states::off, any_button_press,           states::on>
-            ::add<states::on,  events::power_button_press, states::off>
-        {};
+        return maki::transition_table_c
+            .add<states::off, any_button_press,           states::on>
+            .add<states::on,  events::power_button_press, states::off>
+        ;
     }
 
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf_c
-            .set_transition_tables<decltype(make_sm_transition_table())>()
+            .set_transition_tables(make_sm_transition_table())
             .set_context_type<context>()
         ;
     };

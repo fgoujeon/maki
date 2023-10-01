@@ -53,12 +53,12 @@ namespace
     {
         static constexpr auto conf = maki::machine_conf_c
             .set_transition_tables
-            <
-                maki::transition_table
-                    ::add<states::off0, events::button_press, states::on0>,
-                maki::transition_table
-                    ::add<states::off1, events::button_press, states::on1>
-            >()
+            (
+                maki::transition_table_c
+                    .add<states::off0, events::button_press, states::on0>,
+                maki::transition_table_c
+                    .add<states::off1, events::button_press, states::on1>
+            )
             .set_context_type<context>()
             .enable_on_exception()
             .enable_before_state_transition()

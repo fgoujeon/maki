@@ -184,13 +184,13 @@ struct region_path_tpl
     This function builds strings such as `"root-machine[0].submachine[2].subsubmachine"`,
     where:
 
-    - `root-machine` is the @ref PrettyPrinting "pretty name" of an `machine` that
+    - `root-machine` is the "pretty name" of an `machine` that
     defines several regions;
     - `[0]` references the first region defined by `root-machine`;
-    - `submachine` is the @ref PrettyPrinting "pretty name" of a submachine, direct
+    - `submachine` is the "pretty name" of a submachine, direct
     child of `root-machine`, that defines several regions;
     - `[2]` references the third region defined by `submachine`;
-    - `subsubmachine` is the @ref PrettyPrinting "pretty name" of another submachine,
+    - `subsubmachine` is the "pretty name" of another submachine,
     direct child of `submachine`, that defines only one region (hence the absence
     of region index).
     */

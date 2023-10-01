@@ -82,16 +82,16 @@ namespace
         };
     }
 
-    using transition_table_t = maki::transition_table
-        ::add<states::idle,    events::next_language_request, states::english>
-        ::add<states::english, events::next_language_request, states::french>
-        ::add<states::french,  events::next_language_request, states::idle>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<states::idle,    events::next_language_request, states::english>
+        .add<states::english, events::next_language_request, states::french>
+        .add<states::french,  events::next_language_request, states::idle>
     ;
 
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf_c
-            .set_transition_tables<transition_table_t>()
+            .set_transition_tables(transition_table)
             .set_context_type<context>()
         ;
     };

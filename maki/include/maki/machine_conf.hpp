@@ -134,7 +134,7 @@ struct machine_conf
     @brief Requires the @ref machine to call a user-provided `pretty_name()` static
     member function to get the pretty name of the state machine.
 
-    See @ref PrettyPrinting.
+    See `maki::pretty_name`.
 
     Example:
     @code
@@ -533,10 +533,10 @@ struct machine_conf
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_exit, true)
     }
 
-    template<class... Ts>
-    [[nodiscard]] constexpr auto set_transition_tables() const
+    template<class... TransitionTables>
+    [[nodiscard]] constexpr auto set_transition_tables(const TransitionTables&... /*tables*/) const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(transition_tables, detail::type_list<Ts...>{})
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(transition_tables, detail::type_list_c<TransitionTables...>)
     }
 
 #undef MAKI_DETAIL_MAKE_MACHINE_CONF_COPY

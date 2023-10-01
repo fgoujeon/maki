@@ -13,7 +13,6 @@ namespace maki
 {
 
 /**
-@ingroup PrettyPrinting
 @brief Gets the pretty name of a @ref machine def type, submachine type or state
 type.
 */

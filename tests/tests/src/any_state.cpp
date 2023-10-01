@@ -25,17 +25,17 @@ namespace
         struct error{};
     }
 
-    using transition_table_t = maki::transition_table
-        ::add<states::idle,    events::start_button_press, states::running>
-        ::add<states::running, events::stop_button_press,  states::idle>
-        ::add<states::failed,  events::stop_button_press,  states::idle>
-        ::add<maki::any,       events::error,              states::failed>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<states::idle,    events::start_button_press, states::running>
+        .add<states::running, events::stop_button_press,  states::idle>
+        .add<states::failed,  events::stop_button_press,  states::idle>
+        .add<maki::any,       events::error,              states::failed>
     ;
 
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf_c
-            .set_transition_tables<transition_table_t>()
+            .set_transition_tables(transition_table)
             .set_context_type<context>()
         ;
     };

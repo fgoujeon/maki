@@ -37,8 +37,8 @@ namespace detail
 machine_conf::transition_tables and machine_conf::context_type options
 
 Here is an example of valid state machine definition, where:
-- `transition_table_t` is a user-provided `using` of a @ref
-transition_table_tpl instance;
+- `transition_table` is a user-provided `constexpr` instance of a @ref
+transition_table type;
 - `context` is a user-provided class.
 
 @snippet lamp/src/main.cpp machine-def

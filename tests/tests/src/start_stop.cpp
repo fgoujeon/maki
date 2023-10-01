@@ -63,15 +63,15 @@ namespace
         struct button_press{};
     }
 
-    using transition_table_t = maki::transition_table
-        ::add<states::s0, maki::null,           states::s1>
-        ::add<states::s1, events::button_press, states::s0>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<states::s0, maki::null,           states::s1>
+        .add<states::s1, events::button_press, states::s0>
     ;
 
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf_c
-            .set_transition_tables<transition_table_t>()
+            .set_transition_tables(transition_table)
             .set_context_type<context>()
             .disable_auto_start()
         ;

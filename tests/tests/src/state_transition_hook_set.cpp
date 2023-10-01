@@ -29,14 +29,14 @@ namespace
         EMPTY_STATE(off1);
         EMPTY_STATE(on0);
 
-        using on1_transition_table = maki::transition_table
-            ::add<states::off0, events::button_press, states::on0>
+        constexpr auto on1_transition_table = maki::transition_table_c
+            .add<states::off0, events::button_press, states::on0>
         ;
 
         struct on1
         {
             static constexpr auto conf = maki::submachine_conf_c
-                .set_transition_tables<on1_transition_table>()
+                .set_transition_tables(on1_transition_table)
                 .enable_pretty_name()
             ;
 
@@ -47,18 +47,18 @@ namespace
         };
     }
 
-    using transition_table_0_t = maki::transition_table
-        ::add<states::off0, events::button_press, states::on0>
+    constexpr auto transition_table_0 = maki::transition_table_c
+        .add<states::off0, events::button_press, states::on0>
     ;
 
-    using transition_table_1_t = maki::transition_table
-        ::add<states::off1, events::button_press, states::on1>
+    constexpr auto transition_table_1 = maki::transition_table_c
+        .add<states::off1, events::button_press, states::on1>
     ;
 
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf_c
-            .set_transition_tables<transition_table_0_t, transition_table_1_t>()
+            .set_transition_tables(transition_table_0, transition_table_1)
             .set_context_type<context>()
             .enable_before_state_transition()
             .enable_after_state_transition()

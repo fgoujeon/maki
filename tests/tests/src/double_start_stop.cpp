@@ -29,9 +29,9 @@ namespace
         EMPTY_STATE(off);
     }
 
-    using transition_table_t = maki::transition_table
-        ::add<states::off, events::button_press, states::on>
-        ::add<states::on,  events::button_press, states::off>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<states::off, events::button_press, states::on>
+        .add<states::on,  events::button_press, states::off>
     ;
 
     struct machine_def;
@@ -41,7 +41,7 @@ namespace
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf_c
-            .set_transition_tables<transition_table_t>()
+            .set_transition_tables(transition_table)
             .set_context_type<context>()
             .enable_before_state_transition()
             .enable_after_state_transition()

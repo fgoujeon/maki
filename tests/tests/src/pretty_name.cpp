@@ -74,13 +74,13 @@ TEST_CASE("pretty_name")
 {
     REQUIRE
     (
-        maki::pretty_name<pretty_name_ns::test>() ==
+        maki::detail::decayed_type_name<pretty_name_ns::test>() ==
         std::string_view{"test"}
     );
 
     REQUIRE
     (
-        maki::pretty_name<pretty_name_ns::templ<int, pretty_name_ns::test>>() ==
+        maki::detail::decayed_type_name<pretty_name_ns::templ<int, pretty_name_ns::test>>() ==
         std::string_view{"templ"}
     );
 

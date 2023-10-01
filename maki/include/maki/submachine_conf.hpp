@@ -24,7 +24,7 @@ namespace detail
 
 template
 <
-    class ContextType = type_t<void>,
+    class ContextType = type<void>,
     class OnEventTypeList = type_list<>,
     class TransitionTableTypeList = type_list<>
 >

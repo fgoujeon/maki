@@ -14,19 +14,22 @@ namespace maki
 
 //A type holder
 template<class T>
-struct type_t
+struct type_impl
 {
     using type = T;
 };
 
 template<class T, class U>
-constexpr bool operator==(const type_t<T> /*lhs*/, const type_t<U> /*rhs*/)
+constexpr bool operator==(const type_impl<T> /*lhs*/, const type_impl<U> /*rhs*/)
 {
     return std::is_same_v<T, U>;
 }
 
 template<class T>
-constexpr auto type_c = type_t<T>{};
+using type = type_impl<T>;
+
+template<class T>
+constexpr auto type_c = type<T>{};
 
 } //namespace
 

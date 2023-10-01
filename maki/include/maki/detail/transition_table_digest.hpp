@@ -7,14 +7,14 @@
 #ifndef MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 #define MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 
+#include "../type_list.hpp"
+#include "../type_patterns.hpp"
+#include "../transition_table.hpp"
+#include "../events.hpp"
 #include "tlu.hpp"
 #include "tuple.hpp"
 #include "machine_object_holder.hpp"
 #include "state_traits.hpp"
-#include "type_list.hpp"
-#include "../type_patterns.hpp"
-#include "../transition_table.hpp"
-#include "../events.hpp"
 #include <type_traits>
 
 namespace maki::detail
@@ -37,7 +37,7 @@ For example, the following digest type...:
 ... is equivalent to this type:
     struct digest
     {
-        using state_def_type_list = maki::detail::type_list<state0, state1, state2, state3>;
+        using state_def_type_list = maki::type_list<state0, state1, state2, state3>;
         static constexpr auto has_null_events = false;
     };
 */

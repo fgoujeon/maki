@@ -9,8 +9,8 @@
 
 #include "transition_table.hpp"
 #include "type_patterns.hpp"
-#include "detail/type_list.hpp"
-#include "detail/type.hpp"
+#include "type_list.hpp"
+#include "type.hpp"
 #include "detail/tlu.hpp"
 
 namespace maki
@@ -24,9 +24,9 @@ namespace detail
 
 template
 <
-    class ContextType = detail::type_t<void>,
-    class OnEventTypeList = detail::type_list<>,
-    class TransitionTableTypeList = detail::type_list<>
+    class ContextType = type_t<void>,
+    class OnEventTypeList = type_list<>,
+    class TransitionTableTypeList = type_list<>
 >
 struct machine_conf
 {
@@ -479,7 +479,7 @@ struct machine_conf
     template<class Context>
     [[nodiscard]] constexpr auto set_context_type() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(context_type, detail::type_c<Context>)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(context_type, type_c<Context>)
     }
 
     [[nodiscard]] constexpr auto disable_run_to_completion() const
@@ -515,7 +515,7 @@ struct machine_conf
     template<class... Ts>
     [[nodiscard]] constexpr auto enable_on_event() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_event, detail::type_list<Ts...>{})
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_event, type_list<Ts...>{})
     }
 
     [[nodiscard]] constexpr auto enable_on_event_auto() const
@@ -536,7 +536,7 @@ struct machine_conf
     template<class... TransitionTables>
     [[nodiscard]] constexpr auto set_transition_tables(const TransitionTables&... /*tables*/) const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(transition_tables, detail::type_list_c<TransitionTables...>)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(transition_tables, type_list_c<TransitionTables...>)
     }
 
 #undef MAKI_DETAIL_MAKE_MACHINE_CONF_COPY
@@ -549,7 +549,7 @@ namespace detail
     template<class... Args>
     constexpr auto make_machine_conf(const Args&... args)
     {
-        using args_t = detail::type_list<Args...>;
+        using args_t = type_list<Args...>;
         constexpr auto context_type_arg_index = 3;
         constexpr auto on_event_type_list_arg_index = 10;
         constexpr auto transition_table_list_type_index = 14;

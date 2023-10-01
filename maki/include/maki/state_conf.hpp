@@ -7,9 +7,9 @@
 #ifndef MAKI_STATE_CONF_HPP
 #define MAKI_STATE_CONF_HPP
 
+#include "type_list.hpp"
+#include "type.hpp"
 #include "detail/tlu.hpp"
-#include "detail/type_list.hpp"
-#include "detail/type.hpp"
 
 namespace maki
 {
@@ -20,7 +20,7 @@ namespace detail
     constexpr auto make_state_conf(const Args&... args);
 }
 
-template<class OnEventTypeList = detail::type_list<>>
+template<class OnEventTypeList = type_list<>>
 struct state_conf
 {
     bool on_entry = false; //NOLINT(misc-non-private-member-variables-in-classes)
@@ -60,14 +60,14 @@ struct state_conf
         (
             on_entry,
             on_event_auto,
-            detail::type_list_c<Types...>,
+            type_list_c<Types...>,
             on_exit,
             pretty_name_fn
         );
     }
 
     template<class... Types>
-    [[nodiscard]] constexpr auto enable_on_event(const detail::type_list<Types...> value) const
+    [[nodiscard]] constexpr auto enable_on_event(const type_list<Types...> value) const
     {
         return detail::make_state_conf
         (
@@ -111,7 +111,7 @@ namespace detail
     template<class... Args>
     constexpr auto make_state_conf(const Args&... args)
     {
-        using args_t = detail::type_list<Args...>;
+        using args_t = type_list<Args...>;
         using on_event_type_list = tlu::get_t<args_t, 2>;
         return state_conf<on_event_type_list>{args...};
     }

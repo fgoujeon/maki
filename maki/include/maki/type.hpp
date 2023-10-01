@@ -4,12 +4,12 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_TYPE_TAG_HPP
-#define MAKI_DETAIL_TYPE_TAG_HPP
+#ifndef MAKI_TYPE_HPP
+#define MAKI_TYPE_HPP
 
 #include <type_traits>
 
-namespace maki::detail
+namespace maki
 {
 
 //A type holder

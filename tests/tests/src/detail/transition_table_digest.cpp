@@ -53,7 +53,7 @@ namespace
         machine_t
     >;
 
-    using state_tuple_t = maki::detail::type_list<state0, state1, state2, state3>;
+    using state_tuple_t = maki::type_list<state0, state1, state2, state3>;
 }
 
 TEST_CASE("detail::transition_table_digest")

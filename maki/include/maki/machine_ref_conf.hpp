@@ -7,14 +7,14 @@
 #ifndef MAKI_MACHINE_REF_CONF_HPP
 #define MAKI_MACHINE_REF_CONF_HPP
 
+#include "type_list.hpp"
+#include "type.hpp"
 #include "detail/tlu.hpp"
-#include "detail/type_list.hpp"
-#include "detail/type.hpp"
 
 namespace maki
 {
 
-template<class EventTypeList = detail::type_list<>>
+template<class EventTypeList = type_list<>>
 struct machine_ref_conf
 {
     EventTypeList on_event;
@@ -22,7 +22,7 @@ struct machine_ref_conf
     template<class... Ts>
     [[nodiscard]] constexpr auto enable_on_event() const
     {
-        return machine_ref_conf<detail::type_list<Ts...>>{};
+        return machine_ref_conf<type_list<Ts...>>{};
     }
 };
 

@@ -123,7 +123,7 @@ struct transition_table
 };
 
 /**
-@brief A constexpr empty transition_table
+@brief A constexpr instance of an empty transition_table
 
 See @ref transition_table for a usage.
 */

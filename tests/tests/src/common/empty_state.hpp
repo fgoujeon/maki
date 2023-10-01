@@ -10,7 +10,7 @@
 #define EMPTY_STATE(name) \
     struct name \
     { \
-        static constexpr auto conf = maki::state_conf_c; \
+        [[maybe_unused]] static constexpr auto conf = maki::state_conf_c; \
     }
 
 #endif

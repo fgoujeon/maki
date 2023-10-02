@@ -123,7 +123,7 @@ TEST_CASE("state")
     const auto& const_sm = machine;
 
     static constexpr auto root_region_path = maki::region_path_c<machine_def>;
-    static constexpr auto on_region_path = root_region_path.add<states::on>;
+    static constexpr auto on_region_path = root_region_path.add<states::on>();
 
     auto& red_state = machine.state<on_region_path, states::emitting_red>();
     REQUIRE(red_state.color == led_color::red);

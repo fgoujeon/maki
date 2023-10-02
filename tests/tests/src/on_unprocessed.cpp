@@ -135,10 +135,12 @@ TEST_CASE("on_unprocessed")
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
+    static constexpr auto on_region_path = maki::region_path_c<machine_def>.add<states::on>();
+
     ctx.clear();
     machine.start();
     REQUIRE(machine.is_active_state<states::on>());
-    REQUIRE(machine.is_active_state<maki::region_path_c<machine_def>.add<states::on>, states::emitting_red>());
+    REQUIRE(machine.is_active_state<on_region_path, states::emitting_red>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
@@ -148,7 +150,7 @@ TEST_CASE("on_unprocessed")
     ctx.clear();
     machine.process_event(events::color_button_press{});
     REQUIRE(machine.is_active_state<states::on>());
-    REQUIRE(machine.is_active_state<maki::region_path_c<machine_def>.add<states::on>, states::emitting_green>());
+    REQUIRE(machine.is_active_state<on_region_path, states::emitting_green>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
@@ -158,7 +160,7 @@ TEST_CASE("on_unprocessed")
     ctx.clear();
     machine.process_event(events::color_button_press{});
     REQUIRE(machine.is_active_state<states::on>());
-    REQUIRE(machine.is_active_state<maki::region_path_c<machine_def>.add<states::on>, states::emitting_blue>());
+    REQUIRE(machine.is_active_state<on_region_path, states::emitting_blue>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();

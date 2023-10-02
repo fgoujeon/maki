@@ -85,7 +85,7 @@ TEST_CASE("region_path")
     }
 
     {
-        constexpr auto region_path = maki::region_path_c<machine_def, 1>.add<states::on1, 0>;
+        constexpr auto region_path = maki::region_path_c<machine_def, 1>.add<states::on1, 0>();
         REQUIRE(region_path.to_string() == "main_sm[1].on_1");
     }
 
@@ -96,7 +96,7 @@ TEST_CASE("region_path")
             maki::region_path_element<states::on1, 0>
         >{};
 
-        constexpr auto region_path_2 = maki::region_path_c<machine_def, 1>.add<states::on1, 0>;
+        constexpr auto region_path_2 = maki::region_path_c<machine_def, 1>.add<states::on1, 0>();
 
         REQUIRE(std::is_same_v<decltype(region_path), decltype(region_path_2)>);
     }

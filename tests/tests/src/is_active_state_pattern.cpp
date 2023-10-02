@@ -72,7 +72,7 @@ namespace
 
 TEST_CASE("is_active_state_filter")
 {
-    static constexpr auto machine_on_region_path_v = maki::region_path_c<machine_def>.add<states::on>;
+    static constexpr auto machine_on_region_path_v = maki::region_path_c<machine_def>.add<states::on>();
 
     auto machine = machine_t{};
 

@@ -176,7 +176,10 @@ struct region_path
     only if) `MachineDef` contains only one region
     */
     template<class MachineDef, int RegionIndex = -1>
-    static constexpr auto add = detail::region_path_add<region_path, MachineDef, RegionIndex>::value;
+    constexpr auto add() const
+    {
+        return detail::region_path_add<region_path, MachineDef, RegionIndex>::value;
+    }
 
     /**
     @brief Builds a textual representation of the path.
@@ -216,7 +219,7 @@ constexpr bool operator==(const region_path<Ts...> /*lhs*/, const region_path<Us
 only if) `MachineDef` contains only one region
 */
 template<class MachineDef, int RegionIndex = -1>
-inline constexpr auto region_path_c = region_path<>{}.add<MachineDef, RegionIndex>;
+inline constexpr auto region_path_c = region_path<>{}.add<MachineDef, RegionIndex>();
 
 /**
 @}

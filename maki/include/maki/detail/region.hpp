@@ -60,7 +60,7 @@ class region;
 template<class ParentSm, int Index>
 struct region_path_of<region<ParentSm, Index>>
 {
-    static constexpr auto value = region_path_of_v<ParentSm>.template add<typename ParentSm::def_type, Index>;
+    static constexpr auto value = region_path_of_v<ParentSm>.template add<typename ParentSm::def_type, Index>();
 };
 
 template<class ParentSm, int Index>

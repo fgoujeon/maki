@@ -37,7 +37,7 @@ namespace
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        [[maybe_unused]] static constexpr auto conf = maki::machine_conf_c
             .set_transition_tables(transition_table)
             .set_context_type<context>()
         ;

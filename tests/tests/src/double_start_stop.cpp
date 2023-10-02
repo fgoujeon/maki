@@ -48,13 +48,13 @@ namespace
             .enable_pretty_name()
         ;
 
-        template<class RegionPath, class SourceState, class Event, class TargetState>
+        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
         void before_state_transition(const Event& /*event*/)
         {
-            static_assert(std::is_same_v<RegionPath, maki::region_path<machine_def>>);
+            static_assert(RegionPath == maki::region_path<maki::region_path_element<machine_def, 0>>{});
 
             ctx.out += "Transition in ";
-            ctx.out += RegionPath::to_string();
+            ctx.out += RegionPath.to_string();
             ctx.out += ": ";
             ctx.out += maki::pretty_name<SourceState>();
             ctx.out += " -> ";
@@ -62,13 +62,13 @@ namespace
             ctx.out += "...;";
         }
 
-        template<class RegionPath, class SourceState, class Event, class TargetState>
+        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
         void after_state_transition(const Event& /*event*/)
         {
-            static_assert(std::is_same_v<RegionPath, maki::region_path<machine_def>>);
+            static_assert(RegionPath == maki::region_path<maki::region_path_element<machine_def, 0>>{});
 
             ctx.out += "Transition in ";
-            ctx.out += RegionPath::to_string();
+            ctx.out += RegionPath.to_string();
             ctx.out += ": ";
             ctx.out += maki::pretty_name<SourceState>();
             ctx.out += " -> ";

@@ -142,7 +142,7 @@ public:
     region of interest (see @ref RegionPath)
     @tparam State the state type
     */
-    template<class RegionPath, class State>
+    template<const auto& RegionPath, class State>
     State& state()
     {
         return submachine_.template state_def<RegionPath, State>();
@@ -155,7 +155,7 @@ public:
     region of interest (see @ref RegionPath)
     @tparam State the state type
     */
-    template<class RegionPath, class State>
+    template<const auto& RegionPath, class State>
     const State& state() const
     {
         return submachine_.template state_def<RegionPath, State>();
@@ -166,7 +166,7 @@ public:
     @tparam RegionPath an instance of @ref region_path_tpl pointing to the
     region of interest (see @ref RegionPath)
     */
-    template<class RegionPath>
+    template<const auto& RegionPath>
     [[nodiscard]] bool is_running() const
     {
         return submachine_.template is_running<RegionPath>();
@@ -189,7 +189,7 @@ public:
     region of interest (see @ref RegionPath)
     @tparam State the state type
     */
-    template<class RegionPath, class State>
+    template<const auto& RegionPath, class State>
     [[nodiscard]] bool is_active_state() const
     {
         return submachine_.template is_active_state_def<RegionPath, State>();

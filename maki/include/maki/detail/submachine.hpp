@@ -28,13 +28,13 @@ namespace maki::detail
 template<class Def, class ParentRegion>
 struct region_path_of<submachine<Def, ParentRegion>>
 {
-    using type = region_path_of_t<ParentRegion>;
+    static constexpr auto value = region_path_of_v<ParentRegion>;
 };
 
 template<class Def>
 struct region_path_of<submachine<Def, void>>
 {
-    using type = region_path_tpl<>;
+    static constexpr auto value = region_path{};
 };
 
 template<class Def, class ParentRegion>
@@ -150,52 +150,61 @@ public:
         return def_holder_.get();
     }
 
-    template<class StateRegionPath, class StateDef>
+    template<const auto& StateRegionPath, class StateDef>
     StateDef& state_def()
     {
+        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
+
         static_assert
         (
             std::is_same_v
             <
-                typename detail::tlu::front_t<StateRegionPath>::machine_def_type,
+                typename detail::tlu::front_t<state_region_path_t>::machine_def_type,
                 Def
             >
         );
 
-        static constexpr auto region_index = tlu::front_t<StateRegionPath>::region_index;
-        return get<region_index>(regions_).template state_def<tlu::pop_front_t<StateRegionPath>, StateDef>();
+        static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
+        static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
+        return get<region_index>(regions_).template state_def<state_region_relative_path, StateDef>();
     }
 
-    template<class StateRegionPath, class StateDef>
+    template<const auto& StateRegionPath, class StateDef>
     const StateDef& state_def() const
     {
+        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
+
         static_assert
         (
             std::is_same_v
             <
-                typename detail::tlu::front_t<StateRegionPath>::machine_def_type,
+                typename detail::tlu::front_t<state_region_path_t>::machine_def_type,
                 Def
             >
         );
 
-        static constexpr auto region_index = tlu::front_t<StateRegionPath>::region_index;
-        return get<region_index>(regions_).template state_def<tlu::pop_front_t<StateRegionPath>, StateDef>();
+        static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
+        static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
+        return get<region_index>(regions_).template state_def<state_region_relative_path, StateDef>();
     }
 
-    template<class StateRegionPath, class StateDef>
+    template<const auto& StateRegionPath, class StateDef>
     [[nodiscard]] bool is_active_state_def() const
     {
+        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
+
         static_assert
         (
             std::is_same_v
             <
-                typename detail::tlu::front_t<StateRegionPath>::machine_def_type,
+                typename detail::tlu::front_t<state_region_path_t>::machine_def_type,
                 Def
             >
         );
 
-        static constexpr auto region_index = tlu::front_t<StateRegionPath>::region_index;
-        return get<region_index>(regions_).template is_active_state_def<tlu::pop_front_t<StateRegionPath>, StateDef>();
+        static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
+        static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
+        return get<region_index>(regions_).template is_active_state_def<state_region_relative_path, StateDef>();
     }
 
     template<class StateDef>
@@ -203,10 +212,11 @@ public:
     {
         static_assert(tlu::size_v<transition_table_type_list> == 1);
 
-        return get<0>(regions_).template is_active_state_def<region_path_tpl<>, StateDef>();
+        static constexpr auto state_region_relative_path = region_path<>{};
+        return get<0>(regions_).template is_active_state_def<state_region_relative_path, StateDef>();
     }
 
-    template<class RegionPath>
+    template<const auto& RegionPath>
     [[nodiscard]] bool is_running() const
     {
         return !is_active_state_def<RegionPath, states::stopped>();

@@ -66,11 +66,11 @@ namespace
             .enable_pretty_name()
         ;
 
-        template<class RegionPath, class SourceState, class Event, class TargetState>
+        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
         void before_state_transition(const Event& event)
         {
             ctx.out += "Transition in ";
-            ctx.out += RegionPath::to_string();
+            ctx.out += RegionPath.to_string();
             ctx.out += ": ";
             ctx.out += maki::pretty_name<SourceState>();
             ctx.out += " -> ";
@@ -80,13 +80,13 @@ namespace
             ctx.out += std::to_string(event.pressure) + ";";
         }
 
-        template<class RegionPath, class SourceState, class Event, class TargetState>
+        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
         void after_state_transition(const Event& event)
         {
             ctx.out += std::to_string(event.pressure) + ";";
 
             ctx.out += "Transition in ";
-            ctx.out += RegionPath::to_string();
+            ctx.out += RegionPath.to_string();
             ctx.out += ": ";
             ctx.out += maki::pretty_name<SourceState>();
             ctx.out += " -> ";
@@ -110,9 +110,9 @@ TEST_CASE("state_transition_hook_set")
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
-    using root_0_path = maki::region_path<machine_def, 0>;
-    using root_1_path = maki::region_path<machine_def, 1>;
-    using root_1_on_1_path = root_1_path::add<states::on1>;
+    static constexpr auto root_0_path = maki::region_path_c<machine_def, 0>;
+    static constexpr auto root_1_path = maki::region_path_c<machine_def, 1>;
+    static constexpr auto root_1_on_1_path = root_1_path.add<states::on1>;
 
     machine.start(events::button_press{0});
     REQUIRE(machine.is_active_state<root_0_path, states::off0>());

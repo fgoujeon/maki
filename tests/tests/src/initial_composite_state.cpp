@@ -125,7 +125,7 @@ TEST_CASE("initial_submachine")
 
     machine.start();
     REQUIRE(machine.is_active_state<states::on>());
-    REQUIRE(machine.is_active_state<maki::region_path<machine_def>::add<states::on>, states::emitting_red>());
+    REQUIRE(machine.is_active_state<maki::region_path_c<machine_def>.add<states::on>, states::emitting_red>());
     REQUIRE(ctx.current_led_color == led_color::red);
 
     machine.process_event(events::color_button_press{});

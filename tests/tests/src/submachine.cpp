@@ -118,7 +118,7 @@ namespace
 
 TEST_CASE("submachine")
 {
-    using machine_on_region_path_t = maki::region_path<machine_def>::add<states::on>;
+    static constexpr auto machine_on_region_path = maki::region_path_c<machine_def>.add<states::on>;
 
     auto machine = machine_t{};
     auto& ctx = machine.context();
@@ -126,12 +126,12 @@ TEST_CASE("submachine")
     machine.start();
 
     REQUIRE(machine.is_active_state<states::off>());
-    REQUIRE(!machine.is_running<machine_on_region_path_t>());
+    REQUIRE(!machine.is_running<machine_on_region_path>());
     REQUIRE(ctx.current_led_color == led_color::off);
 
     machine.process_event(events::power_button_press{});
     REQUIRE(machine.is_active_state<states::on>());
-    REQUIRE(machine.is_active_state<machine_on_region_path_t, states::emitting_red>());
+    REQUIRE(machine.is_active_state<machine_on_region_path, states::emitting_red>());
     REQUIRE(ctx.current_led_color == led_color::red);
 
     machine.process_event(events::color_button_press{});

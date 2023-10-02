@@ -30,7 +30,7 @@ consists in a sequence of directories, starting from the root directory.
 
 In terms of C++ code, a `(machine_def, region_index)` pair is defined with an
 instance of the @ref region_path_element struct template. These instances are
-sequenced in the template argument list given to the @ref region_path_tpl
+sequenced in the template argument list given to the @ref region_path
 template instance.
 Here is an example:
 ```cpp
@@ -49,7 +49,7 @@ struct machine_def
 using machine_t = maki::machine<machine_def>;
 
 //Path to the second region (index 1) of some_submachine
-using region_path_t = maki::region_path_tpl
+using region_path_t = maki::region_path
 <
     maki::region_path_element<machine_def, 0>,
     maki::region_path_element<some_submachine, 1>
@@ -57,10 +57,10 @@ using region_path_t = maki::region_path_tpl
 ```
 
 This is admittedly verbose and inconvenient. This is why the library provides
-@ref region_path and @ref region_path_tpl.add to make things much more terse:
+@ref region_path_c and @ref region_path.add to make things much more terse:
 ```cpp
 //Path to the exam same region
-using same_region_path_t = maki::region_path<machine_def>::add<some_submachine, 1>;
+using same_region_path_t = maki::region_path_c<machine_def>::add<some_submachine, 1>;
 ```
 
 @{
@@ -83,7 +83,7 @@ struct region_path_element
 };
 
 template<class... Ts>
-struct region_path_tpl;
+struct region_path;
 
 namespace detail
 {
@@ -91,22 +91,22 @@ namespace detail
     struct region_path_add;
 
     template<class... Ts, class MachineDef, int RegionIndex>
-    struct region_path_add<region_path_tpl<Ts...>, MachineDef, RegionIndex>
+    struct region_path_add<region_path<Ts...>, MachineDef, RegionIndex>
     {
-        using type = region_path_tpl<Ts..., region_path_element<MachineDef, RegionIndex>>;
+        static constexpr auto value = region_path<Ts..., region_path_element<MachineDef, RegionIndex>>{};
     };
 
     template<class... Ts, class MachineDef>
-    struct region_path_add<region_path_tpl<Ts...>, MachineDef, -1>
+    struct region_path_add<region_path<Ts...>, MachineDef, -1>
     {
         using transition_table_list_type = decltype(MachineDef::conf.transition_tables);
         static_assert
         (
             tlu::size_v<transition_table_list_type> == 1,
-            "RegionIndex must be specified for multiple-region SMs"
+            "RegionIndex must be specified for multiple-region machines"
         );
 
-        using type = region_path_tpl<Ts..., region_path_element<MachineDef, 0>>;
+        static constexpr auto value = region_path<Ts..., region_path_element<MachineDef, 0>>{};
     };
 
     template<class Element>
@@ -165,10 +165,10 @@ namespace detail
 @tparam Ts the elements, which must be instances of @ref region_path_element
 */
 template<class... Ts>
-struct region_path_tpl
+struct region_path
 {
     /**
-    @brief A type alias to a @ref region_path_tpl with an appended @ref
+    @brief A type alias to a @ref region_path with an appended @ref
     region_path_element.
 
     @tparam MachineDef see @ref region_path_element
@@ -176,7 +176,7 @@ struct region_path_tpl
     only if) `MachineDef` contains only one region
     */
     template<class MachineDef, int RegionIndex = -1>
-    using add = typename detail::region_path_add<region_path_tpl, MachineDef, RegionIndex>::type;
+    static constexpr auto add = detail::region_path_add<region_path, MachineDef, RegionIndex>::value;
 
     /**
     @brief Builds a textual representation of the path.
@@ -201,16 +201,22 @@ struct region_path_tpl
     }
 };
 
+template<class... Ts, class... Us>
+constexpr bool operator==(const region_path<Ts...> /*lhs*/, const region_path<Us...> /*rhs*/)
+{
+    return (std::is_same_v<Ts, Us> && ...);
+}
+
 /**
-@brief A handy type alias for defining a @ref region_path_tpl with a single @ref
-region_path_element.
+@brief A handy variable template for defining a @ref region_path with a single
+@ref region_path_element.
 
 @tparam MachineDef see @ref region_path_element
 @tparam RegionIndex see @ref region_path_element; can be omitted if (and
 only if) `MachineDef` contains only one region
 */
 template<class MachineDef, int RegionIndex = -1>
-using region_path = region_path_tpl<>::add<MachineDef, RegionIndex>;
+inline constexpr auto region_path_c = region_path<>{}.add<MachineDef, RegionIndex>;
 
 /**
 @}

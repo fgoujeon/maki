@@ -15,7 +15,7 @@ template<class T>
 struct region_path_of;
 
 template<class T>
-using region_path_of_t = typename region_path_of<T>::type;
+inline constexpr auto region_path_of_v = region_path_of<T>::value;
 
 //Must be specialized by each type
 template<class T>

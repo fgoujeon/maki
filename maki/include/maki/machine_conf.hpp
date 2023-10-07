@@ -414,130 +414,173 @@ struct machine_conf
     */
     TransitionTableTypeList transition_tables; //NOLINT(misc-non-private-member-variables-in-classes)
 
-#define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(changed_var_name, new_value) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    [[maybe_unused]] const auto arg_after_state_transition = after_state_transition; \
-    [[maybe_unused]] const auto arg_auto_start = auto_start; \
-    [[maybe_unused]] const auto arg_before_state_transition = before_state_transition; \
-    [[maybe_unused]] const auto arg_context_type = context_type; \
-    [[maybe_unused]] const auto arg_on_entry = on_entry; \
-    [[maybe_unused]] const auto arg_on_event = on_event; \
-    [[maybe_unused]] const auto arg_on_event_auto = on_event_auto; \
-    [[maybe_unused]] const auto arg_on_exception = on_exception; \
-    [[maybe_unused]] const auto arg_on_exit = on_exit; \
-    [[maybe_unused]] const auto arg_on_unprocessed = on_unprocessed; \
-    [[maybe_unused]] const auto arg_pretty_name_fn = pretty_name_fn; \
-    [[maybe_unused]] const auto arg_run_to_completion = run_to_completion; \
-    [[maybe_unused]] const auto arg_small_event_max_align = small_event_max_align; \
-    [[maybe_unused]] const auto arg_small_event_max_size = small_event_max_size; \
-    [[maybe_unused]] const auto arg_transition_tables = transition_tables; \
- \
+#define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_after_state_transition = after_state_transition; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = auto_start; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_before_state_transition = before_state_transition; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = context_type; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_on_entry = on_entry; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_on_event = on_event; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_on_event_auto = on_event_auto; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_on_exception = on_exception; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_on_exit = on_exit; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_on_unprocessed = on_unprocessed; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_fn = pretty_name_fn; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = run_to_completion; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_align = small_event_max_align; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_size = small_event_max_size; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = transition_tables;
+
+#define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    return machine_conf \
+    < \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_on_event)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
+    > \
     { \
-        const auto arg_##changed_var_name = new_value; \
- \
-        return machine_conf \
-        < \
-            std::decay_t<decltype(arg_context_type)>, \
-            std::decay_t<decltype(arg_on_event)>, \
-            std::decay_t<decltype(arg_transition_tables)> \
-        > \
-        { \
-            arg_after_state_transition, \
-            arg_auto_start, \
-            arg_before_state_transition, \
-            arg_context_type, \
-            arg_on_entry, \
-            arg_on_event, \
-            arg_on_event_auto, \
-            arg_on_exception, \
-            arg_on_exit, \
-            arg_on_unprocessed, \
-            arg_pretty_name_fn, \
-            arg_run_to_completion, \
-            arg_small_event_max_align, \
-            arg_small_event_max_size, \
-            arg_transition_tables \
-        }; \
-    }
+        MAKI_DETAIL_ARG_after_state_transition, \
+        MAKI_DETAIL_ARG_auto_start, \
+        MAKI_DETAIL_ARG_before_state_transition, \
+        MAKI_DETAIL_ARG_context_type, \
+        MAKI_DETAIL_ARG_on_entry, \
+        MAKI_DETAIL_ARG_on_event, \
+        MAKI_DETAIL_ARG_on_event_auto, \
+        MAKI_DETAIL_ARG_on_exception, \
+        MAKI_DETAIL_ARG_on_exit, \
+        MAKI_DETAIL_ARG_on_unprocessed, \
+        MAKI_DETAIL_ARG_pretty_name_fn, \
+        MAKI_DETAIL_ARG_run_to_completion, \
+        MAKI_DETAIL_ARG_small_event_max_align, \
+        MAKI_DETAIL_ARG_small_event_max_size, \
+        MAKI_DETAIL_ARG_transition_tables \
+    };
 
     [[nodiscard]] constexpr auto enable_after_state_transition() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(after_state_transition, true)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_after_state_transition true
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_after_state_transition
     }
 
     [[nodiscard]] constexpr auto disable_auto_start() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(auto_start, false)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_auto_start false
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_auto_start
     }
 
     [[nodiscard]] constexpr auto enable_before_state_transition() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(before_state_transition, true)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_before_state_transition true
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_before_state_transition
     }
 
     template<class Context>
     [[nodiscard]] constexpr auto set_context_type() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(context_type, type_c<Context>)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_context_type type_c<Context>
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_context_type
     }
 
     [[nodiscard]] constexpr auto disable_run_to_completion() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(run_to_completion, false)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_run_to_completion false
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_run_to_completion
     }
 
     [[nodiscard]] constexpr auto enable_pretty_name() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(pretty_name_fn, true)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_pretty_name_fn true
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_pretty_name_fn
     }
 
     [[nodiscard]] constexpr auto enable_on_exception() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_exception, true)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_on_exception true
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_on_exception
     }
 
     [[nodiscard]] constexpr auto enable_on_unprocessed() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_unprocessed, true)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_on_unprocessed true
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_on_unprocessed
     }
 
     [[nodiscard]] constexpr auto set_small_event_max_align(const std::size_t value) const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(small_event_max_align, value)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_small_event_max_align value
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_small_event_max_align
     }
 
     [[nodiscard]] constexpr auto set_small_event_max_size(const std::size_t value) const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(small_event_max_size, value)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_small_event_max_size value
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_small_event_max_size
     }
 
     template<class... Ts>
     [[nodiscard]] constexpr auto enable_on_event() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_event, type_list_c<Ts...>)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_on_event type_list_c<Ts...>
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_on_event
     }
 
     [[nodiscard]] constexpr auto enable_on_event_auto() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_event_auto, true)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_on_event_auto true
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_on_event_auto
     }
 
     [[nodiscard]] constexpr auto enable_on_entry() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_entry, true)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_on_entry true
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_on_entry
     }
 
     [[nodiscard]] constexpr auto enable_on_exit() const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(on_exit, true)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_on_exit true
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_on_exit
     }
 
     template<class... TransitionTables>
     [[nodiscard]] constexpr auto set_transition_tables(const TransitionTables&... /*tables*/) const
     {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY(transition_tables, type_list_c<TransitionTables...>)
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_transition_tables type_list_c<TransitionTables...>
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_transition_tables
     }
 
-#undef MAKI_DETAIL_MAKE_MACHINE_CONF_COPY
+#undef MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 };
 
 inline constexpr auto machine_conf_c = machine_conf<>{};

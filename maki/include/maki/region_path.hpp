@@ -176,7 +176,7 @@ struct region_path
     only if) `MachineDef` contains only one region
     */
     template<class MachineDef, int RegionIndex = -1>
-    constexpr auto add() const
+    [[nodiscard]] constexpr auto add() const
     {
         return detail::region_path_add<region_path, MachineDef, RegionIndex>::value;
     }

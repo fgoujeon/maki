@@ -29,62 +29,78 @@ struct state_conf
     bool on_exit = false; //NOLINT(misc-non-private-member-variables-in-classes)
     bool pretty_name_fn = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
-#define MAKI_DETAIL_MAKE_STATE_CONF_COPY(changed_var_name, new_value) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    [[maybe_unused]] const auto arg_on_entry = on_entry; \
-    [[maybe_unused]] const auto arg_on_event = on_event; \
-    [[maybe_unused]] const auto arg_on_event_auto = on_event_auto; \
-    [[maybe_unused]] const auto arg_on_exit = on_exit; \
-    [[maybe_unused]] const auto arg_pretty_name_fn = pretty_name_fn; \
- \
+#define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_on_entry = on_entry; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_on_event = on_event; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_on_event_auto = on_event_auto; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_on_exit = on_exit; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_fn = pretty_name_fn; \
+
+#define MAKI_DETAIL_MAKE_STATE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    return state_conf \
+    < \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_on_event)> \
+    > \
     { \
-        const auto arg_##changed_var_name = new_value; \
- \
-        return state_conf \
-        < \
-            std::decay_t<decltype(arg_on_event)> \
-        > \
-        { \
-            arg_on_entry, \
-            arg_on_event, \
-            arg_on_event_auto, \
-            arg_on_exit, \
-            arg_pretty_name_fn \
-        }; \
-    }
+        MAKI_DETAIL_ARG_on_entry, \
+        MAKI_DETAIL_ARG_on_event, \
+        MAKI_DETAIL_ARG_on_event_auto, \
+        MAKI_DETAIL_ARG_on_exit, \
+        MAKI_DETAIL_ARG_pretty_name_fn \
+    };
 
     [[nodiscard]] constexpr auto enable_on_entry() const
     {
-        MAKI_DETAIL_MAKE_STATE_CONF_COPY(on_entry, true)
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_on_entry true
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_on_entry
     }
 
     [[nodiscard]] constexpr auto enable_on_event_auto() const
     {
-        MAKI_DETAIL_MAKE_STATE_CONF_COPY(on_event_auto, true)
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_on_event_auto true
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_on_event_auto
     }
 
     template<class... Types>
     [[nodiscard]] constexpr auto enable_on_event() const
     {
-        MAKI_DETAIL_MAKE_STATE_CONF_COPY(on_event, type_list_c<Types...>)
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_on_event type_list_c<Types...>
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_on_event
     }
 
     template<class... Types>
     [[nodiscard]] constexpr auto enable_on_event(const type_list<Types...> /*value*/) const
     {
-        MAKI_DETAIL_MAKE_STATE_CONF_COPY(on_event, type_list_c<Types...>)
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_on_event type_list_c<Types...>
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_on_event
     }
 
     [[nodiscard]] constexpr auto enable_on_exit() const
     {
-        MAKI_DETAIL_MAKE_STATE_CONF_COPY(on_exit, true)
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_on_exit true
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_on_exit
     }
 
     [[nodiscard]] constexpr auto enable_pretty_name() const
     {
-        MAKI_DETAIL_MAKE_STATE_CONF_COPY(pretty_name_fn, true)
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_pretty_name_fn true
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_pretty_name_fn
     }
 
-#undef MAKI_DETAIL_MAKE_STATE_CONF_COPY
+#undef MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
+#undef MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
 };
 
 inline constexpr auto state_conf_c = state_conf<>{};

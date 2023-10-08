@@ -39,7 +39,7 @@ namespace
         {
             static constexpr auto conf = maki::state_conf_c
                 .enable_on_entry()
-                .enable_on_event<events::internal>()
+                .enable_on_event_for<events::internal>()
                 .enable_on_exit()
             ;
 
@@ -70,7 +70,7 @@ namespace
             static constexpr auto conf = maki::submachine_conf_c
                 .set_transition_tables(on_transition_table)
                 .enable_on_entry()
-                .enable_on_event<events::internal>()
+                .enable_on_event_for<events::internal>()
                 .enable_on_exit()
             ;
 

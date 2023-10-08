@@ -131,7 +131,7 @@ template<class... Events>
 struct machine_ref_e_def
 {
     static constexpr auto conf = machine_ref_conf_c
-        .enable_on_event<Events...>()
+        .enable_on_event_for<Events...>()
     ;
 };
 

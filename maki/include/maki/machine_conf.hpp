@@ -25,7 +25,7 @@ template
 struct machine_conf
 {
     /**
-    @brief Prevents the constructor of @ref machine from calling @ref machine::start().
+    @brief Specifies whether the constructor of @ref machine must call @ref machine::start().
     */
     bool auto_start = true; //NOLINT(misc-non-private-member-variables-in-classes)
 
@@ -35,7 +35,7 @@ struct machine_conf
     ContextType context_type; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
-    @brief Requires the @ref machine to call a user-provided
+    @brief Specifies whether @ref machine must call a user-provided
     `after_state_transition()` member function after any external state
     transition.
 
@@ -44,7 +44,7 @@ struct machine_conf
     @code
     machine_def.after_state_transition
     <
-        region_path_type,
+        region_path,
         source_state_type,
         event_type,
         target_state_type
@@ -58,11 +58,11 @@ struct machine_conf
     struct machine_def
     {
         using conf = maki::machine_conf
-            ::after_state_transition
+            .enable_after_state_transition()
             //...
         ;
 
-        template<class RegionPath, class SourceState, class Event, class TargetState>
+        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
         void after_state_transition(const Event& event)
         {
             //...
@@ -75,7 +75,7 @@ struct machine_conf
     bool has_after_state_transition = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
-    @brief Requires the @ref machine to call a user-provided
+    @brief Specifies whether @ref machine must call a user-provided
     `before_state_transition()` member function before any external state
     transition.
 
@@ -84,7 +84,7 @@ struct machine_conf
     @code
     machine_def.before_state_transition
     <
-        region_path_type,
+        region_path,
         source_state_type,
         event_type,
         target_state_type
@@ -98,11 +98,11 @@ struct machine_conf
     struct machine_def
     {
         using conf = maki::machine_conf
-            ::before_state_transition
+            .enable_before_state_transition()
             //...
         ;
 
-        template<class RegionPath, class SourceState, class Event, class TargetState>
+        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
         void before_state_transition(const Event& event)
         {
             //...
@@ -115,10 +115,10 @@ struct machine_conf
     bool has_before_state_transition = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
-    @brief Requires the @ref machine to call a user-provided `on_entry()` member
-    function whenever it starts.
+    @brief Specifies whether @ref machine must call a user-provided `on_entry()`
+    member function whenever it starts.
 
-    One of these expressions must be valid, for every given event type:
+    One of these expressions must be valid, for every possible event type:
     @code
     machine_def.on_entry(fsm, event);
     machine_def.on_entry(event);
@@ -158,9 +158,9 @@ struct machine_conf
     bool has_on_entry = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
-    @brief Behaves like the @ref on_event option, except that the event type
-    list is automatically determined by the defined `on_event()` member
-    functions.
+    @brief Specifies whether @ref machine must call a compatible, user-provided
+    `on_event()` member function, provided this function exists, whenever it is
+    about to process an event. Run-to-completion guarantee applies.
 
     In the following example, `on_event()` will only be called for
     `event_type_0` and `event_type_1`:
@@ -190,13 +190,13 @@ struct machine_conf
     bool has_on_event_auto = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
-    @brief Requires the @ref machine to call a user-provided `on_event()` member
+    @brief Specifies the event types (and type filters with which event types
+    match) for which @ref machine must call a user-provided `on_event()` member
     function whenever it is about to process an event. Run-to-completion
     guarantee applies.
-    @tparam EventFilters the list of events for which we want the @ref machine to
-    call `on_event()`
 
-    One of these expressions must be valid, for every given event type:
+    One of these expressions must be valid, for every event type that matches
+    a type or type filter of the list:
     @code
     machine_def.on_event(fsm, event);
     machine_def.on_event(event);
@@ -212,7 +212,7 @@ struct machine_conf
     struct machine_def
     {
         static constexpr auto conf = machine_conf_c
-            .enable_on_event<event_type_0, event_type_1>()
+            .enable_on_event_for<event_type_0, event_type_1>()
             //...
         ;
 
@@ -232,20 +232,20 @@ struct machine_conf
     @endcode
 
     If manually listing all the event type you're insterested in is too
-    inconvenient, you can use @ref on_event_auto.
+    inconvenient, you can use @ref has_on_event_auto.
     */
     OnEventTypeList has_on_event_for; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
-    @brief Requires the @ref machine to call a user-provided `on_exception()`
-    member function whenever it catches an exception.
+    @brief Specifies whether @ref machine must call a user-provided
+    `on_exception()` member function whenever it catches an exception.
 
     The following expression must be valid:
     @code
     machine_def.on_exception(std::current_exception());
     @endcode
 
-    If this option isn't set, the @ref machine will send itself a @ref
+    If this option isn't set, @ref machine will send itself an @ref
     events::exception event, like so:
     @code
     process_event(events::exception{std::current_exception()});
@@ -256,7 +256,7 @@ struct machine_conf
     struct machine_def
     {
         static constexpr auto conf = machine_conf_c
-            .enable_pretty_name()
+            .enable_on_exception()
             //...
         ;
 
@@ -272,10 +272,10 @@ struct machine_conf
     bool has_on_exception = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
-    @brief Requires the @ref machine to call a user-provided `on_exit()` member
-    function whenever it stops.
+    @brief Specifies whether @ref machine must call a user-provided `on_exit()`
+    member function whenever it stops.
 
-    One of these expressions must be valid, for every given event type:
+    One of these expressions must be valid, for every possible event type:
     @code
     machine_def.on_exit(fsm, event);
     machine_def.on_exit(event);
@@ -315,9 +315,10 @@ struct machine_conf
     bool has_on_exit = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
-    @brief Requires the @ref machine to call a user-provided `on_unprocessed()`
-    member function whenever a call to @ref machine::process_event() doesn't lead to
-    any state transition.
+    @brief Specifies whether @ref machine must call a user-provided
+    `on_unprocessed()` member function whenever a call to @ref
+    machine::process_event() doesn't lead to any state transition or call to any
+    `on_event()` function.
 
     The said member function must have the following form:
     @code
@@ -360,8 +361,9 @@ struct machine_conf
     bool has_on_unprocessed = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
-    @brief Requires the @ref machine to call a user-provided `pretty_name()` static
-    member function to get the pretty name of the state machine.
+    @brief Specifies whether @ref machine must call a user-provided
+    `pretty_name()` static member function to get the pretty name of the state
+    machine.
 
     See `maki::pretty_name`.
 
@@ -386,12 +388,13 @@ struct machine_conf
     bool has_pretty_name = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
-    @brief Disables run-to-completion.
+    @brief Specifies whether run-to-completion is enabled.
 
-    This makes the state machine much faster, but you have to make sure you
-    <b>never</b> call @ref machine::process_event() recursively.
+    Disabling run-to-completion makes the state machine much faster, but you
+    have to make sure you <b>never</b> call @ref machine::process_event()
+    recursively.
 
-    Use it at your own risk!
+    Disable it at your own risk!
     */
     bool run_to_completion = true; //NOLINT(misc-non-private-member-variables-in-classes)
 
@@ -538,7 +541,7 @@ struct machine_conf
     }
 
     template<class... Ts>
-    [[nodiscard]] constexpr auto enable_on_event() const
+    [[nodiscard]] constexpr auto enable_on_event_for() const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_has_on_event_for type_list_c<Ts...>

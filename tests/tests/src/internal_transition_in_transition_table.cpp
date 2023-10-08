@@ -27,7 +27,7 @@ namespace
         {
             static constexpr auto conf = maki::state_conf_c
                 .enable_on_entry()
-                .enable_on_event<maki::any>()
+                .enable_on_event_for<maki::any>()
                 .enable_on_exit()
             ;
 
@@ -54,7 +54,7 @@ namespace
         {
             static constexpr auto conf = maki::state_conf_c
                 .enable_on_entry()
-                .enable_on_event<maki::any>()
+                .enable_on_event_for<maki::any>()
                 .enable_on_exit()
             ;
 

@@ -20,7 +20,7 @@ struct machine_ref_conf
     EventTypeList has_on_event_for;
 
     template<class... Ts>
-    [[nodiscard]] constexpr auto enable_on_event() const
+    [[nodiscard]] constexpr auto enable_on_event_for() const
     {
         return machine_ref_conf<type_list<Ts...>>{};
     }

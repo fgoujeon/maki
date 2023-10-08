@@ -84,7 +84,7 @@ struct submachine_conf
     }
 
     template<class... Types>
-    [[nodiscard]] constexpr auto enable_on_event() const
+    [[nodiscard]] constexpr auto enable_on_event_for() const
     {
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_has_on_event_for type_list_c<Types...>

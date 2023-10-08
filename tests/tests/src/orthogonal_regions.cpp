@@ -34,7 +34,7 @@ namespace
         struct on1
         {
             static constexpr auto conf = maki::state_conf_c
-                .enable_on_event<events::exception_request>()
+                .enable_on_event_for<events::exception_request>()
             ;
 
             void on_event(const events::exception_request&)

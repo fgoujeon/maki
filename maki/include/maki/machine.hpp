@@ -84,7 +84,8 @@ public:
     auto obj = object_type{};
     @endcode
 
-    Finally, unless the `auto_start` option is `false`, `start()` is called.
+    Finally, unless the @ref machine_conf::auto_start is `false`, `start()` is
+    called.
     */
     template<class... ContextArgs>
     explicit machine(ContextArgs&&... ctx_args):
@@ -216,7 +217,7 @@ public:
     states::stopped and enters the initial state.
 
     Reminder: There's no need to call this function after the construction,
-    unless the `no_auto_start` option is set.
+    unless machine_conf::auto_start is set to `false`.
     */
     template<class Event = events::start>
     void start(const Event& event = {})

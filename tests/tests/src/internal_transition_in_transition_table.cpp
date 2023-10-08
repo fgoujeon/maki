@@ -25,10 +25,10 @@ namespace
     {
         struct idle
         {
-            using conf = maki::state_conf
-                ::on_entry_any
-                ::on_event<maki::any>
-                ::on_exit_any
+            static constexpr auto conf = maki::state_conf_c
+                .enable_on_entry()
+                .enable_on_event_for<maki::any>()
+                .enable_on_exit()
             ;
 
             void on_entry()
@@ -52,10 +52,10 @@ namespace
 
         struct running
         {
-            using conf = maki::state_conf
-                ::on_entry_any
-                ::on_event<maki::any>
-                ::on_exit_any
+            static constexpr auto conf = maki::state_conf_c
+                .enable_on_entry()
+                .enable_on_event_for<maki::any>()
+                .enable_on_exit()
             ;
 
             void on_entry()
@@ -86,17 +86,17 @@ namespace
         }
     }
 
-    using transition_table_t = maki::transition_table
-        ::add<states::idle,    events::power_button_press, states::running>
-        ::add<states::running, events::power_button_press, states::idle>
-        ::add<states::running, events::beep_button_press,  maki::null, actions::beep>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<states::idle,    events::power_button_press, states::running>
+        .add<states::running, events::power_button_press, states::idle>
+        .add<states::running, events::beep_button_press,  maki::null, actions::beep>
     ;
 
     struct machine_def
     {
-        using conf = maki::machine_conf
-            ::transition_tables<transition_table_t>
-            ::context<context>
+        static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables(transition_table)
+            .set_context_type<context>()
         ;
     };
 

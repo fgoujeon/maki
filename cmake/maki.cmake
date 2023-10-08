@@ -28,7 +28,7 @@ function(maki_target_common_options TARGET)
         target_compile_options(
             ${TARGET}
             PRIVATE
-                /W4 /WX /permissive-
+                /W4 /permissive- /WX
         )
     endif()
 endfunction()

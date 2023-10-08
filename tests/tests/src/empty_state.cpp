@@ -26,7 +26,7 @@ namespace
         //Check empty state without default constructor
         struct state1
         {
-            using conf = maki::state_conf;
+            static constexpr auto conf = maki::state_conf_c;
 
             state1(context& /*ctx*/)
             {
@@ -34,15 +34,15 @@ namespace
         };
     }
 
-    using transition_table_t = maki::transition_table
-        ::add<states::state0, events::event, states::state1>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<states::state0, events::event, states::state1>
     ;
 
     struct machine_def
     {
-        using conf = maki::machine_conf
-            ::transition_tables<transition_table_t>
-            ::context<context>
+        static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables(transition_table)
+            .set_context_type<context>()
         ;
     };
 

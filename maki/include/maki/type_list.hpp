@@ -4,14 +4,17 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_TYPE_LIST_HPP
-#define MAKI_DETAIL_TYPE_LIST_HPP
+#ifndef MAKI_TYPE_LIST_HPP
+#define MAKI_TYPE_LIST_HPP
 
-namespace maki::detail
+namespace maki
 {
 
 template<class... Ts>
 struct type_list{};
+
+template<class... Ts>
+inline constexpr auto type_list_c = type_list<Ts...>{};
 
 } //namespace
 

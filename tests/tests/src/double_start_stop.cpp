@@ -29,9 +29,9 @@ namespace
         EMPTY_STATE(off);
     }
 
-    using transition_table_t = maki::transition_table
-        ::add<states::off, events::button_press, states::on>
-        ::add<states::on,  events::button_press, states::off>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<states::off, events::button_press, states::on>
+        .add<states::on,  events::button_press, states::off>
     ;
 
     struct machine_def;
@@ -40,21 +40,21 @@ namespace
 
     struct machine_def
     {
-        using conf = maki::machine_conf
-            ::transition_tables<transition_table_t>
-            ::context<context>
-            ::before_state_transition
-            ::after_state_transition
-            ::pretty_name
+        static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables(transition_table)
+            .set_context_type<context>()
+            .enable_before_state_transition()
+            .enable_after_state_transition()
+            .enable_pretty_name()
         ;
 
-        template<class RegionPath, class SourceState, class Event, class TargetState>
+        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
         void before_state_transition(const Event& /*event*/)
         {
-            static_assert(std::is_same_v<RegionPath, maki::region_path<machine_def>>);
+            static_assert(RegionPath == maki::region_path<maki::region_path_element<machine_def, 0>>{});
 
             ctx.out += "Transition in ";
-            ctx.out += RegionPath::to_string();
+            ctx.out += RegionPath.to_string();
             ctx.out += ": ";
             ctx.out += maki::pretty_name<SourceState>();
             ctx.out += " -> ";
@@ -62,13 +62,13 @@ namespace
             ctx.out += "...;";
         }
 
-        template<class RegionPath, class SourceState, class Event, class TargetState>
+        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
         void after_state_transition(const Event& /*event*/)
         {
-            static_assert(std::is_same_v<RegionPath, maki::region_path<machine_def>>);
+            static_assert(RegionPath == maki::region_path<maki::region_path_element<machine_def, 0>>{});
 
             ctx.out += "Transition in ";
-            ctx.out += RegionPath::to_string();
+            ctx.out += RegionPath.to_string();
             ctx.out += ": ";
             ctx.out += maki::pretty_name<SourceState>();
             ctx.out += " -> ";

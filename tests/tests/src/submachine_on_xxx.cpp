@@ -37,10 +37,10 @@ namespace
 
         struct on_0
         {
-            using conf = maki::state_conf
-                ::on_entry_any
-                ::on_event<events::internal>
-                ::on_exit_any
+            static constexpr auto conf = maki::state_conf_c
+                .enable_on_entry()
+                .enable_on_event_for<events::internal>()
+                .enable_on_exit()
             ;
 
             void on_entry(const events::button_press& event)
@@ -61,17 +61,17 @@ namespace
             context& ctx;
         };
 
-        using on_transition_table = maki::transition_table
-            ::add<states::on_0, events::button_press, maki::null>
+        constexpr auto on_transition_table = maki::transition_table_c
+            .add<states::on_0, events::button_press, maki::null>
         ;
 
         struct on
         {
-            using conf = maki::submachine_conf
-                ::transition_tables<on_transition_table>
-                ::on_entry_any
-                ::on_event<events::internal>
-                ::on_exit_any
+            static constexpr auto conf = maki::submachine_conf_c
+                .set_transition_tables(on_transition_table)
+                .enable_on_entry()
+                .enable_on_event_for<events::internal>()
+                .enable_on_exit()
             ;
 
             void on_entry(const events::button_press& event)
@@ -93,16 +93,16 @@ namespace
         };
     }
 
-    using transition_table_t = maki::transition_table
-        ::add<states::off, events::button_press, states::on>
-        ::add<states::on,  events::button_press, states::off>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<states::off, events::button_press, states::on>
+        .add<states::on,  events::button_press, states::off>
     ;
 
     struct machine_def
     {
-        using conf = maki::machine_conf
-            ::transition_tables<transition_table_t>
-            ::context<context>
+        static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables(transition_table)
+            .set_context_type<context>()
         ;
     };
 }

@@ -45,8 +45,8 @@ namespace
     {
         struct off
         {
-            using conf = maki::state_conf
-                ::on_event<events::ignored_by_emitting_blue>
+            static constexpr auto conf = maki::state_conf_c
+                .enable_on_event_for<events::ignored_by_emitting_blue>()
             ;
 
             void on_event(const events::ignored_by_emitting_blue & /*unused*/)
@@ -58,8 +58,8 @@ namespace
 
         struct emitting_red
         {
-            using conf = maki::state_conf
-                ::on_event_auto
+            static constexpr auto conf = maki::state_conf_c
+                .enable_on_event_auto()
             ;
 
             void on_event(const events::ignored_by_emitting_blue & /*unused*/)
@@ -71,8 +71,8 @@ namespace
 
         struct emitting_green
         {
-            using conf = maki::state_conf
-                ::on_event_auto
+            static constexpr auto conf = maki::state_conf_c
+                .enable_on_event_auto()
             ;
 
             void on_event(const events::ignored_by_emitting_blue & /*unused*/)
@@ -84,35 +84,35 @@ namespace
 
         struct emitting_blue
         {
-            using conf = maki::state_conf;
+            static constexpr auto conf = maki::state_conf_c;
         };
 
-        using on_transition_table = maki::transition_table
-            ::add<states::emitting_red,   events::color_button_press, states::emitting_green>
-            ::add<states::emitting_green, events::color_button_press, states::emitting_blue>
-            ::add<states::emitting_blue,  events::color_button_press, states::emitting_red>
+        constexpr auto on_transition_table = maki::transition_table_c
+            .add<states::emitting_red,   events::color_button_press, states::emitting_green>
+            .add<states::emitting_green, events::color_button_press, states::emitting_blue>
+            .add<states::emitting_blue,  events::color_button_press, states::emitting_red>
         ;
 
         struct on
         {
-            using conf = maki::submachine_conf
-                ::transition_tables<on_transition_table>
+            static constexpr auto conf = maki::submachine_conf_c
+                .set_transition_tables(on_transition_table)
             ;
 
             context& ctx;
         };
     }
 
-    using transition_table_t = maki::transition_table
-        ::add<states::on, events::power_button_press, states::off>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<states::on, events::power_button_press, states::off>
     ;
 
     struct machine_def
     {
-        using conf = maki::machine_conf
-            ::transition_tables<transition_table_t>
-            ::context<context>
-            ::on_unprocessed
+        static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables(transition_table)
+            .set_context_type<context>()
+            .enable_on_unprocessed()
         ;
 
         template<class T>
@@ -135,10 +135,12 @@ TEST_CASE("on_unprocessed")
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
+    static constexpr auto on_region_path = maki::region_path_c<machine_def>.add<states::on>();
+
     ctx.clear();
     machine.start();
     REQUIRE(machine.is_active_state<states::on>());
-    REQUIRE(machine.is_active_state<maki::region_path<machine_def>::add<states::on>, states::emitting_red>());
+    REQUIRE(machine.is_active_state<on_region_path, states::emitting_red>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
@@ -148,7 +150,7 @@ TEST_CASE("on_unprocessed")
     ctx.clear();
     machine.process_event(events::color_button_press{});
     REQUIRE(machine.is_active_state<states::on>());
-    REQUIRE(machine.is_active_state<maki::region_path<machine_def>::add<states::on>, states::emitting_green>());
+    REQUIRE(machine.is_active_state<on_region_path, states::emitting_green>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
@@ -158,7 +160,7 @@ TEST_CASE("on_unprocessed")
     ctx.clear();
     machine.process_event(events::color_button_press{});
     REQUIRE(machine.is_active_state<states::on>());
-    REQUIRE(machine.is_active_state<maki::region_path<machine_def>::add<states::on>, states::emitting_blue>());
+    REQUIRE(machine.is_active_state<on_region_path, states::emitting_blue>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();

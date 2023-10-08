@@ -33,8 +33,8 @@ namespace
         EMPTY_STATE(on0);
         struct on1
         {
-            using conf = maki::state_conf
-                ::on_event<events::exception_request>
+            static constexpr auto conf = maki::state_conf_c
+                .enable_on_event_for<events::exception_request>()
             ;
 
             void on_event(const events::exception_request&)
@@ -51,31 +51,33 @@ namespace
 
     struct machine_def
     {
-        using conf = maki::machine_conf
-            ::transition_tables
-            <
-                maki::transition_table
-                    ::add<states::off0, events::button_press, states::on0>,
-                maki::transition_table
-                    ::add<states::off1, events::button_press, states::on1>
-            >
-            ::context<context>
-            ::on_exception
-            ::before_state_transition
-            ::after_state_transition
+        static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables
+            (
+                maki::transition_table_c
+                    .add<states::off0, events::button_press, states::on0>,
+                maki::transition_table_c
+                    .add<states::off1, events::button_press, states::on1>
+            )
+            .set_context_type<context>()
+            .enable_on_exception()
+            .enable_before_state_transition()
+            .enable_after_state_transition()
         ;
 
-        template<class RegionPath, class SourceState, class Event, class TargetState>
+        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
         void before_state_transition(const Event& /*event*/)
         {
-            constexpr auto region_index = maki::detail::tlu::get_t<RegionPath, 0>::region_index;
+            using region_path_t = std::decay_t<decltype(RegionPath)>;
+            constexpr auto region_index = maki::detail::tlu::get_t<region_path_t, 0>::region_index;
             ctx.out += "before_state_transition[" + std::to_string(region_index) + "];";
         }
 
-        template<class RegionPath, class SourceState, class Event, class TargetState>
+        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
         void after_state_transition(const Event& /*event*/)
         {
-            constexpr auto region_index = maki::detail::tlu::get_t<RegionPath, 0>::region_index;
+            using region_path_t = std::decay_t<decltype(RegionPath)>;
+            constexpr auto region_index = maki::detail::tlu::get_t<region_path_t, 0>::region_index;
             ctx.out += "after_state_transition[" + std::to_string(region_index) + "];";
         }
 
@@ -102,8 +104,8 @@ TEST_CASE("orthogonal_regions")
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
-    using machine_region_0_path = maki::region_path<machine_def, 0>;
-    using machine_region_1_path = maki::region_path<machine_def, 1>;
+    static constexpr auto machine_region_0_path = maki::region_path_c<machine_def, 0>;
+    static constexpr auto machine_region_1_path = maki::region_path_c<machine_def, 1>;
 
     machine.start();
     REQUIRE(machine.is_active_state<machine_region_0_path, states::off0>());

@@ -35,8 +35,8 @@ namespace
 
         struct benchmarking
         {
-            using conf = maki::state_conf
-                ::on_event<events::internal_transition>
+            static constexpr auto conf = maki::state_conf_c
+                .enable_on_event_for<events::internal_transition>()
             ;
 
             void on_event(const events::internal_transition&)
@@ -48,26 +48,26 @@ namespace
         };
     }
 
-    using transition_table_t = maki::transition_table
-        ::add<states::state0, events::next_state, states::state1>
-        ::add<states::state1, events::next_state, states::state2>
-        ::add<states::state2, events::next_state, states::state3>
-        ::add<states::state3, events::next_state, states::state4>
-        ::add<states::state4, events::next_state, states::state5>
-        ::add<states::state5, events::next_state, states::state6>
-        ::add<states::state6, events::next_state, states::state7>
-        ::add<states::state7, events::next_state, states::state8>
-        ::add<states::state8, events::next_state, states::state9>
-        ::add<states::state9, events::next_state, states::benchmarking>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<states::state0, events::next_state, states::state1>
+        .add<states::state1, events::next_state, states::state2>
+        .add<states::state2, events::next_state, states::state3>
+        .add<states::state3, events::next_state, states::state4>
+        .add<states::state4, events::next_state, states::state5>
+        .add<states::state5, events::next_state, states::state6>
+        .add<states::state6, events::next_state, states::state7>
+        .add<states::state7, events::next_state, states::state8>
+        .add<states::state8, events::next_state, states::state9>
+        .add<states::state9, events::next_state, states::benchmarking>
     ;
 
     struct machine_def
     {
-        using conf = maki::machine_conf
-            ::transition_tables<transition_table_t>
-            ::context<context>
-            ::no_run_to_completion
-            ::on_exception
+        static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables(transition_table)
+            .set_context_type<context>()
+            .disable_run_to_completion()
+            .enable_on_exception()
         ;
 
         void on_exception(const std::exception_ptr& /*eptr*/)

@@ -13,7 +13,6 @@
 #include "detail/submachine.hpp"
 #include "detail/function_queue.hpp"
 #include "detail/tlu.hpp"
-#include "detail/type.hpp"
 #include "detail/overload_priority.hpp"
 #include <type_traits>
 
@@ -33,12 +32,12 @@ namespace detail
 /**
 @brief The state machine implementation template.
 @tparam Def the state machine definition, a class that must at least define a
-`using conf` to an @ref machine_conf_tpl instance whose `transition_tables` and
-`context` options are set
+`static constexpr auto conf` of a @ref machine_conf type, with defined
+machine_conf::transition_tables and machine_conf::context_type options
 
 Here is an example of valid state machine definition, where:
-- `transition_table_t` is a user-provided `using` of a @ref
-transition_table_tpl instance;
+- `transition_table` is a user-provided `constexpr` instance of a @ref
+transition_table type;
 - `context` is a user-provided class.
 
 @snippet lamp/src/main.cpp machine-def
@@ -58,14 +57,18 @@ public:
     /**
     @brief The state machine configuration type.
     */
-    using conf = typename Def::conf;
+    static constexpr const auto& conf = Def::conf;
 
     /**
     @brief The state machine context type.
     */
-    using context_type = detail::option_t<conf, detail::option_id::context>;
+    using context_type = typename decltype(conf.context_type)::type;
 
-    static_assert(detail::is_root_sm_conf_v<conf>, "The root state machine definition must include a using conf = machine_conf::...");
+    static_assert
+    (
+        detail::is_root_sm_conf_v<std::decay_t<decltype(conf)>>,
+        "The root state machine definition must include a static constexpr auto conf = machine_conf_c.[...];"
+    );
 
     /**
     @brief The constructor.
@@ -81,13 +84,14 @@ public:
     auto obj = object_type{};
     @endcode
 
-    Finally, unless the `no_auto_start` option is defined, `start()` is called.
+    Finally, unless the @ref machine_conf::auto_start is `false`, `start()` is
+    called.
     */
     template<class... ContextArgs>
     explicit machine(ContextArgs&&... ctx_args):
         submachine_(*this, std::forward<ContextArgs>(ctx_args)...)
     {
-        if constexpr(detail::option_v<conf, detail::option_id::auto_start>)
+        if constexpr(conf.auto_start)
         {
             //start
             execute_operation_now<detail::machine_operation::start>(events::start{});
@@ -135,11 +139,11 @@ public:
     /**
     @brief Returns the state of type `State` instantiated by the region
     indicated by `RegionPath`.
-    @tparam RegionPath an instance of @ref region_path_tpl pointing to the
+    @tparam RegionPath an instance of @ref region_path pointing to the
     region of interest (see @ref RegionPath)
     @tparam State the state type
     */
-    template<class RegionPath, class State>
+    template<const auto& RegionPath, class State>
     State& state()
     {
         return submachine_.template state_def<RegionPath, State>();
@@ -148,11 +152,11 @@ public:
     /**
     @brief Returns the state of type `State` instantiated by the region
     indicated by `RegionPath`.
-    @tparam RegionPath an instance of @ref region_path_tpl pointing to the
+    @tparam RegionPath an instance of @ref region_path pointing to the
     region of interest (see @ref RegionPath)
     @tparam State the state type
     */
-    template<class RegionPath, class State>
+    template<const auto& RegionPath, class State>
     const State& state() const
     {
         return submachine_.template state_def<RegionPath, State>();
@@ -160,10 +164,10 @@ public:
 
     /**
     @brief Returns whether the region indicated by `RegionPath` is running.
-    @tparam RegionPath an instance of @ref region_path_tpl pointing to the
+    @tparam RegionPath an instance of @ref region_path pointing to the
     region of interest (see @ref RegionPath)
     */
-    template<class RegionPath>
+    template<const auto& RegionPath>
     [[nodiscard]] bool is_running() const
     {
         return submachine_.template is_running<RegionPath>();
@@ -182,11 +186,11 @@ public:
     /**
     @brief Returns whether `State` is active in the region indicated by
     `RegionPath`.
-    @tparam RegionPath an instance of @ref region_path_tpl pointing to the
+    @tparam RegionPath an instance of @ref region_path pointing to the
     region of interest (see @ref RegionPath)
     @tparam State the state type
     */
-    template<class RegionPath, class State>
+    template<const auto& RegionPath, class State>
     [[nodiscard]] bool is_active_state() const
     {
         return submachine_.template is_active_state_def<RegionPath, State>();
@@ -213,7 +217,7 @@ public:
     states::stopped and enters the initial state.
 
     Reminder: There's no need to call this function after the construction,
-    unless the `no_auto_start` option is set.
+    unless machine_conf::auto_start is set to `false`.
     */
     template<class Event = events::start>
     void start(const Event& event = {})
@@ -327,7 +331,7 @@ public:
     template<class Event>
     MAKI_NOINLINE void enqueue_event(const Event& event)
     {
-        static_assert(detail::option_v<conf, detail::option_id::run_to_completion>);
+        static_assert(conf.run_to_completion);
         try
         {
             enqueue_event_impl<detail::machine_operation::process_event>(event);
@@ -382,7 +386,7 @@ private:
         }
 
     private:
-        machine& self_;
+        machine& self_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
     };
 
     struct real_operation_queue_holder
@@ -391,8 +395,8 @@ private:
         using type = detail::function_queue
         <
             machine&,
-            detail::option_v<conf, detail::option_id::small_event_max_size>,
-            detail::option_v<conf, detail::option_id::small_event_max_align>
+            conf.small_event_max_size,
+            conf.small_event_max_align
         >;
     };
     struct empty_holder
@@ -402,7 +406,7 @@ private:
     };
     using operation_queue_type = typename std::conditional_t
     <
-        detail::option_v<conf, detail::option_id::run_to_completion>,
+        conf.run_to_completion,
         real_operation_queue_holder,
         empty_holder
     >::template type<>;
@@ -412,7 +416,7 @@ private:
     {
         try
         {
-            if constexpr(detail::option_v<conf, detail::option_id::run_to_completion>)
+            if constexpr(conf.run_to_completion)
             {
                 if(!executing_operation_) //If call is not recursive
                 {
@@ -438,7 +442,7 @@ private:
     template<detail::machine_operation Operation, class Event>
     void execute_operation_now(const Event& event)
     {
-        if constexpr(detail::option_v<conf, detail::option_id::run_to_completion>)
+        if constexpr(conf.run_to_completion)
         {
             auto grd = executing_operation_guard{*this};
 
@@ -471,7 +475,7 @@ private:
 
     void process_exception(const std::exception_ptr& eptr)
     {
-        if constexpr(detail::option_v<conf, detail::option_id::on_exception>)
+        if constexpr(conf.has_on_exception)
         {
             def().on_exception(eptr);
         }
@@ -494,7 +498,7 @@ private:
         }
         else
         {
-            if constexpr(detail::option_v<conf, detail::option_id::on_unprocessed>)
+            if constexpr(conf.has_on_unprocessed)
             {
                 auto processed = false;
                 submachine_.on_event(event, processed);

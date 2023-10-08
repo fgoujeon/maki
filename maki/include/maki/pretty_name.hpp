@@ -7,52 +7,26 @@
 #ifndef MAKI_PRETTY_NAME_HPP
 #define MAKI_PRETTY_NAME_HPP
 
-#include "submachine_conf.hpp"
-#include "state_conf.hpp"
 #include "detail/type_name.hpp"
-#include "detail/tlu.hpp"
-#include "detail/overload_priority.hpp"
-#include <string_view>
 
 namespace maki
 {
 
 /**
-@defgroup PrettyPrinting Pretty Printing
-*/
-
-namespace detail
-{
-    template<class T>
-    decltype(auto) pretty_name_impl(overload_priority::low /*unused*/)
-    {
-        return decayed_type_name<T>();
-    }
-
-    template
-    <
-        class T,
-        std::enable_if_t
-        <
-            option_v<typename T::conf, option_id::pretty_name>,
-            bool
-        > = true
-    >
-    static decltype(auto) pretty_name_impl(overload_priority::high /*unused*/)
-    {
-        return T::pretty_name();
-    }
-}
-
-/**
-@ingroup PrettyPrinting
-@brief Gets the pretty name of a type, typically an @ref machine definition type or state
+@brief Gets the pretty name of a @ref machine def type, submachine type or state
 type.
 */
 template<class T>
 decltype(auto) pretty_name()
 {
-    return detail::pretty_name_impl<T>(detail::overload_priority::probe);
+    if constexpr(T::conf.has_pretty_name)
+    {
+        return T::pretty_name();
+    }
+    else
+    {
+        return detail::decayed_type_name<T>();
+    }
 }
 
 } //namespace

@@ -19,6 +19,7 @@
 #include "../state_conf.hpp"
 #include "../transition_table.hpp"
 #include "../region_path.hpp"
+#include "../type_patterns.hpp"
 #include <type_traits>
 
 namespace maki::detail
@@ -27,13 +28,13 @@ namespace maki::detail
 template<class Def, class ParentRegion>
 struct region_path_of<submachine<Def, ParentRegion>>
 {
-    using type = region_path_of_t<ParentRegion>;
+    static constexpr auto value = region_path_of_v<ParentRegion>;
 };
 
 template<class Def>
 struct region_path_of<submachine<Def, void>>
 {
-    using type = region_path_tpl<>;
+    static constexpr auto value = region_path{};
 };
 
 template<class Def, class ParentRegion>
@@ -67,18 +68,18 @@ struct submachine_context
     - a reference to the context type of the parent SM (not necessarily the root
       SM).
     */
-    using type = option_or_t
+    using type = std::conditional_t
     <
-        typename Def::conf,
-        option_id::context,
-        typename ParentRegion::parent_sm_type::context_type&
+        Def::conf.context_type == type_c<void>,
+        typename ParentRegion::parent_sm_type::context_type&,
+        typename decltype(Def::conf.context_type)::type
     >;
 };
 
 template<class Def>
 struct submachine_context<Def, void>
 {
-    using type = option_t<typename Def::conf, option_id::context>;
+    using type = typename decltype(Def::conf.context_type)::type;
 };
 
 template
@@ -113,17 +114,17 @@ template<class Def, class ParentRegion>
 class submachine
 {
 public:
-    using conf = state_conf
-        ::on_entry_any
-        ::on_event<maki::any>
-        ::on_exit_any
+    static constexpr auto conf = state_conf_c
+        .enable_on_entry()
+        .enable_on_event_for(type_list_c<maki::any>)
+        .enable_on_exit()
     ;
 
     using def_type = Def;
     using context_type = typename submachine_context<Def, ParentRegion>::type;
     using root_sm_type = root_sm_of_t<submachine>;
 
-    using transition_table_type_list = option_t<typename Def::conf, option_id::transition_tables>;
+    using transition_table_type_list = decltype(Def::conf.transition_tables);
 
     template<class... ContextArgs>
     submachine(root_sm_type& root_sm, ContextArgs&&... ctx_args):
@@ -149,52 +150,61 @@ public:
         return def_holder_.get();
     }
 
-    template<class StateRegionPath, class StateDef>
+    template<const auto& StateRegionPath, class StateDef>
     StateDef& state_def()
     {
+        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
+
         static_assert
         (
             std::is_same_v
             <
-                typename detail::tlu::front_t<StateRegionPath>::machine_def_type,
+                typename detail::tlu::front_t<state_region_path_t>::machine_def_type,
                 Def
             >
         );
 
-        static constexpr auto region_index = tlu::front_t<StateRegionPath>::region_index;
-        return get<region_index>(regions_).template state_def<tlu::pop_front_t<StateRegionPath>, StateDef>();
+        static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
+        static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
+        return get<region_index>(regions_).template state_def<state_region_relative_path, StateDef>();
     }
 
-    template<class StateRegionPath, class StateDef>
+    template<const auto& StateRegionPath, class StateDef>
     const StateDef& state_def() const
     {
+        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
+
         static_assert
         (
             std::is_same_v
             <
-                typename detail::tlu::front_t<StateRegionPath>::machine_def_type,
+                typename detail::tlu::front_t<state_region_path_t>::machine_def_type,
                 Def
             >
         );
 
-        static constexpr auto region_index = tlu::front_t<StateRegionPath>::region_index;
-        return get<region_index>(regions_).template state_def<tlu::pop_front_t<StateRegionPath>, StateDef>();
+        static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
+        static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
+        return get<region_index>(regions_).template state_def<state_region_relative_path, StateDef>();
     }
 
-    template<class StateRegionPath, class StateDef>
+    template<const auto& StateRegionPath, class StateDef>
     [[nodiscard]] bool is_active_state_def() const
     {
+        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
+
         static_assert
         (
             std::is_same_v
             <
-                typename detail::tlu::front_t<StateRegionPath>::machine_def_type,
+                typename detail::tlu::front_t<state_region_path_t>::machine_def_type,
                 Def
             >
         );
 
-        static constexpr auto region_index = tlu::front_t<StateRegionPath>::region_index;
-        return get<region_index>(regions_).template is_active_state_def<tlu::pop_front_t<StateRegionPath>, StateDef>();
+        static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
+        static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
+        return get<region_index>(regions_).template is_active_state_def<state_region_relative_path, StateDef>();
     }
 
     template<class StateDef>
@@ -202,10 +212,11 @@ public:
     {
         static_assert(tlu::size_v<transition_table_type_list> == 1);
 
-        return get<0>(regions_).template is_active_state_def<region_path_tpl<>, StateDef>();
+        static constexpr auto state_region_relative_path = region_path<>{};
+        return get<0>(regions_).template is_active_state_def<state_region_relative_path, StateDef>();
     }
 
-    template<class RegionPath>
+    template<const auto& RegionPath>
     [[nodiscard]] bool is_running() const
     {
         return !is_active_state_def<RegionPath, states::stopped>();
@@ -290,7 +301,9 @@ private:
         }
     };
 
-    root_sm_type& root_sm_;
+    //Store references for faster access
+    root_sm_type& root_sm_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+
     context_holder<context_type> ctx_holder_;
     detail::machine_object_holder<Def> def_holder_;
     region_tuple_type regions_;

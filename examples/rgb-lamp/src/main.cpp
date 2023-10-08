@@ -84,9 +84,9 @@ namespace states
     struct off
     {
         /*
-        A state class must define a conf subtype.
+        A state class must define a conf variable.
         */
-        using conf = maki::state_conf
+        static constexpr auto conf = maki::state_conf_c
             /*
             With this option, we require the state machine to call an on_entry()
             function whenever it enters our state.
@@ -95,7 +95,7 @@ namespace states
                 state.on_entry();
             Where `event` is the event that caused the state transition.
             */
-            ::on_entry_any
+            .enable_on_entry()
 
             /*
             Here, we require the state machine to call an on_event() function
@@ -105,7 +105,7 @@ namespace states
             This expression must be valid:
                 state.on_event(event);
             */
-            ::on_event<button::push_event>
+            .enable_on_event_for<button::push_event>()
 
             /*
             Finally, we want the state machine to call on_exit() whenever it
@@ -115,7 +115,7 @@ namespace states
                 state.on_exit();
             Where `event` is the event that caused the state transition.
             */
-            ::on_exit_any
+            .enable_on_exit()
         ;
 
         void on_entry(const button::push_event& event)
@@ -147,10 +147,10 @@ namespace states
     /*
     These are minimal valid state classes.
     */
-    struct emitting_white { using conf = maki::state_conf; };
-    struct emitting_red { using conf = maki::state_conf; };
-    struct emitting_green { using conf = maki::state_conf; };
-    struct emitting_blue { using conf = maki::state_conf; };
+    struct emitting_white { static constexpr auto conf = maki::state_conf_c; };
+    struct emitting_red { static constexpr auto conf = maki::state_conf_c; };
+    struct emitting_green { static constexpr auto conf = maki::state_conf_c; };
+    struct emitting_blue { static constexpr auto conf = maki::state_conf_c; };
 }
 
 /*
@@ -224,14 +224,14 @@ When a match is found, Maki:
 The initial active state of the state machine is the first state encountered in
 the transition table ('off', is our case).
 */
-using transition_table_t = maki::transition_table
+constexpr auto transition_table = maki::transition_table_c
     //    source_state,   event,       target_state,   action,           guard
-    ::add<off,            button_push, emitting_white, turn_light_white>
-    ::add<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
-    ::add<emitting_red,   button_push, emitting_green, turn_light_green, is_short_push>
-    ::add<emitting_green, button_push, emitting_blue,  turn_light_blue,  is_short_push>
-    ::add<emitting_blue,  button_push, emitting_white, turn_light_white, is_short_push>
-    ::add<any_but<off>,   button_push, off,            turn_light_off,   is_long_push>
+    .add<off,            button_push, emitting_white, turn_light_white>
+    .add<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
+    .add<emitting_red,   button_push, emitting_green, turn_light_green, is_short_push>
+    .add<emitting_green, button_push, emitting_blue,  turn_light_blue,  is_short_push>
+    .add<emitting_blue,  button_push, emitting_white, turn_light_white, is_short_push>
+    .add<any_but<off>,   button_push, off,            turn_light_off,   is_long_push>
 ;
 
 /*
@@ -240,9 +240,9 @@ the transition table, but we can put many options in it.
 */
 struct machine_def
 {
-    using conf = maki::machine_conf
-        ::transition_tables<transition_table_t>
-        ::context<context>
+    static constexpr auto conf = maki::machine_conf_c
+        .set_transition_tables(transition_table)
+        .set_context_type<context>()
     ;
 };
 

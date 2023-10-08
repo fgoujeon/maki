@@ -55,10 +55,10 @@ struct context
 };
 
 //States
-struct idle { using conf = maki::state_conf; };
-struct starting { using conf = maki::state_conf; };
-struct running { using conf = maki::state_conf; };
-struct stopping { using conf = maki::state_conf; };
+struct idle { static constexpr auto conf = maki::state_conf_c; };
+struct starting { static constexpr auto conf = maki::state_conf_c; };
+struct running { static constexpr auto conf = maki::state_conf_c; };
+struct stopping { static constexpr auto conf = maki::state_conf_c; };
 
 //Actions
 void start_motor(context& ctx)
@@ -71,20 +71,20 @@ void stop_motor(context& ctx)
 }
 
 //Transition table
-using transition_table_t = maki::transition_table
-    //    source state, event,                         target state, action
-    ::add<idle,         user_interface::start_request, starting,     start_motor>
-    ::add<starting,     motor::start_event,            running>
-    ::add<running,      user_interface::stop_request,  stopping,     stop_motor>
-    ::add<stopping,     motor::stop_event,             idle>
+constexpr auto transition_table = maki::transition_table_c
+    //   source state, event,                         target state, action
+    .add<idle,         user_interface::start_request, starting,     start_motor>
+    .add<starting,     motor::start_event,            running>
+    .add<running,      user_interface::stop_request,  stopping,     stop_motor>
+    .add<stopping,     motor::stop_event,             idle>
 ;
 
 //State machine definition
 struct machine_def
 {
-    using conf = maki::machine_conf
-        ::transition_tables<transition_table_t>
-        ::context<context>
+    static constexpr auto conf = maki::machine_conf_c
+        .set_transition_tables(transition_table)
+        .set_context_type<context>()
     ;
 };
 

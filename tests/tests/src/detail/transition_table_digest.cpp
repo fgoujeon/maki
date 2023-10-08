@@ -27,19 +27,19 @@ namespace
     bool guard0(){return true;}
     bool guard1(){return true;}
 
-    using transition_table_t = maki::transition_table
-        ::add<state0,     event0, state1>
-        ::add<state1,     event1, state2,  maki::noop, guard0>
-        ::add<state2,     event2, state3,  action0>
-        ::add<state3,     event3, state0,  action1,     guard1>
-        ::add<maki::any, event3, state0>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<state0,    event0, state1>
+        .add<state1,    event1, state2, maki::noop, guard0>
+        .add<state2,    event2, state3, action0>
+        .add<state3,    event3, state0, action1,    guard1>
+        .add<maki::any, event3, state0>
     ;
 
     struct machine_def
     {
-        using conf = maki::machine_conf
-            ::transition_tables<transition_table_t>
-            ::context<context>
+        [[maybe_unused]] static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables(transition_table)
+            .set_context_type<context>()
         ;
     };
 
@@ -47,9 +47,13 @@ namespace
 
     using region_path_t = maki::region_path<machine_t>;
 
-    using digest_t = maki::detail::transition_table_digest<transition_table_t, machine_t>;
+    using digest_t = maki::detail::transition_table_digest
+    <
+        std::decay_t<decltype(transition_table)>,
+        machine_t
+    >;
 
-    using state_tuple_t = maki::detail::type_list<state0, state1, state2, state3>;
+    using state_tuple_t = maki::type_list<state0, state1, state2, state3>;
 }
 
 TEST_CASE("detail::transition_table_digest")

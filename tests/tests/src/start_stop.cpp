@@ -19,9 +19,9 @@ namespace
     {
         struct s0
         {
-            using conf = maki::state_conf
-                ::on_entry_any
-                ::on_exit_any
+            static constexpr auto conf = maki::state_conf_c
+                .enable_on_entry()
+                .enable_on_exit()
             ;
 
             void on_entry()
@@ -39,9 +39,9 @@ namespace
 
         struct s1
         {
-            using conf = maki::state_conf
-                ::on_entry_any
-                ::on_exit_any
+            static constexpr auto conf = maki::state_conf_c
+                .enable_on_entry()
+                .enable_on_exit()
             ;
 
             void on_entry()
@@ -63,17 +63,17 @@ namespace
         struct button_press{};
     }
 
-    using transition_table_t = maki::transition_table
-        ::add<states::s0, maki::null,           states::s1>
-        ::add<states::s1, events::button_press, states::s0>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<states::s0, maki::null,           states::s1>
+        .add<states::s1, events::button_press, states::s0>
     ;
 
     struct machine_def
     {
-        using conf = maki::machine_conf
-            ::transition_tables<transition_table_t>
-            ::context<context>
-            ::no_auto_start
+        static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables(transition_table)
+            .set_context_type<context>()
+            .disable_auto_start()
         ;
     };
 

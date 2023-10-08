@@ -16,8 +16,8 @@ namespace pretty_name_ns
 
     struct state
     {
-        using conf = maki::state_conf
-            ::pretty_name
+        static constexpr auto conf = maki::state_conf_c
+            .enable_pretty_name()
         ;
 
         static const char* pretty_name()
@@ -26,15 +26,15 @@ namespace pretty_name_ns
         }
     };
 
-    using submachine_transition_table = maki::transition_table
-        ::add<state, maki::null, maki::null>
+    constexpr auto submachine_transition_table = maki::transition_table_c
+        .add<state, maki::null, maki::null>
     ;
 
     struct submachine
     {
-        using conf = maki::submachine_conf
-            ::transition_tables<submachine_transition_table>
-            ::pretty_name
+        static constexpr auto conf = maki::submachine_conf_c
+            .set_transition_tables(submachine_transition_table)
+            .enable_pretty_name()
         ;
 
         static const char* pretty_name()
@@ -47,16 +47,16 @@ namespace pretty_name_ns
     {
     };
 
-    using transition_table_t = maki::transition_table
-        ::add<state, maki::null, maki::null>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<state, maki::null, maki::null>
     ;
 
     struct machine_def
     {
-        using conf = maki::submachine_conf
-            ::transition_tables<transition_table_t>
-            ::context<context>
-            ::pretty_name
+        static constexpr auto conf = maki::submachine_conf_c
+            .set_transition_tables(transition_table)
+            .set_context_type<context>()
+            .enable_pretty_name()
         ;
 
         static const char* pretty_name()
@@ -74,13 +74,13 @@ TEST_CASE("pretty_name")
 {
     REQUIRE
     (
-        maki::pretty_name<pretty_name_ns::test>() ==
+        maki::detail::decayed_type_name<pretty_name_ns::test>() ==
         std::string_view{"test"}
     );
 
     REQUIRE
     (
-        maki::pretty_name<pretty_name_ns::templ<int, pretty_name_ns::test>>() ==
+        maki::detail::decayed_type_name<pretty_name_ns::templ<int, pretty_name_ns::test>>() ==
         std::string_view{"templ"}
     );
 

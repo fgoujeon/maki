@@ -30,11 +30,11 @@ struct plus_button_press{};
 //! [events-and-datatypes]
 
 //States
-struct reading_memory { using conf = maki::state_conf; };
+struct reading_memory { static constexpr auto conf = maki::state_conf_c; };
 struct spinning_low
 {
-    using conf = maki::state_conf
-        ::on_entry_any
+    static constexpr auto conf = maki::state_conf_c
+        .enable_on_entry()
     ;
 
     void on_entry()
@@ -47,8 +47,8 @@ struct spinning_low
 };
 struct spinning_med
 {
-    using conf = maki::state_conf
-        ::on_entry_any
+    static constexpr auto conf = maki::state_conf_c
+        .enable_on_entry()
     ;
 
     void on_entry()
@@ -61,8 +61,8 @@ struct spinning_med
 };
 struct spinning_high
 {
-    using conf = maki::state_conf
-        ::on_entry_any
+    static constexpr auto conf = maki::state_conf_c
+        .enable_on_entry()
     ;
 
     void on_entry()
@@ -92,15 +92,15 @@ bool is_speed_high(context& /*ctx*/, const memory_read& event)
 
 //Transition table
 //! [transition-table]
-using transition_table_t = maki::transition_table
-    //    source state,   event,              target state,  action,      guard
-    ::add<reading_memory, memory_read,        spinning_low,  maki::noop, is_speed_low>
-    ::add<reading_memory, memory_read,        spinning_med,  maki::noop, is_speed_med>
-    ::add<reading_memory, memory_read,        spinning_high, maki::noop, is_speed_high>
-    ::add<spinning_low,   plus_button_press,  spinning_med,  maki::noop>
-    ::add<spinning_med,   plus_button_press,  spinning_high, maki::noop>
-    ::add<spinning_med,   minus_button_press, spinning_low,  maki::noop>
-    ::add<spinning_high,  minus_button_press, spinning_med,  maki::noop>
+constexpr auto transition_table = maki::transition_table_c
+    //   source state,   event,              target state,  action,      guard
+    .add<reading_memory, memory_read,        spinning_low,  maki::noop, is_speed_low>
+    .add<reading_memory, memory_read,        spinning_med,  maki::noop, is_speed_med>
+    .add<reading_memory, memory_read,        spinning_high, maki::noop, is_speed_high>
+    .add<spinning_low,   plus_button_press,  spinning_med,  maki::noop>
+    .add<spinning_med,   plus_button_press,  spinning_high, maki::noop>
+    .add<spinning_med,   minus_button_press, spinning_low,  maki::noop>
+    .add<spinning_high,  minus_button_press, spinning_med,  maki::noop>
 ;
 //! [transition-table]
 
@@ -108,9 +108,9 @@ using transition_table_t = maki::transition_table
 struct machine_def
 {
     //The configuration of the state machine
-    using conf = maki::machine_conf
-        ::transition_tables<transition_table_t>
-        ::context<context>
+    static constexpr auto conf = maki::machine_conf_c
+        .set_transition_tables(transition_table)
+        .set_context_type<context>()
     ;
 };
 

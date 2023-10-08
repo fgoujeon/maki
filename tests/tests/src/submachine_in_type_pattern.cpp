@@ -26,14 +26,14 @@ namespace
         EMPTY_STATE(s0_sub);
         EMPTY_STATE(s1);
 
-        using s0_transition_table = maki::transition_table
-            ::add<s0_sub, events::button_press, maki::null>
+        constexpr auto s0_transition_table = maki::transition_table_c
+            .add<s0_sub, events::button_press, maki::null>
         ;
 
         struct s0
         {
-            using conf = maki::submachine_conf
-                ::transition_tables<s0_transition_table>
+            static constexpr auto conf = maki::submachine_conf_c
+                .set_transition_tables(s0_transition_table)
             ;
         };
     }
@@ -41,18 +41,18 @@ namespace
     using any_but_s0_s1 = maki::any_but<states::s0, states::s1>;
     using any_of_s0_s1 = maki::any_of<states::s0, states::s1>;
 
-    using transition_table_t = maki::transition_table
-        ::add<states::off,   events::button_press,             states::s0>
-        ::add<states::s0,    events::button_press,             states::s1>
-        ::add<any_but_s0_s1, events::off_button_press,         states::off>
-        ::add<any_of_s0_s1,  events::destruction_button_press, states::off>
+    constexpr auto transition_table = maki::transition_table_c
+        .add<states::off,   events::button_press,             states::s0>
+        .add<states::s0,    events::button_press,             states::s1>
+        .add<any_but_s0_s1, events::off_button_press,         states::off>
+        .add<any_of_s0_s1,  events::destruction_button_press, states::off>
     ;
 
     struct machine_def
     {
-        using conf = maki::machine_conf
-            ::transition_tables<transition_table_t>
-            ::context<context>
+        static constexpr auto conf = maki::machine_conf_c
+            .set_transition_tables(transition_table)
+            .set_context_type<context>()
         ;
     };
 

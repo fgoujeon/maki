@@ -60,7 +60,7 @@ class region;
 template<class ParentSm, int Index>
 struct region_path_of<region<ParentSm, Index>>
 {
-    using type = typename region_path_of_t<ParentSm>::template add<typename ParentSm::def_type, Index>;
+    static constexpr auto value = region_path_of_v<ParentSm>.template add<typename ParentSm::def_type, Index>();
 };
 
 template<class ParentSm, int Index>
@@ -88,46 +88,52 @@ public:
     region& operator=(region&&) = delete;
     ~region() = default;
 
-    template<class StateRegionPath, class StateDef>
+    template<const auto& StateRegionPath, class StateDef>
     const StateDef& state_def() const
     {
-        if constexpr(tlu::size_v<StateRegionPath> == 0)
+        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
+
+        if constexpr(tlu::size_v<state_region_path_t> == 0)
         {
             return state_def_of(state_from_state_def<StateDef>());
         }
         else
         {
-            using submachine_t = typename tlu::front_t<StateRegionPath>::machine_def_type;
+            using submachine_t = typename tlu::front_t<state_region_path_t>::machine_def_type;
             const auto& state = state_from_state_def<submachine_t>();
             return state.template state_def<StateRegionPath, StateDef>();
         }
     }
 
-    template<class StateRegionPath, class StateDef>
+    template<const auto& StateRegionPath, class StateDef>
     StateDef& state_def()
     {
-        if constexpr(tlu::size_v<StateRegionPath> == 0)
+        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
+
+        if constexpr(tlu::size_v<state_region_path_t> == 0)
         {
             return state_def_of(state_from_state_def<StateDef>());
         }
         else
         {
-            using submachine_t = typename tlu::front_t<StateRegionPath>::machine_def_type;
+            using submachine_t = typename tlu::front_t<state_region_path_t>::machine_def_type;
             auto& state = state_from_state_def<submachine_t>();
             return state.template state_def<StateRegionPath, StateDef>();
         }
     }
 
-    template<class StateRelativeRegionPath, class StateDef>
+    template<const auto& StateRelativeRegionPath, class StateDef>
     [[nodiscard]] bool is_active_state_def() const
     {
-        if constexpr(tlu::size_v<StateRelativeRegionPath> == 0)
+        using state_relative_region_path_t = std::decay_t<decltype(StateRelativeRegionPath)>;
+
+        if constexpr(tlu::size_v<state_relative_region_path_t> == 0)
         {
             return is_active_state_def<StateDef>();
         }
         else
         {
-            using submachine_t = typename tlu::front_t<StateRelativeRegionPath>::machine_def_type;
+            using submachine_t = typename tlu::front_t<state_relative_region_path_t>::machine_def_type;
             const auto& state = state_from_state_def<submachine_t>();
             return state.template is_active_state_def<StateRelativeRegionPath, StateDef>();
         }
@@ -254,7 +260,7 @@ public:
 
 private:
     using root_sm_type = root_sm_of_t<ParentSm>;
-    using machine_conf_tpl = typename root_sm_type::conf;
+    static constexpr auto machine_conf = root_sm_type::conf;
 
     using transition_table_type = tlu::get_t<typename ParentSm::transition_table_type_list, Index>;
 
@@ -381,7 +387,7 @@ private:
     template<class SourceStateDef, class TargetStateDef, const auto& Action, class Event>
     void process_event_in_transition(const Event& event)
     {
-        using path_t = region_path_of_t<region>;
+        constexpr const auto& path = region_path_of_v<region>;
 
         constexpr auto is_internal_transition =
             std::is_same_v<TargetStateDef, null>
@@ -389,11 +395,11 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(option_v<machine_conf_tpl, option_id::before_state_transition>)
+            if constexpr(machine_conf.has_before_state_transition)
             {
                 root_sm_.def().template before_state_transition
                 <
-                    path_t,
+                    path,
                     SourceStateDef,
                     Event,
                     TargetStateDef
@@ -436,11 +442,11 @@ private:
                 );
             }
 
-            if constexpr(option_v<machine_conf_tpl, option_id::after_state_transition>)
+            if constexpr(machine_conf.has_after_state_transition)
             {
                 root_sm_.def().template after_state_transition
                 <
-                    path_t,
+                    path,
                     SourceStateDef,
                     Event,
                     TargetStateDef
@@ -606,8 +612,10 @@ private:
     template<class T>
     static T static_instance; //NOLINT
 
-    root_sm_type& root_sm_;
-    std::decay_t<typename ParentSm::context_type>& ctx_;
+    //Store references for faster access
+    root_sm_type& root_sm_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+    std::decay_t<typename ParentSm::context_type>& ctx_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+
     state_holder_tuple_type state_holders_;
 
     int active_state_index_ = index_of_state_v<state_def_type_list, states::stopped>;

@@ -395,7 +395,7 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(machine_conf.before_state_transition)
+            if constexpr(machine_conf.has_before_state_transition)
             {
                 root_sm_.def().template before_state_transition
                 <
@@ -442,7 +442,7 @@ private:
                 );
             }
 
-            if constexpr(machine_conf.after_state_transition)
+            if constexpr(machine_conf.has_after_state_transition)
             {
                 root_sm_.def().template after_state_transition
                 <

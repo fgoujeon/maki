@@ -17,7 +17,7 @@ namespace maki
 template<class EventTypeList = type_list<>>
 struct machine_ref_conf
 {
-    EventTypeList on_event;
+    EventTypeList has_on_event_for;
 
     template<class... Ts>
     [[nodiscard]] constexpr auto enable_on_event() const

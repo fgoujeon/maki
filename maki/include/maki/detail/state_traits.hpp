@@ -59,7 +59,7 @@ using state_def_to_state_t = typename state_def_to_state<StateDef, Region>::type
 template<class State>
 constexpr auto requires_on_entry()
 {
-    return State::conf.on_entry;
+    return State::conf.has_on_entry;
 }
 
 
@@ -68,7 +68,7 @@ constexpr auto requires_on_entry()
 template<class State>
 constexpr auto requires_on_exit()
 {
-    return State::conf.on_exit;
+    return State::conf.has_on_exit;
 }
 
 
@@ -101,14 +101,14 @@ struct matches_on_event_pattern
     static constexpr auto value = matches_any_pattern_v
     <
         Event,
-        decltype(State::conf.on_event)
+        decltype(State::conf.has_on_event_for)
     >;
 };
 
 template<class State, class Event>
 constexpr auto requires_on_event_v = std::conditional_t
 <
-    State::conf.on_event_auto,
+    State::conf.has_on_event_auto,
     has_on_event,
     matches_on_event_pattern
 >::template value<State, Event>;

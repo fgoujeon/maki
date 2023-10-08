@@ -19,7 +19,7 @@ type.
 template<class T>
 decltype(auto) pretty_name()
 {
-    if constexpr(T::conf.pretty_name_fn)
+    if constexpr(T::conf.has_pretty_name)
     {
         return T::pretty_name();
     }

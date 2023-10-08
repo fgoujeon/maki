@@ -107,7 +107,7 @@ public:
         (
             detail::tlu::contains_v
             <
-                decltype(conf.on_event),
+                decltype(conf.has_on_event_for),
                 Event
             >,
             "Given event type must be part of the 'on_event' option type list"
@@ -116,7 +116,7 @@ public:
     }
 
 private:
-    using event_type_list = decltype(conf.on_event);
+    using event_type_list = decltype(conf.has_on_event_for);
 
     using event_impl_type = detail::tlu::apply_t
     <

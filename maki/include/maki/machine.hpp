@@ -474,7 +474,7 @@ private:
 
     void process_exception(const std::exception_ptr& eptr)
     {
-        if constexpr(conf.on_exception)
+        if constexpr(conf.has_on_exception)
         {
             def().on_exception(eptr);
         }
@@ -497,7 +497,7 @@ private:
         }
         else
         {
-            if constexpr(conf.on_unprocessed)
+            if constexpr(conf.has_on_unprocessed)
             {
                 auto processed = false;
                 submachine_.on_event(event, processed);

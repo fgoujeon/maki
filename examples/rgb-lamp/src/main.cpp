@@ -225,7 +225,7 @@ The initial active state of the state machine is the first state encountered in
 the transition table ('off', is our case).
 */
 constexpr auto transition_table = maki::transition_table_c
-    //    source_state,   event,       target_state,   action,           guard
+    //   source_state,   event,       target_state,   action,           guard
     .add<off,            button_push, emitting_white, turn_light_white>
     .add<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
     .add<emitting_red,   button_push, emitting_green, turn_light_green, is_short_push>

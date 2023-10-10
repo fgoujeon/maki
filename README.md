@@ -53,14 +53,14 @@ The expected behavior is:
 
 This behavior can be expressed with the following transition table:
 ```c++
-maki::transition_table
-    //    source_state,   event,       target_state,   action,           guard
-    ::add<off,            button_push, emitting_white, turn_light_white>
-    ::add<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
-    ::add<emitting_red,   button_push, emitting_green, turn_light_green, is_short_push>
-    ::add<emitting_green, button_push, emitting_blue,  turn_light_blue,  is_short_push>
-    ::add<emitting_blue,  button_push, emitting_white, turn_light_white, is_short_push>
-    ::add<any_but<off>,   button_push, off,            turn_light_off,   is_long_push>
+constexpr auto transition_table = maki::transition_table_c
+    //   source_state,   event,       target_state,   action,           guard
+    .add<off,            button_push, emitting_white, turn_light_white>
+    .add<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
+    .add<emitting_red,   button_push, emitting_green, turn_light_green, is_short_push>
+    .add<emitting_green, button_push, emitting_blue,  turn_light_blue,  is_short_push>
+    .add<emitting_blue,  button_push, emitting_white, turn_light_white, is_short_push>
+    .add<any_but<off>,   button_push, off,            turn_light_off,   is_long_push>
 ;
 ```
 
@@ -286,14 +286,14 @@ When a match is found, Maki:
 The initial active state of the state machine is the first state encountered in
 the transition table ('off', is our case).
 */
-using transition_table_t = maki::transition_table
-    //    source_state,   event,       target_state,   action,           guard
-    ::add<off,            button_push, emitting_white, turn_light_white>
-    ::add<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
-    ::add<emitting_red,   button_push, emitting_green, turn_light_green, is_short_push>
-    ::add<emitting_green, button_push, emitting_blue,  turn_light_blue,  is_short_push>
-    ::add<emitting_blue,  button_push, emitting_white, turn_light_white, is_short_push>
-    ::add<any_but<off>,   button_push, off,            turn_light_off,   is_long_push>
+constexpr auto transition_table = maki::transition_table_c
+    //   source_state,   event,       target_state,   action,           guard
+    .add<off,            button_push, emitting_white, turn_light_white>
+    .add<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
+    .add<emitting_red,   button_push, emitting_green, turn_light_green, is_short_push>
+    .add<emitting_green, button_push, emitting_blue,  turn_light_blue,  is_short_push>
+    .add<emitting_blue,  button_push, emitting_white, turn_light_white, is_short_push>
+    .add<any_but<off>,   button_push, off,            turn_light_off,   is_long_push>
 ;
 
 /*
@@ -303,7 +303,7 @@ the transition table, but we can put many options in it.
 struct machine_def
 {
     static constexpr auto conf = maki::machine_conf_c
-        .set_transition_tables<transition_table_t>()
+        .set_transition_tables(transition_table)
         .set_context_type<context>()
     ;
 };

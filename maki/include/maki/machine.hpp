@@ -55,14 +55,19 @@ public:
     using def_type = Def;
 
     /**
-    @brief The state machine configuration type.
+    @brief The state machine configuration.
     */
     static constexpr const auto& conf = Def::conf;
 
     /**
+    @brief The state machine configuration type.
+    */
+    using conf_type = std::decay_t<decltype(conf)>;
+
+    /**
     @brief The state machine context type.
     */
-    using context_type = typename decltype(conf.context_type)::type;
+    using context_type = typename conf_type::context_type;
 
     static_assert
     (

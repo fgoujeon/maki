@@ -70,16 +70,16 @@ struct submachine_context
     */
     using type = std::conditional_t
     <
-        Def::conf.context_type == type_c<void>,
+        Def::conf.context == type_c<void>,
         typename ParentRegion::parent_sm_type::context_type&,
-        typename decltype(Def::conf.context_type)::type
+        typename decltype(Def::conf.context)::type
     >;
 };
 
 template<class Def>
 struct submachine_context<Def, void>
 {
-    using type = typename decltype(Def::conf.context_type)::type;
+    using type = typename decltype(Def::conf.context)::type;
 };
 
 template

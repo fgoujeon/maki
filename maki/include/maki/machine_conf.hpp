@@ -18,12 +18,14 @@ namespace maki
 
 template
 <
-    class ContextType = type<void>,
+    class ContextTypeHolder = type<void>,
     class OnEventTypeList = type_list<>,
     class TransitionTableTypeList = type_list<>
 >
 struct machine_conf
 {
+    using context_type = typename ContextTypeHolder::type;
+
     /**
     @brief Specifies whether the constructor of @ref machine must call @ref machine::start().
     */
@@ -32,7 +34,7 @@ struct machine_conf
     /**
     @brief Specifies the context type.
     */
-    ContextType context_type; //NOLINT(misc-non-private-member-variables-in-classes)
+    ContextTypeHolder context; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
     @brief Specifies whether @ref machine must call a user-provided
@@ -419,7 +421,7 @@ struct machine_conf
 
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = auto_start; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = context_type; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context = context; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_after_state_transition = has_after_state_transition; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_before_state_transition = has_before_state_transition; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_entry = has_on_entry; \
@@ -437,13 +439,13 @@ struct machine_conf
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return machine_conf \
     < \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_context)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_has_on_event_for)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
     > \
     { \
         MAKI_DETAIL_ARG_auto_start, \
-        MAKI_DETAIL_ARG_context_type, \
+        MAKI_DETAIL_ARG_context, \
         MAKI_DETAIL_ARG_has_after_state_transition, \
         MAKI_DETAIL_ARG_has_before_state_transition, \
         MAKI_DETAIL_ARG_has_on_entry, \
@@ -484,12 +486,12 @@ struct machine_conf
     }
 
     template<class Context>
-    [[nodiscard]] constexpr auto set_context_type() const
+    [[nodiscard]] constexpr auto set_context() const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_context_type type_c<Context>
+#define MAKI_DETAIL_ARG_context type_c<Context>
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_context_type
+#undef MAKI_DETAIL_ARG_context
     }
 
     [[nodiscard]] constexpr auto disable_run_to_completion() const

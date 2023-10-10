@@ -102,7 +102,7 @@ namespace
     {
         static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
-            .set_context_type<context>()
+            .set_context<context>()
         ;
     };
 }

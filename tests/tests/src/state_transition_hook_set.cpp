@@ -59,7 +59,7 @@ namespace
     {
         static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table_0, transition_table_1)
-            .set_context_type<context>()
+            .set_context<context>()
             .enable_before_state_transition()
             .enable_after_state_transition()
             .disable_auto_start()

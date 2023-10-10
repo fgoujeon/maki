@@ -91,7 +91,7 @@ namespace
         {
             static constexpr auto conf = maki::default_submachine_conf
                 .set_transition_tables(on_ns::transition_table)
-                .set_context_type<on_ns::context>()
+                .set_context<on_ns::context>()
                 .enable_on_exit()
             ;
 
@@ -113,7 +113,7 @@ namespace
     {
         static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
-            .set_context_type<context>()
+            .set_context<context>()
         ;
     };
 

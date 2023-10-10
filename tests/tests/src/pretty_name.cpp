@@ -55,7 +55,7 @@ namespace pretty_name_ns
     {
         static constexpr auto conf = maki::default_submachine_conf
             .set_transition_tables(transition_table)
-            .set_context_type<context>()
+            .set_context<context>()
             .enable_pretty_name()
         ;
 

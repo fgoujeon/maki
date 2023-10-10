@@ -59,7 +59,7 @@ namespace
                 maki::empty_transition_table
                     .add_c<states::off1, events::button_press, states::on1>
             )
-            .set_context_type<context>()
+            .set_context<context>()
             .enable_on_exception()
             .enable_before_state_transition()
             .enable_after_state_transition()

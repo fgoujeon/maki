@@ -57,7 +57,7 @@ namespace
     {
         static constexpr auto conf = maki::default_submachine_conf
             .set_transition_tables(transition_table_0_t, transition_table_1_t)
-            .set_context_type<context>()
+            .set_context<context>()
             .enable_pretty_name()
         ;
 

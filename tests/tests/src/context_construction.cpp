@@ -47,7 +47,7 @@ namespace
         {
             static constexpr auto conf = maki::default_machine_conf
                 .set_transition_tables(on_transition_table)
-                .set_context_type<on_context>()
+                .set_context<on_context>()
             ;
         };
     }
@@ -61,7 +61,7 @@ namespace
     {
         static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
-            .set_context_type<context>()
+            .set_context<context>()
         ;
     };
 }

@@ -34,7 +34,7 @@ namespace
             events::alert_button_press
         >;
 
-        return maki::transition_table_c
+        return maki::empty_transition_table
             .add<states::off, any_button_press,           states::on>
             .add<states::on,  events::power_button_press, states::off>
         ;
@@ -42,7 +42,7 @@ namespace
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(make_sm_transition_table())
             .set_context_type<context>()
         ;

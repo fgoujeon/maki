@@ -29,7 +29,7 @@ namespace
 
         struct english
         {
-            static constexpr auto conf = maki::state_conf_c
+            static constexpr auto conf = maki::default_state_conf
                 .enable_on_entry()
                 .enable_on_event_for<events::say_dog>()
                 .enable_on_exit()
@@ -55,7 +55,7 @@ namespace
 
         struct french
         {
-            static constexpr auto conf = maki::state_conf_c
+            static constexpr auto conf = maki::default_state_conf
                 .enable_on_entry()
                 .enable_on_event_for<events::say_dog>()
                 .enable_on_exit()
@@ -82,7 +82,7 @@ namespace
         };
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::empty_transition_table
         .add<states::idle,    events::next_language_request, states::english>
         .add<states::english, events::next_language_request, states::french>
         .add<states::french,  events::next_language_request, states::idle>
@@ -90,7 +90,7 @@ namespace
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
             .set_context_type<context>()
         ;

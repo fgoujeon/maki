@@ -19,12 +19,12 @@ struct some_other_event
 struct yet_another_event{};
 
 //States
-struct state0 { static constexpr auto conf = maki::state_conf_c; };
-struct state1 { static constexpr auto conf = maki::state_conf_c; };
+struct state0 { static constexpr auto conf = maki::default_state_conf; };
+struct state1 { static constexpr auto conf = maki::default_state_conf; };
 //! [short-in-state]
 struct state2
 {
-    static constexpr auto conf = maki::state_conf_c
+    static constexpr auto conf = maki::default_state_conf
         //Require the state machine to call on_entry() on state entry
         .enable_on_entry()
 
@@ -85,7 +85,7 @@ void some_other_action(context& /*ctx*/, const some_other_event& event)
 }
 
 //Transition table
-constexpr auto transition_table = maki::transition_table_c
+constexpr auto transition_table = maki::empty_transition_table
     //   source state, event,             target state, action
     .add<state0,       some_event,        state1,       some_action /*state transition action*/>
     .add<state0,       some_other_event,  maki::null,   some_other_action /*internal transition action*/>
@@ -99,7 +99,7 @@ constexpr auto transition_table = maki::transition_table_c
 struct machine_def
 {
     //The configuration of the state machine
-    static constexpr auto conf = maki::machine_conf_c
+    static constexpr auto conf = maki::default_machine_conf
         .set_transition_tables(transition_table)
         .set_context_type<context>()
     ;

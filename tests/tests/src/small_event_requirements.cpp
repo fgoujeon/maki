@@ -55,7 +55,7 @@ namespace
 
     struct state
     {
-        static constexpr auto conf = maki::state_conf_c;
+        static constexpr auto conf = maki::default_state_conf;
     };
 
     template<class Event>
@@ -64,7 +64,7 @@ namespace
         machine.process_event(Event{});
     };
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::empty_transition_table
         .add<state, event_processing_request<small_event>, maki::null, process_event<small_event>>
         .add<state, event_processing_request<big_event>,   maki::null, process_event<big_event>>
     ;
@@ -72,7 +72,7 @@ namespace
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
             .set_context_type<context>()
             .set_small_event_max_size(SmallEventMaxSize)

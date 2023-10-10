@@ -32,7 +32,7 @@ namespace nullary_member_functions_ns
 
         struct on
         {
-            static constexpr auto conf = maki::state_conf_c
+            static constexpr auto conf = maki::default_state_conf
                 .enable_on_entry()
                 .enable_on_exit()
             ;
@@ -88,7 +88,7 @@ namespace nullary_member_functions_ns
         return true;
     };
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::empty_transition_table
         .add<states::off, events::e1, states::on,  action, guard>
         .add<states::off, events::e2, states::on,  action, guard>
         .add<states::on,  events::e1, states::off, action, guard>
@@ -97,7 +97,7 @@ namespace nullary_member_functions_ns
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
             .set_context_type<context>()
         ;

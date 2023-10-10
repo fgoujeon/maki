@@ -114,7 +114,7 @@ template<class Def, class ParentRegion>
 class submachine
 {
 public:
-    static constexpr auto conf = state_conf_c
+    static constexpr auto conf = default_state_conf
         .enable_on_entry()
         .enable_on_event_for(type_list_c<maki::any>)
         .enable_on_exit()

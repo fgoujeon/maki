@@ -27,7 +27,7 @@ namespace
     bool guard0(){return true;}
     bool guard1(){return true;}
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::empty_transition_table
         .add<state0,    event0, state1>
         .add<state1,    event1, state2, maki::noop, guard0>
         .add<state2,    event2, state3, action0>
@@ -37,7 +37,7 @@ namespace
 
     struct machine_def
     {
-        [[maybe_unused]] static constexpr auto conf = maki::machine_conf_c
+        [[maybe_unused]] static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
             .set_context_type<context>()
         ;

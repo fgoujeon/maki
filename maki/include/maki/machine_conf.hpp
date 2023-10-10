@@ -129,7 +129,7 @@ struct machine_conf
     @code
     struct machine_def
     {
-        static constexpr auto conf = machine_conf_c
+        static constexpr auto conf = default_machine_conf
             .enable_on_entry()
             //...
         ;
@@ -167,7 +167,7 @@ struct machine_conf
     @code
     struct machine_def
     {
-        static constexpr auto conf = machine_conf_c
+        static constexpr auto conf = default_machine_conf
             .enable_on_event_auto()
             //...
         ;
@@ -211,7 +211,7 @@ struct machine_conf
     @code
     struct machine_def
     {
-        static constexpr auto conf = machine_conf_c
+        static constexpr auto conf = default_machine_conf
             .enable_on_event_for<event_type_0, event_type_1>()
             //...
         ;
@@ -255,7 +255,7 @@ struct machine_conf
     @code
     struct machine_def
     {
-        static constexpr auto conf = machine_conf_c
+        static constexpr auto conf = default_machine_conf
             .enable_on_exception()
             //...
         ;
@@ -286,7 +286,7 @@ struct machine_conf
     @code
     struct machine_def
     {
-        static constexpr auto conf = machine_conf_c
+        static constexpr auto conf = default_machine_conf
             .enable_on_exit()
             //...
         ;
@@ -332,7 +332,7 @@ struct machine_conf
     @code
     struct machine_def
     {
-        static constexpr auto conf = machine_conf_c
+        static constexpr auto conf = default_machine_conf
             .enable_on_unprocessed()
             //...
         ;
@@ -371,7 +371,7 @@ struct machine_conf
     @code
     struct machine_def
     {
-        static constexpr auto conf = machine_conf_c
+        static constexpr auto conf = default_machine_conf
             .enable_pretty_name()
             //...
         ;
@@ -586,7 +586,7 @@ struct machine_conf
 #undef MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 };
 
-inline constexpr auto machine_conf_c = machine_conf<>{};
+inline constexpr auto default_machine_conf = machine_conf<>{};
 
 namespace detail
 {

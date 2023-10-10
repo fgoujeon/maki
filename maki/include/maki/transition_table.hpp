@@ -26,11 +26,11 @@ constexpr auto transition_table = maki::transition_table
 >{};
 ```
 
-… but using the @ref transition_table_c variable template and the
+… but using the @ref empty_transition_table variable template and the
 @ref transition_table::add member type template is usually the preferred,
 more concise way to do so:
 ```cpp
-constexpr auto transition_table = maki::transition_table_c
+constexpr auto transition_table = maki::empty_transition_table
     .add<off, button_press, on,  turn_light_on, has_enough_power>
     .add<on,  button_press, off, turn_light_off>
 ;
@@ -127,7 +127,7 @@ struct transition_table
 
 See @ref transition_table for a usage.
 */
-inline constexpr auto transition_table_c = transition_table<>{};
+inline constexpr auto empty_transition_table = transition_table<>{};
 
 /**
 @}

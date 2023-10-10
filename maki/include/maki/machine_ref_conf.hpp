@@ -26,7 +26,7 @@ struct machine_ref_conf
     }
 };
 
-inline constexpr auto machine_ref_conf_c = machine_ref_conf<>{};
+inline constexpr auto default_machine_ref_conf = machine_ref_conf<>{};
 
 } //namespace
 

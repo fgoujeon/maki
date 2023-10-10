@@ -33,7 +33,7 @@ namespace
         EMPTY_STATE(on0);
         struct on1
         {
-            static constexpr auto conf = maki::state_conf_c
+            static constexpr auto conf = maki::default_state_conf
                 .enable_on_event_for<events::exception_request>()
             ;
 
@@ -51,12 +51,12 @@ namespace
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables
             (
-                maki::transition_table_c
+                maki::empty_transition_table
                     .add<states::off0, events::button_press, states::on0>,
-                maki::transition_table_c
+                maki::empty_transition_table
                     .add<states::off1, events::button_press, states::on1>
             )
             .set_context_type<context>()

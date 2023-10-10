@@ -53,7 +53,7 @@ The expected behavior is:
 
 This behavior can be expressed with the following transition table:
 ```c++
-constexpr auto transition_table = maki::transition_table_c
+constexpr auto transition_table = maki::empty_transition_table
     //   source_state,   event,       target_state,   action,           guard
     .add<off,            button_push, emitting_white, turn_light_white>
     .add<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
@@ -148,7 +148,7 @@ namespace states
         /*
         A state class must define a conf variable.
         */
-        static constexpr auto conf = maki::state_conf_c
+        static constexpr auto conf = maki::default_state_conf
             /*
             With this option, we require the state machine to call an on_entry()
             function whenever it enters our state.
@@ -209,10 +209,10 @@ namespace states
     /*
     These are minimal valid state classes.
     */
-    struct emitting_white { static constexpr auto conf = maki::state_conf_c; };
-    struct emitting_red { static constexpr auto conf = maki::state_conf_c; };
-    struct emitting_green { static constexpr auto conf = maki::state_conf_c; };
-    struct emitting_blue { static constexpr auto conf = maki::state_conf_c; };
+    struct emitting_white { static constexpr auto conf = maki::default_state_conf; };
+    struct emitting_red { static constexpr auto conf = maki::default_state_conf; };
+    struct emitting_green { static constexpr auto conf = maki::default_state_conf; };
+    struct emitting_blue { static constexpr auto conf = maki::default_state_conf; };
 }
 
 /*
@@ -286,7 +286,7 @@ When a match is found, Maki:
 The initial active state of the state machine is the first state encountered in
 the transition table ('off', is our case).
 */
-constexpr auto transition_table = maki::transition_table_c
+constexpr auto transition_table = maki::empty_transition_table
     //   source_state,   event,       target_state,   action,           guard
     .add<off,            button_push, emitting_white, turn_light_white>
     .add<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
@@ -302,7 +302,7 @@ the transition table, but we can put many options in it.
 */
 struct machine_def
 {
-    static constexpr auto conf = maki::machine_conf_c
+    static constexpr auto conf = maki::default_machine_conf
         .set_transition_tables(transition_table)
         .set_context_type<context>()
     ;

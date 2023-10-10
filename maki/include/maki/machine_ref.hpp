@@ -130,7 +130,7 @@ private:
 template<class... Events>
 struct machine_ref_e_def
 {
-    static constexpr auto conf = machine_ref_conf_c
+    static constexpr auto conf = default_machine_ref_conf
         .enable_on_event_for<Events...>()
     ;
 };

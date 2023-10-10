@@ -35,7 +35,7 @@ namespace
 
         struct benchmarking
         {
-            static constexpr auto conf = maki::state_conf_c
+            static constexpr auto conf = maki::default_state_conf
                 .enable_on_event_for<events::internal_transition>()
             ;
 
@@ -48,7 +48,7 @@ namespace
         };
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::empty_transition_table
         .add<states::state0, events::next_state, states::state1>
         .add<states::state1, events::next_state, states::state2>
         .add<states::state2, events::next_state, states::state3>
@@ -63,7 +63,7 @@ namespace
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
             .set_context_type<context>()
             .disable_run_to_completion()

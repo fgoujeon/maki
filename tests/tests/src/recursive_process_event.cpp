@@ -28,7 +28,7 @@ namespace
     {
         struct s0
         {
-            static constexpr auto conf = maki::state_conf_c
+            static constexpr auto conf = maki::default_state_conf
                 .enable_on_entry()
                 .enable_on_exit()
             ;
@@ -48,7 +48,7 @@ namespace
 
         struct s1
         {
-            static constexpr auto conf = maki::state_conf_c
+            static constexpr auto conf = maki::default_state_conf
                 .enable_on_entry()
                 .enable_on_exit()
             ;
@@ -68,7 +68,7 @@ namespace
 
         struct s2
         {
-            static constexpr auto conf = maki::state_conf_c
+            static constexpr auto conf = maki::default_state_conf
                 .enable_on_entry()
                 .enable_on_exit()
             ;
@@ -110,7 +110,7 @@ namespace
         };
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::empty_transition_table
         .add<states::s0, events::s0_to_s1_request, states::s1, actions::s0_to_s1>
         .add<states::s1, events::s1_to_s2_request, states::s2, actions::s1_to_s2>
         .add<states::s2, events::s2_to_s0_request, states::s0>
@@ -118,7 +118,7 @@ namespace
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
             .set_context_type<context>()
         ;

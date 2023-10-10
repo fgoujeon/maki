@@ -121,7 +121,7 @@ struct submachine_conf
 #undef MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
 };
 
-inline constexpr auto submachine_conf_c = submachine_conf<>{};
+inline constexpr auto default_submachine_conf = submachine_conf<>{};
 
 namespace detail
 {

@@ -35,7 +35,7 @@ namespace
     {
         struct off
         {
-            static constexpr auto conf = maki::state_conf_c
+            static constexpr auto conf = maki::default_state_conf
                 .enable_on_entry()
             ;
 
@@ -49,7 +49,7 @@ namespace
 
         struct emitting_red
         {
-            static constexpr auto conf = maki::state_conf_c
+            static constexpr auto conf = maki::default_state_conf
                 .enable_on_entry()
             ;
 
@@ -63,7 +63,7 @@ namespace
 
         struct emitting_green
         {
-            static constexpr auto conf = maki::state_conf_c
+            static constexpr auto conf = maki::default_state_conf
                 .enable_on_entry()
             ;
 
@@ -77,7 +77,7 @@ namespace
 
         struct emitting_blue
         {
-            static constexpr auto conf = maki::state_conf_c
+            static constexpr auto conf = maki::default_state_conf
                 .enable_on_entry()
             ;
 
@@ -89,7 +89,7 @@ namespace
             context& ctx;
         };
 
-        constexpr auto on_transition_table = maki::transition_table_c
+        constexpr auto on_transition_table = maki::empty_transition_table
             .add<states::emitting_red,   events::color_button_press, states::emitting_green>
             .add<states::emitting_green, events::color_button_press, states::emitting_blue>
             .add<states::emitting_blue,  events::color_button_press, states::emitting_red>
@@ -97,7 +97,7 @@ namespace
 
         struct on
         {
-            static constexpr auto conf = maki::submachine_conf_c
+            static constexpr auto conf = maki::default_submachine_conf
                 .set_transition_tables(on_transition_table)
             ;
 
@@ -105,13 +105,13 @@ namespace
         };
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::empty_transition_table
         .add<states::on, events::power_button_press, states::off>
     ;
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
             .set_context_type<context>()
         ;

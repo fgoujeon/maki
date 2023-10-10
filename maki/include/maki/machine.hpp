@@ -67,7 +67,7 @@ public:
     static_assert
     (
         detail::is_root_sm_conf_v<std::decay_t<decltype(conf)>>,
-        "The root state machine definition must include a static constexpr auto conf = machine_conf_c.[...];"
+        "The root state machine definition must include a 'static constexpr auto conf' of type machine_conf"
     );
 
     /**

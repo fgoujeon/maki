@@ -29,7 +29,7 @@ namespace
         EMPTY_STATE(off);
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::empty_transition_table
         .add<states::off, events::button_press, states::on>
         .add<states::on,  events::button_press, states::off>
     ;
@@ -40,7 +40,7 @@ namespace
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
             .set_context_type<context>()
             .enable_before_state_transition()

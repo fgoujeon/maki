@@ -25,7 +25,7 @@ namespace
         EMPTY_STATE(s4);
     };
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::empty_transition_table
         .add<states::s0, events::go_on, states::s1>
         .add<states::s1, maki::null,    states::s2>
         .add<states::s2, events::go_on, states::s3>
@@ -35,7 +35,7 @@ namespace
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
             .set_context_type<context>()
         ;

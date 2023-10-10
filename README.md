@@ -54,13 +54,13 @@ The expected behavior is:
 This behavior can be expressed with the following transition table:
 ```c++
 constexpr auto transition_table = maki::empty_transition_table
-    //   source_state,   event,       target_state,   action,           guard
-    .add<off,            button_push, emitting_white, turn_light_white>
-    .add<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
-    .add<emitting_red,   button_push, emitting_green, turn_light_green, is_short_push>
-    .add<emitting_green, button_push, emitting_blue,  turn_light_blue,  is_short_push>
-    .add<emitting_blue,  button_push, emitting_white, turn_light_white, is_short_push>
-    .add<any_but<off>,   button_push, off,            turn_light_off,   is_long_push>
+    //     source_state,   event,       target_state,   action,           guard
+    .add_c<off,            button_push, emitting_white, turn_light_white>
+    .add_c<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
+    .add_c<emitting_red,   button_push, emitting_green, turn_light_green, is_short_push>
+    .add_c<emitting_green, button_push, emitting_blue,  turn_light_blue,  is_short_push>
+    .add_c<emitting_blue,  button_push, emitting_white, turn_light_white, is_short_push>
+    .add_c<any_but<off>,   button_push, off,            turn_light_off,   is_long_push>
 ;
 ```
 
@@ -287,13 +287,13 @@ The initial active state of the state machine is the first state encountered in
 the transition table ('off', is our case).
 */
 constexpr auto transition_table = maki::empty_transition_table
-    //   source_state,   event,       target_state,   action,           guard
-    .add<off,            button_push, emitting_white, turn_light_white>
-    .add<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
-    .add<emitting_red,   button_push, emitting_green, turn_light_green, is_short_push>
-    .add<emitting_green, button_push, emitting_blue,  turn_light_blue,  is_short_push>
-    .add<emitting_blue,  button_push, emitting_white, turn_light_white, is_short_push>
-    .add<any_but<off>,   button_push, off,            turn_light_off,   is_long_push>
+    //     source_state,   event,       target_state,   action,           guard
+    .add_c<off,            button_push, emitting_white, turn_light_white>
+    .add_c<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
+    .add_c<emitting_red,   button_push, emitting_green, turn_light_green, is_short_push>
+    .add_c<emitting_green, button_push, emitting_blue,  turn_light_blue,  is_short_push>
+    .add_c<emitting_blue,  button_push, emitting_white, turn_light_white, is_short_push>
+    .add_c<any_but<off>,   button_push, off,            turn_light_off,   is_long_push>
 ;
 
 /*

@@ -86,12 +86,12 @@ void some_other_action(context& /*ctx*/, const some_other_event& event)
 
 //Transition table
 constexpr auto transition_table = maki::empty_transition_table
-    //   source state, event,             target state, action
-    .add<state0,       some_event,        state1,       some_action /*state transition action*/>
-    .add<state0,       some_other_event,  maki::null,   some_other_action /*internal transition action*/>
-    .add<state0,       yet_another_event, state2>
-    .add<state1,       yet_another_event, state2>
-    .add<state2,       yet_another_event, state0>
+    //     source state, event,             target state, action
+    .add_c<state0,       some_event,        state1,       some_action /*state transition action*/>
+    .add_c<state0,       some_other_event,  maki::null,   some_other_action /*internal transition action*/>
+    .add_c<state0,       yet_another_event, state2>
+    .add_c<state1,       yet_another_event, state2>
+    .add_c<state2,       yet_another_event, state0>
 ;
 //! [short-in-transition]
 

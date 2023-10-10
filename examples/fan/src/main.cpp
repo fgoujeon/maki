@@ -93,14 +93,14 @@ bool is_speed_high(context& /*ctx*/, const memory_read& event)
 //Transition table
 //! [transition-table]
 constexpr auto transition_table = maki::empty_transition_table
-    //   source state,   event,              target state,  action,      guard
-    .add<reading_memory, memory_read,        spinning_low,  maki::noop, is_speed_low>
-    .add<reading_memory, memory_read,        spinning_med,  maki::noop, is_speed_med>
-    .add<reading_memory, memory_read,        spinning_high, maki::noop, is_speed_high>
-    .add<spinning_low,   plus_button_press,  spinning_med,  maki::noop>
-    .add<spinning_med,   plus_button_press,  spinning_high, maki::noop>
-    .add<spinning_med,   minus_button_press, spinning_low,  maki::noop>
-    .add<spinning_high,  minus_button_press, spinning_med,  maki::noop>
+    //     source state,   event,              target state,  action,     guard
+    .add_c<reading_memory, memory_read,        spinning_low,  maki::noop, is_speed_low>
+    .add_c<reading_memory, memory_read,        spinning_med,  maki::noop, is_speed_med>
+    .add_c<reading_memory, memory_read,        spinning_high, maki::noop, is_speed_high>
+    .add_c<spinning_low,   plus_button_press,  spinning_med,  maki::noop>
+    .add_c<spinning_med,   plus_button_press,  spinning_high, maki::noop>
+    .add_c<spinning_med,   minus_button_press, spinning_low,  maki::noop>
+    .add_c<spinning_high,  minus_button_press, spinning_med,  maki::noop>
 ;
 //! [transition-table]
 

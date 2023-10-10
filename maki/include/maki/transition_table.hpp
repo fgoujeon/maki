@@ -27,12 +27,12 @@ constexpr auto transition_table = maki::transition_table
 ```
 
 … but using the @ref empty_transition_table variable template and the
-@ref transition_table::add member type template is usually the preferred,
+@ref transition_table::add_c member type template is usually the preferred,
 more concise way to do so:
 ```cpp
 constexpr auto transition_table = maki::empty_transition_table
-    .add<off, button_press, on,  turn_light_on, has_enough_power>
-    .add<on,  button_press, off, turn_light_off>
+    .add_c<off, button_press, on,  turn_light_on, has_enough_power>
+    .add_c<on,  button_press, off, turn_light_off>
 ;
 ```
 
@@ -115,7 +115,7 @@ struct transition_table
         const auto& Action = noop,
         const auto& Guard = yes
     >
-    static constexpr auto add = transition_table
+    static constexpr auto add_c = transition_table
     <
         Transitions...,
         transition<SourceStatePattern, EventPattern, TargetState, Action, Guard>

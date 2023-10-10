@@ -83,9 +83,9 @@ namespace
     }
 
     constexpr auto transition_table = maki::empty_transition_table
-        .add<states::idle,    events::next_language_request, states::english>
-        .add<states::english, events::next_language_request, states::french>
-        .add<states::french,  events::next_language_request, states::idle>
+        .add_c<states::idle,    events::next_language_request, states::english>
+        .add_c<states::english, events::next_language_request, states::french>
+        .add_c<states::french,  events::next_language_request, states::idle>
     ;
 
     struct machine_def

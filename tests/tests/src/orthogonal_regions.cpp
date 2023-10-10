@@ -55,9 +55,9 @@ namespace
             .set_transition_tables
             (
                 maki::empty_transition_table
-                    .add<states::off0, events::button_press, states::on0>,
+                    .add_c<states::off0, events::button_press, states::on0>,
                 maki::empty_transition_table
-                    .add<states::off1, events::button_press, states::on1>
+                    .add_c<states::off1, events::button_press, states::on1>
             )
             .set_context_type<context>()
             .enable_on_exception()

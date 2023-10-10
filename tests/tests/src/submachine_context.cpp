@@ -58,7 +58,7 @@ namespace
                 EMPTY_STATE(emitting_hot_red);
 
                 constexpr auto transition_table = maki::empty_transition_table
-                    .add<emitting_cold_red, events::color_button_press, emitting_hot_red>
+                    .add_c<emitting_cold_red, events::color_button_press, emitting_hot_red>
                 ;
             }
 
@@ -81,9 +81,9 @@ namespace
             EMPTY_STATE(emitting_blue);
 
             constexpr auto transition_table = maki::empty_transition_table
-                .add<emitting_red,   events::color_button_press, emitting_green>
-                .add<emitting_green, events::color_button_press, emitting_blue>
-                .add<emitting_blue,  events::color_button_press, emitting_red>
+                .add_c<emitting_red,   events::color_button_press, emitting_green>
+                .add_c<emitting_green, events::color_button_press, emitting_blue>
+                .add_c<emitting_blue,  events::color_button_press, emitting_red>
             ;
         }
 
@@ -105,8 +105,8 @@ namespace
     }
 
     constexpr auto transition_table = maki::empty_transition_table
-        .add<states::off, events::power_button_press, states::on>
-        .add<states::on,  events::power_button_press, states::off>
+        .add_c<states::off, events::power_button_press, states::on>
+        .add_c<states::on,  events::power_button_press, states::off>
     ;
 
     struct machine_def

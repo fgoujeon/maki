@@ -26,8 +26,8 @@ namespace
     }
 
     constexpr auto transition_table = maki::empty_transition_table
-        .add<states::off, events::on_button_press,  states::on>
-        .add<states::on,  events::off_button_press, states::off>
+        .add_c<states::off, events::on_button_press,  states::on>
+        .add_c<states::on,  events::off_button_press, states::off>
     ;
 
     struct machine_def

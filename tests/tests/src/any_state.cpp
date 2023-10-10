@@ -26,10 +26,10 @@ namespace
     }
 
     constexpr auto transition_table = maki::empty_transition_table
-        .add<states::idle,    events::start_button_press, states::running>
-        .add<states::running, events::stop_button_press,  states::idle>
-        .add<states::failed,  events::stop_button_press,  states::idle>
-        .add<maki::any,       events::error,              states::failed>
+        .add_c<states::idle,    events::start_button_press, states::running>
+        .add_c<states::running, events::stop_button_press,  states::idle>
+        .add_c<states::failed,  events::stop_button_press,  states::idle>
+        .add_c<maki::any,       events::error,              states::failed>
     ;
 
     struct machine_def

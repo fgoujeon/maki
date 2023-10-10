@@ -70,15 +70,15 @@ namespace
     }
 
     constexpr auto transition_table = maki::empty_transition_table
-        .add<states::idle, events::start, states::state0, maki::noop, guards::can_access_state0>
-        .add<states::idle, events::start, states::state1, maki::noop, guards::can_access_state1>
-        .add<states::idle, events::start, states::state2, maki::noop, guards::can_access_state2>
-        .add<states::idle, events::start, states::state3, maki::noop, !maki::guard<guards::cant_access_state3>>
+        .add_c<states::idle, events::start, states::state0, maki::noop, guards::can_access_state0>
+        .add_c<states::idle, events::start, states::state1, maki::noop, guards::can_access_state1>
+        .add_c<states::idle, events::start, states::state2, maki::noop, guards::can_access_state2>
+        .add_c<states::idle, events::start, states::state3, maki::noop, !maki::guard<guards::cant_access_state3>>
 
-        .add<states::state0, events::stop, states::idle>
-        .add<states::state1, events::stop, states::idle>
-        .add<states::state2, events::stop, states::idle>
-        .add<states::state3, events::stop, states::idle>
+        .add_c<states::state0, events::stop, states::idle>
+        .add_c<states::state1, events::stop, states::idle>
+        .add_c<states::state2, events::stop, states::idle>
+        .add_c<states::state3, events::stop, states::idle>
     ;
 
     struct machine_def

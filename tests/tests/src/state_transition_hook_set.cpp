@@ -30,7 +30,7 @@ namespace
         EMPTY_STATE(on0);
 
         constexpr auto on1_transition_table = maki::empty_transition_table
-            .add<states::off0, events::button_press, states::on0>
+            .add_c<states::off0, events::button_press, states::on0>
         ;
 
         struct on1
@@ -48,11 +48,11 @@ namespace
     }
 
     constexpr auto transition_table_0 = maki::empty_transition_table
-        .add<states::off0, events::button_press, states::on0>
+        .add_c<states::off0, events::button_press, states::on0>
     ;
 
     constexpr auto transition_table_1 = maki::empty_transition_table
-        .add<states::off1, events::button_press, states::on1>
+        .add_c<states::off1, events::button_press, states::on1>
     ;
 
     struct machine_def

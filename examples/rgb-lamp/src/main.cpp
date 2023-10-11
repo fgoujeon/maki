@@ -199,7 +199,7 @@ namespace guards
     }
 
     //We can use maki::guard and boolean operators to compose guards.
-    constexpr auto is_short_push = !maki::guard<is_long_push>;
+    constexpr auto is_short_push = !maki::guard_c<is_long_push>;
 }
 
 using namespace states;

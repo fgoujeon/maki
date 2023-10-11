@@ -26,16 +26,16 @@ namespace detail
 }
 
 template<detail::guard_operator Operator, const auto& Operand, const auto& Operand2>
-struct guard_t;
+struct guard;
 
 template<const auto& Guard>
-inline constexpr auto guard = guard_t<detail::guard_operator::none, Guard, Guard>{};
+inline constexpr auto guard_c = guard<detail::guard_operator::none, Guard, Guard>{};
 
 template<detail::guard_operator Operator, const auto& Operand, const auto& Operand2>
-inline constexpr auto composable_guard = guard_t<Operator, Operand, Operand2>{};
+inline constexpr auto composable_guard_c = guard<Operator, Operand, Operand2>{};
 
 template<detail::guard_operator Operator, const auto& Operand, const auto& Operand2>
-struct guard_t
+struct guard
 {
     template<class Sm, class Context, class Event>
     bool operator()(Sm& mach, Context& ctx, const Event& event) const
@@ -68,14 +68,14 @@ struct guard_t
     >
     constexpr const auto& operator&&
     (
-        guard_t<RhsOperator, RhsOperand, RhsOperand2> /*rhs*/
+        guard<RhsOperator, RhsOperand, RhsOperand2> /*rhs*/
     ) const
     {
-        return composable_guard
+        return composable_guard_c
         <
             detail::guard_operator::and_,
-            composable_guard<Operator, Operand, Operand2>,
-            composable_guard<RhsOperator, RhsOperand, RhsOperand2>
+            composable_guard_c<Operator, Operand, Operand2>,
+            composable_guard_c<RhsOperator, RhsOperand, RhsOperand2>
         >;
     }
 
@@ -85,14 +85,14 @@ struct guard_t
     >
     constexpr const auto& operator||
     (
-        guard_t<RhsOperator, RhsOperand, RhsOperand2> /*rhs*/
+        guard<RhsOperator, RhsOperand, RhsOperand2> /*rhs*/
     ) const
     {
-        return composable_guard
+        return composable_guard_c
         <
             detail::guard_operator::or_,
-            composable_guard<Operator, Operand, Operand2>,
-            composable_guard<RhsOperator, RhsOperand, RhsOperand2>
+            composable_guard_c<Operator, Operand, Operand2>,
+            composable_guard_c<RhsOperator, RhsOperand, RhsOperand2>
         >;
     }
 
@@ -102,24 +102,24 @@ struct guard_t
     >
     constexpr const auto& operator!=
     (
-        guard_t<RhsOperator, RhsOperand, RhsOperand2> /*rhs*/
+        guard<RhsOperator, RhsOperand, RhsOperand2> /*rhs*/
     ) const
     {
-        return composable_guard
+        return composable_guard_c
         <
             detail::guard_operator::xor_,
-            composable_guard<Operator, Operand, Operand2>,
-            composable_guard<RhsOperator, RhsOperand, RhsOperand2>
+            composable_guard_c<Operator, Operand, Operand2>,
+            composable_guard_c<RhsOperator, RhsOperand, RhsOperand2>
         >;
     }
 
     constexpr const auto& operator!() const
     {
-        return composable_guard
+        return composable_guard_c
         <
             detail::guard_operator::not_,
-            composable_guard<Operator, Operand, Operand2>,
-            composable_guard<Operator, Operand, Operand2>
+            composable_guard_c<Operator, Operand, Operand2>,
+            composable_guard_c<Operator, Operand, Operand2>
         >;
     }
 };

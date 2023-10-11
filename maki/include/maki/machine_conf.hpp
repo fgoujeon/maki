@@ -4,6 +4,11 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
+/**
+@file
+@brief Defines the maki::machine_conf struct template
+*/
+
 #ifndef MAKI_MACHINE_CONF_HPP
 #define MAKI_MACHINE_CONF_HPP
 
@@ -16,6 +21,9 @@
 namespace maki
 {
 
+/**
+@brief @ref machine configuration
+*/
 template
 <
     class ContextTypeHolder = type<void>,

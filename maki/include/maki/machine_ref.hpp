@@ -4,6 +4,11 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
+/**
+@file
+@brief Defines the maki::machine_ref class template
+*/
+
 #ifndef MAKI_MACHINE_REF_HPP
 #define MAKI_MACHINE_REF_HPP
 
@@ -77,9 +82,9 @@ namespace detail
     };
 }
 
-/*
-machine_ref is a type-erasing container for a reference to a machine of any
-type.
+/**
+@brief A type-erasing container for a reference to a @ref machine of any type.
+
 It exposes the process_event() member function of the held machine.
 */
 template<class Def>
@@ -135,6 +140,10 @@ struct machine_ref_e_def
     ;
 };
 
+/**
+@brief A convenient alias for @ref machine_ref that only takes a list of event
+types
+*/
 template<class... Events>
 using machine_ref_e = machine_ref<machine_ref_e_def<Events...>>;
 

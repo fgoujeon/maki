@@ -4,6 +4,11 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
+/**
+@file
+@brief Defines the maki::pretty_name function template
+*/
+
 #ifndef MAKI_PRETTY_NAME_HPP
 #define MAKI_PRETTY_NAME_HPP
 

@@ -4,6 +4,12 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
+/**
+@file
+@brief Forward-declares the maki::machine class template.
+Useful for forward-declaring a user-defined machine.
+*/
+
 #ifndef MAKI_MACHINE_FWD_HPP
 #define MAKI_MACHINE_FWD_HPP
 

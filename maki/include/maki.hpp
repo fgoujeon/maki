@@ -4,6 +4,16 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
+/**
+@dir maki
+@brief The Maki library
+*/
+
+/**
+@namespace maki
+@brief The Maki library
+*/
+
 #include "maki/events.hpp"
 #include "maki/guard.hpp"
 #include "maki/machine.hpp"

@@ -4,11 +4,19 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
+/**
+@file
+@brief Defines the maki::events namespace and its types
+*/
+
 #ifndef MAKI_EVENTS_HPP
 #define MAKI_EVENTS_HPP
 
 #include <exception>
 
+/**
+@brief Some predefined events emitted by Maki itself
+*/
 namespace maki::events
 {
 

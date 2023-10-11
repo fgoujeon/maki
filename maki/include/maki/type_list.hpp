@@ -4,15 +4,26 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
+/**
+@file
+@brief Defines the maki::type_list struct template
+*/
+
 #ifndef MAKI_TYPE_LIST_HPP
 #define MAKI_TYPE_LIST_HPP
 
 namespace maki
 {
 
+/**
+@brief A type list holder
+*/
 template<class... Ts>
 struct type_list{};
 
+/**
+@brief A convenient variable template for @ref type_list
+*/
 template<class... Ts>
 inline constexpr auto type_list_c = type_list<Ts...>{};
 

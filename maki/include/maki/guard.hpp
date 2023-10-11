@@ -4,6 +4,11 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
+/**
+@file
+@brief Defines the maki::guard class template
+*/
+
 #ifndef MAKI_GUARD_HPP
 #define MAKI_GUARD_HPP
 
@@ -25,14 +30,24 @@ namespace detail
     };
 }
 
+/**
+@brief A guard wrapper that allows boolean composition
+*/
 template<detail::guard_operator Operator, const auto& Operand, const auto& Operand2>
 struct guard;
 
+namespace detail
+{
+    template<detail::guard_operator Operator, const auto& Operand, const auto& Operand2>
+    inline constexpr auto composable_guard_c = guard<Operator, Operand, Operand2>{};
+}
+
+/**
+@related guard
+@brief A convenient variable template for `maki::guard`
+*/
 template<const auto& Guard>
 inline constexpr auto guard_c = guard<detail::guard_operator::none, Guard, Guard>{};
-
-template<detail::guard_operator Operator, const auto& Operand, const auto& Operand2>
-inline constexpr auto composable_guard_c = guard<Operator, Operand, Operand2>{};
 
 template<detail::guard_operator Operator, const auto& Operand, const auto& Operand2>
 struct guard
@@ -71,11 +86,11 @@ struct guard
         guard<RhsOperator, RhsOperand, RhsOperand2> /*rhs*/
     ) const
     {
-        return composable_guard_c
+        return detail::composable_guard_c
         <
             detail::guard_operator::and_,
-            composable_guard_c<Operator, Operand, Operand2>,
-            composable_guard_c<RhsOperator, RhsOperand, RhsOperand2>
+            detail::composable_guard_c<Operator, Operand, Operand2>,
+            detail::composable_guard_c<RhsOperator, RhsOperand, RhsOperand2>
         >;
     }
 
@@ -88,11 +103,11 @@ struct guard
         guard<RhsOperator, RhsOperand, RhsOperand2> /*rhs*/
     ) const
     {
-        return composable_guard_c
+        return detail::composable_guard_c
         <
             detail::guard_operator::or_,
-            composable_guard_c<Operator, Operand, Operand2>,
-            composable_guard_c<RhsOperator, RhsOperand, RhsOperand2>
+            detail::composable_guard_c<Operator, Operand, Operand2>,
+            detail::composable_guard_c<RhsOperator, RhsOperand, RhsOperand2>
         >;
     }
 
@@ -105,21 +120,21 @@ struct guard
         guard<RhsOperator, RhsOperand, RhsOperand2> /*rhs*/
     ) const
     {
-        return composable_guard_c
+        return detail::composable_guard_c
         <
             detail::guard_operator::xor_,
-            composable_guard_c<Operator, Operand, Operand2>,
-            composable_guard_c<RhsOperator, RhsOperand, RhsOperand2>
+            detail::composable_guard_c<Operator, Operand, Operand2>,
+            detail::composable_guard_c<RhsOperator, RhsOperand, RhsOperand2>
         >;
     }
 
     constexpr const auto& operator!() const
     {
-        return composable_guard_c
+        return detail::composable_guard_c
         <
             detail::guard_operator::not_,
-            composable_guard_c<Operator, Operand, Operand2>,
-            composable_guard_c<Operator, Operand, Operand2>
+            detail::composable_guard_c<Operator, Operand, Operand2>,
+            detail::composable_guard_c<Operator, Operand, Operand2>
         >;
     }
 };

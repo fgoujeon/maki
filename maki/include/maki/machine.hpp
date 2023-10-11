@@ -4,6 +4,11 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
+/**
+@file
+@brief Defines the maki::machine class template
+*/
+
 #ifndef MAKI_MACHINE_HPP
 #define MAKI_MACHINE_HPP
 

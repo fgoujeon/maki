@@ -4,6 +4,11 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
+/**
+@file
+@brief Defines the maki::state_conf struct template
+*/
+
 #ifndef MAKI_STATE_CONF_HPP
 #define MAKI_STATE_CONF_HPP
 
@@ -20,6 +25,9 @@ namespace detail
     constexpr auto make_state_conf(const Args&... args);
 }
 
+/**
+@brief State configuration
+*/
 template<class OnEventTypeList = type_list<>>
 struct state_conf
 {

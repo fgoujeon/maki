@@ -4,6 +4,11 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
+/**
+@file
+@brief Defines the type pattern struct templates
+*/
+
 #ifndef MAKI_TYPE_PATTERNS_HPP
 #define MAKI_TYPE_PATTERNS_HPP
 

@@ -1,5 +1,5 @@
-``machine_conf`` struct template
-================================
+``machine_conf``
+================
 
 .. doxygenstruct:: maki::machine_conf
    :members:

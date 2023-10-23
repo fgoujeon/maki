@@ -1,5 +1,5 @@
-``guard`` struct template
-=========================
+``guard``
+=========
 
 .. doxygenstruct:: maki::guard
    :members:

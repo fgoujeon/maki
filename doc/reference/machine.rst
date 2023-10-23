@@ -1,5 +1,5 @@
-``machine`` class template
-==========================
+``machine``
+===========
 
 .. doxygenclass:: maki::machine
    :members:

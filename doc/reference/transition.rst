@@ -1,5 +1,5 @@
-``transition`` struct template
-==============================
+``transition``
+==============
 
 .. doxygenstruct:: maki::transition
    :members:

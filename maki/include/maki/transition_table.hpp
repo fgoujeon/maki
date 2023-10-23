@@ -31,7 +31,7 @@ constexpr auto transition_table = maki::transition_table
 >{};
 ```
 
-… but using the @ref empty_transition_table variable template and the
+… but using the empty_transition_table constant and the
 @ref transition_table::add_c member type template is usually the preferred,
 more concise way to do so:
 ```cpp
@@ -128,6 +128,7 @@ struct transition_table
 };
 
 /**
+@related transition_table
 @brief A constexpr instance of an empty transition_table
 
 See @ref transition_table for a usage.

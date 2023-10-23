@@ -1,5 +1,5 @@
-``machine_ref`` class template
-==============================
+``machine_ref``
+===============
 
 .. doxygenclass:: maki::machine_ref
    :members:

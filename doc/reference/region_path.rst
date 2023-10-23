@@ -1,5 +1,5 @@
-``region_path`` struct template
-===============================
+``region_path``
+===============
 
 .. doxygenstruct:: maki::region_path
    :members:

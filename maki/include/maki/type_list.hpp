@@ -22,6 +22,7 @@ template<class... Ts>
 struct type_list{};
 
 /**
+@related type_list
 @brief A convenient variable template for @ref type_list
 */
 template<class... Ts>

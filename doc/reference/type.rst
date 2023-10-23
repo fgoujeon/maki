@@ -1,5 +1,5 @@
-``type`` struct template
-========================
+``type``
+========
 
 .. doxygenstruct:: maki::type
    :members:

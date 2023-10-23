@@ -111,6 +111,9 @@ struct state_conf
 #undef MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
 };
 
+/**
+@related state_conf
+*/
 inline constexpr auto default_state_conf = state_conf<>{};
 
 namespace detail

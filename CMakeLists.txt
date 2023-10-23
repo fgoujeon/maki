@@ -14,11 +14,12 @@ option(MAKI_BUILD_EXAMPLES "Build example executables" OFF)
 option(MAKI_BUILD_TESTS "Build test executable" OFF)
 option(MAKI_FORCE_CATCH2_V2 "Force version 2 of catch2" OFF)
 
+add_library(maki INTERFACE)
+target_include_directories(maki INTERFACE include)
+
 if(MAKI_BUILD_TESTS)
     find_package(Catch2 REQUIRED)
 endif()
-
-add_subdirectory(maki)
 
 if(MAKI_BUILD_EXAMPLES)
     add_subdirectory(examples)

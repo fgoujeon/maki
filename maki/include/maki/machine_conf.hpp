@@ -51,7 +51,7 @@ struct machine_conf
 
     The following expression must be valid, for every possible template argument
     list:
-    @code
+    @code{.cpp}
     machine_def.after_state_transition
     <
         region_path,
@@ -64,7 +64,7 @@ struct machine_conf
     This hook can be useful for logging state transitions, for example.
 
     Example:
-    @code
+    @code{.cpp}
     struct machine_def
     {
         using conf = maki::machine_conf
@@ -91,7 +91,7 @@ struct machine_conf
 
     The following expression must be valid, for every possible template argument
     list:
-    @code
+    @code{.cpp}
     machine_def.before_state_transition
     <
         region_path,
@@ -104,7 +104,7 @@ struct machine_conf
     This hook can be useful for logging state transitions, for example.
 
     Example:
-    @code
+    @code{.cpp}
     struct machine_def
     {
         using conf = maki::machine_conf
@@ -129,14 +129,14 @@ struct machine_conf
     member function whenever it starts.
 
     One of these expressions must be valid, for every possible event type:
-    @code
+    @code{.cpp}
     machine_def.on_entry(fsm, event);
     machine_def.on_entry(event);
     machine_def.on_entry();
     @endcode
 
     Example:
-    @code
+    @code{.cpp}
     struct machine_def
     {
         static constexpr auto conf = default_machine_conf
@@ -174,7 +174,7 @@ struct machine_conf
 
     In the following example, `on_event()` will only be called for
     `event_type_0` and `event_type_1`:
-    @code
+    @code{.cpp}
     struct machine_def
     {
         static constexpr auto conf = default_machine_conf
@@ -207,7 +207,7 @@ struct machine_conf
 
     One of these expressions must be valid, for every event type that matches
     a type or type filter of the list:
-    @code
+    @code{.cpp}
     machine_def.on_event(fsm, event);
     machine_def.on_event(event);
     machine_def.on_event();
@@ -218,7 +218,7 @@ struct machine_conf
     machine.
 
     Example:
-    @code
+    @code{.cpp}
     struct machine_def
     {
         static constexpr auto conf = default_machine_conf
@@ -251,18 +251,18 @@ struct machine_conf
     `on_exception()` member function whenever it catches an exception.
 
     The following expression must be valid:
-    @code
+    @code{.cpp}
     machine_def.on_exception(std::current_exception());
     @endcode
 
     If this option isn't set, @ref machine will send itself an @ref
     events::exception event, like so:
-    @code
+    @code{.cpp}
     process_event(events::exception{std::current_exception()});
     @endcode
 
     Example:
-    @code
+    @code{.cpp}
     struct machine_def
     {
         static constexpr auto conf = default_machine_conf
@@ -286,14 +286,14 @@ struct machine_conf
     member function whenever it stops.
 
     One of these expressions must be valid, for every possible event type:
-    @code
+    @code{.cpp}
     machine_def.on_exit(fsm, event);
     machine_def.on_exit(event);
     machine_def.on_exit();
     @endcode
 
     Example:
-    @code
+    @code{.cpp}
     struct machine_def
     {
         static constexpr auto conf = default_machine_conf
@@ -331,7 +331,7 @@ struct machine_conf
     `on_event()` function.
 
     The said member function must have the following form:
-    @code
+    @code{.cpp}
     void on_unprocessed(const event_type& event);
     @endcode
 
@@ -339,7 +339,7 @@ struct machine_conf
     function, for all events of interest.
 
     Example:
-    @code
+    @code{.cpp}
     struct machine_def
     {
         static constexpr auto conf = default_machine_conf
@@ -378,7 +378,7 @@ struct machine_conf
     See `maki::pretty_name`.
 
     Example:
-    @code
+    @code{.cpp}
     struct machine_def
     {
         static constexpr auto conf = default_machine_conf
@@ -596,6 +596,9 @@ struct machine_conf
 #undef MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 };
 
+/**
+@related machine_conf
+*/
 inline constexpr auto default_machine_conf = machine_conf<>{};
 
 namespace detail

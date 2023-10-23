@@ -62,7 +62,7 @@ using region_path_t = maki::region_path
 ```
 
 This is admittedly verbose and inconvenient. This is why the library provides
-@ref region_path_c and @ref region_path.add to make things much more terse:
+region_path_c and @ref region_path.add to make things much more terse:
 ```cpp
 //Path to the exam same region
 using same_region_path_t = maki::region_path_c<machine_def>::add<some_submachine, 1>;
@@ -209,6 +209,9 @@ struct region_path
     }
 };
 
+/**
+@related region_path
+*/
 template<class... Ts, class... Us>
 constexpr bool operator==(const region_path<Ts...> /*lhs*/, const region_path<Us...> /*rhs*/)
 {
@@ -216,6 +219,7 @@ constexpr bool operator==(const region_path<Ts...> /*lhs*/, const region_path<Us
 }
 
 /**
+@related region_path
 @brief A handy variable template for defining a @ref region_path with a single
 @ref region_path_element.
 

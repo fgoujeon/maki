@@ -88,7 +88,7 @@ public:
     state machine context, the state machine definition, the region contexts (if
     any) and the states). All state machine objects are constructed with one of
     these statements:
-    @code
+    @code{.cpp}
     auto obj = object_type{*this, context()};
     auto obj = object_type{context()};
     auto obj = object_type{};
@@ -256,7 +256,7 @@ public:
     It's hard to describe all the things this function does, as it is the point
     of the whole library, but let's try to list the basic stuff with the
     following pseudocode:
-    @code
+    @code{.cpp}
     //Run-to-completion: Don't let potential recursive calls interrupt the
     //current processing
     if(processing_event)
@@ -339,7 +339,10 @@ public:
     not sure what you're doing, just call @ref process_event() instead.
     */
     template<class Event>
-    MAKI_NOINLINE void enqueue_event(const Event& event)
+#ifndef DOXYGEN
+    MAKI_NOINLINE
+#endif
+    void enqueue_event(const Event& event)
     {
         static_assert(conf.run_to_completion);
         try

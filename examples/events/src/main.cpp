@@ -14,7 +14,10 @@
 #include "motor.hpp"
 #include <maki.hpp>
 
-//The context, instantiated by machine_t and accessible to all the actions and guards
+/*
+The context, instantiated by machine_t and accessible to all the actions and
+guards
+*/
 struct context
 {
     /*

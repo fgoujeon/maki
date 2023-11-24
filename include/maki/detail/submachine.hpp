@@ -131,7 +131,7 @@ public:
         root_sm_(root_sm),
         ctx_holder_(root_sm, std::forward<ContextArgs>(ctx_args)...),
         def_holder_(root_sm, context()),
-        regions_(*this)
+        regions_(uniform_construct, *this)
     {
     }
 

@@ -78,7 +78,7 @@ public:
     explicit region(ParentSm& parent_sm):
         root_sm_(machine_of<ParentSm>::get(parent_sm)),
         ctx_(parent_sm.context()),
-        state_holders_(root_sm_, ctx_)
+        state_holders_(uniform_construct, root_sm_, ctx_)
     {
     }
 

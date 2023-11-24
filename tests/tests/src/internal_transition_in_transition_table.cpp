@@ -26,15 +26,16 @@ namespace
         struct idle
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
+                .entry_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "idle::on_entry;";
+                    }
+                )
                 .enable_on_event_for<maki::any>()
                 .enable_on_exit()
             ;
-
-            void on_entry()
-            {
-                ctx.out += "idle::on_entry;";
-            }
 
             template<class Event>
             void on_event(const Event&)
@@ -53,15 +54,16 @@ namespace
         struct running
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
+                .entry_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "running::on_entry;";
+                    }
+                )
                 .enable_on_event_for<maki::any>()
                 .enable_on_exit()
             ;
-
-            void on_entry()
-            {
-                ctx.out += "running::on_entry;";
-            }
 
             template<class Event>
             void on_event(const Event&)

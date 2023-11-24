@@ -14,6 +14,8 @@
 
 #include "type_list.hpp"
 #include "type.hpp"
+#include "detail/event_action.hpp"
+#include "detail/tuple.hpp"
 #include "detail/tlu.hpp"
 
 namespace maki
@@ -28,17 +30,17 @@ namespace detail
 /**
 @brief State configuration
 */
-template<class OnEventTypeList = type_list<>>
+template<class EntryActionTuple = detail::tuple<>, class OnEventTypeList = type_list<>>
 struct state_conf
 {
-    bool has_on_entry = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    EntryActionTuple entry_actions; //NOLINT(misc-non-private-member-variables-in-classes)
     bool has_on_event_auto = false; //NOLINT(misc-non-private-member-variables-in-classes)
     OnEventTypeList has_on_event_for; //NOLINT(misc-non-private-member-variables-in-classes)
     bool has_on_exit = false; //NOLINT(misc-non-private-member-variables-in-classes)
     bool has_pretty_name = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_entry = has_on_entry; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_event_auto = has_on_event_auto; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_event_for = has_on_event_for; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_exit = has_on_exit; \
@@ -47,22 +49,72 @@ struct state_conf
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return state_conf \
     < \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_has_on_event_for)> \
     > \
     { \
-        MAKI_DETAIL_ARG_has_on_entry, \
+        MAKI_DETAIL_ARG_entry_actions, \
         MAKI_DETAIL_ARG_has_on_event_auto, \
         MAKI_DETAIL_ARG_has_on_event_for, \
         MAKI_DETAIL_ARG_has_on_exit, \
         MAKI_DETAIL_ARG_has_pretty_name \
     };
 
-    [[nodiscard]] constexpr auto enable_on_entry() const
+    template<class EventFilter, detail::event_action_signature Sig, class Action>
+    [[nodiscard]] constexpr auto entry_action(const Action& action) const
     {
+        const auto new_entry_actions = append
+        (
+            entry_actions,
+            detail::event_action<EventFilter, Action, Sig>{action}
+        );
+
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_has_on_entry true
+#define MAKI_DETAIL_ARG_entry_actions new_entry_actions
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_has_on_entry
+#undef MAKI_DETAIL_ARG_entry_actions
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto entry_action_v(const Action& action) const
+    {
+        return entry_action<EventFilter, detail::event_action_signature::v>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto entry_action_m(const Action& action) const
+    {
+        return entry_action<EventFilter, detail::event_action_signature::m>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto entry_action_c(const Action& action) const
+    {
+        return entry_action<EventFilter, detail::event_action_signature::c>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto entry_action_ce(const Action& action) const
+    {
+        return entry_action<EventFilter, detail::event_action_signature::ce>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto entry_action_d(const Action& action) const
+    {
+        return entry_action<EventFilter, detail::event_action_signature::d>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto entry_action_de(const Action& action) const
+    {
+        return entry_action<EventFilter, detail::event_action_signature::de>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto entry_action_e(const Action& action) const
+    {
+        return entry_action<EventFilter, detail::event_action_signature::e>(action);
     }
 
     [[nodiscard]] constexpr auto enable_on_event_auto() const

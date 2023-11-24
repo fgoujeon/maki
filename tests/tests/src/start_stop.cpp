@@ -20,14 +20,15 @@ namespace
         struct s0
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
+                .entry_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "s0::on_entry;";
+                    }
+                )
                 .enable_on_exit()
             ;
-
-            void on_entry()
-            {
-                ctx.out += "s0::on_entry;";
-            }
 
             void on_exit()
             {
@@ -40,14 +41,15 @@ namespace
         struct s1
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
+                .entry_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "s1::on_entry;";
+                    }
+                )
                 .enable_on_exit()
             ;
-
-            void on_entry()
-            {
-                ctx.out += "s1::on_entry;";
-            }
 
             void on_exit()
             {

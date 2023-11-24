@@ -38,13 +38,14 @@ namespace
         struct emitting_red
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
+                .entry_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.current_led_color = led_color::red;
+                    }
+                )
             ;
-
-            void on_entry()
-            {
-                ctx.current_led_color = led_color::red;
-            }
 
             machine_t& machine;
             context& ctx;
@@ -53,13 +54,14 @@ namespace
         struct emitting_green
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
+                .entry_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.current_led_color = led_color::green;
+                    }
+                )
             ;
-
-            void on_entry()
-            {
-                ctx.current_led_color = led_color::green;
-            }
 
             machine_t& machine;
             context& ctx;
@@ -68,13 +70,14 @@ namespace
         struct emitting_blue
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
+                .entry_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.current_led_color = led_color::blue;
+                    }
+                )
             ;
-
-            void on_entry()
-            {
-                ctx.current_led_color = led_color::blue;
-            }
 
             machine_t& machine;
             context& ctx;

@@ -95,7 +95,22 @@ namespace states
                 state.on_entry();
             Where `event` is the event that caused the state transition.
             */
-            .enable_on_entry()
+            .entry_action_e<button::push_event>
+            (
+                [](const button::push_event& event)
+                {
+                    std::cout << "Turned off after a ";
+                    std::cout << event.duration_ms << " millisecond push\n";
+                }
+            )
+
+            .entry_action_v<maki::events::start>
+            (
+                []
+                {
+                    std::cout << "Started state machine\n";
+                }
+            )
 
             /*
             Here, we require the state machine to call an on_event() function
@@ -117,17 +132,6 @@ namespace states
             */
             .enable_on_exit()
         ;
-
-        void on_entry(const button::push_event& event)
-        {
-            std::cout << "Turned off after a ";
-            std::cout << event.duration_ms << " millisecond push\n";
-        }
-
-        void on_entry(const maki::events::start& /*event*/)
-        {
-            std::cout << "Started state machine\n";
-        }
 
         void on_event(const button::push_event& event)
         {

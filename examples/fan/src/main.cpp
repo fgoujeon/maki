@@ -34,44 +34,38 @@ struct reading_memory { static constexpr auto conf = maki::default_state_conf; }
 struct spinning_low
 {
     static constexpr auto conf = maki::default_state_conf
-        .enable_on_entry()
+        .entry_action_v<maki::any>([]
+        {
+            std::cout << "Speed is low\n";
+
+            //Set fan speed and save speed in memory
+            //[Implementation detail...]
+        })
     ;
-
-    void on_entry()
-    {
-        std::cout << "Speed is low\n";
-
-        //Set fan speed and save speed in memory
-        //[Implementation detail...]
-    }
 };
 struct spinning_med
 {
     static constexpr auto conf = maki::default_state_conf
-        .enable_on_entry()
+        .entry_action_v<maki::any>([]
+        {
+            std::cout << "Speed is med\n";
+
+            //Set fan speed and save speed in memory
+            //[Implementation detail...]
+        })
     ;
-
-    void on_entry()
-    {
-        std::cout << "Speed is med\n";
-
-        //Set fan speed and save speed in memory
-        //[Implementation detail...]
-    }
 };
 struct spinning_high
 {
     static constexpr auto conf = maki::default_state_conf
-        .enable_on_entry()
+        .entry_action_v<maki::any>([]
+        {
+            std::cout << "Speed is high\n";
+
+            //Set fan speed and save speed in memory
+            //[Implementation detail...]
+        })
     ;
-
-    void on_entry()
-    {
-        std::cout << "Speed is high\n";
-
-        //Set fan speed and save speed in memory
-        //[Implementation detail...]
-    }
 };
 
 //Guards

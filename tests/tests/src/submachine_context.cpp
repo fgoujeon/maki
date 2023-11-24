@@ -66,15 +66,14 @@ namespace
             {
                 static constexpr auto conf = maki::default_submachine_conf
                     .set_transition_tables(emitting_red_ns::transition_table)
-                    .enable_on_entry()
+                    .entry_action_c<maki::any>
+                    (
+                        [](context& ctx)
+                        {
+                            ++ctx.red_count;
+                        }
+                    )
                 ;
-
-                void on_entry()
-                {
-                    ++ctx.red_count;
-                }
-
-                context& ctx;
             };
 
             EMPTY_STATE(emitting_green);

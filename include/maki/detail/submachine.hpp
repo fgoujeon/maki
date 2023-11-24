@@ -114,12 +114,6 @@ template<class Def, class ParentRegion>
 class submachine
 {
 public:
-    static constexpr auto conf = default_state_conf
-        .enable_on_entry()
-        .enable_on_event_for(type_list_c<maki::any>)
-        .enable_on_exit()
-    ;
-
     using def_type = Def;
     using context_type = typename submachine_context<Def, ParentRegion>::type;
     using root_sm_type = root_sm_of_t<submachine>;
@@ -230,7 +224,7 @@ public:
     template<class Event>
     void on_entry(const Event& event)
     {
-        call_on_entry(def_holder_.get(), root_sm_, event);
+        call_on_entry(def_holder_.get(), root_sm_, ctx_holder_.get(), event);
         tlu::for_each<region_tuple_type, region_start>(*this, event);
     }
 
@@ -266,6 +260,18 @@ public:
         tlu::for_each<region_tuple_type, region_stop>(*this, event);
         call_on_exit(def_holder_.get(), root_sm_, event);
     }
+
+    static constexpr auto conf = default_state_conf
+        .entry_action_de<any>
+        (
+            [](submachine& self, const auto& event)
+            {
+                self.on_entry(event);
+            }
+        )
+        .enable_on_event_for(type_list_c<maki::any>)
+        .enable_on_exit()
+    ;
 
 private:
     using region_tuple_type = typename region_tuple

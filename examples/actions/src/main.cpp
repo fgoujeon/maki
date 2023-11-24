@@ -24,33 +24,6 @@ struct state1 { static constexpr auto conf = maki::default_state_conf; };
 //! [short-in-state]
 struct state2
 {
-    static constexpr auto conf = maki::default_state_conf
-        //Require the state machine to call on_entry() on state entry
-        .enable_on_entry()
-
-        //Require the state machine to call on_event() whenever it processes
-        //some_event or some_other_event while this state is active
-        .enable_on_event_for<some_event, some_other_event>()
-
-        //Require the state machine to call on_exit() on state exit
-        .enable_on_exit()
-    ;
-
-    //Entry action.
-    //Called on state entry for state transitions caused by some_other_event.
-    void on_entry(const some_other_event& event)
-    {
-        std::cout << "Executing state2 entry action (some_other_event{" << event.value << "})...\n";
-    }
-
-    //Entry action.
-    //Called on state entry for state transitions caused by any other type of
-    //event.
-    void on_entry()
-    {
-        std::cout << "Executing state2 entry action...\n";
-    }
-
     //Internal action.
     void on_event(const some_event& /*event*/)
     {
@@ -70,6 +43,30 @@ struct state2
     {
         std::cout << "Executing state2 exit action...\n";
     }
+
+    static constexpr auto conf = maki::default_state_conf
+        //Entry action.
+        //Called on state entry for state transitions caused by some_other_event.
+        .entry_action_e<some_other_event>([](const some_other_event& event)
+        {
+            std::cout << "Executing state2 entry action (some_other_event{" << event.value << "})...\n";
+        })
+
+        //Entry action.
+        //Called on state entry for state transitions caused by any other type of
+        //event.
+        .entry_action_v<maki::any>([]
+        {
+            std::cout << "Executing state2 entry action...\n";
+        })
+
+        //Require the state machine to call on_event() whenever it processes
+        //some_event or some_other_event while this state is active
+        .enable_on_event_for<some_event, some_other_event>()
+
+        //Require the state machine to call on_exit() on state exit
+        .enable_on_exit()
+    ;
 };
 //! [short-in-state]
 

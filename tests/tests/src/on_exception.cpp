@@ -21,14 +21,15 @@ namespace
         struct off
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
+                .entry_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "off::on_entry;";
+                    }
+                )
                 .enable_on_exit()
             ;
-
-            void on_entry()
-            {
-                ctx.out += "off::on_entry;";
-            }
 
             void on_exit()
             {
@@ -41,20 +42,21 @@ namespace
         struct on
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
+                .entry_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "on::on_entry;";
+
+                        if(ctx.always_zero == 0) //We need this to avoid "unreachable code" warnings
+                        {
+                            throw std::runtime_error{"test;"};
+                        }
+                    }
+                )
                 .enable_on_event_for<maki::events::exception>()
                 .enable_on_exit()
             ;
-
-            void on_entry()
-            {
-                ctx.out += "on::on_entry;";
-
-                if(ctx.always_zero == 0) //We need this to avoid "unreachable code" warnings
-                {
-                    throw std::runtime_error{"test;"};
-                }
-            }
 
             void on_event(const maki::events::exception& event)
             {

@@ -30,15 +30,16 @@ namespace
         struct english
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
+                .entry_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.hello = "hello";
+                    }
+                )
                 .enable_on_event_for<events::say_dog>()
                 .enable_on_exit()
             ;
-
-            void on_entry()
-            {
-                ctx.hello = "hello";
-            }
 
             void on_event(const events::say_dog&)
             {
@@ -56,16 +57,16 @@ namespace
         struct french
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
+                .entry_action_m<maki::any>
+                (
+                    [](auto& mach)
+                    {
+                        mach.context().hello = "bonjour";
+                    }
+                )
                 .enable_on_event_for<events::say_dog>()
                 .enable_on_exit()
             ;
-
-            template<class Sm, class Event>
-            void on_entry(Sm& mach, const Event& /*event*/)
-            {
-                mach.context().hello = "bonjour";
-            }
 
             void on_event(const events::say_dog&)
             {
@@ -99,7 +100,7 @@ namespace
     using machine_t = maki::machine<machine_def>;
 }
 
-TEST_CASE("on_entry_event_exit")
+TEST_CASE("entry_action_event_exit")
 {
     auto machine = machine_t{};
     auto& ctx = machine.context();

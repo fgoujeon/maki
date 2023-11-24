@@ -36,57 +36,53 @@ namespace
         struct off
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
+                .entry_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.current_led_color = led_color::off;
+                    }
+                )
             ;
-
-            void on_entry()
-            {
-                ctx.current_led_color = led_color::off;
-            }
-
-            context& ctx;
         };
 
         struct emitting_red
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
+                .entry_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.current_led_color = led_color::red;
+                    }
+                )
             ;
-
-            void on_entry()
-            {
-                ctx.current_led_color = led_color::red;
-            }
-
-            context& ctx;
         };
 
         struct emitting_green
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
+                .entry_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.current_led_color = led_color::green;
+                    }
+                )
             ;
-
-            void on_entry()
-            {
-                ctx.current_led_color = led_color::green;
-            }
-
-            context& ctx;
         };
 
         struct emitting_blue
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
+                .entry_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.current_led_color = led_color::blue;
+                    }
+                )
             ;
-
-            void on_entry()
-            {
-                ctx.current_led_color = led_color::blue;
-            }
-
-            context& ctx;
         };
 
         constexpr auto on_transition_table = maki::empty_transition_table

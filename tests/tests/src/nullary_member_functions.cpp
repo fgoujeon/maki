@@ -47,20 +47,21 @@ namespace nullary_member_functions_ns
                         ctx.out += "on_entry();";
                     }
                 )
-                .enable_on_exit()
+                .exit_action_c<events::e1>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "on_exit(e1);";
+                    }
+                )
+                .exit_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "on_exit();";
+                    }
+                )
             ;
-
-            void on_exit(const events::e1&)
-            {
-                ctx.out += "on_exit(e1);";
-            }
-
-            void on_exit()
-            {
-                ctx.out += "on_exit();";
-            }
-
-            context& ctx;
         };
     }
 

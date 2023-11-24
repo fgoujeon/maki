@@ -31,6 +31,7 @@ template
     class ContextTypeHolder = type<void>,
     class EntryActionTuple = detail::tuple<>,
     class OnEventTypeList = type_list<>,
+    class ExitActionTuple = detail::tuple<>,
     class TransitionTableTypeList = type_list<>
 >
 struct machine_conf
@@ -46,6 +47,10 @@ struct machine_conf
     @brief Specifies the context type.
     */
     ContextTypeHolder context; //NOLINT(misc-non-private-member-variables-in-classes)
+
+    EntryActionTuple entry_actions; //NOLINT(misc-non-private-member-variables-in-classes)
+
+    ExitActionTuple exit_actions; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
     @brief Specifies whether @ref machine must call a user-provided
@@ -126,8 +131,6 @@ struct machine_conf
     @endcode
     */
     bool has_before_state_transition = false; //NOLINT(misc-non-private-member-variables-in-classes)
-
-    EntryActionTuple entry_actions; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
     @brief Specifies whether @ref machine must call a compatible, user-provided
@@ -244,49 +247,6 @@ struct machine_conf
     bool has_on_exception = false; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
-    @brief Specifies whether @ref machine must call a user-provided `on_exit()`
-    member function whenever it stops.
-
-    One of these expressions must be valid, for every possible event type:
-    @code
-    machine_def.on_exit(fsm, event);
-    machine_def.on_exit(event);
-    machine_def.on_exit();
-    @endcode
-
-    Example:
-    @code
-    struct machine_def
-    {
-        static constexpr auto conf = default_machine_conf
-            .enable_on_exit()
-            //...
-        ;
-
-        void on_exit(const event_type_0& event)
-        {
-            //...
-        }
-
-        template<class Sm>
-        void on_exit(Sm& fsm, const event_type_1& event)
-        {
-            //...
-        }
-
-        //For all other event types
-        void on_exit()
-        {
-            //...
-        }
-
-        //...
-    };
-    @endcode
-    */
-    bool has_on_exit = false; //NOLINT(misc-non-private-member-variables-in-classes)
-
-    /**
     @brief Specifies whether @ref machine must call a user-provided
     `on_unprocessed()` member function whenever a call to @ref
     machine::process_event() doesn't lead to any state transition or call to any
@@ -392,13 +352,13 @@ struct machine_conf
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = auto_start; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context = context; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = exit_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_after_state_transition = has_after_state_transition; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_before_state_transition = has_before_state_transition; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_event_auto = has_on_event_auto; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_event_for = has_on_event_for; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_exception = has_on_exception; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_exit = has_on_exit; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_unprocessed = has_on_unprocessed; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_pretty_name = has_pretty_name; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = run_to_completion; \
@@ -412,18 +372,19 @@ struct machine_conf
         std::decay_t<decltype(MAKI_DETAIL_ARG_context)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_has_on_event_for)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
     > \
     { \
         MAKI_DETAIL_ARG_auto_start, \
         MAKI_DETAIL_ARG_context, \
+        MAKI_DETAIL_ARG_entry_actions, \
+        MAKI_DETAIL_ARG_exit_actions, \
         MAKI_DETAIL_ARG_has_after_state_transition, \
         MAKI_DETAIL_ARG_has_before_state_transition, \
-        MAKI_DETAIL_ARG_entry_actions, \
         MAKI_DETAIL_ARG_has_on_event_auto, \
         MAKI_DETAIL_ARG_has_on_event_for, \
         MAKI_DETAIL_ARG_has_on_exception, \
-        MAKI_DETAIL_ARG_has_on_exit, \
         MAKI_DETAIL_ARG_has_on_unprocessed, \
         MAKI_DETAIL_ARG_has_pretty_name, \
         MAKI_DETAIL_ARG_run_to_completion, \
@@ -487,6 +448,63 @@ struct machine_conf
     [[nodiscard]] constexpr auto entry_action_e(const Action& action) const
     {
         return entry_action<EventFilter, detail::event_action_signature::e>(action);
+    }
+
+    template<class EventFilter, detail::event_action_signature Sig, class Action>
+    [[nodiscard]] constexpr auto exit_action(const Action& action) const
+    {
+        const auto new_exit_actions = append
+        (
+            exit_actions,
+            detail::event_action<EventFilter, Action, Sig>{action}
+        );
+
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_exit_actions new_exit_actions
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_exit_actions
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto exit_action_v(const Action& action) const
+    {
+        return exit_action<EventFilter, detail::event_action_signature::v>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto exit_action_m(const Action& action) const
+    {
+        return exit_action<EventFilter, detail::event_action_signature::m>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto exit_action_c(const Action& action) const
+    {
+        return exit_action<EventFilter, detail::event_action_signature::c>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto exit_action_ce(const Action& action) const
+    {
+        return exit_action<EventFilter, detail::event_action_signature::ce>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto exit_action_d(const Action& action) const
+    {
+        return exit_action<EventFilter, detail::event_action_signature::d>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto exit_action_de(const Action& action) const
+    {
+        return exit_action<EventFilter, detail::event_action_signature::de>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto exit_action_e(const Action& action) const
+    {
+        return exit_action<EventFilter, detail::event_action_signature::e>(action);
     }
 
     [[nodiscard]] constexpr auto enable_after_state_transition() const
@@ -585,14 +603,6 @@ struct machine_conf
 #define MAKI_DETAIL_ARG_has_on_event_auto true
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_has_on_event_auto
-    }
-
-    [[nodiscard]] constexpr auto enable_on_exit() const
-    {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_has_on_exit true
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_has_on_exit
     }
 
     template<class... TransitionTables>

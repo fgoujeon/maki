@@ -412,6 +412,7 @@ private:
                 (
                     state_from_state_def<SourceStateDef>(),
                     root_sm_,
+                    ctx_,
                     event
                 );
             }

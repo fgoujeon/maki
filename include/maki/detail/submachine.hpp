@@ -224,7 +224,7 @@ public:
     template<class Event>
     void on_entry(const Event& event)
     {
-        call_on_entry(def_holder_.get(), root_sm_, ctx_holder_.get(), event);
+        call_on_entry(def_holder_.get(), root_sm_, context(), event);
         tlu::for_each<region_tuple_type, region_start>(*this, event);
     }
 
@@ -258,7 +258,7 @@ public:
     void on_exit(const Event& event)
     {
         tlu::for_each<region_tuple_type, region_stop>(*this, event);
-        call_on_exit(def_holder_.get(), root_sm_, event);
+        call_on_exit(def_holder_.get(), root_sm_, context(), event);
     }
 
     static constexpr auto conf = default_state_conf
@@ -270,7 +270,13 @@ public:
             }
         )
         .enable_on_event_for(type_list_c<maki::any>)
-        .enable_on_exit()
+        .template exit_action_de<any>
+        (
+            [](submachine& self, const auto& event)
+            {
+                self.on_exit(event);
+            }
+        )
     ;
 
 private:

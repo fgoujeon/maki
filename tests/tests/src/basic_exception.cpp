@@ -32,21 +32,20 @@ namespace
                         ctx.out += "off::on_entry;";
                     }
                 )
-                .enable_on_exit()
+                .exit_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "off::on_exit;";
+
+                        if(!ctx.exception_thrown)
+                        {
+                            ctx.exception_thrown = true;
+                            throw std::runtime_error{"error"};
+                        }
+                    }
+                )
             ;
-
-            void on_exit()
-            {
-                ctx.out += "off::on_exit;";
-
-                if(!ctx.exception_thrown)
-                {
-                    ctx.exception_thrown = true;
-                    throw std::runtime_error{"error"};
-                }
-            }
-
-            context& ctx;
         };
 
         struct on
@@ -59,15 +58,14 @@ namespace
                         ctx.out += "on::on_entry;";
                     }
                 )
-                .enable_on_exit()
+                .exit_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "on::on_exit;";
+                    }
+                )
             ;
-
-            void on_exit()
-            {
-                ctx.out += "on::on_exit;";
-            }
-
-            context& ctx;
         };
     }
 

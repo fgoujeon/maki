@@ -159,33 +159,80 @@ void call_on_event(State& state, Sm& /*mach*/, Context& /*ctx*/, const Event& ev
     }
 }
 
-template<class State, class Sm, class Event>
-void call_on_exit
+template<class State, class Sm, class Context, class Event, class EntryAction, class... EntryActions>
+void call_exit_action_2
 (
     [[maybe_unused]] State& state,
     [[maybe_unused]] Sm& mach,
-    [[maybe_unused]] const Event& event
+    [[maybe_unused]] Context& ctx,
+    [[maybe_unused]] const Event& event,
+    [[maybe_unused]] const EntryAction& exit_action,
+    [[maybe_unused]] const EntryActions&... exit_actions
 )
 {
-    if constexpr(state_traits::requires_on_exit<State>())
+    using event_type_filter = typename EntryAction::event_type_filter;
+    if constexpr(matches_pattern_v<Event, event_type_filter>)
     {
-        if constexpr(has_on_exit<State&, Sm&, const Event&>())
+        if constexpr(EntryAction::sig == event_action_signature::v)
         {
-            state.on_exit(mach, event);
+            std::invoke(exit_action.action);
         }
-        else if constexpr(has_on_exit<State&, const Event&>())
+        else if constexpr(EntryAction::sig == event_action_signature::m)
         {
-            state.on_exit(event);
+            std::invoke(exit_action.action, mach);
         }
-        else if constexpr(has_on_exit<State&>())
+        else if constexpr(EntryAction::sig == event_action_signature::c)
         {
-            state.on_exit();
+            std::invoke(exit_action.action, ctx);
+        }
+        else if constexpr(EntryAction::sig == event_action_signature::ce)
+        {
+            std::invoke(exit_action.action, ctx, event);
+        }
+        else if constexpr(EntryAction::sig == event_action_signature::d)
+        {
+            std::invoke(exit_action.action, state);
+        }
+        else if constexpr(EntryAction::sig == event_action_signature::de)
+        {
+            std::invoke(exit_action.action, state, event);
+        }
+        else if constexpr(EntryAction::sig == event_action_signature::e)
+        {
+            std::invoke(exit_action.action, event);
         }
         else
         {
             constexpr auto is_false = sizeof(Sm) == 0;
-            static_assert(is_false, "No valid on_exit() signature found in state");
+            static_assert(is_false, "Unsupported event_action_signature value");
         }
+    }
+    else
+    {
+        static_assert(sizeof...(EntryActions) != 0, "No exit action found for this state and event");
+        call_exit_action_2(state, mach, ctx, event, exit_actions...);
+    }
+}
+
+template<class State, class Sm, class Context, class Event>
+void call_on_exit(State& state, Sm& mach, Context& ctx, const Event& event)
+{
+    using conf_t = std::decay_t<decltype(State::conf)>;
+    using exit_action_tuple_t = std::decay_t<decltype(conf_t::exit_actions)>;
+    if constexpr(!tlu::empty_v<exit_action_tuple_t>)
+    {
+        apply
+        (
+            state.conf.exit_actions,
+            [](auto&&... args)
+            {
+                call_exit_action_2(std::forward<decltype(args)>(args)...);
+            },
+            state,
+            mach,
+            ctx,
+            event
+        );
     }
 }
 

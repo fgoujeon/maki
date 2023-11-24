@@ -27,15 +27,14 @@ namespace
                         ctx.out += "s0::on_entry;";
                     }
                 )
-                .enable_on_exit()
+                .exit_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "s0::on_exit;";
+                    }
+                )
             ;
-
-            void on_exit()
-            {
-                ctx.out += "s0::on_exit;";
-            }
-
-            context& ctx;
         };
 
         struct s1
@@ -48,15 +47,14 @@ namespace
                         ctx.out += "s1::on_entry;";
                     }
                 )
-                .enable_on_exit()
+                .exit_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "s1::on_exit;";
+                    }
+                )
             ;
-
-            void on_exit()
-            {
-                ctx.out += "s1::on_exit;";
-            }
-
-            context& ctx;
         };
     }
 

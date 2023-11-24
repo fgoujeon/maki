@@ -28,15 +28,14 @@ namespace
                         ctx.out += "off::on_entry;";
                     }
                 )
-                .enable_on_exit()
+                .exit_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "off::on_exit;";
+                    }
+                )
             ;
-
-            void on_exit()
-            {
-                ctx.out += "off::on_exit;";
-            }
-
-            context& ctx;
         };
 
         struct on
@@ -55,7 +54,13 @@ namespace
                     }
                 )
                 .enable_on_event_for<maki::events::exception>()
-                .enable_on_exit()
+                .exit_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "on::on_exit;";
+                    }
+                )
             ;
 
             void on_event(const maki::events::exception& event)
@@ -69,11 +74,6 @@ namespace
                     ctx.out += "default;";
                     ctx.out += e.what();
                 }
-            }
-
-            void on_exit()
-            {
-                ctx.out += "on::on_exit;";
             }
 
             context& ctx;

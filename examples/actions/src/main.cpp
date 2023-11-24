@@ -36,14 +36,6 @@ struct state2
         std::cout << "Executing state2 some_other_event action (some_other_event{" << event.value << "})...\n";
     }
 
-    //Exit action.
-    //Called on state exit, whatever the event that caused the state
-    //transitions.
-    void on_exit()
-    {
-        std::cout << "Executing state2 exit action...\n";
-    }
-
     static constexpr auto conf = maki::default_state_conf
         //Entry action.
         //Called on state entry for state transitions caused by some_other_event.
@@ -64,8 +56,13 @@ struct state2
         //some_event or some_other_event while this state is active
         .enable_on_event_for<some_event, some_other_event>()
 
-        //Require the state machine to call on_exit() on state exit
-        .enable_on_exit()
+        //Exit action.
+        //Called on state exit, whatever the event that caused the state
+        //transitions.
+        .exit_action_v<maki::any>([]
+        {
+            std::cout << "Executing state2 exit action...\n";
+        })
     ;
 };
 //! [short-in-state]

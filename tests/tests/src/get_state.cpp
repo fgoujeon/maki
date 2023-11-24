@@ -91,15 +91,15 @@ namespace
         {
             static constexpr auto conf = maki::default_submachine_conf
                 .set_transition_tables(on_transition_table)
-                .enable_on_exit()
+                .exit_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.current_led_color = led_color::off;
+                    }
+                )
             ;
 
-            void on_exit()
-            {
-                ctx.current_led_color = led_color::off;
-            }
-
-            context& ctx;
             bool is_on_state = true;
         };
     }

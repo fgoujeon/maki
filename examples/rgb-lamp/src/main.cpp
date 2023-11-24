@@ -130,7 +130,13 @@ namespace states
                 state.on_exit();
             Where `event` is the event that caused the state transition.
             */
-            .enable_on_exit()
+            .exit_action_v<maki::any>
+            (
+                []
+                {
+                    std::cout << "Turned on\n";
+                }
+            )
         ;
 
         void on_event(const button::push_event& event)
@@ -138,11 +144,6 @@ namespace states
             std::cout << "Received a ";
             std::cout << event.duration_ms;
             std::cout << " millisecond push in off state\n";
-        }
-
-        void on_exit()
-        {
-            std::cout << "Turned on\n";
         }
 
         context& ctx;

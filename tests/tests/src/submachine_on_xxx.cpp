@@ -46,17 +46,18 @@ namespace
                     }
                 )
                 .enable_on_event_for<events::internal>()
-                .enable_on_exit()
+                .exit_action_ce<events::button_press>
+                (
+                    [](context& ctx, const events::button_press& event)
+                    {
+                        ctx.out += event.data + "1";
+                    }
+                )
             ;
 
             void on_event(const events::internal& event)
             {
                 ctx.out += event.data + "2";
-            }
-
-            void on_exit(const events::button_press& event)
-            {
-                ctx.out += event.data + "1";
             }
 
             context& ctx;
@@ -78,17 +79,18 @@ namespace
                     }
                 )
                 .enable_on_event_for<events::internal>()
-                .enable_on_exit()
+                .exit_action_ce<events::button_press>
+                (
+                    [](context& ctx, const events::button_press& event)
+                    {
+                        ctx.out += event.data + "2";
+                    }
+                )
             ;
 
             void on_event(const events::internal& event)
             {
                 ctx.out += event.data + "1";
-            }
-
-            void on_exit(const events::button_press& event)
-            {
-                ctx.out += event.data + "2";
             }
 
             context& ctx;

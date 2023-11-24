@@ -34,18 +34,19 @@ namespace
                     }
                 )
                 .enable_on_event_for<maki::any>()
-                .enable_on_exit()
+                .exit_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "idle::on_exit;";
+                    }
+                )
             ;
 
             template<class Event>
             void on_event(const Event&)
             {
                 ctx.out += "idle::on_event;";
-            }
-
-            void on_exit()
-            {
-                ctx.out += "idle::on_exit;";
             }
 
             context& ctx;
@@ -62,18 +63,19 @@ namespace
                     }
                 )
                 .enable_on_event_for<maki::any>()
-                .enable_on_exit()
+                .exit_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "running::on_exit;";
+                    }
+                )
             ;
 
             template<class Event>
             void on_event(const Event&)
             {
                 ctx.out += "running::on_event;";
-            }
-
-            void on_exit()
-            {
-                ctx.out += "running::on_exit;";
             }
 
             context& ctx;

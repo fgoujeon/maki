@@ -91,15 +91,14 @@ namespace
             static constexpr auto conf = maki::default_submachine_conf
                 .set_transition_tables(on_ns::transition_table)
                 .set_context<on_ns::context>()
-                .enable_on_exit()
+                .exit_action_c<maki::any>
+                (
+                    [](on_ns::context& ctx)
+                    {
+                        ctx.parent.out = std::to_string(ctx.red_count);
+                    }
+                )
             ;
-
-            void on_exit()
-            {
-                ctx.parent.out = std::to_string(ctx.red_count);
-            }
-
-            on_ns::context& ctx;
         };
     }
 

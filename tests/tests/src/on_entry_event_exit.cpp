@@ -38,17 +38,18 @@ namespace
                     }
                 )
                 .enable_on_event_for<events::say_dog>()
-                .enable_on_exit()
+                .exit_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.goodbye = "goodbye";
+                    }
+                )
             ;
 
             void on_event(const events::say_dog&)
             {
                 ctx.dog = "dog";
-            }
-
-            void on_exit()
-            {
-                ctx.goodbye = "goodbye";
             }
 
             context& ctx;
@@ -65,18 +66,18 @@ namespace
                     }
                 )
                 .enable_on_event_for<events::say_dog>()
-                .enable_on_exit()
+                .exit_action_m<maki::any>
+                (
+                    [](auto& mach)
+                    {
+                        mach.context().goodbye = "au revoir";
+                    }
+                )
             ;
 
             void on_event(const events::say_dog&)
             {
                 ctx.dog = "chien";
-            }
-
-            template<class Sm, class Event>
-            void on_exit(Sm& mach, const Event& /*event*/)
-            {
-                mach.context().goodbye = "au revoir";
             }
 
             context& ctx;

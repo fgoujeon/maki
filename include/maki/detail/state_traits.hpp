@@ -54,24 +54,6 @@ template<class StateDef, class Region>
 using state_def_to_state_t = typename state_def_to_state<StateDef, Region>::type;
 
 
-//on_entry
-
-template<class State>
-constexpr auto requires_on_entry()
-{
-    return State::conf.has_on_entry;
-}
-
-
-//on_exit
-
-template<class State>
-constexpr auto requires_on_exit()
-{
-    return State::conf.has_on_exit;
-}
-
-
 //on_event
 
 template<class State, class Event>

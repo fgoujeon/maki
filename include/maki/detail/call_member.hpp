@@ -10,41 +10,12 @@
 #include "type_traits.hpp"
 #include "state_traits.hpp"
 #include "submachine_fwd.hpp"
-#include "overload_priority.hpp"
 #include <functional>
 #include <type_traits>
 #include <utility>
 
 namespace maki::detail
 {
-
-#define MAKI_DETAIL_GENERATE_HAS_MEMBER_FUNCTION(name) /*NOLINT*/ \
-    template<class State, class... Args> \
-    constexpr auto has_##name##_impl(overload_priority::high /*unused*/) -> \
-        decltype(std::declval<State>().name(std::declval<Args>()...), bool()) \
-    { \
-        return true; \
-    } \
- \
-    template<class State, class... Args> \
-    constexpr bool has_##name##_impl(overload_priority::low /*unused*/) \
-    { \
-        return false; \
-    } \
- \
-    template<class State, class... Args> \
-    constexpr bool has_##name() \
-    { \
-        return has_##name##_impl<State, Args...>(overload_priority::probe); \
-    }
-
-MAKI_DETAIL_GENERATE_HAS_MEMBER_FUNCTION(on_entry)
-MAKI_DETAIL_GENERATE_HAS_MEMBER_FUNCTION(on_event)
-MAKI_DETAIL_GENERATE_HAS_MEMBER_FUNCTION(on_event_ce)
-MAKI_DETAIL_GENERATE_HAS_MEMBER_FUNCTION(on_event_mce)
-MAKI_DETAIL_GENERATE_HAS_MEMBER_FUNCTION(on_exit)
-
-#undef MAKI_DETAIL_GENERATE_HAS_MEMBER_FUNCTION
 
 template<class State, class Sm, class Context, class Event, class EntryAction, class... EntryActions>
 void call_entry_action_2

@@ -21,6 +21,7 @@ enum class event_action_signature
 {
     v,
     m,
+    mce,
     c,
     ce,
     d,

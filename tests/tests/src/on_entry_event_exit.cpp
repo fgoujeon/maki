@@ -37,7 +37,13 @@ namespace
                         ctx.hello = "hello";
                     }
                 )
-                .enable_on_event_for<events::say_dog>()
+                .event_action_c<events::say_dog>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.dog = "dog";
+                    }
+                )
                 .exit_action_c<maki::any>
                 (
                     [](context& ctx)
@@ -46,13 +52,6 @@ namespace
                     }
                 )
             ;
-
-            void on_event(const events::say_dog&)
-            {
-                ctx.dog = "dog";
-            }
-
-            context& ctx;
         };
 
         struct french
@@ -65,7 +64,13 @@ namespace
                         mach.context().hello = "bonjour";
                     }
                 )
-                .enable_on_event_for<events::say_dog>()
+                .event_action_c<events::say_dog>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.dog = "chien";
+                    }
+                )
                 .exit_action_m<maki::any>
                 (
                     [](auto& mach)
@@ -74,13 +79,6 @@ namespace
                     }
                 )
             ;
-
-            void on_event(const events::say_dog&)
-            {
-                ctx.dog = "chien";
-            }
-
-            context& ctx;
         };
     }
 

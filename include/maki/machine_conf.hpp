@@ -30,7 +30,7 @@ template
 <
     class ContextTypeHolder = type<void>,
     class EntryActionTuple = detail::tuple<>,
-    class OnEventTypeList = type_list<>,
+    class EventActionTuple = detail::tuple<>,
     class ExitActionTuple = detail::tuple<>,
     class TransitionTableTypeList = type_list<>
 >
@@ -49,6 +49,8 @@ struct machine_conf
     ContextTypeHolder context; //NOLINT(misc-non-private-member-variables-in-classes)
 
     EntryActionTuple entry_actions; //NOLINT(misc-non-private-member-variables-in-classes)
+
+    EventActionTuple event_actions; //NOLINT(misc-non-private-member-variables-in-classes)
 
     ExitActionTuple exit_actions; //NOLINT(misc-non-private-member-variables-in-classes)
 
@@ -131,85 +133,6 @@ struct machine_conf
     @endcode
     */
     bool has_before_state_transition = false; //NOLINT(misc-non-private-member-variables-in-classes)
-
-    /**
-    @brief Specifies whether @ref machine must call a compatible, user-provided
-    `on_event()` member function, provided this function exists, whenever it is
-    about to process an event. Run-to-completion guarantee applies.
-
-    In the following example, `on_event()` will only be called for
-    `event_type_0` and `event_type_1`:
-    @code
-    struct machine_def
-    {
-        static constexpr auto conf = default_machine_conf
-            .enable_on_event_auto()
-            //...
-        ;
-
-        void on_event(const event_type_0& event)
-        {
-            //...
-        }
-
-        template<class Sm>
-        void on_event(Sm& fsm, const event_type_1& event)
-        {
-            //...
-        }
-
-        //...
-    };
-    @endcode
-    */
-    bool has_on_event_auto = false; //NOLINT(misc-non-private-member-variables-in-classes)
-
-    /**
-    @brief Specifies the event types (and type filters with which event types
-    match) for which @ref machine must call a user-provided `on_event()` member
-    function whenever it is about to process an event. Run-to-completion
-    guarantee applies.
-
-    One of these expressions must be valid, for every event type that matches
-    a type or type filter of the list:
-    @code
-    machine_def.on_event(fsm, event);
-    machine_def.on_event(event);
-    machine_def.on_event();
-    @endcode
-
-    This hook can be useful when there are certain event types that you always
-    want to process the same way, whatever the active state(s) of the state
-    machine.
-
-    Example:
-    @code
-    struct machine_def
-    {
-        static constexpr auto conf = default_machine_conf
-            .enable_on_event_for<event_type_0, event_type_1>()
-            //...
-        ;
-
-        void on_event(const event_type_0& event)
-        {
-            //...
-        }
-
-        template<class Sm>
-        void on_event(Sm& fsm, const event_type_1& event)
-        {
-            //...
-        }
-
-        //...
-    };
-    @endcode
-
-    If manually listing all the event type you're insterested in is too
-    inconvenient, you can use @ref has_on_event_auto.
-    */
-    OnEventTypeList has_on_event_for; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
     @brief Specifies whether @ref machine must call a user-provided
@@ -353,11 +276,10 @@ struct machine_conf
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = auto_start; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context = context; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_event_actions = event_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = exit_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_after_state_transition = has_after_state_transition; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_before_state_transition = has_before_state_transition; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_event_auto = has_on_event_auto; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_event_for = has_on_event_for; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_exception = has_on_exception; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_unprocessed = has_on_unprocessed; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_pretty_name = has_pretty_name; \
@@ -371,7 +293,7 @@ struct machine_conf
     < \
         std::decay_t<decltype(MAKI_DETAIL_ARG_context)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_has_on_event_for)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_event_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
     > \
@@ -379,11 +301,10 @@ struct machine_conf
         MAKI_DETAIL_ARG_auto_start, \
         MAKI_DETAIL_ARG_context, \
         MAKI_DETAIL_ARG_entry_actions, \
+        MAKI_DETAIL_ARG_event_actions, \
         MAKI_DETAIL_ARG_exit_actions, \
         MAKI_DETAIL_ARG_has_after_state_transition, \
         MAKI_DETAIL_ARG_has_before_state_transition, \
-        MAKI_DETAIL_ARG_has_on_event_auto, \
-        MAKI_DETAIL_ARG_has_on_event_for, \
         MAKI_DETAIL_ARG_has_on_exception, \
         MAKI_DETAIL_ARG_has_on_unprocessed, \
         MAKI_DETAIL_ARG_has_pretty_name, \
@@ -448,6 +369,63 @@ struct machine_conf
     [[nodiscard]] constexpr auto entry_action_e(const Action& action) const
     {
         return entry_action<EventFilter, detail::event_action_signature::e>(action);
+    }
+
+    template<class EventFilter, detail::event_action_signature Sig, class Action>
+    [[nodiscard]] constexpr auto event_action(const Action& action) const
+    {
+        const auto new_event_actions = append
+        (
+            event_actions,
+            detail::event_action<EventFilter, Action, Sig>{action}
+        );
+
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_event_actions new_event_actions
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_event_actions
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto event_action_v(const Action& action) const
+    {
+        return event_action<EventFilter, detail::event_action_signature::v>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto event_action_m(const Action& action) const
+    {
+        return event_action<EventFilter, detail::event_action_signature::m>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto event_action_c(const Action& action) const
+    {
+        return event_action<EventFilter, detail::event_action_signature::c>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto event_action_ce(const Action& action) const
+    {
+        return event_action<EventFilter, detail::event_action_signature::ce>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto event_action_d(const Action& action) const
+    {
+        return event_action<EventFilter, detail::event_action_signature::d>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto event_action_de(const Action& action) const
+    {
+        return event_action<EventFilter, detail::event_action_signature::de>(action);
+    }
+
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto event_action_e(const Action& action) const
+    {
+        return event_action<EventFilter, detail::event_action_signature::e>(action);
     }
 
     template<class EventFilter, detail::event_action_signature Sig, class Action>
@@ -586,23 +564,6 @@ struct machine_conf
 #define MAKI_DETAIL_ARG_small_event_max_size value
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_small_event_max_size
-    }
-
-    template<class... Ts>
-    [[nodiscard]] constexpr auto enable_on_event_for() const
-    {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_has_on_event_for type_list_c<Ts...>
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_has_on_event_for
-    }
-
-    [[nodiscard]] constexpr auto enable_on_event_auto() const
-    {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_has_on_event_auto true
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_has_on_event_auto
     }
 
     template<class... TransitionTables>

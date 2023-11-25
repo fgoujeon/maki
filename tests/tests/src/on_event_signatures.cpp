@@ -21,11 +21,6 @@ namespace
 
     namespace events
     {
-        struct event0
-        {
-            std::string value;
-        };
-
         struct event1
         {
             std::string value;
@@ -46,25 +41,21 @@ namespace
         struct state0
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_event_for<events::event0, events::event1, events::event2>()
+                .event_action_ce<events::event1>
+                (
+                    [](context& ctx, const events::event1& event)
+                    {
+                        ctx.out = "on_event_ce " + event.value;
+                    }
+                )
+                .event_action_mce<events::event2>
+                (
+                    [](machine_t& /*mach*/, context& ctx, const events::event2& event)
+                    {
+                        ctx.out = "on_event_mce " + event.value;
+                    }
+                )
             ;
-
-            void on_event(const events::event0& event)
-            {
-                ctx.out = "on_event " + event.value;
-            }
-
-            void on_event_ce(context& ctxt, const events::event1& event)
-            {
-                ctxt.out = "on_event_ce " + event.value;
-            }
-
-            void on_event_mce(machine_t& /*mach*/, context& ctxt, const events::event2& event)
-            {
-                ctxt.out = "on_event_mce " + event.value;
-            }
-
-            context& ctx;
         };
     }
 
@@ -87,10 +78,6 @@ TEST_CASE("on_event_signatures")
 {
     auto machine = machine_t{};
     auto& ctx = machine.context();
-
-    ctx.out.clear();
-    machine.process_event(events::event0{"0"});
-    REQUIRE(ctx.out == "on_event 0");
 
     ctx.out.clear();
     machine.process_event(events::event1{"1"});

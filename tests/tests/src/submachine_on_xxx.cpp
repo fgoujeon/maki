@@ -45,7 +45,13 @@ namespace
                         ctx.out += event.data + "2";
                     }
                 )
-                .enable_on_event_for<events::internal>()
+                .event_action_ce<events::internal>
+                (
+                    [](context& ctx, const events::internal& event)
+                    {
+                        ctx.out += event.data + "2";
+                    }
+                )
                 .exit_action_ce<events::button_press>
                 (
                     [](context& ctx, const events::button_press& event)
@@ -54,13 +60,6 @@ namespace
                     }
                 )
             ;
-
-            void on_event(const events::internal& event)
-            {
-                ctx.out += event.data + "2";
-            }
-
-            context& ctx;
         };
 
         constexpr auto on_transition_table = maki::empty_transition_table
@@ -78,7 +77,13 @@ namespace
                         ctx.out += event.data + "1";
                     }
                 )
-                .enable_on_event_for<events::internal>()
+                .event_action_ce<events::internal>
+                (
+                    [](context& ctx, const events::internal& event)
+                    {
+                        ctx.out += event.data + "1";
+                    }
+                )
                 .exit_action_ce<events::button_press>
                 (
                     [](context& ctx, const events::button_press& event)
@@ -87,13 +92,6 @@ namespace
                     }
                 )
             ;
-
-            void on_event(const events::internal& event)
-            {
-                ctx.out += event.data + "1";
-            }
-
-            context& ctx;
         };
     }
 

@@ -53,7 +53,21 @@ namespace
                         }
                     }
                 )
-                .enable_on_event_for<maki::events::exception>()
+                .event_action_ce<maki::events::exception>
+                (
+                    [](context& ctx, const maki::events::exception& event)
+                    {
+                        try
+                        {
+                            std::rethrow_exception(event.eptr);
+                        }
+                        catch(const std::exception& e)
+                        {
+                            ctx.out += "default;";
+                            ctx.out += e.what();
+                        }
+                    }
+                )
                 .exit_action_c<maki::any>
                 (
                     [](context& ctx)
@@ -62,21 +76,6 @@ namespace
                     }
                 )
             ;
-
-            void on_event(const maki::events::exception& event)
-            {
-                try
-                {
-                    std::rethrow_exception(event.eptr);
-                }
-                catch(const std::exception& e)
-                {
-                    ctx.out += "default;";
-                    ctx.out += e.what();
-                }
-            }
-
-            context& ctx;
         };
     }
 

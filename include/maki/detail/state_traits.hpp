@@ -74,44 +74,39 @@ constexpr auto requires_on_exit()
 
 //on_event
 
-class has_on_event
+template<class State, class Event>
+class requires_on_event
 {
 private:
-    template<class State, class Event>
-    static constexpr auto has_impl(overload_priority::high /*unused*/) ->
-        decltype(std::declval<State&>().on_event(std::declval<const Event&>()), bool())
-    {
-        return true;
-    }
+    struct not_found{};
 
-    template<class State, class Event>
-    static constexpr bool has_impl(overload_priority::low /*unused*/)
+    template<class Action>
+    struct takes_event
     {
-        return false;
-    }
+        static constexpr auto value = matches_pattern_v
+        <
+            Event,
+            typename Action::event_type_filter
+        >;
+    };
+
+    using first_matching_action_type = tlu::find_t
+    <
+        decltype(State::conf.event_actions),
+        takes_event,
+        not_found
+    >;
 
 public:
-    template<class State, class Event> //Template here for lazy evaluation
-    static constexpr auto value = has_impl<State, Event>(overload_priority::probe);
-};
-
-struct matches_on_event_pattern
-{
-    template<class State, class Event> //Template here for lazy evaluation
-    static constexpr auto value = matches_any_pattern_v
+    static constexpr bool value = !std::is_same_v
     <
-        Event,
-        decltype(State::conf.has_on_event_for)
+        first_matching_action_type,
+        not_found
     >;
 };
 
 template<class State, class Event>
-constexpr auto requires_on_event_v = std::conditional_t
-<
-    State::conf.has_on_event_auto,
-    has_on_event,
-    matches_on_event_pattern
->::template value<State, Event>;
+constexpr auto requires_on_event_v = requires_on_event<State, Event>::value;
 
 
 //needs_unique_instance

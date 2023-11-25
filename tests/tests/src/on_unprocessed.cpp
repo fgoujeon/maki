@@ -46,40 +46,22 @@ namespace
         struct off
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_event_for<events::ignored_by_emitting_blue>()
+                .event_action_v<events::ignored_by_emitting_blue>([]{})
             ;
-
-            void on_event(const events::ignored_by_emitting_blue & /*unused*/)
-            {
-            }
-
-            context& ctx;
         };
 
         struct emitting_red
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_event_auto()
+                .event_action_v<events::ignored_by_emitting_blue>([]{})
             ;
-
-            void on_event(const events::ignored_by_emitting_blue & /*unused*/)
-            {
-            }
-
-            context& ctx;
         };
 
         struct emitting_green
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_event_auto()
+                .event_action_v<events::ignored_by_emitting_blue>([]{})
             ;
-
-            void on_event(const events::ignored_by_emitting_blue & /*unused*/)
-            {
-            }
-
-            context& ctx;
         };
 
         struct emitting_blue

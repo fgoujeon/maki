@@ -31,23 +31,35 @@ namespace
     {
         struct off
         {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_event_auto()
-            ;
+            template<class Event>
+            void on_event(const Event& /*event*/)
+            {
+            }
 
             void on_event(const events::button_press& event)
             {
                 ctx.out += event.data + "2;";
             }
 
+            static constexpr auto conf = maki::default_state_conf
+                .event_action_de<maki::any>
+                (
+                    [](off& self, const auto& event)
+                    {
+                        self.on_event(event);
+                    }
+                )
+            ;
+
             context& ctx;
         };
 
         struct on
         {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_event_auto()
-            ;
+            template<class Event>
+            void on_event(const Event& /*event*/)
+            {
+            }
 
             void on_event(const events::button_press& /*event*/)
             {
@@ -58,6 +70,16 @@ namespace
             {
                 ctx.out += "beep;";
             }
+
+            static constexpr auto conf = maki::default_state_conf
+                .event_action_de<maki::any>
+                (
+                    [](on& self, const auto& event)
+                    {
+                        self.on_event(event);
+                    }
+                )
+            ;
 
             context& ctx;
         };
@@ -70,16 +92,27 @@ namespace
 
     struct machine_def
     {
-        static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
-            .enable_on_event_auto()
-        ;
+        template<class Event>
+        void on_event(const Event& /*event*/)
+        {
+        }
 
         void on_event(const events::button_press& event)
         {
             ctx.out += event.data + "1;";
         }
+
+        static constexpr auto conf = maki::default_machine_conf
+            .set_transition_tables(transition_table)
+            .set_context<context>()
+            .event_action_de<maki::any>
+            (
+                [](machine_def& self, const auto& event)
+                {
+                    self.on_event(event);
+                }
+            )
+        ;
 
         context& ctx;
     };

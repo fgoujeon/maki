@@ -33,7 +33,13 @@ namespace
                         ctx.out += "idle::on_entry;";
                     }
                 )
-                .enable_on_event_for<maki::any>()
+                .event_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "idle::on_event;";
+                    }
+                )
                 .exit_action_c<maki::any>
                 (
                     [](context& ctx)
@@ -42,14 +48,6 @@ namespace
                     }
                 )
             ;
-
-            template<class Event>
-            void on_event(const Event&)
-            {
-                ctx.out += "idle::on_event;";
-            }
-
-            context& ctx;
         };
 
         struct running
@@ -62,7 +60,13 @@ namespace
                         ctx.out += "running::on_entry;";
                     }
                 )
-                .enable_on_event_for<maki::any>()
+                .event_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "running::on_event;";
+                    }
+                )
                 .exit_action_c<maki::any>
                 (
                     [](context& ctx)
@@ -71,14 +75,6 @@ namespace
                     }
                 )
             ;
-
-            template<class Event>
-            void on_event(const Event&)
-            {
-                ctx.out += "running::on_event;";
-            }
-
-            context& ctx;
         };
     }
 

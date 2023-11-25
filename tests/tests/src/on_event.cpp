@@ -32,38 +32,34 @@ namespace
         struct off
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_event_for<events::button_press>()
+                .event_action_ce<events::button_press>
+                (
+                    [](context& ctx, const events::button_press& event)
+                    {
+                        ctx.out += event.data + "2;";
+                    }
+                )
             ;
-
-            void on_event(const events::button_press& event)
-            {
-                ctx.out += event.data + "2;";
-            }
-
-            context& ctx;
         };
 
         struct on
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_event_for
-                <
-                    events::button_press,
-                    events::alert_button_press
-                >()
+                .event_action_c<events::button_press>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "_";
+                    }
+                )
+                .event_action_c<events::alert_button_press>
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "beep;";
+                    }
+                )
             ;
-
-            void on_event(const events::button_press& /*event*/)
-            {
-                ctx.out += "_";
-            }
-
-            void on_event(const events::alert_button_press& /*event*/)
-            {
-                ctx.out += "beep;";
-            }
-
-            context& ctx;
         };
     }
 
@@ -77,15 +73,14 @@ namespace
         static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
             .set_context<context>()
-            .enable_on_event_for<events::button_press>()
+            .event_action_ce<events::button_press>
+            (
+                [](context& ctx, const events::button_press& event)
+                {
+                    ctx.out += event.data + "1;";
+                }
+            )
         ;
-
-        void on_event(const events::button_press& event)
-        {
-            ctx.out += event.data + "1;";
-        }
-
-        context& ctx;
     };
 
     using machine_t = maki::machine<machine_def>;

@@ -24,18 +24,6 @@ struct state1 { static constexpr auto conf = maki::default_state_conf; };
 //! [short-in-state]
 struct state2
 {
-    //Internal action.
-    void on_event(const some_event& /*event*/)
-    {
-        std::cout << "Executing state2 some_event action\n";
-    }
-
-    //Internal action.
-    void on_event(const some_other_event& event)
-    {
-        std::cout << "Executing state2 some_other_event action (some_other_event{" << event.value << "})...\n";
-    }
-
     static constexpr auto conf = maki::default_state_conf
         //Entry action.
         //Called on state entry for state transitions caused by some_other_event.
@@ -52,9 +40,17 @@ struct state2
             std::cout << "Executing state2 entry action...\n";
         })
 
-        //Require the state machine to call on_event() whenever it processes
-        //some_event or some_other_event while this state is active
-        .enable_on_event_for<some_event, some_other_event>()
+        //Internal action.
+        .event_action_v<some_event>([]
+        {
+            std::cout << "Executing state2 some_event action\n";
+        })
+
+        //Internal action.
+        .event_action_e<some_other_event>([](const some_other_event& event)
+        {
+            std::cout << "Executing state2 some_other_event action (some_other_event{" << event.value << "})...\n";
+        })
 
         //Exit action.
         //Called on state exit, whatever the event that caused the state

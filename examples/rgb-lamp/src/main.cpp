@@ -120,7 +120,15 @@ namespace states
             This expression must be valid:
                 state.on_event(event);
             */
-            .enable_on_event_for<button::push_event>()
+            .event_action_e<button::push_event>
+            (
+                [](const button::push_event& event)
+                {
+                    std::cout << "Received a ";
+                    std::cout << event.duration_ms;
+                    std::cout << " millisecond push in off state\n";
+                }
+            )
 
             /*
             Finally, we want the state machine to call on_exit() whenever it
@@ -138,15 +146,6 @@ namespace states
                 }
             )
         ;
-
-        void on_event(const button::push_event& event)
-        {
-            std::cout << "Received a ";
-            std::cout << event.duration_ms;
-            std::cout << " millisecond push in off state\n";
-        }
-
-        context& ctx;
     };
 
     /*

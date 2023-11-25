@@ -269,7 +269,13 @@ public:
                 self.on_entry(event);
             }
         )
-        .enable_on_event_for(type_list_c<maki::any>)
+        .template event_action_de<any>
+        (
+            [](submachine& self, const auto& event)
+            {
+                self.on_event(event);
+            }
+        )
         .template exit_action_de<any>
         (
             [](submachine& self, const auto& event)

@@ -34,18 +34,17 @@ namespace
         struct on1
         {
             static constexpr auto conf = maki::default_state_conf
-                .enable_on_event_for<events::exception_request>()
+                .event_action_c<events::exception_request>
+                (
+                    [](context& ctx)
+                    {
+                        if(ctx.always_zero == 0) //We need this to avoid "unreachable code" warnings
+                        {
+                            throw std::runtime_error{"exception"};
+                        }
+                    }
+                )
             ;
-
-            void on_event(const events::exception_request&)
-            {
-                if(ctx.always_zero == 0) //We need this to avoid "unreachable code" warnings
-                {
-                    throw std::runtime_error{"exception"};
-                }
-            }
-
-            context& ctx;
         };
     }
 

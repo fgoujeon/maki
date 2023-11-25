@@ -17,51 +17,51 @@
 namespace maki::detail
 {
 
-template<class State, class Sm, class Context, class Event, class EntryAction, class... EntryActions>
-void call_entry_action_2
+template<class State, class Sm, class Context, class Event, class EventAction, class... EventActions>
+void call_event_action
 (
     [[maybe_unused]] State& state,
     [[maybe_unused]] Sm& mach,
     [[maybe_unused]] Context& ctx,
     [[maybe_unused]] const Event& event,
-    [[maybe_unused]] const EntryAction& entry_action,
-    [[maybe_unused]] const EntryActions&... entry_actions
+    [[maybe_unused]] const EventAction& event_action,
+    [[maybe_unused]] const EventActions&... event_actions
 )
 {
-    using event_type_filter = typename EntryAction::event_type_filter;
+    using event_type_filter = typename EventAction::event_type_filter;
     if constexpr(matches_pattern_v<Event, event_type_filter>)
     {
-        if constexpr(EntryAction::sig == event_action_signature::v)
+        if constexpr(EventAction::sig == event_action_signature::v)
         {
-            std::invoke(entry_action.action);
+            std::invoke(event_action.action);
         }
-        else if constexpr(EntryAction::sig == event_action_signature::m)
+        else if constexpr(EventAction::sig == event_action_signature::m)
         {
-            std::invoke(entry_action.action, mach);
+            std::invoke(event_action.action, mach);
         }
-        else if constexpr(EntryAction::sig == event_action_signature::mce)
+        else if constexpr(EventAction::sig == event_action_signature::mce)
         {
-            std::invoke(entry_action.action, mach, ctx, event);
+            std::invoke(event_action.action, mach, ctx, event);
         }
-        else if constexpr(EntryAction::sig == event_action_signature::c)
+        else if constexpr(EventAction::sig == event_action_signature::c)
         {
-            std::invoke(entry_action.action, ctx);
+            std::invoke(event_action.action, ctx);
         }
-        else if constexpr(EntryAction::sig == event_action_signature::ce)
+        else if constexpr(EventAction::sig == event_action_signature::ce)
         {
-            std::invoke(entry_action.action, ctx, event);
+            std::invoke(event_action.action, ctx, event);
         }
-        else if constexpr(EntryAction::sig == event_action_signature::d)
+        else if constexpr(EventAction::sig == event_action_signature::d)
         {
-            std::invoke(entry_action.action, state);
+            std::invoke(event_action.action, state);
         }
-        else if constexpr(EntryAction::sig == event_action_signature::de)
+        else if constexpr(EventAction::sig == event_action_signature::de)
         {
-            std::invoke(entry_action.action, state, event);
+            std::invoke(event_action.action, state, event);
         }
-        else if constexpr(EntryAction::sig == event_action_signature::e)
+        else if constexpr(EventAction::sig == event_action_signature::e)
         {
-            std::invoke(entry_action.action, event);
+            std::invoke(event_action.action, event);
         }
         else
         {
@@ -71,8 +71,8 @@ void call_entry_action_2
     }
     else
     {
-        static_assert(sizeof...(EntryActions) != 0, "No entry action found for this state and event");
-        call_entry_action_2(state, mach, ctx, event, entry_actions...);
+        static_assert(sizeof...(EventActions) != 0, "No event action found for this state and event");
+        call_event_action(state, mach, ctx, event, event_actions...);
     }
 }
 
@@ -88,72 +88,13 @@ void call_on_entry(State& state, Sm& mach, Context& ctx, const Event& event)
             state.conf.entry_actions,
             [](auto&&... args)
             {
-                call_entry_action_2(std::forward<decltype(args)>(args)...);
+                call_event_action(std::forward<decltype(args)>(args)...);
             },
             state,
             mach,
             ctx,
             event
         );
-    }
-}
-
-template<class State, class Sm, class Context, class Event, class EntryAction, class... EntryActions>
-void call_event_action_2
-(
-    [[maybe_unused]] State& state,
-    [[maybe_unused]] Sm& mach,
-    [[maybe_unused]] Context& ctx,
-    [[maybe_unused]] const Event& event,
-    [[maybe_unused]] const EntryAction& event_action,
-    [[maybe_unused]] const EntryActions&... event_actions
-)
-{
-    using event_type_filter = typename EntryAction::event_type_filter;
-    if constexpr(matches_pattern_v<Event, event_type_filter>)
-    {
-        if constexpr(EntryAction::sig == event_action_signature::v)
-        {
-            std::invoke(event_action.action);
-        }
-        else if constexpr(EntryAction::sig == event_action_signature::m)
-        {
-            std::invoke(event_action.action, mach);
-        }
-        else if constexpr(EntryAction::sig == event_action_signature::mce)
-        {
-            std::invoke(event_action.action, mach, ctx, event);
-        }
-        else if constexpr(EntryAction::sig == event_action_signature::c)
-        {
-            std::invoke(event_action.action, ctx);
-        }
-        else if constexpr(EntryAction::sig == event_action_signature::ce)
-        {
-            std::invoke(event_action.action, ctx, event);
-        }
-        else if constexpr(EntryAction::sig == event_action_signature::d)
-        {
-            std::invoke(event_action.action, state);
-        }
-        else if constexpr(EntryAction::sig == event_action_signature::de)
-        {
-            std::invoke(event_action.action, state, event);
-        }
-        else if constexpr(EntryAction::sig == event_action_signature::e)
-        {
-            std::invoke(event_action.action, event);
-        }
-        else
-        {
-            constexpr auto is_false = sizeof(Sm) == 0;
-            static_assert(is_false, "Unsupported event_action_signature value");
-        }
-    }
-    else
-    {
-        static_assert(sizeof...(EntryActions) != 0, "No event action found for this state and event");
-        call_event_action_2(state, mach, ctx, event, event_actions...);
     }
 }
 
@@ -169,7 +110,7 @@ void call_on_event(State& state, Sm& mach, Context& ctx, const Event& event)
             state.conf.event_actions,
             [](auto&&... args)
             {
-                call_event_action_2(std::forward<decltype(args)>(args)...);
+                call_event_action(std::forward<decltype(args)>(args)...);
             },
             state,
             mach,
@@ -200,61 +141,6 @@ void call_on_event
     }
 }
 
-template<class State, class Sm, class Context, class Event, class EntryAction, class... EntryActions>
-void call_exit_action_2
-(
-    [[maybe_unused]] State& state,
-    [[maybe_unused]] Sm& mach,
-    [[maybe_unused]] Context& ctx,
-    [[maybe_unused]] const Event& event,
-    [[maybe_unused]] const EntryAction& exit_action,
-    [[maybe_unused]] const EntryActions&... exit_actions
-)
-{
-    using event_type_filter = typename EntryAction::event_type_filter;
-    if constexpr(matches_pattern_v<Event, event_type_filter>)
-    {
-        if constexpr(EntryAction::sig == event_action_signature::v)
-        {
-            std::invoke(exit_action.action);
-        }
-        else if constexpr(EntryAction::sig == event_action_signature::m)
-        {
-            std::invoke(exit_action.action, mach);
-        }
-        else if constexpr(EntryAction::sig == event_action_signature::c)
-        {
-            std::invoke(exit_action.action, ctx);
-        }
-        else if constexpr(EntryAction::sig == event_action_signature::ce)
-        {
-            std::invoke(exit_action.action, ctx, event);
-        }
-        else if constexpr(EntryAction::sig == event_action_signature::d)
-        {
-            std::invoke(exit_action.action, state);
-        }
-        else if constexpr(EntryAction::sig == event_action_signature::de)
-        {
-            std::invoke(exit_action.action, state, event);
-        }
-        else if constexpr(EntryAction::sig == event_action_signature::e)
-        {
-            std::invoke(exit_action.action, event);
-        }
-        else
-        {
-            constexpr auto is_false = sizeof(Sm) == 0;
-            static_assert(is_false, "Unsupported event_action_signature value");
-        }
-    }
-    else
-    {
-        static_assert(sizeof...(EntryActions) != 0, "No exit action found for this state and event");
-        call_exit_action_2(state, mach, ctx, event, exit_actions...);
-    }
-}
-
 template<class State, class Sm, class Context, class Event>
 void call_on_exit(State& state, Sm& mach, Context& ctx, const Event& event)
 {
@@ -267,7 +153,7 @@ void call_on_exit(State& state, Sm& mach, Context& ctx, const Event& event)
             state.conf.exit_actions,
             [](auto&&... args)
             {
-                call_exit_action_2(std::forward<decltype(args)>(args)...);
+                call_event_action(std::forward<decltype(args)>(args)...);
             },
             state,
             mach,

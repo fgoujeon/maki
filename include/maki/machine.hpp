@@ -154,9 +154,9 @@ public:
     @tparam State the state type
     */
     template<const auto& RegionPath, class State>
-    State& state()
+    auto& state_data()
     {
-        return submachine_.template state_def<RegionPath, State>();
+        return submachine_.template state_def_data<RegionPath, State>();
     }
 
     /**
@@ -167,9 +167,9 @@ public:
     @tparam State the state type
     */
     template<const auto& RegionPath, class State>
-    const State& state() const
+    const auto& state_data() const
     {
-        return submachine_.template state_def<RegionPath, State>();
+        return submachine_.template state_def_data<RegionPath, State>();
     }
 
     /**

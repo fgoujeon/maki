@@ -115,6 +115,15 @@ class submachine
 {
 public:
     using def_type = Def;
+    using def_conf_type = std::decay_t<decltype(Def::conf)>;
+    using def_raw_data_type = typename def_conf_type::data_type;
+    using def_data_type = std::conditional_t
+    <
+        std::is_void_v<def_raw_data_type>,
+        null,
+        def_raw_data_type
+    >;
+
     using context_type = typename submachine_context<Def, ParentRegion>::type;
     using root_sm_type = root_sm_of_t<submachine>;
 
@@ -125,6 +134,7 @@ public:
         root_sm_(root_sm),
         ctx_holder_(root_sm, std::forward<ContextArgs>(ctx_args)...),
         def_holder_(root_sm, context()),
+        def_data_holder_(root_sm, context()),
         regions_(uniform_construct, *this)
     {
     }
@@ -139,32 +149,18 @@ public:
         return ctx_holder_.get();
     }
 
-    Def& def()
+    def_type& def()
     {
         return def_holder_.get();
     }
 
-    template<const auto& StateRegionPath, class StateDef>
-    StateDef& state_def()
+    def_data_type& def_data()
     {
-        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
-
-        static_assert
-        (
-            std::is_same_v
-            <
-                typename detail::tlu::front_t<state_region_path_t>::machine_def_type,
-                Def
-            >
-        );
-
-        static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
-        static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
-        return tuple_get<region_index>(regions_).template state_def<state_region_relative_path, StateDef>();
+        return def_data_holder_.get();
     }
 
     template<const auto& StateRegionPath, class StateDef>
-    const StateDef& state_def() const
+    auto& state_def_data()
     {
         using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
 
@@ -179,7 +175,26 @@ public:
 
         static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
         static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
-        return tuple_get<region_index>(regions_).template state_def<state_region_relative_path, StateDef>();
+        return tuple_get<region_index>(regions_).template state_def_data<state_region_relative_path, StateDef>();
+    }
+
+    template<const auto& StateRegionPath, class StateDef>
+    const auto& state_def_data() const
+    {
+        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
+
+        static_assert
+        (
+            std::is_same_v
+            <
+                typename detail::tlu::front_t<state_region_path_t>::machine_def_type,
+                Def
+            >
+        );
+
+        static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
+        static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
+        return tuple_get<region_index>(regions_).template state_def_data<state_region_relative_path, StateDef>();
     }
 
     template<const auto& StateRegionPath, class StateDef>
@@ -226,10 +241,10 @@ public:
     {
         call_state_action
         (
-            def().conf.entry_actions,
+            Def::conf.entry_actions,
             root_sm_,
             context(),
-            def(),
+            def_data(),
             event
         );
         tlu::for_each<region_tuple_type, region_start>(*this, event);
@@ -242,10 +257,10 @@ public:
         {
             call_state_action
             (
-                def().conf.event_actions,
+                Def::conf.event_actions,
                 root_sm_,
                 context(),
-                def(),
+                def_data(),
                 event
             );
         }
@@ -260,10 +275,10 @@ public:
         {
             call_state_action
             (
-                def().conf.event_actions,
+                Def::conf.event_actions,
                 root_sm_,
                 context(),
-                def(),
+                def_data(),
                 event
             );
             tlu::for_each<region_tuple_type, region_process_event>(*this, event);
@@ -281,10 +296,10 @@ public:
         tlu::for_each<region_tuple_type, region_stop>(*this, event);
         call_state_action
         (
-            def().conf.exit_actions,
+            Def::conf.exit_actions,
             root_sm_,
             context(),
-            def(),
+            def_data(),
             event
         );
     }
@@ -351,7 +366,8 @@ private:
     root_sm_type& root_sm_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
 
     context_holder<context_type> ctx_holder_;
-    detail::machine_object_holder<Def> def_holder_;
+    detail::machine_object_holder<def_type> def_holder_;
+    detail::machine_object_holder<def_data_type> def_data_holder_;
     region_tuple_type regions_;
 };
 

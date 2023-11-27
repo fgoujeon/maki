@@ -25,31 +25,29 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(off);
-
-        struct on;
-
-        void on_accumulate(on& self, const int n);
-
-        struct on
+        struct data
         {
-            static constexpr auto conf = maki::state_conf_c<on>
-                .event_action_de<events::accumulate_request>
-                (
-                    [](on& self, const events::accumulate_request& event)
-                    {
-                        on_accumulate(self, event.n);
-                    }
-                )
-            ;
-
             int counter = 0;
         };
 
-        void on_accumulate(on& self, const int n)
+        void accumulate(data& dat, const events::accumulate_request& req)
         {
-            self.counter += n;
+            dat.counter += req.n;
         }
+
+        struct off
+        {
+            static constexpr auto conf = maki::state_conf_c<data>
+                .event_action_de<events::accumulate_request>(&accumulate)
+            ;
+        };
+
+        struct on
+        {
+            static constexpr auto conf = maki::state_conf_c<data>
+                .event_action_de<events::accumulate_request>(&accumulate)
+            ;
+        };
     }
 
     constexpr auto transition_table = maki::empty_transition_table
@@ -68,17 +66,26 @@ namespace
     using machine_t = maki::machine<machine_def>;
 }
 
-TEST_CASE("state_data")
+TEST_CASE("state_data_same_type")
 {
     auto machine = machine_t{};
-    auto& counter = machine.state_data<maki::region_path_c<machine_def>, states::on>().counter;
+    auto& off_counter = machine.state_data<maki::region_path_c<machine_def>, states::off>().counter;
+    auto& on_counter = machine.state_data<maki::region_path_c<machine_def>, states::on>().counter;
 
-    machine.process_event(events::button_press{});
-    REQUIRE(counter == 0);
+    REQUIRE(off_counter == 0);
+    REQUIRE(on_counter == 0);
 
     machine.process_event(events::accumulate_request{1});
-    REQUIRE(counter == 1);
+    REQUIRE(off_counter == 1);
+    REQUIRE(on_counter == 0);
+
+    machine.process_event(events::button_press{});
+    REQUIRE(off_counter == 1);
+    REQUIRE(on_counter == 0);
+
+    machine.process_event(events::accumulate_request{1});
+    REQUIRE(on_counter == 1);
 
     machine.process_event(events::accumulate_request{2});
-    REQUIRE(counter == 3);
+    REQUIRE(on_counter == 3);
 }

@@ -92,29 +92,17 @@ namespace
 
     struct machine_def
     {
-        template<class Event>
-        void on_event(const Event& /*event*/)
-        {
-        }
-
-        void on_event(const events::button_press& event)
-        {
-            ctx.out += event.data + "1;";
-        }
-
         static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
             .set_context<context>()
-            .event_action_de<maki::any>
+            .event_action_ce<events::button_press>
             (
-                [](machine_def& self, const auto& event)
+                [](context& ctx, const events::button_press& event)
                 {
-                    self.on_event(event);
+                    ctx.out += event.data + "1;";
                 }
             )
         ;
-
-        context& ctx;
     };
 
     using machine_t = maki::machine<machine_def>;

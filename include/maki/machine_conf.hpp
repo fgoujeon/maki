@@ -36,6 +36,7 @@ template
 >
 struct machine_conf
 {
+    using data_type = void; //TODO remove this
     using context_type = typename ContextTypeHolder::type;
 
     /**

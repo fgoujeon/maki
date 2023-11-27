@@ -23,7 +23,7 @@
 namespace maki::detail
 {
 
-namespace
+namespace region_detail
 {
     template<class StateList, class State>
     struct index_of_state
@@ -39,19 +39,6 @@ namespace
 
     template<class StateList, class State>
     inline constexpr auto index_of_state_v = index_of_state<StateList, State>::value;
-
-    template<class State>
-    auto& state_def_of(State& state)
-    {
-        if constexpr(state_traits::is_submachine_v<State>)
-        {
-            return state.def();
-        }
-        else
-        {
-            return state;
-        }
-    }
 }
 
 template<class ParentSm, int Index>
@@ -89,37 +76,15 @@ public:
     ~region() = default;
 
     template<const auto& StateRegionPath, class StateDef>
-    const StateDef& state_def() const
+    const auto& state_def_data() const
     {
-        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
-
-        if constexpr(tlu::size_v<state_region_path_t> == 0)
-        {
-            return state_def_of(state_from_state_def<StateDef>());
-        }
-        else
-        {
-            using submachine_t = typename tlu::front_t<state_region_path_t>::machine_def_type;
-            const auto& state = state_from_state_def<submachine_t>();
-            return state.template state_def<StateRegionPath, StateDef>();
-        }
+        return static_state_def_data<StateRegionPath, StateDef>(*this);
     }
 
     template<const auto& StateRegionPath, class StateDef>
-    StateDef& state_def()
+    auto& state_def_data()
     {
-        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
-
-        if constexpr(tlu::size_v<state_region_path_t> == 0)
-        {
-            return state_def_of(state_from_state_def<StateDef>());
-        }
-        else
-        {
-            using submachine_t = typename tlu::front_t<state_region_path_t>::machine_def_type;
-            auto& state = state_from_state_def<submachine_t>();
-            return state.template state_def<StateRegionPath, StateDef>();
-        }
+        return static_state_def_data<StateRegionPath, StateDef>(*this);
     }
 
     template<const auto& StateRelativeRegionPath, class StateDef>
@@ -421,7 +386,7 @@ private:
                 );
             }
 
-            active_state_index_ = index_of_state_v
+            active_state_index_ = region_detail::index_of_state_v
             <
                 state_def_type_list,
                 TargetStateDef
@@ -498,14 +463,14 @@ private:
                 return false;
             }
 
-            auto& state = self.state<State>();
+            auto& state_data = self.state_data<State>();
             call_state_action_old
             (
-                state,
+                state_data,
                 State::conf.event_actions,
                 self.root_sm_,
                 self.ctx_,
-                state,
+                state_data,
                 event,
                 extra_args...
             );
@@ -516,7 +481,7 @@ private:
     template<class State>
     [[nodiscard]] bool is_active_state_type() const
     {
-        constexpr auto given_state_index = index_of_state_v
+        constexpr auto given_state_index = region_detail::index_of_state_v
         <
             state_type_list,
             State
@@ -527,7 +492,7 @@ private:
     template<class StateDef>
     [[nodiscard]] bool is_active_state_def_type() const
     {
-        constexpr auto given_state_index = index_of_state_v
+        constexpr auto given_state_index = region_detail::index_of_state_v
         <
             state_def_type_list,
             StateDef
@@ -589,28 +554,73 @@ private:
     auto& state_from_state_def()
     {
         using state_t = state_traits::state_def_to_state_t<StateDef, region>;
-        return state<state_t>();
+        return state_data<state_t>();
     }
 
     template<class StateDef>
     const auto& state_from_state_def() const
     {
         using state_t = state_traits::state_def_to_state_t<StateDef, region>;
-        return state<state_t>();
+        return state_data<state_t>();
+    }
+
+    template<int StateIndex>
+    auto& state_data()
+    {
+        return tuple_get<StateIndex>(state_data_holders_).get();
+    }
+
+    template<int StateIndex>
+    const auto& state_data() const
+    {
+        return tuple_get<StateIndex>(state_data_holders_).get();
     }
 
     template<class State>
-    auto& state()
+    auto& state_data()
     {
         constexpr auto state_index = tlu::index_of_v<state_type_list, State>;
         return tuple_get<state_index>(state_data_holders_).get();
     }
 
     template<class State>
-    const auto& state() const
+    const auto& state_data() const
     {
         constexpr auto state_index = tlu::index_of_v<state_type_list, State>;
         return tuple_get<state_index>(state_data_holders_).get();
+    }
+
+    template<class StateDef, class Region>
+    static auto& static_state_def_data_leaf(Region& self)
+    {
+        using conf_type = std::decay_t<decltype(StateDef::conf)>;
+        if constexpr(is_submachine_conf_v<conf_type>)
+        {
+            using state_t = state_traits::state_def_to_state_t<StateDef, std::decay_t<Region>>;
+            return self.template state_data<state_t>().def_data();
+        }
+        else
+        {
+            return self.template state_data<StateDef>();
+        }
+    }
+
+    template<const auto& StateRegionPath, class StateDef, class Region>
+    static auto& static_state_def_data(Region& self)
+    {
+        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
+
+        if constexpr(tlu::size_v<state_region_path_t> == 0)
+        {
+            return static_state_def_data_leaf<StateDef>(self);
+        }
+        else
+        {
+            using submachine_t = typename tlu::front_t<state_region_path_t>::machine_def_type;
+            constexpr auto submachine_index = tlu::index_of_v<typename Region::state_def_type_list, submachine_t>;
+            auto& submachine_data = self.template state_data<submachine_index>();
+            return submachine_data.template state_def_data<StateRegionPath, StateDef>(); //recursive
+        }
     }
 
     //Store references for faster access
@@ -619,7 +629,7 @@ private:
 
     state_data_holder_tuple_type state_data_holders_;
 
-    int active_state_index_ = index_of_state_v<state_def_type_list, states::stopped>;
+    int active_state_index_ = region_detail::index_of_state_v<state_def_type_list, states::stopped>;
 };
 
 } //namespace

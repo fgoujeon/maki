@@ -89,7 +89,7 @@ namespace
 
         struct on
         {
-            static constexpr auto conf = maki::submachine_conf_c<>
+            static constexpr auto conf = maki::submachine_conf_c<on>
                 .set_transition_tables(on_transition_table)
                 .exit_action_c<maki::any>
                 (
@@ -128,15 +128,15 @@ TEST_CASE("state")
     static constexpr auto root_region_path = maki::region_path_c<machine_def>;
     static constexpr auto on_region_path = root_region_path.add<states::on>();
 
-    auto& red_state = machine.state<on_region_path, states::emitting_red>();
+    auto& red_state = machine.state_data<on_region_path, states::emitting_red>();
     REQUIRE(red_state.color == led_color::red);
 
-    const auto& green_state = const_sm.state<on_region_path, states::emitting_green>();
+    const auto& green_state = const_sm.state_data<on_region_path, states::emitting_green>();
     REQUIRE(green_state.color == led_color::green);
 
-    auto& blue_state = machine.state<on_region_path, states::emitting_blue>();
+    auto& blue_state = machine.state_data<on_region_path, states::emitting_blue>();
     REQUIRE(blue_state.color == led_color::blue);
 
-    auto& on_state = machine.state<root_region_path, states::on>();
+    auto& on_state = machine.state_data<root_region_path, states::on>();
     REQUIRE(on_state.is_on_state);
 }

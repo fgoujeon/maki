@@ -59,7 +59,7 @@ namespace transition_table_digest_detail
     <
         TList,
         U,
-        (!tlu::contains_v<TList, U> && !std::is_same_v<U, null>)
+        (!tlu::contains_v<TList, U> && !std::is_same_v<U, state_conf_wrapper<null_c>>)
     >;
 
     template<class TransitionTable>

@@ -29,7 +29,7 @@ namespace
 
     namespace states
     {
-        struct off
+        struct off_data
         {
             template<class Event>
             void on_event(const Event& /*event*/)
@@ -41,20 +41,20 @@ namespace
                 ctx.out += event.data + "2;";
             }
 
-            static constexpr auto conf = maki::state_conf_c<off>
-                .event_action_de<maki::any>
-                (
-                    [](off& self, const auto& event)
-                    {
-                        self.on_event(event);
-                    }
-                )
-            ;
-
             context& ctx;
         };
 
-        struct on
+        constexpr auto off = maki::state_conf_c<off_data>
+            .event_action_de<maki::any>
+            (
+                [](off_data& dat, const auto& event)
+                {
+                    dat.on_event(event);
+                }
+            )
+        ;
+
+        struct on_data
         {
             template<class Event>
             void on_event(const Event& /*event*/)
@@ -71,18 +71,18 @@ namespace
                 ctx.out += "beep;";
             }
 
-            static constexpr auto conf = maki::state_conf_c<on>
-                .event_action_de<maki::any>
-                (
-                    [](on& self, const auto& event)
-                    {
-                        self.on_event(event);
-                    }
-                )
-            ;
-
             context& ctx;
         };
+
+        constexpr auto on = maki::state_conf_c<on_data>
+            .event_action_de<maki::any>
+            (
+                [](on_data& dat, const auto& event)
+                {
+                    dat.on_event(event);
+                }
+            )
+        ;
     }
 
     constexpr auto transition_table = maki::empty_transition_table

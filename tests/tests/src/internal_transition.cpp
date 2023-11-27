@@ -33,18 +33,15 @@ namespace
         EMPTY_STATE(state8);
         EMPTY_STATE(state9);
 
-        struct benchmarking
-        {
-            static constexpr auto conf = maki::state_conf_c<>
-                .event_action_c<events::internal_transition>
-                (
-                    [](context& ctx)
-                    {
-                        ++ctx.side_effect;
-                    }
-                )
-            ;
-        };
+        constexpr auto benchmarking = maki::state_conf_c<>
+            .event_action_c<events::internal_transition>
+            (
+                [](context& ctx)
+                {
+                    ++ctx.side_effect;
+                }
+            )
+        ;
     }
 
     constexpr auto transition_table = maki::empty_transition_table

@@ -32,7 +32,7 @@ namespace
         .add_c<state1,    event1, state2, maki::noop, guard0>
         .add_c<state2,    event2, state3, action0>
         .add_c<state3,    event3, state0, action1,    guard1>
-        .add_c<maki::any, event3, state0>
+        .add_c<maki::any_c, event3, state0>
     ;
 
     struct machine_def
@@ -53,7 +53,13 @@ namespace
         machine_t
     >;
 
-    using state_tuple_t = maki::type_list<state0, state1, state2, state3>;
+    using state_tuple_t = maki::type_list
+    <
+        maki::detail::state_conf_wrapper<state0>,
+        maki::detail::state_conf_wrapper<state1>,
+        maki::detail::state_conf_wrapper<state2>,
+        maki::detail::state_conf_wrapper<state3>
+    >;
 }
 
 TEST_CASE("detail::transition_table_digest")

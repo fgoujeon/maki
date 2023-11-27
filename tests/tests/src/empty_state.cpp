@@ -24,14 +24,14 @@ namespace
         EMPTY_STATE(state0);
 
         //Check empty state without default constructor
-        struct state1
+        struct state1_data
         {
-            static constexpr auto conf = maki::state_conf_c<state1>;
-
-            state1(context& /*ctx*/)
+            state1_data(context& /*ctx*/)
             {
             }
         };
+
+        constexpr auto state1 = maki::state_conf_c<state1_data>;
     }
 
     constexpr auto transition_table = maki::empty_transition_table

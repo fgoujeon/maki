@@ -30,43 +30,34 @@ struct plus_button_press{};
 //! [events-and-datatypes]
 
 //States
-struct reading_memory { static constexpr auto conf = maki::state_conf_c<>; };
-struct spinning_low
-{
-    static constexpr auto conf = maki::state_conf_c<>
-        .entry_action_v<maki::any>([]
-        {
-            std::cout << "Speed is low\n";
+constexpr auto reading_memory = maki::state_conf_c<>;
+constexpr auto spinning_low = maki::state_conf_c<>
+    .entry_action_v<maki::any>([]
+    {
+        std::cout << "Speed is low\n";
 
-            //Set fan speed and save speed in memory
-            //[Implementation detail...]
-        })
-    ;
-};
-struct spinning_med
-{
-    static constexpr auto conf = maki::state_conf_c<>
-        .entry_action_v<maki::any>([]
-        {
-            std::cout << "Speed is med\n";
+        //Set fan speed and save speed in memory
+        //[Implementation detail...]
+    })
+;
+constexpr auto spinning_med = maki::state_conf_c<>
+    .entry_action_v<maki::any>([]
+    {
+        std::cout << "Speed is med\n";
 
-            //Set fan speed and save speed in memory
-            //[Implementation detail...]
-        })
-    ;
-};
-struct spinning_high
-{
-    static constexpr auto conf = maki::state_conf_c<>
-        .entry_action_v<maki::any>([]
-        {
-            std::cout << "Speed is high\n";
+        //Set fan speed and save speed in memory
+        //[Implementation detail...]
+    })
+;
+constexpr auto spinning_high = maki::state_conf_c<>
+    .entry_action_v<maki::any>([]
+    {
+        std::cout << "Speed is high\n";
 
-            //Set fan speed and save speed in memory
-            //[Implementation detail...]
-        })
-    ;
-};
+        //Set fan speed and save speed in memory
+        //[Implementation detail...]
+    })
+;
 
 //Guards
 //! [guards]

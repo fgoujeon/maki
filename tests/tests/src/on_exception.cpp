@@ -18,65 +18,59 @@ namespace
 
     namespace states
     {
-        struct off
-        {
-            static constexpr auto conf = maki::state_conf_c<>
-                .entry_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.out += "off::on_entry;";
-                    }
-                )
-                .exit_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.out += "off::on_exit;";
-                    }
-                )
-            ;
-        };
+        constexpr auto off = maki::state_conf_c<>
+            .entry_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "off::on_entry;";
+                }
+            )
+            .exit_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "off::on_exit;";
+                }
+            )
+        ;
 
-        struct on
-        {
-            static constexpr auto conf = maki::state_conf_c<>
-                .entry_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.out += "on::on_entry;";
+        constexpr auto on = maki::state_conf_c<>
+            .entry_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "on::on_entry;";
 
-                        if(ctx.always_zero == 0) //We need this to avoid "unreachable code" warnings
-                        {
-                            throw std::runtime_error{"test;"};
-                        }
-                    }
-                )
-                .event_action_ce<maki::events::exception>
-                (
-                    [](context& ctx, const maki::events::exception& event)
+                    if(ctx.always_zero == 0) //We need this to avoid "unreachable code" warnings
                     {
-                        try
-                        {
-                            std::rethrow_exception(event.eptr);
-                        }
-                        catch(const std::exception& e)
-                        {
-                            ctx.out += "default;";
-                            ctx.out += e.what();
-                        }
+                        throw std::runtime_error{"test;"};
                     }
-                )
-                .exit_action_c<maki::any>
-                (
-                    [](context& ctx)
+                }
+            )
+            .event_action_ce<maki::events::exception>
+            (
+                [](context& ctx, const maki::events::exception& event)
+                {
+                    try
                     {
-                        ctx.out += "on::on_exit;";
+                        std::rethrow_exception(event.eptr);
                     }
-                )
-            ;
-        };
+                    catch(const std::exception& e)
+                    {
+                        ctx.out += "default;";
+                        ctx.out += e.what();
+                    }
+                }
+            )
+            .exit_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "on::on_exit;";
+                }
+            )
+        ;
     }
 
     namespace events

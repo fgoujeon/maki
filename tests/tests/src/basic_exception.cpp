@@ -22,51 +22,45 @@ namespace
 
     namespace states
     {
-        struct off
-        {
-            static constexpr auto conf = maki::state_conf_c<>
-                .entry_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.out += "off::on_entry;";
-                    }
-                )
-                .exit_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.out += "off::on_exit;";
+        constexpr auto off = maki::state_conf_c<>
+            .entry_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "off::on_entry;";
+                }
+            )
+            .exit_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "off::on_exit;";
 
-                        if(!ctx.exception_thrown)
-                        {
-                            ctx.exception_thrown = true;
-                            throw std::runtime_error{"error"};
-                        }
+                    if(!ctx.exception_thrown)
+                    {
+                        ctx.exception_thrown = true;
+                        throw std::runtime_error{"error"};
                     }
-                )
-            ;
-        };
+                }
+            )
+        ;
 
-        struct on
-        {
-            static constexpr auto conf = maki::state_conf_c<>
-                .entry_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.out += "on::on_entry;";
-                    }
-                )
-                .exit_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.out += "on::on_exit;";
-                    }
-                )
-            ;
-        };
+        constexpr auto on = maki::state_conf_c<>
+            .entry_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "on::on_entry;";
+                }
+            )
+            .exit_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "on::on_exit;";
+                }
+            )
+        ;
     }
 
     namespace actions

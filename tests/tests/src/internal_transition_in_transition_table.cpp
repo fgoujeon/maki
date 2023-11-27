@@ -23,59 +23,53 @@ namespace
 
     namespace states
     {
-        struct idle
-        {
-            static constexpr auto conf = maki::state_conf_c<>
-                .entry_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.out += "idle::on_entry;";
-                    }
-                )
-                .event_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.out += "idle::on_event;";
-                    }
-                )
-                .exit_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.out += "idle::on_exit;";
-                    }
-                )
-            ;
-        };
+        constexpr auto idle = maki::state_conf_c<>
+            .entry_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "idle::on_entry;";
+                }
+            )
+            .event_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "idle::on_event;";
+                }
+            )
+            .exit_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "idle::on_exit;";
+                }
+            )
+        ;
 
-        struct running
-        {
-            static constexpr auto conf = maki::state_conf_c<>
-                .entry_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.out += "running::on_entry;";
-                    }
-                )
-                .event_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.out += "running::on_event;";
-                    }
-                )
-                .exit_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.out += "running::on_exit;";
-                    }
-                )
-            ;
-        };
+        constexpr auto running = maki::state_conf_c<>
+            .entry_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "running::on_entry;";
+                }
+            )
+            .event_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "running::on_event;";
+                }
+            )
+            .exit_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "running::on_exit;";
+                }
+            )
+        ;
     }
 
     namespace actions
@@ -89,7 +83,7 @@ namespace
     constexpr auto transition_table = maki::empty_transition_table
         .add_c<states::idle,    events::power_button_press, states::running>
         .add_c<states::running, events::power_button_press, states::idle>
-        .add_c<states::running, events::beep_button_press,  maki::null, actions::beep>
+        .add_c<states::running, events::beep_button_press,  maki::null_c, actions::beep>
     ;
 
     struct machine_def

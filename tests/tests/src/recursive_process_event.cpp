@@ -26,65 +26,56 @@ namespace
 
     namespace states
     {
-        struct s0
-        {
-            static constexpr auto conf = maki::state_conf_c<>
-                .entry_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.output += "s0::on_entry;";
-                    }
-                )
-                .exit_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.output += "s0::on_exit;";
-                    }
-                )
-            ;
-        };
+        constexpr auto s0 = maki::state_conf_c<>
+            .entry_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.output += "s0::on_entry;";
+                }
+            )
+            .exit_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.output += "s0::on_exit;";
+                }
+            )
+        ;
 
-        struct s1
-        {
-            static constexpr auto conf = maki::state_conf_c<>
-                .entry_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.output += "s1::on_entry;";
-                    }
-                )
-                .exit_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.output += "s1::on_exit;";
-                    }
-                )
-            ;
-        };
+        constexpr auto s1 = maki::state_conf_c<>
+            .entry_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.output += "s1::on_entry;";
+                }
+            )
+            .exit_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.output += "s1::on_exit;";
+                }
+            )
+        ;
 
-        struct s2
-        {
-            static constexpr auto conf = maki::state_conf_c<>
-                .entry_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.output += "s2::on_entry;";
-                    }
-                )
-                .exit_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.output += "s2::on_exit;";
-                    }
-                )
-            ;
-        };
+        constexpr auto s2 = maki::state_conf_c<>
+            .entry_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.output += "s2::on_entry;";
+                }
+            )
+            .exit_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.output += "s2::on_exit;";
+                }
+            )
+        ;
     }
 
     namespace actions

@@ -228,12 +228,12 @@ public:
     template<const auto& RegionPath>
     [[nodiscard]] bool is_running() const
     {
-        return !is_active_state_def<RegionPath, states::stopped>();
+        return !is_active_state_def<RegionPath, state_conf_wrapper<states::stopped>>();
     }
 
     [[nodiscard]] bool is_running() const
     {
-        return !is_active_state_def<states::stopped>();
+        return !is_active_state_def<state_conf_wrapper<states::stopped>>();
     }
 
     template<class Event>

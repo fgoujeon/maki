@@ -12,6 +12,8 @@
 #ifndef MAKI_TRANSITION_TABLE_HPP
 #define MAKI_TRANSITION_TABLE_HPP
 
+#include "detail/state_conf_wrapper.hpp"
+
 namespace maki
 {
 
@@ -55,6 +57,8 @@ Represents either:
 - a null target state (for internal transitions in transition table).
 */
 struct null{};
+
+inline constexpr auto null_c = null{};
 
 /**
 @brief An action that does nothing.
@@ -114,16 +118,23 @@ struct transition_table
     */
     template
     <
-        class SourceStatePattern,
+        const auto& SourceStatePattern,
         class EventPattern,
-        class TargetState,
+        const auto& TargetState,
         const auto& Action = noop,
         const auto& Guard = yes
     >
     static constexpr auto add_c = transition_table
     <
         Transitions...,
-        transition<SourceStatePattern, EventPattern, TargetState, Action, Guard>
+        transition
+        <
+            detail::state_conf_wrapper<SourceStatePattern>,
+            EventPattern,
+            detail::state_conf_wrapper<TargetState>,
+            Action,
+            Guard
+        >
     >{};
 };
 

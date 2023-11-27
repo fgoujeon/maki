@@ -75,86 +75,74 @@ States are represented by classes.
 */
 namespace states
 {
-    /*
-    A state class must be constructible with one of the following expressions:
-        auto state = state_type{machine, context};
-        auto state = state_type{context};
-        auto state = state_type{};
-    */
-    struct off
-    {
+    constexpr auto off = maki::state_conf_c<>
         /*
-        A state class must define a conf variable.
+        With this option, we require the state machine to call an on_entry()
+        function whenever it enters our state.
+        One of these expressions must be valid:
+            state.on_entry(event);
+            state.on_entry();
+        Where `event` is the event that caused the state transition.
         */
-        static constexpr auto conf = maki::state_conf_c<>
-            /*
-            With this option, we require the state machine to call an on_entry()
-            function whenever it enters our state.
-            One of these expressions must be valid:
-                state.on_entry(event);
-                state.on_entry();
-            Where `event` is the event that caused the state transition.
-            */
-            .entry_action_e<button::push_event>
-            (
-                [](const button::push_event& event)
-                {
-                    std::cout << "Turned off after a ";
-                    std::cout << event.duration_ms << " millisecond push\n";
-                }
-            )
+        .entry_action_e<button::push_event>
+        (
+            [](const button::push_event& event)
+            {
+                std::cout << "Turned off after a ";
+                std::cout << event.duration_ms << " millisecond push\n";
+            }
+        )
 
-            .entry_action_v<maki::events::start>
-            (
-                []
-                {
-                    std::cout << "Started state machine\n";
-                }
-            )
+        .entry_action_v<maki::events::start>
+        (
+            []
+            {
+                std::cout << "Started state machine\n";
+            }
+        )
 
-            /*
-            Here, we require the state machine to call an on_event() function
-            whenever it processed an event while our state is active. We also
-            indicate that we want it to do so only when the type of the said
-            event is button::push_event.
-            This expression must be valid:
-                state.on_event(event);
-            */
-            .event_action_e<button::push_event>
-            (
-                [](const button::push_event& event)
-                {
-                    std::cout << "Received a ";
-                    std::cout << event.duration_ms;
-                    std::cout << " millisecond push in off state\n";
-                }
-            )
+        /*
+        Here, we require the state machine to call an on_event() function
+        whenever it processed an event while our state is active. We also
+        indicate that we want it to do so only when the type of the said
+        event is button::push_event.
+        This expression must be valid:
+            state.on_event(event);
+        */
+        .event_action_e<button::push_event>
+        (
+            [](const button::push_event& event)
+            {
+                std::cout << "Received a ";
+                std::cout << event.duration_ms;
+                std::cout << " millisecond push in off state\n";
+            }
+        )
 
-            /*
-            Finally, we want the state machine to call on_exit() whenever it
-            exits our state.
-            One of these expressions must be valid:
-                state.on_exit(event);
-                state.on_exit();
-            Where `event` is the event that caused the state transition.
-            */
-            .exit_action_v<maki::any>
-            (
-                []
-                {
-                    std::cout << "Turned on\n";
-                }
-            )
-        ;
-    };
+        /*
+        Finally, we want the state machine to call on_exit() whenever it
+        exits our state.
+        One of these expressions must be valid:
+            state.on_exit(event);
+            state.on_exit();
+        Where `event` is the event that caused the state transition.
+        */
+        .exit_action_v<maki::any>
+        (
+            []
+            {
+                std::cout << "Turned on\n";
+            }
+        )
+    ;
 
     /*
     These are minimal valid state classes.
     */
-    struct emitting_white { static constexpr auto conf = maki::state_conf_c<>; };
-    struct emitting_red { static constexpr auto conf = maki::state_conf_c<>; };
-    struct emitting_green { static constexpr auto conf = maki::state_conf_c<>; };
-    struct emitting_blue { static constexpr auto conf = maki::state_conf_c<>; };
+    constexpr auto emitting_white = maki::state_conf_c<>;
+    constexpr auto emitting_red = maki::state_conf_c<>;
+    constexpr auto emitting_green = maki::state_conf_c<>;
+    constexpr auto emitting_blue = maki::state_conf_c<>;
 }
 
 /*
@@ -211,6 +199,7 @@ using namespace actions;
 using namespace guards;
 using button_push = button::push_event;
 using maki::any_but;
+constexpr auto not_off = maki::any_but_c<off>;
 
 /*
 This is the transition table. This is where we define the actions that must be
@@ -235,7 +224,7 @@ constexpr auto transition_table = maki::empty_transition_table
     .add_c<emitting_red,   button_push, emitting_green, turn_light_green, is_short_push>
     .add_c<emitting_green, button_push, emitting_blue,  turn_light_blue,  is_short_push>
     .add_c<emitting_blue,  button_push, emitting_white, turn_light_white, is_short_push>
-    .add_c<any_but<off>,   button_push, off,            turn_light_off,   is_long_push>
+    .add_c<not_off,        button_push, off,            turn_light_off,   is_long_push>
 ;
 
 /*

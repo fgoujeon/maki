@@ -19,48 +19,45 @@ struct some_other_event
 struct yet_another_event{};
 
 //States
-struct state0 { static constexpr auto conf = maki::state_conf_c<>; };
-struct state1 { static constexpr auto conf = maki::state_conf_c<>; };
+constexpr auto state0 = maki::state_conf_c<>;
+constexpr auto state1 = maki::state_conf_c<>;
 //! [short-in-state]
-struct state2
-{
-    static constexpr auto conf = maki::state_conf_c<>
-        //Entry action.
-        //Called on state entry for state transitions caused by some_other_event.
-        .entry_action_e<some_other_event>([](const some_other_event& event)
-        {
-            std::cout << "Executing state2 entry action (some_other_event{" << event.value << "})...\n";
-        })
+constexpr auto state2 = maki::state_conf_c<>
+    //Entry action.
+    //Called on state entry for state transitions caused by some_other_event.
+    .entry_action_e<some_other_event>([](const some_other_event& event)
+    {
+        std::cout << "Executing state2 entry action (some_other_event{" << event.value << "})...\n";
+    })
 
-        //Entry action.
-        //Called on state entry for state transitions caused by any other type of
-        //event.
-        .entry_action_v<maki::any>([]
-        {
-            std::cout << "Executing state2 entry action...\n";
-        })
+    //Entry action.
+    //Called on state entry for state transitions caused by any other type of
+    //event.
+    .entry_action_v<maki::any>([]
+    {
+        std::cout << "Executing state2 entry action...\n";
+    })
 
-        //Internal action.
-        .event_action_v<some_event>([]
-        {
-            std::cout << "Executing state2 some_event action\n";
-        })
+    //Internal action.
+    .event_action_v<some_event>([]
+    {
+        std::cout << "Executing state2 some_event action\n";
+    })
 
-        //Internal action.
-        .event_action_e<some_other_event>([](const some_other_event& event)
-        {
-            std::cout << "Executing state2 some_other_event action (some_other_event{" << event.value << "})...\n";
-        })
+    //Internal action.
+    .event_action_e<some_other_event>([](const some_other_event& event)
+    {
+        std::cout << "Executing state2 some_other_event action (some_other_event{" << event.value << "})...\n";
+    })
 
-        //Exit action.
-        //Called on state exit, whatever the event that caused the state
-        //transitions.
-        .exit_action_v<maki::any>([]
-        {
-            std::cout << "Executing state2 exit action...\n";
-        })
-    ;
-};
+    //Exit action.
+    //Called on state exit, whatever the event that caused the state
+    //transitions.
+    .exit_action_v<maki::any>([]
+    {
+        std::cout << "Executing state2 exit action...\n";
+    })
+;
 //! [short-in-state]
 
 //! [short-in-transition]
@@ -78,7 +75,7 @@ void some_other_action(context& /*ctx*/, const some_other_event& event)
 constexpr auto transition_table = maki::empty_transition_table
     //     source state, event,             target state, action
     .add_c<state0,       some_event,        state1,       some_action /*state transition action*/>
-    .add_c<state0,       some_other_event,  maki::null,   some_other_action /*internal transition action*/>
+    .add_c<state0,       some_other_event,  maki::null_c, some_other_action /*internal transition action*/>
     .add_c<state0,       yet_another_event, state2>
     .add_c<state1,       yet_another_event, state2>
     .add_c<state2,       yet_another_event, state0>

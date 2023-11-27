@@ -33,53 +33,53 @@ namespace
     {
         EMPTY_STATE(off);
 
-        struct emitting_red
+        struct emitting_red_data
         {
-            static constexpr auto conf = maki::state_conf_c<emitting_red>
-                .entry_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.current_led_color = led_color::red;
-                    }
-                )
-            ;
-
             context& ctx;
             led_color color = led_color::red;
         };
 
-        struct emitting_green
-        {
-            static constexpr auto conf = maki::state_conf_c<emitting_green>
-                .entry_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.current_led_color = led_color::green;
-                    }
-                )
-            ;
+        constexpr auto emitting_red = maki::state_conf_c<emitting_red_data>
+            .entry_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.current_led_color = led_color::red;
+                }
+            )
+        ;
 
+        struct emitting_green_data
+        {
             context& ctx;
             led_color color = led_color::green;
         };
 
-        struct emitting_blue
-        {
-            static constexpr auto conf = maki::state_conf_c<emitting_blue>
-                .entry_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.current_led_color = led_color::blue;
-                    }
-                )
-            ;
+        constexpr auto emitting_green = maki::state_conf_c<emitting_green_data>
+            .entry_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.current_led_color = led_color::green;
+                }
+            )
+        ;
 
+        struct emitting_blue_data
+        {
             context& ctx;
             led_color color = led_color::blue;
         };
+
+        constexpr auto emitting_blue = maki::state_conf_c<emitting_blue_data>
+            .entry_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.current_led_color = led_color::blue;
+                }
+            )
+        ;
 
         constexpr auto on_transition_table = maki::empty_transition_table
             .add_c<states::emitting_red,   events::color_button_press, states::emitting_green>
@@ -87,21 +87,21 @@ namespace
             .add_c<states::emitting_blue,  events::color_button_press, states::emitting_red>
         ;
 
-        struct on
+        struct on_data
         {
-            static constexpr auto conf = maki::submachine_conf_c<on>
-                .set_transition_tables(on_transition_table)
-                .exit_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.current_led_color = led_color::off;
-                    }
-                )
-            ;
-
             bool is_on_state = true;
         };
+
+        constexpr auto on = maki::submachine_conf_c<on_data>
+            .set_transition_tables(on_transition_table)
+            .exit_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.current_led_color = led_color::off;
+                }
+            )
+        ;
     }
 
     constexpr auto transition_table = maki::empty_transition_table

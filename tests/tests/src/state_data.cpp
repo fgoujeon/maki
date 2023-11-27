@@ -27,29 +27,25 @@ namespace
     {
         EMPTY_STATE(off);
 
-        struct on;
-
-        void on_accumulate(on& self, const int n);
-
-        struct on
+        struct on_data
         {
-            static constexpr auto conf = maki::state_conf_c<on>
-                .event_action_de<events::accumulate_request>
-                (
-                    [](on& self, const events::accumulate_request& event)
-                    {
-                        on_accumulate(self, event.n);
-                    }
-                )
-            ;
-
             int counter = 0;
         };
 
-        void on_accumulate(on& self, const int n)
+        void on_accumulate(on_data& self, const int n)
         {
             self.counter += n;
         }
+
+        constexpr auto on = maki::state_conf_c<on_data>
+            .event_action_de<events::accumulate_request>
+            (
+                [](on_data& self, const events::accumulate_request& event)
+                {
+                    on_accumulate(self, event.n);
+                }
+            )
+        ;
     }
 
     constexpr auto transition_table = maki::empty_transition_table

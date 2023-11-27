@@ -33,18 +33,10 @@ namespace
             .add_c<states::off0, events::button_press, states::on0>
         ;
 
-        struct on1
-        {
-            static constexpr auto conf = maki::submachine_conf_c<>
-                .set_transition_tables(on1_transition_table)
-                .enable_pretty_name()
-            ;
-
-            static auto pretty_name()
-            {
-                return "on_1";
-            }
-        };
+        constexpr auto on1 = maki::submachine_conf_c<>
+            .set_transition_tables(on1_transition_table)
+            .pretty_name("on_1")
+        ;
     }
 
     constexpr auto transition_table_0 = maki::empty_transition_table
@@ -63,10 +55,10 @@ namespace
             .enable_before_state_transition()
             .enable_after_state_transition()
             .disable_auto_start()
-            .enable_pretty_name()
+            .pretty_name("main_sm")
         ;
 
-        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
+        template<const auto& RegionPath, const auto& SourceState, class Event, const auto& TargetState>
         void before_state_transition(const Event& event)
         {
             ctx.out += "Transition in ";
@@ -80,7 +72,7 @@ namespace
             ctx.out += std::to_string(event.pressure) + ";";
         }
 
-        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
+        template<const auto& RegionPath, const auto& SourceState, class Event, const auto& TargetState>
         void after_state_transition(const Event& event)
         {
             ctx.out += std::to_string(event.pressure) + ";";
@@ -92,11 +84,6 @@ namespace
             ctx.out += " -> ";
             ctx.out += maki::pretty_name<TargetState>();
             ctx.out += ";";
-        }
-
-        static auto pretty_name()
-        {
-            return "main_sm";
         }
 
         context& ctx;

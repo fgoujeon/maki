@@ -38,29 +38,26 @@ namespace
 
     namespace states
     {
-        struct state0
-        {
-            static constexpr auto conf = maki::state_conf_c<>
-                .event_action_ce<events::event1>
-                (
-                    [](context& ctx, const events::event1& event)
-                    {
-                        ctx.out = "on_event_ce " + event.value;
-                    }
-                )
-                .event_action_mce<events::event2>
-                (
-                    [](machine_t& /*mach*/, context& ctx, const events::event2& event)
-                    {
-                        ctx.out = "on_event_mce " + event.value;
-                    }
-                )
-            ;
-        };
+        constexpr auto state0 = maki::state_conf_c<>
+            .event_action_ce<events::event1>
+            (
+                [](context& ctx, const events::event1& event)
+                {
+                    ctx.out = "on_event_ce " + event.value;
+                }
+            )
+            .event_action_mce<events::event2>
+            (
+                [](machine_t& /*mach*/, context& ctx, const events::event2& event)
+                {
+                    ctx.out = "on_event_mce " + event.value;
+                }
+            )
+        ;
     }
 
     constexpr auto transition_table = maki::empty_transition_table
-        .add_c<states::state0, events::unused, maki::null>
+        .add_c<states::state0, events::unused, maki::null_c>
     ;
 
     struct machine_def

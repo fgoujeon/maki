@@ -29,38 +29,32 @@ namespace
 
     namespace states
     {
-        struct off
-        {
-            static constexpr auto conf = maki::state_conf_c<>
-                .event_action_ce<events::button_press>
-                (
-                    [](context& ctx, const events::button_press& event)
-                    {
-                        ctx.out += event.data + "2;";
-                    }
-                )
-            ;
-        };
+        constexpr auto off = maki::state_conf_c<>
+            .event_action_ce<events::button_press>
+            (
+                [](context& ctx, const events::button_press& event)
+                {
+                    ctx.out += event.data + "2;";
+                }
+            )
+        ;
 
-        struct on
-        {
-            static constexpr auto conf = maki::state_conf_c<>
-                .event_action_c<events::button_press>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.out += "_";
-                    }
-                )
-                .event_action_c<events::alert_button_press>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.out += "beep;";
-                    }
-                )
-            ;
-        };
+        constexpr auto on = maki::state_conf_c<>
+            .event_action_c<events::button_press>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "_";
+                }
+            )
+            .event_action_c<events::alert_button_press>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "beep;";
+                }
+            )
+        ;
     }
 
     constexpr auto transition_table = maki::empty_transition_table

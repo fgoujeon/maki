@@ -49,12 +49,7 @@ namespace
 
             namespace emitting_red_ns
             {
-                struct emitting_cold_red
-                {
-                    static constexpr auto conf = maki::state_conf_c<>;
-                    on_ns::context& ctx;
-                };
-
+                constexpr auto emitting_cold_red = maki::state_conf_c<>;
                 EMPTY_STATE(emitting_hot_red);
 
                 constexpr auto transition_table = maki::empty_transition_table
@@ -62,19 +57,16 @@ namespace
                 ;
             }
 
-            struct emitting_red
-            {
-                static constexpr auto conf = maki::submachine_conf_c<>
-                    .set_transition_tables(emitting_red_ns::transition_table)
-                    .entry_action_c<maki::any>
-                    (
-                        [](context& ctx)
-                        {
-                            ++ctx.red_count;
-                        }
-                    )
-                ;
-            };
+            constexpr auto emitting_red = maki::submachine_conf_c<>
+                .set_transition_tables(emitting_red_ns::transition_table)
+                .entry_action_c<maki::any>
+                (
+                    [](context& ctx)
+                    {
+                        ++ctx.red_count;
+                    }
+                )
+            ;
 
             EMPTY_STATE(emitting_green);
             EMPTY_STATE(emitting_blue);
@@ -86,20 +78,17 @@ namespace
             ;
         }
 
-        struct on
-        {
-            static constexpr auto conf = maki::submachine_conf_c<>
-                .set_transition_tables(on_ns::transition_table)
-                .set_context<on_ns::context>()
-                .exit_action_c<maki::any>
-                (
-                    [](on_ns::context& ctx)
-                    {
-                        ctx.parent.out = std::to_string(ctx.red_count);
-                    }
-                )
-            ;
-        };
+        constexpr auto on = maki::submachine_conf_c<>
+            .set_transition_tables(on_ns::transition_table)
+            .set_context<on_ns::context>()
+            .exit_action_c<maki::any>
+            (
+                [](on_ns::context& ctx)
+                {
+                    ctx.parent.out = std::to_string(ctx.red_count);
+                }
+            )
+        ;
     }
 
     constexpr auto transition_table = maki::empty_transition_table

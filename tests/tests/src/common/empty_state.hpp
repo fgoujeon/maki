@@ -8,9 +8,6 @@
 #define COMMON_EMPTY_STATE_HPP
 
 #define EMPTY_STATE(name) \
-    struct name \
-    { \
-        [[maybe_unused]] static constexpr auto conf = maki::state_conf_c<>; \
-    }
+    inline constexpr auto name = maki::state_conf_c<>;
 
 #endif

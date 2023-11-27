@@ -37,8 +37,8 @@ namespace
         EMPTY_STATE(emitting_green);
         EMPTY_STATE(emitting_blue);
 
-        using not_emitting_red = maki::any_but<emitting_red>;
-        using emitting_red_or_green = maki::any_of<emitting_red, emitting_green>;
+        constexpr auto not_emitting_red = maki::any_but_c<emitting_red>;
+        constexpr auto emitting_red_or_green = maki::any_of_c<emitting_red, emitting_green>;
 
         constexpr auto on_transition_table = maki::empty_transition_table
             .add_c<states::emitting_red,   events::color_button_press, states::emitting_green>
@@ -46,14 +46,9 @@ namespace
             .add_c<states::emitting_blue,  events::color_button_press, states::emitting_red>
         ;
 
-        struct on
-        {
-            static constexpr auto conf = maki::submachine_conf_c<>
-                .set_transition_tables(on_transition_table)
-            ;
-
-            context& ctx;
-        };
+        constexpr auto on = maki::submachine_conf_c<>
+            .set_transition_tables(on_transition_table)
+        ;
     }
 
     constexpr auto transition_table = maki::empty_transition_table

@@ -19,6 +19,7 @@
 #include "detail/event_action.hpp"
 #include "detail/tuple.hpp"
 #include "detail/tlu.hpp"
+#include <string_view>
 
 namespace maki
 {
@@ -44,7 +45,7 @@ struct submachine_conf
     EntryActionTuple entry_actions; //NOLINT(misc-non-private-member-variables-in-classes)
     EventActionTuple event_actions; //NOLINT(misc-non-private-member-variables-in-classes)
     ExitActionTuple exit_actions; //NOLINT(misc-non-private-member-variables-in-classes)
-    bool has_pretty_name = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    std::string_view pretty_name_view; //NOLINT(misc-non-private-member-variables-in-classes)
     TransitionTableTypeList transition_tables; //NOLINT(misc-non-private-member-variables-in-classes)
 
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
@@ -52,7 +53,7 @@ struct submachine_conf
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_event_actions = event_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = exit_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_pretty_name = has_pretty_name; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = pretty_name_view; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = transition_tables;
 
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
@@ -70,7 +71,7 @@ struct submachine_conf
         MAKI_DETAIL_ARG_entry_actions, \
         MAKI_DETAIL_ARG_event_actions, \
         MAKI_DETAIL_ARG_exit_actions, \
-        MAKI_DETAIL_ARG_has_pretty_name, \
+        MAKI_DETAIL_ARG_pretty_name_view, \
         MAKI_DETAIL_ARG_transition_tables \
     };
 
@@ -254,12 +255,12 @@ struct submachine_conf
 #undef MAKI_DETAIL_ARG_context
     }
 
-    [[nodiscard]] constexpr auto enable_pretty_name() const
+    [[nodiscard]] constexpr auto pretty_name(const std::string_view value) const
     {
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_has_pretty_name true
+#define MAKI_DETAIL_ARG_pretty_name_view value
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_has_pretty_name
+#undef MAKI_DETAIL_ARG_pretty_name_view
     }
 
     template<class... TransitionTables>

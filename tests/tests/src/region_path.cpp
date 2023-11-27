@@ -31,18 +31,10 @@ namespace
             .add_c<states::off0, events::button_press, states::on0>
         ;
 
-        struct on1
-        {
-            static constexpr auto conf = maki::submachine_conf_c<>
-                .set_transition_tables(on1_transition_table)
-                .enable_pretty_name()
-            ;
-
-            static auto pretty_name()
-            {
-                return "on_1";
-            }
-        };
+        constexpr auto on1 = maki::submachine_conf_c<>
+            .set_transition_tables(on1_transition_table)
+            .pretty_name("on_1")
+        ;
     }
 
     constexpr auto transition_table_0_t = maki::empty_transition_table
@@ -58,13 +50,8 @@ namespace
         static constexpr auto conf = maki::submachine_conf_c<>
             .set_transition_tables(transition_table_0_t, transition_table_1_t)
             .set_context<context>()
-            .enable_pretty_name()
+            .pretty_name("main_sm")
         ;
-
-        static auto pretty_name()
-        {
-            return "main_sm";
-        }
 
         context& ctx;
     };
@@ -93,7 +80,7 @@ TEST_CASE("region_path")
         constexpr auto region_path = maki::region_path
         <
             maki::region_path_element<machine_def, 1>,
-            maki::region_path_element<states::on1, 0>
+            maki::region_path_element<maki::detail::state_conf_wrapper<states::on1>, 0>
         >{};
 
         constexpr auto region_path_2 = maki::region_path_c<machine_def, 1>.add<states::on1, 0>();

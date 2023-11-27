@@ -43,13 +43,10 @@ namespace
             .add_c<states::emitting_blue,  events::color_button_press, states::emitting_red>
         ;
 
-        struct on
-        {
-            static constexpr auto conf = maki::submachine_conf_c<>
-                .set_transition_tables(on_transition_table)
-                .set_context<on_context>()
-            ;
-        };
+        constexpr auto on = maki::submachine_conf_c<>
+            .set_transition_tables(on_transition_table)
+            .set_context<on_context>()
+        ;
     }
 
     constexpr auto transition_table = maki::empty_transition_table

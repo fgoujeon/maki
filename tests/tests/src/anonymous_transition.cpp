@@ -11,19 +11,19 @@ namespace
 {
     struct context{};
 
-    struct events
+    namespace events
     {
         struct go_on{};
-    };
+    }
 
-    struct states
+    namespace states
     {
         EMPTY_STATE(s0);
         EMPTY_STATE(s1);
         EMPTY_STATE(s2);
         EMPTY_STATE(s3);
         EMPTY_STATE(s4);
-    };
+    }
 
     constexpr auto transition_table = maki::empty_transition_table
         .add_c<states::s0, events::go_on, states::s1>

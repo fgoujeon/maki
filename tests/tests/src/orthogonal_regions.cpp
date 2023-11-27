@@ -31,21 +31,18 @@ namespace
         EMPTY_STATE(off0);
         EMPTY_STATE(off1);
         EMPTY_STATE(on0);
-        struct on1
-        {
-            static constexpr auto conf = maki::state_conf_c<>
-                .event_action_c<events::exception_request>
-                (
-                    [](context& ctx)
+        constexpr auto on1 = maki::state_conf_c<>
+            .event_action_c<events::exception_request>
+            (
+                [](context& ctx)
+                {
+                    if(ctx.always_zero == 0) //We need this to avoid "unreachable code" warnings
                     {
-                        if(ctx.always_zero == 0) //We need this to avoid "unreachable code" warnings
-                        {
-                            throw std::runtime_error{"exception"};
-                        }
+                        throw std::runtime_error{"exception"};
                     }
-                )
-            ;
-        };
+                }
+            )
+        ;
     }
 
     struct machine_def
@@ -64,7 +61,7 @@ namespace
             .enable_after_state_transition()
         ;
 
-        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
+        template<const auto& RegionPath, const auto& SourceState, class Event, const auto& TargetState>
         void before_state_transition(const Event& /*event*/)
         {
             using region_path_t = std::decay_t<decltype(RegionPath)>;
@@ -72,7 +69,7 @@ namespace
             ctx.out += "before_state_transition[" + std::to_string(region_index) + "];";
         }
 
-        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
+        template<const auto& RegionPath, const auto& SourceState, class Event, const auto& TargetState>
         void after_state_transition(const Event& /*event*/)
         {
             using region_path_t = std::decay_t<decltype(RegionPath)>;

@@ -14,6 +14,7 @@
 
 #include "machine_conf.hpp"
 #include "region_path.hpp"
+#include "detail/state_conf_wrapper.hpp"
 #include "detail/noinline.hpp"
 #include "detail/submachine.hpp"
 #include "detail/function_queue.hpp"
@@ -153,10 +154,10 @@ public:
     region of interest (see @ref RegionPath)
     @tparam State the state type
     */
-    template<const auto& RegionPath, class State>
+    template<const auto& RegionPath, const auto& State>
     auto& state_data()
     {
-        return submachine_.template state_def_data<RegionPath, State>();
+        return submachine_.template state_def_data<RegionPath, detail::state_conf_wrapper<State>>();
     }
 
     /**
@@ -166,10 +167,10 @@ public:
     region of interest (see @ref RegionPath)
     @tparam State the state type
     */
-    template<const auto& RegionPath, class State>
+    template<const auto& RegionPath, const auto& State>
     const auto& state_data() const
     {
-        return submachine_.template state_def_data<RegionPath, State>();
+        return submachine_.template state_def_data<RegionPath, detail::state_conf_wrapper<State>>();
     }
 
     /**
@@ -200,10 +201,10 @@ public:
     region of interest (see @ref RegionPath)
     @tparam State the state type
     */
-    template<const auto& RegionPath, class State>
+    template<const auto& RegionPath, const auto& State>
     [[nodiscard]] bool is_active_state() const
     {
-        return submachine_.template is_active_state_def<RegionPath, State>();
+        return submachine_.template is_active_state_def<RegionPath, detail::state_conf_wrapper<State>>();
     }
 
     /**
@@ -212,10 +213,10 @@ public:
     single region.
     @tparam State the state type
     */
-    template<class State>
+    template<const auto& State>
     [[nodiscard]] bool is_active_state() const
     {
-        return submachine_.template is_active_state_def<State>();
+        return submachine_.template is_active_state_def<detail::state_conf_wrapper<State>>();
     }
 
     /**

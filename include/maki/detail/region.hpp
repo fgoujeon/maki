@@ -32,7 +32,7 @@ namespace region_detail
     };
 
     template<class StateList>
-    struct index_of_state<StateList, states::stopped>
+    struct index_of_state<StateList, state_conf_wrapper<states::stopped>>
     {
         static constexpr auto value = -1;
     };
@@ -109,7 +109,10 @@ public:
     {
         if constexpr(is_type_pattern_v<StateDef>)
         {
-            return does_active_state_def_match_pattern<StateDef>();
+            return does_active_state_def_match_pattern
+            <
+                std::decay_t<decltype(StateDef::conf)>
+            >();
         }
         else
         {
@@ -120,16 +123,16 @@ public:
     template<class Event>
     void start(const Event& event)
     {
-        if(is_active_state_def_type<states::stopped>())
+        if(is_active_state_def_type<state_conf_wrapper<states::stopped>>())
         {
-            process_event_in_transition<states::stopped, initial_state_def_type, noop>(event);
+            process_event_in_transition<state_conf_wrapper<states::stopped>, initial_state_def_type, noop>(event);
         }
     }
 
     template<class Event>
     void stop(const Event& event)
     {
-        if(!is_active_state_def_type<states::stopped>())
+        if(!is_active_state_def_type<state_conf_wrapper<states::stopped>>())
         {
             with_active_state_def<state_def_type_list, stop_2>
             (
@@ -256,7 +259,7 @@ private:
             self.process_event_in_transition
             <
                 ActiveState,
-                states::stopped,
+                state_conf_wrapper<states::stopped>,
                 noop
             >(event);
         }
@@ -287,7 +290,7 @@ private:
                 using matching_state_def_type_list = state_type_list_filters::by_pattern_t
                 <
                     state_def_type_list,
-                    source_state_t
+                    std::decay_t<decltype(source_state_t::conf)>
                 >;
 
                 static_assert(!tlu::empty_v<matching_state_def_type_list>);
@@ -357,7 +360,7 @@ private:
         constexpr const auto& path = region_path_of_v<region>;
 
         constexpr auto is_internal_transition =
-            std::is_same_v<TargetStateDef, null>
+            std::is_same_v<TargetStateDef, state_conf_wrapper<null_c>>
         ;
 
         if constexpr(!is_internal_transition)
@@ -367,13 +370,13 @@ private:
                 root_sm_.def().template before_state_transition
                 <
                     path,
-                    SourceStateDef,
+                    SourceStateDef::conf,
                     Event,
-                    TargetStateDef
+                    TargetStateDef::conf
                 >(event);
             }
 
-            if constexpr(!std::is_same_v<SourceStateDef, states::stopped>)
+            if constexpr(!std::is_same_v<SourceStateDef, state_conf_wrapper<states::stopped>>)
             {
                 using source_state_t = state_traits::state_def_to_state_t<SourceStateDef, region>;
                 detail::call_state_action
@@ -402,7 +405,7 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(!std::is_same_v<TargetStateDef, states::stopped>)
+            if constexpr(!std::is_same_v<TargetStateDef, state_conf_wrapper<states::stopped>>)
             {
                 using target_state_t = state_traits::state_def_to_state_t<TargetStateDef, region>;
                 detail::call_state_action
@@ -420,9 +423,9 @@ private:
                 root_sm_.def().template after_state_transition
                 <
                     path,
-                    SourceStateDef,
+                    SourceStateDef::conf,
                     Event,
-                    TargetStateDef
+                    TargetStateDef::conf
                 >(event);
             }
 
@@ -506,7 +509,7 @@ private:
         auto matches = false;
         with_active_state_def
         <
-            tlu::push_back_t<state_def_type_list, states::stopped>,
+            tlu::push_back_t<state_def_type_list, state_conf_wrapper<states::stopped>>,
             does_active_state_def_match_pattern_2<TypePattern>
         >(matches);
         return matches;
@@ -629,7 +632,7 @@ private:
 
     state_data_holder_tuple_type state_data_holders_;
 
-    int active_state_index_ = region_detail::index_of_state_v<state_def_type_list, states::stopped>;
+    int active_state_index_ = region_detail::index_of_state_v<state_def_type_list, state_conf_wrapper<states::stopped>>;
 };
 
 } //namespace

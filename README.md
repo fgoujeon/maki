@@ -209,10 +209,10 @@ namespace states
     /*
     These are minimal valid state classes.
     */
-    struct emitting_white { static constexpr auto conf = maki::state_conf_c<>; };
-    struct emitting_red { static constexpr auto conf = maki::state_conf_c<>; };
-    struct emitting_green { static constexpr auto conf = maki::state_conf_c<>; };
-    struct emitting_blue { static constexpr auto conf = maki::state_conf_c<>; };
+    constexpr auto emitting_white = maki::state_conf_c<>;
+    constexpr auto emitting_red = maki::state_conf_c<>;
+    constexpr auto emitting_green = maki::state_conf_c<>;
+    constexpr auto emitting_blue = maki::state_conf_c<>;
 }
 
 /*

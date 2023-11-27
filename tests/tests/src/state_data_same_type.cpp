@@ -35,19 +35,13 @@ namespace
             dat.counter += req.n;
         }
 
-        struct off
-        {
-            static constexpr auto conf = maki::state_conf_c<data>
-                .event_action_de<events::accumulate_request>(&accumulate)
-            ;
-        };
+        constexpr auto off = maki::state_conf_c<data>
+            .event_action_de<events::accumulate_request>(&accumulate)
+        ;
 
-        struct on
-        {
-            static constexpr auto conf = maki::state_conf_c<data>
-                .event_action_de<events::accumulate_request>(&accumulate)
-            ;
-        };
+        constexpr auto on = maki::state_conf_c<data>
+            .event_action_de<events::accumulate_request>(&accumulate)
+        ;
     }
 
     constexpr auto transition_table = maki::empty_transition_table

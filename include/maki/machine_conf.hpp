@@ -19,6 +19,7 @@
 #include "detail/event_action.hpp"
 #include "detail/tuple.hpp"
 #include "detail/tlu.hpp"
+#include <string_view>
 
 namespace maki
 {
@@ -241,7 +242,7 @@ struct machine_conf
     };
     @endcode
     */
-    bool has_pretty_name = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    std::string_view pretty_name_view; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
     @brief Specifies whether run-to-completion is enabled.
@@ -283,7 +284,7 @@ struct machine_conf
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_before_state_transition = has_before_state_transition; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_exception = has_on_exception; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_unprocessed = has_on_unprocessed; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_pretty_name = has_pretty_name; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = pretty_name_view; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = run_to_completion; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_align = small_event_max_align; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_size = small_event_max_size; \
@@ -308,7 +309,7 @@ struct machine_conf
         MAKI_DETAIL_ARG_has_before_state_transition, \
         MAKI_DETAIL_ARG_has_on_exception, \
         MAKI_DETAIL_ARG_has_on_unprocessed, \
-        MAKI_DETAIL_ARG_has_pretty_name, \
+        MAKI_DETAIL_ARG_pretty_name_view, \
         MAKI_DETAIL_ARG_run_to_completion, \
         MAKI_DETAIL_ARG_small_event_max_align, \
         MAKI_DETAIL_ARG_small_event_max_size, \
@@ -527,12 +528,12 @@ struct machine_conf
 #undef MAKI_DETAIL_ARG_run_to_completion
     }
 
-    [[nodiscard]] constexpr auto enable_pretty_name() const
+    [[nodiscard]] constexpr auto pretty_name(const std::string_view value) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_has_pretty_name true
+#define MAKI_DETAIL_ARG_pretty_name_view value
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_has_pretty_name
+#undef MAKI_DETAIL_ARG_pretty_name_view
     }
 
     [[nodiscard]] constexpr auto enable_on_exception() const

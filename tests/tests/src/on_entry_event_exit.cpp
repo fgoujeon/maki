@@ -27,59 +27,53 @@ namespace
     {
         EMPTY_STATE(idle);
 
-        struct english
-        {
-            static constexpr auto conf = maki::state_conf_c<>
-                .entry_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.hello = "hello";
-                    }
-                )
-                .event_action_c<events::say_dog>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.dog = "dog";
-                    }
-                )
-                .exit_action_c<maki::any>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.goodbye = "goodbye";
-                    }
-                )
-            ;
-        };
+        constexpr auto english = maki::state_conf_c<>
+            .entry_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.hello = "hello";
+                }
+            )
+            .event_action_c<events::say_dog>
+            (
+                [](context& ctx)
+                {
+                    ctx.dog = "dog";
+                }
+            )
+            .exit_action_c<maki::any>
+            (
+                [](context& ctx)
+                {
+                    ctx.goodbye = "goodbye";
+                }
+            )
+        ;
 
-        struct french
-        {
-            static constexpr auto conf = maki::state_conf_c<>
-                .entry_action_m<maki::any>
-                (
-                    [](auto& mach)
-                    {
-                        mach.context().hello = "bonjour";
-                    }
-                )
-                .event_action_c<events::say_dog>
-                (
-                    [](context& ctx)
-                    {
-                        ctx.dog = "chien";
-                    }
-                )
-                .exit_action_m<maki::any>
-                (
-                    [](auto& mach)
-                    {
-                        mach.context().goodbye = "au revoir";
-                    }
-                )
-            ;
-        };
+        constexpr auto french = maki::state_conf_c<>
+            .entry_action_m<maki::any>
+            (
+                [](auto& mach)
+                {
+                    mach.context().hello = "bonjour";
+                }
+            )
+            .event_action_c<events::say_dog>
+            (
+                [](context& ctx)
+                {
+                    ctx.dog = "chien";
+                }
+            )
+            .exit_action_m<maki::any>
+            (
+                [](auto& mach)
+                {
+                    mach.context().goodbye = "au revoir";
+                }
+            )
+        ;
     }
 
     constexpr auto transition_table = maki::empty_transition_table

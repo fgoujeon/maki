@@ -45,10 +45,10 @@ namespace
             .set_context<context>()
             .enable_before_state_transition()
             .enable_after_state_transition()
-            .enable_pretty_name()
+            .pretty_name("main_sm")
         ;
 
-        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
+        template<const auto& RegionPath, const auto& SourceState, class Event, const auto& TargetState>
         void before_state_transition(const Event& /*event*/)
         {
             static_assert(RegionPath == maki::region_path<maki::region_path_element<machine_def, 0>>{});
@@ -62,7 +62,7 @@ namespace
             ctx.out += "...;";
         }
 
-        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
+        template<const auto& RegionPath, const auto& SourceState, class Event, const auto& TargetState>
         void after_state_transition(const Event& /*event*/)
         {
             static_assert(RegionPath == maki::region_path<maki::region_path_element<machine_def, 0>>{});
@@ -74,11 +74,6 @@ namespace
             ctx.out += " -> ";
             ctx.out += maki::pretty_name<TargetState>();
             ctx.out += ";";
-        }
-
-        static constexpr auto pretty_name()
-        {
-            return "main_sm";
         }
 
         context& ctx;

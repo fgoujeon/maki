@@ -14,6 +14,7 @@
 
 #include "transition_table.hpp"
 #include "pretty_name.hpp"
+#include "detail/state_conf_wrapper.hpp"
 #include "detail/tlu.hpp"
 #include <string>
 #include <sstream>
@@ -45,7 +46,7 @@ struct some_submachine
     //...
 };
 
-//An machine with a single region
+//A machine with a single region
 struct machine_def
 {
     //...
@@ -184,6 +185,12 @@ struct region_path
     [[nodiscard]] constexpr auto add() const
     {
         return detail::region_path_add<region_path, MachineDef, RegionIndex>::value;
+    }
+
+    template<const auto& MachineDef, int RegionIndex = -1>
+    [[nodiscard]] constexpr auto add() const
+    {
+        return detail::region_path_add<region_path, detail::state_conf_wrapper<MachineDef>, RegionIndex>::value;
     }
 
     /**

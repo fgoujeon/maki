@@ -601,7 +601,7 @@ private:
     {
         if constexpr(state_traits::needs_unique_instance<State>::value)
         {
-            return get<machine_object_holder<State>>(reg.state_holders_).get();
+            return tuple_get<machine_object_holder<State>>(reg.state_holders_).get();
         }
         else
         {

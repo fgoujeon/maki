@@ -374,7 +374,7 @@ struct machine_conf
     template<class EventFilter, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto event_action(const Action& action) const
     {
-        const auto new_event_actions = append
+        const auto new_event_actions = tuple_append
         (
             event_actions,
             detail::event_action<EventFilter, Action, Sig>{action}

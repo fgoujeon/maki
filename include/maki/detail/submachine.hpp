@@ -160,7 +160,7 @@ public:
 
         static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
         static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
-        return get<region_index>(regions_).template state_def<state_region_relative_path, StateDef>();
+        return tuple_get<region_index>(regions_).template state_def<state_region_relative_path, StateDef>();
     }
 
     template<const auto& StateRegionPath, class StateDef>
@@ -179,7 +179,7 @@ public:
 
         static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
         static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
-        return get<region_index>(regions_).template state_def<state_region_relative_path, StateDef>();
+        return tuple_get<region_index>(regions_).template state_def<state_region_relative_path, StateDef>();
     }
 
     template<const auto& StateRegionPath, class StateDef>
@@ -198,7 +198,7 @@ public:
 
         static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
         static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
-        return get<region_index>(regions_).template is_active_state_def<state_region_relative_path, StateDef>();
+        return tuple_get<region_index>(regions_).template is_active_state_def<state_region_relative_path, StateDef>();
     }
 
     template<class StateDef>
@@ -207,7 +207,7 @@ public:
         static_assert(tlu::size_v<transition_table_type_list> == 1);
 
         static constexpr auto state_region_relative_path = region_path<>{};
-        return get<0>(regions_).template is_active_state_def<state_region_relative_path, StateDef>();
+        return tuple_get<0>(regions_).template is_active_state_def<state_region_relative_path, StateDef>();
     }
 
     template<const auto& RegionPath>
@@ -297,7 +297,7 @@ private:
         template<class Region, class Event>
         static void call(submachine& self, const Event& event)
         {
-            get<Region>(self.regions_).start(event);
+            tuple_get<Region>(self.regions_).start(event);
         }
     };
 
@@ -306,7 +306,7 @@ private:
         template<class Region, class Event, class... ExtraArgs>
         static void call(submachine& self, const Event& event, ExtraArgs&... extra_args)
         {
-            get<Region>(self.regions_).process_event(event, extra_args...);
+            tuple_get<Region>(self.regions_).process_event(event, extra_args...);
         }
     };
 
@@ -315,7 +315,7 @@ private:
         template<class Region, class Event>
         static void call(submachine& self, const Event& event)
         {
-            get<Region>(self.regions_).stop(event);
+            tuple_get<Region>(self.regions_).stop(event);
         }
     };
 

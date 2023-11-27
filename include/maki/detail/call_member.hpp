@@ -83,7 +83,7 @@ void call_on_entry(State& state, Sm& mach, Context& ctx, const Event& event)
     using entry_action_tuple_t = std::decay_t<decltype(conf_t::entry_actions)>;
     if constexpr(!tlu::empty_v<entry_action_tuple_t>)
     {
-        apply
+        tuple_apply
         (
             state.conf.entry_actions,
             [](auto&&... args)
@@ -105,7 +105,7 @@ void call_on_event(State& state, Sm& mach, Context& ctx, const Event& event)
     using event_action_tuple_t = std::decay_t<decltype(conf_t::event_actions)>;
     if constexpr(!tlu::empty_v<event_action_tuple_t>)
     {
-        apply
+        tuple_apply
         (
             state.conf.event_actions,
             [](auto&&... args)
@@ -148,7 +148,7 @@ void call_on_exit(State& state, Sm& mach, Context& ctx, const Event& event)
     using exit_action_tuple_t = std::decay_t<decltype(conf_t::exit_actions)>;
     if constexpr(!tlu::empty_v<exit_action_tuple_t>)
     {
-        apply
+        tuple_apply
         (
             state.conf.exit_actions,
             [](auto&&... args)

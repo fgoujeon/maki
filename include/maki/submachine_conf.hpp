@@ -74,7 +74,7 @@ struct submachine_conf
     template<class EventFilter, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto entry_action(const Action& action) const
     {
-        const auto new_entry_actions = append
+        const auto new_entry_actions = tuple_append
         (
             entry_actions,
             detail::event_action<EventFilter, Action, Sig>{action}
@@ -131,7 +131,7 @@ struct submachine_conf
     template<class EventFilter, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto event_action(const Action& action) const
     {
-        const auto new_event_actions = append
+        const auto new_event_actions = tuple_append
         (
             event_actions,
             detail::event_action<EventFilter, Action, Sig>{action}
@@ -188,7 +188,7 @@ struct submachine_conf
     template<class EventFilter, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto exit_action(const Action& action) const
     {
-        const auto new_exit_actions = append
+        const auto new_exit_actions = tuple_append
         (
             exit_actions,
             detail::event_action<EventFilter, Action, Sig>{action}

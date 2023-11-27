@@ -54,6 +54,20 @@ template<class StateDef, class Region>
 using state_def_to_state_t = typename state_def_to_state<StateDef, Region>::type;
 
 
+//state_to_state_data
+
+template<class State>
+using state_to_raw_state_data = typename std::decay_t<decltype(State::conf)>::data_type;
+
+template<class State>
+using state_to_state_data = std::conditional_t
+<
+    std::is_void_v<state_to_raw_state_data<State>>,
+    null,
+    state_to_raw_state_data<State>
+>;
+
+
 //on_event
 
 template<class State, class Event>

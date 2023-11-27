@@ -78,7 +78,7 @@ public:
     explicit region(ParentSm& parent_sm):
         root_sm_(machine_of<ParentSm>::get(parent_sm)),
         ctx_(parent_sm.context()),
-        state_holders_(uniform_construct, root_sm_, ctx_)
+        state_data_holders_(uniform_construct, root_sm_, ctx_)
     {
     }
 
@@ -269,8 +269,10 @@ private:
     ;
 
     using state_def_type_list = typename transition_table_digest_type::state_def_type_list;
-
     using state_type_list = typename transition_table_digest_type::state_type_list;
+
+    using state_data_type_list = typename transition_table_digest_type::state_data_type_list;
+    using state_data_holder_tuple_type = tlu::apply_t<state_data_type_list, machine_object_holder_tuple_t>;
 
     using non_empty_state_type_list = tlu::filter_t
     <
@@ -600,45 +602,25 @@ private:
     template<class State>
     auto& state()
     {
-        return static_state<State>(*this);
+        constexpr auto state_index = tlu::index_of_v<state_type_list, State>;
+        return tuple_get<state_index>(state_data_holders_).get();
     }
 
     template<class State>
     const auto& state() const
     {
-        return static_state<State>(*this);
+        constexpr auto state_index = tlu::index_of_v<state_type_list, State>;
+        return tuple_get<state_index>(state_data_holders_).get();
     }
-
-    template<class State, class Self>
-    static auto& static_state(Self& reg)
-    {
-        if constexpr(state_traits::needs_unique_instance<State>::value)
-        {
-            return tuple_get<machine_object_holder<State>>(reg.state_holders_).get();
-        }
-        else
-        {
-            //Optimize empty state case by returning a statically allocated
-            //instance.
-            return static_instance<State>;
-        }
-    }
-
-    template<class T>
-    static T static_instance; //NOLINT
 
     //Store references for faster access
     root_sm_type& root_sm_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
     std::decay_t<typename ParentSm::context_type>& ctx_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
 
-    state_holder_tuple_type state_holders_;
+    state_data_holder_tuple_type state_data_holders_;
 
     int active_state_index_ = index_of_state_v<state_def_type_list, states::stopped>;
 };
-
-template<class ParentSm, int Index>
-template<class T>
-T region<ParentSm, Index>::static_instance; //NOLINT
 
 } //namespace
 

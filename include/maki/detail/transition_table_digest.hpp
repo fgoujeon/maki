@@ -51,6 +51,9 @@ namespace transition_table_digest_detail
         using type = type_list<state_traits::state_def_to_state_t<Ts, Region>...>;
     };
 
+    template<class... States>
+    using state_type_list_to_state_data_type_list = type_list<state_traits::state_to_state_data<States>...>;
+
     template<class TList, class U>
     using push_back_unique_if_not_null = tlu::push_back_if_t
     <
@@ -113,6 +116,11 @@ public:
     <
         state_def_type_list,
         transition_table_digest_detail::state_def_type_list_to_state_type_list_holder<Region>::template type
+    >;
+    using state_data_type_list = tlu::apply_t
+    <
+        state_type_list,
+        transition_table_digest_detail::state_type_list_to_state_data_type_list
     >;
 
     static constexpr auto has_null_events = digest_type::has_null_events;

@@ -17,12 +17,12 @@
 namespace maki::detail
 {
 
-template<class State, class Sm, class Context, class Event, class EventAction, class... EventActions>
+template<class Sm, class Context, class StateData, class Event, class EventAction, class... EventActions>
 void call_event_action
 (
-    [[maybe_unused]] State& state,
     [[maybe_unused]] Sm& mach,
     [[maybe_unused]] Context& ctx,
+    [[maybe_unused]] StateData& state_data,
     [[maybe_unused]] const Event& event,
     [[maybe_unused]] const EventAction& event_action,
     [[maybe_unused]] const EventActions&... event_actions
@@ -53,11 +53,11 @@ void call_event_action
         }
         else if constexpr(EventAction::sig == event_action_signature::d)
         {
-            std::invoke(event_action.action, state);
+            std::invoke(event_action.action, state_data);
         }
         else if constexpr(EventAction::sig == event_action_signature::de)
         {
-            std::invoke(event_action.action, state, event);
+            std::invoke(event_action.action, state_data, event);
         }
         else if constexpr(EventAction::sig == event_action_signature::e)
         {
@@ -72,60 +72,89 @@ void call_event_action
     else
     {
         static_assert(sizeof...(EventActions) != 0, "No event action found for this state and event");
-        call_event_action(state, mach, ctx, event, event_actions...);
+        call_event_action(mach, ctx, state_data, event, event_actions...);
     }
 }
 
-template<class State, class Sm, class Context, class Event>
-void call_on_entry(State& state, Sm& mach, Context& ctx, const Event& event)
+template
+<
+    class ActionTuple,
+    class Sm,
+    class Context,
+    class StateData,
+    class Event
+>
+void call_state_action
+(
+    const ActionTuple& actions,
+    Sm& mach,
+    Context& ctx,
+    StateData& state_data,
+    const Event& event
+)
 {
-    using conf_t = std::decay_t<decltype(State::conf)>;
-    using entry_action_tuple_t = std::decay_t<decltype(conf_t::entry_actions)>;
-    if constexpr(!tlu::empty_v<entry_action_tuple_t>)
+    if constexpr(!tlu::empty_v<ActionTuple>)
     {
         tuple_apply
         (
-            state.conf.entry_actions,
+            actions,
             [](auto&&... args)
             {
                 call_event_action(std::forward<decltype(args)>(args)...);
             },
-            state,
             mach,
             ctx,
+            state_data,
             event
         );
     }
 }
 
-template<class State, class Sm, class Context, class Event>
-void call_on_event(State& state, Sm& mach, Context& ctx, const Event& event)
+template
+<
+    class State,
+    class ActionTuple,
+    class Sm,
+    class Context,
+    class StateData,
+    class Event
+>
+void call_state_action_old
+(
+    [[maybe_unused]] State& state,
+    ActionTuple& actions,
+    Sm& mach,
+    Context& ctx,
+    StateData& state_data,
+    const Event& event
+)
 {
-    using conf_t = std::decay_t<decltype(State::conf)>;
-    using event_action_tuple_t = std::decay_t<decltype(conf_t::event_actions)>;
-    if constexpr(!tlu::empty_v<event_action_tuple_t>)
-    {
-        tuple_apply
-        (
-            state.conf.event_actions,
-            [](auto&&... args)
-            {
-                call_event_action(std::forward<decltype(args)>(args)...);
-            },
-            state,
-            mach,
-            ctx,
-            event
-        );
-    }
+    call_state_action
+    (
+        actions,
+        mach,
+        ctx,
+        state_data,
+        event
+    );
 }
 
-template<class State, class Sm, class Context, class Event>
-void call_on_event
+template
+<
+    class State,
+    class ActionTuple,
+    class Sm,
+    class Context,
+    class StateData,
+    class Event
+>
+void call_state_action_old
 (
     State& state,
-    [[maybe_unused]] Sm& mach,
-    [[maybe_unused]] Context& ctx,
+    ActionTuple& actions,
+    Sm& mach,
+    Context& ctx,
+    StateData& state_data,
     const Event& event,
     bool& processed
 )
@@ -136,30 +165,8 @@ void call_on_event
     }
     else
     {
-        call_on_event(state, mach, ctx, event);
+        call_state_action(actions, mach, ctx, state_data, event);
         processed = true;
-    }
-}
-
-template<class State, class Sm, class Context, class Event>
-void call_on_exit(State& state, Sm& mach, Context& ctx, const Event& event)
-{
-    using conf_t = std::decay_t<decltype(State::conf)>;
-    using exit_action_tuple_t = std::decay_t<decltype(conf_t::exit_actions)>;
-    if constexpr(!tlu::empty_v<exit_action_tuple_t>)
-    {
-        tuple_apply
-        (
-            state.conf.exit_actions,
-            [](auto&&... args)
-            {
-                call_event_action(std::forward<decltype(args)>(args)...);
-            },
-            state,
-            mach,
-            ctx,
-            event
-        );
     }
 }
 

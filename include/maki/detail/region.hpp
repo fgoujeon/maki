@@ -408,11 +408,13 @@ private:
 
             if constexpr(!std::is_same_v<SourceStateDef, states::stopped>)
             {
-                detail::call_on_exit
+                using source_state_t = state_traits::state_def_to_state_t<SourceStateDef, region>;
+                detail::call_state_action
                 (
-                    state_from_state_def<SourceStateDef>(),
+                    source_state_t::conf.exit_actions,
                     root_sm_,
                     ctx_,
+                    state_from_state_def<SourceStateDef>(),
                     event
                 );
             }
@@ -435,11 +437,13 @@ private:
         {
             if constexpr(!std::is_same_v<TargetStateDef, states::stopped>)
             {
-                detail::call_on_entry
+                using target_state_t = state_traits::state_def_to_state_t<TargetStateDef, region>;
+                detail::call_state_action
                 (
-                    state_from_state_def<TargetStateDef>(),
+                    target_state_t::conf.entry_actions,
                     root_sm_,
                     ctx_,
+                    state_from_state_def<TargetStateDef>(),
                     event
                 );
             }
@@ -493,7 +497,16 @@ private:
             }
 
             auto& state = self.state<State>();
-            call_on_event(state, self.root_sm_, self.ctx_, event, extra_args...);
+            call_state_action_old
+            (
+                state,
+                State::conf.event_actions,
+                self.root_sm_,
+                self.ctx_,
+                state,
+                event,
+                extra_args...
+            );
             return true;
         }
     };

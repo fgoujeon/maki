@@ -224,7 +224,14 @@ public:
     template<class Event>
     void on_entry(const Event& event)
     {
-        call_on_entry(def_holder_.get(), root_sm_, context(), event);
+        call_state_action
+        (
+            def().conf.entry_actions,
+            root_sm_,
+            context(),
+            def(),
+            event
+        );
         tlu::for_each<region_tuple_type, region_start>(*this, event);
     }
 
@@ -233,7 +240,14 @@ public:
     {
         if constexpr(state_traits::requires_on_event_v<Def, Event>)
         {
-            call_on_event(def_holder_.get(), root_sm_, context(), event);
+            call_state_action
+            (
+                def().conf.event_actions,
+                root_sm_,
+                context(),
+                def(),
+                event
+            );
         }
 
         tlu::for_each<region_tuple_type, region_process_event>(*this, event);
@@ -244,7 +258,14 @@ public:
     {
         if constexpr(state_traits::requires_on_event_v<Def, Event>)
         {
-            call_on_event(def_holder_.get(), root_sm_, context(), event);
+            call_state_action
+            (
+                def().conf.event_actions,
+                root_sm_,
+                context(),
+                def(),
+                event
+            );
             tlu::for_each<region_tuple_type, region_process_event>(*this, event);
             processed = true;
         }
@@ -258,7 +279,14 @@ public:
     void on_exit(const Event& event)
     {
         tlu::for_each<region_tuple_type, region_stop>(*this, event);
-        call_on_exit(def_holder_.get(), root_sm_, context(), event);
+        call_state_action
+        (
+            def().conf.exit_actions,
+            root_sm_,
+            context(),
+            def(),
+            event
+        );
     }
 
     static constexpr auto conf = state_conf_c<>

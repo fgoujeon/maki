@@ -40,7 +40,7 @@ namespace
     {
         struct state0
         {
-            static constexpr auto conf = maki::default_state_conf
+            static constexpr auto conf = maki::state_conf_c<>
                 .event_action_ce<events::event1>
                 (
                     [](context& ctx, const events::event1& event)

@@ -28,7 +28,7 @@ namespace
     {
         struct s0
         {
-            static constexpr auto conf = maki::default_state_conf
+            static constexpr auto conf = maki::state_conf_c<>
                 .entry_action_c<maki::any>
                 (
                     [](context& ctx)
@@ -48,7 +48,7 @@ namespace
 
         struct s1
         {
-            static constexpr auto conf = maki::default_state_conf
+            static constexpr auto conf = maki::state_conf_c<>
                 .entry_action_c<maki::any>
                 (
                     [](context& ctx)
@@ -68,7 +68,7 @@ namespace
 
         struct s2
         {
-            static constexpr auto conf = maki::default_state_conf
+            static constexpr auto conf = maki::state_conf_c<>
                 .entry_action_c<maki::any>
                 (
                     [](context& ctx)

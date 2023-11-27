@@ -41,7 +41,7 @@ namespace
                 ctx.out += event.data + "2;";
             }
 
-            static constexpr auto conf = maki::default_state_conf
+            static constexpr auto conf = maki::state_conf_c<off>
                 .event_action_de<maki::any>
                 (
                     [](off& self, const auto& event)
@@ -71,7 +71,7 @@ namespace
                 ctx.out += "beep;";
             }
 
-            static constexpr auto conf = maki::default_state_conf
+            static constexpr auto conf = maki::state_conf_c<on>
                 .event_action_de<maki::any>
                 (
                     [](on& self, const auto& event)

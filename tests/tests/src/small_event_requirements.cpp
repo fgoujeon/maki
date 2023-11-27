@@ -55,7 +55,7 @@ namespace
 
     struct state
     {
-        static constexpr auto conf = maki::default_state_conf;
+        static constexpr auto conf = maki::state_conf_c<>;
     };
 
     template<class Event>

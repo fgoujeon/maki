@@ -33,7 +33,7 @@ namespace
 
         struct on1
         {
-            static constexpr auto conf = maki::default_submachine_conf
+            static constexpr auto conf = maki::submachine_conf_c<>
                 .set_transition_tables(on1_transition_table)
                 .enable_pretty_name()
             ;
@@ -55,7 +55,7 @@ namespace
 
     struct machine_def
     {
-        static constexpr auto conf = maki::default_submachine_conf
+        static constexpr auto conf = maki::submachine_conf_c<>
             .set_transition_tables(transition_table_0_t, transition_table_1_t)
             .set_context<context>()
             .enable_pretty_name()

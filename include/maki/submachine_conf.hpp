@@ -28,6 +28,7 @@ namespace maki
 */
 template
 <
+    class Data = void,
     class ContextTypeHolder = type<void>,
     class EntryActionTuple = detail::tuple<>,
     class EventActionTuple = detail::tuple<>,
@@ -36,6 +37,7 @@ template
 >
 struct submachine_conf
 {
+    using data_type = Data;
     using context_type = typename ContextTypeHolder::type;
 
     ContextTypeHolder context; //NOLINT(misc-non-private-member-variables-in-classes)
@@ -56,6 +58,7 @@ struct submachine_conf
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return submachine_conf \
     < \
+        Data, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_context)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_event_actions)>, \
@@ -272,7 +275,8 @@ struct submachine_conf
 #undef MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
 };
 
-inline constexpr auto default_submachine_conf = submachine_conf<>{};
+template<class Data = void>
+constexpr auto submachine_conf_c = submachine_conf<Data>{};
 
 namespace detail
 {

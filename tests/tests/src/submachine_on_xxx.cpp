@@ -37,7 +37,7 @@ namespace
 
         struct on_0
         {
-            static constexpr auto conf = maki::default_state_conf
+            static constexpr auto conf = maki::state_conf_c<>
                 .entry_action_ce<events::button_press>
                 (
                     [](context& ctx, const events::button_press& event)
@@ -68,7 +68,7 @@ namespace
 
         struct on
         {
-            static constexpr auto conf = maki::default_submachine_conf
+            static constexpr auto conf = maki::submachine_conf_c<>
                 .set_transition_tables(on_transition_table)
                 .entry_action_ce<events::button_press>
                 (

@@ -55,10 +55,10 @@ struct context
 };
 
 //States
-struct idle { static constexpr auto conf = maki::default_state_conf; };
-struct starting { static constexpr auto conf = maki::default_state_conf; };
-struct running { static constexpr auto conf = maki::default_state_conf; };
-struct stopping { static constexpr auto conf = maki::default_state_conf; };
+struct idle { static constexpr auto conf = maki::state_conf_c<>; };
+struct starting { static constexpr auto conf = maki::state_conf_c<>; };
+struct running { static constexpr auto conf = maki::state_conf_c<>; };
+struct stopping { static constexpr auto conf = maki::state_conf_c<>; };
 
 //Actions
 void start_motor(context& ctx)

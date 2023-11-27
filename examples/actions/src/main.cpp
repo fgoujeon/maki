@@ -19,12 +19,12 @@ struct some_other_event
 struct yet_another_event{};
 
 //States
-struct state0 { static constexpr auto conf = maki::default_state_conf; };
-struct state1 { static constexpr auto conf = maki::default_state_conf; };
+struct state0 { static constexpr auto conf = maki::state_conf_c<>; };
+struct state1 { static constexpr auto conf = maki::state_conf_c<>; };
 //! [short-in-state]
 struct state2
 {
-    static constexpr auto conf = maki::default_state_conf
+    static constexpr auto conf = maki::state_conf_c<>
         //Entry action.
         //Called on state entry for state transitions caused by some_other_event.
         .entry_action_e<some_other_event>([](const some_other_event& event)

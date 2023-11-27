@@ -261,7 +261,7 @@ public:
         call_on_exit(def_holder_.get(), root_sm_, context(), event);
     }
 
-    static constexpr auto conf = default_state_conf
+    static constexpr auto conf = state_conf_c<>
         .entry_action_de<any>
         (
             [](submachine& self, const auto& event)

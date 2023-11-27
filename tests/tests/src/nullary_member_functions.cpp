@@ -32,7 +32,7 @@ namespace nullary_member_functions_ns
 
         struct on
         {
-            static constexpr auto conf = maki::default_state_conf
+            static constexpr auto conf = maki::state_conf_c<>
                 .entry_action_c<events::e1>
                 (
                     [](context& ctx)

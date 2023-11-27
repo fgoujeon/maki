@@ -148,7 +148,7 @@ namespace states
         /*
         A state class must define a conf variable.
         */
-        static constexpr auto conf = maki::default_state_conf
+        static constexpr auto conf = maki::state_conf_c<>
             /*
             With this option, we require the state machine to call an on_entry()
             function whenever it enters our state.
@@ -209,10 +209,10 @@ namespace states
     /*
     These are minimal valid state classes.
     */
-    struct emitting_white { static constexpr auto conf = maki::default_state_conf; };
-    struct emitting_red { static constexpr auto conf = maki::default_state_conf; };
-    struct emitting_green { static constexpr auto conf = maki::default_state_conf; };
-    struct emitting_blue { static constexpr auto conf = maki::default_state_conf; };
+    struct emitting_white { static constexpr auto conf = maki::state_conf_c<>; };
+    struct emitting_red { static constexpr auto conf = maki::state_conf_c<>; };
+    struct emitting_green { static constexpr auto conf = maki::state_conf_c<>; };
+    struct emitting_blue { static constexpr auto conf = maki::state_conf_c<>; };
 }
 
 /*

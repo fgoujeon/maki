@@ -32,12 +32,15 @@ namespace detail
 */
 template
 <
+    class Data = void,
     class EntryActionTuple = detail::tuple<>,
     class EventActionTuple = detail::tuple<>,
     class ExitActionTuple = detail::tuple<>
 >
 struct state_conf
 {
+    using data_type = Data;
+
     EntryActionTuple entry_actions; //NOLINT(misc-non-private-member-variables-in-classes)
     EventActionTuple event_actions; //NOLINT(misc-non-private-member-variables-in-classes)
     ExitActionTuple exit_actions; //NOLINT(misc-non-private-member-variables-in-classes)
@@ -52,6 +55,7 @@ struct state_conf
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return state_conf \
     < \
+        Data, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_event_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)> \
@@ -252,7 +256,8 @@ struct state_conf
 #undef MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
 };
 
-inline constexpr auto default_state_conf = state_conf<>{};
+template<class Data = void>
+constexpr auto state_conf_c = state_conf<Data>{};
 
 namespace detail
 {

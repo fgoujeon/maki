@@ -51,7 +51,7 @@ namespace
             {
                 struct emitting_cold_red
                 {
-                    static constexpr auto conf = maki::default_state_conf;
+                    static constexpr auto conf = maki::state_conf_c<>;
                     on_ns::context& ctx;
                 };
 
@@ -64,7 +64,7 @@ namespace
 
             struct emitting_red
             {
-                static constexpr auto conf = maki::default_submachine_conf
+                static constexpr auto conf = maki::submachine_conf_c<>
                     .set_transition_tables(emitting_red_ns::transition_table)
                     .entry_action_c<maki::any>
                     (
@@ -88,7 +88,7 @@ namespace
 
         struct on
         {
-            static constexpr auto conf = maki::default_submachine_conf
+            static constexpr auto conf = maki::submachine_conf_c<>
                 .set_transition_tables(on_ns::transition_table)
                 .set_context<on_ns::context>()
                 .exit_action_c<maki::any>

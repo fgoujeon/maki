@@ -45,28 +45,28 @@ namespace
     {
         struct off
         {
-            static constexpr auto conf = maki::default_state_conf
+            static constexpr auto conf = maki::state_conf_c<>
                 .event_action_v<events::ignored_by_emitting_blue>([]{})
             ;
         };
 
         struct emitting_red
         {
-            static constexpr auto conf = maki::default_state_conf
+            static constexpr auto conf = maki::state_conf_c<>
                 .event_action_v<events::ignored_by_emitting_blue>([]{})
             ;
         };
 
         struct emitting_green
         {
-            static constexpr auto conf = maki::default_state_conf
+            static constexpr auto conf = maki::state_conf_c<>
                 .event_action_v<events::ignored_by_emitting_blue>([]{})
             ;
         };
 
         struct emitting_blue
         {
-            static constexpr auto conf = maki::default_state_conf;
+            static constexpr auto conf = maki::state_conf_c<>;
         };
 
         constexpr auto on_transition_table = maki::empty_transition_table
@@ -77,7 +77,7 @@ namespace
 
         struct on
         {
-            static constexpr auto conf = maki::default_submachine_conf
+            static constexpr auto conf = maki::submachine_conf_c<on>
                 .set_transition_tables(on_transition_table)
             ;
 

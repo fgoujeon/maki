@@ -48,7 +48,7 @@ namespace
 
         struct on
         {
-            static constexpr auto conf = maki::default_submachine_conf
+            static constexpr auto conf = maki::submachine_conf_c<>
                 .set_transition_tables(on_transition_table)
             ;
 

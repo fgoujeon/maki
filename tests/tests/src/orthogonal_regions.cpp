@@ -33,7 +33,7 @@ namespace
         EMPTY_STATE(on0);
         struct on1
         {
-            static constexpr auto conf = maki::default_state_conf
+            static constexpr auto conf = maki::state_conf_c<>
                 .event_action_c<events::exception_request>
                 (
                     [](context& ctx)

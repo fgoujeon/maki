@@ -32,7 +32,7 @@ namespace
 
         struct s0
         {
-            static constexpr auto conf = maki::default_submachine_conf
+            static constexpr auto conf = maki::submachine_conf_c<>
                 .set_transition_tables(s0_transition_table)
             ;
         };

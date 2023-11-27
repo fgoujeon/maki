@@ -31,7 +31,7 @@ namespace
     {
         struct off
         {
-            static constexpr auto conf = maki::default_state_conf
+            static constexpr auto conf = maki::state_conf_c<>
                 .event_action_ce<events::button_press>
                 (
                     [](context& ctx, const events::button_press& event)
@@ -44,7 +44,7 @@ namespace
 
         struct on
         {
-            static constexpr auto conf = maki::default_state_conf
+            static constexpr auto conf = maki::state_conf_c<>
                 .event_action_c<events::button_press>
                 (
                     [](context& ctx)

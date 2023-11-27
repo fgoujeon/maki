@@ -35,7 +35,7 @@ namespace
 
         struct benchmarking
         {
-            static constexpr auto conf = maki::default_state_conf
+            static constexpr auto conf = maki::state_conf_c<>
                 .event_action_c<events::internal_transition>
                 (
                     [](context& ctx)

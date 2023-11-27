@@ -26,7 +26,7 @@ namespace
         //Check empty state without default constructor
         struct state1
         {
-            static constexpr auto conf = maki::default_state_conf;
+            static constexpr auto conf = maki::state_conf_c<state1>;
 
             state1(context& /*ctx*/)
             {

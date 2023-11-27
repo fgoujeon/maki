@@ -29,7 +29,7 @@ namespace
 
         struct english
         {
-            static constexpr auto conf = maki::default_state_conf
+            static constexpr auto conf = maki::state_conf_c<>
                 .entry_action_c<maki::any>
                 (
                     [](context& ctx)
@@ -56,7 +56,7 @@ namespace
 
         struct french
         {
-            static constexpr auto conf = maki::default_state_conf
+            static constexpr auto conf = maki::state_conf_c<>
                 .entry_action_m<maki::any>
                 (
                     [](auto& mach)

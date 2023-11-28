@@ -83,7 +83,7 @@ namespace
     constexpr auto transition_table = maki::empty_transition_table
         .add_c<states::idle,    events::power_button_press, states::running>
         .add_c<states::running, events::power_button_press, states::idle>
-        .add_c<states::running, events::beep_button_press,  maki::null_c, actions::beep>
+        .add_c<states::running, events::beep_button_press,  maki::null, actions::beep>
     ;
 
     struct machine_def

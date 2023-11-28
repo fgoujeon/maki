@@ -63,7 +63,7 @@ template<class State>
 using state_to_state_data = std::conditional_t
 <
     std::is_void_v<state_to_raw_state_data<State>>,
-    null,
+    null_t,
     state_to_raw_state_data<State>
 >;
 

@@ -30,7 +30,7 @@ namespace
         EMPTY_STATE(on1)
 
         constexpr auto on_transition_table = maki::empty_transition_table
-            .add_c<states::on0, maki::null, states::on1>
+            .add_c<states::on0, maki::null_t, states::on1>
         ;
 
         struct on_data

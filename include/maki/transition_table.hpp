@@ -56,9 +56,9 @@ Represents either:
 - a null event (for anonymous transitions);
 - a null target state (for internal transitions in transition table).
 */
-struct null{};
+struct null_t{};
 
-inline constexpr auto null_c = null{};
+inline constexpr auto null = null_t{};
 
 /**
 @brief An action that does nothing.

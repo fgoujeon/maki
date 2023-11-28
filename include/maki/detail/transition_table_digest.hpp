@@ -59,7 +59,7 @@ namespace transition_table_digest_detail
     <
         TList,
         U,
-        (!tlu::contains_v<TList, U> && !std::is_same_v<U, state_conf_wrapper<null_c>>)
+        (!tlu::contains_v<TList, U> && !std::is_same_v<U, state_conf_wrapper<null>>)
     >;
 
     template<class TransitionTable>
@@ -83,7 +83,7 @@ namespace transition_table_digest_detail
 
         static constexpr auto has_null_events =
             Digest::has_null_events ||
-            std::is_same_v<typename Transition::event_type_pattern, null>
+            std::is_same_v<typename Transition::event_type_pattern, null_t>
         ;
     };
 

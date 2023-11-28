@@ -27,7 +27,7 @@ namespace
         EMPTY_STATE(s1)
 
         constexpr auto s0_transition_table = maki::empty_transition_table
-            .add_c<s0_sub, events::button_press, maki::null_c>
+            .add_c<s0_sub, events::button_press, maki::null>
         ;
 
         constexpr auto s0 = maki::submachine_conf

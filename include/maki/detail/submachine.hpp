@@ -131,7 +131,7 @@ public:
     using data_type = std::conditional_t
     <
         std::is_void_v<typename conf_type::data_type>,
-        null,
+        null_t,
         typename conf_type::data_type
     >;
 

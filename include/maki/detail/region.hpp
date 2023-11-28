@@ -363,7 +363,7 @@ private:
         constexpr const auto& path = region_path_of_v<region>;
 
         constexpr auto is_internal_transition =
-            std::is_same_v<TargetStateDef, state_conf_wrapper<null_c>>
+            std::is_same_v<TargetStateDef, state_conf_wrapper<null>>
         ;
 
         if constexpr(!is_internal_transition)
@@ -440,10 +440,10 @@ private:
                 using candidate_transition_type_list = transition_table_filters::by_event_t
                 <
                     transition_table_type,
-                    null
+                    null_t
                 >;
 
-                try_processing_event_in_transitions<candidate_transition_type_list>(null{});
+                try_processing_event_in_transitions<candidate_transition_type_list>(null);
             }
         }
     }

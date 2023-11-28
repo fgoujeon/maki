@@ -90,7 +90,7 @@ public:
     auto obj = object_type{};
     @endcode
 
-    Finally, unless the @ref machine_conf::auto_start is `false`, `start()` is
+    Finally, unless the machine_conf::auto_start is `false`, `start()` is
     called.
     */
     template<class... ContextArgs>

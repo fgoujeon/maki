@@ -47,7 +47,7 @@ namespace
             (
                 [](context& ctx, const auto& region_path_constant, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)
                 {
-                    static_assert(region_path_constant.value == maki::region_path<maki::region_path_element<machine_def, 0>>{});
+                    REQUIRE(region_path_constant.value == maki::region_path<maki::region_path_element<machine_def, 0>>{});
 
                     ctx.out += "Transition in ";
                     ctx.out += region_path_constant.value.to_string();
@@ -62,7 +62,7 @@ namespace
             (
                 [](context& ctx, const auto& region_path_constant, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)
                 {
-                    static_assert(region_path_constant.value == maki::region_path<maki::region_path_element<machine_def, 0>>{});
+                    REQUIRE(region_path_constant.value == maki::region_path<maki::region_path_element<machine_def, 0>>{});
 
                     ctx.out += "Transition in ";
                     ctx.out += region_path_constant.value.to_string();

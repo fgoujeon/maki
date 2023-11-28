@@ -7,6 +7,16 @@
 #ifndef MAKI_DETAIL_EVENT_ACTION_HPP
 #define MAKI_DETAIL_EVENT_ACTION_HPP
 
+#define MAKI_DETAIL_EVENT_ACTION_SIGNATURES \
+    X(v) \
+    X(m) \
+    X(mce) \
+    X(c) \
+    X(ce) \
+    X(d) \
+    X(de) \
+    X(e)
+
 namespace maki::detail
 {
 
@@ -19,14 +29,9 @@ e means event
 */
 enum class event_action_signature
 {
-    v,
-    m,
-    mce,
-    c,
-    ce,
-    d,
-    de,
-    e,
+#define X(name) name, /*NOLINT(cppcoreguidelines-macro-usage)*/
+    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+#undef X
 };
 
 template<class EventFilter, class Action, event_action_signature Sig>

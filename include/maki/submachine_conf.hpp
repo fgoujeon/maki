@@ -90,47 +90,14 @@ struct submachine_conf
 #undef MAKI_DETAIL_ARG_entry_actions
     }
 
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto entry_action_v(const Action& action) const
-    {
-        return entry_action<EventFilter, detail::event_action_signature::v>(action);
+#define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    template<class EventFilter, class Action> \
+    [[nodiscard]] constexpr auto entry_action_##signature(const Action& action) const \
+    { \
+        return entry_action<EventFilter, detail::event_action_signature::signature>(action); \
     }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto entry_action_m(const Action& action) const
-    {
-        return entry_action<EventFilter, detail::event_action_signature::m>(action);
-    }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto entry_action_c(const Action& action) const
-    {
-        return entry_action<EventFilter, detail::event_action_signature::c>(action);
-    }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto entry_action_ce(const Action& action) const
-    {
-        return entry_action<EventFilter, detail::event_action_signature::ce>(action);
-    }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto entry_action_d(const Action& action) const
-    {
-        return entry_action<EventFilter, detail::event_action_signature::d>(action);
-    }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto entry_action_de(const Action& action) const
-    {
-        return entry_action<EventFilter, detail::event_action_signature::de>(action);
-    }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto entry_action_e(const Action& action) const
-    {
-        return entry_action<EventFilter, detail::event_action_signature::e>(action);
-    }
+    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+#undef X
 
     template<class EventFilter, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto event_action(const Action& action) const
@@ -147,47 +114,14 @@ struct submachine_conf
 #undef MAKI_DETAIL_ARG_event_actions
     }
 
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto event_action_v(const Action& action) const
-    {
-        return event_action<EventFilter, detail::event_action_signature::v>(action);
+#define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    template<class EventFilter, class Action> \
+    [[nodiscard]] constexpr auto event_action_##signature(const Action& action) const \
+    { \
+        return event_action<EventFilter, detail::event_action_signature::signature>(action); \
     }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto event_action_m(const Action& action) const
-    {
-        return event_action<EventFilter, detail::event_action_signature::m>(action);
-    }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto event_action_c(const Action& action) const
-    {
-        return event_action<EventFilter, detail::event_action_signature::c>(action);
-    }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto event_action_ce(const Action& action) const
-    {
-        return event_action<EventFilter, detail::event_action_signature::ce>(action);
-    }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto event_action_d(const Action& action) const
-    {
-        return event_action<EventFilter, detail::event_action_signature::d>(action);
-    }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto event_action_de(const Action& action) const
-    {
-        return event_action<EventFilter, detail::event_action_signature::de>(action);
-    }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto event_action_e(const Action& action) const
-    {
-        return event_action<EventFilter, detail::event_action_signature::e>(action);
-    }
+    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+#undef X
 
     template<class EventFilter, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto exit_action(const Action& action) const
@@ -204,47 +138,14 @@ struct submachine_conf
 #undef MAKI_DETAIL_ARG_exit_actions
     }
 
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto exit_action_v(const Action& action) const
-    {
-        return exit_action<EventFilter, detail::event_action_signature::v>(action);
+#define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    template<class EventFilter, class Action> \
+    [[nodiscard]] constexpr auto exit_action_##signature(const Action& action) const \
+    { \
+        return exit_action<EventFilter, detail::event_action_signature::signature>(action); \
     }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto exit_action_m(const Action& action) const
-    {
-        return exit_action<EventFilter, detail::event_action_signature::m>(action);
-    }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto exit_action_c(const Action& action) const
-    {
-        return exit_action<EventFilter, detail::event_action_signature::c>(action);
-    }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto exit_action_ce(const Action& action) const
-    {
-        return exit_action<EventFilter, detail::event_action_signature::ce>(action);
-    }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto exit_action_d(const Action& action) const
-    {
-        return exit_action<EventFilter, detail::event_action_signature::d>(action);
-    }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto exit_action_de(const Action& action) const
-    {
-        return exit_action<EventFilter, detail::event_action_signature::de>(action);
-    }
-
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto exit_action_e(const Action& action) const
-    {
-        return exit_action<EventFilter, detail::event_action_signature::e>(action);
-    }
+    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+#undef X
 
     template<class Context>
     [[nodiscard]] constexpr auto set_context() const

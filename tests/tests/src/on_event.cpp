@@ -30,7 +30,7 @@ namespace
     namespace states
     {
         constexpr auto off = maki::state_conf
-            .event_action_ce<events::button_press>
+            .internal_action_ce<events::button_press>
             (
                 [](context& ctx, const events::button_press& event)
                 {
@@ -40,14 +40,14 @@ namespace
         ;
 
         constexpr auto on = maki::state_conf
-            .event_action_c<events::button_press>
+            .internal_action_c<events::button_press>
             (
                 [](context& ctx)
                 {
                     ctx.out += "_";
                 }
             )
-            .event_action_c<events::alert_button_press>
+            .internal_action_c<events::alert_button_press>
             (
                 [](context& ctx)
                 {

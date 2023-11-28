@@ -62,7 +62,7 @@ struct machine_conf
 
     EntryActionTuple entry_actions; //NOLINT(misc-non-private-member-variables-in-classes)
 
-    EventActionTuple event_actions; //NOLINT(misc-non-private-member-variables-in-classes)
+    EventActionTuple internal_actions; //NOLINT(misc-non-private-member-variables-in-classes)
 
     ExitActionTuple exit_actions; //NOLINT(misc-non-private-member-variables-in-classes)
 
@@ -288,7 +288,7 @@ struct machine_conf
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = auto_start; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context = context; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_event_actions = event_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = internal_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = exit_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_state_transition_action = post_state_transition_action_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_state_transition_action = pre_state_transition_action_; \
@@ -305,7 +305,7 @@ struct machine_conf
     < \
         std::decay_t<decltype(MAKI_DETAIL_ARG_context)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_event_actions)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_exception_action)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_pre_state_transition_action)>, \
@@ -317,7 +317,7 @@ struct machine_conf
         MAKI_DETAIL_ARG_auto_start, \
         MAKI_DETAIL_ARG_context, \
         MAKI_DETAIL_ARG_entry_actions, \
-        MAKI_DETAIL_ARG_event_actions, \
+        MAKI_DETAIL_ARG_internal_actions, \
         MAKI_DETAIL_ARG_exit_actions, \
         MAKI_DETAIL_ARG_post_state_transition_action, \
         MAKI_DETAIL_ARG_pre_state_transition_action, \
@@ -357,16 +357,16 @@ struct machine_conf
     template<class EventFilter, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto event_action(const Action& action) const
     {
-        const auto new_event_actions = tuple_append
+        const auto new_internal_actions = tuple_append
         (
-            event_actions,
+            internal_actions,
             detail::event_action<EventFilter, Action, Sig>{action}
         );
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_event_actions new_event_actions
+#define MAKI_DETAIL_ARG_internal_actions new_internal_actions
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_event_actions
+#undef MAKI_DETAIL_ARG_internal_actions
     }
 
 #define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \

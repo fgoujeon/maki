@@ -35,7 +35,7 @@ namespace
                     ctx.hello = "hello";
                 }
             )
-            .event_action_c<events::say_dog>
+            .internal_action_c<events::say_dog>
             (
                 [](context& ctx)
                 {
@@ -59,7 +59,7 @@ namespace
                     mach.context().hello = "bonjour";
                 }
             )
-            .event_action_c<events::say_dog>
+            .internal_action_c<events::say_dog>
             (
                 [](context& ctx)
                 {

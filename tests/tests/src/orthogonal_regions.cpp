@@ -32,7 +32,7 @@ namespace
         EMPTY_STATE(off1)
         EMPTY_STATE(on0)
         constexpr auto on1 = maki::state_conf
-            .event_action_c<events::exception_request>
+            .internal_action_c<events::exception_request>
             (
                 [](context& ctx)
                 {

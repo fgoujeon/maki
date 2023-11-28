@@ -31,7 +31,7 @@ namespace
                     ctx.out += "idle::on_entry;";
                 }
             )
-            .event_action_c<maki::any>
+            .internal_action_c<maki::any>
             (
                 [](context& ctx)
                 {
@@ -55,7 +55,7 @@ namespace
                     ctx.out += "running::on_entry;";
                 }
             )
-            .event_action_c<maki::any>
+            .internal_action_c<maki::any>
             (
                 [](context& ctx)
                 {

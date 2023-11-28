@@ -44,15 +44,15 @@ namespace
     namespace states
     {
         constexpr auto off = maki::state_conf
-            .event_action_v<events::ignored_by_emitting_blue>([]{})
+            .internal_action_v<events::ignored_by_emitting_blue>([]{})
         ;
 
         constexpr auto emitting_red = maki::state_conf
-            .event_action_v<events::ignored_by_emitting_blue>([]{})
+            .internal_action_v<events::ignored_by_emitting_blue>([]{})
         ;
 
         constexpr auto emitting_green = maki::state_conf
-            .event_action_v<events::ignored_by_emitting_blue>([]{})
+            .internal_action_v<events::ignored_by_emitting_blue>([]{})
         ;
 
         constexpr auto emitting_blue = maki::state_conf;

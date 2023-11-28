@@ -109,7 +109,7 @@ namespace states
         This expression must be valid:
             state.on_event(event);
         */
-        .event_action_e<button::push_event>
+        .internal_action_e<button::push_event>
         (
             [](const button::push_event& event)
             {

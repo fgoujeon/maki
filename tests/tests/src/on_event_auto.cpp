@@ -46,7 +46,7 @@ namespace
 
         constexpr auto off = maki::state_conf
             .data<off_data>()
-            .event_action_de<maki::any>
+            .internal_action_de<maki::any>
             (
                 [](off_data& dat, const auto& event)
                 {
@@ -77,7 +77,7 @@ namespace
 
         constexpr auto on = maki::state_conf
             .data<on_data>()
-            .event_action_de<maki::any>
+            .internal_action_de<maki::any>
             (
                 [](on_data& dat, const auto& event)
                 {

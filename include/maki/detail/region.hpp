@@ -474,7 +474,7 @@ private:
             call_state_action_old
             (
                 state_data,
-                State::conf.event_actions,
+                State::conf.internal_actions,
                 self.root_sm_,
                 self.ctx_,
                 state_data,

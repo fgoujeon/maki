@@ -269,7 +269,7 @@ public:
         {
             call_state_action
             (
-                Def::conf.event_actions,
+                Def::conf.internal_actions,
                 root_sm_,
                 context(),
                 def_data(),
@@ -287,7 +287,7 @@ public:
         {
             call_state_action
             (
-                Def::conf.event_actions,
+                Def::conf.internal_actions,
                 root_sm_,
                 context(),
                 def_data(),
@@ -325,7 +325,7 @@ public:
                 submachine_on_entry(self, event);
             }
         )
-        .template event_action_de<any>
+        .template internal_action_de<any>
         (
             [](submachine& self, const auto& event)
             {

@@ -43,7 +43,7 @@ namespace
                     ctx.out += event.data + "2";
                 }
             )
-            .event_action_ce<events::internal>
+            .internal_action_ce<events::internal>
             (
                 [](context& ctx, const events::internal& event)
                 {
@@ -72,7 +72,7 @@ namespace
                     ctx.out += event.data + "1";
                 }
             )
-            .event_action_ce<events::internal>
+            .internal_action_ce<events::internal>
             (
                 [](context& ctx, const events::internal& event)
                 {

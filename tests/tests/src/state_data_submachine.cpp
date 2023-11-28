@@ -46,7 +46,7 @@ namespace
         constexpr auto on = maki::submachine_conf
             .data<on_data>()
             .set_transition_tables(on_transition_table)
-            .event_action_de<events::accumulate_request>
+            .internal_action_de<events::accumulate_request>
             (
                 [](on_data& self, const events::accumulate_request& event)
                 {

@@ -48,7 +48,7 @@ namespace
                     }
                 }
             )
-            .event_action_ce<maki::events::exception>
+            .internal_action_ce<maki::events::exception>
             (
                 [](context& ctx, const maki::events::exception& event)
                 {

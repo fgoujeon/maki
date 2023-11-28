@@ -39,13 +39,13 @@ constexpr auto state2 = maki::state_conf
     })
 
     //Internal action.
-    .event_action_v<some_event>([]
+    .internal_action_v<some_event>([]
     {
         std::cout << "Executing state2 some_event action\n";
     })
 
     //Internal action.
-    .event_action_e<some_other_event>([](const some_other_event& event)
+    .internal_action_e<some_other_event>([](const some_other_event& event)
     {
         std::cout << "Executing state2 some_other_event action (some_other_event{" << event.value << "})...\n";
     })

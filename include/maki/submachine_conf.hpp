@@ -32,7 +32,7 @@ template
     class Data = void,
     class ContextTypeHolder = type<void>,
     class EntryActionTuple = detail::tuple<>,
-    class EventActionTuple = detail::tuple<>,
+    class InternalActionTuple = detail::tuple<>,
     class ExitActionTuple = detail::tuple<>,
     class TransitionTableTypeList = type_list<>
 >
@@ -43,7 +43,7 @@ struct submachine_conf_t
 
     ContextTypeHolder context; //NOLINT(misc-non-private-member-variables-in-classes)
     EntryActionTuple entry_actions; //NOLINT(misc-non-private-member-variables-in-classes)
-    EventActionTuple event_actions; //NOLINT(misc-non-private-member-variables-in-classes)
+    InternalActionTuple internal_actions; //NOLINT(misc-non-private-member-variables-in-classes)
     ExitActionTuple exit_actions; //NOLINT(misc-non-private-member-variables-in-classes)
     std::string_view pretty_name_view; //NOLINT(misc-non-private-member-variables-in-classes)
     TransitionTableTypeList transition_tables; //NOLINT(misc-non-private-member-variables-in-classes)
@@ -52,7 +52,7 @@ struct submachine_conf_t
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<data_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context = context; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_event_actions = event_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = internal_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = exit_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = pretty_name_view; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = transition_tables;
@@ -63,14 +63,14 @@ struct submachine_conf_t
         typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_context)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_event_actions)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
     > \
     { \
         MAKI_DETAIL_ARG_context, \
         MAKI_DETAIL_ARG_entry_actions, \
-        MAKI_DETAIL_ARG_event_actions, \
+        MAKI_DETAIL_ARG_internal_actions, \
         MAKI_DETAIL_ARG_exit_actions, \
         MAKI_DETAIL_ARG_pretty_name_view, \
         MAKI_DETAIL_ARG_transition_tables \
@@ -110,25 +110,25 @@ struct submachine_conf_t
 #undef X
 
     template<class EventFilter, detail::event_action_signature Sig, class Action>
-    [[nodiscard]] constexpr auto event_action(const Action& action) const
+    [[nodiscard]] constexpr auto internal_action(const Action& action) const
     {
-        const auto new_event_actions = tuple_append
+        const auto new_internal_actions = tuple_append
         (
-            event_actions,
+            internal_actions,
             detail::event_action<EventFilter, Action, Sig>{action}
         );
 
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_event_actions new_event_actions
+#define MAKI_DETAIL_ARG_internal_actions new_internal_actions
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_event_actions
+#undef MAKI_DETAIL_ARG_internal_actions
     }
 
 #define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     template<class EventFilter, class Action> \
-    [[nodiscard]] constexpr auto event_action_##signature(const Action& action) const \
+    [[nodiscard]] constexpr auto internal_action_##signature(const Action& action) const \
     { \
-        return event_action<EventFilter, detail::event_action_signature::signature>(action); \
+        return internal_action<EventFilter, detail::event_action_signature::signature>(action); \
     }
     MAKI_DETAIL_EVENT_ACTION_SIGNATURES
 #undef X

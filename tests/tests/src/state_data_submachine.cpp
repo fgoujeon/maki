@@ -25,9 +25,9 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(off);
-        EMPTY_STATE(on0);
-        EMPTY_STATE(on1);
+        EMPTY_STATE(off)
+        EMPTY_STATE(on0)
+        EMPTY_STATE(on1)
 
         constexpr auto on_transition_table = maki::empty_transition_table
             .add_c<states::on0, maki::null, states::on1>

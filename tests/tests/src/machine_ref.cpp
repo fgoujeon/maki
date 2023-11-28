@@ -15,8 +15,8 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(on);
-        EMPTY_STATE(off);
+        EMPTY_STATE(on)
+        EMPTY_STATE(off)
     }
 
     namespace events

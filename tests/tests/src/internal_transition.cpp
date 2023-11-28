@@ -22,16 +22,16 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(state0);
-        EMPTY_STATE(state1);
-        EMPTY_STATE(state2);
-        EMPTY_STATE(state3);
-        EMPTY_STATE(state4);
-        EMPTY_STATE(state5);
-        EMPTY_STATE(state6);
-        EMPTY_STATE(state7);
-        EMPTY_STATE(state8);
-        EMPTY_STATE(state9);
+        EMPTY_STATE(state0)
+        EMPTY_STATE(state1)
+        EMPTY_STATE(state2)
+        EMPTY_STATE(state3)
+        EMPTY_STATE(state4)
+        EMPTY_STATE(state5)
+        EMPTY_STATE(state6)
+        EMPTY_STATE(state7)
+        EMPTY_STATE(state8)
+        EMPTY_STATE(state9)
 
         constexpr auto benchmarking = maki::state_conf_c<>
             .event_action_c<events::internal_transition>

@@ -25,7 +25,7 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(idle);
+        EMPTY_STATE(idle)
 
         constexpr auto english = maki::state_conf_c<>
             .entry_action_c<maki::any>

@@ -18,11 +18,11 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(s0);
-        EMPTY_STATE(s1);
-        EMPTY_STATE(s2);
-        EMPTY_STATE(s3);
-        EMPTY_STATE(s4);
+        EMPTY_STATE(s0)
+        EMPTY_STATE(s1)
+        EMPTY_STATE(s2)
+        EMPTY_STATE(s3)
+        EMPTY_STATE(s4)
     }
 
     constexpr auto transition_table = maki::empty_transition_table

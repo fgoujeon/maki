@@ -32,10 +32,10 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(off);
-        EMPTY_STATE(emitting_red);
-        EMPTY_STATE(emitting_green);
-        EMPTY_STATE(emitting_blue);
+        EMPTY_STATE(off)
+        EMPTY_STATE(emitting_red)
+        EMPTY_STATE(emitting_green)
+        EMPTY_STATE(emitting_blue)
 
         constexpr auto on_transition_table = maki::empty_transition_table
             .add_c<states::emitting_red,   events::color_button_press, states::emitting_green>

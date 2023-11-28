@@ -33,7 +33,7 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(off);
+        EMPTY_STATE(off)
 
         constexpr auto on_0 = maki::state_conf_c<>
             .entry_action_ce<events::button_press>

@@ -31,7 +31,7 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(off);
+        EMPTY_STATE(off)
 
         struct emitting_red_data
         {

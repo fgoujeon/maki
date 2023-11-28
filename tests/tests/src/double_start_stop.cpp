@@ -25,8 +25,8 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(on);
-        EMPTY_STATE(off);
+        EMPTY_STATE(on)
+        EMPTY_STATE(off)
     }
 
     constexpr auto transition_table = maki::empty_transition_table

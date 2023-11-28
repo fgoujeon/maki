@@ -30,7 +30,7 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(off);
+        EMPTY_STATE(off)
 
         namespace on_ns
         {
@@ -50,7 +50,7 @@ namespace
             namespace emitting_red_ns
             {
                 constexpr auto emitting_cold_red = maki::state_conf_c<>;
-                EMPTY_STATE(emitting_hot_red);
+                EMPTY_STATE(emitting_hot_red)
 
                 constexpr auto transition_table = maki::empty_transition_table
                     .add_c<emitting_cold_red, events::color_button_press, emitting_hot_red>
@@ -68,8 +68,8 @@ namespace
                 )
             ;
 
-            EMPTY_STATE(emitting_green);
-            EMPTY_STATE(emitting_blue);
+            EMPTY_STATE(emitting_green)
+            EMPTY_STATE(emitting_blue)
 
             constexpr auto transition_table = maki::empty_transition_table
                 .add_c<emitting_red,   events::color_button_press, emitting_green>

@@ -32,10 +32,10 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(off);
-        EMPTY_STATE(emitting_red);
-        EMPTY_STATE(emitting_green);
-        EMPTY_STATE(emitting_blue);
+        EMPTY_STATE(off)
+        EMPTY_STATE(emitting_red)
+        EMPTY_STATE(emitting_green)
+        EMPTY_STATE(emitting_blue)
 
         constexpr auto not_emitting_red = maki::any_but_c<emitting_red>;
         constexpr auto emitting_red_or_green = maki::any_of_c<emitting_red, emitting_green>;

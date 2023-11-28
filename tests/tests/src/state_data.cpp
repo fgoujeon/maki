@@ -25,7 +25,7 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(off);
+        EMPTY_STATE(off)
 
         struct on_data
         {

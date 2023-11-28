@@ -111,6 +111,18 @@ struct region_tuple
 };
 
 template<class Def, class ParentRegion>
+class submachine;
+
+template<class Submachine, class Event>
+void submachine_on_entry(Submachine& submach, const Event& event);
+
+template<class Submachine, class Event>
+void submachine_on_event(Submachine& submach, const Event& event);
+
+template<class Submachine, class Event>
+void submachine_on_exit(Submachine& submach, const Event& event);
+
+template<class Def, class ParentRegion>
 class submachine
 {
 public:
@@ -309,21 +321,21 @@ public:
         (
             [](submachine& self, const auto& event)
             {
-                self.on_entry(event);
+                submachine_on_entry(self, event);
             }
         )
         .template event_action_de<any>
         (
             [](submachine& self, const auto& event)
             {
-                self.on_event(event);
+                submachine_on_event(self, event);
             }
         )
         .template exit_action_de<any>
         (
             [](submachine& self, const auto& event)
             {
-                self.on_exit(event);
+                submachine_on_exit(self, event);
             }
         )
     ;
@@ -370,6 +382,24 @@ private:
     detail::machine_object_holder<def_data_type> def_data_holder_;
     region_tuple_type regions_;
 };
+
+template<class Submachine, class Event>
+void submachine_on_entry(Submachine& submach, const Event& event)
+{
+    submach.on_entry(event);
+}
+
+template<class Submachine, class Event>
+void submachine_on_event(Submachine& submach, const Event& event)
+{
+    submach.on_event(event);
+}
+
+template<class Submachine, class Event>
+void submachine_on_exit(Submachine& submach, const Event& event)
+{
+    submach.on_exit(event);
+}
 
 } //namespace
 

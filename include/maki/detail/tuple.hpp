@@ -86,8 +86,7 @@ constexpr auto& tuple_get(Tuple& tpl)
 {
     using tuple_t = std::decay_t<Tuple>;
     using type_t = tlu::get_t<tuple_t, Index>;
-    using element_type_t = tuple_element<Index, type_t>;
-    return tpl.element_type_t::value;
+    return tpl.tuple_element<Index, type_t>::value;
 }
 
 template<class T, class Tuple>
@@ -95,8 +94,7 @@ constexpr auto& tuple_get(Tuple& tpl)
 {
     using tuple_t = std::decay_t<Tuple>;
     constexpr auto element_index = tlu::index_of_v<tuple_t, T>;
-    using element_type_t = tuple_element<element_index, T>;
-    return tpl.element_type_t::value;
+    return tpl.tuple_element<element_index, T>::value;
 }
 
 template<class IndexSequence>

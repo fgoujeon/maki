@@ -21,7 +21,7 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(state0);
+        EMPTY_STATE(state0)
 
         //Check empty state without default constructor
         struct state1_data

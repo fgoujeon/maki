@@ -25,11 +25,11 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(idle);
-        EMPTY_STATE(state0);
-        EMPTY_STATE(state1);
-        EMPTY_STATE(state2);
-        EMPTY_STATE(state3);
+        EMPTY_STATE(idle)
+        EMPTY_STATE(state0)
+        EMPTY_STATE(state1)
+        EMPTY_STATE(state2)
+        EMPTY_STATE(state3)
     }
 
     namespace events

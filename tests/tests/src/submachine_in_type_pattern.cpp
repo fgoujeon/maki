@@ -22,9 +22,9 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(off);
-        EMPTY_STATE(s0_sub);
-        EMPTY_STATE(s1);
+        EMPTY_STATE(off)
+        EMPTY_STATE(s0_sub)
+        EMPTY_STATE(s1)
 
         constexpr auto s0_transition_table = maki::empty_transition_table
             .add_c<s0_sub, events::button_press, maki::null_c>

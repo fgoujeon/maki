@@ -28,9 +28,9 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(off0);
-        EMPTY_STATE(off1);
-        EMPTY_STATE(on0);
+        EMPTY_STATE(off0)
+        EMPTY_STATE(off1)
+        EMPTY_STATE(on0)
         constexpr auto on1 = maki::state_conf_c<>
             .event_action_c<events::exception_request>
             (

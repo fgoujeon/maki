@@ -65,6 +65,12 @@ TEST_CASE("pretty_name")
 
     REQUIRE
     (
+        maki::pretty_name<pretty_name_ns::machine_def>() ==
+        std::string_view{"my_sm"}
+    );
+
+    REQUIRE
+    (
         maki::pretty_name<pretty_name_ns::state>() ==
         std::string_view{"my_state"}
     );

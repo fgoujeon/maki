@@ -13,9 +13,9 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(idle);
-        EMPTY_STATE(running);
-        EMPTY_STATE(failed);
+        EMPTY_STATE(idle)
+        EMPTY_STATE(running)
+        EMPTY_STATE(failed)
     }
 
     namespace events

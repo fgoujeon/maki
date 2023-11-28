@@ -7,6 +7,7 @@
 #ifndef MAKI_DETAIL_TYPE_NAME_HPP
 #define MAKI_DETAIL_TYPE_NAME_HPP
 
+#include "constant.hpp"
 #include <string_view>
 
 namespace maki::detail
@@ -64,6 +65,20 @@ namespace type_name_detail
         (
             static_cast<sv_size_t>(format.prefix_size),
             fn_name.size() - static_cast<sv_size_t>(format.prefix_size) - static_cast<sv_size_t>(format.suffix_size)
+        );
+    }
+
+    template<const auto& Value>
+    std::string_view constant_name()
+    {
+        using type = detail::constant<Value>;
+        const auto raw_name = type_name_detail::type_name<type>();
+        const auto raw_name_prefix = std::string_view{"maki::detail::constant<"};
+        const auto raw_name_suffix = std::string_view{">"};
+        return raw_name.substr
+        (
+            raw_name_prefix.size(),
+            raw_name.size() - raw_name_prefix.size() - raw_name_suffix.size()
         );
     }
 
@@ -130,6 +145,23 @@ std::string_view decayed_type_name()
     static const auto name = type_name_detail::decay_type_name
     (
         type_name_detail::type_name<T>()
+    );
+    return name;
+}
+
+template<const auto& Value>
+std::string_view constant_name()
+{
+    static const auto name = type_name_detail::constant_name<Value>();
+    return name;
+}
+
+template<const auto& Value>
+std::string_view decayed_constant_name()
+{
+    static const auto name = type_name_detail::decay_type_name
+    (
+        type_name_detail::constant_name<Value>()
     );
     return name;
 }

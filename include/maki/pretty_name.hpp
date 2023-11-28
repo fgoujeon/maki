@@ -12,7 +12,6 @@
 #ifndef MAKI_PRETTY_NAME_HPP
 #define MAKI_PRETTY_NAME_HPP
 
-#include "detail/constant_name.hpp"
 #include "detail/type_name.hpp"
 
 namespace maki

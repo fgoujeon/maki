@@ -56,40 +56,39 @@ namespace
                     .add_c<states::off1, events::button_press, states::on1>
             )
             .set_context<context>()
-            .enable_on_exception()
-            .enable_before_state_transition()
-            .enable_after_state_transition()
+            .exception_action_me
+            (
+                [](auto& mach, const std::exception_ptr& eptr)
+                {
+                    try
+                    {
+                        std::rethrow_exception(eptr);
+                    }
+                    catch(const std::exception& e)
+                    {
+                        mach.context().out += std::string{"on_exception:"} + e.what() + ";";
+                    }
+                }
+            )
+            .pre_state_transition_action_crset
+            (
+                [](context& ctx, const auto& region_path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
+                {
+                    using region_path_t = std::decay_t<decltype(region_path_constant.value)>;
+                    constexpr auto region_index = maki::detail::tlu::get_t<region_path_t, 0>::region_index;
+                    ctx.out += "before_state_transition[" + std::to_string(region_index) + "];";
+                }
+            )
+            .post_state_transition_action_crset
+            (
+                [](context& ctx, const auto& region_path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
+                {
+                    using region_path_t = std::decay_t<decltype(region_path_constant.value)>;
+                    constexpr auto region_index = maki::detail::tlu::get_t<region_path_t, 0>::region_index;
+                    ctx.out += "after_state_transition[" + std::to_string(region_index) + "];";
+                }
+            )
         ;
-
-        template<const auto& RegionPath, const auto& SourceState, class Event, const auto& TargetState>
-        void before_state_transition(const Event& /*event*/)
-        {
-            using region_path_t = std::decay_t<decltype(RegionPath)>;
-            constexpr auto region_index = maki::detail::tlu::get_t<region_path_t, 0>::region_index;
-            ctx.out += "before_state_transition[" + std::to_string(region_index) + "];";
-        }
-
-        template<const auto& RegionPath, const auto& SourceState, class Event, const auto& TargetState>
-        void after_state_transition(const Event& /*event*/)
-        {
-            using region_path_t = std::decay_t<decltype(RegionPath)>;
-            constexpr auto region_index = maki::detail::tlu::get_t<region_path_t, 0>::region_index;
-            ctx.out += "after_state_transition[" + std::to_string(region_index) + "];";
-        }
-
-        void on_exception(const std::exception_ptr& eptr)
-        {
-            try
-            {
-                std::rethrow_exception(eptr);
-            }
-            catch(const std::exception& e)
-            {
-                ctx.out += std::string{"on_exception:"} + e.what() + ";";
-            }
-        }
-
-        context& ctx;
     };
 
     using machine_t = maki::machine<machine_def>;

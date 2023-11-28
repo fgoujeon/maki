@@ -43,38 +43,38 @@ namespace
         static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
             .set_context<context>()
-            .enable_before_state_transition()
-            .enable_after_state_transition()
+            .pre_state_transition_action_crset
+            (
+                [](context& ctx, const auto& region_path_constant, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)
+                {
+                    static_assert(region_path_constant.value == maki::region_path<maki::region_path_element<machine_def, 0>>{});
+
+                    ctx.out += "Transition in ";
+                    ctx.out += region_path_constant.value.to_string();
+                    ctx.out += ": ";
+                    ctx.out += maki::pretty_name<source_state_constant.value>();
+                    ctx.out += " -> ";
+                    ctx.out += maki::pretty_name<target_state_constant.value>();
+                    ctx.out += "...;";
+                }
+            )
+            .post_state_transition_action_crset
+            (
+                [](context& ctx, const auto& region_path_constant, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)
+                {
+                    static_assert(region_path_constant.value == maki::region_path<maki::region_path_element<machine_def, 0>>{});
+
+                    ctx.out += "Transition in ";
+                    ctx.out += region_path_constant.value.to_string();
+                    ctx.out += ": ";
+                    ctx.out += maki::pretty_name<source_state_constant.value>();
+                    ctx.out += " -> ";
+                    ctx.out += maki::pretty_name<target_state_constant.value>();
+                    ctx.out += ";";
+                }
+            )
             .pretty_name("main_sm")
         ;
-
-        template<const auto& RegionPath, const auto& SourceState, class Event, const auto& TargetState>
-        void before_state_transition(const Event& /*event*/)
-        {
-            static_assert(RegionPath == maki::region_path<maki::region_path_element<machine_def, 0>>{});
-
-            ctx.out += "Transition in ";
-            ctx.out += RegionPath.to_string();
-            ctx.out += ": ";
-            ctx.out += maki::pretty_name<SourceState>();
-            ctx.out += " -> ";
-            ctx.out += maki::pretty_name<TargetState>();
-            ctx.out += "...;";
-        }
-
-        template<const auto& RegionPath, const auto& SourceState, class Event, const auto& TargetState>
-        void after_state_transition(const Event& /*event*/)
-        {
-            static_assert(RegionPath == maki::region_path<maki::region_path_element<machine_def, 0>>{});
-
-            ctx.out += "Transition in ";
-            ctx.out += RegionPath.to_string();
-            ctx.out += ": ";
-            ctx.out += maki::pretty_name<SourceState>();
-            ctx.out += " -> ";
-            ctx.out += maki::pretty_name<TargetState>();
-            ctx.out += ";";
-        }
 
         context& ctx;
     };

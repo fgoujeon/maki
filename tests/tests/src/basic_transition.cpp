@@ -36,12 +36,8 @@ namespace
             .set_context<context>()
             .disable_auto_start()
             .disable_run_to_completion()
-            .enable_on_exception()
+            .exception_action_me([](auto& /*mach*/, const std::exception_ptr& /*eptr*/){})
         ;
-
-        void on_exception(const std::exception_ptr& /*eptr*/)
-        {
-        }
     };
 
     using machine_t = maki::machine<machine_def>;

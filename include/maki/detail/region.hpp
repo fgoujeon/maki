@@ -15,6 +15,7 @@
 #include "state_type_list_filters.hpp"
 #include "machine_object_holder_tuple.hpp"
 #include "tlu.hpp"
+#include "constant.hpp"
 #include "../submachine_conf.hpp"
 #include "../states.hpp"
 #include <type_traits>
@@ -229,6 +230,7 @@ public:
 private:
     using root_sm_type = root_sm_of_t<ParentSm>;
     static constexpr auto machine_conf = root_sm_type::conf;
+    using machine_conf_type = std::decay_t<decltype(machine_conf)>;
 
     using transition_table_type = tlu::get_t<typename ParentSm::transition_table_type_list, Index>;
 
@@ -365,15 +367,16 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(machine_conf.has_before_state_transition)
+            if constexpr(!std::is_same_v<typename machine_conf_type::pre_state_transition_action_type, noop_ex>)
             {
-                root_sm_.def().template before_state_transition
-                <
-                    path,
-                    SourceStateDef::conf,
-                    Event,
-                    TargetStateDef::conf
-                >(event);
+                machine_conf.pre_state_transition_action_
+                (
+                    ctx_,
+                    constant_c<path>,
+                    constant_c<SourceStateDef::conf>,
+                    event,
+                    constant_c<TargetStateDef::conf>
+                );
             }
 
             if constexpr(!std::is_same_v<SourceStateDef, state_conf_wrapper<states::stopped>>)
@@ -418,15 +421,16 @@ private:
                 );
             }
 
-            if constexpr(machine_conf.has_after_state_transition)
+            if constexpr(!std::is_same_v<typename machine_conf_type::post_state_transition_action_type, noop_ex>)
             {
-                root_sm_.def().template after_state_transition
-                <
-                    path,
-                    SourceStateDef::conf,
-                    Event,
-                    TargetStateDef::conf
-                >(event);
+                machine_conf.post_state_transition_action_
+                (
+                    ctx_,
+                    constant_c<path>,
+                    constant_c<SourceStateDef::conf>,
+                    event,
+                    constant_c<TargetStateDef::conf>
+                );
             }
 
             //Anonymous transition

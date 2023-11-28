@@ -10,6 +10,7 @@
 #define MAKI_DETAIL_EVENT_ACTION_SIGNATURES \
     X(v) \
     X(m) \
+    X(me) \
     X(mce) \
     X(c) \
     X(ce) \

@@ -4,25 +4,19 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-/**
-@file
-@brief Defines the version of the Maki library
-*/
-
-#ifndef MAKI_DETAIL_CONSTANT_HPP
-#define MAKI_DETAIL_CONSTANT_HPP
+#ifndef MAKI_DETAIL_NOOP_EX_HPP
+#define MAKI_DETAIL_NOOP_EX_HPP
 
 namespace maki::detail
 {
 
-template<const auto& Value>
-struct constant
+struct noop_ex
 {
-    static constexpr const auto& value = Value;
+    template<class... Args>
+    void operator()(Args&&... /*args*/)
+    {
+    }
 };
-
-template<const auto& Value>
-constexpr auto constant_c = constant<Value>{};
 
 } //namespace
 

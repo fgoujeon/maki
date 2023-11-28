@@ -486,13 +486,13 @@ private:
 
     void process_exception(const std::exception_ptr& eptr)
     {
-        if constexpr(conf.has_on_exception)
+        if constexpr(std::is_same_v<typename conf_type::exception_action_type, detail::noop_ex>)
         {
-            def().on_exception(eptr);
+            process_event(events::exception{eptr});
         }
         else
         {
-            process_event(events::exception{eptr});
+            conf.exception_action_(*this, eptr);
         }
     }
 
@@ -509,18 +509,26 @@ private:
         }
         else
         {
-            if constexpr(conf.has_on_unprocessed)
+            if constexpr(std::is_same_v<typename conf_type::unprocessed_action_tuple_type, detail::tuple<>>)
+            {
+                submachine_.on_event(event);
+            }
+            else
             {
                 auto processed = false;
                 submachine_.on_event(event, processed);
                 if(!processed)
                 {
-                    def().on_unprocessed(event);
+                    int dummy_data = 0;
+                    call_state_action
+                    (
+                        conf.unprocessed_actions_,
+                        *this,
+                        context(),
+                        dummy_data,
+                        event
+                    );
                 }
-            }
-            else
-            {
-                submachine_.on_event(event);
             }
         }
     }

@@ -16,6 +16,7 @@
 #include "type_patterns.hpp"
 #include "type_list.hpp"
 #include "type.hpp"
+#include "detail/noop_ex.hpp"
 #include "detail/event_action.hpp"
 #include "detail/tuple.hpp"
 #include "detail/tlu.hpp"
@@ -33,12 +34,21 @@ template
     class EntryActionTuple = detail::tuple<>,
     class EventActionTuple = detail::tuple<>,
     class ExitActionTuple = detail::tuple<>,
+    class ExceptionAction = detail::noop_ex,
+    class PreStateTransitionAction = detail::noop_ex,
+    class PostStateTransitionAction = detail::noop_ex,
+    class UnprocessedActionTuple = detail::tuple<>,
     class TransitionTableTypeList = type_list<>
 >
 struct machine_conf
 {
     using data_type = void; //TODO remove this
     using context_type = typename ContextTypeHolder::type;
+
+    using exception_action_type = ExceptionAction;
+    using pre_state_transition_action_type = PreStateTransitionAction;
+    using post_state_transition_action_type = PostStateTransitionAction;
+    using unprocessed_action_tuple_type = UnprocessedActionTuple;
 
     /**
     @brief Specifies whether the constructor of @ref machine must call @ref machine::start().
@@ -94,7 +104,7 @@ struct machine_conf
     };
     @endcode
     */
-    bool has_after_state_transition = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    PostStateTransitionAction post_state_transition_action_; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
     @brief Specifies whether @ref machine must call a user-provided
@@ -134,7 +144,7 @@ struct machine_conf
     };
     @endcode
     */
-    bool has_before_state_transition = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    PreStateTransitionAction pre_state_transition_action_; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
     @brief Specifies whether @ref machine must call a user-provided
@@ -169,7 +179,7 @@ struct machine_conf
     };
     @endcode
     */
-    bool has_on_exception = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    ExceptionAction exception_action_; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
     @brief Specifies whether @ref machine must call a user-provided
@@ -215,7 +225,7 @@ struct machine_conf
     };
     @endcode
     */
-    bool has_on_unprocessed = false; //NOLINT(misc-non-private-member-variables-in-classes)
+    UnprocessedActionTuple unprocessed_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
     @brief Specifies whether @ref machine must call a user-provided
@@ -280,10 +290,10 @@ struct machine_conf
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_event_actions = event_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = exit_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_after_state_transition = has_after_state_transition; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_before_state_transition = has_before_state_transition; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_exception = has_on_exception; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_unprocessed = has_on_unprocessed; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_state_transition_action = post_state_transition_action_; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_state_transition_action = pre_state_transition_action_; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_action = exception_action_; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_unprocessed_actions = unprocessed_actions_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = pretty_name_view; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = run_to_completion; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_align = small_event_max_align; \
@@ -297,6 +307,10 @@ struct machine_conf
         std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_event_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_exception_action)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_pre_state_transition_action)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_post_state_transition_action)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_unprocessed_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
     > \
     { \
@@ -305,10 +319,10 @@ struct machine_conf
         MAKI_DETAIL_ARG_entry_actions, \
         MAKI_DETAIL_ARG_event_actions, \
         MAKI_DETAIL_ARG_exit_actions, \
-        MAKI_DETAIL_ARG_has_after_state_transition, \
-        MAKI_DETAIL_ARG_has_before_state_transition, \
-        MAKI_DETAIL_ARG_has_on_exception, \
-        MAKI_DETAIL_ARG_has_on_unprocessed, \
+        MAKI_DETAIL_ARG_post_state_transition_action, \
+        MAKI_DETAIL_ARG_pre_state_transition_action, \
+        MAKI_DETAIL_ARG_exception_action, \
+        MAKI_DETAIL_ARG_unprocessed_actions, \
         MAKI_DETAIL_ARG_pretty_name_view, \
         MAKI_DETAIL_ARG_run_to_completion, \
         MAKI_DETAIL_ARG_small_event_max_align, \
@@ -388,12 +402,13 @@ struct machine_conf
     MAKI_DETAIL_EVENT_ACTION_SIGNATURES
 #undef X
 
-    [[nodiscard]] constexpr auto enable_after_state_transition() const
+    template<class Action>
+    [[nodiscard]] constexpr auto post_state_transition_action_crset(const Action& action) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_has_after_state_transition true
+#define MAKI_DETAIL_ARG_post_state_transition_action action
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_has_after_state_transition
+#undef MAKI_DETAIL_ARG_post_state_transition_action
     }
 
     [[nodiscard]] constexpr auto disable_auto_start() const
@@ -404,12 +419,13 @@ struct machine_conf
 #undef MAKI_DETAIL_ARG_auto_start
     }
 
-    [[nodiscard]] constexpr auto enable_before_state_transition() const
+    template<class Action>
+    [[nodiscard]] constexpr auto pre_state_transition_action_crset(const Action& action) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_has_before_state_transition true
+#define MAKI_DETAIL_ARG_pre_state_transition_action action
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_has_before_state_transition
+#undef MAKI_DETAIL_ARG_pre_state_transition_action
     }
 
     template<class Context>
@@ -437,20 +453,28 @@ struct machine_conf
 #undef MAKI_DETAIL_ARG_pretty_name_view
     }
 
-    [[nodiscard]] constexpr auto enable_on_exception() const
+    template<class Action>
+    [[nodiscard]] constexpr auto exception_action_me(const Action& action) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_has_on_exception true
+#define MAKI_DETAIL_ARG_exception_action action
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_has_on_exception
+#undef MAKI_DETAIL_ARG_exception_action
     }
 
-    [[nodiscard]] constexpr auto enable_on_unprocessed() const
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto unprocessed_action_me(const Action& action) const
     {
+        const auto new_unprocessed_actions = tuple_append
+        (
+            unprocessed_actions_,
+            detail::event_action<EventFilter, Action, detail::event_action_signature::me>{action}
+        );
+
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_has_on_unprocessed true
+#define MAKI_DETAIL_ARG_unprocessed_actions new_unprocessed_actions
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_has_on_unprocessed
+#undef MAKI_DETAIL_ARG_unprocessed_actions
     }
 
     [[nodiscard]] constexpr auto set_small_event_max_align(const std::size_t value) const

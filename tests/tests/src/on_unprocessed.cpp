@@ -77,21 +77,21 @@ namespace
         static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
             .set_context<context>()
-            .enable_on_unprocessed()
+            .unprocessed_action_me<events::ignored_by_emitting_blue>
+            (
+                [](auto& mach, const events::ignored_by_emitting_blue& event)
+                {
+                    mach.context().ignored_event = "ignored_by_emitting_blue{" + std::to_string(event.value) + "}";
+                }
+            )
+            .unprocessed_action_me<maki::any>
+            (
+                [](auto& mach, const auto& /*event*/)
+                {
+                    mach.context().ignored_event = "other";
+                }
+            )
         ;
-
-        template<class T>
-        void on_unprocessed(const T& /*unused*/)
-        {
-            ctx.ignored_event = "other";
-        }
-
-        void on_unprocessed(const events::ignored_by_emitting_blue& event)
-        {
-            ctx.ignored_event = "ignored_by_emitting_blue{" + std::to_string(event.value) + "}";
-        }
-
-        context& ctx;
     };
 }
 

@@ -98,23 +98,22 @@ namespace
         static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
             .set_context<context>()
-            .enable_on_exception()
+            .exception_action_me
+            (
+                [](auto& mach, const std::exception_ptr& eptr)
+                {
+                    try
+                    {
+                        std::rethrow_exception(eptr);
+                    }
+                    catch(const std::exception& e)
+                    {
+                        mach.context().out += "custom;";
+                        mach.context().out += e.what();
+                    }
+                }
+            )
         ;
-
-        void on_exception(const std::exception_ptr& eptr)
-        {
-            try
-            {
-                std::rethrow_exception(eptr);
-            }
-            catch(const std::exception& e)
-            {
-                ctx.out += "custom;";
-                ctx.out += e.what();
-            }
-        }
-
-        context& ctx;
     };
 
     using custom_sm_t = maki::machine<custom_sm_def>;

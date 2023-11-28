@@ -39,6 +39,10 @@ void call_event_action
         {
             std::invoke(event_action.action, mach);
         }
+        else if constexpr(EventAction::sig == event_action_signature::me)
+        {
+            std::invoke(event_action.action, mach, event);
+        }
         else if constexpr(EventAction::sig == event_action_signature::mce)
         {
             std::invoke(event_action.action, mach, ctx, event);

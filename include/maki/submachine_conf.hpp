@@ -6,7 +6,7 @@
 
 /**
 @file
-@brief Defines the maki::submachine_conf struct template
+@brief Defines the maki::submachine_conf_t struct template
 */
 
 #ifndef MAKI_SUBMACHINE_CONF_HPP
@@ -36,7 +36,7 @@ template
     class ExitActionTuple = detail::tuple<>,
     class TransitionTableTypeList = type_list<>
 >
-struct submachine_conf
+struct submachine_conf_t
 {
     using data_type = Data;
     using context_type = typename ContextTypeHolder::type;
@@ -58,7 +58,7 @@ struct submachine_conf
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = transition_tables;
 
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    return submachine_conf \
+    return submachine_conf_t \
     < \
         typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_context)>, \
@@ -187,7 +187,7 @@ struct submachine_conf
 #undef MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
 };
 
-constexpr auto submachine_conf_c = submachine_conf{};
+inline constexpr auto submachine_conf = submachine_conf_t{};
 
 namespace detail
 {
@@ -198,7 +198,7 @@ namespace detail
     };
 
     template<class... Ts>
-    struct is_submachine_conf<submachine_conf<Ts...>>
+    struct is_submachine_conf<submachine_conf_t<Ts...>>
     {
         static constexpr auto value = true;
     };

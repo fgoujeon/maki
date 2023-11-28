@@ -38,7 +38,7 @@ namespace
 
     namespace states
     {
-        constexpr auto state0 = maki::state_conf_c
+        constexpr auto state0 = maki::state_conf
             .event_action_ce<events::event1>
             (
                 [](context& ctx, const events::event1& event)

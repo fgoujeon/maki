@@ -43,19 +43,19 @@ namespace
 
     namespace states
     {
-        constexpr auto off = maki::state_conf_c
+        constexpr auto off = maki::state_conf
             .event_action_v<events::ignored_by_emitting_blue>([]{})
         ;
 
-        constexpr auto emitting_red = maki::state_conf_c
+        constexpr auto emitting_red = maki::state_conf
             .event_action_v<events::ignored_by_emitting_blue>([]{})
         ;
 
-        constexpr auto emitting_green = maki::state_conf_c
+        constexpr auto emitting_green = maki::state_conf
             .event_action_v<events::ignored_by_emitting_blue>([]{})
         ;
 
-        constexpr auto emitting_blue = maki::state_conf_c;
+        constexpr auto emitting_blue = maki::state_conf;
 
         constexpr auto on_transition_table = maki::empty_transition_table
             .add_c<states::emitting_red,   events::color_button_press, states::emitting_green>
@@ -63,7 +63,7 @@ namespace
             .add_c<states::emitting_blue,  events::color_button_press, states::emitting_red>
         ;
 
-        constexpr auto on = maki::submachine_conf_c
+        constexpr auto on = maki::submachine_conf
             .set_transition_tables(on_transition_table)
         ;
     }

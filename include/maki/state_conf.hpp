@@ -6,7 +6,7 @@
 
 /**
 @file
-@brief Defines the maki::state_conf struct template
+@brief Defines the maki::state_conf_t struct template
 */
 
 #ifndef MAKI_STATE_CONF_HPP
@@ -38,7 +38,7 @@ template
     class EventActionTuple = detail::tuple<>,
     class ExitActionTuple = detail::tuple<>
 >
-struct state_conf
+struct state_conf_t
 {
     using data_type = Data;
 
@@ -55,7 +55,7 @@ struct state_conf
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = pretty_name_view;
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    return state_conf \
+    return state_conf_t \
     < \
         typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
@@ -162,7 +162,7 @@ struct state_conf
 #undef MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
 };
 
-constexpr auto state_conf_c = state_conf<>{};
+inline constexpr auto state_conf = state_conf_t<>{};
 
 namespace detail
 {
@@ -171,7 +171,7 @@ namespace detail
     {
         using args_t = type_list<Args...>;
         using on_event_type_list = tlu::get_t<args_t, 2>;
-        return state_conf<on_event_type_list>{args...};
+        return state_conf_t<on_event_type_list>{args...};
     }
 }
 

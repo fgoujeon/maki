@@ -31,7 +31,7 @@ namespace
             }
         };
 
-        constexpr auto state1 = maki::state_conf_c.data<state1_data>();
+        constexpr auto state1 = maki::state_conf.data<state1_data>();
     }
 
     constexpr auto transition_table = maki::empty_transition_table

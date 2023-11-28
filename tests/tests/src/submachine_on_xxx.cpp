@@ -35,7 +35,7 @@ namespace
     {
         EMPTY_STATE(off)
 
-        constexpr auto on_0 = maki::state_conf_c
+        constexpr auto on_0 = maki::state_conf
             .entry_action_ce<events::button_press>
             (
                 [](context& ctx, const events::button_press& event)
@@ -63,7 +63,7 @@ namespace
             .add_c<states::on_0, events::button_press, maki::null_c>
         ;
 
-        constexpr auto on = maki::submachine_conf_c
+        constexpr auto on = maki::submachine_conf
             .set_transition_tables(on_transition_table)
             .entry_action_ce<events::button_press>
             (

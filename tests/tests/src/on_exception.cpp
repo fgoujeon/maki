@@ -18,7 +18,7 @@ namespace
 
     namespace states
     {
-        constexpr auto off = maki::state_conf_c
+        constexpr auto off = maki::state_conf
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -35,7 +35,7 @@ namespace
             )
         ;
 
-        constexpr auto on = maki::state_conf_c
+        constexpr auto on = maki::state_conf
             .entry_action_c<maki::any>
             (
                 [](context& ctx)

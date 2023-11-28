@@ -30,7 +30,7 @@ namespace
             .add_c<s0_sub, events::button_press, maki::null_c>
         ;
 
-        constexpr auto s0 = maki::submachine_conf_c
+        constexpr auto s0 = maki::submachine_conf
             .set_transition_tables(s0_transition_table)
         ;
     }

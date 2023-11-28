@@ -55,10 +55,10 @@ struct context
 };
 
 //States
-constexpr auto idle = maki::state_conf_c;
-constexpr auto starting = maki::state_conf_c;
-constexpr auto running = maki::state_conf_c;
-constexpr auto stopping = maki::state_conf_c;
+constexpr auto idle = maki::state_conf;
+constexpr auto starting = maki::state_conf;
+constexpr auto running = maki::state_conf;
+constexpr auto stopping = maki::state_conf;
 
 //Actions
 void start_motor(context& ctx)

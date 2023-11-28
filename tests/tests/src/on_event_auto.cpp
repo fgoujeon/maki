@@ -44,7 +44,7 @@ namespace
             context& ctx;
         };
 
-        constexpr auto off = maki::state_conf_c
+        constexpr auto off = maki::state_conf
             .data<off_data>()
             .event_action_de<maki::any>
             (
@@ -75,7 +75,7 @@ namespace
             context& ctx;
         };
 
-        constexpr auto on = maki::state_conf_c
+        constexpr auto on = maki::state_conf
             .data<on_data>()
             .event_action_de<maki::any>
             (

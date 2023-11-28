@@ -37,7 +37,8 @@ namespace
             self.counter += n;
         }
 
-        constexpr auto on = maki::state_conf_c<on_data>
+        constexpr auto on = maki::state_conf_c
+            .data<on_data>()
             .event_action_de<events::accumulate_request>
             (
                 [](on_data& self, const events::accumulate_request& event)

@@ -35,11 +35,13 @@ namespace
             dat.counter += req.n;
         }
 
-        constexpr auto off = maki::state_conf_c<data>
+        constexpr auto off = maki::state_conf_c
+            .data<data>()
             .event_action_de<events::accumulate_request>(&accumulate)
         ;
 
-        constexpr auto on = maki::state_conf_c<data>
+        constexpr auto on = maki::state_conf_c
+            .data<data>()
             .event_action_de<events::accumulate_request>(&accumulate)
         ;
     }

@@ -39,7 +39,8 @@ namespace
             led_color color = led_color::red;
         };
 
-        constexpr auto emitting_red = maki::state_conf_c<emitting_red_data>
+        constexpr auto emitting_red = maki::state_conf_c
+            .data<emitting_red_data>()
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -55,7 +56,8 @@ namespace
             led_color color = led_color::green;
         };
 
-        constexpr auto emitting_green = maki::state_conf_c<emitting_green_data>
+        constexpr auto emitting_green = maki::state_conf_c
+            .data<emitting_green_data>()
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -71,7 +73,8 @@ namespace
             led_color color = led_color::blue;
         };
 
-        constexpr auto emitting_blue = maki::state_conf_c<emitting_blue_data>
+        constexpr auto emitting_blue = maki::state_conf_c
+            .data<emitting_blue_data>()
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -92,7 +95,8 @@ namespace
             bool is_on_state = true;
         };
 
-        constexpr auto on = maki::submachine_conf_c<on_data>
+        constexpr auto on = maki::submachine_conf_c
+            .data<on_data>()
             .set_transition_tables(on_transition_table)
             .exit_action_c<maki::any>
             (

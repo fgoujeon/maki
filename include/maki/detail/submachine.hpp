@@ -316,7 +316,8 @@ public:
         );
     }
 
-    static constexpr auto conf = state_conf_c<submachine>
+    static constexpr auto conf = state_conf_c
+        .data<submachine>()
         .template entry_action_de<any>
         (
             [](submachine& self, const auto& event)

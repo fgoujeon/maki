@@ -23,7 +23,7 @@ namespace
 
     namespace states
     {
-        constexpr auto idle = maki::state_conf_c<>
+        constexpr auto idle = maki::state_conf_c
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -47,7 +47,7 @@ namespace
             )
         ;
 
-        constexpr auto running = maki::state_conf_c<>
+        constexpr auto running = maki::state_conf_c
             .entry_action_c<maki::any>
             (
                 [](context& ctx)

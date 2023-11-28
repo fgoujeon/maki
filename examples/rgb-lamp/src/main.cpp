@@ -75,7 +75,7 @@ States are represented by classes.
 */
 namespace states
 {
-    constexpr auto off = maki::state_conf_c<>
+    constexpr auto off = maki::state_conf_c
         /*
         With this option, we require the state machine to call an on_entry()
         function whenever it enters our state.
@@ -139,10 +139,10 @@ namespace states
     /*
     These are minimal valid state classes.
     */
-    constexpr auto emitting_white = maki::state_conf_c<>;
-    constexpr auto emitting_red = maki::state_conf_c<>;
-    constexpr auto emitting_green = maki::state_conf_c<>;
-    constexpr auto emitting_blue = maki::state_conf_c<>;
+    constexpr auto emitting_white = maki::state_conf_c;
+    constexpr auto emitting_red = maki::state_conf_c;
+    constexpr auto emitting_green = maki::state_conf_c;
+    constexpr auto emitting_blue = maki::state_conf_c;
 }
 
 /*

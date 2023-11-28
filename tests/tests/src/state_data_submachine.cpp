@@ -43,7 +43,8 @@ namespace
             self.counter += n;
         }
 
-        constexpr auto on = maki::submachine_conf_c<on_data>
+        constexpr auto on = maki::submachine_conf_c
+            .data<on_data>()
             .set_transition_tables(on_transition_table)
             .event_action_de<events::accumulate_request>
             (

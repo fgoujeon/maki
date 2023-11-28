@@ -53,7 +53,7 @@ namespace
     using small_event = event<int>;
     using big_event = event<long double>;
 
-    constexpr auto state = maki::state_conf_c<>;
+    constexpr auto state = maki::state_conf_c;
 
     template<class Event>
     inline constexpr auto process_event = [](auto& machine, context& /*ctx*/, const auto& /*event*/)

@@ -26,7 +26,7 @@ namespace
 
     namespace states
     {
-        constexpr auto s0 = maki::state_conf_c<>
+        constexpr auto s0 = maki::state_conf_c
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -43,7 +43,7 @@ namespace
             )
         ;
 
-        constexpr auto s1 = maki::state_conf_c<>
+        constexpr auto s1 = maki::state_conf_c
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -60,7 +60,7 @@ namespace
             )
         ;
 
-        constexpr auto s2 = maki::state_conf_c<>
+        constexpr auto s2 = maki::state_conf_c
             .entry_action_c<maki::any>
             (
                 [](context& ctx)

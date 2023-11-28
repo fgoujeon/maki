@@ -41,7 +41,8 @@ namespace
             context& ctx;
         };
 
-        constexpr auto emitting_red = maki::state_conf_c<emitting_red_data>
+        constexpr auto emitting_red = maki::state_conf_c
+            .data<emitting_red_data>()
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -57,7 +58,8 @@ namespace
             context& ctx;
         };
 
-        constexpr auto emitting_green = maki::state_conf_c<emitting_green_data>
+        constexpr auto emitting_green = maki::state_conf_c
+            .data<emitting_green_data>()
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -73,7 +75,8 @@ namespace
             context& ctx;
         };
 
-        constexpr auto emitting_blue = maki::state_conf_c<emitting_blue_data>
+        constexpr auto emitting_blue = maki::state_conf_c
+            .data<emitting_blue_data>()
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -89,7 +92,7 @@ namespace
             .add_c<states::emitting_blue,  events::color_button_press, states::emitting_red>
         ;
 
-        constexpr auto on = maki::submachine_conf_c<>
+        constexpr auto on = maki::submachine_conf_c
             .set_transition_tables(on_transition_table)
             .exit_action_c<maki::any>
             (

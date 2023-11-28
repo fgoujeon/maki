@@ -27,7 +27,7 @@ namespace
     {
         EMPTY_STATE(idle)
 
-        constexpr auto english = maki::state_conf_c<>
+        constexpr auto english = maki::state_conf_c
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -51,7 +51,7 @@ namespace
             )
         ;
 
-        constexpr auto french = maki::state_conf_c<>
+        constexpr auto french = maki::state_conf_c
             .entry_action_m<maki::any>
             (
                 [](auto& mach)

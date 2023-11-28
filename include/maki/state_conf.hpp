@@ -48,6 +48,7 @@ struct state_conf
     std::string_view pretty_name_view; //NOLINT(misc-non-private-member-variables-in-classes)
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<data_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_event_actions = event_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = exit_actions; \
@@ -56,7 +57,7 @@ struct state_conf
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return state_conf \
     < \
-        Data, \
+        typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_event_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)> \
@@ -67,6 +68,15 @@ struct state_conf
         MAKI_DETAIL_ARG_exit_actions, \
         MAKI_DETAIL_ARG_pretty_name_view \
     };
+
+    template<class Data2>
+    [[nodiscard]] constexpr auto data() const
+    {
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_data_type type_c<Data2>
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_data_type
+    }
 
     template<class EventFilter, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto entry_action(const Action& action) const
@@ -152,8 +162,7 @@ struct state_conf
 #undef MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
 };
 
-template<class Data = void>
-constexpr auto state_conf_c = state_conf<Data>{};
+constexpr auto state_conf_c = state_conf<>{};
 
 namespace detail
 {

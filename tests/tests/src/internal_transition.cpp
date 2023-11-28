@@ -33,7 +33,7 @@ namespace
         EMPTY_STATE(state8)
         EMPTY_STATE(state9)
 
-        constexpr auto benchmarking = maki::state_conf_c<>
+        constexpr auto benchmarking = maki::state_conf_c
             .event_action_c<events::internal_transition>
             (
                 [](context& ctx)

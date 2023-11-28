@@ -49,6 +49,7 @@ struct submachine_conf
     TransitionTableTypeList transition_tables; //NOLINT(misc-non-private-member-variables-in-classes)
 
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<data_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context = context; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_event_actions = event_actions; \
@@ -59,7 +60,7 @@ struct submachine_conf
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return submachine_conf \
     < \
-        Data, \
+        typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_context)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_event_actions)>, \
@@ -74,6 +75,15 @@ struct submachine_conf
         MAKI_DETAIL_ARG_pretty_name_view, \
         MAKI_DETAIL_ARG_transition_tables \
     };
+
+    template<class Data2>
+    [[nodiscard]] constexpr auto data() const
+    {
+        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_data_type type_c<Data2>
+        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_data_type
+    }
 
     template<class EventFilter, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto entry_action(const Action& action) const
@@ -177,8 +187,7 @@ struct submachine_conf
 #undef MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
 };
 
-template<class Data = void>
-constexpr auto submachine_conf_c = submachine_conf<Data>{};
+constexpr auto submachine_conf_c = submachine_conf{};
 
 namespace detail
 {

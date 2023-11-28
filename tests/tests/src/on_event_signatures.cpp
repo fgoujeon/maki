@@ -46,9 +46,9 @@ namespace
                     ctx.out = "on_event_ce " + event.value;
                 }
             )
-            .event_action_mce<events::event2>
+            .event_action_ce<events::event2>
             (
-                [](machine_t& /*mach*/, context& ctx, const events::event2& event)
+                [](context& ctx, const events::event2& event)
                 {
                     ctx.out = "on_event_mce " + event.value;
                 }

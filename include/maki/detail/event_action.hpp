@@ -11,7 +11,6 @@
     X(v) \
     X(m) \
     X(me) \
-    X(mce) \
     X(c) \
     X(ce) \
     X(d) \

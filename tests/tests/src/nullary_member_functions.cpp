@@ -38,7 +38,7 @@ namespace nullary_member_functions_ns
                     ctx.out += "on_entry(e1);";
                 }
             )
-            .entry_action_c<maki::any>
+            .entry_action_c<maki::any_t>
             (
                 [](context& ctx)
                 {
@@ -52,7 +52,7 @@ namespace nullary_member_functions_ns
                     ctx.out += "on_exit(e1);";
                 }
             )
-            .exit_action_c<maki::any>
+            .exit_action_c<maki::any_t>
             (
                 [](context& ctx)
                 {

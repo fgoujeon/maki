@@ -33,7 +33,7 @@ constexpr auto state2 = maki::state_conf
     //Entry action.
     //Called on state entry for state transitions caused by any other type of
     //event.
-    .entry_action_v<maki::any>([]
+    .entry_action_v<maki::any_t>([]
     {
         std::cout << "Executing state2 entry action...\n";
     })
@@ -53,7 +53,7 @@ constexpr auto state2 = maki::state_conf
     //Exit action.
     //Called on state exit, whatever the event that caused the state
     //transitions.
-    .exit_action_v<maki::any>([]
+    .exit_action_v<maki::any_t>([]
     {
         std::cout << "Executing state2 exit action...\n";
     })

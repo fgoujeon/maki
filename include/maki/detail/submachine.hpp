@@ -311,21 +311,21 @@ public:
 
     static constexpr auto conf = state_conf
         .data<submachine>()
-        .template entry_action_de<any>
+        .template entry_action_de<any_t>
         (
             [](submachine& self, const auto& event)
             {
                 submachine_on_entry(self, event);
             }
         )
-        .template internal_action_de<any>
+        .template internal_action_de<any_t>
         (
             [](submachine& self, const auto& event)
             {
                 submachine_on_event(self, event);
             }
         )
-        .template exit_action_de<any>
+        .template exit_action_de<any_t>
         (
             [](submachine& self, const auto& event)
             {

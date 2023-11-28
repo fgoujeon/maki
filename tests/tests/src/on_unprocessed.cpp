@@ -84,7 +84,7 @@ namespace
                     mach.context().ignored_event = "ignored_by_emitting_blue{" + std::to_string(event.value) + "}";
                 }
             )
-            .fallback_transition_action_me<maki::any>
+            .fallback_transition_action_me<maki::any_t>
             (
                 [](auto& mach, const auto& /*event*/)
                 {

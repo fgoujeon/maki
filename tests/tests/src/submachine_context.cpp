@@ -59,7 +59,7 @@ namespace
 
             constexpr auto emitting_red = maki::submachine_conf
                 .transition_tables(emitting_red_ns::transition_table)
-                .entry_action_c<maki::any>
+                .entry_action_c<maki::any_t>
                 (
                     [](context& ctx)
                     {
@@ -81,7 +81,7 @@ namespace
         constexpr auto on = maki::submachine_conf
             .transition_tables(on_ns::transition_table)
             .context<on_ns::context>()
-            .exit_action_c<maki::any>
+            .exit_action_c<maki::any_t>
             (
                 [](on_ns::context& ctx)
                 {

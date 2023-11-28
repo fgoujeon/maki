@@ -127,7 +127,7 @@ namespace states
             state.on_exit();
         Where `event` is the event that caused the state transition.
         */
-        .exit_action_v<maki::any>
+        .exit_action_v<maki::any_t>
         (
             []
             {
@@ -198,15 +198,15 @@ using namespace states;
 using namespace actions;
 using namespace guards;
 using button_push = button::push_event;
-using maki::any_but;
-constexpr auto not_off = maki::any_but_c<off>;
+using maki::any_but_t;
+constexpr auto not_off = maki::any_but<off>;
 
 /*
 This is the transition table. This is where we define the actions that must be
 executed depending on the active state and the event we receive.
 Basically, whenever maki::machine::process_event() is called, Maki iterates
 over the transitions of this table until it finds a match, i.e. when:
-- 'source_state' is the currently active state (or is maki::any);
+- 'source_state' is the currently active state (or is maki::any_t);
 - 'event' is the type of the processed event;
 - and the 'guard' returns true (or is void).
 When a match is found, Maki:

@@ -23,14 +23,14 @@ namespace
     namespace states
     {
         constexpr auto off = maki::state_conf
-            .entry_action_c<maki::any>
+            .entry_action_c<maki::any_t>
             (
                 [](context& ctx)
                 {
                     ctx.out += "off::on_entry;";
                 }
             )
-            .exit_action_c<maki::any>
+            .exit_action_c<maki::any_t>
             (
                 [](context& ctx)
                 {
@@ -46,14 +46,14 @@ namespace
         ;
 
         constexpr auto on = maki::state_conf
-            .entry_action_c<maki::any>
+            .entry_action_c<maki::any_t>
             (
                 [](context& ctx)
                 {
                     ctx.out += "on::on_entry;";
                 }
             )
-            .exit_action_c<maki::any>
+            .exit_action_c<maki::any_t>
             (
                 [](context& ctx)
                 {

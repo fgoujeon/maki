@@ -29,7 +29,7 @@ namespace
         .add_c<states::idle,    events::start_button_press, states::running>
         .add_c<states::running, events::stop_button_press,  states::idle>
         .add_c<states::failed,  events::stop_button_press,  states::idle>
-        .add_c<maki::any_c,     events::error,              states::failed>
+        .add_c<maki::any,     events::error,              states::failed>
     ;
 
     struct machine_def

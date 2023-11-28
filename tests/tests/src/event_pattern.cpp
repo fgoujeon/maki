@@ -28,7 +28,7 @@ namespace
     [[maybe_unused]]
     constexpr auto make_sm_transition_table()
     {
-        using any_button_press = maki::any_of
+        using any_button_press = maki::any_of_t
         <
             events::power_button_press,
             events::alert_button_press

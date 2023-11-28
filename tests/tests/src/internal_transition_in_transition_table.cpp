@@ -24,21 +24,21 @@ namespace
     namespace states
     {
         constexpr auto idle = maki::state_conf
-            .entry_action_c<maki::any>
+            .entry_action_c<maki::any_t>
             (
                 [](context& ctx)
                 {
                     ctx.out += "idle::on_entry;";
                 }
             )
-            .internal_action_c<maki::any>
+            .internal_action_c<maki::any_t>
             (
                 [](context& ctx)
                 {
                     ctx.out += "idle::on_event;";
                 }
             )
-            .exit_action_c<maki::any>
+            .exit_action_c<maki::any_t>
             (
                 [](context& ctx)
                 {
@@ -48,21 +48,21 @@ namespace
         ;
 
         constexpr auto running = maki::state_conf
-            .entry_action_c<maki::any>
+            .entry_action_c<maki::any_t>
             (
                 [](context& ctx)
                 {
                     ctx.out += "running::on_entry;";
                 }
             )
-            .internal_action_c<maki::any>
+            .internal_action_c<maki::any_t>
             (
                 [](context& ctx)
                 {
                     ctx.out += "running::on_event;";
                 }
             )
-            .exit_action_c<maki::any>
+            .exit_action_c<maki::any_t>
             (
                 [](context& ctx)
                 {

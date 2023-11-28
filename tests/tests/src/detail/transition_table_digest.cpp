@@ -7,7 +7,7 @@
 #include "../common.hpp"
 #include <maki.hpp>
 
-namespace
+namespace transition_table_digest_ns
 {
     struct context{};
 
@@ -64,6 +64,7 @@ namespace
 
 TEST_CASE("detail::transition_table_digest")
 {
+    using namespace transition_table_digest_ns;
     REQUIRE(std::is_same_v<digest_t::state_type_list, state_tuple_t>);
     REQUIRE(!digest_t::has_null_events);
 }

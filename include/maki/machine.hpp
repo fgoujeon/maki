@@ -126,6 +126,11 @@ public:
         return submachine_.context();
     }
 
+    auto& data()
+    {
+        return submachine_.data();
+    }
+
     /**
     @brief Returns the state of type `State` instantiated by the region
     indicated by `RegionPath`.

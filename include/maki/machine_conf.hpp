@@ -31,6 +31,7 @@ namespace maki
 template
 <
     class ContextTypeHolder = type<void>,
+    class Data = void,
     class EntryActionTuple = detail::tuple<>,
     class EventActionTuple = detail::tuple<>,
     class ExitActionTuple = detail::tuple<>,
@@ -42,7 +43,7 @@ template
 >
 struct machine_conf
 {
-    using data_type = void; //TODO remove this
+    using data_type = Data;
     using context_type = typename ContextTypeHolder::type;
 
     using exception_action_type = ExceptionAction;
@@ -53,6 +54,7 @@ struct machine_conf
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = auto_start_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context = context_; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<data_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = internal_actions_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = exit_actions_; \
@@ -70,6 +72,7 @@ struct machine_conf
     return machine_conf \
     < \
         std::decay_t<decltype(MAKI_DETAIL_ARG_context)>, \
+        typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
@@ -95,6 +98,15 @@ struct machine_conf
         MAKI_DETAIL_ARG_small_event_max_size, \
         MAKI_DETAIL_ARG_transition_tables \
     };
+
+    template<class Data2>
+    [[nodiscard]] constexpr auto data() const
+    {
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_data_type type_c<Data2>
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_data_type
+    }
 
     template<class EventFilter, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto entry_action(const Action& action) const

@@ -37,7 +37,7 @@ template
     class ExceptionAction = detail::noop_ex,
     class PreStateTransitionAction = detail::noop_ex,
     class PostStateTransitionAction = detail::noop_ex,
-    class UnprocessedActionTuple = detail::tuple<>,
+    class FallbackTransitionActionTuple = detail::tuple<>,
     class TransitionTableTypeList = type_list<>
 >
 struct machine_conf
@@ -48,7 +48,7 @@ struct machine_conf
     using exception_action_type = ExceptionAction;
     using pre_state_transition_action_type = PreStateTransitionAction;
     using post_state_transition_action_type = PostStateTransitionAction;
-    using unprocessed_action_tuple_type = UnprocessedActionTuple;
+    using fallback_transition_action_tuple_type = FallbackTransitionActionTuple;
 
     /**
     @brief Specifies whether the constructor of @ref machine must call @ref machine::start().
@@ -225,7 +225,7 @@ struct machine_conf
     };
     @endcode
     */
-    UnprocessedActionTuple unprocessed_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
+    FallbackTransitionActionTuple fallback_transition_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
 
     /**
     @brief Specifies whether @ref machine must call a user-provided
@@ -293,7 +293,7 @@ struct machine_conf
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_state_transition_action = post_state_transition_action_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_state_transition_action = pre_state_transition_action_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_action = exception_action_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_unprocessed_actions = unprocessed_actions_; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_fallback_transition_actions = fallback_transition_actions_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = pretty_name_view; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = run_to_completion; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_align = small_event_max_align; \
@@ -310,7 +310,7 @@ struct machine_conf
         std::decay_t<decltype(MAKI_DETAIL_ARG_exception_action)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_pre_state_transition_action)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_post_state_transition_action)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_unprocessed_actions)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_fallback_transition_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
     > \
     { \
@@ -322,7 +322,7 @@ struct machine_conf
         MAKI_DETAIL_ARG_post_state_transition_action, \
         MAKI_DETAIL_ARG_pre_state_transition_action, \
         MAKI_DETAIL_ARG_exception_action, \
-        MAKI_DETAIL_ARG_unprocessed_actions, \
+        MAKI_DETAIL_ARG_fallback_transition_actions, \
         MAKI_DETAIL_ARG_pretty_name_view, \
         MAKI_DETAIL_ARG_run_to_completion, \
         MAKI_DETAIL_ARG_small_event_max_align, \
@@ -463,18 +463,18 @@ struct machine_conf
     }
 
     template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto unprocessed_action_me(const Action& action) const
+    [[nodiscard]] constexpr auto fallback_transition_action_me(const Action& action) const
     {
-        const auto new_unprocessed_actions = tuple_append
+        const auto new_fallback_transition_actions = tuple_append
         (
-            unprocessed_actions_,
+            fallback_transition_actions_,
             detail::event_action<EventFilter, Action, detail::event_action_signature::me>{action}
         );
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_unprocessed_actions new_unprocessed_actions
+#define MAKI_DETAIL_ARG_fallback_transition_actions new_fallback_transition_actions
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_unprocessed_actions
+#undef MAKI_DETAIL_ARG_fallback_transition_actions
     }
 
     [[nodiscard]] constexpr auto set_small_event_max_align(const std::size_t value) const

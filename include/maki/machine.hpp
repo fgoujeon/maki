@@ -509,7 +509,7 @@ private:
         }
         else
         {
-            if constexpr(std::is_same_v<typename conf_type::unprocessed_action_tuple_type, detail::tuple<>>)
+            if constexpr(std::is_same_v<typename conf_type::fallback_transition_action_tuple_type, detail::tuple<>>)
             {
                 submachine_.on_event(event);
             }
@@ -522,7 +522,7 @@ private:
                     int dummy_data = 0;
                     call_state_action
                     (
-                        conf.unprocessed_actions_,
+                        conf.fallback_transition_actions_,
                         *this,
                         context(),
                         dummy_data,

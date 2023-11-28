@@ -77,14 +77,14 @@ namespace
         static constexpr auto conf = maki::default_machine_conf
             .set_transition_tables(transition_table)
             .set_context<context>()
-            .unprocessed_action_me<events::ignored_by_emitting_blue>
+            .fallback_transition_action_me<events::ignored_by_emitting_blue>
             (
                 [](auto& mach, const events::ignored_by_emitting_blue& event)
                 {
                     mach.context().ignored_event = "ignored_by_emitting_blue{" + std::to_string(event.value) + "}";
                 }
             )
-            .unprocessed_action_me<maki::any>
+            .fallback_transition_action_me<maki::any>
             (
                 [](auto& mach, const auto& /*event*/)
                 {

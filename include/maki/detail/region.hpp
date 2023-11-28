@@ -49,7 +49,7 @@ class region;
 template<class ParentSm, int Index>
 struct region_path_of<region<ParentSm, Index>>
 {
-    static constexpr auto value = region_path_of_v<ParentSm>.template add<typename ParentSm::def_type, Index>();
+    static constexpr auto value = region_path_of_v<ParentSm>.template add<typename ParentSm::conf_holder_type, Index>();
 };
 
 template<class ParentSm, int Index>
@@ -605,7 +605,7 @@ private:
         if constexpr(is_submachine_conf_v<conf_type>)
         {
             using state_t = state_traits::state_def_to_state_t<StateDef, std::decay_t<Region>>;
-            return self.template state_data<state_t>().def_data();
+            return self.template state_data<state_t>().data();
         }
         else
         {

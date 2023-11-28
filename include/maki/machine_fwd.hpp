@@ -16,7 +16,7 @@ Useful for forward-declaring a user-defined machine.
 namespace maki
 {
 
-template<class Def>
+template<class ConfHolder>
 class machine;
 
 } //namespace

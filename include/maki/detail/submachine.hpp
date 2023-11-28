@@ -25,41 +25,41 @@
 namespace maki::detail
 {
 
-template<class Def, class ParentRegion>
-struct region_path_of<submachine<Def, ParentRegion>>
+template<class ConfHolder, class ParentRegion>
+struct region_path_of<submachine<ConfHolder, ParentRegion>>
 {
     static constexpr auto value = region_path_of_v<ParentRegion>;
 };
 
-template<class Def>
-struct region_path_of<submachine<Def, void>>
+template<class ConfHolder>
+struct region_path_of<submachine<ConfHolder, void>>
 {
     static constexpr auto value = region_path{};
 };
 
-template<class Def, class ParentRegion>
-struct machine_of<submachine<Def, ParentRegion>>
+template<class ConfHolder, class ParentRegion>
+struct machine_of<submachine<ConfHolder, ParentRegion>>
 {
     using type = root_sm_of_t<ParentRegion>;
 
-    static type& get(submachine<Def, ParentRegion>& node)
+    static type& get(submachine<ConfHolder, ParentRegion>& node)
     {
         return node.root_sm();
     }
 };
 
-template<class Def>
-struct machine_of<submachine<Def, void>>
+template<class ConfHolder>
+struct machine_of<submachine<ConfHolder, void>>
 {
-    using type = machine<Def>;
+    using type = machine<ConfHolder>;
 
-    static type& get(submachine<Def, void>& node)
+    static type& get(submachine<ConfHolder, void>& node)
     {
         return node.root_sm();
     }
 };
 
-template<class Def, class ParentRegion>
+template<class ConfHolder, class ParentRegion>
 struct submachine_context
 {
     /*
@@ -70,16 +70,16 @@ struct submachine_context
     */
     using type = std::conditional_t
     <
-        Def::conf.context == type_c<void>,
+        ConfHolder::conf.context == type_c<void>,
         typename ParentRegion::parent_sm_type::context_type&,
-        typename decltype(Def::conf.context)::type
+        typename decltype(ConfHolder::conf.context)::type
     >;
 };
 
-template<class Def>
-struct submachine_context<Def, void>
+template<class ConfHolder>
+struct submachine_context<ConfHolder, void>
 {
-    using type = typename decltype(Def::conf.context)::type;
+    using type = typename decltype(ConfHolder::conf.context)::type;
 };
 
 template
@@ -110,7 +110,7 @@ struct region_tuple
     >;
 };
 
-template<class Def, class ParentRegion>
+template<class ConfHolder, class ParentRegion>
 class submachine;
 
 template<class Submachine, class Event>
@@ -122,31 +122,29 @@ void submachine_on_event(Submachine& submach, const Event& event);
 template<class Submachine, class Event>
 void submachine_on_exit(Submachine& submach, const Event& event);
 
-template<class Def, class ParentRegion>
+template<class ConfHolder, class ParentRegion>
 class submachine
 {
 public:
-    using def_type = Def;
-    using def_conf_type = std::decay_t<decltype(Def::conf)>;
-    using def_raw_data_type = typename def_conf_type::data_type;
-    using def_data_type = std::conditional_t
+    using conf_holder_type = ConfHolder;
+    using conf_type = std::decay_t<decltype(ConfHolder::conf)>;
+    using data_type = std::conditional_t
     <
-        std::is_void_v<def_raw_data_type>,
+        std::is_void_v<typename conf_type::data_type>,
         null,
-        def_raw_data_type
+        typename conf_type::data_type
     >;
 
-    using context_type = typename submachine_context<Def, ParentRegion>::type;
+    using context_type = typename submachine_context<ConfHolder, ParentRegion>::type;
     using root_sm_type = root_sm_of_t<submachine>;
 
-    using transition_table_type_list = decltype(Def::conf.transition_tables);
+    using transition_table_type_list = decltype(ConfHolder::conf.transition_tables);
 
     template<class... ContextArgs>
     submachine(root_sm_type& root_sm, ContextArgs&&... ctx_args):
         root_sm_(root_sm),
         ctx_holder_(root_sm, std::forward<ContextArgs>(ctx_args)...),
-        def_holder_(root_sm, context()),
-        def_data_holder_(root_sm, context()),
+        data_holder_(root_sm, context()),
         regions_(uniform_construct, *this)
     {
     }
@@ -161,14 +159,9 @@ public:
         return ctx_holder_.get();
     }
 
-    def_type& def()
+    data_type& data()
     {
-        return def_holder_.get();
-    }
-
-    def_data_type& def_data()
-    {
-        return def_data_holder_.get();
+        return data_holder_.get();
     }
 
     template<const auto& StateRegionPath, class StateDef>
@@ -181,7 +174,7 @@ public:
             std::is_same_v
             <
                 typename detail::tlu::front_t<state_region_path_t>::machine_def_type,
-                Def
+                ConfHolder
             >
         );
 
@@ -200,7 +193,7 @@ public:
             std::is_same_v
             <
                 typename detail::tlu::front_t<state_region_path_t>::machine_def_type,
-                Def
+                ConfHolder
             >
         );
 
@@ -219,7 +212,7 @@ public:
             std::is_same_v
             <
                 typename detail::tlu::front_t<state_region_path_t>::machine_def_type,
-                Def
+                ConfHolder
             >
         );
 
@@ -253,10 +246,10 @@ public:
     {
         call_state_action
         (
-            Def::conf.entry_actions,
+            ConfHolder::conf.entry_actions,
             root_sm_,
             context(),
-            def_data(),
+            data(),
             event
         );
         tlu::for_each<region_tuple_type, region_start>(*this, event);
@@ -265,14 +258,14 @@ public:
     template<class Event>
     void on_event(const Event& event)
     {
-        if constexpr(state_traits::requires_on_event_v<Def, Event>)
+        if constexpr(state_traits::requires_on_event_v<ConfHolder, Event>)
         {
             call_state_action
             (
-                Def::conf.internal_actions,
+                ConfHolder::conf.internal_actions,
                 root_sm_,
                 context(),
-                def_data(),
+                data(),
                 event
             );
         }
@@ -283,14 +276,14 @@ public:
     template<class Event>
     void on_event(const Event& event, bool& processed)
     {
-        if constexpr(state_traits::requires_on_event_v<Def, Event>)
+        if constexpr(state_traits::requires_on_event_v<ConfHolder, Event>)
         {
             call_state_action
             (
-                Def::conf.internal_actions,
+                ConfHolder::conf.internal_actions,
                 root_sm_,
                 context(),
-                def_data(),
+                data(),
                 event
             );
             tlu::for_each<region_tuple_type, region_process_event>(*this, event);
@@ -308,10 +301,10 @@ public:
         tlu::for_each<region_tuple_type, region_stop>(*this, event);
         call_state_action
         (
-            Def::conf.exit_actions,
+            ConfHolder::conf.exit_actions,
             root_sm_,
             context(),
-            def_data(),
+            data(),
             event
         );
     }
@@ -379,8 +372,7 @@ private:
     root_sm_type& root_sm_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
 
     context_holder<context_type> ctx_holder_;
-    detail::machine_object_holder<def_type> def_holder_;
-    detail::machine_object_holder<def_data_type> def_data_holder_;
+    detail::machine_object_holder<data_type> data_holder_;
     region_tuple_type regions_;
 };
 

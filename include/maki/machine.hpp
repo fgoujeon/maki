@@ -37,7 +37,7 @@ namespace detail
 
 /**
 @brief The state machine implementation template.
-@tparam Def the state machine definition, a class that must at least define a
+@tparam ConfHolder the state machine definition, a class that must at least define a
 `static constexpr auto conf` of a @ref machine_conf type, with defined
 machine_conf::transition_tables and machine_conf::context_type options
 
@@ -51,19 +51,14 @@ transition_table type;
 The state machine type itself can then be defined like so:
 @snippet lamp/src/main.cpp machine
 */
-template<class Def>
+template<class ConfHolder>
 class machine
 {
 public:
     /**
-    @brief The state machine definition type.
-    */
-    using def_type = Def;
-
-    /**
     @brief The state machine configuration.
     */
-    static constexpr const auto& conf = Def::conf;
+    static constexpr const auto& conf = ConfHolder::conf;
 
     /**
     @brief The state machine configuration type.
@@ -116,22 +111,6 @@ public:
     ~machine() = default;
 
     /**
-    @brief Returns the definition instantiated at construction.
-    */
-    Def& def()
-    {
-        return submachine_.def();
-    }
-
-    /**
-    @brief Returns the definition instantiated at construction.
-    */
-    const Def& def() const
-    {
-        return submachine_.def();
-    }
-
-    /**
     @brief Returns the context instantiated at construction.
     */
     context_type& context()
@@ -154,10 +133,10 @@ public:
     region of interest (see @ref RegionPath)
     @tparam State the state type
     */
-    template<const auto& RegionPath, const auto& State>
+    template<const auto& RegionPath, const auto& StateConf>
     auto& state_data()
     {
-        return submachine_.template state_def_data<RegionPath, detail::state_conf_wrapper<State>>();
+        return submachine_.template state_def_data<RegionPath, detail::state_conf_wrapper<StateConf>>();
     }
 
     /**
@@ -167,10 +146,10 @@ public:
     region of interest (see @ref RegionPath)
     @tparam State the state type
     */
-    template<const auto& RegionPath, const auto& State>
+    template<const auto& RegionPath, const auto& StateConf>
     const auto& state_data() const
     {
-        return submachine_.template state_def_data<RegionPath, detail::state_conf_wrapper<State>>();
+        return submachine_.template state_def_data<RegionPath, detail::state_conf_wrapper<StateConf>>();
     }
 
     /**
@@ -201,10 +180,10 @@ public:
     region of interest (see @ref RegionPath)
     @tparam State the state type
     */
-    template<const auto& RegionPath, const auto& State>
+    template<const auto& RegionPath, const auto& StateConf>
     [[nodiscard]] bool is_active_state() const
     {
-        return submachine_.template is_active_state_def<RegionPath, detail::state_conf_wrapper<State>>();
+        return submachine_.template is_active_state_def<RegionPath, detail::state_conf_wrapper<StateConf>>();
     }
 
     /**
@@ -213,10 +192,10 @@ public:
     single region.
     @tparam State the state type
     */
-    template<const auto& State>
+    template<const auto& StateConf>
     [[nodiscard]] bool is_active_state() const
     {
-        return submachine_.template is_active_state_def<detail::state_conf_wrapper<State>>();
+        return submachine_.template is_active_state_def<detail::state_conf_wrapper<StateConf>>();
     }
 
     /**
@@ -533,7 +512,7 @@ private:
         }
     }
 
-    detail::submachine<Def, void> submachine_;
+    detail::submachine<ConfHolder, void> submachine_;
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;
 };

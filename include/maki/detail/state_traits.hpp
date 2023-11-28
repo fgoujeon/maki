@@ -88,7 +88,7 @@ private:
 
     using first_matching_action_type = tlu::find_t
     <
-        decltype(State::conf.internal_actions),
+        decltype(State::conf.internal_actions_),
         takes_event,
         not_found
     >;

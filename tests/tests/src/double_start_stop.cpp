@@ -41,8 +41,8 @@ namespace
     struct machine_def
     {
         static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
+            .transition_tables(transition_table)
+            .context<context>()
             .pre_state_transition_action_crset
             (
                 [](context& ctx, const auto& region_path_constant, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)

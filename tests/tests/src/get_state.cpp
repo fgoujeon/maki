@@ -97,7 +97,7 @@ namespace
 
         constexpr auto on = maki::submachine_conf
             .data<on_data>()
-            .set_transition_tables(on_transition_table)
+            .transition_tables(on_transition_table)
             .exit_action_c<maki::any>
             (
                 [](context& ctx)
@@ -116,8 +116,8 @@ namespace
     struct machine_def
     {
         static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
+            .transition_tables(transition_table)
+            .context<context>()
         ;
     };
 

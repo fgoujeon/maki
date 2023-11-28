@@ -42,17 +42,12 @@ struct state_conf_t
 {
     using data_type = Data;
 
-    EntryActionTuple entry_actions; //NOLINT(misc-non-private-member-variables-in-classes)
-    InternalActionTuple internal_actions; //NOLINT(misc-non-private-member-variables-in-classes)
-    ExitActionTuple exit_actions; //NOLINT(misc-non-private-member-variables-in-classes)
-    std::string_view pretty_name_view; //NOLINT(misc-non-private-member-variables-in-classes)
-
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<data_type>; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = internal_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = exit_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = pretty_name_view;
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions_; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = internal_actions_; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = exit_actions_; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = pretty_name_;
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return state_conf_t \
@@ -83,7 +78,7 @@ struct state_conf_t
     {
         const auto new_entry_actions = tuple_append
         (
-            entry_actions,
+            entry_actions_,
             detail::event_action<EventFilter, Action, Sig>{action}
         );
 
@@ -107,7 +102,7 @@ struct state_conf_t
     {
         const auto new_internal_actions = tuple_append
         (
-            internal_actions,
+            internal_actions_,
             detail::event_action<EventFilter, Action, Sig>{action}
         );
 
@@ -131,7 +126,7 @@ struct state_conf_t
     {
         const auto new_exit_actions = tuple_append
         (
-            exit_actions,
+            exit_actions_,
             detail::event_action<EventFilter, Action, Sig>{action}
         );
 
@@ -160,6 +155,11 @@ struct state_conf_t
 
 #undef MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
 #undef MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
+
+    EntryActionTuple entry_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
+    InternalActionTuple internal_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
+    ExitActionTuple exit_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
+    std::string_view pretty_name_; //NOLINT(misc-non-private-member-variables-in-classes)
 };
 
 inline constexpr auto state_conf = state_conf_t<>{};

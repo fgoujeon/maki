@@ -97,7 +97,7 @@ public:
     explicit machine(ContextArgs&&... ctx_args):
         submachine_(*this, std::forward<ContextArgs>(ctx_args)...)
     {
-        if constexpr(conf.auto_start)
+        if constexpr(conf.auto_start_)
         {
             //start
             execute_operation_now<detail::machine_operation::start>(events::start{});
@@ -385,8 +385,8 @@ private:
         using type = detail::function_queue
         <
             machine&,
-            conf.small_event_max_size,
-            conf.small_event_max_align
+            conf.small_event_max_size_,
+            conf.small_event_max_align_
         >;
     };
     struct empty_holder
@@ -396,7 +396,7 @@ private:
     };
     using operation_queue_type = typename std::conditional_t
     <
-        conf.run_to_completion,
+        conf.run_to_completion_,
         real_operation_queue_holder,
         empty_holder
     >::template type<>;
@@ -406,7 +406,7 @@ private:
     {
         try
         {
-            if constexpr(conf.run_to_completion)
+            if constexpr(conf.run_to_completion_)
             {
                 if(!executing_operation_) //If call is not recursive
                 {
@@ -432,7 +432,7 @@ private:
     template<detail::machine_operation Operation, class Event>
     void execute_operation_now(const Event& event)
     {
-        if constexpr(conf.run_to_completion)
+        if constexpr(conf.run_to_completion_)
         {
             auto grd = executing_operation_guard{*this};
 

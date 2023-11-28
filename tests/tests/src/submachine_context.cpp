@@ -58,7 +58,7 @@ namespace
             }
 
             constexpr auto emitting_red = maki::submachine_conf
-                .set_transition_tables(emitting_red_ns::transition_table)
+                .transition_tables(emitting_red_ns::transition_table)
                 .entry_action_c<maki::any>
                 (
                     [](context& ctx)
@@ -79,8 +79,8 @@ namespace
         }
 
         constexpr auto on = maki::submachine_conf
-            .set_transition_tables(on_ns::transition_table)
-            .set_context<on_ns::context>()
+            .transition_tables(on_ns::transition_table)
+            .context<on_ns::context>()
             .exit_action_c<maki::any>
             (
                 [](on_ns::context& ctx)
@@ -99,8 +99,8 @@ namespace
     struct machine_def
     {
         static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
+            .transition_tables(transition_table)
+            .context<context>()
         ;
     };
 

@@ -64,7 +64,7 @@ namespace
         ;
 
         constexpr auto on = maki::submachine_conf
-            .set_transition_tables(on_transition_table)
+            .transition_tables(on_transition_table)
         ;
     }
 
@@ -75,8 +75,8 @@ namespace
     struct machine_def
     {
         static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
+            .transition_tables(transition_table)
+            .context<context>()
             .fallback_transition_action_me<events::ignored_by_emitting_blue>
             (
                 [](auto& mach, const events::ignored_by_emitting_blue& event)

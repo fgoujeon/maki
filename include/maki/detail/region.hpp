@@ -385,7 +385,7 @@ private:
                 using source_state_t = state_traits::state_def_to_state_t<SourceStateDef, region>;
                 detail::call_state_action
                 (
-                    source_state_t::conf.exit_actions,
+                    source_state_t::conf.exit_actions_,
                     root_sm_,
                     ctx_,
                     state_from_state_def<SourceStateDef>(),
@@ -414,7 +414,7 @@ private:
                 using target_state_t = state_traits::state_def_to_state_t<TargetStateDef, region>;
                 detail::call_state_action
                 (
-                    target_state_t::conf.entry_actions,
+                    target_state_t::conf.entry_actions_,
                     root_sm_,
                     ctx_,
                     state_from_state_def<TargetStateDef>(),
@@ -475,7 +475,7 @@ private:
             call_state_action_old
             (
                 state_data,
-                State::conf.internal_actions,
+                State::conf.internal_actions_,
                 self.root_sm_,
                 self.ctx_,
                 state_data,

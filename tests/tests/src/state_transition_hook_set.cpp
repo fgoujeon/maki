@@ -34,7 +34,7 @@ namespace
         ;
 
         constexpr auto on1 = maki::submachine_conf
-            .set_transition_tables(on1_transition_table)
+            .transition_tables(on1_transition_table)
             .pretty_name("on_1")
         ;
     }
@@ -50,8 +50,8 @@ namespace
     struct machine_def
     {
         static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table_0, transition_table_1)
-            .set_context<context>()
+            .transition_tables(transition_table_0, transition_table_1)
+            .context<context>()
             .pre_state_transition_action_crset
             (
                 [](context& ctx, const auto& region_path_constant, const auto source_state_constant, const auto& event, const auto target_state_constant)
@@ -82,7 +82,7 @@ namespace
                     ctx.out += ";";
                 }
             )
-            .disable_auto_start()
+            .auto_start(false)
             .pretty_name("main_sm")
         ;
     };

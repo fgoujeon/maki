@@ -70,10 +70,10 @@ namespace
     struct machine_def
     {
         static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
-            .set_small_event_max_size(SmallEventMaxSize)
-            .set_small_event_max_align(SmallEventMaxAlign)
+            .transition_tables(transition_table)
+            .context<context>()
+            .small_event_max_size(SmallEventMaxSize)
+            .small_event_max_align(SmallEventMaxAlign)
         ;
     };
 

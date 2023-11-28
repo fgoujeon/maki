@@ -32,10 +32,10 @@ namespace
     struct machine_def
     {
         static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
-            .disable_auto_start()
-            .disable_run_to_completion()
+            .transition_tables(transition_table)
+            .context<context>()
+            .auto_start(false)
+            .run_to_completion(false)
             .exception_action_me([](auto& /*mach*/, const std::exception_ptr& /*eptr*/){})
         ;
     };

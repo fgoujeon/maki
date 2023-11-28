@@ -70,16 +70,16 @@ struct submachine_context
     */
     using type = std::conditional_t
     <
-        ConfHolder::conf.context == type_c<void>,
+        ConfHolder::conf.context_ == type_c<void>,
         typename ParentRegion::parent_sm_type::context_type&,
-        typename decltype(ConfHolder::conf.context)::type
+        typename decltype(ConfHolder::conf.context_)::type
     >;
 };
 
 template<class ConfHolder>
 struct submachine_context<ConfHolder, void>
 {
-    using type = typename decltype(ConfHolder::conf.context)::type;
+    using type = typename decltype(ConfHolder::conf.context_)::type;
 };
 
 template
@@ -138,7 +138,7 @@ public:
     using context_type = typename submachine_context<ConfHolder, ParentRegion>::type;
     using root_sm_type = root_sm_of_t<submachine>;
 
-    using transition_table_type_list = decltype(ConfHolder::conf.transition_tables);
+    using transition_table_type_list = decltype(ConfHolder::conf.transition_tables_);
 
     template<class... ContextArgs>
     submachine(root_sm_type& root_sm, ContextArgs&&... ctx_args):
@@ -246,7 +246,7 @@ public:
     {
         call_state_action
         (
-            ConfHolder::conf.entry_actions,
+            ConfHolder::conf.entry_actions_,
             root_sm_,
             context(),
             data(),
@@ -262,7 +262,7 @@ public:
         {
             call_state_action
             (
-                ConfHolder::conf.internal_actions,
+                ConfHolder::conf.internal_actions_,
                 root_sm_,
                 context(),
                 data(),
@@ -280,7 +280,7 @@ public:
         {
             call_state_action
             (
-                ConfHolder::conf.internal_actions,
+                ConfHolder::conf.internal_actions_,
                 root_sm_,
                 context(),
                 data(),
@@ -301,7 +301,7 @@ public:
         tlu::for_each<region_tuple_type, region_stop>(*this, event);
         call_state_action
         (
-            ConfHolder::conf.exit_actions,
+            ConfHolder::conf.exit_actions_,
             root_sm_,
             context(),
             data(),

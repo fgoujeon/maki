@@ -32,7 +32,7 @@ namespace
         ;
 
         constexpr auto on1 = maki::submachine_conf
-            .set_transition_tables(on1_transition_table)
+            .transition_tables(on1_transition_table)
             .pretty_name("on_1")
         ;
     }
@@ -48,8 +48,8 @@ namespace
     struct machine_def
     {
         static constexpr auto conf = maki::submachine_conf
-            .set_transition_tables(transition_table_0_t, transition_table_1_t)
-            .set_context<context>()
+            .transition_tables(transition_table_0_t, transition_table_1_t)
+            .context<context>()
             .pretty_name("main_sm")
         ;
 

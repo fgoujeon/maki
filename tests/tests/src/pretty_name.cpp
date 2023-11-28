@@ -23,7 +23,7 @@ namespace pretty_name_ns
     ;
 
     constexpr auto submachine = maki::submachine_conf
-        .set_transition_tables(submachine_transition_table)
+        .transition_tables(submachine_transition_table)
         .pretty_name("my_submachine")
     ;
 
@@ -38,8 +38,8 @@ namespace pretty_name_ns
     struct machine_def
     {
         static constexpr auto conf = maki::submachine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
+            .transition_tables(transition_table)
+            .context<context>()
             .pretty_name("my_sm")
         ;
     };

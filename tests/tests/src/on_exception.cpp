@@ -86,8 +86,8 @@ namespace
     struct default_sm_def
     {
         static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
+            .transition_tables(transition_table)
+            .context<context>()
         ;
     };
 
@@ -96,8 +96,8 @@ namespace
     struct custom_sm_def
     {
         static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
+            .transition_tables(transition_table)
+            .context<context>()
             .exception_action_me
             (
                 [](auto& mach, const std::exception_ptr& eptr)

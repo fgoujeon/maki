@@ -48,14 +48,14 @@ namespace
     struct machine_def
     {
         static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables
+            .transition_tables
             (
                 maki::empty_transition_table
                     .add_c<states::off0, events::button_press, states::on0>,
                 maki::empty_transition_table
                     .add_c<states::off1, events::button_press, states::on1>
             )
-            .set_context<context>()
+            .context<context>()
             .exception_action_me
             (
                 [](auto& mach, const std::exception_ptr& eptr)

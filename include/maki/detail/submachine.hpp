@@ -202,7 +202,7 @@ public:
         return tuple_get<region_index>(regions_).template state_def_data<state_region_relative_path, StateDef>();
     }
 
-    template<const auto& StateRegionPath, class StateDef>
+    template<const auto& StateRegionPath, const auto& StateConf>
     [[nodiscard]] bool is_active_state_def() const
     {
         using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
@@ -218,27 +218,27 @@ public:
 
         static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
         static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
-        return tuple_get<region_index>(regions_).template is_active_state_def<state_region_relative_path, StateDef>();
+        return tuple_get<region_index>(regions_).template is_active_state_def<state_region_relative_path, StateConf>();
     }
 
-    template<class StateDef>
+    template<const auto& StateConf>
     [[nodiscard]] bool is_active_state_def() const
     {
         static_assert(tlu::size_v<transition_table_type_list> == 1);
 
         static constexpr auto state_region_relative_path = region_path<>{};
-        return tuple_get<0>(regions_).template is_active_state_def<state_region_relative_path, StateDef>();
+        return tuple_get<0>(regions_).template is_active_state_def<state_region_relative_path, StateConf>();
     }
 
     template<const auto& RegionPath>
     [[nodiscard]] bool is_running() const
     {
-        return !is_active_state_def<RegionPath, state_conf_wrapper<states::stopped>>();
+        return !is_active_state_def<RegionPath, states::stopped>();
     }
 
     [[nodiscard]] bool is_running() const
     {
-        return !is_active_state_def<state_conf_wrapper<states::stopped>>();
+        return !is_active_state_def<states::stopped>();
     }
 
     template<class Event>

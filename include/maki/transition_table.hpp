@@ -88,18 +88,20 @@ Used as a template argument of @ref transition_table.
 */
 template
 <
-    class SourceStatePattern,
+    const auto& SourceStateConfPattern,
     class EventPattern,
-    class TargetState,
+    const auto& TargetStateConf,
     const auto& Action = noop,
     const auto& Guard = yes
 >
 struct transition
 {
-    using source_state_type_pattern = SourceStatePattern;
+    using source_state_type_pattern = detail::state_conf_wrapper<SourceStateConfPattern>;
     using event_type_pattern = EventPattern;
-    using target_state_type = TargetState;
+    using target_state_type = detail::state_conf_wrapper<TargetStateConf>;
 
+    static constexpr const auto& source_state_conf_pattern = SourceStateConfPattern;
+    static constexpr const auto& target_state_conf = TargetStateConf;
     static constexpr const auto& action = Action;
     static constexpr const auto& guard = Guard;
 };
@@ -118,9 +120,9 @@ struct transition_table
     */
     template
     <
-        const auto& SourceStatePattern,
+        const auto& SourceStateConfPattern,
         class EventPattern,
-        const auto& TargetState,
+        const auto& TargetStateConf,
         const auto& Action = noop,
         const auto& Guard = yes
     >
@@ -129,9 +131,9 @@ struct transition_table
         Transitions...,
         transition
         <
-            detail::state_conf_wrapper<SourceStatePattern>,
+            SourceStateConfPattern,
             EventPattern,
-            detail::state_conf_wrapper<TargetState>,
+            TargetStateConf,
             Action,
             Guard
         >

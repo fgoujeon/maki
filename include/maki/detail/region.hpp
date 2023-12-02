@@ -16,6 +16,7 @@
 #include "machine_object_holder_tuple.hpp"
 #include "tlu.hpp"
 #include "noop_ex.hpp"
+#include "same_ref.hpp"
 #include "constant.hpp"
 #include "../submachine_conf.hpp"
 #include "../states.hpp"
@@ -89,52 +90,52 @@ public:
         return static_state_def_data<StateRegionPath, StateDef>(*this);
     }
 
-    template<const auto& StateRelativeRegionPath, class StateDef>
+    template<const auto& StateRelativeRegionPath, const auto& StateConf>
     [[nodiscard]] bool is_active_state_def() const
     {
         using state_relative_region_path_t = std::decay_t<decltype(StateRelativeRegionPath)>;
 
         if constexpr(tlu::size_v<state_relative_region_path_t> == 0)
         {
-            return is_active_state_def<StateDef>();
+            return is_active_state_def<StateConf>();
         }
         else
         {
             using submachine_t = typename tlu::front_t<state_relative_region_path_t>::machine_def_type;
             const auto& state = state_from_state_def<submachine_t>();
-            return state.template is_active_state_def<StateRelativeRegionPath, StateDef>();
+            return state.template is_active_state_def<StateRelativeRegionPath, StateConf>();
         }
     }
 
-    template<class StateDef>
+    template<const auto& StateConf>
     [[nodiscard]] bool is_active_state_def() const
     {
-        if constexpr(is_type_pattern_v<StateDef>)
+        if constexpr(is_type_pattern_v<state_conf_wrapper<StateConf>>)
         {
             return does_active_state_def_match_pattern
             <
-                std::decay_t<decltype(StateDef::conf)>
+                std::decay_t<decltype(StateConf)>
             >();
         }
         else
         {
-            return is_active_state_def_type<StateDef>();
+            return is_active_state_def_type<StateConf>();
         }
     }
 
     template<class Event>
     void start(const Event& event)
     {
-        if(is_active_state_def_type<state_conf_wrapper<states::stopped>>())
+        if(is_active_state_def_type<states::stopped>())
         {
-            process_event_in_transition<state_conf_wrapper<states::stopped>, initial_state_def_type, noop>(event);
+            process_event_in_transition<states::stopped, initial_state_def_type::conf, noop>(event);
         }
     }
 
     template<class Event>
     void stop(const Event& event)
     {
-        if(!is_active_state_def_type<state_conf_wrapper<states::stopped>>())
+        if(!is_active_state_def_type<states::stopped>())
         {
             with_active_state_def<state_def_type_list, stop_2>
             (
@@ -261,8 +262,8 @@ private:
         {
             self.process_event_in_transition
             <
-                ActiveState,
-                state_conf_wrapper<states::stopped>,
+                ActiveState::conf,
+                states::stopped,
                 noop
             >(event);
         }
@@ -285,7 +286,6 @@ private:
         static bool call(region& self, const Event& event, ExtraArgs&... extra_args)
         {
             using source_state_t = typename Transition::source_state_type_pattern;
-            using target_state_t = typename Transition::target_state_type;
 
             if constexpr(is_type_pattern_v<source_state_t>)
             {
@@ -303,7 +303,7 @@ private:
                     matching_state_def_type_list,
                     try_processing_event_in_transition_2
                     <
-                        target_state_t,
+                        Transition::target_state_conf,
                         Transition::action,
                         Transition::guard
                     >
@@ -313,7 +313,7 @@ private:
             {
                 return try_processing_event_in_transition_2
                 <
-                    target_state_t,
+                    Transition::target_state_conf,
                     Transition::action,
                     Transition::guard
                 >::template call<source_state_t>(self, event, extra_args...);
@@ -321,14 +321,14 @@ private:
         }
     };
 
-    template<class TargetStateDef, const auto& Action, const auto& Guard>
+    template<const auto& TargetStateConf, const auto& Action, const auto& Guard>
     struct try_processing_event_in_transition_2
     {
         template<class SourceStateDef, class Event, class... ExtraArgs>
         static bool call(region& self, const Event& event, ExtraArgs&... extra_args)
         {
             //Make sure the transition source state is the active state
-            if(!self.is_active_state_def_type<SourceStateDef>())
+            if(!self.is_active_state_def_type<SourceStateDef::conf>())
             {
                 return false;
             }
@@ -341,8 +341,8 @@ private:
 
             self.process_event_in_transition
             <
-                SourceStateDef,
-                TargetStateDef,
+                SourceStateDef::conf,
+                TargetStateConf,
                 Action
             >(event, extra_args...);
 
@@ -350,21 +350,19 @@ private:
         }
     };
 
-    template<class SourceStateDef, class TargetStateDef, const auto& Action, class Event>
+    template<const auto& SourceStateConf, const auto& TargetStateConf, const auto& Action, class Event>
     void process_event_in_transition(const Event& event, bool& processed)
     {
-        process_event_in_transition<SourceStateDef, TargetStateDef, Action>(event);
+        process_event_in_transition<SourceStateConf, TargetStateConf, Action>(event);
         processed = true;
     }
 
-    template<class SourceStateDef, class TargetStateDef, const auto& Action, class Event>
+    template<const auto& SourceStateConf, const auto& TargetStateConf, const auto& Action, class Event>
     void process_event_in_transition(const Event& event)
     {
         constexpr const auto& path = region_path_of_v<region>;
 
-        constexpr auto is_internal_transition =
-            std::is_same_v<TargetStateDef, state_conf_wrapper<null>>
-        ;
+        constexpr auto is_internal_transition = same_ref(TargetStateConf, null);
 
         if constexpr(!is_internal_transition)
         {
@@ -374,21 +372,21 @@ private:
                 (
                     ctx_,
                     constant_c<path>,
-                    constant_c<SourceStateDef::conf>,
+                    constant_c<SourceStateConf>,
                     event,
-                    constant_c<TargetStateDef::conf>
+                    constant_c<TargetStateConf>
                 );
             }
 
-            if constexpr(!std::is_same_v<SourceStateDef, state_conf_wrapper<states::stopped>>)
+            if constexpr(!same_ref(SourceStateConf, states::stopped))
             {
-                using source_state_t = state_traits::state_def_to_state_t<SourceStateDef, region>;
+                using source_state_t = state_traits::state_def_to_state_t<state_conf_wrapper<SourceStateConf>, region>;
                 detail::call_state_action
                 (
                     source_state_t::conf.exit_actions_,
                     root_sm_,
                     ctx_,
-                    state_from_state_def<SourceStateDef>(),
+                    state_from_state_def<state_conf_wrapper<SourceStateConf>>(),
                     event
                 );
             }
@@ -396,7 +394,7 @@ private:
             active_state_index_ = region_detail::index_of_state_v
             <
                 state_def_type_list,
-                TargetStateDef
+                state_conf_wrapper<TargetStateConf>
             >;
         }
 
@@ -409,15 +407,15 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(!std::is_same_v<TargetStateDef, state_conf_wrapper<states::stopped>>)
+            if constexpr(!same_ref(TargetStateConf, states::stopped))
             {
-                using target_state_t = state_traits::state_def_to_state_t<TargetStateDef, region>;
+                using target_state_t = state_traits::state_def_to_state_t<state_conf_wrapper<TargetStateConf>, region>;
                 detail::call_state_action
                 (
                     target_state_t::conf.entry_actions_,
                     root_sm_,
                     ctx_,
-                    state_from_state_def<TargetStateDef>(),
+                    state_from_state_def<state_conf_wrapper<TargetStateConf>>(),
                     event
                 );
             }
@@ -428,9 +426,9 @@ private:
                 (
                     ctx_,
                     constant_c<path>,
-                    constant_c<SourceStateDef::conf>,
+                    constant_c<SourceStateConf>,
                     event,
-                    constant_c<TargetStateDef::conf>
+                    constant_c<TargetStateConf>
                 );
             }
 
@@ -497,13 +495,13 @@ private:
         return given_state_index == active_state_index_;
     }
 
-    template<class StateDef>
+    template<const auto& StateConf>
     [[nodiscard]] bool is_active_state_def_type() const
     {
         constexpr auto given_state_index = region_detail::index_of_state_v
         <
             state_def_type_list,
-            StateDef
+            state_conf_wrapper<StateConf>
         >;
         return given_state_index == active_state_index_;
     }
@@ -549,7 +547,7 @@ private:
         template<class StateDef, class... Args>
         static bool call(const region& self, Args&&... args)
         {
-            if(self.is_active_state_def_type<StateDef>())
+            if(self.is_active_state_def_type<StateDef::conf>())
             {
                 F::template call<StateDef>(std::forward<Args>(args)...);
                 return true;

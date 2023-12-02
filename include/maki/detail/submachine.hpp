@@ -164,7 +164,7 @@ public:
         return data_holder_.get();
     }
 
-    template<const auto& StateRegionPath, class StateDef>
+    template<const auto& StateRegionPath, const auto& StateConf>
     auto& state_def_data()
     {
         using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
@@ -180,10 +180,10 @@ public:
 
         static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
         static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
-        return tuple_get<region_index>(regions_).template state_def_data<state_region_relative_path, StateDef>();
+        return tuple_get<region_index>(regions_).template state_def_data<state_region_relative_path, StateConf>();
     }
 
-    template<const auto& StateRegionPath, class StateDef>
+    template<const auto& StateRegionPath, const auto& StateConf>
     const auto& state_def_data() const
     {
         using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
@@ -199,7 +199,7 @@ public:
 
         static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
         static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
-        return tuple_get<region_index>(regions_).template state_def_data<state_region_relative_path, StateDef>();
+        return tuple_get<region_index>(regions_).template state_def_data<state_region_relative_path, StateConf>();
     }
 
     template<const auto& StateRegionPath, const auto& StateConf>

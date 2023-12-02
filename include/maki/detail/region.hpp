@@ -78,16 +78,16 @@ public:
     region& operator=(region&&) = delete;
     ~region() = default;
 
-    template<const auto& StateRegionPath, class StateDef>
+    template<const auto& StateRegionPath, const auto& StateConf>
     const auto& state_def_data() const
     {
-        return static_state_def_data<StateRegionPath, StateDef>(*this);
+        return static_state_def_data<StateRegionPath, StateConf>(*this);
     }
 
-    template<const auto& StateRegionPath, class StateDef>
+    template<const auto& StateRegionPath, const auto& StateConf>
     auto& state_def_data()
     {
-        return static_state_def_data<StateRegionPath, StateDef>(*this);
+        return static_state_def_data<StateRegionPath, StateConf>(*this);
     }
 
     template<const auto& StateRelativeRegionPath, const auto& StateConf>
@@ -596,36 +596,38 @@ private:
         return tuple_get<state_index>(state_data_holders_).get();
     }
 
-    template<class StateDef, class Region>
+    template<const auto& StateConf, class Region>
     static auto& static_state_def_data_leaf(Region& self)
     {
-        using conf_type = std::decay_t<decltype(StateDef::conf)>;
+        using region_t = std::decay_t<Region>;
+        using state_t = state_traits::state_def_to_state_t<state_conf_wrapper<StateConf>, region_t>;
+        using conf_type = std::decay_t<decltype(StateConf)>;
+
         if constexpr(is_submachine_conf_v<conf_type>)
         {
-            using state_t = state_traits::state_def_to_state_t<StateDef, std::decay_t<Region>>;
             return self.template state_data<state_t>().data();
         }
         else
         {
-            return self.template state_data<StateDef>();
+            return self.template state_data<state_t>();
         }
     }
 
-    template<const auto& StateRegionPath, class StateDef, class Region>
+    template<const auto& StateRegionPath, const auto& StateConf, class Region>
     static auto& static_state_def_data(Region& self)
     {
         using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
 
         if constexpr(tlu::size_v<state_region_path_t> == 0)
         {
-            return static_state_def_data_leaf<StateDef>(self);
+            return static_state_def_data_leaf<StateConf>(self);
         }
         else
         {
             using submachine_t = typename tlu::front_t<state_region_path_t>::machine_def_type;
             constexpr auto submachine_index = tlu::index_of_v<typename Region::state_def_type_list, submachine_t>;
             auto& submachine_data = self.template state_data<submachine_index>();
-            return submachine_data.template state_def_data<StateRegionPath, StateDef>(); //recursive
+            return submachine_data.template state_def_data<StateRegionPath, StateConf>(); //recursive
         }
     }
 

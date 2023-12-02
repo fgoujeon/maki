@@ -8,6 +8,7 @@
 #define MAKI_DETAIL_STATE_TRAITS_HPP
 
 #include "submachine_fwd.hpp"
+#include "simple_state.hpp"
 #include "overload_priority.hpp"
 #include "tlu.hpp"
 #include "../type_patterns.hpp"
@@ -41,7 +42,7 @@ constexpr auto is_submachine_v = is_submachine<State>::value;
 template<class StateDef, class Region, class Enable = void>
 struct state_def_to_state
 {
-    using type = StateDef;
+    using type = simple_state<StateDef>;
 };
 
 template<class StateDef, class Region>

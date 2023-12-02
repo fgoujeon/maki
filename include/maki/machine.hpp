@@ -141,7 +141,7 @@ public:
     template<const auto& RegionPath, const auto& StateConf>
     auto& state_data()
     {
-        return submachine_.template state_def_data<RegionPath, detail::state_conf_wrapper<StateConf>>();
+        return submachine_.template state_def_data<RegionPath, StateConf>();
     }
 
     /**
@@ -154,7 +154,7 @@ public:
     template<const auto& RegionPath, const auto& StateConf>
     const auto& state_data() const
     {
-        return submachine_.template state_def_data<RegionPath, detail::state_conf_wrapper<StateConf>>();
+        return submachine_.template state_def_data<RegionPath, StateConf>();
     }
 
     /**

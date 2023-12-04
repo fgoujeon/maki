@@ -12,6 +12,7 @@
 #ifndef MAKI_TRANSITION_TABLE_HPP
 #define MAKI_TRANSITION_TABLE_HPP
 
+#include "null.hpp"
 #include "detail/state_conf_wrapper.hpp"
 
 namespace maki
@@ -48,17 +49,6 @@ in order to avoid awkward `typename`s and `template`s.
 
 @{
 */
-
-/**
-@brief A null event or target state.
-
-Represents either:
-- a null event (for anonymous transitions);
-- a null target state (for internal transitions in transition table).
-*/
-struct null_t{};
-
-inline constexpr auto null = null_t{};
 
 /**
 @brief An action that does nothing.

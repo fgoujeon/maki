@@ -78,14 +78,13 @@ using same_region_path_t = maki::region_path_c<machine_def>::add<some_submachine
 @tparam MachineDef an @ref machine or submachine definition
 @tparam RegionIndex the index of the region among the regions of `MachineDef`
 */
-template<class MachineDef, int RegionIndex>
+template<const auto& MachineConf, int RegionIndex>
 struct region_path_element
 {
     static_assert(RegionIndex >= 0);
 
-    using machine_def_type = MachineDef;
+    static constexpr const auto& machine_conf = MachineConf;
     static constexpr auto region_index = RegionIndex;
-
 };
 
 template<class... Ts>
@@ -93,37 +92,37 @@ struct region_path;
 
 namespace detail
 {
-    template<class RegionPath, class MachineDef, int RegionIndex>
+    template<class RegionPath, const auto& MachineConf, int RegionIndex>
     struct region_path_add;
 
-    template<class... Ts, class MachineDef, int RegionIndex>
-    struct region_path_add<region_path<Ts...>, MachineDef, RegionIndex>
+    template<class... Ts, const auto& MachineConf, int RegionIndex>
+    struct region_path_add<region_path<Ts...>, MachineConf, RegionIndex>
     {
-        static constexpr auto value = region_path<Ts..., region_path_element<MachineDef, RegionIndex>>{};
+        static constexpr auto value = region_path<Ts..., region_path_element<MachineConf, RegionIndex>>{};
     };
 
-    template<class... Ts, class MachineDef>
-    struct region_path_add<region_path<Ts...>, MachineDef, -1>
+    template<class... Ts, const auto& MachineConf>
+    struct region_path_add<region_path<Ts...>, MachineConf, -1>
     {
-        using transition_table_list_type = decltype(MachineDef::conf.transition_tables_);
+        using transition_table_list_type = decltype(MachineConf.transition_tables_);
         static_assert
         (
             tlu::size_v<transition_table_list_type> == 1,
             "RegionIndex must be specified for multiple-region machines"
         );
 
-        static constexpr auto value = region_path<Ts..., region_path_element<MachineDef, 0>>{};
+        static constexpr auto value = region_path<Ts..., region_path_element<MachineConf, 0>>{};
     };
 
     template<class Element>
     struct region_path_element_add_pretty_name_holder;
 
-    template<class MachineDef, int RegionIndex>
-    struct region_path_element_add_pretty_name_holder<region_path_element<MachineDef, RegionIndex>>
+    template<const auto& MachineConf, int RegionIndex>
+    struct region_path_element_add_pretty_name_holder<region_path_element<MachineConf, RegionIndex>>
     {
         static void add_pretty_name(std::ostringstream& oss, bool& first)
         {
-            using transition_table_list_type = decltype(MachineDef::conf.transition_tables_);
+            using transition_table_list_type = decltype(MachineConf.transition_tables_);
 
             if(first)
             {
@@ -134,7 +133,7 @@ namespace detail
                 oss << '.';
             }
 
-            oss << maki::pretty_name<MachineDef>();
+            oss << maki::pretty_name<MachineConf>();
 
             if constexpr(detail::tlu::size_v<transition_table_list_type> > 1)
             {
@@ -181,16 +180,10 @@ struct region_path
     @tparam RegionIndex see @ref region_path_element; can be omitted if (and
     only if) `MachineDef` contains only one region
     */
-    template<class MachineDef, int RegionIndex = -1>
+    template<const auto& MachineConf, int RegionIndex = -1>
     [[nodiscard]] constexpr auto add() const
     {
-        return detail::region_path_add<region_path, MachineDef, RegionIndex>::value;
-    }
-
-    template<const auto& MachineDef, int RegionIndex = -1>
-    [[nodiscard]] constexpr auto add() const
-    {
-        return detail::region_path_add<region_path, detail::state_conf_wrapper<MachineDef>, RegionIndex>::value;
+        return detail::region_path_add<region_path, MachineConf, RegionIndex>::value;
     }
 
     /**
@@ -230,8 +223,8 @@ constexpr bool operator==(const region_path<Ts...> /*lhs*/, const region_path<Us
 @tparam RegionIndex see @ref region_path_element; can be omitted if (and
 only if) `MachineDef` contains only one region
 */
-template<class MachineDef, int RegionIndex = -1>
-inline constexpr auto region_path_c = region_path<>{}.add<MachineDef, RegionIndex>();
+template<const auto& MachineConf, int RegionIndex = -1>
+inline constexpr auto region_path_c = region_path<>{}.add<MachineConf, RegionIndex>();
 
 /**
 @}

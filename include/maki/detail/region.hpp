@@ -50,7 +50,7 @@ class region;
 template<class ParentSm, int Index>
 struct region_path_of<region<ParentSm, Index>>
 {
-    static constexpr auto value = region_path_of_v<ParentSm>.template add<typename ParentSm::conf_holder_type, Index>();
+    static constexpr auto value = region_path_of_v<ParentSm>.template add<ParentSm::conf_holder_type::conf, Index>();
 };
 
 template<class ParentSm, int Index>
@@ -101,8 +101,8 @@ public:
         }
         else
         {
-            using submachine_t = typename tlu::front_t<state_relative_region_path_t>::machine_def_type;
-            const auto& state = state_from_state_def<submachine_t>();
+            constexpr const auto& submach_conf = tlu::front_t<state_relative_region_path_t>::machine_conf;
+            const auto& state = state_from_state_def<state_conf_wrapper<submach_conf>>();
             return state.template is_active_state_def<StateRelativeRegionPath, StateConf>();
         }
     }
@@ -624,8 +624,8 @@ private:
         }
         else
         {
-            using submachine_t = typename tlu::front_t<state_region_path_t>::machine_def_type;
-            constexpr auto submachine_index = tlu::index_of_v<typename Region::state_def_type_list, submachine_t>;
+            constexpr const auto& submach_conf = tlu::front_t<state_region_path_t>::machine_conf;
+            constexpr auto submachine_index = tlu::index_of_v<typename Region::state_def_type_list, state_conf_wrapper<submach_conf>>;
             auto& submachine_data = self.template state_data<submachine_index>();
             return submachine_data.template state_def_data<StateRegionPath, StateConf>(); //recursive
         }

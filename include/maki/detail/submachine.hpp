@@ -171,11 +171,11 @@ public:
 
         static_assert
         (
-            std::is_same_v
-            <
-                typename detail::tlu::front_t<state_region_path_t>::machine_def_type,
-                ConfHolder
-            >
+            same_ref
+            (
+                detail::tlu::front_t<state_region_path_t>::machine_conf,
+                ConfHolder::conf
+            )
         );
 
         static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
@@ -190,11 +190,11 @@ public:
 
         static_assert
         (
-            std::is_same_v
-            <
-                typename detail::tlu::front_t<state_region_path_t>::machine_def_type,
-                ConfHolder
-            >
+            same_ref
+            (
+                detail::tlu::front_t<state_region_path_t>::machine_conf,
+                ConfHolder::conf
+            )
         );
 
         static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
@@ -209,11 +209,11 @@ public:
 
         static_assert
         (
-            std::is_same_v
-            <
-                typename detail::tlu::front_t<state_region_path_t>::machine_def_type,
-                ConfHolder
-            >
+            same_ref
+            (
+                detail::tlu::front_t<state_region_path_t>::machine_conf,
+                ConfHolder::conf
+            )
         );
 
         static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;

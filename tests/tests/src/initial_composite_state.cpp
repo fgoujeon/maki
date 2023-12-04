@@ -102,7 +102,7 @@ TEST_CASE("initial_submachine")
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
-    static constexpr auto on_region_path = maki::region_path_c<machine_def>.add<states::on>();
+    static constexpr auto on_region_path = maki::region_path_c<machine_def::conf>.add<states::on>();
 
     machine.start();
     REQUIRE(machine.is_active_state<states::on>());

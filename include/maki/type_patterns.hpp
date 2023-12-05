@@ -13,6 +13,7 @@
 #define MAKI_TYPE_PATTERNS_HPP
 
 #include "detail/state_conf_wrapper.hpp"
+#include "detail/constant.hpp"
 #include <type_traits>
 
 namespace maki
@@ -177,7 +178,7 @@ namespace detail
 
     //TEMP
     template<const auto& Value>
-    struct is_type_pattern_for_state<detail::state_conf_wrapper<Value>>
+    struct is_type_pattern_for_state<detail::constant<Value>>
     {
         using value_type = std::decay_t<decltype(Value)>;
         static constexpr auto value = is_type_pattern<value_type>::value;

@@ -110,7 +110,7 @@ public:
     template<const auto& StateConf>
     [[nodiscard]] bool is_active_state_def() const
     {
-        if constexpr(is_type_pattern_v<state_conf_wrapper<StateConf>>)
+        if constexpr(is_type_pattern_v<constant<StateConf>>)
         {
             return does_active_state_def_match_pattern
             <
@@ -288,7 +288,7 @@ private:
         {
             using source_state_t = typename Transition::source_state_type_pattern;
 
-            if constexpr(is_type_pattern_v<source_state_t>)
+            if constexpr(is_type_pattern_v<constant<Transition::source_state_conf_pattern>>)
             {
                 //List of state defs that match with the source state pattern
                 using matching_state_def_type_list = state_type_list_filters::by_pattern_t

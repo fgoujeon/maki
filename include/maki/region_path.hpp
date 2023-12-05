@@ -14,7 +14,6 @@
 
 #include "transition_table.hpp"
 #include "pretty_name.hpp"
-#include "detail/state_conf_wrapper.hpp"
 #include "detail/tlu.hpp"
 #include <string>
 #include <sstream>

@@ -9,6 +9,7 @@
 
 #include "submachine_fwd.hpp"
 #include "simple_state.hpp"
+#include "state_conf_wrapper.hpp"
 #include "overload_priority.hpp"
 #include "tlu.hpp"
 #include "../type_patterns.hpp"
@@ -42,7 +43,7 @@ constexpr auto is_submachine_v = is_submachine<State>::value;
 template<const auto& StateConf, class Region, class Enable = void>
 struct state_conf_to_state
 {
-    using type = simple_state<state_conf_wrapper<StateConf>>;
+    using type = simple_state<StateConf>;
 };
 
 template<const auto& StateConf, class Region>

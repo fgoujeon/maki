@@ -55,10 +55,10 @@ namespace transition_table_digest_ns
 
     using state_tuple_t = maki::type_list
     <
-        maki::detail::simple_state<maki::detail::state_conf_wrapper<state0>>,
-        maki::detail::simple_state<maki::detail::state_conf_wrapper<state1>>,
-        maki::detail::simple_state<maki::detail::state_conf_wrapper<state2>>,
-        maki::detail::simple_state<maki::detail::state_conf_wrapper<state3>>
+        maki::detail::simple_state<state0>,
+        maki::detail::simple_state<state1>,
+        maki::detail::simple_state<state2>,
+        maki::detail::simple_state<state3>
     >;
 }
 

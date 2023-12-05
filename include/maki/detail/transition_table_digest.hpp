@@ -55,14 +55,6 @@ namespace transition_table_digest_detail
     using state_type_list_to_state_data_type_list = type_list<state_traits::state_to_state_data<States>...>;
 
     template<class TList, class U>
-    using push_back_unique_if_not_null = tlu::push_back_if_t
-    <
-        TList,
-        U,
-        (!tlu::contains_v<TList, U> && !std::is_same_v<U, state_conf_wrapper<null>>)
-    >;
-
-    template<class TList, class U>
     using push_back_unique_if_not_null_constant = tlu::push_back_if_t
     <
         TList,

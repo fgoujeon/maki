@@ -13,11 +13,11 @@ namespace maki::detail
 /*
 Implementation of a non-composite state
 */
-template<class ConfHolder>
+template<const auto& Conf>
 struct simple_state
 {
-    static constexpr const auto& conf = ConfHolder::conf;
-    static constexpr const auto& client_conf = conf;
+    static constexpr const auto& conf = Conf;
+    static constexpr const auto& client_conf = Conf;
 };
 
 } //namespace

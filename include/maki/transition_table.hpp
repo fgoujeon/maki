@@ -13,7 +13,6 @@
 #define MAKI_TRANSITION_TABLE_HPP
 
 #include "null.hpp"
-#include "detail/state_conf_wrapper.hpp"
 
 namespace maki
 {
@@ -86,9 +85,7 @@ template
 >
 struct transition
 {
-    using source_state_type_pattern = detail::state_conf_wrapper<SourceStateConfPattern>;
     using event_type_pattern = EventPattern;
-    using target_state_type = detail::state_conf_wrapper<TargetStateConf>;
 
     static constexpr const auto& source_state_conf_pattern = SourceStateConfPattern;
     static constexpr const auto& target_state_conf = TargetStateConf;

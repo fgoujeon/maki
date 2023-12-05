@@ -110,7 +110,7 @@ public:
     template<const auto& StateConf>
     [[nodiscard]] bool is_active_state_def() const
     {
-        if constexpr(is_type_pattern_v<constant<StateConf>>)
+        if constexpr(is_type_pattern_v<std::decay_t<decltype(StateConf)>>)
         {
             return does_active_state_def_match_pattern
             <
@@ -286,22 +286,20 @@ private:
         template<class Transition, class Event, class... ExtraArgs>
         static bool call(region& self, const Event& event, ExtraArgs&... extra_args)
         {
-            using source_state_t = typename Transition::source_state_type_pattern;
-
-            if constexpr(is_type_pattern_v<constant<Transition::source_state_conf_pattern>>)
+            if constexpr(is_type_pattern_v<std::decay_t<decltype(Transition::source_state_conf_pattern)>>)
             {
                 //List of state defs that match with the source state pattern
-                using matching_state_def_type_list = state_type_list_filters::by_pattern_t
+                using matching_state_conf_constant_list = state_type_list_filters::by_pattern_t
                 <
-                    state_def_type_list,
-                    std::decay_t<decltype(source_state_t::conf)>
+                    state_conf_constant_list,
+                    Transition::source_state_conf_pattern
                 >;
 
-                static_assert(!tlu::empty_v<matching_state_def_type_list>);
+                static_assert(!tlu::empty_v<matching_state_conf_constant_list>);
 
                 return tlu::for_each_or
                 <
-                    matching_state_def_type_list,
+                    matching_state_conf_constant_list,
                     try_processing_event_in_transition_2
                     <
                         Transition::target_state_conf,
@@ -317,7 +315,7 @@ private:
                     Transition::target_state_conf,
                     Transition::action,
                     Transition::guard
-                >::template call<source_state_t>(self, event, extra_args...);
+                >::template call<constant<Transition::source_state_conf_pattern>>(self, event, extra_args...);
             }
         }
     };
@@ -325,11 +323,11 @@ private:
     template<const auto& TargetStateConf, const auto& Action, const auto& Guard>
     struct try_processing_event_in_transition_2
     {
-        template<class SourceStateDef, class Event, class... ExtraArgs>
+        template<class SourceStateConfConstant, class Event, class... ExtraArgs>
         static bool call(region& self, const Event& event, ExtraArgs&... extra_args)
         {
             //Make sure the transition source state is the active state
-            if(!self.is_active_state_def_type<SourceStateDef::conf>())
+            if(!self.is_active_state_def_type<SourceStateConfConstant::value>())
             {
                 return false;
             }
@@ -342,7 +340,7 @@ private:
 
             self.process_event_in_transition
             <
-                SourceStateDef::conf,
+                SourceStateConfConstant::value,
                 TargetStateConf,
                 Action
             >(event, extra_args...);
@@ -525,7 +523,7 @@ private:
         template<class ActiveState>
         static void call([[maybe_unused]] bool& matches)
         {
-            if constexpr(matches_pattern_v<ActiveState, TypePattern>)
+            if constexpr(matches_pattern_v<constant<ActiveState::conf>, TypePattern>)
             {
                 matches = true;
             }

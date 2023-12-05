@@ -12,7 +12,6 @@
 #ifndef MAKI_TYPE_PATTERNS_HPP
 #define MAKI_TYPE_PATTERNS_HPP
 
-#include "detail/state_conf_wrapper.hpp"
 #include "detail/constant.hpp"
 #include <type_traits>
 
@@ -69,9 +68,6 @@ struct none_t{};
 @}
 */
 
-//TEMP
-//variants for states
-
 inline constexpr auto any = any_t{};
 
 template<template<class> class Predicate>
@@ -81,10 +77,10 @@ template<template<class> class Predicate>
 constexpr auto any_if_not = any_if_not_t<Predicate>{};
 
 template<const auto&... StateConfs>
-constexpr auto any_of = any_of_t<detail::state_conf_wrapper<StateConfs>...>{};
+constexpr auto any_of = any_of_t<detail::constant<StateConfs>...>{};
 
 template<const auto&... StateConfs>
-constexpr auto any_but = any_but_t<detail::state_conf_wrapper<StateConfs>...>{};
+constexpr auto any_but = any_but_t<detail::constant<StateConfs>...>{};
 
 inline constexpr auto none = none_t{};
 
@@ -169,23 +165,8 @@ namespace detail
         static constexpr auto value = false;
     };
 
-    //TEMP
     template<class T>
-    struct is_type_pattern_for_state
-    {
-        static constexpr auto value = false;
-    };
-
-    //TEMP
-    template<const auto& Value>
-    struct is_type_pattern_for_state<detail::constant<Value>>
-    {
-        using value_type = std::decay_t<decltype(Value)>;
-        static constexpr auto value = is_type_pattern<value_type>::value;
-    };
-
-    template<class T>
-    constexpr auto is_type_pattern_v = is_type_pattern<T>::value || is_type_pattern_for_state<T>::value;
+    constexpr auto is_type_pattern_v = is_type_pattern<T>::value;
 
     template<class T, class PatternList>
     class matches_any_pattern;

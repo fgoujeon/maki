@@ -14,7 +14,6 @@
 
 #include "machine_conf.hpp"
 #include "region_path.hpp"
-#include "detail/state_conf_wrapper.hpp"
 #include "detail/noinline.hpp"
 #include "detail/submachine.hpp"
 #include "detail/function_queue.hpp"

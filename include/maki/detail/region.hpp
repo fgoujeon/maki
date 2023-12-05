@@ -128,7 +128,7 @@ public:
     {
         if(is_active_state_def_type<states::stopped>())
         {
-            process_event_in_transition<states::stopped, initial_state_def_type::conf, noop>(event);
+            process_event_in_transition<states::stopped, initial_state_conf, noop>(event);
         }
     }
 
@@ -254,7 +254,7 @@ private:
     >;
     using state_holder_tuple_type = tlu::apply_t<non_empty_state_type_list, machine_object_holder_tuple_t>;
 
-    using initial_state_def_type = detail::tlu::front_t<state_def_type_list>;
+    static constexpr const auto& initial_state_conf = detail::tlu::front_t<state_conf_constant_list>::value;
 
     struct stop_2
     {

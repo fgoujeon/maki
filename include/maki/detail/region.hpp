@@ -478,12 +478,10 @@ private:
             }
             else
             {
-                call_state_action
+                self.state<State>().call_internal_action
                 (
-                    State::conf.internal_actions_,
                     self.root_sm_,
                     self.ctx_,
-                    self.state_data<State>(),
                     event
                 );
                 region_detail::set_to_true(extra_args...);

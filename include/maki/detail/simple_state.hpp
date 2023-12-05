@@ -78,6 +78,19 @@ public:
     }
 
     template<class Machine, class Context, class Event>
+    void call_internal_action(Machine& mach, Context& ctx, const Event& event)
+    {
+        call_state_action
+        (
+            Conf.internal_actions_,
+            mach,
+            ctx,
+            data(),
+            event
+        );
+    }
+
+    template<class Machine, class Context, class Event>
     void call_exit_action(Machine& mach, Context& ctx, const Event& event)
     {
         call_state_action
@@ -97,7 +110,7 @@ public:
 
         using first_matching_action_type = tlu::find_t
         <
-            decltype(conf.internal_actions_),
+            decltype(Conf.internal_actions_),
             simple_state_detail::for_event<Event>::template takes_event,
             not_found
         >;
@@ -108,8 +121,6 @@ public:
             not_found
         >;
     }
-
-    static constexpr const auto& conf = Conf;
 
 private:
     machine_object_holder<data_type> data_holder_;

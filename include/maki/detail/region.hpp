@@ -591,18 +591,6 @@ private:
         return state_data<state_t>();
     }
 
-    template<int StateIndex>
-    auto& state_data()
-    {
-        return tuple_get<StateIndex>(states_).data();
-    }
-
-    template<int StateIndex>
-    const auto& state_data() const
-    {
-        return tuple_get<StateIndex>(states_).data();
-    }
-
     template<class State>
     auto& state_data()
     {
@@ -622,16 +610,7 @@ private:
     {
         using region_t = std::decay_t<Region>;
         using state_t = state_traits::state_conf_to_state_t<StateConf, region_t>;
-        using conf_type = std::decay_t<decltype(StateConf)>;
-
-        if constexpr(is_submachine_conf_v<conf_type>)
-        {
-            return self.template state_data<state_t>();
-        }
-        else
-        {
-            return self.template state_data<state_t>();
-        }
+        return self.template state_data<state_t>();
     }
 
     template<const auto& StateRegionPath, const auto& StateConf, class Region>

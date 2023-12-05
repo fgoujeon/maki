@@ -45,10 +45,10 @@ For example, the following digest type...:
 namespace transition_table_digest_detail
 {
     template<class Region>
-    struct state_def_type_list_to_state_type_list_holder
+    struct state_conf_constant_list_to_state_type_list_holder
     {
-        template<class... Ts>
-        using type = type_list<state_traits::state_conf_to_state_t<Ts::conf, Region>...>;
+        template<class... ConfConstants>
+        using type = type_list<state_traits::state_conf_to_state_t<ConfConstants::value, Region>...>;
     };
 
     template<class... States>
@@ -76,7 +76,6 @@ namespace transition_table_digest_detail
     template<const auto& InitialStateConf>
     struct initial_digest
     {
-        using state_def_type_list = type_list<state_conf_wrapper<InitialStateConf>>;
         using state_conf_constant_list = type_list<constant<InitialStateConf>>;
         static constexpr auto has_null_events = false;
     };
@@ -84,12 +83,6 @@ namespace transition_table_digest_detail
     template<class Digest, class Transition>
     struct add_transition_to_digest
     {
-        using state_def_type_list = push_back_unique_if_not_null
-        <
-            typename Digest::state_def_type_list,
-            typename Transition::target_state_type
-        >;
-
         using state_conf_constant_list = push_back_unique_if_not_null_constant
         <
             typename Digest::state_conf_constant_list,
@@ -126,12 +119,11 @@ private:
     >;
 
 public:
-    using state_def_type_list = typename digest_type::state_def_type_list;
     using state_conf_constant_list = typename digest_type::state_conf_constant_list;
     using state_type_list = tlu::apply_t
     <
-        state_def_type_list,
-        transition_table_digest_detail::state_def_type_list_to_state_type_list_holder<Region>::template type
+        state_conf_constant_list,
+        transition_table_digest_detail::state_conf_constant_list_to_state_type_list_holder<Region>::template type
     >;
     using state_data_type_list = tlu::apply_t
     <

@@ -75,10 +75,11 @@ class region
 public:
     using parent_sm_type = ParentSm;
 
-    explicit region(ParentSm& parent_sm):
-        root_sm_(machine_of<ParentSm>::get(parent_sm)),
+    template<class Machine>
+    region(Machine& mach, ParentSm& parent_sm):
+        root_sm_(mach),
         ctx_(parent_sm.context()),
-        states_(uniform_construct, root_sm_, ctx_)
+        states_(uniform_construct, mach, ctx_)
     {
     }
 

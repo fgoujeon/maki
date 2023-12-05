@@ -92,22 +92,15 @@ public:
     >;
 
     using context_type = typename submachine_context<ConfHolder, ParentRegion>::type;
-    using root_sm_type = machine_of_t<submachine>;
 
     using transition_table_type_list = decltype(ConfHolder::conf.transition_tables_);
 
-    template<class... ContextArgs>
-    submachine(root_sm_type& root_sm, ContextArgs&&... ctx_args):
-        root_sm_(root_sm),
-        ctx_holder_(root_sm, std::forward<ContextArgs>(ctx_args)...),
-        simple_state_(root_sm, context()),
-        regions_(uniform_construct, *this)
+    template<class Machine, class... ContextArgs>
+    submachine(Machine& mach, ContextArgs&&... ctx_args):
+        ctx_holder_(mach, std::forward<ContextArgs>(ctx_args)...),
+        simple_state_(mach, context()),
+        regions_(uniform_construct, mach, *this)
     {
-    }
-
-    root_sm_type& root_sm()
-    {
-        return root_sm_;
     }
 
     context_type& context()
@@ -315,9 +308,6 @@ private:
             tuple_get<Region>(self.regions_).stop(event);
         }
     };
-
-    //Store references for faster access
-    root_sm_type& root_sm_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
 
     context_holder<context_type> ctx_holder_;
     simple_state_type simple_state_;

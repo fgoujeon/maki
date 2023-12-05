@@ -196,12 +196,12 @@ public:
     }
 
     template<class Machine, class Context, class Event>
-    void call_entry_action(Machine& mach, Context& /*ctx*/, const Event& event)
+    void call_entry_action(Machine& mach, Context& ctx, const Event& event)
     {
         simple_state_.call_entry_action
         (
             mach,
-            context(),
+            own_context_or(ctx),
             event
         );
         tlu::for_each<region_tuple_type, region_start>(*this, event);
@@ -211,7 +211,7 @@ public:
     void call_internal_action
     (
         Machine& mach,
-        Context& /*ctx*/,
+        Context& ctx,
         const Event& event
     )
     {
@@ -220,7 +220,7 @@ public:
             simple_state_.call_internal_action
             (
                 mach,
-                context(),
+                own_context_or(ctx),
                 event
             );
         }
@@ -232,7 +232,7 @@ public:
     void call_internal_action
     (
         Machine& mach,
-        Context& /*ctx*/,
+        Context& ctx,
         const Event& event,
         bool& processed
     )
@@ -242,7 +242,7 @@ public:
             simple_state_.call_internal_action
             (
                 mach,
-                context(),
+                own_context_or(ctx),
                 event
             );
             tlu::for_each<region_tuple_type, region_process_event>(*this, event);
@@ -255,13 +255,13 @@ public:
     }
 
     template<class Machine, class Context, class Event>
-    void call_exit_action(Machine& mach, Context& /*ctx*/, const Event& event)
+    void call_exit_action(Machine& mach, Context& ctx, const Event& event)
     {
         tlu::for_each<region_tuple_type, region_stop>(*this, event);
         simple_state_.call_exit_action
         (
             mach,
-            context(),
+            own_context_or(ctx),
             event
         );
     }
@@ -308,6 +308,19 @@ private:
             tuple_get<Region>(self.regions_).stop(event);
         }
     };
+
+    template<class Context>
+    auto& own_context_or(Context& ctx)
+    {
+        if constexpr(std::is_void_v<typename conf_type::context_type>)
+        {
+            return ctx;
+        }
+        else
+        {
+            return ctx_holder_.get();
+        }
+    }
 
     context_holder<context_type> ctx_holder_;
     simple_state_type simple_state_;

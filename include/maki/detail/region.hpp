@@ -28,20 +28,35 @@ namespace maki::detail
 
 namespace region_detail
 {
-    template<class StateList, const auto& StateConf>
+    template<class StateList, class State>
     struct index_of_state
+    {
+        static constexpr auto value = tlu::index_of_v<StateList, State>;
+    };
+
+    template<class StateList, class Region>
+    struct index_of_state<StateList, state_traits::state_conf_to_state<states::stopped, Region>>
+    {
+        static constexpr auto value = -1;
+    };
+
+    template<class StateList, class State>
+    inline constexpr auto index_of_state_v = index_of_state<StateList, State>::value;
+
+    template<class StateList, const auto& StateConf>
+    struct index_of_state_conf
     {
         static constexpr auto value = tlu::index_of_v<StateList, constant<StateConf>>;
     };
 
     template<class StateList>
-    struct index_of_state<StateList, states::stopped>
+    struct index_of_state_conf<StateList, states::stopped>
     {
         static constexpr auto value = -1;
     };
 
     template<class StateList, const auto& StateConf>
-    inline constexpr auto index_of_state_v = index_of_state<StateList, StateConf>::value;
+    inline constexpr auto index_of_state_conf_v = index_of_state_conf<StateList, StateConf>::value;
 
     inline void set_to_true(bool& value)
     {
@@ -381,7 +396,7 @@ private:
                 );
             }
 
-            active_state_index_ = region_detail::index_of_state_v
+            active_state_index_ = region_detail::index_of_state_conf_v
             <
                 state_conf_constant_list,
                 TargetStateConf
@@ -484,8 +499,8 @@ private:
     {
         constexpr auto given_state_index = region_detail::index_of_state_v
         <
-            state_conf_constant_list,
-            State::client_conf
+            state_type_list,
+            State
         >;
         return given_state_index == active_state_index_;
     }
@@ -493,7 +508,7 @@ private:
     template<const auto& StateConf>
     [[nodiscard]] bool is_active_state_def_type() const
     {
-        constexpr auto given_state_index = region_detail::index_of_state_v
+        constexpr auto given_state_index = region_detail::index_of_state_conf_v
         <
             state_conf_constant_list,
             StateConf
@@ -645,7 +660,7 @@ private:
     std::decay_t<typename ParentSm::context_type>& ctx_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
 
     state_tuple_type states_;
-    int active_state_index_ = region_detail::index_of_state_v<state_conf_constant_list, states::stopped>;
+    int active_state_index_ = region_detail::index_of_state_conf_v<state_conf_constant_list, states::stopped>;
 };
 
 } //namespace

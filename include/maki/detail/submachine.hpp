@@ -298,8 +298,6 @@ public:
         return true;
     }
 
-    static constexpr const auto& client_conf = conf_holder_type::conf;
-
 private:
     using region_tuple_type = typename region_tuple
     <

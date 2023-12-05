@@ -110,7 +110,6 @@ public:
     }
 
     static constexpr const auto& conf = Conf;
-    static constexpr const auto& client_conf = Conf;
 
 private:
     machine_object_holder<data_type> data_holder_;

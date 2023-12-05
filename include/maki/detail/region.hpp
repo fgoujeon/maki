@@ -137,7 +137,7 @@ public:
     {
         if(!is_active_state_def_type<states::stopped>())
         {
-            with_active_state_def<state_def_type_list, stop_2>
+            with_active_state_conf<state_conf_constant_list, stop_2>
             (
                 *this,
                 event
@@ -240,7 +240,6 @@ private:
         detail::transition_table_digest<transition_table_type, region>
     ;
 
-    using state_def_type_list = typename transition_table_digest_type::state_def_type_list;
     using state_conf_constant_list = typename transition_table_digest_type::state_conf_constant_list;
     using state_type_list = typename transition_table_digest_type::state_type_list;
 
@@ -258,12 +257,12 @@ private:
 
     struct stop_2
     {
-        template<class ActiveState, class Event>
+        template<const auto& ActiveStateConf, class Event>
         static void call(region& self, const Event& event)
         {
             self.process_event_in_transition
             <
-                ActiveState::conf,
+                ActiveStateConf,
                 states::stopped,
                 noop
             >(event);
@@ -509,9 +508,9 @@ private:
     [[nodiscard]] bool does_active_state_def_match_pattern() const
     {
         auto matches = false;
-        with_active_state_def
+        with_active_state_conf
         <
-            tlu::push_back_t<state_def_type_list, state_conf_wrapper<states::stopped>>,
+            tlu::push_back_t<state_conf_constant_list, constant<states::stopped>>,
             does_active_state_def_match_pattern_2<TypePattern>
         >(matches);
         return matches;
@@ -520,35 +519,35 @@ private:
     template<class TypePattern>
     struct does_active_state_def_match_pattern_2
     {
-        template<class ActiveState>
+        template<const auto& ActiveStateConf>
         static void call([[maybe_unused]] bool& matches)
         {
-            if constexpr(matches_pattern_v<constant<ActiveState::conf>, TypePattern>)
+            if constexpr(matches_pattern_v<constant<ActiveStateConf>, TypePattern>)
             {
                 matches = true;
             }
         }
     };
 
-    template<class StateDefTypeList, class F, class... Args>
-    void with_active_state_def(Args&&... args) const
+    template<class StateConfConstantList, class F, class... Args>
+    void with_active_state_conf(Args&&... args) const
     {
         tlu::for_each_or
         <
-            StateDefTypeList,
-            with_active_state_def_2<F>
+            StateConfConstantList,
+            with_active_state_conf_2<F>
         >(*this, std::forward<Args>(args)...);
     }
 
     template<class F>
-    struct with_active_state_def_2
+    struct with_active_state_conf_2
     {
-        template<class StateDef, class... Args>
+        template<class StateConfConstant, class... Args>
         static bool call(const region& self, Args&&... args)
         {
-            if(self.is_active_state_def_type<StateDef::conf>())
+            if(self.is_active_state_def_type<StateConfConstant::value>())
             {
-                F::template call<StateDef>(std::forward<Args>(args)...);
+                F::template call<StateConfConstant::value>(std::forward<Args>(args)...);
                 return true;
             }
             return false;

@@ -122,7 +122,7 @@ public:
     submachine(root_sm_type& root_sm, ContextArgs&&... ctx_args):
         root_sm_(root_sm),
         ctx_holder_(root_sm, std::forward<ContextArgs>(ctx_args)...),
-        data_holder_(root_sm, context()),
+        simple_state_(root_sm, context()),
         regions_(uniform_construct, *this)
     {
     }
@@ -139,12 +139,12 @@ public:
 
     data_type& data()
     {
-        return data_holder_.get();
+        return simple_state_.data();
     }
 
     const data_type& data() const
     {
-        return data_holder_.get();
+        return simple_state_.data();
     }
 
     template<const auto& StateRegionPath, const auto& StateConf>
@@ -227,12 +227,10 @@ public:
     template<class Machine, class Context, class Event>
     void call_entry_action(Machine& mach, Context& /*ctx*/, const Event& event)
     {
-        call_state_action
+        simple_state_.call_entry_action
         (
-            ConfHolder::conf.entry_actions_,
             mach,
             context(),
-            data(),
             event
         );
         tlu::for_each<region_tuple_type, region_start>(*this, event);
@@ -241,14 +239,12 @@ public:
     template<class Event>
     void call_internal_action(const Event& event)
     {
-        if constexpr(state_traits::requires_on_event_v<ConfHolder, Event>)
+        if constexpr(simple_state_type::template has_internal_action_for_event<Event>())
         {
-            call_state_action
+            simple_state_.call_internal_action
             (
-                ConfHolder::conf.internal_actions_,
                 root_sm_,
                 context(),
-                data(),
                 event
             );
         }
@@ -259,14 +255,12 @@ public:
     template<class Event>
     void call_internal_action(const Event& event, bool& processed)
     {
-        if constexpr(state_traits::requires_on_event_v<ConfHolder, Event>)
+        if constexpr(simple_state_type::template has_internal_action_for_event<Event>())
         {
-            call_state_action
+            simple_state_.call_internal_action
             (
-                ConfHolder::conf.internal_actions_,
                 root_sm_,
                 context(),
-                data(),
                 event
             );
             tlu::for_each<region_tuple_type, region_process_event>(*this, event);
@@ -282,12 +276,10 @@ public:
     void call_exit_action(Machine& mach, Context& /*ctx*/, const Event& event)
     {
         tlu::for_each<region_tuple_type, region_stop>(*this, event);
-        call_state_action
+        simple_state_.call_exit_action
         (
-            ConfHolder::conf.exit_actions_,
             mach,
             context(),
-            data(),
             event
         );
     }
@@ -304,6 +296,9 @@ private:
         submachine,
         std::make_integer_sequence<int, tlu::size_v<transition_table_type_list>>
     >::type;
+
+    //We need a simple_state to manage data and actions
+    using simple_state_type = simple_state<ConfHolder::conf>;
 
     struct region_start
     {
@@ -336,7 +331,7 @@ private:
     root_sm_type& root_sm_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
 
     context_holder<context_type> ctx_holder_;
-    detail::machine_object_holder<data_type> data_holder_;
+    simple_state_type simple_state_;
     region_tuple_type regions_;
 };
 

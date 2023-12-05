@@ -10,7 +10,6 @@
 #include "call_member.hpp"
 #include "tlu.hpp"
 #include "region.hpp"
-#include "region_path_of.hpp"
 #include "machine_object_holder.hpp"
 #include "context_holder.hpp"
 #include "submachine_fwd.hpp"
@@ -24,18 +23,6 @@
 
 namespace maki::detail
 {
-
-template<class ConfHolder, class ParentRegion>
-struct region_path_of<submachine<ConfHolder, ParentRegion>>
-{
-    static constexpr auto value = region_path_of_v<ParentRegion>;
-};
-
-template<class ConfHolder>
-struct region_path_of<submachine<ConfHolder, void>>
-{
-    static constexpr auto value = region_path{};
-};
 
 template<class ConfHolder, class ParentRegion>
 struct machine_of<submachine<ConfHolder, ParentRegion>>

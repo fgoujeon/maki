@@ -48,12 +48,6 @@ template<class ParentSm, int Index>
 class region;
 
 template<class ParentSm, int Index>
-struct region_path_of<region<ParentSm, Index>>
-{
-    static constexpr auto value = region_path_of_v<ParentSm>.template add<ParentSm::conf_holder_type::conf, Index>();
-};
-
-template<class ParentSm, int Index>
 struct machine_of<region<ParentSm, Index>>
 {
     using type = root_sm_of_t<ParentSm>;

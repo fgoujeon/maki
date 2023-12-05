@@ -7,6 +7,9 @@
 #ifndef MAKI_DETAIL_REGION_PATH_OF_HPP
 #define MAKI_DETAIL_REGION_PATH_OF_HPP
 
+#include "submachine_fwd.hpp"
+#include "region_fwd.hpp"
+
 namespace maki::detail
 {
 
@@ -16,6 +19,24 @@ struct region_path_of;
 
 template<class T>
 inline constexpr auto region_path_of_v = region_path_of<T>::value;
+
+template<class ConfHolder, class ParentRegion>
+struct region_path_of<submachine<ConfHolder, ParentRegion>>
+{
+    static constexpr auto value = region_path_of_v<ParentRegion>;
+};
+
+template<class ConfHolder>
+struct region_path_of<submachine<ConfHolder, void>>
+{
+    static constexpr auto value = region_path{};
+};
+
+template<class ParentSm, int Index>
+struct region_path_of<region<ParentSm, Index>>
+{
+    static constexpr auto value = region_path_of_v<ParentSm>.template add<ParentSm::conf_holder_type::conf, Index>();
+};
 
 //Must be specialized by each type
 template<class T>

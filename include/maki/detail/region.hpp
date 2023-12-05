@@ -42,10 +42,17 @@ namespace region_detail
 
     template<class StateList, const auto& StateConf>
     inline constexpr auto index_of_state_v = index_of_state<StateList, StateConf>::value;
-}
 
-template<class ParentSm, int Index>
-class region;
+    inline void set_to_true(bool& value)
+    {
+        value = true;
+    }
+
+    inline void set_to_true()
+    {
+        //nothing
+    }
+}
 
 template<class ParentSm, int Index>
 struct machine_of<region<ParentSm, Index>>
@@ -462,16 +469,24 @@ private:
             }
 
             auto& state_data = self.state_data<State>();
-            call_state_action_old
-            (
-                state_data,
-                State::conf.internal_actions_,
-                self.root_sm_,
-                self.ctx_,
-                state_data,
-                event,
-                extra_args...
-            );
+
+            if constexpr(state_traits::is_submachine_v<State>)
+            {
+                state_data.on_event(event, extra_args...);
+            }
+            else
+            {
+                call_state_action
+                (
+                    State::conf.internal_actions_,
+                    self.root_sm_,
+                    self.ctx_,
+                    state_data,
+                    event
+                );
+                region_detail::set_to_true(extra_args...);
+            }
+
             return true;
         }
     };

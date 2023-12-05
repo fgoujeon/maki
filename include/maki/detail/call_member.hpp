@@ -110,66 +110,6 @@ void call_state_action
     }
 }
 
-template
-<
-    class State,
-    class ActionTuple,
-    class Sm,
-    class Context,
-    class StateData,
-    class Event
->
-void call_state_action_old
-(
-    [[maybe_unused]] State& state,
-    ActionTuple& actions,
-    Sm& mach,
-    Context& ctx,
-    StateData& state_data,
-    const Event& event
-)
-{
-    call_state_action
-    (
-        actions,
-        mach,
-        ctx,
-        state_data,
-        event
-    );
-}
-
-template
-<
-    class State,
-    class ActionTuple,
-    class Sm,
-    class Context,
-    class StateData,
-    class Event
->
-void call_state_action_old
-(
-    State& state,
-    ActionTuple& actions,
-    Sm& mach,
-    Context& ctx,
-    StateData& state_data,
-    const Event& event,
-    bool& processed
-)
-{
-    if constexpr(state_traits::is_submachine_v<State>)
-    {
-        state.on_event(event, processed);
-    }
-    else
-    {
-        call_state_action(actions, mach, ctx, state_data, event);
-        processed = true;
-    }
-}
-
 template<const auto& Fn, class Sm, class Context, class Event>
 auto call_action_or_guard
 (

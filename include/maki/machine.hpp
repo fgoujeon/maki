@@ -484,22 +484,22 @@ private:
     {
         if constexpr(Operation == detail::machine_operation::start)
         {
-            submachine_.on_entry(event);
+            submachine_.call_entry_action(*this, context(), event);
         }
         else if constexpr(Operation == detail::machine_operation::stop)
         {
-            submachine_.on_exit(event);
+            submachine_.call_exit_action(*this, context(), event);
         }
         else
         {
             if constexpr(std::is_same_v<typename conf_type::fallback_transition_action_tuple_type, detail::tuple<>>)
             {
-                submachine_.on_event(event);
+                submachine_.call_internal_action(event);
             }
             else
             {
                 auto processed = false;
-                submachine_.on_event(event, processed);
+                submachine_.call_internal_action(event, processed);
                 if(!processed)
                 {
                     int dummy_data = 0;

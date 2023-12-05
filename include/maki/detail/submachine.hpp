@@ -49,6 +49,9 @@ struct machine_of<submachine<ConfHolder, void>>
 template<class ConfHolder, class ParentRegion>
 struct submachine_context
 {
+    using conf_type = std::decay_t<decltype(ConfHolder::conf)>;
+    using conf_context_type = typename conf_type::context_type;
+
     /*
     Context type is either (in this order of priority):
     - the one specified in the submachine_opts::context option, if any;
@@ -57,9 +60,9 @@ struct submachine_context
     */
     using type = std::conditional_t
     <
-        ConfHolder::conf.context_ == type_c<void>,
+        std::is_void_v<conf_context_type>,
         typename ParentRegion::parent_sm_type::context_type&,
-        typename decltype(ConfHolder::conf.context_)::type
+        conf_context_type
     >;
 };
 
@@ -96,18 +99,6 @@ struct region_tuple
         >...
     >;
 };
-
-template<class ConfHolder, class ParentRegion>
-class submachine;
-
-template<class Submachine, class Event>
-void submachine_on_entry(Submachine& submach, const Event& event);
-
-template<class Submachine, class Event>
-void submachine_on_event(Submachine& submach, const Event& event);
-
-template<class Submachine, class Event>
-void submachine_on_exit(Submachine& submach, const Event& event);
 
 template<class ConfHolder, class ParentRegion>
 class submachine
@@ -147,6 +138,11 @@ public:
     }
 
     data_type& data()
+    {
+        return data_holder_.get();
+    }
+
+    const data_type& data() const
     {
         return data_holder_.get();
     }
@@ -228,13 +224,13 @@ public:
         return !is_active_state_def<states::stopped>();
     }
 
-    template<class Event>
-    void on_entry(const Event& event)
+    template<class Machine, class Context, class Event>
+    void call_entry_action(Machine& mach, Context& /*ctx*/, const Event& event)
     {
         call_state_action
         (
             ConfHolder::conf.entry_actions_,
-            root_sm_,
+            mach,
             context(),
             data(),
             event
@@ -243,7 +239,7 @@ public:
     }
 
     template<class Event>
-    void on_event(const Event& event)
+    void call_internal_action(const Event& event)
     {
         if constexpr(state_traits::requires_on_event_v<ConfHolder, Event>)
         {
@@ -261,7 +257,7 @@ public:
     }
 
     template<class Event>
-    void on_event(const Event& event, bool& processed)
+    void call_internal_action(const Event& event, bool& processed)
     {
         if constexpr(state_traits::requires_on_event_v<ConfHolder, Event>)
         {
@@ -282,46 +278,27 @@ public:
         }
     }
 
-    template<class Event>
-    void on_exit(const Event& event)
+    template<class Machine, class Context, class Event>
+    void call_exit_action(Machine& mach, Context& /*ctx*/, const Event& event)
     {
         tlu::for_each<region_tuple_type, region_stop>(*this, event);
         call_state_action
         (
             ConfHolder::conf.exit_actions_,
-            root_sm_,
+            mach,
             context(),
             data(),
             event
         );
     }
 
-    static constexpr const auto& client_conf = conf_holder_type::conf;
+    template<class /*Event*/>
+    static constexpr bool has_internal_action_for_event()
+    {
+        return true;
+    }
 
-    static constexpr auto conf = state_conf
-        .data<submachine>()
-        .template entry_action_de<any_t>
-        (
-            [](submachine& self, const auto& event)
-            {
-                submachine_on_entry(self, event);
-            }
-        )
-        .template internal_action_de<any_t>
-        (
-            [](submachine& self, const auto& event)
-            {
-                submachine_on_event(self, event);
-            }
-        )
-        .template exit_action_de<any_t>
-        (
-            [](submachine& self, const auto& event)
-            {
-                submachine_on_exit(self, event);
-            }
-        )
-    ;
+    static constexpr const auto& client_conf = conf_holder_type::conf;
 
 private:
     using region_tuple_type = typename region_tuple
@@ -364,24 +341,6 @@ private:
     detail::machine_object_holder<data_type> data_holder_;
     region_tuple_type regions_;
 };
-
-template<class Submachine, class Event>
-void submachine_on_entry(Submachine& submach, const Event& event)
-{
-    submach.on_entry(event);
-}
-
-template<class Submachine, class Event>
-void submachine_on_event(Submachine& submach, const Event& event)
-{
-    submach.on_event(event);
-}
-
-template<class Submachine, class Event>
-void submachine_on_exit(Submachine& submach, const Event& event)
-{
-    submach.on_exit(event);
-}
 
 } //namespace
 

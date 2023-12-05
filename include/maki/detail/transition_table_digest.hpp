@@ -11,6 +11,7 @@
 #include "../type_patterns.hpp"
 #include "../transition_table.hpp"
 #include "../events.hpp"
+#include "same_ref.hpp"
 #include "tlu.hpp"
 #include "tuple.hpp"
 #include "machine_object_holder.hpp"
@@ -51,15 +52,15 @@ namespace transition_table_digest_detail
         using type = type_list<state_traits::state_conf_to_state_t<ConfConstants::value, Region>...>;
     };
 
-    template<class... States>
-    using state_type_list_to_state_data_type_list = type_list<state_traits::state_to_state_data<States>...>;
-
-    template<class TList, class U>
+    template<class TList, const auto& Conf>
     using push_back_unique_if_not_null_constant = tlu::push_back_if_t
     <
         TList,
-        U,
-        (!tlu::contains_v<TList, U> && !std::is_same_v<U, constant<null>>)
+        constant<Conf>,
+        (
+            !tlu::contains_v<TList, constant<Conf>> &&
+            !same_ref(Conf, null)
+        )
     >;
 
     template<class TransitionTable>
@@ -78,7 +79,7 @@ namespace transition_table_digest_detail
         using state_conf_constant_list = push_back_unique_if_not_null_constant
         <
             typename Digest::state_conf_constant_list,
-            constant<Transition::target_state_conf>
+            Transition::target_state_conf
         >;
 
         static constexpr auto has_null_events =
@@ -116,11 +117,6 @@ public:
     <
         state_conf_constant_list,
         transition_table_digest_detail::state_conf_constant_list_to_state_type_list_holder<Region>::template type
-    >;
-    using state_data_type_list = tlu::apply_t
-    <
-        state_type_list,
-        transition_table_digest_detail::state_type_list_to_state_data_type_list
     >;
 
     static constexpr auto has_null_events = digest_type::has_null_events;

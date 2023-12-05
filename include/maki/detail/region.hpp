@@ -69,7 +69,7 @@ public:
     explicit region(ParentSm& parent_sm):
         root_sm_(machine_of<ParentSm>::get(parent_sm)),
         ctx_(parent_sm.context()),
-        state_data_holders_(uniform_construct, root_sm_, ctx_)
+        states_(uniform_construct, root_sm_, ctx_)
     {
     }
 
@@ -103,7 +103,8 @@ public:
         else
         {
             constexpr const auto& submach_conf = tlu::front_t<state_relative_region_path_t>::machine_conf;
-            const auto& state = state_from_state_conf<submach_conf>();
+            constexpr auto submach_index = tlu::index_of_v<state_conf_constant_list, constant<submach_conf>>;
+            const auto& state = tuple_get<submach_index>(states_);
             return state.template is_active_state_def<StateRelativeRegionPath, StateConf>();
         }
     }
@@ -243,16 +244,7 @@ private:
 
     using state_conf_constant_list = typename transition_table_digest_type::state_conf_constant_list;
     using state_type_list = typename transition_table_digest_type::state_type_list;
-
-    using state_data_type_list = typename transition_table_digest_type::state_data_type_list;
-    using state_data_holder_tuple_type = tlu::apply_t<state_data_type_list, machine_object_holder_tuple_t>;
-
-    using non_empty_state_type_list = tlu::filter_t
-    <
-        state_type_list,
-        state_traits::needs_unique_instance
-    >;
-    using state_holder_tuple_type = tlu::apply_t<non_empty_state_type_list, machine_object_holder_tuple_t>;
+    using state_tuple_type = tlu::apply_t<state_type_list, tuple>;
 
     static constexpr const auto& initial_state_conf = detail::tlu::front_t<state_conf_constant_list>::value;
 
@@ -380,12 +372,11 @@ private:
             if constexpr(!same_ref(SourceStateConf, states::stopped))
             {
                 using source_state_t = state_traits::state_conf_to_state_t<SourceStateConf, region>;
-                detail::call_state_action
+                auto& stt = state<source_state_t>();
+                stt.call_exit_action
                 (
-                    source_state_t::conf.exit_actions_,
                     root_sm_,
                     ctx_,
-                    state_from_state_conf<SourceStateConf>(),
                     event
                 );
             }
@@ -409,12 +400,11 @@ private:
             if constexpr(!same_ref(TargetStateConf, states::stopped))
             {
                 using target_state_t = state_traits::state_conf_to_state_t<TargetStateConf, region>;
-                detail::call_state_action
+                auto& stt = state<target_state_t>();
+                stt.call_entry_action
                 (
-                    target_state_t::conf.entry_actions_,
                     root_sm_,
                     ctx_,
-                    state_from_state_conf<TargetStateConf>(),
                     event
                 );
             }
@@ -468,11 +458,9 @@ private:
                 return false;
             }
 
-            auto& state_data = self.state_data<State>();
-
             if constexpr(state_traits::is_submachine_v<State>)
             {
-                state_data.on_event(event, extra_args...);
+                self.state<State>().call_internal_action(event, extra_args...);
             }
             else
             {
@@ -481,7 +469,7 @@ private:
                     State::conf.internal_actions_,
                     self.root_sm_,
                     self.ctx_,
-                    state_data,
+                    self.state_data<State>(),
                     event
                 );
                 region_detail::set_to_true(extra_args...);
@@ -563,15 +551,29 @@ private:
         }
     };
 
+    template<class State>
+    auto& state()
+    {
+        constexpr auto state_index = tlu::index_of_v<state_type_list, State>;
+        return tuple_get<state_index>(states_);
+    }
+
     template<const auto& StateConf>
     auto& state_from_state_conf()
     {
+        constexpr auto state_index = tlu::index_of_v<state_conf_constant_list, constant<StateConf>>;
+        return tuple_get<state_index>(states_);
+    }
+
+    template<const auto& StateConf>
+    auto& state_data_from_state_conf()
+    {
         using state_t = state_traits::state_conf_to_state_t<StateConf, region>;
         return state_data<state_t>();
     }
 
     template<const auto& StateConf>
-    const auto& state_from_state_conf() const
+    const auto& state_data_from_state_conf() const
     {
         using state_t = state_traits::state_conf_to_state_t<StateConf, region>;
         return state_data<state_t>();
@@ -580,27 +582,27 @@ private:
     template<int StateIndex>
     auto& state_data()
     {
-        return tuple_get<StateIndex>(state_data_holders_).get();
+        return tuple_get<StateIndex>(states_).data();
     }
 
     template<int StateIndex>
     const auto& state_data() const
     {
-        return tuple_get<StateIndex>(state_data_holders_).get();
+        return tuple_get<StateIndex>(states_).data();
     }
 
     template<class State>
     auto& state_data()
     {
         constexpr auto state_index = tlu::index_of_v<state_type_list, State>;
-        return tuple_get<state_index>(state_data_holders_).get();
+        return tuple_get<state_index>(states_).data();
     }
 
     template<class State>
     const auto& state_data() const
     {
         constexpr auto state_index = tlu::index_of_v<state_type_list, State>;
-        return tuple_get<state_index>(state_data_holders_).get();
+        return tuple_get<state_index>(states_).data();
     }
 
     template<const auto& StateConf, class Region>
@@ -612,7 +614,7 @@ private:
 
         if constexpr(is_submachine_conf_v<conf_type>)
         {
-            return self.template state_data<state_t>().data();
+            return self.template state_data<state_t>();
         }
         else
         {
@@ -633,8 +635,8 @@ private:
         {
             constexpr const auto& submach_conf = tlu::front_t<state_region_path_t>::machine_conf;
             constexpr auto submachine_index = tlu::index_of_v<typename Region::state_conf_constant_list, constant<submach_conf>>;
-            auto& submachine_data = self.template state_data<submachine_index>();
-            return submachine_data.template state_def_data<StateRegionPath, StateConf>(); //recursive
+            auto& submach = tuple_get<submachine_index>(self.states_);
+            return submach.template state_def_data<StateRegionPath, StateConf>(); //recursive
         }
     }
 
@@ -642,8 +644,7 @@ private:
     root_sm_type& root_sm_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
     std::decay_t<typename ParentSm::context_type>& ctx_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
 
-    state_data_holder_tuple_type state_data_holders_;
-
+    state_tuple_type states_;
     int active_state_index_ = region_detail::index_of_state_v<state_conf_constant_list, states::stopped>;
 };
 

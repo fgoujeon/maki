@@ -45,7 +45,7 @@ namespace by_required_on_event_detail
         {
             static constexpr auto value = state_traits::requires_on_event_v
             <
-                state_traits::state_def_to_state_t<StateDef, Region>,
+                state_traits::state_conf_to_state_t<StateDef::conf, Region>,
                 Event
             >;
         };

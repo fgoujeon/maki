@@ -381,7 +381,7 @@ private:
 
             if constexpr(!same_ref(SourceStateConf, states::stopped))
             {
-                using source_state_t = state_traits::state_def_to_state_t<state_conf_wrapper<SourceStateConf>, region>;
+                using source_state_t = state_traits::state_conf_to_state_t<SourceStateConf, region>;
                 detail::call_state_action
                 (
                     source_state_t::conf.exit_actions_,
@@ -410,7 +410,7 @@ private:
         {
             if constexpr(!same_ref(TargetStateConf, states::stopped))
             {
-                using target_state_t = state_traits::state_def_to_state_t<state_conf_wrapper<TargetStateConf>, region>;
+                using target_state_t = state_traits::state_conf_to_state_t<TargetStateConf, region>;
                 detail::call_state_action
                 (
                     target_state_t::conf.entry_actions_,
@@ -560,14 +560,14 @@ private:
     template<class StateDef>
     auto& state_from_state_def()
     {
-        using state_t = state_traits::state_def_to_state_t<StateDef, region>;
+        using state_t = state_traits::state_conf_to_state_t<StateDef::conf, region>;
         return state_data<state_t>();
     }
 
     template<class StateDef>
     const auto& state_from_state_def() const
     {
-        using state_t = state_traits::state_def_to_state_t<StateDef, region>;
+        using state_t = state_traits::state_conf_to_state_t<StateDef::conf, region>;
         return state_data<state_t>();
     }
 
@@ -601,7 +601,7 @@ private:
     static auto& static_state_def_data_leaf(Region& self)
     {
         using region_t = std::decay_t<Region>;
-        using state_t = state_traits::state_def_to_state_t<state_conf_wrapper<StateConf>, region_t>;
+        using state_t = state_traits::state_conf_to_state_t<StateConf, region_t>;
         using conf_type = std::decay_t<decltype(StateConf)>;
 
         if constexpr(is_submachine_conf_v<conf_type>)

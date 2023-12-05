@@ -48,7 +48,7 @@ namespace transition_table_digest_detail
     struct state_def_type_list_to_state_type_list_holder
     {
         template<class... Ts>
-        using type = type_list<state_traits::state_def_to_state_t<Ts, Region>...>;
+        using type = type_list<state_traits::state_conf_to_state_t<Ts::conf, Region>...>;
     };
 
     template<class... States>

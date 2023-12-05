@@ -39,20 +39,20 @@ constexpr auto is_submachine_v = is_submachine<State>::value;
 
 //state_def_to_state
 
-template<class StateDef, class Region, class Enable = void>
-struct state_def_to_state
+template<const auto& StateConf, class Region, class Enable = void>
+struct state_conf_to_state
 {
-    using type = simple_state<StateDef>;
+    using type = simple_state<state_conf_wrapper<StateConf>>;
 };
 
-template<class StateDef, class Region>
-struct state_def_to_state<StateDef, Region, std::enable_if_t<is_submachine_conf_v<std::decay_t<decltype(StateDef::conf)>>>>
+template<const auto& StateConf, class Region>
+struct state_conf_to_state<StateConf, Region, std::enable_if_t<is_submachine_conf_v<std::decay_t<decltype(StateConf)>>>>
 {
-    using type = submachine<StateDef, Region>;
+    using type = submachine<state_conf_wrapper<StateConf>, Region>;
 };
 
-template<class StateDef, class Region>
-using state_def_to_state_t = typename state_def_to_state<StateDef, Region>::type;
+template<const auto& StateConf, class Region>
+using state_conf_to_state_t = typename state_conf_to_state<StateConf, Region>::type;
 
 
 //state_to_state_data

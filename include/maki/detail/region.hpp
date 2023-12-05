@@ -13,7 +13,6 @@
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
-#include "machine_object_holder_tuple.hpp"
 #include "tlu.hpp"
 #include "noop_ex.hpp"
 #include "same_ref.hpp"

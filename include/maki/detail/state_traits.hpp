@@ -38,7 +38,7 @@ template<class State>
 constexpr auto is_submachine_v = is_submachine<State>::value;
 
 
-//state_def_to_state
+//state_conf_to_state
 
 template<const auto& StateConf, class Region, class Enable = void>
 struct state_conf_to_state
@@ -54,20 +54,6 @@ struct state_conf_to_state<StateConf, Region, std::enable_if_t<is_submachine_con
 
 template<const auto& StateConf, class Region>
 using state_conf_to_state_t = typename state_conf_to_state<StateConf, Region>::type;
-
-
-//state_to_state_data
-
-template<class State>
-using state_to_raw_state_data = typename std::decay_t<decltype(State::conf)>::data_type;
-
-template<class State>
-using state_to_state_data = std::conditional_t
-<
-    std::is_void_v<state_to_raw_state_data<State>>,
-    null_t,
-    state_to_raw_state_data<State>
->;
 
 
 //on_event
@@ -105,15 +91,6 @@ public:
 
 template<class State, class Event>
 constexpr auto requires_on_event_v = requires_on_event<State, Event>::value;
-
-
-//needs_unique_instance
-
-template<class State>
-struct needs_unique_instance
-{
-    static constexpr auto value = !(std::is_empty_v<State> && std::is_trivially_default_constructible_v<State>);
-};
 
 } //namespace
 

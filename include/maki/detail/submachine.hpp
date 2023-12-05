@@ -236,14 +236,19 @@ public:
         tlu::for_each<region_tuple_type, region_start>(*this, event);
     }
 
-    template<class Event>
-    void call_internal_action(const Event& event)
+    template<class Machine, class Context, class Event>
+    void call_internal_action
+    (
+        Machine& mach,
+        Context& /*ctx*/,
+        const Event& event
+    )
     {
         if constexpr(simple_state_type::template has_internal_action_for_event<Event>())
         {
             simple_state_.call_internal_action
             (
-                root_sm_,
+                mach,
                 context(),
                 event
             );
@@ -252,14 +257,20 @@ public:
         tlu::for_each<region_tuple_type, region_process_event>(*this, event);
     }
 
-    template<class Event>
-    void call_internal_action(const Event& event, bool& processed)
+    template<class Machine, class Context, class Event>
+    void call_internal_action
+    (
+        Machine& mach,
+        Context& /*ctx*/,
+        const Event& event,
+        bool& processed
+    )
     {
         if constexpr(simple_state_type::template has_internal_action_for_event<Event>())
         {
             simple_state_.call_internal_action
             (
-                root_sm_,
+                mach,
                 context(),
                 event
             );

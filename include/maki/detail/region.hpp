@@ -474,7 +474,13 @@ private:
 
             if constexpr(state_traits::is_submachine_v<State>)
             {
-                self.state<State>().call_internal_action(event, extra_args...);
+                self.state<State>().call_internal_action
+                (
+                    self.root_sm_,
+                    self.ctx_,
+                    event,
+                    extra_args...
+                );
             }
             else
             {

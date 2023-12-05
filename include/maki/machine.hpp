@@ -494,12 +494,12 @@ private:
         {
             if constexpr(std::is_same_v<typename conf_type::fallback_transition_action_tuple_type, detail::tuple<>>)
             {
-                submachine_.call_internal_action(event);
+                submachine_.call_internal_action(*this, context(), event);
             }
             else
             {
                 auto processed = false;
-                submachine_.call_internal_action(event, processed);
+                submachine_.call_internal_action(*this, context(), event, processed);
                 if(!processed)
                 {
                     int dummy_data = 0;

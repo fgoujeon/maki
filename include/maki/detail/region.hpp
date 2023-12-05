@@ -626,7 +626,7 @@ private:
         else
         {
             constexpr const auto& submach_conf = tlu::front_t<state_region_path_t>::machine_conf;
-            constexpr auto submachine_index = tlu::index_of_v<typename Region::state_def_type_list, state_conf_wrapper<submach_conf>>;
+            constexpr auto submachine_index = tlu::index_of_v<typename Region::state_conf_constant_list, constant<submach_conf>>;
             auto& submachine_data = self.template state_data<submachine_index>();
             return submachine_data.template state_def_data<StateRegionPath, StateConf>(); //recursive
         }

@@ -62,13 +62,22 @@ namespace transition_table_digest_detail
         (!tlu::contains_v<TList, U> && !std::is_same_v<U, state_conf_wrapper<null>>)
     >;
 
-    template<class TransitionTable>
-    using initial_state_t = typename tlu::get_t<TransitionTable, 0>::source_state_type_pattern;
+    template<class TList, class U>
+    using push_back_unique_if_not_null_constant = tlu::push_back_if_t
+    <
+        TList,
+        U,
+        (!tlu::contains_v<TList, U> && !std::is_same_v<U, constant<null>>)
+    >;
 
-    template<class InitialState>
+    template<class TransitionTable>
+    constexpr const auto& initial_state_conf_c = tlu::get_t<TransitionTable, 0>::source_state_conf_pattern;
+
+    template<const auto& InitialStateConf>
     struct initial_digest
     {
-        using state_def_type_list = type_list<InitialState>;
+        using state_def_type_list = type_list<state_conf_wrapper<InitialStateConf>>;
+        using state_conf_constant_list = type_list<constant<InitialStateConf>>;
         static constexpr auto has_null_events = false;
     };
 
@@ -79,6 +88,12 @@ namespace transition_table_digest_detail
         <
             typename Digest::state_def_type_list,
             typename Transition::target_state_type
+        >;
+
+        using state_conf_constant_list = push_back_unique_if_not_null_constant
+        <
+            typename Digest::state_conf_constant_list,
+            constant<Transition::target_state_conf>
         >;
 
         static constexpr auto has_null_events =
@@ -97,7 +112,7 @@ namespace transition_table_digest_detail
     <
         TransitionTable,
         add_transition_to_digest,
-        initial_digest<initial_state_t<TransitionTable>>
+        initial_digest<initial_state_conf_c<TransitionTable>>
     >;
 }
 
@@ -112,6 +127,7 @@ private:
 
 public:
     using state_def_type_list = typename digest_type::state_def_type_list;
+    using state_conf_constant_list = typename digest_type::state_conf_constant_list;
     using state_type_list = tlu::apply_t
     <
         state_def_type_list,

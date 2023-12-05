@@ -309,6 +309,8 @@ public:
         );
     }
 
+    static constexpr const auto& client_conf = conf_holder_type::conf;
+
     static constexpr auto conf = state_conf
         .data<submachine>()
         .template entry_action_de<any_t>

@@ -17,6 +17,7 @@ template<class ConfHolder>
 struct simple_state
 {
     static constexpr const auto& conf = ConfHolder::conf;
+    static constexpr const auto& client_conf = conf;
 };
 
 } //namespace

@@ -28,20 +28,20 @@ namespace maki::detail
 
 namespace region_detail
 {
-    template<class StateList, class State>
+    template<class StateList, const auto& StateConf>
     struct index_of_state
     {
-        static constexpr auto value = tlu::index_of_v<StateList, State>;
+        static constexpr auto value = tlu::index_of_v<StateList, constant<StateConf>>;
     };
 
     template<class StateList>
-    struct index_of_state<StateList, state_conf_wrapper<states::stopped>>
+    struct index_of_state<StateList, states::stopped>
     {
         static constexpr auto value = -1;
     };
 
-    template<class StateList, class State>
-    inline constexpr auto index_of_state_v = index_of_state<StateList, State>::value;
+    template<class StateList, const auto& StateConf>
+    inline constexpr auto index_of_state_v = index_of_state<StateList, StateConf>::value;
 }
 
 template<class ParentSm, int Index>
@@ -241,6 +241,7 @@ private:
     ;
 
     using state_def_type_list = typename transition_table_digest_type::state_def_type_list;
+    using state_conf_constant_list = typename transition_table_digest_type::state_conf_constant_list;
     using state_type_list = typename transition_table_digest_type::state_type_list;
 
     using state_data_type_list = typename transition_table_digest_type::state_data_type_list;
@@ -393,8 +394,8 @@ private:
 
             active_state_index_ = region_detail::index_of_state_v
             <
-                state_def_type_list,
-                state_conf_wrapper<TargetStateConf>
+                state_conf_constant_list,
+                TargetStateConf
             >;
         }
 
@@ -489,8 +490,8 @@ private:
     {
         constexpr auto given_state_index = region_detail::index_of_state_v
         <
-            state_type_list,
-            State
+            state_conf_constant_list,
+            State::client_conf
         >;
         return given_state_index == active_state_index_;
     }
@@ -500,8 +501,8 @@ private:
     {
         constexpr auto given_state_index = region_detail::index_of_state_v
         <
-            state_def_type_list,
-            state_conf_wrapper<StateConf>
+            state_conf_constant_list,
+            StateConf
         >;
         return given_state_index == active_state_index_;
     }
@@ -637,7 +638,7 @@ private:
 
     state_data_holder_tuple_type state_data_holders_;
 
-    int active_state_index_ = region_detail::index_of_state_v<state_def_type_list, state_conf_wrapper<states::stopped>>;
+    int active_state_index_ = region_detail::index_of_state_v<state_conf_constant_list, states::stopped>;
 };
 
 } //namespace

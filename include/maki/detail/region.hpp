@@ -102,7 +102,7 @@ public:
         else
         {
             constexpr const auto& submach_conf = tlu::front_t<state_relative_region_path_t>::machine_conf;
-            const auto& state = state_from_state_def<state_conf_wrapper<submach_conf>>();
+            const auto& state = state_from_state_conf<submach_conf>();
             return state.template is_active_state_def<StateRelativeRegionPath, StateConf>();
         }
     }
@@ -387,7 +387,7 @@ private:
                     source_state_t::conf.exit_actions_,
                     root_sm_,
                     ctx_,
-                    state_from_state_def<state_conf_wrapper<SourceStateConf>>(),
+                    state_from_state_conf<SourceStateConf>(),
                     event
                 );
             }
@@ -416,7 +416,7 @@ private:
                     target_state_t::conf.entry_actions_,
                     root_sm_,
                     ctx_,
-                    state_from_state_def<state_conf_wrapper<TargetStateConf>>(),
+                    state_from_state_conf<TargetStateConf>(),
                     event
                 );
             }
@@ -557,17 +557,17 @@ private:
         }
     };
 
-    template<class StateDef>
-    auto& state_from_state_def()
+    template<const auto& StateConf>
+    auto& state_from_state_conf()
     {
-        using state_t = state_traits::state_conf_to_state_t<StateDef::conf, region>;
+        using state_t = state_traits::state_conf_to_state_t<StateConf, region>;
         return state_data<state_t>();
     }
 
-    template<class StateDef>
-    const auto& state_from_state_def() const
+    template<const auto& StateConf>
+    const auto& state_from_state_conf() const
     {
-        using state_t = state_traits::state_conf_to_state_t<StateDef::conf, region>;
+        using state_t = state_traits::state_conf_to_state_t<StateConf, region>;
         return state_data<state_t>();
     }
 

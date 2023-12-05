@@ -13,7 +13,6 @@
 namespace maki::detail
 {
 
-//Must be specialized by each type
 template<class T>
 struct region_path_of;
 
@@ -37,13 +36,6 @@ struct region_path_of<region<ParentSm, Index>>
 {
     static constexpr auto value = region_path_of_v<ParentSm>.template add<ParentSm::conf_holder_type::conf, Index>();
 };
-
-//Must be specialized by each type
-template<class T>
-struct machine_of;
-
-template<class T>
-using root_sm_of_t = typename machine_of<T>::type;
 
 } //namespace
 

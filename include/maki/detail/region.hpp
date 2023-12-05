@@ -8,6 +8,7 @@
 #define MAKI_DETAIL_REGION_HPP
 
 #include "region_path_of.hpp"
+#include "machine_of.hpp"
 #include "state_traits.hpp"
 #include "call_member.hpp"
 #include "transition_table_digest.hpp"
@@ -67,12 +68,6 @@ namespace region_detail
         //nothing
     }
 }
-
-template<class ParentSm, int Index>
-struct machine_of<region<ParentSm, Index>>
-{
-    using type = root_sm_of_t<ParentSm>;
-};
 
 template<class ParentSm, int Index>
 class region
@@ -246,7 +241,7 @@ public:
     }
 
 private:
-    using root_sm_type = root_sm_of_t<ParentSm>;
+    using root_sm_type = machine_of_t<ParentSm>;
     static constexpr auto machine_conf = root_sm_type::conf;
     using machine_conf_type = std::decay_t<decltype(machine_conf)>;
 

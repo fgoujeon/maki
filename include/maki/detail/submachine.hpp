@@ -25,28 +25,6 @@ namespace maki::detail
 {
 
 template<class ConfHolder, class ParentRegion>
-struct machine_of<submachine<ConfHolder, ParentRegion>>
-{
-    using type = root_sm_of_t<ParentRegion>;
-
-    static type& get(submachine<ConfHolder, ParentRegion>& node)
-    {
-        return node.root_sm();
-    }
-};
-
-template<class ConfHolder>
-struct machine_of<submachine<ConfHolder, void>>
-{
-    using type = machine<ConfHolder>;
-
-    static type& get(submachine<ConfHolder, void>& node)
-    {
-        return node.root_sm();
-    }
-};
-
-template<class ConfHolder, class ParentRegion>
 struct submachine_context
 {
     using conf_type = std::decay_t<decltype(ConfHolder::conf)>;
@@ -114,7 +92,7 @@ public:
     >;
 
     using context_type = typename submachine_context<ConfHolder, ParentRegion>::type;
-    using root_sm_type = root_sm_of_t<submachine>;
+    using root_sm_type = machine_of_t<submachine>;
 
     using transition_table_type_list = decltype(ConfHolder::conf.transition_tables_);
 

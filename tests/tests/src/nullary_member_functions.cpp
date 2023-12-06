@@ -98,7 +98,7 @@ namespace nullary_member_functions_ns
 
     struct machine_def
     {
-        static constexpr auto conf = maki::default_machine_conf
+        static constexpr auto conf = maki::machine_conf
             .transition_tables(transition_table)
             .context<context>()
         ;

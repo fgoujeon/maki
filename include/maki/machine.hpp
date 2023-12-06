@@ -37,8 +37,8 @@ namespace detail
 /**
 @brief The state machine implementation template.
 @tparam ConfHolder the state machine definition, a class that must at least define a
-`static constexpr auto conf` of a @ref machine_conf type, with defined
-machine_conf::transition_tables and machine_conf::context_type options
+`static constexpr auto conf` of a @ref machine_conf_t type, with defined
+machine_conf_t::transition_tables and machine_conf_t::context_type options
 
 Here is an example of valid state machine definition, where:
 - `transition_table` is a user-provided `constexpr` instance of a @ref
@@ -72,7 +72,7 @@ public:
     static_assert
     (
         detail::is_root_sm_conf_v<std::decay_t<decltype(conf)>>,
-        "The root state machine definition must include a 'static constexpr auto conf' of type machine_conf"
+        "The root state machine definition must include a 'static constexpr auto conf' of type machine_conf_t"
     );
 
     /**
@@ -89,7 +89,7 @@ public:
     auto obj = object_type{};
     @endcode
 
-    Finally, unless the machine_conf::auto_start is `false`, `start()` is
+    Finally, unless the machine_conf_t::auto_start is `false`, `start()` is
     called.
     */
     template<class... ContextArgs>
@@ -211,7 +211,7 @@ public:
     states::stopped and enters the initial state.
 
     Reminder: There's no need to call this function after the construction,
-    unless machine_conf::auto_start is set to `false`.
+    unless machine_conf_t::auto_start is set to `false`.
     */
     template<class Event = events::start>
     void start(const Event& event = {})

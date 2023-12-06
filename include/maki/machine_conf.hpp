@@ -6,7 +6,7 @@
 
 /**
 @file
-@brief Defines the maki::machine_conf struct template
+@brief Defines the maki::machine_conf_t struct template
 */
 
 #ifndef MAKI_MACHINE_CONF_HPP
@@ -41,7 +41,7 @@ template
     class FallbackTransitionActionTuple = detail::tuple<>,
     class TransitionTableTypeList = type_list<>
 >
-struct machine_conf
+struct machine_conf_t
 {
     using data_type = Data;
     using context_type = typename ContextTypeHolder::type;
@@ -69,7 +69,7 @@ struct machine_conf
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = transition_tables_;
 
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    return machine_conf \
+    return machine_conf_t \
     < \
         std::decay_t<decltype(MAKI_DETAIL_ARG_context)>, \
         typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
@@ -322,7 +322,7 @@ struct machine_conf
     @code
     struct machine_def
     {
-        using conf = maki::machine_conf
+        using conf = maki::machine_conf_t
             .enable_after_state_transition()
             //...
         ;
@@ -362,7 +362,7 @@ struct machine_conf
     @code
     struct machine_def
     {
-        using conf = maki::machine_conf
+        using conf = maki::machine_conf_t
             .enable_before_state_transition()
             //...
         ;
@@ -398,7 +398,7 @@ struct machine_conf
     @code
     struct machine_def
     {
-        static constexpr auto conf = default_machine_conf
+        static constexpr auto conf = machine_conf
             .enable_on_exception()
             //...
         ;
@@ -432,7 +432,7 @@ struct machine_conf
     @code
     struct machine_def
     {
-        static constexpr auto conf = default_machine_conf
+        static constexpr auto conf = machine_conf
             .enable_on_unprocessed()
             //...
         ;
@@ -471,7 +471,7 @@ struct machine_conf
     @code
     struct machine_def
     {
-        static constexpr auto conf = default_machine_conf
+        static constexpr auto conf = machine_conf
             .enable_pretty_name()
             //...
         ;
@@ -518,7 +518,7 @@ struct machine_conf
     TransitionTableTypeList transition_tables_; //NOLINT(misc-non-private-member-variables-in-classes)
 };
 
-inline constexpr auto default_machine_conf = machine_conf<>{};
+inline constexpr auto machine_conf = machine_conf_t<>{};
 
 namespace detail
 {
@@ -529,7 +529,7 @@ namespace detail
     };
 
     template<class... Options>
-    struct is_root_sm_conf<machine_conf<Options...>>
+    struct is_root_sm_conf<machine_conf_t<Options...>>
     {
         static constexpr auto value = true;
     };

@@ -47,7 +47,7 @@ namespace orthogonal_regions_ns
 
     struct machine_def
     {
-        static constexpr auto conf = maki::default_machine_conf
+        static constexpr auto conf = maki::machine_conf
             .transition_tables
             (
                 maki::empty_transition_table

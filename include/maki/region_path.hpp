@@ -82,7 +82,7 @@ struct region_path_element
 {
     static_assert(RegionIndex >= 0);
 
-    static constexpr const auto& machine_conf = MachineConf;
+    static constexpr const auto& machine_conf_t = MachineConf;
     static constexpr auto region_index = RegionIndex;
 };
 

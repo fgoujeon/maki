@@ -69,7 +69,7 @@ namespace
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
     struct machine_def
     {
-        static constexpr auto conf = maki::default_machine_conf
+        static constexpr auto conf = maki::machine_conf
             .transition_tables(transition_table)
             .context<context>()
             .small_event_max_size(SmallEventMaxSize)

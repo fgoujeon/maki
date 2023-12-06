@@ -42,7 +42,7 @@ constexpr auto transition_table = maki::empty_transition_table
 struct machine_def
 {
     //The configuration of the state machine
-    static constexpr auto conf = maki::default_machine_conf
+    static constexpr auto conf = maki::machine_conf
         .transition_tables(transition_table)
         .context<context>()
     ;

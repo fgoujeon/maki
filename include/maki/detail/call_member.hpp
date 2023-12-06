@@ -9,7 +9,9 @@
 
 #include "type_traits.hpp"
 #include "state_traits.hpp"
-#include "submachine_fwd.hpp"
+#include "event_action.hpp"
+#include "tlu.hpp"
+#include "../type_patterns.hpp"
 #include <functional>
 #include <type_traits>
 #include <utility>

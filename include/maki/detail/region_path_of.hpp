@@ -9,6 +9,7 @@
 
 #include "submachine_fwd.hpp"
 #include "region_fwd.hpp"
+#include "../region_path.hpp"
 
 namespace maki::detail
 {

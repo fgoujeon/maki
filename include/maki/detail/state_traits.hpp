@@ -8,7 +8,7 @@
 #define MAKI_DETAIL_STATE_TRAITS_HPP
 
 #include "submachine_fwd.hpp"
-#include "simple_state.hpp"
+#include "simple_state_fwd.hpp"
 #include "overload_priority.hpp"
 #include "tlu.hpp"
 #include "../type_patterns.hpp"

@@ -12,6 +12,7 @@
 #include "region.hpp"
 #include "machine_object_holder.hpp"
 #include "context_holder.hpp"
+#include "simple_state.hpp"
 #include "submachine_fwd.hpp"
 #include "tuple.hpp"
 #include "../machine_fwd.hpp"

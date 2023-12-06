@@ -247,10 +247,6 @@ public:
     }
 
 private:
-    using root_sm_type = machine_of_t<ParentSm>;
-    static constexpr auto machine_conf = root_sm_type::conf;
-    using machine_conf_type = std::decay_t<decltype(machine_conf)>;
-
     using transition_table_type = tlu::get_t<typename ParentSm::transition_table_type_list, Index>;
 
     using transition_table_digest_type =
@@ -419,6 +415,8 @@ private:
         const Event& event
     )
     {
+        using machine_conf_type = std::decay_t<decltype(Machine::conf)>;
+
         constexpr const auto& path = region_path_of_v<region>;
 
         constexpr auto is_internal_transition = same_ref(TargetStateConf, null);
@@ -427,7 +425,7 @@ private:
         {
             if constexpr(!std::is_same_v<typename machine_conf_type::pre_state_transition_action_type, noop_ex>)
             {
-                machine_conf.pre_state_transition_action_
+                Machine::conf.pre_state_transition_action_
                 (
                     ctx,
                     constant_c<path>,
@@ -479,7 +477,7 @@ private:
 
             if constexpr(!std::is_same_v<typename machine_conf_type::post_state_transition_action_type, noop_ex>)
             {
-                machine_conf.post_state_transition_action_
+                Machine::conf.post_state_transition_action_
                 (
                     ctx,
                     constant_c<path>,

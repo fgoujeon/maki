@@ -53,7 +53,7 @@ The expected behavior is:
 
 This behavior can be expressed with the following transition table:
 ```c++
-constexpr auto transition_table = maki::empty_transition_table
+constexpr auto transition_table_t = maki::transition_table
     //     source_state,   event,       target_state,   action,           guard
     .add_c<off,            button_push, emitting_white, turn_light_white>
     .add_c<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
@@ -286,7 +286,7 @@ When a match is found, Maki:
 The initial active state of the state machine is the first state encountered in
 the transition table ('off', is our case).
 */
-constexpr auto transition_table = maki::empty_transition_table
+constexpr auto transition_table_t = maki::transition_table
     //     source_state,   event,       target_state,   action,           guard
     .add_c<off,            button_push, emitting_white, turn_light_white>
     .add_c<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
@@ -303,7 +303,7 @@ the transition table, but we can put many options in it.
 struct machine_def
 {
     static constexpr auto conf = maki::default_machine_conf
-        .set_transition_tables(transition_table)
+        .set_transition_tables(transition_table_t)
         .set_context_type<context>()
     ;
 };

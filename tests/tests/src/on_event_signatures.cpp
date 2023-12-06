@@ -56,14 +56,14 @@ namespace
         ;
     }
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<states::state0, events::unused, maki::null>
     ;
 
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf
-            .transition_tables(transition_table)
+            .transition_tables(transition_table_t)
             .context<context>()
         ;
 

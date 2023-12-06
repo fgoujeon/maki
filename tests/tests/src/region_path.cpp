@@ -27,7 +27,7 @@ namespace
         EMPTY_STATE(off1)
         EMPTY_STATE(on0)
 
-        constexpr auto on1_transition_table = maki::empty_transition_table
+        constexpr auto on1_transition_table = maki::transition_table
             .add_c<states::off0, events::button_press, states::on0>
         ;
 
@@ -37,11 +37,11 @@ namespace
         ;
     }
 
-    constexpr auto transition_table_0_t = maki::empty_transition_table
+    constexpr auto transition_table_0_t = maki::transition_table
         .add_c<states::off0, events::button_press, states::on0>
     ;
 
-    constexpr auto transition_table_1_t = maki::empty_transition_table
+    constexpr auto transition_table_1_t = maki::transition_table
         .add_c<states::off1, events::button_press, states::on1>
     ;
 

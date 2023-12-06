@@ -37,7 +37,7 @@ namespace
         EMPTY_STATE(emitting_green)
         EMPTY_STATE(emitting_blue)
 
-        constexpr auto on_transition_table = maki::empty_transition_table
+        constexpr auto on_transition_table = maki::transition_table
             .add_c<states::emitting_red,   events::color_button_press, states::emitting_green>
             .add_c<states::emitting_green, events::color_button_press, states::emitting_blue>
             .add_c<states::emitting_blue,  events::color_button_press, states::emitting_red>
@@ -49,7 +49,7 @@ namespace
         ;
     }
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<states::off, events::power_button_press, states::on>
         .add_c<states::on,  events::power_button_press, states::off>
     ;
@@ -57,7 +57,7 @@ namespace
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf
-            .transition_tables(transition_table)
+            .transition_tables(transition_table_t)
             .context<context>()
         ;
     };

@@ -52,13 +52,13 @@ namespace
                 constexpr auto emitting_cold_red = maki::state_conf;
                 EMPTY_STATE(emitting_hot_red)
 
-                constexpr auto transition_table = maki::empty_transition_table
+                constexpr auto transition_table_t = maki::transition_table
                     .add_c<emitting_cold_red, events::color_button_press, emitting_hot_red>
                 ;
             }
 
             constexpr auto emitting_red = maki::submachine_conf
-                .transition_tables(emitting_red_ns::transition_table)
+                .transition_tables(emitting_red_ns::transition_table_t)
                 .entry_action_c<maki::any_t>
                 (
                     [](context& ctx)
@@ -71,7 +71,7 @@ namespace
             EMPTY_STATE(emitting_green)
             EMPTY_STATE(emitting_blue)
 
-            constexpr auto transition_table = maki::empty_transition_table
+            constexpr auto transition_table_t = maki::transition_table
                 .add_c<emitting_red,   events::color_button_press, emitting_green>
                 .add_c<emitting_green, events::color_button_press, emitting_blue>
                 .add_c<emitting_blue,  events::color_button_press, emitting_red>
@@ -79,7 +79,7 @@ namespace
         }
 
         constexpr auto on = maki::submachine_conf
-            .transition_tables(on_ns::transition_table)
+            .transition_tables(on_ns::transition_table_t)
             .context<on_ns::context>()
             .exit_action_c<maki::any_t>
             (
@@ -91,7 +91,7 @@ namespace
         ;
     }
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<states::off, events::power_button_press, states::on>
         .add_c<states::on,  events::power_button_press, states::off>
     ;
@@ -99,7 +99,7 @@ namespace
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf
-            .transition_tables(transition_table)
+            .transition_tables(transition_table_t)
             .context<context>()
         ;
     };

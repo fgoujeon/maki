@@ -77,7 +77,7 @@ bool is_speed_high(context& /*ctx*/, const memory_read& event)
 
 //Transition table
 //! [transition-table]
-constexpr auto transition_table = maki::empty_transition_table
+constexpr auto transition_table_t = maki::transition_table
     //     source state,   event,              target state,  action,     guard
     .add_c<reading_memory, memory_read,        spinning_low,  maki::noop, is_speed_low>
     .add_c<reading_memory, memory_read,        spinning_med,  maki::noop, is_speed_med>
@@ -94,7 +94,7 @@ struct machine_def
 {
     //The configuration of the state machine
     static constexpr auto conf = maki::machine_conf
-        .transition_tables(transition_table)
+        .transition_tables(transition_table_t)
         .context<context>()
     ;
 };

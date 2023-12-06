@@ -71,7 +71,7 @@ void stop_motor(context& ctx)
 }
 
 //Transition table
-constexpr auto transition_table = maki::empty_transition_table
+constexpr auto transition_table_t = maki::transition_table
     //     source state, event,                         target state, action
     .add_c<idle,         user_interface::start_request, starting,     start_motor>
     .add_c<starting,     motor::start_event,            running>
@@ -83,7 +83,7 @@ constexpr auto transition_table = maki::empty_transition_table
 struct machine_def
 {
     static constexpr auto conf = maki::machine_conf
-        .transition_tables(transition_table)
+        .transition_tables(transition_table_t)
         .context<context>()
     ;
 };

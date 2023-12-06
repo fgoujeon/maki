@@ -50,9 +50,9 @@ namespace orthogonal_regions_ns
         static constexpr auto conf = maki::machine_conf
             .transition_tables
             (
-                maki::empty_transition_table
+                maki::transition_table
                     .add_c<states::off0, events::button_press, states::on0>,
-                maki::empty_transition_table
+                maki::transition_table
                     .add_c<states::off1, events::button_press, states::on1>
             )
             .context<context>()

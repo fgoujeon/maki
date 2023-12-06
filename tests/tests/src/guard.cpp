@@ -46,7 +46,7 @@ namespace
         }
     }
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<states::off, events::button_press, states::on,  maki::noop, guards::has_power>
         .add_c<states::on,  events::button_press, states::off, maki::noop, guards::always_false>
         .add_c<states::on,  events::button_press, states::off, maki::noop, guards::is_pressing_hard>
@@ -55,7 +55,7 @@ namespace
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf
-            .transition_tables(transition_table)
+            .transition_tables(transition_table_t)
             .context<context>()
         ;
     };

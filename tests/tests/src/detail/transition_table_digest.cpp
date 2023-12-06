@@ -27,7 +27,7 @@ namespace transition_table_digest_ns
     bool guard0(){return true;}
     bool guard1(){return true;}
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<state0,      event0, state1>
         .add_c<state1,      event1, state2, maki::noop, guard0>
         .add_c<state2,      event2, state3, action0>
@@ -38,7 +38,7 @@ namespace transition_table_digest_ns
     struct machine_def
     {
         [[maybe_unused]] static constexpr auto conf = maki::machine_conf
-            .transition_tables(transition_table)
+            .transition_tables(transition_table_t)
             .context<context>()
         ;
     };
@@ -49,7 +49,7 @@ namespace transition_table_digest_ns
 
     using digest_t = maki::detail::transition_table_digest
     <
-        std::decay_t<decltype(transition_table)>,
+        std::decay_t<decltype(transition_table_t)>,
         machine_t
     >;
 

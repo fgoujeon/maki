@@ -92,7 +92,7 @@ Maki also accepts `constexpr` callables with the same signatures for `operator()
 Once you've defined your guard, you just have to pass the function name as the fifth argument of the transition of your choice, like so:
 
 @code
-using transition_table_t = maki::transition_table
+using transition_table_t = maki::transition_table_t
     ::add<source_state_type, event_type, target_state_type, action, guard>
     //...
 ;

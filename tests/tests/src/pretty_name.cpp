@@ -18,7 +18,7 @@ namespace pretty_name_ns
         .pretty_name("my_state")
     ;
 
-    constexpr auto submachine_transition_table = maki::empty_transition_table
+    constexpr auto submachine_transition_table = maki::transition_table
         .add_c<state, maki::null_t, maki::null>
     ;
 
@@ -31,14 +31,14 @@ namespace pretty_name_ns
     {
     };
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<state, maki::null_t, maki::null>
     ;
 
     struct machine_def
     {
         static constexpr auto conf = maki::submachine_conf
-            .transition_tables(transition_table)
+            .transition_tables(transition_table_t)
             .context<context>()
             .pretty_name("my_sm")
         ;

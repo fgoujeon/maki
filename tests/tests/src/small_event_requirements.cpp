@@ -61,7 +61,7 @@ namespace
         machine.process_event(Event{});
     };
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<state, event_processing_request<small_event>, maki::null, process_event<small_event>>
         .add_c<state, event_processing_request<big_event>,   maki::null, process_event<big_event>>
     ;
@@ -70,7 +70,7 @@ namespace
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf
-            .transition_tables(transition_table)
+            .transition_tables(transition_table_t)
             .context<context>()
             .small_event_max_size(SmallEventMaxSize)
             .small_event_max_align(SmallEventMaxAlign)

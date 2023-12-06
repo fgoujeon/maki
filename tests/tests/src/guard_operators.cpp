@@ -69,7 +69,7 @@ namespace
         constexpr auto can_access_state2 = maki::guard_c<can_access_state2_0> != maki::guard_c<can_access_state2_1>;
     }
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<states::idle, events::start, states::state0, maki::noop, guards::can_access_state0>
         .add_c<states::idle, events::start, states::state1, maki::noop, guards::can_access_state1>
         .add_c<states::idle, events::start, states::state2, maki::noop, guards::can_access_state2>
@@ -84,7 +84,7 @@ namespace
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf
-            .transition_tables(transition_table)
+            .transition_tables(transition_table_t)
             .context<context>()
         ;
     };

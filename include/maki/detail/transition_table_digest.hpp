@@ -23,17 +23,17 @@ namespace maki::detail
 
 /*
 Creates a set of tuples containing all the action types, guard types and state
-types of a given transition_table.
+types of a given transition_table_t.
 
 For example, the following digest type...:
-    using transition_table = maki::transition_table
+    using transition_table_t = maki::transition_table_t
     <
         maki::transition<state0, event0, state1>,
         maki::transition<state1, event1, state2, null,     guard0>,
         maki::transition<state2, event2, state3, action0>,
         maki::transition<state3, event3, state0, action1,  guard1>
     >;
-    using digest = maki::detail::transition_table_digest<transition_table>;
+    using digest = maki::detail::transition_table_digest<transition_table_t>;
 
 ... is equivalent to this type:
     struct digest

@@ -30,7 +30,7 @@ void turn_light_off()
 
 //The transition table
 //! [transition-table]
-constexpr auto transition_table = maki::empty_transition_table
+constexpr auto transition_table_t = maki::transition_table
     //     source state, event,        target state, action
     .add_c<off,          button_press, on,           turn_light_on>
     .add_c<on,           button_press, off,          turn_light_off>
@@ -43,7 +43,7 @@ struct machine_def
 {
     //The configuration of the state machine
     static constexpr auto conf = maki::machine_conf
-        .transition_tables(transition_table)
+        .transition_tables(transition_table_t)
         .context<context>()
     ;
 };

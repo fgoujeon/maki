@@ -64,12 +64,13 @@ namespace transition_table_digest_detail
     >;
 
     template<class TransitionTable>
-    constexpr const auto& initial_state_conf_c = tlu::get_t<TransitionTable, 0>::source_state_conf_pattern;
-
-    template<const auto& InitialStateConf>
-    struct initial_digest
+    class initial_digest
     {
-        using state_conf_constant_list = type_list<constant<InitialStateConf>>;
+    private:
+        static constexpr const auto& initial_state_conf = tlu::get_t<TransitionTable, 0>::source_state_conf_pattern;
+
+    public:
+        using state_conf_constant_list = type_list<constant<initial_state_conf>>;
         static constexpr auto has_null_events = false;
     };
 
@@ -98,7 +99,7 @@ namespace transition_table_digest_detail
     <
         TransitionTable,
         add_transition_to_digest,
-        initial_digest<initial_state_conf_c<TransitionTable>>
+        initial_digest<TransitionTable>
     >;
 }
 

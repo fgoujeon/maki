@@ -204,7 +204,7 @@ public:
             own_context_or(ctx),
             event
         );
-        tlu::for_each<region_tuple_type, region_start>(*this, event);
+        tlu::for_each<region_tuple_type, region_start>(*this, mach, own_context_or(ctx), event);
     }
 
     template<class Machine, class Context, class Event>
@@ -225,7 +225,7 @@ public:
             );
         }
 
-        tlu::for_each<region_tuple_type, region_process_event>(*this, event);
+        tlu::for_each<region_tuple_type, region_process_event>(*this, mach, own_context_or(ctx), event);
     }
 
     template<class Machine, class Context, class Event>
@@ -245,19 +245,19 @@ public:
                 own_context_or(ctx),
                 event
             );
-            tlu::for_each<region_tuple_type, region_process_event>(*this, event);
+            tlu::for_each<region_tuple_type, region_process_event>(*this, mach, own_context_or(ctx), event);
             processed = true;
         }
         else
         {
-            tlu::for_each<region_tuple_type, region_process_event>(*this, event, processed);
+            tlu::for_each<region_tuple_type, region_process_event>(*this, mach, own_context_or(ctx), event, processed);
         }
     }
 
     template<class Machine, class Context, class Event>
     void call_exit_action(Machine& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each<region_tuple_type, region_stop>(*this, event);
+        tlu::for_each<region_tuple_type, region_stop>(*this, mach, own_context_or(ctx), event);
         simple_state_.call_exit_action
         (
             mach,
@@ -284,28 +284,28 @@ private:
 
     struct region_start
     {
-        template<class Region, class Event>
-        static void call(submachine& self, const Event& event)
+        template<class Region, class Machine, class Context, class Event>
+        static void call(submachine& self, Machine& mach, Context& ctx, const Event& event)
         {
-            tuple_get<Region>(self.regions_).start(event);
+            tuple_get<Region>(self.regions_).start(mach, ctx, event);
         }
     };
 
     struct region_process_event
     {
-        template<class Region, class Event, class... ExtraArgs>
-        static void call(submachine& self, const Event& event, ExtraArgs&... extra_args)
+        template<class Region, class Machine, class Context, class Event, class... ExtraArgs>
+        static void call(submachine& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
-            tuple_get<Region>(self.regions_).process_event(event, extra_args...);
+            tuple_get<Region>(self.regions_).process_event(mach, ctx, event, extra_args...);
         }
     };
 
     struct region_stop
     {
-        template<class Region, class Event>
-        static void call(submachine& self, const Event& event)
+        template<class Region, class Machine, class Context, class Event>
+        static void call(submachine& self, Machine& mach, Context& ctx, const Event& event)
         {
-            tuple_get<Region>(self.regions_).stop(event);
+            tuple_get<Region>(self.regions_).stop(mach, ctx, event);
         }
     };
 

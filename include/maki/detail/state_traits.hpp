@@ -9,33 +9,13 @@
 
 #include "submachine_fwd.hpp"
 #include "simple_state_fwd.hpp"
-#include "overload_priority.hpp"
 #include "tlu.hpp"
 #include "../type_patterns.hpp"
-#include "../state_conf.hpp"
 #include "../submachine_conf.hpp"
 #include <type_traits>
 
 namespace maki::detail::state_traits
 {
-
-//is_submachine
-
-template<class State>
-struct is_submachine
-{
-    static constexpr auto value = false;
-};
-
-template<const auto& Conf, class ParentRegion>
-struct is_submachine<submachine<Conf, ParentRegion>>
-{
-    static constexpr auto value = true;
-};
-
-template<class State>
-constexpr auto is_submachine_v = is_submachine<State>::value;
-
 
 //state_conf_to_state
 
@@ -55,7 +35,7 @@ template<const auto& StateConf, class Region>
 using state_conf_to_state_t = typename state_conf_to_state<StateConf, Region>::type;
 
 
-//on_event
+//requires_on_event
 
 template<class State, class Event>
 class requires_on_event

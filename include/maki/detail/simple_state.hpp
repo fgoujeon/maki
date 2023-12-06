@@ -31,6 +31,16 @@ namespace simple_state_detail
             >;
         };
     };
+
+    inline void set_to_true(bool& value)
+    {
+        value = true;
+    }
+
+    inline void set_to_true()
+    {
+        //nothing
+    }
 }
 
 /*
@@ -77,8 +87,8 @@ public:
         );
     }
 
-    template<class Machine, class Context, class Event>
-    void call_internal_action(Machine& mach, Context& ctx, const Event& event)
+    template<class Machine, class Context, class Event, class... ExtraArgs>
+    void call_internal_action(Machine& mach, Context& ctx, const Event& event, ExtraArgs&... args)
     {
         call_state_action
         (
@@ -88,6 +98,7 @@ public:
             data(),
             event
         );
+        simple_state_detail::set_to_true(args...);
     }
 
     template<class Machine, class Context, class Event>

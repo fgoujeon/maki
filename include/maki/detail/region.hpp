@@ -56,16 +56,6 @@ namespace region_detail
 
     template<class StateList, const auto& StateConf>
     inline constexpr auto index_of_state_conf_v = index_of_state_conf<StateList, StateConf>::value;
-
-    inline void set_to_true(bool& value)
-    {
-        value = true;
-    }
-
-    inline void set_to_true()
-    {
-        //nothing
-    }
 }
 
 template<class ParentSm, int Index>
@@ -534,26 +524,13 @@ private:
                 return false;
             }
 
-            if constexpr(state_traits::is_submachine_v<State>)
-            {
-                self.state<State>().call_internal_action
-                (
-                    mach,
-                    ctx,
-                    event,
-                    extra_args...
-                );
-            }
-            else
-            {
-                self.state<State>().call_internal_action
-                (
-                    mach,
-                    ctx,
-                    event
-                );
-                region_detail::set_to_true(extra_args...);
-            }
+            self.state<State>().call_internal_action
+            (
+                mach,
+                ctx,
+                event,
+                extra_args...
+            );
 
             return true;
         }

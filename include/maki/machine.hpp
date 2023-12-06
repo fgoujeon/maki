@@ -140,7 +140,7 @@ public:
     template<const auto& RegionPath, const auto& StateConf>
     auto& state_data()
     {
-        return submachine_.template state_def_data<RegionPath, StateConf>();
+        return submachine_.template state_data<RegionPath, StateConf>();
     }
 
     /**
@@ -153,7 +153,7 @@ public:
     template<const auto& RegionPath, const auto& StateConf>
     const auto& state_data() const
     {
-        return submachine_.template state_def_data<RegionPath, StateConf>();
+        return submachine_.template state_data<RegionPath, StateConf>();
     }
 
     /**
@@ -516,7 +516,7 @@ private:
         }
     }
 
-    detail::submachine<ConfHolder, void> submachine_;
+    detail::submachine<conf, void> submachine_;
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;
 };

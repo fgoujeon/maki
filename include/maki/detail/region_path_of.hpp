@@ -19,14 +19,14 @@ struct region_path_of;
 template<class T>
 inline constexpr auto region_path_of_v = region_path_of<T>::value;
 
-template<class ConfHolder, class ParentRegion>
-struct region_path_of<submachine<ConfHolder, ParentRegion>>
+template<const auto& Conf, class ParentRegion>
+struct region_path_of<submachine<Conf, ParentRegion>>
 {
     static constexpr auto value = region_path_of_v<ParentRegion>;
 };
 
-template<class ConfHolder>
-struct region_path_of<submachine<ConfHolder, void>>
+template<const auto& Conf>
+struct region_path_of<submachine<Conf, void>>
 {
     static constexpr auto value = region_path{};
 };
@@ -34,7 +34,7 @@ struct region_path_of<submachine<ConfHolder, void>>
 template<class ParentSm, int Index>
 struct region_path_of<region<ParentSm, Index>>
 {
-    static constexpr auto value = region_path_of_v<ParentSm>.template add<ParentSm::conf_holder_type::conf, Index>();
+    static constexpr auto value = region_path_of_v<ParentSm>.template add<ParentSm::conf, Index>();
 };
 
 } //namespace

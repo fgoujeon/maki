@@ -8,7 +8,6 @@
 #define MAKI_DETAIL_REGION_HPP
 
 #include "region_path_of.hpp"
-#include "machine_of.hpp"
 #include "state_traits.hpp"
 #include "call_member.hpp"
 #include "transition_table_digest.hpp"
@@ -88,15 +87,15 @@ public:
     ~region() = default;
 
     template<const auto& StateRegionPath, const auto& StateConf>
-    const auto& state_def_data() const
+    const auto& state_data() const
     {
-        return static_state_def_data<StateRegionPath, StateConf>(*this);
+        return static_state_data<StateRegionPath, StateConf>(*this);
     }
 
     template<const auto& StateRegionPath, const auto& StateConf>
-    auto& state_def_data()
+    auto& state_data()
     {
-        return static_state_def_data<StateRegionPath, StateConf>(*this);
+        return static_state_data<StateRegionPath, StateConf>(*this);
     }
 
     template<const auto& StateRelativeRegionPath, const auto& StateConf>
@@ -437,8 +436,7 @@ private:
 
             if constexpr(!same_ref(SourceStateConf, states::stopped))
             {
-                using source_state_t = state_traits::state_conf_to_state_t<SourceStateConf, region>;
-                auto& stt = state<source_state_t>();
+                auto& stt = state<SourceStateConf>();
                 stt.call_exit_action
                 (
                     mach,
@@ -465,8 +463,7 @@ private:
         {
             if constexpr(!same_ref(TargetStateConf, states::stopped))
             {
-                using target_state_t = state_traits::state_conf_to_state_t<TargetStateConf, region>;
-                auto& stt = state<target_state_t>();
+                auto& stt = state<TargetStateConf>();
                 stt.call_entry_action
                 (
                     mach,
@@ -634,6 +631,12 @@ private:
         }
     };
 
+    template<const auto& StateConf>
+    auto& state()
+    {
+        return static_state<StateConf>(*this);
+    }
+
     template<class State>
     auto& state()
     {
@@ -641,64 +644,30 @@ private:
         return tuple_get<state_index>(states_);
     }
 
-    template<const auto& StateConf>
-    auto& state_from_state_conf()
+    //Note: We use static to factorize const and non-const Region
+    template<const auto& StateConf, class Region>
+    static auto& static_state(Region& self)
     {
         constexpr auto state_index = tlu::index_of_v<state_conf_constant_list, constant<StateConf>>;
-        return tuple_get<state_index>(states_);
+        return tuple_get<state_index>(self.states_);
     }
 
-    template<const auto& StateConf>
-    auto& state_data_from_state_conf()
-    {
-        using state_t = state_traits::state_conf_to_state_t<StateConf, region>;
-        return state_data<state_t>();
-    }
-
-    template<const auto& StateConf>
-    const auto& state_data_from_state_conf() const
-    {
-        using state_t = state_traits::state_conf_to_state_t<StateConf, region>;
-        return state_data<state_t>();
-    }
-
-    template<class State>
-    auto& state_data()
-    {
-        constexpr auto state_index = tlu::index_of_v<state_type_list, State>;
-        return tuple_get<state_index>(states_).data();
-    }
-
-    template<class State>
-    const auto& state_data() const
-    {
-        constexpr auto state_index = tlu::index_of_v<state_type_list, State>;
-        return tuple_get<state_index>(states_).data();
-    }
-
-    template<const auto& StateConf, class Region>
-    static auto& static_state_def_data_leaf(Region& self)
-    {
-        using region_t = std::decay_t<Region>;
-        using state_t = state_traits::state_conf_to_state_t<StateConf, region_t>;
-        return self.template state_data<state_t>();
-    }
-
+    //Note: We use static to factorize const and non-const Region
     template<const auto& StateRegionPath, const auto& StateConf, class Region>
-    static auto& static_state_def_data(Region& self)
+    static auto& static_state_data(Region& self)
     {
         using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
 
         if constexpr(tlu::size_v<state_region_path_t> == 0)
         {
-            return static_state_def_data_leaf<StateConf>(self);
+            return static_state<StateConf>(self).data();
         }
         else
         {
             constexpr const auto& submach_conf = tlu::front_t<state_region_path_t>::machine_conf;
             constexpr auto submachine_index = tlu::index_of_v<typename Region::state_conf_constant_list, constant<submach_conf>>;
             auto& submach = tuple_get<submachine_index>(self.states_);
-            return submach.template state_def_data<StateRegionPath, StateConf>(); //recursive
+            return submach.template state_data<StateRegionPath, StateConf>(); //recursive
         }
     }
 

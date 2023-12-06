@@ -24,10 +24,10 @@
 namespace maki::detail
 {
 
-template<class ConfHolder, class ParentRegion>
+template<const auto& Conf, class ParentRegion>
 struct submachine_context
 {
-    using conf_type = std::decay_t<decltype(ConfHolder::conf)>;
+    using conf_type = std::decay_t<decltype(Conf)>;
     using conf_context_type = typename conf_type::context_type;
 
     /*
@@ -44,10 +44,10 @@ struct submachine_context
     >;
 };
 
-template<class ConfHolder>
-struct submachine_context<ConfHolder, void>
+template<const auto& Conf>
+struct submachine_context<Conf, void>
 {
-    using type = typename decltype(ConfHolder::conf.context_)::type;
+    using type = typename decltype(Conf.context_)::type;
 };
 
 template
@@ -78,22 +78,13 @@ struct region_tuple
     >;
 };
 
-template<class ConfHolder, class ParentRegion>
+template<const auto& Conf, class ParentRegion>
 class submachine
 {
 public:
-    using conf_holder_type = ConfHolder;
-    using conf_type = std::decay_t<decltype(ConfHolder::conf)>;
-    using data_type = std::conditional_t
-    <
-        std::is_void_v<typename conf_type::data_type>,
-        null_t,
-        typename conf_type::data_type
-    >;
-
-    using context_type = typename submachine_context<ConfHolder, ParentRegion>::type;
-
-    using transition_table_type_list = decltype(ConfHolder::conf.transition_tables_);
+    using conf_type = std::decay_t<decltype(Conf)>;
+    using context_type = typename submachine_context<Conf, ParentRegion>::type;
+    using transition_table_type_list = decltype(Conf.transition_tables_);
 
     template<class Machine, class... ContextArgs>
     submachine(Machine& mach, ContextArgs&&... ctx_args):
@@ -108,18 +99,18 @@ public:
         return ctx_holder_.get();
     }
 
-    data_type& data()
+    auto& data()
     {
         return simple_state_.data();
     }
 
-    const data_type& data() const
+    const auto& data() const
     {
         return simple_state_.data();
     }
 
     template<const auto& StateRegionPath, const auto& StateConf>
-    auto& state_def_data()
+    auto& state_data()
     {
         using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
 
@@ -128,17 +119,17 @@ public:
             same_ref
             (
                 detail::tlu::front_t<state_region_path_t>::machine_conf,
-                ConfHolder::conf
+                Conf
             )
         );
 
         static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
         static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
-        return tuple_get<region_index>(regions_).template state_def_data<state_region_relative_path, StateConf>();
+        return tuple_get<region_index>(regions_).template state_data<state_region_relative_path, StateConf>();
     }
 
     template<const auto& StateRegionPath, const auto& StateConf>
-    const auto& state_def_data() const
+    const auto& state_data() const
     {
         using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
 
@@ -147,13 +138,13 @@ public:
             same_ref
             (
                 detail::tlu::front_t<state_region_path_t>::machine_conf,
-                ConfHolder::conf
+                Conf
             )
         );
 
         static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
         static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
-        return tuple_get<region_index>(regions_).template state_def_data<state_region_relative_path, StateConf>();
+        return tuple_get<region_index>(regions_).template state_data<state_region_relative_path, StateConf>();
     }
 
     template<const auto& StateRegionPath, const auto& StateConf>
@@ -166,7 +157,7 @@ public:
             same_ref
             (
                 detail::tlu::front_t<state_region_path_t>::machine_conf,
-                ConfHolder::conf
+                Conf
             )
         );
 
@@ -272,6 +263,8 @@ public:
         return true;
     }
 
+    static constexpr const auto& conf = Conf;
+
 private:
     using region_tuple_type = typename region_tuple
     <
@@ -280,7 +273,7 @@ private:
     >::type;
 
     //We need a simple_state to manage data and actions
-    using simple_state_type = simple_state<ConfHolder::conf>;
+    using simple_state_type = simple_state<Conf>;
 
     struct region_start
     {

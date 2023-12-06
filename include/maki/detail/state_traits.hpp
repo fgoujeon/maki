@@ -9,7 +9,6 @@
 
 #include "submachine_fwd.hpp"
 #include "simple_state.hpp"
-#include "state_conf_wrapper.hpp"
 #include "overload_priority.hpp"
 #include "tlu.hpp"
 #include "../type_patterns.hpp"
@@ -28,8 +27,8 @@ struct is_submachine
     static constexpr auto value = false;
 };
 
-template<class Def, class ParentRegion>
-struct is_submachine<submachine<Def, ParentRegion>>
+template<const auto& Conf, class ParentRegion>
+struct is_submachine<submachine<Conf, ParentRegion>>
 {
     static constexpr auto value = true;
 };
@@ -49,7 +48,7 @@ struct state_conf_to_state
 template<const auto& StateConf, class Region>
 struct state_conf_to_state<StateConf, Region, std::enable_if_t<is_submachine_conf_v<std::decay_t<decltype(StateConf)>>>>
 {
-    using type = submachine<state_conf_wrapper<StateConf>, Region>;
+    using type = submachine<StateConf, Region>;
 };
 
 template<const auto& StateConf, class Region>

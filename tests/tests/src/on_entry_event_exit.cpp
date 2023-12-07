@@ -28,7 +28,7 @@ namespace
         EMPTY_STATE(idle)
 
         constexpr auto english = maki::state_conf
-            .entry_action_c<maki::any_t>
+            .entry_action_c
             (
                 [](context& ctx)
                 {
@@ -42,7 +42,7 @@ namespace
                     ctx.dog = "dog";
                 }
             )
-            .exit_action_c<maki::any_t>
+            .exit_action_c
             (
                 [](context& ctx)
                 {
@@ -52,7 +52,7 @@ namespace
         ;
 
         constexpr auto french = maki::state_conf
-            .entry_action_m<maki::any_t>
+            .entry_action_m
             (
                 [](auto& mach)
                 {
@@ -66,7 +66,7 @@ namespace
                     ctx.dog = "chien";
                 }
             )
-            .exit_action_m<maki::any_t>
+            .exit_action_m
             (
                 [](auto& mach)
                 {

@@ -78,7 +78,7 @@ struct submachine_conf_t
 #undef MAKI_DETAIL_ARG_data_type
     }
 
-    template<class EventFilter, detail::event_action_signature Sig, class Action>
+    template<class EventFilter = maki::any_t, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto entry_action(const Action& action) const
     {
         const auto new_entry_actions = tuple_append
@@ -94,7 +94,7 @@ struct submachine_conf_t
     }
 
 #define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    template<class EventFilter, class Action> \
+    template<class EventFilter = maki::any_t, class Action> \
     [[nodiscard]] constexpr auto entry_action_##signature(const Action& action) const \
     { \
         return entry_action<EventFilter, detail::event_action_signature::signature>(action); \
@@ -126,7 +126,7 @@ struct submachine_conf_t
     MAKI_DETAIL_EVENT_ACTION_SIGNATURES
 #undef X
 
-    template<class EventFilter, detail::event_action_signature Sig, class Action>
+    template<class EventFilter = maki::any_t, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto exit_action(const Action& action) const
     {
         const auto new_exit_actions = tuple_append
@@ -142,7 +142,7 @@ struct submachine_conf_t
     }
 
 #define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    template<class EventFilter, class Action> \
+    template<class EventFilter = maki::any_t, class Action> \
     [[nodiscard]] constexpr auto exit_action_##signature(const Action& action) const \
     { \
         return exit_action<EventFilter, detail::event_action_signature::signature>(action); \

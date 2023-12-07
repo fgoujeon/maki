@@ -35,36 +35,23 @@ namespace transition_table_digest_ns
         .add_c<maki::any, event3, state0>
     ;
 
-    struct machine_def
-    {
-        [[maybe_unused]] static constexpr auto conf = maki::machine_conf
-            .transition_tables(transition_table_t)
-            .context<context>()
-        ;
-    };
-
-    using machine_t = maki::machine<machine_def>;
-
-    using region_path_t = maki::region_path<machine_t>;
-
     using digest_t = maki::detail::transition_table_digest
     <
-        std::decay_t<decltype(transition_table_t)>,
-        machine_t
+        std::decay_t<decltype(transition_table_t)>
     >;
 
-    using state_tuple_t = maki::type_list
+    using state_conf_constant_list = maki::type_list
     <
-        maki::detail::simple_state<state0>,
-        maki::detail::simple_state<state1>,
-        maki::detail::simple_state<state2>,
-        maki::detail::simple_state<state3>
+        maki::detail::constant<state0>,
+        maki::detail::constant<state1>,
+        maki::detail::constant<state2>,
+        maki::detail::constant<state3>
     >;
 }
 
 TEST_CASE("detail::transition_table_digest")
 {
     using namespace transition_table_digest_ns;
-    REQUIRE(std::is_same_v<digest_t::state_type_list, state_tuple_t>);
+    REQUIRE(std::is_same_v<digest_t::state_conf_constant_list, state_conf_constant_list>);
     REQUIRE(!digest_t::has_null_events);
 }

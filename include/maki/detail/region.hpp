@@ -239,11 +239,20 @@ private:
     using transition_table_type = tlu::get_t<typename ParentSm::transition_table_type_list, Index>;
 
     using transition_table_digest_type =
-        detail::transition_table_digest<transition_table_type, region>
+        detail::transition_table_digest<transition_table_type>
     ;
 
     using state_conf_constant_list = typename transition_table_digest_type::state_conf_constant_list;
-    using state_type_list = typename transition_table_digest_type::state_type_list;
+
+    template<class... ConfConstants>
+    using state_conf_constant_list_to_state_type_list_t = type_list<state_traits::state_conf_to_state_t<ConfConstants::value, region>...>;
+
+    using state_type_list = tlu::apply_t
+    <
+        state_conf_constant_list,
+        state_conf_constant_list_to_state_type_list_t
+    >;
+
     using state_tuple_type = tlu::apply_t<state_type_list, tuple>;
 
     static constexpr const auto& initial_state_conf = detail::tlu::front_t<state_conf_constant_list>::value;

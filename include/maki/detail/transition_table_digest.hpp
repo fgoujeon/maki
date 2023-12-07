@@ -45,13 +45,6 @@ For example, the following digest type...:
 
 namespace transition_table_digest_detail
 {
-    template<class Region>
-    struct state_conf_constant_list_to_state_type_list_holder
-    {
-        template<class... ConfConstants>
-        using type = type_list<state_traits::state_conf_to_state_t<ConfConstants::value, Region>...>;
-    };
-
     template<class TList, const auto& Conf>
     using push_back_unique_if_not_null_constant = tlu::push_back_if_t
     <
@@ -88,40 +81,15 @@ namespace transition_table_digest_detail
             std::is_same_v<typename Transition::event_type_pattern, null_t>
         ;
     };
-
-    /*
-    First step with tlu::type_list instead of
-    maki::detail::machine_object_holder_tuple, so that we don't instantiate
-    intermediate tuples.
-    */
-    template<class TransitionTable>
-    using digest_with_type_lists = tlu::left_fold_t
-    <
-        TransitionTable,
-        add_transition_to_digest,
-        initial_digest<TransitionTable>
-    >;
 }
 
-template<class TransitionTable, class Region>
-class transition_table_digest
-{
-private:
-    using digest_type = transition_table_digest_detail::digest_with_type_lists
-    <
-        TransitionTable
-    >;
-
-public:
-    using state_conf_constant_list = typename digest_type::state_conf_constant_list;
-    using state_type_list = tlu::apply_t
-    <
-        state_conf_constant_list,
-        transition_table_digest_detail::state_conf_constant_list_to_state_type_list_holder<Region>::template type
-    >;
-
-    static constexpr auto has_null_events = digest_type::has_null_events;
-};
+template<class TransitionTable>
+using transition_table_digest = tlu::left_fold_t
+<
+    TransitionTable,
+    transition_table_digest_detail::add_transition_to_digest,
+    transition_table_digest_detail::initial_digest<TransitionTable>
+>;
 
 } //namespace
 

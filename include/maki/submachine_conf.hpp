@@ -30,7 +30,7 @@ namespace maki
 template
 <
     class Data = void,
-    class ContextTypeHolder = type<void>,
+    class Context = void,
     class EntryActionTuple = detail::tuple<>,
     class InternalActionTuple = detail::tuple<>,
     class ExitActionTuple = detail::tuple<>,
@@ -39,11 +39,11 @@ template
 struct submachine_conf_t
 {
     using data_type = Data;
-    using context_type = typename ContextTypeHolder::type;
+    using context_type = Context;
 
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<data_type>; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context = context_; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type_c<context_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = internal_actions_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = exit_actions_; \
@@ -54,20 +54,28 @@ struct submachine_conf_t
     return submachine_conf_t \
     < \
         typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_context)>, \
+        typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
     > \
     { \
-        MAKI_DETAIL_ARG_context, \
         MAKI_DETAIL_ARG_entry_actions, \
         MAKI_DETAIL_ARG_internal_actions, \
         MAKI_DETAIL_ARG_exit_actions, \
         MAKI_DETAIL_ARG_pretty_name_view, \
         MAKI_DETAIL_ARG_transition_tables \
     };
+
+    template<class Context2>
+    [[nodiscard]] constexpr auto context() const
+    {
+        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_context_type type_c<Context2>
+        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_context_type
+    }
 
     template<class Data2>
     [[nodiscard]] constexpr auto data() const
@@ -150,15 +158,6 @@ struct submachine_conf_t
     MAKI_DETAIL_EVENT_ACTION_SIGNATURES
 #undef X
 
-    template<class Context>
-    [[nodiscard]] constexpr auto context() const
-    {
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_context type_c<Context>
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_context
-    }
-
     [[nodiscard]] constexpr auto pretty_name(const std::string_view value) const
     {
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
@@ -179,7 +178,6 @@ struct submachine_conf_t
 #undef MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
 
-    ContextTypeHolder context_; //NOLINT(misc-non-private-member-variables-in-classes)
     EntryActionTuple entry_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
     InternalActionTuple internal_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
     ExitActionTuple exit_actions_; //NOLINT(misc-non-private-member-variables-in-classes)

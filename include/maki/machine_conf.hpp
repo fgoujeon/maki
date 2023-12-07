@@ -30,7 +30,7 @@ namespace maki
 */
 template
 <
-    class ContextTypeHolder = type<void>,
+    class Context = void,
     class Data = void,
     class EntryActionTuple = detail::tuple<>,
     class EventActionTuple = detail::tuple<>,
@@ -44,8 +44,7 @@ template
 struct machine_conf_t
 {
     using data_type = Data;
-    using context_type = typename ContextTypeHolder::type;
-
+    using context_type = Context;
     using exception_action_type = ExceptionAction;
     using pre_state_transition_action_type = PreStateTransitionAction;
     using post_state_transition_action_type = PostStateTransitionAction;
@@ -53,7 +52,7 @@ struct machine_conf_t
 
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = auto_start_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context = context_; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type_c<context_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<data_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = internal_actions_; \
@@ -71,7 +70,7 @@ struct machine_conf_t
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return machine_conf_t \
     < \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_context)>, \
+        typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
         typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
@@ -84,7 +83,6 @@ struct machine_conf_t
     > \
     { \
         MAKI_DETAIL_ARG_auto_start, \
-        MAKI_DETAIL_ARG_context, \
         MAKI_DETAIL_ARG_entry_actions, \
         MAKI_DETAIL_ARG_internal_actions, \
         MAKI_DETAIL_ARG_exit_actions, \
@@ -206,13 +204,16 @@ struct machine_conf_t
 #undef MAKI_DETAIL_ARG_pre_state_transition_action
     }
 
-    template<class Context>
+    /**
+    @brief Specifies the context type.
+    */
+    template<class Context2>
     [[nodiscard]] constexpr auto context() const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_context type_c<Context>
+#define MAKI_DETAIL_ARG_context_type type_c<Context2>
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_context
+#undef MAKI_DETAIL_ARG_context_type
     }
 
     [[nodiscard]] constexpr auto run_to_completion(const bool value) const
@@ -287,11 +288,6 @@ struct machine_conf_t
     @brief Specifies whether the constructor of @ref machine must call @ref machine::start().
     */
     bool auto_start_ = true; //NOLINT(misc-non-private-member-variables-in-classes)
-
-    /**
-    @brief Specifies the context type.
-    */
-    ContextTypeHolder context_; //NOLINT(misc-non-private-member-variables-in-classes)
 
     EntryActionTuple entry_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
 

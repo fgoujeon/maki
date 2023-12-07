@@ -48,7 +48,7 @@ struct submachine_context
 template<const auto& Conf>
 struct submachine_context<Conf, void>
 {
-    using type = typename decltype(Conf.context_)::type;
+    using type = typename std::decay_t<decltype(Conf)>::context_type;
 };
 
 template

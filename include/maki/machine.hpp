@@ -313,6 +313,21 @@ public:
     }
 
     /**
+    @brief Like process_event_now(), except no transition is performed and no
+    actions are called.
+    @param event the event to be processed
+
+    This function is useful for checking whether an event is valid or not,
+    given the current state of the state machine and guard checks against the
+    event itself.
+    */
+    template <class Event>
+    bool process_event_now_dry(const Event &event)
+    {
+        return false;
+    }
+
+    /**
     @brief Enqueues event for later processing
     @param event the event to be processed
 

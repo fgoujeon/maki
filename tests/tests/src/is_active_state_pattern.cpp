@@ -95,7 +95,7 @@ TEST_CASE("is_active_state_filter")
     machine.process_event(events::power_button_press{});
     REQUIRE(machine.is_active_state<states::off>());
     REQUIRE(!machine.is_active_state<states::emitting_red_or_green>());
-    REQUIRE(machine.is_active_state<machine_on_region_path_v, maki::states::stopped>());
+    REQUIRE(machine.is_active_state<machine_on_region_path_v, maki::state_confs::stopped>());
     REQUIRE(!machine.is_active_state<machine_on_region_path_v, states::emitting_red_or_green>());
     REQUIRE(machine.is_active_state<machine_on_region_path_v, states::not_emitting_red>());
 

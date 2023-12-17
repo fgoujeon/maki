@@ -25,7 +25,7 @@
 #include "maki/pretty_name.hpp"
 #include "maki/region_path.hpp"
 #include "maki/state_conf.hpp"
-#include "maki/states.hpp"
+#include "maki/state_confs.hpp"
 #include "maki/submachine_conf.hpp"
 #include "maki/transition_table.hpp"
 #include "maki/type.hpp"

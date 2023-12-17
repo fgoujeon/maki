@@ -6,18 +6,18 @@
 
 /**
 @file
-@brief Defines the maki::states namespace and its types
+@brief Defines the maki::state_confs namespace and its types
 */
 
-#ifndef MAKI_DETAIL_STATES_HPP
-#define MAKI_DETAIL_STATES_HPP
+#ifndef MAKI_DETAIL_STATE_CONFS_HPP
+#define MAKI_DETAIL_STATE_CONFS_HPP
 
 #include "state_conf.hpp"
 
 /**
-@brief Some predefined states used by Maki itself
+@brief Some predefined state confs used by Maki itself
 */
-namespace maki::states
+namespace maki::state_confs
 {
 
 /**

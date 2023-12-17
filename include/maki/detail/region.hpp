@@ -19,7 +19,7 @@
 #include "maybe_bool_util.hpp"
 #include "../cref_constant.hpp"
 #include "../submachine_conf.hpp"
-#include "../states.hpp"
+#include "../state_confs.hpp"
 #include <type_traits>
 #include <exception>
 
@@ -35,7 +35,7 @@ namespace region_detail
     };
 
     template<class StateList, class Region>
-    struct index_of_state<StateList, state_traits::state_conf_to_state<states::stopped, Region>>
+    struct index_of_state<StateList, state_traits::state_conf_to_state<state_confs::stopped, Region>>
     {
         static constexpr auto value = -1;
     };
@@ -50,7 +50,7 @@ namespace region_detail
     };
 
     template<class StateList>
-    struct index_of_state_conf<StateList, states::stopped>
+    struct index_of_state_conf<StateList, state_confs::stopped>
     {
         static constexpr auto value = -1;
     };
@@ -126,11 +126,11 @@ public:
     template<class Machine, class Context, class Event>
     void start(Machine& mach, Context& ctx, const Event& event)
     {
-        if(is_active_state_def_type<states::stopped>())
+        if(is_active_state_def_type<state_confs::stopped>())
         {
             process_event_in_transition
             <
-                states::stopped,
+                state_confs::stopped,
                 initial_state_conf,
                 noop
             >(mach, ctx, event);
@@ -140,7 +140,7 @@ public:
     template<class Machine, class Context, class Event>
     void stop(Machine& mach, Context& ctx, const Event& event)
     {
-        if(!is_active_state_def_type<states::stopped>())
+        if(!is_active_state_def_type<state_confs::stopped>())
         {
             with_active_state_conf<state_conf_constant_list, stop_2>
             (
@@ -250,7 +250,7 @@ private:
             self.process_event_in_transition
             <
                 ActiveStateConf,
-                states::stopped,
+                state_confs::stopped,
                 noop
             >(mach, ctx, event);
         }
@@ -401,7 +401,7 @@ private:
                 );
             }
 
-            if constexpr(!same_ref(SourceStateConf, states::stopped))
+            if constexpr(!same_ref(SourceStateConf, state_confs::stopped))
             {
                 auto& stt = state<SourceStateConf>();
                 stt.call_exit_action
@@ -428,7 +428,7 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(!same_ref(TargetStateConf, states::stopped))
+            if constexpr(!same_ref(TargetStateConf, state_confs::stopped))
             {
                 auto& stt = state<TargetStateConf>();
                 stt.call_entry_action
@@ -546,7 +546,7 @@ private:
         auto matches = false;
         with_active_state_conf
         <
-            tlu::push_back_t<state_conf_constant_list, cref_constant<states::stopped>>,
+            tlu::push_back_t<state_conf_constant_list, cref_constant<state_confs::stopped>>,
             does_active_state_def_match_pattern_2<TypePattern>
         >(matches);
         return matches;
@@ -631,7 +631,7 @@ private:
     }
 
     state_tuple_type states_;
-    int active_state_index_ = region_detail::index_of_state_conf_v<state_conf_constant_list, states::stopped>;
+    int active_state_index_ = region_detail::index_of_state_conf_v<state_conf_constant_list, state_confs::stopped>;
 };
 
 } //namespace

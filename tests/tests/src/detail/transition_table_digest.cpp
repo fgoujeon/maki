@@ -42,10 +42,10 @@ namespace transition_table_digest_ns
 
     using state_conf_constant_list = maki::type_list
     <
-        maki::detail::constant<state0>,
-        maki::detail::constant<state1>,
-        maki::detail::constant<state2>,
-        maki::detail::constant<state3>
+        maki::cref_constant<state0>,
+        maki::cref_constant<state1>,
+        maki::cref_constant<state2>,
+        maki::cref_constant<state3>
     >;
 }
 

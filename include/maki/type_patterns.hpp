@@ -12,7 +12,7 @@
 #ifndef MAKI_TYPE_PATTERNS_HPP
 #define MAKI_TYPE_PATTERNS_HPP
 
-#include "detail/constant.hpp"
+#include "cref_constant.hpp"
 #include <type_traits>
 
 namespace maki
@@ -77,10 +77,10 @@ template<template<class> class Predicate>
 constexpr auto any_if_not = any_if_not_t<Predicate>{};
 
 template<const auto&... StateConfs>
-constexpr auto any_of = any_of_t<detail::constant<StateConfs>...>{};
+constexpr auto any_of = any_of_t<cref_constant<StateConfs>...>{};
 
 template<const auto&... StateConfs>
-constexpr auto any_but = any_but_t<detail::constant<StateConfs>...>{};
+constexpr auto any_but = any_but_t<cref_constant<StateConfs>...>{};
 
 inline constexpr auto none = none_t{};
 

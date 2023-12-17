@@ -4,25 +4,25 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-/**
-@file
-@brief Defines the version of the Maki library
-*/
+#ifndef MAKI_DETAIL_CREF_CONSTANT_HPP
+#define MAKI_DETAIL_CREF_CONSTANT_HPP
 
-#ifndef MAKI_DETAIL_CONSTANT_HPP
-#define MAKI_DETAIL_CONSTANT_HPP
-
-namespace maki::detail
+namespace maki
 {
 
+/**
+@brief Utility template that wraps a `constexpr` reference-to-const into a type.
+
+Maki uses this template to pass such references as type template arguments.
+*/
 template<const auto& Value>
-struct constant
+struct cref_constant
 {
     static constexpr const auto& value = Value;
 };
 
 template<const auto& Value>
-constexpr auto constant_c = constant<Value>{};
+constexpr auto cref_constant_c = cref_constant<Value>{};
 
 } //namespace
 

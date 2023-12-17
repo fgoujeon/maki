@@ -14,6 +14,7 @@
 @brief The Maki library
 */
 
+#include "maki/cref_constant.hpp"
 #include "maki/events.hpp"
 #include "maki/guard.hpp"
 #include "maki/machine.hpp"

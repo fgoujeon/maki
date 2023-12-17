@@ -16,8 +16,8 @@
 #include "tlu.hpp"
 #include "noop_ex.hpp"
 #include "same_ref.hpp"
-#include "constant.hpp"
 #include "maybe_bool_util.hpp"
+#include "../cref_constant.hpp"
 #include "../submachine_conf.hpp"
 #include "../states.hpp"
 #include <type_traits>
@@ -46,7 +46,7 @@ namespace region_detail
     template<class StateList, const auto& StateConf>
     struct index_of_state_conf
     {
-        static constexpr auto value = tlu::index_of_v<StateList, constant<StateConf>>;
+        static constexpr auto value = tlu::index_of_v<StateList, cref_constant<StateConf>>;
     };
 
     template<class StateList>
@@ -101,7 +101,7 @@ public:
         else
         {
             constexpr const auto& submach_conf = tlu::front_t<state_relative_region_path_t>::machine_conf_t;
-            constexpr auto submach_index = tlu::index_of_v<state_conf_constant_list, constant<submach_conf>>;
+            constexpr auto submach_index = tlu::index_of_v<state_conf_constant_list, cref_constant<submach_conf>>;
             const auto& state = tuple_get<submach_index>(states_);
             return state.template is_active_state_def<StateRelativeRegionPath, StateConf>();
         }
@@ -304,7 +304,7 @@ private:
                     Transition::target_state_conf,
                     Transition::action,
                     Transition::guard
-                >::template call<constant<Transition::source_state_conf_pattern>>
+                >::template call<cref_constant<Transition::source_state_conf_pattern>>
                 (
                     self,
                     mach,
@@ -394,10 +394,10 @@ private:
                 Machine::conf.pre_state_transition_action_
                 (
                     ctx,
-                    constant_c<path>,
-                    constant_c<SourceStateConf>,
+                    cref_constant_c<path>,
+                    cref_constant_c<SourceStateConf>,
                     event,
-                    constant_c<TargetStateConf>
+                    cref_constant_c<TargetStateConf>
                 );
             }
 
@@ -444,10 +444,10 @@ private:
                 Machine::conf.post_state_transition_action_
                 (
                     ctx,
-                    constant_c<path>,
-                    constant_c<SourceStateConf>,
+                    cref_constant_c<path>,
+                    cref_constant_c<SourceStateConf>,
                     event,
-                    constant_c<TargetStateConf>
+                    cref_constant_c<TargetStateConf>
                 );
             }
 
@@ -546,7 +546,7 @@ private:
         auto matches = false;
         with_active_state_conf
         <
-            tlu::push_back_t<state_conf_constant_list, constant<states::stopped>>,
+            tlu::push_back_t<state_conf_constant_list, cref_constant<states::stopped>>,
             does_active_state_def_match_pattern_2<TypePattern>
         >(matches);
         return matches;
@@ -558,7 +558,7 @@ private:
         template<const auto& ActiveStateConf>
         static void call([[maybe_unused]] bool& matches)
         {
-            if constexpr(matches_pattern_v<constant<ActiveStateConf>, TypePattern>)
+            if constexpr(matches_pattern_v<cref_constant<ActiveStateConf>, TypePattern>)
             {
                 matches = true;
             }
@@ -607,7 +607,7 @@ private:
     template<const auto& StateConf, class Region>
     static auto& static_state(Region& self)
     {
-        constexpr auto state_index = tlu::index_of_v<state_conf_constant_list, constant<StateConf>>;
+        constexpr auto state_index = tlu::index_of_v<state_conf_constant_list, cref_constant<StateConf>>;
         return tuple_get<state_index>(self.states_);
     }
 
@@ -624,7 +624,7 @@ private:
         else
         {
             constexpr const auto& submach_conf = tlu::front_t<state_region_path_t>::machine_conf_t;
-            constexpr auto submachine_index = tlu::index_of_v<typename Region::state_conf_constant_list, constant<submach_conf>>;
+            constexpr auto submachine_index = tlu::index_of_v<typename Region::state_conf_constant_list, cref_constant<submach_conf>>;
             auto& submach = tuple_get<submachine_index>(self.states_);
             return submach.template state_data<StateRegionPath, StateConf>(); //recursive
         }

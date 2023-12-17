@@ -7,7 +7,7 @@
 #ifndef MAKI_DETAIL_TYPE_NAME_HPP
 #define MAKI_DETAIL_TYPE_NAME_HPP
 
-#include "constant.hpp"
+#include "../cref_constant.hpp"
 #include <string_view>
 
 namespace maki::detail
@@ -71,9 +71,9 @@ namespace type_name_detail
     template<const auto& Value>
     std::string_view constant_name()
     {
-        using type = detail::constant<Value>;
+        using type = cref_constant<Value>;
         const auto raw_name = type_name_detail::type_name<type>();
-        const auto raw_name_prefix = std::string_view{"maki::detail::constant<"};
+        const auto raw_name_prefix = std::string_view{"maki::cref_constant<"};
         const auto raw_name_suffix = std::string_view{">"};
         return raw_name.substr
         (

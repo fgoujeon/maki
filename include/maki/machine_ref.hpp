@@ -87,14 +87,12 @@ namespace detail
 
 It exposes the process_event() member function of the held machine.
 */
-template<class Def>
+template<const auto& Conf>
 class machine_ref
 {
 public:
-    static constexpr const auto& conf = Def::conf;
-
-    template<class MachineDef>
-    machine_ref(machine<MachineDef>& mach):
+    template<class MachineConfHolder>
+    machine_ref(machine<MachineConfHolder>& mach):
         impl_{mach}
     {
     }
@@ -112,7 +110,7 @@ public:
         (
             detail::tlu::contains_v
             <
-                decltype(conf.has_on_event_for),
+                decltype(Conf.has_on_event_for),
                 Event
             >,
             "Given event type must be part of the 'on_event' option type list"
@@ -121,7 +119,7 @@ public:
     }
 
 private:
-    using event_type_list = decltype(conf.has_on_event_for);
+    using event_type_list = decltype(Conf.has_on_event_for);
 
     using event_impl_type = detail::tlu::apply_t
     <
@@ -133,19 +131,16 @@ private:
 };
 
 template<class... Events>
-struct machine_ref_e_def
-{
-    static constexpr auto conf = default_machine_ref_conf
-        .enable_on_event_for<Events...>()
-    ;
-};
+inline constexpr auto machine_ref_e_conf = default_machine_ref_conf
+    .enable_on_event_for<Events...>()
+;
 
 /**
 @brief A convenient alias for @ref machine_ref that only takes a list of event
 types
 */
 template<class... Events>
-using machine_ref_e = machine_ref<machine_ref_e_def<Events...>>;
+using machine_ref_e = machine_ref<machine_ref_e_conf<Events...>>;
 
 } //namespace
 

@@ -17,9 +17,9 @@ Represents either:
 - a null event (for anonymous transitions);
 - a null target state (for internal transitions in transition table).
 */
-struct null_t{};
+struct null{};
 
-inline constexpr auto null = null_t{};
+inline constexpr auto null_c = null{};
 
 } //namespace
 

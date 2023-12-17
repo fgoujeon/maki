@@ -27,17 +27,17 @@ namespace transition_table_digest_ns
     bool guard0(){return true;}
     bool guard1(){return true;}
 
-    constexpr auto transition_table_t = maki::transition_table
+    constexpr auto transition_table = maki::transition_table_c
         .add_c<state0,      event0, state1>
         .add_c<state1,      event1, state2, maki::noop, guard0>
         .add_c<state2,      event2, state3, action0>
         .add_c<state3,      event3, state0, action1,    guard1>
-        .add_c<maki::any, event3, state0>
+        .add_c<maki::any_c, event3, state0>
     ;
 
     using digest_t = maki::detail::transition_table_digest
     <
-        std::decay_t<decltype(transition_table_t)>
+        std::decay_t<decltype(transition_table)>
     >;
 
     using state_conf_constant_list = maki::type_list

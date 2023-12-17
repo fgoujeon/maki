@@ -41,9 +41,9 @@ namespace
             context& ctx;
         };
 
-        constexpr auto emitting_red = maki::state_conf
+        constexpr auto emitting_red = maki::state_conf_c
             .data<emitting_red_data>()
-            .entry_action_c<maki::any_t>
+            .entry_action_c<maki::any>
             (
                 [](context& ctx)
                 {
@@ -58,9 +58,9 @@ namespace
             context& ctx;
         };
 
-        constexpr auto emitting_green = maki::state_conf
+        constexpr auto emitting_green = maki::state_conf_c
             .data<emitting_green_data>()
-            .entry_action_c<maki::any_t>
+            .entry_action_c<maki::any>
             (
                 [](context& ctx)
                 {
@@ -75,9 +75,9 @@ namespace
             context& ctx;
         };
 
-        constexpr auto emitting_blue = maki::state_conf
+        constexpr auto emitting_blue = maki::state_conf_c
             .data<emitting_blue_data>()
-            .entry_action_c<maki::any_t>
+            .entry_action_c<maki::any>
             (
                 [](context& ctx)
                 {
@@ -86,15 +86,15 @@ namespace
             )
         ;
 
-        constexpr auto on_transition_table = maki::transition_table
+        constexpr auto on_transition_table = maki::transition_table_c
             .add_c<states::emitting_red,   events::color_button_press, states::emitting_green>
             .add_c<states::emitting_green, events::color_button_press, states::emitting_blue>
             .add_c<states::emitting_blue,  events::color_button_press, states::emitting_red>
         ;
 
-        constexpr auto on = maki::submachine_conf
+        constexpr auto on = maki::submachine_conf_c
             .transition_tables(on_transition_table)
-            .exit_action_c<maki::any_t>
+            .exit_action_c<maki::any>
             (
                 [](context& ctx)
                 {
@@ -104,15 +104,15 @@ namespace
         ;
     }
 
-    constexpr auto transition_table_t = maki::transition_table
+    constexpr auto transition_table = maki::transition_table_c
         .add_c<states::off, events::power_button_press, states::on>
         .add_c<states::on,  events::power_button_press, states::off>
     ;
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf
-            .transition_tables(transition_table_t)
+        static constexpr auto conf = maki::machine_conf_c
+            .transition_tables(transition_table)
             .context<context>()
         ;
     };

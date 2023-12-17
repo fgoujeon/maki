@@ -6,7 +6,7 @@
 
 /**
 @file
-@brief Defines the maki::machine_conf_t struct template
+@brief Defines the maki::machine_conf struct template
 */
 
 #ifndef MAKI_MACHINE_CONF_HPP
@@ -45,7 +45,7 @@ template
     class TransitionTableTypeList = type_list<>
 >
 #endif
-class machine_conf_t
+class machine_conf
 {
 public:
     using data_type = Data;
@@ -73,7 +73,7 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = transition_tables_;
 
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    return machine_conf_t \
+    return machine_conf \
     < \
         typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
         typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
@@ -360,7 +360,7 @@ public:
 
     Example:
     @code
-    constexpr auto conf = maki::machine_conf
+    constexpr auto conf = maki::machine_conf_c
         //...
         .fallback_transition_action_me<some_event_type>([](auto& mach, const some_event_type& event)
         {
@@ -493,7 +493,7 @@ private:
     TransitionTableTypeList transition_tables_; //NOLINT(misc-non-private-member-variables-in-classes)
 };
 
-inline constexpr auto machine_conf = machine_conf_t<>{};
+inline constexpr auto machine_conf_c = machine_conf<>{};
 
 namespace detail
 {
@@ -504,7 +504,7 @@ namespace detail
     };
 
     template<class... Options>
-    struct is_root_sm_conf<machine_conf_t<Options...>>
+    struct is_root_sm_conf<machine_conf<Options...>>
     {
         static constexpr auto value = true;
     };

@@ -26,15 +26,15 @@ namespace
 
     namespace states
     {
-        constexpr auto s0 = maki::state_conf
-            .entry_action_c<maki::any_t>
+        constexpr auto s0 = maki::state_conf_c
+            .entry_action_c<maki::any>
             (
                 [](context& ctx)
                 {
                     ctx.output += "s0::on_entry;";
                 }
             )
-            .exit_action_c<maki::any_t>
+            .exit_action_c<maki::any>
             (
                 [](context& ctx)
                 {
@@ -43,15 +43,15 @@ namespace
             )
         ;
 
-        constexpr auto s1 = maki::state_conf
-            .entry_action_c<maki::any_t>
+        constexpr auto s1 = maki::state_conf_c
+            .entry_action_c<maki::any>
             (
                 [](context& ctx)
                 {
                     ctx.output += "s1::on_entry;";
                 }
             )
-            .exit_action_c<maki::any_t>
+            .exit_action_c<maki::any>
             (
                 [](context& ctx)
                 {
@@ -60,15 +60,15 @@ namespace
             )
         ;
 
-        constexpr auto s2 = maki::state_conf
-            .entry_action_c<maki::any_t>
+        constexpr auto s2 = maki::state_conf_c
+            .entry_action_c<maki::any>
             (
                 [](context& ctx)
                 {
                     ctx.output += "s2::on_entry;";
                 }
             )
-            .exit_action_c<maki::any_t>
+            .exit_action_c<maki::any>
             (
                 [](context& ctx)
                 {
@@ -101,7 +101,7 @@ namespace
         };
     }
 
-    constexpr auto transition_table_t = maki::transition_table
+    constexpr auto transition_table = maki::transition_table_c
         .add_c<states::s0, events::s0_to_s1_request, states::s1, actions::s0_to_s1>
         .add_c<states::s1, events::s1_to_s2_request, states::s2, actions::s1_to_s2>
         .add_c<states::s2, events::s2_to_s0_request, states::s0>
@@ -109,8 +109,8 @@ namespace
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf
-            .transition_tables(transition_table_t)
+        static constexpr auto conf = maki::machine_conf_c
+            .transition_tables(transition_table)
             .context<context>()
         ;
     };

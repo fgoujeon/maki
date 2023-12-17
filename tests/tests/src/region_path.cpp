@@ -27,27 +27,27 @@ namespace
         EMPTY_STATE(off1)
         EMPTY_STATE(on0)
 
-        constexpr auto on1_transition_table = maki::transition_table
+        constexpr auto on1_transition_table = maki::transition_table_c
             .add_c<states::off0, events::button_press, states::on0>
         ;
 
-        constexpr auto on1 = maki::submachine_conf
+        constexpr auto on1 = maki::submachine_conf_c
             .transition_tables(on1_transition_table)
             .pretty_name("on_1")
         ;
     }
 
-    constexpr auto transition_table_0_t = maki::transition_table
+    constexpr auto transition_table_0_t = maki::transition_table_c
         .add_c<states::off0, events::button_press, states::on0>
     ;
 
-    constexpr auto transition_table_1_t = maki::transition_table
+    constexpr auto transition_table_1_t = maki::transition_table_c
         .add_c<states::off1, events::button_press, states::on1>
     ;
 
     struct machine_def
     {
-        static constexpr auto conf = maki::submachine_conf
+        static constexpr auto conf = maki::submachine_conf_c
             .transition_tables(transition_table_0_t, transition_table_1_t)
             .context<context>()
             .pretty_name("main_sm")

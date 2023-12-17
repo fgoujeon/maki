@@ -37,12 +37,12 @@ namespace detail
 /**
 @brief The state machine implementation template.
 @tparam ConfHolder the state machine definition, a class that must at least define a
-`static constexpr auto conf` of a @ref machine_conf_t type, with defined
-machine_conf_t::transition_tables and machine_conf_t::context_type options
+`static constexpr auto conf` of a @ref machine_conf type, with defined
+machine_conf::transition_tables and machine_conf::context_type options
 
 Here is an example of valid state machine definition, where:
-- `transition_table_t` is a user-provided `constexpr` instance of a @ref
-transition_table_t type;
+- `transition_table` is a user-provided `constexpr` instance of a @ref
+transition_table type;
 - `context` is a user-provided class.
 
 @snippet lamp/src/main.cpp machine-def
@@ -72,7 +72,7 @@ public:
     static_assert
     (
         detail::is_root_sm_conf_v<std::decay_t<decltype(conf)>>,
-        "The root state machine definition must include a 'static constexpr auto conf' of type machine_conf_t"
+        "The root state machine definition must include a 'static constexpr auto conf' of type machine_conf"
     );
 
     /**
@@ -89,7 +89,7 @@ public:
     auto obj = object_type{};
     @endcode
 
-    Finally, unless the machine_conf_t::auto_start is `false`, `start()` is
+    Finally, unless the machine_conf::auto_start is `false`, `start()` is
     called.
     */
     template<class... ContextArgs>
@@ -207,11 +207,11 @@ public:
     @param event the event to be passed to the event hooks, mainly the
     `on_entry()` function of the initial state(s)
 
-    Concretely, if @ref states::stopped is the active state, exits @ref
-    states::stopped and enters the initial state.
+    Concretely, if `maki::state_conf::stopped` is the active state, exits
+    `maki::state_conf::stopped` and enters the initial state.
 
     Reminder: There's no need to call this function after the construction,
-    unless machine_conf_t::auto_start is set to `false`.
+    unless machine_conf::auto_start is set to `false`.
     */
     template<class Event = events::start>
     void start(const Event& event = {})
@@ -224,8 +224,8 @@ public:
     @param event the event to be passed to the event hooks, mainly the
     `on_exit()` function of the active state(s)
 
-    Concretely, if @ref states::stopped is not the active state, exits the
-    active state and enters @ref states::stopped.
+    Concretely, if `maki::state_conf::stopped` is not the active state, exits
+    the active state and enters `maki::state_confs::stopped`.
     */
     template<class Event = events::stop>
     void stop(const Event& event = {})

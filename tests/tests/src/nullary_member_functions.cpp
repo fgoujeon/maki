@@ -30,7 +30,7 @@ namespace nullary_member_functions_ns
     {
         EMPTY_STATE(off)
 
-        constexpr auto on = maki::state_conf
+        constexpr auto on = maki::state_conf_c
             .entry_action_c<events::e1>
             (
                 [](context& ctx)
@@ -38,7 +38,7 @@ namespace nullary_member_functions_ns
                     ctx.out += "on_entry(e1);";
                 }
             )
-            .entry_action_c<maki::any_t>
+            .entry_action_c<maki::any>
             (
                 [](context& ctx)
                 {
@@ -52,7 +52,7 @@ namespace nullary_member_functions_ns
                     ctx.out += "on_exit(e1);";
                 }
             )
-            .exit_action_c<maki::any_t>
+            .exit_action_c<maki::any>
             (
                 [](context& ctx)
                 {
@@ -89,7 +89,7 @@ namespace nullary_member_functions_ns
         return true;
     };
 
-    constexpr auto transition_table_t = maki::transition_table
+    constexpr auto transition_table = maki::transition_table_c
         .add_c<states::off, events::e1, states::on,  action, guard>
         .add_c<states::off, events::e2, states::on,  action, guard>
         .add_c<states::on,  events::e1, states::off, action, guard>
@@ -98,8 +98,8 @@ namespace nullary_member_functions_ns
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf
-            .transition_tables(transition_table_t)
+        static constexpr auto conf = maki::machine_conf_c
+            .transition_tables(transition_table)
             .context<context>()
         ;
     };

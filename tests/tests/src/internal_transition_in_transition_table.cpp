@@ -23,22 +23,22 @@ namespace
 
     namespace states
     {
-        constexpr auto idle = maki::state_conf
-            .entry_action_c<maki::any_t>
+        constexpr auto idle = maki::state_conf_c
+            .entry_action_c<maki::any>
             (
                 [](context& ctx)
                 {
                     ctx.out += "idle::on_entry;";
                 }
             )
-            .internal_action_c<maki::any_t>
+            .internal_action_c<maki::any>
             (
                 [](context& ctx)
                 {
                     ctx.out += "idle::on_event;";
                 }
             )
-            .exit_action_c<maki::any_t>
+            .exit_action_c<maki::any>
             (
                 [](context& ctx)
                 {
@@ -47,22 +47,22 @@ namespace
             )
         ;
 
-        constexpr auto running = maki::state_conf
-            .entry_action_c<maki::any_t>
+        constexpr auto running = maki::state_conf_c
+            .entry_action_c<maki::any>
             (
                 [](context& ctx)
                 {
                     ctx.out += "running::on_entry;";
                 }
             )
-            .internal_action_c<maki::any_t>
+            .internal_action_c<maki::any>
             (
                 [](context& ctx)
                 {
                     ctx.out += "running::on_event;";
                 }
             )
-            .exit_action_c<maki::any_t>
+            .exit_action_c<maki::any>
             (
                 [](context& ctx)
                 {
@@ -80,16 +80,16 @@ namespace
         }
     }
 
-    constexpr auto transition_table_t = maki::transition_table
+    constexpr auto transition_table = maki::transition_table_c
         .add_c<states::idle,    events::power_button_press, states::running>
         .add_c<states::running, events::power_button_press, states::idle>
-        .add_c<states::running, events::beep_button_press,  maki::null, actions::beep>
+        .add_c<states::running, events::beep_button_press,  maki::null_c, actions::beep>
     ;
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf
-            .transition_tables(transition_table_t)
+        static constexpr auto conf = maki::machine_conf_c
+            .transition_tables(transition_table)
             .context<context>()
         ;
     };

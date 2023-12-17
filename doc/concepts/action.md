@@ -116,7 +116,7 @@ As you can see, for each action you have to specify:
     * `_e` for an action that only takes a reference to the event that triggers the action;
     * `_ce` for an action that takes a reference to the context, as well as a reference to the event;
     * `_v` for an action that doesn't take any argument;
-    * and so on (see `maki::state_conf_t` for all suffixes)...;
+    * and so on (see `maki::state_conf` for all suffixes)...;
 * the event type for which the action is invoked, specified by the given template argument.
 
 Order matters! Whenever the state machine must execute an action, it iterates over the provided action list until it finds a match (i.e. an action of the adequate kind, specifying the adequate event type).

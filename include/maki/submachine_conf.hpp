@@ -6,7 +6,7 @@
 
 /**
 @file
-@brief Defines the maki::submachine_conf_t struct template
+@brief Defines the maki::submachine_conf struct template
 */
 
 #ifndef MAKI_SUBMACHINE_CONF_HPP
@@ -40,7 +40,7 @@ template
     class TransitionTableTypeList = type_list<>
 >
 #endif
-class submachine_conf_t
+class submachine_conf
 {
 public:
     using data_type = Data;
@@ -56,7 +56,7 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = transition_tables_;
 
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    return submachine_conf_t \
+    return submachine_conf \
     < \
         typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
         typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
@@ -92,7 +92,7 @@ public:
     }
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    template<class EventFilter = maki::any_t, class Action> \
+    template<class EventFilter = maki::any, class Action> \
     [[nodiscard]] constexpr auto entry_action_##signature(const Action& action) const \
     { \
         return entry_action<EventFilter, detail::event_action_signature::signature>(action); \
@@ -110,7 +110,7 @@ public:
 #undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    template<class EventFilter = maki::any_t, class Action> \
+    template<class EventFilter = maki::any, class Action> \
     [[nodiscard]] constexpr auto exit_action_##signature(const Action& action) const \
     { \
         return exit_action<EventFilter, detail::event_action_signature::signature>(action); \
@@ -138,7 +138,7 @@ public:
 #if MAKI_DETAIL_DOXYGEN
 private:
 #endif
-    template<class EventFilter = maki::any_t, detail::event_action_signature Sig, class Action>
+    template<class EventFilter = maki::any, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto entry_action(const Action& action) const
     {
         const auto new_entry_actions = tuple_append
@@ -168,7 +168,7 @@ private:
 #undef MAKI_DETAIL_ARG_internal_actions
     }
 
-    template<class EventFilter = maki::any_t, detail::event_action_signature Sig, class Action>
+    template<class EventFilter = maki::any, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto exit_action(const Action& action) const
     {
         const auto new_exit_actions = tuple_append
@@ -193,7 +193,7 @@ private:
     TransitionTableTypeList transition_tables_; //NOLINT(misc-non-private-member-variables-in-classes)
 };
 
-inline constexpr auto submachine_conf = submachine_conf_t{};
+inline constexpr auto submachine_conf_c = submachine_conf{};
 
 namespace detail
 {
@@ -204,7 +204,7 @@ namespace detail
     };
 
     template<class... Ts>
-    struct is_submachine_conf<submachine_conf_t<Ts...>>
+    struct is_submachine_conf<submachine_conf<Ts...>>
     {
         static constexpr auto value = true;
     };

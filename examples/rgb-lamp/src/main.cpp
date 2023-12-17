@@ -76,7 +76,7 @@ States are represented by constexpr objects.
 */
 namespace states
 {
-    constexpr auto off = maki::state_conf
+    constexpr auto off = maki::state_conf_c
         /*
         Entry action invoked whenever the state machine enters the `off` state
         with a `button::push_event`.
@@ -111,7 +111,7 @@ namespace states
         Exit action invoked whenever the state machine exits the `off` state,
         whatever the type of the event that caused the state transition.
         */
-        .exit_action_v<maki::any_t>([]
+        .exit_action_v<maki::any>([]
         {
             std::cout << "Turned on\n";
         })
@@ -124,7 +124,7 @@ namespace states
     {
         int counter = 0;
     };
-    constexpr auto emitting_white = maki::state_conf
+    constexpr auto emitting_white = maki::state_conf_c
         .data<emitting_white_data>()
         .entry_action_d([](emitting_white_data& data)
         {
@@ -135,9 +135,9 @@ namespace states
     /*
     These are minimal valid state classes.
     */
-    constexpr auto emitting_red = maki::state_conf;
-    constexpr auto emitting_green = maki::state_conf;
-    constexpr auto emitting_blue = maki::state_conf;
+    constexpr auto emitting_red = maki::state_conf_c;
+    constexpr auto emitting_green = maki::state_conf_c;
+    constexpr auto emitting_blue = maki::state_conf_c;
 }
 
 /*
@@ -212,14 +212,14 @@ When a match is found, Maki:
 The initial active state of the state machine is the first state encountered in
 the transition table (`off`, is our case).
 */
-constexpr auto transition_table = maki::transition_table
-    //     source_state,       event,       target_state,   action,           guard
-    .add_c<off,                button_push, emitting_white, turn_light_white>
-    .add_c<emitting_white,     button_push, emitting_red,   turn_light_red,   is_short_push>
-    .add_c<emitting_red,       button_push, emitting_green, turn_light_green, is_short_push>
-    .add_c<emitting_green,     button_push, emitting_blue,  turn_light_blue,  is_short_push>
-    .add_c<emitting_blue,      button_push, emitting_white, turn_light_white, is_short_push>
-    .add_c<maki::any_but<off>, button_push, off,            turn_light_off,   is_long_push>
+constexpr auto transition_table = maki::transition_table_c
+    //     source_state,         event,       target_state,   action,           guard
+    .add_c<off,                  button_push, emitting_white, turn_light_white>
+    .add_c<emitting_white,       button_push, emitting_red,   turn_light_red,   is_short_push>
+    .add_c<emitting_red,         button_push, emitting_green, turn_light_green, is_short_push>
+    .add_c<emitting_green,       button_push, emitting_blue,  turn_light_blue,  is_short_push>
+    .add_c<emitting_blue,        button_push, emitting_white, turn_light_white, is_short_push>
+    .add_c<maki::any_but_c<off>, button_push, off,            turn_light_off,   is_long_push>
 ;
 
 /*
@@ -229,7 +229,7 @@ aspects of the state machine.
 */
 struct machine_conf_holder
 {
-    static constexpr auto conf = maki::machine_conf
+    static constexpr auto conf = maki::machine_conf_c
         .transition_tables(transition_table)
         .context<context>()
     ;

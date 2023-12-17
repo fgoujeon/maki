@@ -125,7 +125,7 @@ public:
         (
             same_ref
             (
-                detail::tlu::front_t<state_region_path_t>::machine_conf_t,
+                detail::tlu::front_t<state_region_path_t>::machine_conf,
                 Conf
             )
         );
@@ -144,7 +144,7 @@ public:
         (
             same_ref
             (
-                detail::tlu::front_t<state_region_path_t>::machine_conf_t,
+                detail::tlu::front_t<state_region_path_t>::machine_conf,
                 Conf
             )
         );
@@ -163,7 +163,7 @@ public:
         (
             same_ref
             (
-                detail::tlu::front_t<state_region_path_t>::machine_conf_t,
+                detail::tlu::front_t<state_region_path_t>::machine_conf,
                 Conf
             )
         );

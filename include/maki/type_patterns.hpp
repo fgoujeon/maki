@@ -29,60 +29,60 @@ tables) in lieu of single types to concisely express a set of types.
 /**
 @brief A type pattern that matches with any type.
 */
-struct any_t{};
+struct any{};
 
 /**
 @brief A type pattern that matches with any type that verifies `Predicate<T>::value == true`.
 @tparam Predicate the predicate against which types are tested
 */
 template<template<class> class Predicate>
-struct any_if_t{};
+struct any_if{};
 
 /**
 @brief A type pattern that matches with any type that verifies `Predicate<T>::value == false`.
 @tparam Predicate the predicate against which types are tested
 */
 template<template<class> class Predicate>
-struct any_if_not_t{};
+struct any_if_not{};
 
 /**
 @brief A type pattern that matches with the given types.
 @tparam Ts the types the pattern matches with
 */
 template<class... Ts>
-struct any_of_t{};
+struct any_of{};
 
 /**
 @brief A type pattern that matches with any type but the given ones.
 @tparam Ts the types the pattern doesn't match with
 */
 template<class... Ts>
-struct any_but_t{};
+struct any_but{};
 
 /**
 @brief A type pattern that doesn't match with any type.
 */
-struct none_t{};
+struct none{};
 
 /**
 @}
 */
 
-inline constexpr auto any = any_t{};
+inline constexpr auto any_c = any{};
 
 template<template<class> class Predicate>
-constexpr auto any_if = any_if_t<Predicate>{};
+constexpr auto any_if_c = any_if<Predicate>{};
 
 template<template<class> class Predicate>
-constexpr auto any_if_not = any_if_not_t<Predicate>{};
+constexpr auto any_if_not_c = any_if_not<Predicate>{};
 
 template<const auto&... StateConfs>
-constexpr auto any_of = any_of_t<cref_constant<StateConfs>...>{};
+constexpr auto any_of_c = any_of<cref_constant<StateConfs>...>{};
 
 template<const auto&... StateConfs>
-constexpr auto any_but = any_but_t<cref_constant<StateConfs>...>{};
+constexpr auto any_but_c = any_but<cref_constant<StateConfs>...>{};
 
-inline constexpr auto none = none_t{};
+inline constexpr auto none_c = none{};
 
 //matches_pattern
 namespace detail
@@ -99,25 +99,25 @@ namespace detail
     constexpr auto matches_pattern_v = matches_pattern<T, Pattern>::value;
 
     template<class T>
-    struct matches_pattern<T, any_t>
+    struct matches_pattern<T, any>
     {
         static constexpr bool value = true;
     };
 
     template<class T, template<class> class Predicate>
-    struct matches_pattern<T, any_if_t<Predicate>>
+    struct matches_pattern<T, any_if<Predicate>>
     {
         static constexpr bool value = Predicate<T>::value;
     };
 
     template<class T, template<class> class Predicate>
-    struct matches_pattern<T, any_if_not_t<Predicate>>
+    struct matches_pattern<T, any_if_not<Predicate>>
     {
         static constexpr bool value = !Predicate<T>::value;
     };
 
     template<class T, class... Ts>
-    struct matches_pattern<T, any_of_t<Ts...>>
+    struct matches_pattern<T, any_of<Ts...>>
     {
         //MSVC wants a function for the fold expression
         static constexpr bool make_value()
@@ -129,7 +129,7 @@ namespace detail
     };
 
     template<class T, class... Ts>
-    struct matches_pattern<T, any_but_t<Ts...>>
+    struct matches_pattern<T, any_but<Ts...>>
     {
         //MSVC wants a function for the fold expression
         static constexpr bool make_value()
@@ -141,7 +141,7 @@ namespace detail
     };
 
     template<class T>
-    struct matches_pattern<T, none_t>
+    struct matches_pattern<T, none>
     {
         static constexpr bool value = false;
     };

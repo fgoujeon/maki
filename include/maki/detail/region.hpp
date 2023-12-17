@@ -100,7 +100,7 @@ public:
         }
         else
         {
-            constexpr const auto& submach_conf = tlu::front_t<state_relative_region_path_t>::machine_conf_t;
+            constexpr const auto& submach_conf = tlu::front_t<state_relative_region_path_t>::machine_conf;
             constexpr auto submach_index = tlu::index_of_v<state_conf_constant_list, cref_constant<submach_conf>>;
             const auto& state = tuple_get<submach_index>(states_);
             return state.template is_active_state_def<StateRelativeRegionPath, StateConf>();
@@ -385,7 +385,7 @@ private:
 
         constexpr const auto& path = region_path_of_v<region>;
 
-        constexpr auto is_internal_transition = same_ref(TargetStateConf, null);
+        constexpr auto is_internal_transition = same_ref(TargetStateConf, null_c);
 
         if constexpr(!is_internal_transition)
         {
@@ -457,10 +457,10 @@ private:
                 using candidate_transition_type_list = transition_table_filters::by_event_t
                 <
                     transition_table_type,
-                    null_t
+                    null
                 >;
 
-                try_processing_event_in_transitions<candidate_transition_type_list>(*this, mach, ctx, null);
+                try_processing_event_in_transitions<candidate_transition_type_list>(*this, mach, ctx, null_c);
             }
         }
     }
@@ -623,7 +623,7 @@ private:
         }
         else
         {
-            constexpr const auto& submach_conf = tlu::front_t<state_region_path_t>::machine_conf_t;
+            constexpr const auto& submach_conf = tlu::front_t<state_region_path_t>::machine_conf;
             constexpr auto submachine_index = tlu::index_of_v<typename Region::state_conf_constant_list, cref_constant<submach_conf>>;
             auto& submach = tuple_get<submachine_index>(self.states_);
             return submach.template state_data<StateRegionPath, StateConf>(); //recursive

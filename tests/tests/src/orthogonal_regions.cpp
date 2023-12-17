@@ -31,7 +31,7 @@ namespace orthogonal_regions_ns
         EMPTY_STATE(off0)
         EMPTY_STATE(off1)
         EMPTY_STATE(on0)
-        constexpr auto on1 = maki::state_conf
+        constexpr auto on1 = maki::state_conf_c
             .internal_action_c<events::exception_request>
             (
                 [](context& ctx)
@@ -47,12 +47,12 @@ namespace orthogonal_regions_ns
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf
+        static constexpr auto conf = maki::machine_conf_c
             .transition_tables
             (
-                maki::transition_table
+                maki::transition_table_c
                     .add_c<states::off0, events::button_press, states::on0>,
-                maki::transition_table
+                maki::transition_table_c
                     .add_c<states::off1, events::button_press, states::on1>
             )
             .context<context>()

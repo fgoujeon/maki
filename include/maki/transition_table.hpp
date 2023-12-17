@@ -6,7 +6,7 @@
 
 /**
 @file
-@brief Defines the maki::transition and maki::transition_table_t struct templates
+@brief Defines the maki::transition and maki::transition_table struct templates
 */
 
 #ifndef MAKI_TRANSITION_TABLE_HPP
@@ -26,7 +26,7 @@ state) to another (the target state) in a region of a state machine.
 
 You can define a transition table by using this class template directly:
 ```cpp
-constexpr auto transition_table_t = maki::transition_table_t
+constexpr auto transition_table = maki::transition_table
 <
     maki::transition<off, button_press, on,  turn_light_on, has_enough_power>,
     maki::transition<on,  button_press, off, turn_light_off>
@@ -34,10 +34,10 @@ constexpr auto transition_table_t = maki::transition_table_t
 ```
 
 … but using the @ref transition_table variable template and the
-@ref transition_table_t::add_c member type template is usually the preferred,
+@ref transition_table::add_c member type template is usually the preferred,
 more concise way to do so:
 ```cpp
-constexpr auto transition_table_t = maki::transition_table
+constexpr auto transition_table = maki::transition_table_c
     .add_c<off, button_press, on,  turn_light_on, has_enough_power>
     .add_c<on,  button_press, off, turn_light_off>
 ;
@@ -67,7 +67,7 @@ inline constexpr bool yes()
 /**
 @brief Represents a possible state transition.
 
-Used as a template argument of @ref transition_table_t.
+Used as a template argument of @ref transition_table.
 
 @tparam SourceStatePattern the active state (or states, plural, if it's a @ref TypePatterns "type pattern") from which the transition can occur
 @tparam EventPattern the event type (or types, plural, if it's a @ref TypePatterns "type pattern") that can cause the transition to occur
@@ -99,10 +99,10 @@ struct transition
 @tparam Transitions the transitions, which must be instances of @ref transition
 */
 template<class... Transitions>
-struct transition_table_t
+struct transition_table
 {
     /**
-    A type alias to a @ref transition_table_t with an appended @ref transition.
+    A type alias to a @ref transition_table with an appended @ref transition.
     See @ref transition for a description of the template parameters.
     */
     template
@@ -113,7 +113,7 @@ struct transition_table_t
         const auto& Action = noop,
         const auto& Guard = yes
     >
-    static constexpr auto add_c = transition_table_t
+    static constexpr auto add_c = transition_table
     <
         Transitions...,
         transition
@@ -128,11 +128,11 @@ struct transition_table_t
 };
 
 /**
-@brief A constexpr instance of an empty transition_table_t
+@brief A constexpr instance of an empty transition_table
 
-See @ref transition_table_t for a usage.
+See @ref transition_table for a usage.
 */
-inline constexpr auto transition_table = transition_table_t<>{};
+inline constexpr auto transition_table_c = transition_table<>{};
 
 /**
 @}

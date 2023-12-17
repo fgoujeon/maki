@@ -55,10 +55,10 @@ struct context
 };
 
 //States
-constexpr auto idle = maki::state_conf;
-constexpr auto starting = maki::state_conf;
-constexpr auto running = maki::state_conf;
-constexpr auto stopping = maki::state_conf;
+constexpr auto idle = maki::state_conf_c;
+constexpr auto starting = maki::state_conf_c;
+constexpr auto running = maki::state_conf_c;
+constexpr auto stopping = maki::state_conf_c;
 
 //Actions
 void start_motor(context& ctx)
@@ -71,7 +71,7 @@ void stop_motor(context& ctx)
 }
 
 //Transition table
-constexpr auto transition_table = maki::transition_table
+constexpr auto transition_table = maki::transition_table_c
     //     source state, event,                         target state, action
     .add_c<idle,         user_interface::start_request, starting,     start_motor>
     .add_c<starting,     motor::start_event,            running>
@@ -82,7 +82,7 @@ constexpr auto transition_table = maki::transition_table
 //State machine configuration
 struct machine_conf_holder
 {
-    static constexpr auto conf = maki::machine_conf
+    static constexpr auto conf = maki::machine_conf_c
         .transition_tables(transition_table)
         .context<context>()
     ;

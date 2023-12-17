@@ -605,7 +605,7 @@ private:
 
             if constexpr(!Dry)
             {
-                self.template state<State>().template call_internal_action
+                self.template state<State>().call_internal_action
                 (
                     mach,
                     ctx,

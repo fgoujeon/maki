@@ -27,7 +27,7 @@ namespace
 
     namespace guards
     {
-        bool is_pressing_hard(context& /*ctx*/, const events::button_press& event)
+        bool is_pressing_hard(const context& /*ctx*/, const events::button_press& event)
         {
             return event.hard;
         }

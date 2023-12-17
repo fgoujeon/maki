@@ -100,6 +100,11 @@ public:
         return ctx_holder_.get();
     }
 
+    const context_type& context() const
+    {
+        return ctx_holder_.get();
+    }
+
     auto& data()
     {
         return simple_state_.data();
@@ -199,7 +204,7 @@ public:
         tlu::for_each<region_tuple_type, region_start>(*this, mach, own_context_or(ctx), event);
     }
 
-    template<class Machine, class Context, class Event>
+    template<bool Dry = false, class Machine, class Context, class Event>
     void call_internal_action
     (
         Machine& mach,
@@ -207,20 +212,10 @@ public:
         const Event& event
     )
     {
-        if constexpr(simple_state_type::template has_internal_action_for_event<Event>())
-        {
-            simple_state_.call_internal_action
-            (
-                mach,
-                own_context_or(ctx),
-                event
-            );
-        }
-
-        tlu::for_each<region_tuple_type, region_process_event>(*this, mach, own_context_or(ctx), event);
+        call_internal_action_2<Dry>(*this, mach, ctx, event);
     }
 
-    template<class Machine, class Context, class Event>
+    template<bool Dry = false, class Machine, class Context, class Event>
     void call_internal_action
     (
         Machine& mach,
@@ -229,21 +224,30 @@ public:
         bool& processed
     )
     {
-        if constexpr(simple_state_type::template has_internal_action_for_event<Event>())
-        {
-            simple_state_.call_internal_action
-            (
-                mach,
-                own_context_or(ctx),
-                event
-            );
-            tlu::for_each<region_tuple_type, region_process_event>(*this, mach, own_context_or(ctx), event);
-            processed = true;
-        }
-        else
-        {
-            tlu::for_each<region_tuple_type, region_process_event>(*this, mach, own_context_or(ctx), event, processed);
-        }
+        call_internal_action_2<Dry>(*this, mach, ctx, event, processed);
+    }
+
+    template<bool Dry = false, class Machine, class Context, class Event>
+    void call_internal_action
+    (
+        Machine& mach,
+        Context& ctx,
+        const Event& event
+    ) const
+    {
+        call_internal_action_2<Dry>(*this, mach, ctx, event);
+    }
+
+    template<bool Dry = false, class Machine, class Context, class Event>
+    void call_internal_action
+    (
+        Machine& mach,
+        Context& ctx,
+        const Event& event,
+        bool& processed
+    ) const
+    {
+        call_internal_action_2<Dry>(*this, mach, ctx, event, processed);
     }
 
     template<class Machine, class Context, class Event>
@@ -278,33 +282,100 @@ private:
 
     struct region_start
     {
-        template<class Region, class Machine, class Context, class Event>
-        static void call(submachine& self, Machine& mach, Context& ctx, const Event& event)
+        template<class Region, class Self, class Machine, class Context, class Event>
+        static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
             tuple_get<Region>(self.regions_).start(mach, ctx, event);
         }
     };
 
+    template<bool Dry>
     struct region_process_event
     {
-        template<class Region, class Machine, class Context, class Event, class... ExtraArgs>
-        static void call(submachine& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
+        template<class Region, class Self, class Machine, class Context, class Event, class... ExtraArgs>
+        static void call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
-            tuple_get<Region>(self.regions_).process_event(mach, ctx, event, extra_args...);
+            tuple_get<Region>(self.regions_).template process_event<Dry>(mach, ctx, event, extra_args...);
         }
     };
 
     struct region_stop
     {
-        template<class Region, class Machine, class Context, class Event>
-        static void call(submachine& self, Machine& mach, Context& ctx, const Event& event)
+        template<class Region, class Self, class Machine, class Context, class Event>
+        static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
             tuple_get<Region>(self.regions_).stop(mach, ctx, event);
         }
     };
 
+    template<bool Dry, class Self, class Machine, class Context, class Event>
+    static void call_internal_action_2
+    (
+        Self& self,
+        Machine& mach,
+        Context& ctx,
+        const Event& event
+    )
+    {
+        if constexpr(simple_state_type::template has_internal_action_for_event<Event>())
+        {
+            if constexpr(!Dry)
+            {
+                self.simple_state_.call_internal_action
+                (
+                    mach,
+                    self.own_context_or(ctx),
+                    event
+                );
+            }
+        }
+
+        tlu::for_each<region_tuple_type, region_process_event<Dry>>(self, mach, self.own_context_or(ctx), event);
+    }
+
+    template<bool Dry, class Self, class Machine, class Context, class Event>
+    static void call_internal_action_2
+    (
+        Self& self,
+        Machine& mach,
+        Context& ctx,
+        const Event& event,
+        bool& processed
+    )
+    {
+        if constexpr(simple_state_type::template has_internal_action_for_event<Event>())
+        {
+            if constexpr(!Dry)
+            {
+                self.simple_state_.call_internal_action
+                (
+                    mach,
+                    self.own_context_or(ctx),
+                    event
+                );
+                tlu::for_each<region_tuple_type, region_process_event<Dry>>(self, mach, self.own_context_or(ctx), event);
+            }
+            processed = true;
+        }
+
+        tlu::for_each<region_tuple_type, region_process_event<Dry>>(self, mach, self.own_context_or(ctx), event, processed);
+    }
+
     template<class Context>
     auto& own_context_or(Context& ctx)
+    {
+        if constexpr(std::is_void_v<typename conf_type::context_type>)
+        {
+            return ctx;
+        }
+        else
+        {
+            return ctx_holder_.get();
+        }
+    }
+
+    template<class Context>
+    const auto& own_context_or(const Context& ctx) const
     {
         if constexpr(std::is_void_v<typename conf_type::context_type>)
         {

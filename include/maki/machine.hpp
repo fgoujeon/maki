@@ -315,7 +315,7 @@ public:
     /**
     @brief Checks whether calling `process_event(event)` would cause a state
     transition or a call to any action.
-    @param event the event to be processed
+    @param event the event to be checked
 
     This function is useful for checking whether an event is valid or not,
     given the current state of the state machine and guard checks against the
@@ -324,9 +324,11 @@ public:
     Note: Run-to-completion mechanism is bypassed.
     */
     template<class Event>
-    bool check_event(const Event& /*event*/) const
+    bool check_event(const Event& event) const
     {
-        return false; //TODO
+        auto processed = false;
+        submachine_.template call_internal_action<true>(*this, context(), event, processed);
+        return processed;
     }
 
     /**

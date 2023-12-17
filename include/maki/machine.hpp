@@ -313,18 +313,20 @@ public:
     }
 
     /**
-    @brief Like process_event_now(), except no transition is performed and no
-    actions are called.
+    @brief Checks whether calling `process_event(event)` would cause a state
+    transition or a call to any action.
     @param event the event to be processed
 
     This function is useful for checking whether an event is valid or not,
     given the current state of the state machine and guard checks against the
     event itself.
+
+    Note: Run-to-completion mechanism is bypassed.
     */
-    template <class Event>
-    bool process_event_now_dry(const Event &event)
+    template<class Event>
+    bool check_event(const Event& /*event*/) const
     {
-        return false;
+        return false; //TODO
     }
 
     /**

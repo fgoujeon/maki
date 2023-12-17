@@ -6,6 +6,7 @@
 
 #include <maki.hpp>
 #include "common.hpp"
+#include <memory>
 
 namespace
 {

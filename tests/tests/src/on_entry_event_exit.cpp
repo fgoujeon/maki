@@ -25,64 +25,58 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(idle);
+        EMPTY_STATE(idle)
 
-        struct english
-        {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
-                .enable_on_event_for<events::say_dog>()
-                .enable_on_exit()
-            ;
+        constexpr auto english = maki::state_conf
+            .entry_action_c
+            (
+                [](context& ctx)
+                {
+                    ctx.hello = "hello";
+                }
+            )
+            .internal_action_c<events::say_dog>
+            (
+                [](context& ctx)
+                {
+                    ctx.dog = "dog";
+                }
+            )
+            .exit_action_c
+            (
+                [](context& ctx)
+                {
+                    ctx.goodbye = "goodbye";
+                }
+            )
+        ;
 
-            void on_entry()
-            {
-                ctx.hello = "hello";
-            }
-
-            void on_event(const events::say_dog&)
-            {
-                ctx.dog = "dog";
-            }
-
-            void on_exit()
-            {
-                ctx.goodbye = "goodbye";
-            }
-
-            context& ctx;
-        };
-
-        struct french
-        {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
-                .enable_on_event_for<events::say_dog>()
-                .enable_on_exit()
-            ;
-
-            template<class Sm, class Event>
-            void on_entry(Sm& mach, const Event& /*event*/)
-            {
-                mach.context().hello = "bonjour";
-            }
-
-            void on_event(const events::say_dog&)
-            {
-                ctx.dog = "chien";
-            }
-
-            template<class Sm, class Event>
-            void on_exit(Sm& mach, const Event& /*event*/)
-            {
-                mach.context().goodbye = "au revoir";
-            }
-
-            context& ctx;
-        };
+        constexpr auto french = maki::state_conf
+            .entry_action_m
+            (
+                [](auto& mach)
+                {
+                    mach.context().hello = "bonjour";
+                }
+            )
+            .internal_action_c<events::say_dog>
+            (
+                [](context& ctx)
+                {
+                    ctx.dog = "chien";
+                }
+            )
+            .exit_action_m
+            (
+                [](auto& mach)
+                {
+                    mach.context().goodbye = "au revoir";
+                }
+            )
+        ;
     }
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<states::idle,    events::next_language_request, states::english>
         .add_c<states::english, events::next_language_request, states::french>
         .add_c<states::french,  events::next_language_request, states::idle>
@@ -90,16 +84,16 @@ namespace
 
     struct machine_def
     {
-        static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
+        static constexpr auto conf = maki::machine_conf
+            .transition_tables(transition_table_t)
+            .context<context>()
         ;
     };
 
     using machine_t = maki::machine<machine_def>;
 }
 
-TEST_CASE("on_entry_event_exit")
+TEST_CASE("entry_action_event_exit")
 {
     auto machine = machine_t{};
     auto& ctx = machine.context();

@@ -13,15 +13,20 @@ namespace
     {
     };
 
-    namespace states
-    {
-        EMPTY_STATE(on)
-        EMPTY_STATE(off)
-    }
-
     namespace events
     {
         struct button_press{};
+
+        struct accumulate_request
+        {
+            int n = 0;
+        };
+    }
+
+    namespace states
+    {
+        EMPTY_STATE(off)
+        EMPTY_STATE(on)
     }
 
     constexpr auto transition_table_t = maki::transition_table
@@ -29,32 +34,41 @@ namespace
         .add_c<states::on,  events::button_press, states::off>
     ;
 
+    struct machine_data
+    {
+        int counter = 0;
+    };
+
     struct machine_def
     {
         static constexpr auto conf = maki::machine_conf
             .transition_tables(transition_table_t)
             .context<context>()
-            .auto_start(false)
-            .run_to_completion(false)
-            .exception_action_me([](auto& /*mach*/, const std::exception_ptr& /*eptr*/){})
+            .data<machine_data>()
+            .event_action_de<events::accumulate_request>
+            (
+                [](machine_data& data, const events::accumulate_request& event)
+                {
+                    data.counter += event.n;
+                }
+            )
         ;
     };
 
     using machine_t = maki::machine<machine_def>;
 }
 
-TEST_CASE("basic_transition")
+TEST_CASE("state_data_machine")
 {
     auto machine = machine_t{};
-
-    REQUIRE(!machine.is_running());
-
-    machine.start();
-    REQUIRE(machine.is_active_state<states::off>());
+    int& counter = machine.data().counter;
 
     machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(counter == 0);
 
-    machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::off>());
+    machine.process_event(events::accumulate_request{1});
+    REQUIRE(counter == 1);
+
+    machine.process_event(events::accumulate_request{2});
+    REQUIRE(counter == 3);
 }

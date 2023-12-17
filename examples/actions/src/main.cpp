@@ -19,58 +19,45 @@ struct some_other_event
 struct yet_another_event{};
 
 //States
-struct state0 { static constexpr auto conf = maki::default_state_conf; };
-struct state1 { static constexpr auto conf = maki::default_state_conf; };
+constexpr auto state0 = maki::state_conf;
+constexpr auto state1 = maki::state_conf;
 //! [short-in-state]
-struct state2
-{
-    static constexpr auto conf = maki::default_state_conf
-        //Require the state machine to call on_entry() on state entry
-        .enable_on_entry()
-
-        //Require the state machine to call on_event() whenever it processes
-        //some_event or some_other_event while this state is active
-        .enable_on_event_for<some_event, some_other_event>()
-
-        //Require the state machine to call on_exit() on state exit
-        .enable_on_exit()
-    ;
-
+constexpr auto state2 = maki::state_conf
     //Entry action.
     //Called on state entry for state transitions caused by some_other_event.
-    void on_entry(const some_other_event& event)
+    .entry_action_e<some_other_event>([](const some_other_event& event)
     {
         std::cout << "Executing state2 entry action (some_other_event{" << event.value << "})...\n";
-    }
+    })
 
     //Entry action.
     //Called on state entry for state transitions caused by any other type of
     //event.
-    void on_entry()
+    .entry_action_v<maki::any_t>([]
     {
         std::cout << "Executing state2 entry action...\n";
-    }
+    })
 
     //Internal action.
-    void on_event(const some_event& /*event*/)
+    .internal_action_v<some_event>([]
     {
         std::cout << "Executing state2 some_event action\n";
-    }
+    })
 
     //Internal action.
-    void on_event(const some_other_event& event)
+    .internal_action_e<some_other_event>([](const some_other_event& event)
     {
         std::cout << "Executing state2 some_other_event action (some_other_event{" << event.value << "})...\n";
-    }
+    })
 
     //Exit action.
     //Called on state exit, whatever the event that caused the state
     //transitions.
-    void on_exit()
+    .exit_action_v<maki::any_t>([]
     {
         std::cout << "Executing state2 exit action...\n";
-    }
-};
+    })
+;
 //! [short-in-state]
 
 //! [short-in-transition]
@@ -85,7 +72,7 @@ void some_other_action(context& /*ctx*/, const some_other_event& event)
 }
 
 //Transition table
-constexpr auto transition_table = maki::empty_transition_table
+constexpr auto transition_table = maki::transition_table
     //     source state, event,             target state, action
     .add_c<state0,       some_event,        state1,       some_action /*state transition action*/>
     .add_c<state0,       some_other_event,  maki::null,   some_other_action /*internal transition action*/>
@@ -95,18 +82,18 @@ constexpr auto transition_table = maki::empty_transition_table
 ;
 //! [short-in-transition]
 
-//State machine definition
-struct machine_def
+//State machine configuration
+struct machine_conf_holder
 {
     //The configuration of the state machine
-    static constexpr auto conf = maki::default_machine_conf
-        .set_transition_tables(transition_table)
-        .set_context<context>()
+    static constexpr auto conf = maki::machine_conf
+        .transition_tables(transition_table)
+        .context<context>()
     ;
 };
 
 //State machine
-using machine_t = maki::machine<machine_def>;
+using machine_t = maki::machine<machine_conf_holder>;
 
 int main()
 {

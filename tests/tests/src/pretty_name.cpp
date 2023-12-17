@@ -14,55 +14,34 @@ namespace pretty_name_ns
     template<class T, class U>
     class templ{};
 
-    struct state
-    {
-        static constexpr auto conf = maki::default_state_conf
-            .enable_pretty_name()
-        ;
-
-        static const char* pretty_name()
-        {
-            return "my_state";
-        }
-    };
-
-    constexpr auto submachine_transition_table = maki::empty_transition_table
-        .add_c<state, maki::null, maki::null>
+    constexpr auto state = maki::state_conf
+        .pretty_name("my_state")
     ;
 
-    struct submachine
-    {
-        static constexpr auto conf = maki::default_submachine_conf
-            .set_transition_tables(submachine_transition_table)
-            .enable_pretty_name()
-        ;
+    constexpr auto submachine_transition_table = maki::transition_table
+        .add_c<state, maki::null_t, maki::null>
+    ;
 
-        static const char* pretty_name()
-        {
-            return "my_submachine";
-        }
-    };
+    constexpr auto submachine = maki::submachine_conf
+        .transition_tables(submachine_transition_table)
+        .pretty_name("my_submachine")
+    ;
 
     struct context
     {
     };
 
-    constexpr auto transition_table = maki::empty_transition_table
-        .add_c<state, maki::null, maki::null>
+    constexpr auto transition_table_t = maki::transition_table
+        .add_c<state, maki::null_t, maki::null>
     ;
 
     struct machine_def
     {
-        static constexpr auto conf = maki::default_submachine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
-            .enable_pretty_name()
+        static constexpr auto conf = maki::submachine_conf
+            .transition_tables(transition_table_t)
+            .context<context>()
+            .pretty_name("my_sm")
         ;
-
-        static const char* pretty_name()
-        {
-            return "my_sm";
-        }
     };
 
     using machine_t = maki::machine<machine_def>;
@@ -82,6 +61,12 @@ TEST_CASE("pretty_name")
     (
         maki::detail::decayed_type_name<pretty_name_ns::templ<int, pretty_name_ns::test>>() ==
         std::string_view{"templ"}
+    );
+
+    REQUIRE
+    (
+        maki::pretty_name<pretty_name_ns::machine_def>() ==
+        std::string_view{"my_sm"}
     );
 
     REQUIRE

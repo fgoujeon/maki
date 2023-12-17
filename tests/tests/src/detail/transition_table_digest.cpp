@@ -7,14 +7,14 @@
 #include "../common.hpp"
 #include <maki.hpp>
 
-namespace
+namespace transition_table_digest_ns
 {
     struct context{};
 
-    EMPTY_STATE(state0);
-    EMPTY_STATE(state1);
-    EMPTY_STATE(state2);
-    EMPTY_STATE(state3);
+    EMPTY_STATE(state0)
+    EMPTY_STATE(state1)
+    EMPTY_STATE(state2)
+    EMPTY_STATE(state3)
 
     struct event0{};
     struct event1{};
@@ -27,37 +27,31 @@ namespace
     bool guard0(){return true;}
     bool guard1(){return true;}
 
-    constexpr auto transition_table = maki::empty_transition_table
-        .add_c<state0,    event0, state1>
-        .add_c<state1,    event1, state2, maki::noop, guard0>
-        .add_c<state2,    event2, state3, action0>
-        .add_c<state3,    event3, state0, action1,    guard1>
+    constexpr auto transition_table_t = maki::transition_table
+        .add_c<state0,      event0, state1>
+        .add_c<state1,      event1, state2, maki::noop, guard0>
+        .add_c<state2,      event2, state3, action0>
+        .add_c<state3,      event3, state0, action1,    guard1>
         .add_c<maki::any, event3, state0>
     ;
 
-    struct machine_def
-    {
-        [[maybe_unused]] static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
-        ;
-    };
-
-    using machine_t = maki::machine<machine_def>;
-
-    using region_path_t = maki::region_path<machine_t>;
-
     using digest_t = maki::detail::transition_table_digest
     <
-        std::decay_t<decltype(transition_table)>,
-        machine_t
+        std::decay_t<decltype(transition_table_t)>
     >;
 
-    using state_tuple_t = maki::type_list<state0, state1, state2, state3>;
+    using state_conf_constant_list = maki::type_list
+    <
+        maki::detail::constant<state0>,
+        maki::detail::constant<state1>,
+        maki::detail::constant<state2>,
+        maki::detail::constant<state3>
+    >;
 }
 
 TEST_CASE("detail::transition_table_digest")
 {
-    REQUIRE(std::is_same_v<digest_t::state_type_list, state_tuple_t>);
+    using namespace transition_table_digest_ns;
+    REQUIRE(std::is_same_v<digest_t::state_conf_constant_list, state_conf_constant_list>);
     REQUIRE(!digest_t::has_null_events);
 }

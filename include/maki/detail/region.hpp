@@ -13,8 +13,10 @@
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
-#include "machine_object_holder_tuple.hpp"
 #include "tlu.hpp"
+#include "noop_ex.hpp"
+#include "same_ref.hpp"
+#include "constant.hpp"
 #include "../submachine_conf.hpp"
 #include "../states.hpp"
 #include <type_traits>
@@ -23,7 +25,7 @@
 namespace maki::detail
 {
 
-namespace
+namespace region_detail
 {
     template<class StateList, class State>
     struct index_of_state
@@ -31,8 +33,8 @@ namespace
         static constexpr auto value = tlu::index_of_v<StateList, State>;
     };
 
-    template<class StateList>
-    struct index_of_state<StateList, states::stopped>
+    template<class StateList, class Region>
+    struct index_of_state<StateList, state_traits::state_conf_to_state<states::stopped, Region>>
     {
         static constexpr auto value = -1;
     };
@@ -40,34 +42,21 @@ namespace
     template<class StateList, class State>
     inline constexpr auto index_of_state_v = index_of_state<StateList, State>::value;
 
-    template<class State>
-    auto& state_def_of(State& state)
+    template<class StateList, const auto& StateConf>
+    struct index_of_state_conf
     {
-        if constexpr(state_traits::is_submachine_v<State>)
-        {
-            return state.def();
-        }
-        else
-        {
-            return state;
-        }
-    }
+        static constexpr auto value = tlu::index_of_v<StateList, constant<StateConf>>;
+    };
+
+    template<class StateList>
+    struct index_of_state_conf<StateList, states::stopped>
+    {
+        static constexpr auto value = -1;
+    };
+
+    template<class StateList, const auto& StateConf>
+    inline constexpr auto index_of_state_conf_v = index_of_state_conf<StateList, StateConf>::value;
 }
-
-template<class ParentSm, int Index>
-class region;
-
-template<class ParentSm, int Index>
-struct region_path_of<region<ParentSm, Index>>
-{
-    static constexpr auto value = region_path_of_v<ParentSm>.template add<typename ParentSm::def_type, Index>();
-};
-
-template<class ParentSm, int Index>
-struct machine_of<region<ParentSm, Index>>
-{
-    using type = root_sm_of_t<ParentSm>;
-};
 
 template<class ParentSm, int Index>
 class region
@@ -75,10 +64,9 @@ class region
 public:
     using parent_sm_type = ParentSm;
 
-    explicit region(ParentSm& parent_sm):
-        root_sm_(machine_of<ParentSm>::get(parent_sm)),
-        ctx_(parent_sm.context()),
-        state_holders_(uniform_construct, root_sm_, ctx_)
+    template<class Machine>
+    region(Machine& mach, ParentSm& parent_sm):
+        states_(uniform_construct, mach, parent_sm.context())
     {
     }
 
@@ -88,94 +76,83 @@ public:
     region& operator=(region&&) = delete;
     ~region() = default;
 
-    template<const auto& StateRegionPath, class StateDef>
-    const StateDef& state_def() const
+    template<const auto& StateRegionPath, const auto& StateConf>
+    const auto& state_data() const
     {
-        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
-
-        if constexpr(tlu::size_v<state_region_path_t> == 0)
-        {
-            return state_def_of(state_from_state_def<StateDef>());
-        }
-        else
-        {
-            using submachine_t = typename tlu::front_t<state_region_path_t>::machine_def_type;
-            const auto& state = state_from_state_def<submachine_t>();
-            return state.template state_def<StateRegionPath, StateDef>();
-        }
+        return static_state_data<StateRegionPath, StateConf>(*this);
     }
 
-    template<const auto& StateRegionPath, class StateDef>
-    StateDef& state_def()
+    template<const auto& StateRegionPath, const auto& StateConf>
+    auto& state_data()
     {
-        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
-
-        if constexpr(tlu::size_v<state_region_path_t> == 0)
-        {
-            return state_def_of(state_from_state_def<StateDef>());
-        }
-        else
-        {
-            using submachine_t = typename tlu::front_t<state_region_path_t>::machine_def_type;
-            auto& state = state_from_state_def<submachine_t>();
-            return state.template state_def<StateRegionPath, StateDef>();
-        }
+        return static_state_data<StateRegionPath, StateConf>(*this);
     }
 
-    template<const auto& StateRelativeRegionPath, class StateDef>
+    template<const auto& StateRelativeRegionPath, const auto& StateConf>
     [[nodiscard]] bool is_active_state_def() const
     {
         using state_relative_region_path_t = std::decay_t<decltype(StateRelativeRegionPath)>;
 
         if constexpr(tlu::size_v<state_relative_region_path_t> == 0)
         {
-            return is_active_state_def<StateDef>();
+            return is_active_state_def<StateConf>();
         }
         else
         {
-            using submachine_t = typename tlu::front_t<state_relative_region_path_t>::machine_def_type;
-            const auto& state = state_from_state_def<submachine_t>();
-            return state.template is_active_state_def<StateRelativeRegionPath, StateDef>();
+            constexpr const auto& submach_conf = tlu::front_t<state_relative_region_path_t>::machine_conf_t;
+            constexpr auto submach_index = tlu::index_of_v<state_conf_constant_list, constant<submach_conf>>;
+            const auto& state = tuple_get<submach_index>(states_);
+            return state.template is_active_state_def<StateRelativeRegionPath, StateConf>();
         }
     }
 
-    template<class StateDef>
+    template<const auto& StateConf>
     [[nodiscard]] bool is_active_state_def() const
     {
-        if constexpr(is_type_pattern_v<StateDef>)
+        if constexpr(is_type_pattern_v<std::decay_t<decltype(StateConf)>>)
         {
-            return does_active_state_def_match_pattern<StateDef>();
+            return does_active_state_def_match_pattern
+            <
+                std::decay_t<decltype(StateConf)>
+            >();
         }
         else
         {
-            return is_active_state_def_type<StateDef>();
+            return is_active_state_def_type<StateConf>();
         }
     }
 
-    template<class Event>
-    void start(const Event& event)
+    template<class Machine, class Context, class Event>
+    void start(Machine& mach, Context& ctx, const Event& event)
     {
         if(is_active_state_def_type<states::stopped>())
         {
-            process_event_in_transition<states::stopped, initial_state_def_type, noop>(event);
+            process_event_in_transition
+            <
+                states::stopped,
+                initial_state_conf,
+                noop
+            >(mach, ctx, event);
         }
     }
 
-    template<class Event>
-    void stop(const Event& event)
+    template<class Machine, class Context, class Event>
+    void stop(Machine& mach, Context& ctx, const Event& event)
     {
         if(!is_active_state_def_type<states::stopped>())
         {
-            with_active_state_def<state_def_type_list, stop_2>
+            with_active_state_conf<state_conf_constant_list, stop_2>
             (
                 *this,
+                mach,
+                ctx,
                 event
             );
         }
     }
 
-    template<class Event>
-    void process_event(const Event& event)
+    template<class Machine, class Context, class Event>
+    void process_event(Machine& mach, Context& ctx, const Event& event)
     {
         //List the transitions whose event type pattern matches Event
         using candidate_transition_type_list = transition_table_filters::by_event_t
@@ -199,23 +176,23 @@ public:
 
         if constexpr(must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
         {
-            if(!try_processing_event_in_transitions<candidate_transition_type_list>(event))
+            if(!try_processing_event_in_transitions<candidate_transition_type_list>(mach, ctx, event))
             {
-                try_processing_event_in_active_state<candidate_state_type_list>(event);
+                try_processing_event_in_active_state<candidate_state_type_list>(mach, ctx, event);
             }
         }
         else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
         {
-            try_processing_event_in_active_state<candidate_state_type_list>(event);
+            try_processing_event_in_active_state<candidate_state_type_list>(mach, ctx, event);
         }
         else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
         {
-            try_processing_event_in_transitions<candidate_transition_type_list>(event);
+            try_processing_event_in_transitions<candidate_transition_type_list>(mach, ctx, event);
         }
     }
 
-    template<class Event>
-    void process_event(const Event& event, bool& processed)
+    template<class Machine, class Context, class Event>
+    void process_event(Machine& mach, Context& ctx, const Event& event, bool& processed)
     {
         //List the transitions whose event type pattern matches Event
         using candidate_transition_type_list = transition_table_filters::by_event_t
@@ -239,218 +216,271 @@ public:
 
         if constexpr(must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
         {
-            if(try_processing_event_in_transitions<candidate_transition_type_list>(event))
+            if(try_processing_event_in_transitions<candidate_transition_type_list>(mach, ctx, event))
             {
                 processed = true;
             }
             else
             {
-                try_processing_event_in_active_state<candidate_state_type_list>(event, processed);
+                try_processing_event_in_active_state<candidate_state_type_list>(mach, ctx, event, processed);
             }
         }
         else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
         {
-            try_processing_event_in_active_state<candidate_state_type_list>(event, processed);
+            try_processing_event_in_active_state<candidate_state_type_list>(mach, ctx, event, processed);
         }
         else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
         {
-            try_processing_event_in_transitions<candidate_transition_type_list>(event, processed);
+            try_processing_event_in_transitions<candidate_transition_type_list>(mach, ctx, event, processed);
         }
     }
 
 private:
-    using root_sm_type = root_sm_of_t<ParentSm>;
-    static constexpr auto machine_conf = root_sm_type::conf;
-
     using transition_table_type = tlu::get_t<typename ParentSm::transition_table_type_list, Index>;
 
     using transition_table_digest_type =
-        detail::transition_table_digest<transition_table_type, region>
+        detail::transition_table_digest<transition_table_type>
     ;
 
-    using state_def_type_list = typename transition_table_digest_type::state_def_type_list;
+    using state_conf_constant_list = typename transition_table_digest_type::state_conf_constant_list;
 
-    using state_type_list = typename transition_table_digest_type::state_type_list;
+    template<class... ConfConstants>
+    using state_conf_constant_list_to_state_type_list_t = type_list<state_traits::state_conf_to_state_t<ConfConstants::value, region>...>;
 
-    using non_empty_state_type_list = tlu::filter_t
+    using state_type_list = tlu::apply_t
     <
-        state_type_list,
-        state_traits::needs_unique_instance
+        state_conf_constant_list,
+        state_conf_constant_list_to_state_type_list_t
     >;
-    using state_holder_tuple_type = tlu::apply_t<non_empty_state_type_list, machine_object_holder_tuple_t>;
 
-    using initial_state_def_type = detail::tlu::front_t<state_def_type_list>;
+    using state_tuple_type = tlu::apply_t<state_type_list, tuple>;
+
+    static constexpr const auto& initial_state_conf = detail::tlu::front_t<state_conf_constant_list>::value;
 
     struct stop_2
     {
-        template<class ActiveState, class Event>
-        static void call(region& self, const Event& event)
+        template<const auto& ActiveStateConf, class Machine, class Context, class Event>
+        static void call(region& self, Machine& mach, Context& ctx, const Event& event)
         {
             self.process_event_in_transition
             <
-                ActiveState,
+                ActiveStateConf,
                 states::stopped,
                 noop
-            >(event);
+            >(mach, ctx, event);
         }
     };
 
-    template<class TransitionTypeList, class Event, class... ExtraArgs>
-    bool try_processing_event_in_transitions(const Event& event, ExtraArgs&... extra_args)
+    template<class TransitionTypeList, class Machine, class Context, class Event, class... ExtraArgs>
+    bool try_processing_event_in_transitions(Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
     {
         return tlu::for_each_or
         <
             TransitionTypeList,
             try_processing_event_in_transition
-        >(*this, event, extra_args...);
+        >(*this, mach, ctx, event, extra_args...);
     }
 
     //Check active state and guard
     struct try_processing_event_in_transition
     {
-        template<class Transition, class Event, class... ExtraArgs>
-        static bool call(region& self, const Event& event, ExtraArgs&... extra_args)
+        template<class Transition, class Machine, class Context, class Event, class... ExtraArgs>
+        static bool call(region& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
-            using source_state_t = typename Transition::source_state_type_pattern;
-            using target_state_t = typename Transition::target_state_type;
-
-            if constexpr(is_type_pattern_v<source_state_t>)
+            if constexpr(is_type_pattern_v<std::decay_t<decltype(Transition::source_state_conf_pattern)>>)
             {
                 //List of state defs that match with the source state pattern
-                using matching_state_def_type_list = state_type_list_filters::by_pattern_t
+                using matching_state_conf_constant_list = state_type_list_filters::by_pattern_t
                 <
-                    state_def_type_list,
-                    source_state_t
+                    state_conf_constant_list,
+                    Transition::source_state_conf_pattern
                 >;
 
-                static_assert(!tlu::empty_v<matching_state_def_type_list>);
+                static_assert(!tlu::empty_v<matching_state_conf_constant_list>);
 
                 return tlu::for_each_or
                 <
-                    matching_state_def_type_list,
+                    matching_state_conf_constant_list,
                     try_processing_event_in_transition_2
                     <
-                        target_state_t,
+                        Transition::target_state_conf,
                         Transition::action,
                         Transition::guard
                     >
-                >(self, event, extra_args...);
+                >(self, mach, ctx, event, extra_args...);
             }
             else
             {
                 return try_processing_event_in_transition_2
                 <
-                    target_state_t,
+                    Transition::target_state_conf,
                     Transition::action,
                     Transition::guard
-                >::template call<source_state_t>(self, event, extra_args...);
+                >::template call<constant<Transition::source_state_conf_pattern>>
+                (
+                    self,
+                    mach,
+                    ctx,
+                    event,
+                    extra_args...
+                );
             }
         }
     };
 
-    template<class TargetStateDef, const auto& Action, const auto& Guard>
+    template<const auto& TargetStateConf, const auto& Action, const auto& Guard>
     struct try_processing_event_in_transition_2
     {
-        template<class SourceStateDef, class Event, class... ExtraArgs>
-        static bool call(region& self, const Event& event, ExtraArgs&... extra_args)
+        template
+        <
+            class SourceStateConfConstant,
+            class Machine,
+            class Context,
+            class Event,
+            class... ExtraArgs
+        >
+        static bool call
+        (
+            region& self,
+            Machine& mach,
+            Context& ctx,
+            const Event& event,
+            ExtraArgs&... extra_args
+        )
         {
             //Make sure the transition source state is the active state
-            if(!self.is_active_state_def_type<SourceStateDef>())
+            if(!self.is_active_state_def_type<SourceStateConfConstant::value>())
             {
                 return false;
             }
 
             //Check guard
-            if(!detail::call_action_or_guard<Guard>(self.root_sm_, self.ctx_, event))
+            if(!detail::call_action_or_guard<Guard>(mach, ctx, event))
             {
                 return false;
             }
 
             self.process_event_in_transition
             <
-                SourceStateDef,
-                TargetStateDef,
+                SourceStateConfConstant::value,
+                TargetStateConf,
                 Action
-            >(event, extra_args...);
+            >(mach, ctx, event, extra_args...);
 
             return true;
         }
     };
 
-    template<class SourceStateDef, class TargetStateDef, const auto& Action, class Event>
-    void process_event_in_transition(const Event& event, bool& processed)
+    template
+    <
+        const auto& SourceStateConf,
+        const auto& TargetStateConf,
+        const auto& Action,
+        class Machine,
+        class Context,
+        class Event
+    >
+    void process_event_in_transition
+    (
+        Machine& mach,
+        Context& ctx,
+        const Event& event,
+        bool& processed
+    )
     {
-        process_event_in_transition<SourceStateDef, TargetStateDef, Action>(event);
+        process_event_in_transition<SourceStateConf, TargetStateConf, Action>
+        (
+            mach,
+            ctx,
+            event
+        );
         processed = true;
     }
 
-    template<class SourceStateDef, class TargetStateDef, const auto& Action, class Event>
-    void process_event_in_transition(const Event& event)
+    template
+    <
+        const auto& SourceStateConf,
+        const auto& TargetStateConf,
+        const auto& Action,
+        class Machine,
+        class Context,
+        class Event
+    >
+    void process_event_in_transition
+    (
+        Machine& mach,
+        Context& ctx,
+        const Event& event
+    )
     {
+        using machine_conf_type = std::decay_t<decltype(Machine::conf)>;
+
         constexpr const auto& path = region_path_of_v<region>;
 
-        constexpr auto is_internal_transition =
-            std::is_same_v<TargetStateDef, null>
-        ;
+        constexpr auto is_internal_transition = same_ref(TargetStateConf, null);
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(machine_conf.has_before_state_transition)
+            if constexpr(!std::is_same_v<typename machine_conf_type::pre_state_transition_action_type, noop_ex>)
             {
-                root_sm_.def().template before_state_transition
-                <
-                    path,
-                    SourceStateDef,
-                    Event,
-                    TargetStateDef
-                >(event);
+                Machine::conf.pre_state_transition_action_
+                (
+                    ctx,
+                    constant_c<path>,
+                    constant_c<SourceStateConf>,
+                    event,
+                    constant_c<TargetStateConf>
+                );
             }
 
-            if constexpr(!std::is_same_v<SourceStateDef, states::stopped>)
+            if constexpr(!same_ref(SourceStateConf, states::stopped))
             {
-                detail::call_on_exit
+                auto& stt = state<SourceStateConf>();
+                stt.call_exit_action
                 (
-                    state_from_state_def<SourceStateDef>(),
-                    root_sm_,
+                    mach,
+                    ctx,
                     event
                 );
             }
 
-            active_state_index_ = index_of_state_v
+            active_state_index_ = region_detail::index_of_state_conf_v
             <
-                state_def_type_list,
-                TargetStateDef
+                state_conf_constant_list,
+                TargetStateConf
             >;
         }
 
         detail::call_action_or_guard<Action>
         (
-            root_sm_,
-            ctx_,
+            mach,
+            ctx,
             event
         );
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(!std::is_same_v<TargetStateDef, states::stopped>)
+            if constexpr(!same_ref(TargetStateConf, states::stopped))
             {
-                detail::call_on_entry
+                auto& stt = state<TargetStateConf>();
+                stt.call_entry_action
                 (
-                    state_from_state_def<TargetStateDef>(),
-                    root_sm_,
+                    mach,
+                    ctx,
                     event
                 );
             }
 
-            if constexpr(machine_conf.has_after_state_transition)
+            if constexpr(!std::is_same_v<typename machine_conf_type::post_state_transition_action_type, noop_ex>)
             {
-                root_sm_.def().template after_state_transition
-                <
-                    path,
-                    SourceStateDef,
-                    Event,
-                    TargetStateDef
-                >(event);
+                Machine::conf.post_state_transition_action_
+                (
+                    ctx,
+                    constant_c<path>,
+                    constant_c<SourceStateConf>,
+                    event,
+                    constant_c<TargetStateConf>
+                );
             }
 
             //Anonymous transition
@@ -459,10 +489,10 @@ private:
                 using candidate_transition_type_list = transition_table_filters::by_event_t
                 <
                     transition_table_type,
-                    null
+                    null_t
                 >;
 
-                try_processing_event_in_transitions<candidate_transition_type_list>(null{});
+                try_processing_event_in_transitions<candidate_transition_type_list>(mach, ctx, null);
             }
         }
     }
@@ -470,28 +500,47 @@ private:
     /*
     Call active_state.on_event(event)
     */
-    template<class StateTypeList, class Event, class... ExtraArgs>
-    void try_processing_event_in_active_state(const Event& event, ExtraArgs&... extra_args)
+    template<class StateTypeList, class Machine, class Context, class Event, class... ExtraArgs>
+    void try_processing_event_in_active_state
+    (
+        Machine& mach,
+        Context& ctx,
+        const Event& event,
+        ExtraArgs&... extra_args
+    )
     {
         tlu::for_each_or
         <
             StateTypeList,
             try_processing_event_in_active_state_2
-        >(*this, event, extra_args...);
+        >(*this, mach, ctx, event, extra_args...);
     }
 
     struct try_processing_event_in_active_state_2
     {
-        template<class State, class Event, class... ExtraArgs>
-        static bool call(region& self, const Event& event, ExtraArgs&... extra_args)
+        template<class State, class Machine, class Context, class Event, class... ExtraArgs>
+        static bool call
+        (
+            region& self,
+            Machine& mach,
+            Context& ctx,
+            const Event& event,
+            ExtraArgs&... extra_args
+        )
         {
             if(!self.is_active_state_type<State>())
             {
                 return false;
             }
 
-            auto& state = self.state<State>();
-            call_on_event(state, self.root_sm_, self.ctx_, event, extra_args...);
+            self.state<State>().call_internal_action
+            (
+                mach,
+                ctx,
+                event,
+                extra_args...
+            );
+
             return true;
         }
     };
@@ -499,7 +548,7 @@ private:
     template<class State>
     [[nodiscard]] bool is_active_state_type() const
     {
-        constexpr auto given_state_index = index_of_state_v
+        constexpr auto given_state_index = region_detail::index_of_state_v
         <
             state_type_list,
             State
@@ -507,13 +556,13 @@ private:
         return given_state_index == active_state_index_;
     }
 
-    template<class StateDef>
+    template<const auto& StateConf>
     [[nodiscard]] bool is_active_state_def_type() const
     {
-        constexpr auto given_state_index = index_of_state_v
+        constexpr auto given_state_index = region_detail::index_of_state_conf_v
         <
-            state_def_type_list,
-            StateDef
+            state_conf_constant_list,
+            StateConf
         >;
         return given_state_index == active_state_index_;
     }
@@ -522,9 +571,9 @@ private:
     [[nodiscard]] bool does_active_state_def_match_pattern() const
     {
         auto matches = false;
-        with_active_state_def
+        with_active_state_conf
         <
-            tlu::push_back_t<state_def_type_list, states::stopped>,
+            tlu::push_back_t<state_conf_constant_list, constant<states::stopped>>,
             does_active_state_def_match_pattern_2<TypePattern>
         >(matches);
         return matches;
@@ -533,97 +582,84 @@ private:
     template<class TypePattern>
     struct does_active_state_def_match_pattern_2
     {
-        template<class ActiveState>
+        template<const auto& ActiveStateConf>
         static void call([[maybe_unused]] bool& matches)
         {
-            if constexpr(matches_pattern_v<ActiveState, TypePattern>)
+            if constexpr(matches_pattern_v<constant<ActiveStateConf>, TypePattern>)
             {
                 matches = true;
             }
         }
     };
 
-    template<class StateDefTypeList, class F, class... Args>
-    void with_active_state_def(Args&&... args) const
+    template<class StateConfConstantList, class F, class... Args>
+    void with_active_state_conf(Args&&... args) const
     {
         tlu::for_each_or
         <
-            StateDefTypeList,
-            with_active_state_def_2<F>
+            StateConfConstantList,
+            with_active_state_conf_2<F>
         >(*this, std::forward<Args>(args)...);
     }
 
     template<class F>
-    struct with_active_state_def_2
+    struct with_active_state_conf_2
     {
-        template<class StateDef, class... Args>
+        template<class StateConfConstant, class... Args>
         static bool call(const region& self, Args&&... args)
         {
-            if(self.is_active_state_def_type<StateDef>())
+            if(self.is_active_state_def_type<StateConfConstant::value>())
             {
-                F::template call<StateDef>(std::forward<Args>(args)...);
+                F::template call<StateConfConstant::value>(std::forward<Args>(args)...);
                 return true;
             }
             return false;
         }
     };
 
-    template<class StateDef>
-    auto& state_from_state_def()
+    template<const auto& StateConf>
+    auto& state()
     {
-        using state_t = state_traits::state_def_to_state_t<StateDef, region>;
-        return state<state_t>();
-    }
-
-    template<class StateDef>
-    const auto& state_from_state_def() const
-    {
-        using state_t = state_traits::state_def_to_state_t<StateDef, region>;
-        return state<state_t>();
+        return static_state<StateConf>(*this);
     }
 
     template<class State>
     auto& state()
     {
-        return static_state<State>(*this);
+        constexpr auto state_index = tlu::index_of_v<state_type_list, State>;
+        return tuple_get<state_index>(states_);
     }
 
-    template<class State>
-    const auto& state() const
+    //Note: We use static to factorize const and non-const Region
+    template<const auto& StateConf, class Region>
+    static auto& static_state(Region& self)
     {
-        return static_state<State>(*this);
+        constexpr auto state_index = tlu::index_of_v<state_conf_constant_list, constant<StateConf>>;
+        return tuple_get<state_index>(self.states_);
     }
 
-    template<class State, class Self>
-    static auto& static_state(Self& reg)
+    //Note: We use static to factorize const and non-const Region
+    template<const auto& StateRegionPath, const auto& StateConf, class Region>
+    static auto& static_state_data(Region& self)
     {
-        if constexpr(state_traits::needs_unique_instance<State>::value)
+        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
+
+        if constexpr(tlu::size_v<state_region_path_t> == 0)
         {
-            return get<machine_object_holder<State>>(reg.state_holders_).get();
+            return static_state<StateConf>(self).data();
         }
         else
         {
-            //Optimize empty state case by returning a statically allocated
-            //instance.
-            return static_instance<State>;
+            constexpr const auto& submach_conf = tlu::front_t<state_region_path_t>::machine_conf_t;
+            constexpr auto submachine_index = tlu::index_of_v<typename Region::state_conf_constant_list, constant<submach_conf>>;
+            auto& submach = tuple_get<submachine_index>(self.states_);
+            return submach.template state_data<StateRegionPath, StateConf>(); //recursive
         }
     }
 
-    template<class T>
-    static T static_instance; //NOLINT
-
-    //Store references for faster access
-    root_sm_type& root_sm_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
-    std::decay_t<typename ParentSm::context_type>& ctx_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
-
-    state_holder_tuple_type state_holders_;
-
-    int active_state_index_ = index_of_state_v<state_def_type_list, states::stopped>;
+    state_tuple_type states_;
+    int active_state_index_ = region_detail::index_of_state_conf_v<state_conf_constant_list, states::stopped>;
 };
-
-template<class ParentSm, int Index>
-template<class T>
-T region<ParentSm, Index>::static_instance; //NOLINT
 
 } //namespace
 

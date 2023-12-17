@@ -6,11 +6,13 @@
 
 /**
 @file
-@brief Defines the maki::transition and maki::transition_table struct templates
+@brief Defines the maki::transition and maki::transition_table_t struct templates
 */
 
 #ifndef MAKI_TRANSITION_TABLE_HPP
 #define MAKI_TRANSITION_TABLE_HPP
+
+#include "null.hpp"
 
 namespace maki
 {
@@ -24,18 +26,18 @@ state) to another (the target state) in a region of a state machine.
 
 You can define a transition table by using this class template directly:
 ```cpp
-constexpr auto transition_table = maki::transition_table
+constexpr auto transition_table_t = maki::transition_table_t
 <
     maki::transition<off, button_press, on,  turn_light_on, has_enough_power>,
     maki::transition<on,  button_press, off, turn_light_off>
 >{};
 ```
 
-… but using the @ref empty_transition_table variable template and the
-@ref transition_table::add_c member type template is usually the preferred,
+… but using the @ref transition_table variable template and the
+@ref transition_table_t::add_c member type template is usually the preferred,
 more concise way to do so:
 ```cpp
-constexpr auto transition_table = maki::empty_transition_table
+constexpr auto transition_table_t = maki::transition_table
     .add_c<off, button_press, on,  turn_light_on, has_enough_power>
     .add_c<on,  button_press, off, turn_light_off>
 ;
@@ -46,15 +48,6 @@ in order to avoid awkward `typename`s and `template`s.
 
 @{
 */
-
-/**
-@brief A null event or target state.
-
-Represents either:
-- a null event (for anonymous transitions);
-- a null target state (for internal transitions in transition table).
-*/
-struct null{};
 
 /**
 @brief An action that does nothing.
@@ -74,7 +67,7 @@ inline constexpr bool yes()
 /**
 @brief Represents a possible state transition.
 
-Used as a template argument of @ref transition_table.
+Used as a template argument of @ref transition_table_t.
 
 @tparam SourceStatePattern the active state (or states, plural, if it's a @ref TypePatterns "type pattern") from which the transition can occur
 @tparam EventPattern the event type (or types, plural, if it's a @ref TypePatterns "type pattern") that can cause the transition to occur
@@ -84,18 +77,18 @@ Used as a template argument of @ref transition_table.
 */
 template
 <
-    class SourceStatePattern,
+    const auto& SourceStateConfPattern,
     class EventPattern,
-    class TargetState,
+    const auto& TargetStateConf,
     const auto& Action = noop,
     const auto& Guard = yes
 >
 struct transition
 {
-    using source_state_type_pattern = SourceStatePattern;
     using event_type_pattern = EventPattern;
-    using target_state_type = TargetState;
 
+    static constexpr const auto& source_state_conf_pattern = SourceStateConfPattern;
+    static constexpr const auto& target_state_conf = TargetStateConf;
     static constexpr const auto& action = Action;
     static constexpr const auto& guard = Guard;
 };
@@ -106,33 +99,40 @@ struct transition
 @tparam Transitions the transitions, which must be instances of @ref transition
 */
 template<class... Transitions>
-struct transition_table
+struct transition_table_t
 {
     /**
-    A type alias to a @ref transition_table with an appended @ref transition.
+    A type alias to a @ref transition_table_t with an appended @ref transition.
     See @ref transition for a description of the template parameters.
     */
     template
     <
-        class SourceStatePattern,
+        const auto& SourceStateConfPattern,
         class EventPattern,
-        class TargetState,
+        const auto& TargetStateConf,
         const auto& Action = noop,
         const auto& Guard = yes
     >
-    static constexpr auto add_c = transition_table
+    static constexpr auto add_c = transition_table_t
     <
         Transitions...,
-        transition<SourceStatePattern, EventPattern, TargetState, Action, Guard>
+        transition
+        <
+            SourceStateConfPattern,
+            EventPattern,
+            TargetStateConf,
+            Action,
+            Guard
+        >
     >{};
 };
 
 /**
-@brief A constexpr instance of an empty transition_table
+@brief A constexpr instance of an empty transition_table_t
 
-See @ref transition_table for a usage.
+See @ref transition_table_t for a usage.
 */
-inline constexpr auto empty_transition_table = transition_table<>{};
+inline constexpr auto transition_table = transition_table_t<>{};
 
 /**
 @}

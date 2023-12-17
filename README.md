@@ -18,9 +18,10 @@ Maki implements the following key features:
   * **internal transitions**, aka transitions to `maki::null` state;
   * **completion transitions**, aka anonymous transitions, aka transitions through `maki::null` event;
   * **type patterns**, aka `maki::any`, `maki::any_of`, `maki::any_but`, `maki::any_if` and `maki::any_if_not` for source states and events;
-* **states as classes**, featuring:
-  * **entry/exit actions**, aka `on_entry()` and `on_exit()` member functions;
-  * **internal transition actions**, aka `on_event()` member function;
+* **states**, featuring:
+  * **entry/exit actions**;
+  * **internal transition actions**;
+  * **associated data**;
 * **run-to-completion**, the guarantee that the processing of an event won't be interrupted, even if we ask to handle other events in the process;
 * **orthogonal regions**;
 * **submachines**.
@@ -53,14 +54,14 @@ The expected behavior is:
 
 This behavior can be expressed with the following transition table:
 ```c++
-constexpr auto transition_table = maki::empty_transition_table
-    //     source_state,   event,       target_state,   action,           guard
-    .add_c<off,            button_push, emitting_white, turn_light_white>
-    .add_c<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
-    .add_c<emitting_red,   button_push, emitting_green, turn_light_green, is_short_push>
-    .add_c<emitting_green, button_push, emitting_blue,  turn_light_blue,  is_short_push>
-    .add_c<emitting_blue,  button_push, emitting_white, turn_light_white, is_short_push>
-    .add_c<any_but<off>,   button_push, off,            turn_light_off,   is_long_push>
+constexpr auto transition_table = maki::transition_table
+    //     source_state,       event,       target_state,   action,           guard
+    .add_c<off,                button_push, emitting_white, turn_light_white>
+    .add_c<emitting_white,     button_push, emitting_red,   turn_light_red,   is_short_push>
+    .add_c<emitting_red,       button_push, emitting_green, turn_light_green, is_short_push>
+    .add_c<emitting_green,     button_push, emitting_blue,  turn_light_blue,  is_short_push>
+    .add_c<emitting_blue,      button_push, emitting_white, turn_light_white, is_short_push>
+    .add_c<maki::any_but<off>, button_push, off,            turn_light_off,   is_long_push>
 ;
 ```
 
@@ -124,8 +125,9 @@ private:
 };
 
 /*
-An instance of this class is shared by all the states, actions and guards of the
-state machine.
+An instance of this class is instantiated by the constructor of the state
+machine. This instance can be accessed by every element (states, actions,
+guards, ...) of the state machine.
 */
 struct context
 {
@@ -133,90 +135,76 @@ struct context
 };
 
 /*
-States are represented by classes.
+States are represented by constexpr objects.
 */
 namespace states
 {
-    /*
-    A state class must be constructible with one of the following expressions:
-        auto state = state_type{machine, context};
-        auto state = state_type{context};
-        auto state = state_type{};
-    */
-    struct off
-    {
+    constexpr auto off = maki::state_conf
         /*
-        A state class must define a conf variable.
+        Entry action invoked whenever the state machine enters the `off` state
+        with a `button::push_event`.
         */
-        static constexpr auto conf = maki::default_state_conf
-            /*
-            With this option, we require the state machine to call an on_entry()
-            function whenever it enters our state.
-            One of these expressions must be valid:
-                state.on_entry(event);
-                state.on_entry();
-            Where `event` is the event that caused the state transition.
-            */
-            .enable_on_entry()
-
-            /*
-            Here, we require the state machine to call an on_event() function
-            whenever it processed an event while our state is active. We also
-            indicate that we want it to do so only when the type of the said
-            event is button::push_event.
-            This expression must be valid:
-                state.on_event(event);
-            */
-            .enable_on_event_for<button::push_event>()
-
-            /*
-            Finally, we want the state machine to call on_exit() whenever it
-            exits our state.
-            One of these expressions must be valid:
-                state.on_exit(event);
-                state.on_exit();
-            Where `event` is the event that caused the state transition.
-            */
-            .enable_on_exit()
-        ;
-
-        void on_entry(const button::push_event& event)
+        .entry_action_e<button::push_event>([](const button::push_event& event)
         {
             std::cout << "Turned off after a ";
             std::cout << event.duration_ms << " millisecond push\n";
-        }
+        })
 
-        void on_entry(const maki::events::start& /*event*/)
+        /*
+        Entry action invoked whenever the state machine enters the `off` state
+        with a state machine start event.
+        */
+        .entry_action_v<maki::events::start>([]
         {
             std::cout << "Started state machine\n";
-        }
+        })
 
-        void on_event(const button::push_event& event)
+        /*
+        Internal action invoked whenever a `button::push_event` occurs while
+        the `off` state is active.
+        */
+        .internal_action_e<button::push_event>([](const button::push_event& event)
         {
             std::cout << "Received a ";
             std::cout << event.duration_ms;
             std::cout << " millisecond push in off state\n";
-        }
+        })
 
-        void on_exit()
+        /*
+        Exit action invoked whenever the state machine exits the `off` state,
+        whatever the type of the event that caused the state transition.
+        */
+        .exit_action_v<maki::any_t>([]
         {
             std::cout << "Turned on\n";
-        }
+        })
+    ;
 
-        context& ctx;
+    /*
+    States can have their own private data.
+    */
+    struct emitting_white_data
+    {
+        int counter = 0;
     };
+    constexpr auto emitting_white = maki::state_conf
+        .data<emitting_white_data>()
+        .entry_action_d([](emitting_white_data& data)
+        {
+            ++data.counter;
+        })
+    ;
 
     /*
     These are minimal valid state classes.
     */
-    struct emitting_white { static constexpr auto conf = maki::default_state_conf; };
-    struct emitting_red { static constexpr auto conf = maki::default_state_conf; };
-    struct emitting_green { static constexpr auto conf = maki::default_state_conf; };
-    struct emitting_blue { static constexpr auto conf = maki::default_state_conf; };
+    constexpr auto emitting_red = maki::state_conf;
+    constexpr auto emitting_green = maki::state_conf;
+    constexpr auto emitting_blue = maki::state_conf;
 }
 
 /*
-An action is a function (or lambda) called when a state transition is performed.
+An action is a callable invoked whenever a specific state transition occurs.
 */
 namespace actions
 {
@@ -244,8 +232,7 @@ namespace actions
 }
 
 /*
-A guard is a function (or lambda) called to check that a state transition can
-be performed.
+A guard is a callable invoked to check that a state transition can occur.
 */
 namespace guards
 {
@@ -268,61 +255,63 @@ using namespace states;
 using namespace actions;
 using namespace guards;
 using button_push = button::push_event;
-using maki::any_but;
 
 /*
-This is the transition table. This is where we define the actions that must be
-executed depending on the active state and the event we receive.
-Basically, whenever maki::machine::process_event() is called, Maki iterates
+This is the transition table. This is where we define the actions that the state
+machine must execute depending on the active state and the event it receives.
+
+Basically, whenever `maki::machine::process_event()` is called, Maki iterates
 over the transitions of this table until it finds a match, i.e. when:
-- 'source_state' is the currently active state (or is maki::any);
-- 'event' is the type of the processed event;
-- and the 'guard' returns true (or is void).
+- `source_state` is the currently active state;
+- `event` is the type of the processed event;
+- and `guard` returns true.
+
 When a match is found, Maki:
-- exits 'source_state';
-- marks 'target_state' as the new active state;
-- executes the 'action';
-- enters 'target_state'.
+- exits `source_state`;
+- marks `target_state` as the new active state;
+- invokes `action`;
+- enters `target_state`.
+
 The initial active state of the state machine is the first state encountered in
-the transition table ('off', is our case).
+the transition table (`off`, is our case).
 */
-constexpr auto transition_table = maki::empty_transition_table
-    //     source_state,   event,       target_state,   action,           guard
-    .add_c<off,            button_push, emitting_white, turn_light_white>
-    .add_c<emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push>
-    .add_c<emitting_red,   button_push, emitting_green, turn_light_green, is_short_push>
-    .add_c<emitting_green, button_push, emitting_blue,  turn_light_blue,  is_short_push>
-    .add_c<emitting_blue,  button_push, emitting_white, turn_light_white, is_short_push>
-    .add_c<any_but<off>,   button_push, off,            turn_light_off,   is_long_push>
+constexpr auto transition_table = maki::transition_table
+    //     source_state,       event,       target_state,   action,           guard
+    .add_c<off,                button_push, emitting_white, turn_light_white>
+    .add_c<emitting_white,     button_push, emitting_red,   turn_light_red,   is_short_push>
+    .add_c<emitting_red,       button_push, emitting_green, turn_light_green, is_short_push>
+    .add_c<emitting_green,     button_push, emitting_blue,  turn_light_blue,  is_short_push>
+    .add_c<emitting_blue,      button_push, emitting_white, turn_light_white, is_short_push>
+    .add_c<maki::any_but<off>, button_push, off,            turn_light_off,   is_long_push>
 ;
 
 /*
-We have to define this struct to define our state machine. Here we just specify
-the transition table, but we can put many options in it.
+We have to define this struct to configure our state machine.
+Here, we just specify the transition table, but we can configure many other
+aspects of the state machine.
 */
-struct machine_def
+struct machine_conf_holder
 {
-    static constexpr auto conf = maki::default_machine_conf
-        .set_transition_tables(transition_table)
-        .set_context_type<context>()
+    static constexpr auto conf = maki::machine_conf
+        .transition_tables(transition_table)
+        .context<context>()
     ;
 };
 
 /*
-We finally have our state machine.
-Note that we can pass a configuration struct as second template argument to fine
-tune the behavior of our state machine.
+We finally have our configured state machine.
 */
-using machine_t = maki::machine<machine_def>;
+using machine_t = maki::machine<machine_conf_holder>;
 
 int main()
 {
     /*
     When we instantiate the state machine, we also instantiate:
     - a context;
-    - the states mentionned in the transition table.
-    Note that the states are instantiated once and for all: no construction or
-    destruction happens during state transitions.
+    - the data types of the states mentioned in the transition table.
+
+    Note that the state data types are instantiated once and for all: no
+    construction or destruction happens during state transitions.
     */
     auto machine = machine_t{};
     auto& ctx = machine.context();
@@ -377,6 +366,10 @@ int main()
 
     return 0;
 #else
+    /*
+    A real-life program would do something like this.
+    */
+
     auto btn = button
     {
         [&](const auto& event)

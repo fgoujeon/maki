@@ -24,13 +24,26 @@ type.
 template<class T>
 decltype(auto) pretty_name()
 {
-    if constexpr(T::conf.has_pretty_name)
+    if constexpr(T::conf.pretty_name_.empty())
     {
-        return T::pretty_name();
+        return detail::decayed_type_name<T>();
     }
     else
     {
-        return detail::decayed_type_name<T>();
+        return T::conf.pretty_name_;
+    }
+}
+
+template<const auto& Conf>
+decltype(auto) pretty_name()
+{
+    if constexpr(Conf.pretty_name_.empty())
+    {
+        return detail::decayed_constant_name<Conf>();
+    }
+    else
+    {
+        return Conf.pretty_name_;
     }
 }
 

@@ -4,20 +4,22 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-/**
-@file
-@brief Forward-declares the maki::machine class template.
-Useful for forward-declaring a user-defined machine.
-*/
-
-#ifndef MAKI_MACHINE_FWD_HPP
-#define MAKI_MACHINE_FWD_HPP
+#ifndef MAKI_NULL_HPP
+#define MAKI_NULL_HPP
 
 namespace maki
 {
 
-template<class ConfHolder>
-class machine;
+/**
+@brief A null event or target state.
+
+Represents either:
+- a null event (for anonymous transitions);
+- a null target state (for internal transitions in transition table).
+*/
+struct null_t{};
+
+inline constexpr auto null = null_t{};
 
 } //namespace
 

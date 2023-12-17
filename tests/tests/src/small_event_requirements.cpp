@@ -53,10 +53,7 @@ namespace
     using small_event = event<int>;
     using big_event = event<long double>;
 
-    struct state
-    {
-        static constexpr auto conf = maki::default_state_conf;
-    };
+    constexpr auto state = maki::state_conf;
 
     template<class Event>
     inline constexpr auto process_event = [](auto& machine, context& /*ctx*/, const auto& /*event*/)
@@ -64,7 +61,7 @@ namespace
         machine.process_event(Event{});
     };
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<state, event_processing_request<small_event>, maki::null, process_event<small_event>>
         .add_c<state, event_processing_request<big_event>,   maki::null, process_event<big_event>>
     ;
@@ -72,11 +69,11 @@ namespace
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
     struct machine_def
     {
-        static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
-            .set_small_event_max_size(SmallEventMaxSize)
-            .set_small_event_max_align(SmallEventMaxAlign)
+        static constexpr auto conf = maki::machine_conf
+            .transition_tables(transition_table_t)
+            .context<context>()
+            .small_event_max_size(SmallEventMaxSize)
+            .small_event_max_align(SmallEventMaxAlign)
         ;
     };
 

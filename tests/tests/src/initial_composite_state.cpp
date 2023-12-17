@@ -33,87 +33,66 @@ namespace
 
     namespace states
     {
-        struct off
-        {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
-            ;
+        constexpr auto off = maki::state_conf
+            .entry_action_c<maki::any_t>
+            (
+                [](context& ctx)
+                {
+                    ctx.current_led_color = led_color::off;
+                }
+            )
+        ;
 
-            void on_entry()
-            {
-                ctx.current_led_color = led_color::off;
-            }
+        constexpr auto emitting_red = maki::state_conf
+            .entry_action_c<maki::any_t>
+            (
+                [](context& ctx)
+                {
+                    ctx.current_led_color = led_color::red;
+                }
+            )
+        ;
 
-            context& ctx;
-        };
+        constexpr auto emitting_green = maki::state_conf
+            .entry_action_c<maki::any_t>
+            (
+                [](context& ctx)
+                {
+                    ctx.current_led_color = led_color::green;
+                }
+            )
+        ;
 
-        struct emitting_red
-        {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
-            ;
+        constexpr auto emitting_blue = maki::state_conf
+            .entry_action_c<maki::any_t>
+            (
+                [](context& ctx)
+                {
+                    ctx.current_led_color = led_color::blue;
+                }
+            )
+        ;
 
-            void on_entry()
-            {
-                ctx.current_led_color = led_color::red;
-            }
-
-            context& ctx;
-        };
-
-        struct emitting_green
-        {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
-            ;
-
-            void on_entry()
-            {
-                ctx.current_led_color = led_color::green;
-            }
-
-            context& ctx;
-        };
-
-        struct emitting_blue
-        {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
-            ;
-
-            void on_entry()
-            {
-                ctx.current_led_color = led_color::blue;
-            }
-
-            context& ctx;
-        };
-
-        constexpr auto on_transition_table = maki::empty_transition_table
+        constexpr auto on_transition_table = maki::transition_table
             .add_c<states::emitting_red,   events::color_button_press, states::emitting_green>
             .add_c<states::emitting_green, events::color_button_press, states::emitting_blue>
             .add_c<states::emitting_blue,  events::color_button_press, states::emitting_red>
         ;
 
-        struct on
-        {
-            static constexpr auto conf = maki::default_submachine_conf
-                .set_transition_tables(on_transition_table)
-            ;
-
-            context& ctx;
-        };
+        constexpr auto on = maki::submachine_conf
+            .transition_tables(on_transition_table)
+        ;
     }
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<states::on, events::power_button_press, states::off>
     ;
 
     struct machine_def
     {
-        static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
+        static constexpr auto conf = maki::machine_conf
+            .transition_tables(transition_table_t)
+            .context<context>()
         ;
     };
 }
@@ -123,7 +102,7 @@ TEST_CASE("initial_submachine")
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
-    static constexpr auto on_region_path = maki::region_path_c<machine_def>.add<states::on>();
+    static constexpr auto on_region_path = maki::region_path_c<machine_def::conf>.add<states::on>();
 
     machine.start();
     REQUIRE(machine.is_active_state<states::on>());

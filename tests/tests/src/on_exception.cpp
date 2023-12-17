@@ -18,64 +18,59 @@ namespace
 
     namespace states
     {
-        struct off
-        {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
-                .enable_on_exit()
-            ;
-
-            void on_entry()
-            {
-                ctx.out += "off::on_entry;";
-            }
-
-            void on_exit()
-            {
-                ctx.out += "off::on_exit;";
-            }
-
-            context& ctx;
-        };
-
-        struct on
-        {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
-                .enable_on_event_for<maki::events::exception>()
-                .enable_on_exit()
-            ;
-
-            void on_entry()
-            {
-                ctx.out += "on::on_entry;";
-
-                if(ctx.always_zero == 0) //We need this to avoid "unreachable code" warnings
+        constexpr auto off = maki::state_conf
+            .entry_action_c<maki::any_t>
+            (
+                [](context& ctx)
                 {
-                    throw std::runtime_error{"test;"};
+                    ctx.out += "off::on_entry;";
                 }
-            }
-
-            void on_event(const maki::events::exception& event)
-            {
-                try
+            )
+            .exit_action_c<maki::any_t>
+            (
+                [](context& ctx)
                 {
-                    std::rethrow_exception(event.eptr);
+                    ctx.out += "off::on_exit;";
                 }
-                catch(const std::exception& e)
+            )
+        ;
+
+        constexpr auto on = maki::state_conf
+            .entry_action_c<maki::any_t>
+            (
+                [](context& ctx)
                 {
-                    ctx.out += "default;";
-                    ctx.out += e.what();
+                    ctx.out += "on::on_entry;";
+
+                    if(ctx.always_zero == 0) //We need this to avoid "unreachable code" warnings
+                    {
+                        throw std::runtime_error{"test;"};
+                    }
                 }
-            }
-
-            void on_exit()
-            {
-                ctx.out += "on::on_exit;";
-            }
-
-            context& ctx;
-        };
+            )
+            .internal_action_ce<maki::events::exception>
+            (
+                [](context& ctx, const maki::events::exception& event)
+                {
+                    try
+                    {
+                        std::rethrow_exception(event.eptr);
+                    }
+                    catch(const std::exception& e)
+                    {
+                        ctx.out += "default;";
+                        ctx.out += e.what();
+                    }
+                }
+            )
+            .exit_action_c<maki::any_t>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "on::on_exit;";
+                }
+            )
+        ;
     }
 
     namespace events
@@ -83,16 +78,16 @@ namespace
         struct button_press{};
     }
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<states::off, events::button_press, states::on>
         .add_c<states::on,  events::button_press, states::off>
     ;
 
     struct default_sm_def
     {
-        static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
+        static constexpr auto conf = maki::machine_conf
+            .transition_tables(transition_table_t)
+            .context<context>()
         ;
     };
 
@@ -100,26 +95,25 @@ namespace
 
     struct custom_sm_def
     {
-        static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
-            .enable_on_exception()
+        static constexpr auto conf = maki::machine_conf
+            .transition_tables(transition_table_t)
+            .context<context>()
+            .exception_action_me
+            (
+                [](auto& mach, const std::exception_ptr& eptr)
+                {
+                    try
+                    {
+                        std::rethrow_exception(eptr);
+                    }
+                    catch(const std::exception& e)
+                    {
+                        mach.context().out += "custom;";
+                        mach.context().out += e.what();
+                    }
+                }
+            )
         ;
-
-        void on_exception(const std::exception_ptr& eptr)
-        {
-            try
-            {
-                std::rethrow_exception(eptr);
-            }
-            catch(const std::exception& e)
-            {
-                ctx.out += "custom;";
-                ctx.out += e.what();
-            }
-        }
-
-        context& ctx;
     };
 
     using custom_sm_t = maki::machine<custom_sm_def>;

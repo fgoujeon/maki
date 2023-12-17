@@ -24,10 +24,7 @@ namespace maki::states
 @brief Represents the state of any region before @ref machine::start() is called and
 after @ref machine::stop() is called.
 */
-struct stopped
-{
-    static constexpr const auto& conf = default_state_conf;
-};
+constexpr auto stopped = state_conf;
 
 } //namespace
 

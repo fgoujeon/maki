@@ -22,51 +22,45 @@ namespace
 
     namespace states
     {
-        struct off
-        {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
-                .enable_on_exit()
-            ;
-
-            void on_entry()
-            {
-                ctx.out += "off::on_entry;";
-            }
-
-            void on_exit()
-            {
-                ctx.out += "off::on_exit;";
-
-                if(!ctx.exception_thrown)
+        constexpr auto off = maki::state_conf
+            .entry_action_c<maki::any_t>
+            (
+                [](context& ctx)
                 {
-                    ctx.exception_thrown = true;
-                    throw std::runtime_error{"error"};
+                    ctx.out += "off::on_entry;";
                 }
-            }
+            )
+            .exit_action_c<maki::any_t>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "off::on_exit;";
 
-            context& ctx;
-        };
+                    if(!ctx.exception_thrown)
+                    {
+                        ctx.exception_thrown = true;
+                        throw std::runtime_error{"error"};
+                    }
+                }
+            )
+        ;
 
-        struct on
-        {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
-                .enable_on_exit()
-            ;
-
-            void on_entry()
-            {
-                ctx.out += "on::on_entry;";
-            }
-
-            void on_exit()
-            {
-                ctx.out += "on::on_exit;";
-            }
-
-            context& ctx;
-        };
+        constexpr auto on = maki::state_conf
+            .entry_action_c<maki::any_t>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "on::on_entry;";
+                }
+            )
+            .exit_action_c<maki::any_t>
+            (
+                [](context& ctx)
+                {
+                    ctx.out += "on::on_exit;";
+                }
+            )
+        ;
     }
 
     namespace actions
@@ -77,7 +71,7 @@ namespace
         }
     }
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<states::off, events::button_press, states::on>
         .add_c<states::off, events::button_press, states::on,  actions::unreachable>
         .add_c<states::on,  events::button_press, states::off, actions::unreachable>
@@ -85,9 +79,9 @@ namespace
 
     struct machine_def
     {
-        static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
+        static constexpr auto conf = maki::machine_conf
+            .transition_tables(transition_table_t)
+            .context<context>()
         ;
     };
 

@@ -30,49 +30,34 @@ struct plus_button_press{};
 //! [events-and-datatypes]
 
 //States
-struct reading_memory { static constexpr auto conf = maki::default_state_conf; };
-struct spinning_low
-{
-    static constexpr auto conf = maki::default_state_conf
-        .enable_on_entry()
-    ;
-
-    void on_entry()
+constexpr auto reading_memory = maki::state_conf;
+constexpr auto spinning_low = maki::state_conf
+    .entry_action_v([]
     {
         std::cout << "Speed is low\n";
 
         //Set fan speed and save speed in memory
         //[Implementation detail...]
-    }
-};
-struct spinning_med
-{
-    static constexpr auto conf = maki::default_state_conf
-        .enable_on_entry()
-    ;
-
-    void on_entry()
+    })
+;
+constexpr auto spinning_med = maki::state_conf
+    .entry_action_v([]
     {
         std::cout << "Speed is med\n";
 
         //Set fan speed and save speed in memory
         //[Implementation detail...]
-    }
-};
-struct spinning_high
-{
-    static constexpr auto conf = maki::default_state_conf
-        .enable_on_entry()
-    ;
-
-    void on_entry()
+    })
+;
+constexpr auto spinning_high = maki::state_conf
+    .entry_action_v([]
     {
         std::cout << "Speed is high\n";
 
         //Set fan speed and save speed in memory
         //[Implementation detail...]
-    }
-};
+    })
+;
 
 //Guards
 //! [guards]
@@ -92,7 +77,7 @@ bool is_speed_high(context& /*ctx*/, const memory_read& event)
 
 //Transition table
 //! [transition-table]
-constexpr auto transition_table = maki::empty_transition_table
+constexpr auto transition_table = maki::transition_table
     //     source state,   event,              target state,  action,     guard
     .add_c<reading_memory, memory_read,        spinning_low,  maki::noop, is_speed_low>
     .add_c<reading_memory, memory_read,        spinning_med,  maki::noop, is_speed_med>
@@ -104,18 +89,18 @@ constexpr auto transition_table = maki::empty_transition_table
 ;
 //! [transition-table]
 
-//State machine definition
-struct machine_def
+//State machine configuration
+struct machine_conf_holder
 {
     //The configuration of the state machine
-    static constexpr auto conf = maki::default_machine_conf
-        .set_transition_tables(transition_table)
-        .set_context<context>()
+    static constexpr auto conf = maki::machine_conf
+        .transition_tables(transition_table)
+        .context<context>()
     ;
 };
 
 //State machine
-using machine_t = maki::machine<machine_def>;
+using machine_t = maki::machine<machine_conf_holder>;
 
 int main()
 {

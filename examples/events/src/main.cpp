@@ -18,11 +18,11 @@
 struct context
 {
     /*
-    Note: Sm is always machine_t (defined below).
+    Note: Machine is always machine_t (defined below).
     We need a template to break circular dependency.
     */
-    template<class Sm>
-    context(Sm& machine):
+    template<class Machine>
+    context(Machine& machine):
         user_itf(make_event_callback(machine)),
         mtr(make_event_callback(machine))
     {
@@ -31,11 +31,11 @@ struct context
     /*
     Forward events (from event variants) to state machine.
 
-    Note: Sm is always machine_t (defined below).
+    Note: Machine is always machine_t (defined below).
     We need a template to break circular dependency.
     */
-    template<class Sm>
-    static auto make_event_callback(Sm& machine)
+    template<class Machine>
+    static auto make_event_callback(Machine& machine)
     {
         return [&machine](const auto& event_variant)
         {
@@ -55,10 +55,10 @@ struct context
 };
 
 //States
-struct idle { static constexpr auto conf = maki::default_state_conf; };
-struct starting { static constexpr auto conf = maki::default_state_conf; };
-struct running { static constexpr auto conf = maki::default_state_conf; };
-struct stopping { static constexpr auto conf = maki::default_state_conf; };
+constexpr auto idle = maki::state_conf;
+constexpr auto starting = maki::state_conf;
+constexpr auto running = maki::state_conf;
+constexpr auto stopping = maki::state_conf;
 
 //Actions
 void start_motor(context& ctx)
@@ -71,7 +71,7 @@ void stop_motor(context& ctx)
 }
 
 //Transition table
-constexpr auto transition_table = maki::empty_transition_table
+constexpr auto transition_table = maki::transition_table
     //     source state, event,                         target state, action
     .add_c<idle,         user_interface::start_request, starting,     start_motor>
     .add_c<starting,     motor::start_event,            running>
@@ -79,17 +79,17 @@ constexpr auto transition_table = maki::empty_transition_table
     .add_c<stopping,     motor::stop_event,             idle>
 ;
 
-//State machine definition
-struct machine_def
+//State machine configuration
+struct machine_conf_holder
 {
-    static constexpr auto conf = maki::default_machine_conf
-        .set_transition_tables(transition_table)
-        .set_context<context>()
+    static constexpr auto conf = maki::machine_conf
+        .transition_tables(transition_table)
+        .context<context>()
     ;
 };
 
 //State machine
-using machine_t = maki::machine<machine_def>;
+using machine_t = maki::machine<machine_conf_holder>;
 
 int main()
 {

@@ -33,92 +33,94 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(off);
+        EMPTY_STATE(off)
 
-        struct emitting_red
+        struct emitting_red_data
         {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
-            ;
-
-            void on_entry()
-            {
-                ctx.current_led_color = led_color::red;
-            }
-
             machine_t& machine;
             context& ctx;
         };
 
-        struct emitting_green
+        constexpr auto emitting_red = maki::state_conf
+            .data<emitting_red_data>()
+            .entry_action_c<maki::any_t>
+            (
+                [](context& ctx)
+                {
+                    ctx.current_led_color = led_color::red;
+                }
+            )
+        ;
+
+        struct emitting_green_data
         {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
-            ;
-
-            void on_entry()
-            {
-                ctx.current_led_color = led_color::green;
-            }
-
             machine_t& machine;
             context& ctx;
         };
 
-        struct emitting_blue
+        constexpr auto emitting_green = maki::state_conf
+            .data<emitting_green_data>()
+            .entry_action_c<maki::any_t>
+            (
+                [](context& ctx)
+                {
+                    ctx.current_led_color = led_color::green;
+                }
+            )
+        ;
+
+        struct emitting_blue_data
         {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_entry()
-            ;
-
-            void on_entry()
-            {
-                ctx.current_led_color = led_color::blue;
-            }
-
             machine_t& machine;
             context& ctx;
         };
 
-        constexpr auto on_transition_table = maki::empty_transition_table
+        constexpr auto emitting_blue = maki::state_conf
+            .data<emitting_blue_data>()
+            .entry_action_c<maki::any_t>
+            (
+                [](context& ctx)
+                {
+                    ctx.current_led_color = led_color::blue;
+                }
+            )
+        ;
+
+        constexpr auto on_transition_table = maki::transition_table
             .add_c<states::emitting_red,   events::color_button_press, states::emitting_green>
             .add_c<states::emitting_green, events::color_button_press, states::emitting_blue>
             .add_c<states::emitting_blue,  events::color_button_press, states::emitting_red>
         ;
 
-        struct on
-        {
-            static constexpr auto conf = maki::default_submachine_conf
-                .set_transition_tables(on_transition_table)
-                .enable_on_exit()
-            ;
-
-            void on_exit()
-            {
-                ctx.current_led_color = led_color::off;
-            }
-
-            context& ctx;
-        };
+        constexpr auto on = maki::submachine_conf
+            .transition_tables(on_transition_table)
+            .exit_action_c<maki::any_t>
+            (
+                [](context& ctx)
+                {
+                    ctx.current_led_color = led_color::off;
+                }
+            )
+        ;
     }
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<states::off, events::power_button_press, states::on>
         .add_c<states::on,  events::power_button_press, states::off>
     ;
 
     struct machine_def
     {
-        static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
+        static constexpr auto conf = maki::machine_conf
+            .transition_tables(transition_table_t)
+            .context<context>()
         ;
     };
 }
 
 TEST_CASE("submachine")
 {
-    static constexpr auto machine_on_region_path = maki::region_path_c<machine_def>.add<states::on>();
+    static constexpr auto machine_on_region_path = maki::region_path_c<machine_def::conf>.add<states::on>();
 
     auto machine = machine_t{};
     auto& ctx = machine.context();

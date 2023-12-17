@@ -6,123 +6,166 @@
 
 /**
 @file
-@brief Defines the maki::state_conf struct template
+@brief Defines the maki::state_conf_t struct template
 */
 
 #ifndef MAKI_STATE_CONF_HPP
 #define MAKI_STATE_CONF_HPP
 
+#include "type_patterns.hpp"
 #include "type_list.hpp"
 #include "type.hpp"
+#include "detail/event_action.hpp"
+#include "detail/tuple.hpp"
 #include "detail/tlu.hpp"
+#include <string_view>
 
 namespace maki
 {
 
-namespace detail
-{
-    template<class... Args>
-    constexpr auto make_state_conf(const Args&... args);
-}
-
+#ifdef DOXYGEN
 /**
 @brief State configuration
 */
-template<class OnEventTypeList = type_list<>>
-struct state_conf
+template<IMPLEMENTATION_DETAIL>
+#else
+template
+<
+    class Data = void,
+    class EntryActionTuple = detail::tuple<>,
+    class InternalActionTuple = detail::tuple<>,
+    class ExitActionTuple = detail::tuple<>
+>
+#endif
+class state_conf_t
 {
-    bool has_on_entry = false; //NOLINT(misc-non-private-member-variables-in-classes)
-    bool has_on_event_auto = false; //NOLINT(misc-non-private-member-variables-in-classes)
-    OnEventTypeList has_on_event_for; //NOLINT(misc-non-private-member-variables-in-classes)
-    bool has_on_exit = false; //NOLINT(misc-non-private-member-variables-in-classes)
-    bool has_pretty_name = false; //NOLINT(misc-non-private-member-variables-in-classes)
+public:
+    using data_type = Data;
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_entry = has_on_entry; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_event_auto = has_on_event_auto; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_event_for = has_on_event_for; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_on_exit = has_on_exit; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_has_pretty_name = has_pretty_name;
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<data_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions_; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = internal_actions_; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = exit_actions_; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = pretty_name_;
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    return state_conf \
+    return state_conf_t \
     < \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_has_on_event_for)> \
+        typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)> \
     > \
     { \
-        MAKI_DETAIL_ARG_has_on_entry, \
-        MAKI_DETAIL_ARG_has_on_event_auto, \
-        MAKI_DETAIL_ARG_has_on_event_for, \
-        MAKI_DETAIL_ARG_has_on_exit, \
-        MAKI_DETAIL_ARG_has_pretty_name \
+        MAKI_DETAIL_ARG_entry_actions, \
+        MAKI_DETAIL_ARG_internal_actions, \
+        MAKI_DETAIL_ARG_exit_actions, \
+        MAKI_DETAIL_ARG_pretty_name_view \
     };
 
-    [[nodiscard]] constexpr auto enable_on_entry() const
+    template<class Data2>
+    [[nodiscard]] constexpr auto data() const
     {
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_has_on_entry true
+#define MAKI_DETAIL_ARG_data_type type_c<Data2>
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_has_on_entry
+#undef MAKI_DETAIL_ARG_data_type
     }
 
-    [[nodiscard]] constexpr auto enable_on_event_auto() const
+#define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    template<class EventFilter = maki::any_t, class Action> \
+    [[nodiscard]] constexpr auto entry_action_##signature(const Action& action) const \
+    { \
+        return entry_action<EventFilter, detail::event_action_signature::signature>(action); \
+    }
+    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+#undef X
+
+#define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    template<class EventFilter, class Action> \
+    [[nodiscard]] constexpr auto internal_action_##signature(const Action& action) const \
+    { \
+        return internal_action<EventFilter, detail::event_action_signature::signature>(action); \
+    }
+    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+#undef X
+
+#define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    template<class EventFilter = maki::any_t, class Action> \
+    [[nodiscard]] constexpr auto exit_action_##signature(const Action& action) const \
+    { \
+        return exit_action<EventFilter, detail::event_action_signature::signature>(action); \
+    }
+    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+#undef X
+
+    [[nodiscard]] constexpr auto pretty_name(const std::string_view value) const
     {
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_has_on_event_auto true
+#define MAKI_DETAIL_ARG_pretty_name_view value
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_has_on_event_auto
+#undef MAKI_DETAIL_ARG_pretty_name_view
     }
 
-    template<class... Types>
-    [[nodiscard]] constexpr auto enable_on_event_for() const
+#if DOXYGEN
+private:
+#endif
+    template<class EventFilter = maki::any_t, detail::event_action_signature Sig, class Action>
+    [[nodiscard]] constexpr auto entry_action(const Action& action) const
     {
+        const auto new_entry_actions = tuple_append
+        (
+            entry_actions_,
+            detail::event_action<EventFilter, Action, Sig>{action}
+        );
+
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_has_on_event_for type_list_c<Types...>
+#define MAKI_DETAIL_ARG_entry_actions new_entry_actions
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_has_on_event_for
+#undef MAKI_DETAIL_ARG_entry_actions
     }
 
-    template<class... Types>
-    [[nodiscard]] constexpr auto enable_on_event_for(const type_list<Types...> /*value*/) const
+    template<class EventFilter, detail::event_action_signature Sig, class Action>
+    [[nodiscard]] constexpr auto internal_action(const Action& action) const
     {
+        const auto new_internal_actions = tuple_append
+        (
+            internal_actions_,
+            detail::event_action<EventFilter, Action, Sig>{action}
+        );
+
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_has_on_event_for type_list_c<Types...>
+#define MAKI_DETAIL_ARG_internal_actions new_internal_actions
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_has_on_event_for
+#undef MAKI_DETAIL_ARG_internal_actions
     }
 
-    [[nodiscard]] constexpr auto enable_on_exit() const
+    template<class EventFilter = maki::any_t, detail::event_action_signature Sig, class Action>
+    [[nodiscard]] constexpr auto exit_action(const Action& action) const
     {
-        MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_has_on_exit true
-        MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_has_on_exit
-    }
+        const auto new_exit_actions = tuple_append
+        (
+            exit_actions_,
+            detail::event_action<EventFilter, Action, Sig>{action}
+        );
 
-    [[nodiscard]] constexpr auto enable_pretty_name() const
-    {
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_has_pretty_name true
+#define MAKI_DETAIL_ARG_exit_actions new_exit_actions
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_has_pretty_name
+#undef MAKI_DETAIL_ARG_exit_actions
     }
 
 #undef MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
 #undef MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
+
+    EntryActionTuple entry_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
+    InternalActionTuple internal_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
+    ExitActionTuple exit_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
+    std::string_view pretty_name_; //NOLINT(misc-non-private-member-variables-in-classes)
 };
 
-inline constexpr auto default_state_conf = state_conf<>{};
-
-namespace detail
-{
-    template<class... Args>
-    constexpr auto make_state_conf(const Args&... args)
-    {
-        using args_t = type_list<Args...>;
-        using on_event_type_list = tlu::get_t<args_t, 2>;
-        return state_conf<on_event_type_list>{args...};
-    }
-}
+inline constexpr auto state_conf = state_conf_t<>{};
 
 } //namespace
 

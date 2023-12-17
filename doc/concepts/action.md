@@ -2,7 +2,7 @@
 
 ## Definition
 
-There are several types of actions:
+There are several kinds of actions:
 
 * state transition actions;
 * internal actions;
@@ -62,9 +62,9 @@ state0 --> state1
 state0 --> state2
 @enduml
 
-## When to use which type of action
+## When to use which kind of action
 
-Internal actions is the only type of action that can be executed without a state transition. A set of internal actions expresses "when this state is active, here are the actions that must be executed for these types of event". In this aspect, the state machine is basically an implementation of the [strategy pattern](https://en.wikipedia.org/wiki/Strategy_pattern).
+Internal actions is the only kind of action that can be executed without a state transition. A set of internal actions expresses "when this state is active, here are the actions that must be executed for these types of event".
 
 When you want to execute an action during a state transition however, you have several choices.
 
@@ -73,7 +73,7 @@ When you want to execute an action during a state transition however, you have s
 ** calling functions that are semantically associated with the state name (e.g. `start_motor()`/`stop_motor()` for a state named `running_motor`).
 * State transition actions are well suited for executing functions that have more to do with the specific transition it's associated to than with the source or target state.
 
-## How to use actions within Maki
+## How to define actions within Maki
 
 There are two ways to define and associate an action:
 
@@ -91,7 +91,7 @@ void(context_type& ctx);
 void();
 ~~~
 
-What determines the type of the action (between a state transition action or an internal action) is the target state (the third parameter) of the `maki::transition` instance:
+What determines the kind of the action (between a state transition action or an internal action) is the target state (the third parameter) of the `maki::transition` instance:
 
 * if the target state is `maki::null`, the action is an internal action;
 * if the target state is a valid state, the action is a state transition action.
@@ -104,38 +104,26 @@ Here is an example of two actions, with their definition and their association w
 
 ### Within the associated state
 
-To associate an action to a state, you have to set an option of the configuration (see `maki::state_conf`) of that state:
+To associate an action to a state, you have to add a callable to the state configuration.
 
-* for an entry action, set the `on_entry` option;
-* for an internal action, set the `on_event` option (or alternatively the `on_event_auto` option);
-* for an exit action, set the `on_exit` option.
-
-By setting these options, you require `maki::machine` to call a specific member function of the associated state. These are the accepted names and signatures:
-
-~~~{.cpp}
-//For entry actions, in this order of priority
-void on_entry(machine_type& mach, const event_type& event);
-void on_entry(const event_type& event);
-void on_entry();
-
-//For internal actions
-void on_event(const event_type& event);
-
-//For exit actions, in this order of priority
-void on_exit(machine_type& mach, const event_type& event);
-void on_exit(const event_type& event);
-void on_exit();
-~~~
-
-Note: All other cases lead to a compilation error.
-
-Here is a state that defines and associates all three types of actions:
+Here is an example of a state that defines all three kinds of actions (entry, internal and exit):
 
 @snippet actions/src/main.cpp short-in-state
 
+As you can see, for each action you have to specify:
+
+* the signature of the action, specified by the suffix of the function name, such as:
+    * `_e` for an action that only takes a reference to the event that triggers the action;
+    * `_ce` for an action that takes a reference to the context, as well as a reference to the event;
+    * `_v` for an action that doesn't take any argument;
+    * and so on (see `maki::state_conf_t` for all suffixes)...;
+* the event type for which the action is invoked, specified by the given template argument.
+
+Order matters! Whenever the state machine must execute an action, it iterates over the provided action list until it finds a match (i.e. an action of the adequate kind, specifying the adequate event type).
+
 ### Example
 
-Here is a test program for all the actions we've defined in this chapter:
+Here is an example program for all the actions we've defined in this chapter:
 
 @snippet actions/src/main.cpp all
 

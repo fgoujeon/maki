@@ -4,10 +4,18 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef COMMON_EMPTY_STATE_HPP
-#define COMMON_EMPTY_STATE_HPP
+#ifndef MAKI_DETAIL_SAME_REF_HPP
+#define MAKI_DETAIL_SAME_REF_HPP
 
-#define EMPTY_STATE(name) \
-    inline constexpr auto name = maki::state_conf;
+namespace maki::detail
+{
+
+template<class Rhs, class Lhs>
+constexpr bool same_ref(const Rhs& rhs, const Lhs& lhs)
+{
+    return static_cast<const void*>(&rhs) == &lhs;
+}
+
+} //namespace
 
 #endif

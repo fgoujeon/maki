@@ -23,48 +23,35 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(off0);
-        EMPTY_STATE(off1);
-        EMPTY_STATE(on0);
+        EMPTY_STATE(off0)
+        EMPTY_STATE(off1)
+        EMPTY_STATE(on0)
 
-        constexpr auto on1_transition_table = maki::empty_transition_table
+        constexpr auto on1_transition_table = maki::transition_table
             .add_c<states::off0, events::button_press, states::on0>
         ;
 
-        struct on1
-        {
-            static constexpr auto conf = maki::default_submachine_conf
-                .set_transition_tables(on1_transition_table)
-                .enable_pretty_name()
-            ;
-
-            static auto pretty_name()
-            {
-                return "on_1";
-            }
-        };
+        constexpr auto on1 = maki::submachine_conf
+            .transition_tables(on1_transition_table)
+            .pretty_name("on_1")
+        ;
     }
 
-    constexpr auto transition_table_0_t = maki::empty_transition_table
+    constexpr auto transition_table_0_t = maki::transition_table
         .add_c<states::off0, events::button_press, states::on0>
     ;
 
-    constexpr auto transition_table_1_t = maki::empty_transition_table
+    constexpr auto transition_table_1_t = maki::transition_table
         .add_c<states::off1, events::button_press, states::on1>
     ;
 
     struct machine_def
     {
-        static constexpr auto conf = maki::default_submachine_conf
-            .set_transition_tables(transition_table_0_t, transition_table_1_t)
-            .set_context<context>()
-            .enable_pretty_name()
+        static constexpr auto conf = maki::submachine_conf
+            .transition_tables(transition_table_0_t, transition_table_1_t)
+            .context<context>()
+            .pretty_name("main_sm")
         ;
-
-        static auto pretty_name()
-        {
-            return "main_sm";
-        }
 
         context& ctx;
     };
@@ -75,28 +62,28 @@ namespace
 TEST_CASE("region_path")
 {
     {
-        constexpr auto region_path = maki::region_path_c<machine_def, 0>;
+        constexpr auto region_path = maki::region_path_c<machine_def::conf, 0>;
         REQUIRE(region_path.to_string() == "main_sm[0]");
     }
 
     {
-        constexpr auto region_path = maki::region_path_c<machine_def, 1>;
+        constexpr auto region_path = maki::region_path_c<machine_def::conf, 1>;
         REQUIRE(region_path.to_string() == "main_sm[1]");
     }
 
     {
-        constexpr auto region_path = maki::region_path_c<machine_def, 1>.add<states::on1, 0>();
+        constexpr auto region_path = maki::region_path_c<machine_def::conf, 1>.add<states::on1, 0>();
         REQUIRE(region_path.to_string() == "main_sm[1].on_1");
     }
 
     {
         constexpr auto region_path = maki::region_path
         <
-            maki::region_path_element<machine_def, 1>,
+            maki::region_path_element<machine_def::conf, 1>,
             maki::region_path_element<states::on1, 0>
         >{};
 
-        constexpr auto region_path_2 = maki::region_path_c<machine_def, 1>.add<states::on1, 0>();
+        constexpr auto region_path_2 = maki::region_path_c<machine_def::conf, 1>.add<states::on1, 0>();
 
         REQUIRE(std::is_same_v<decltype(region_path), decltype(region_path_2)>);
     }

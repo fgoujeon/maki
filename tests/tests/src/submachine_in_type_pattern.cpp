@@ -22,26 +22,23 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(off);
-        EMPTY_STATE(s0_sub);
-        EMPTY_STATE(s1);
+        EMPTY_STATE(off)
+        EMPTY_STATE(s0_sub)
+        EMPTY_STATE(s1)
 
-        constexpr auto s0_transition_table = maki::empty_transition_table
+        constexpr auto s0_transition_table = maki::transition_table
             .add_c<s0_sub, events::button_press, maki::null>
         ;
 
-        struct s0
-        {
-            static constexpr auto conf = maki::default_submachine_conf
-                .set_transition_tables(s0_transition_table)
-            ;
-        };
+        constexpr auto s0 = maki::submachine_conf
+            .transition_tables(s0_transition_table)
+        ;
     }
 
-    using any_but_s0_s1 = maki::any_but<states::s0, states::s1>;
-    using any_of_s0_s1 = maki::any_of<states::s0, states::s1>;
+    constexpr auto any_but_s0_s1 = maki::any_but<states::s0, states::s1>;
+    constexpr auto any_of_s0_s1 = maki::any_of<states::s0, states::s1>;
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<states::off,   events::button_press,             states::s0>
         .add_c<states::s0,    events::button_press,             states::s1>
         .add_c<any_but_s0_s1, events::off_button_press,         states::off>
@@ -50,9 +47,9 @@ namespace
 
     struct machine_def
     {
-        static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
+        static constexpr auto conf = maki::machine_conf
+            .transition_tables(transition_table_t)
+            .context<context>()
         ;
     };
 

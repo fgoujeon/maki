@@ -11,6 +11,7 @@
 #include "../type_patterns.hpp"
 #include "../transition_table.hpp"
 #include "../events.hpp"
+#include "same_ref.hpp"
 #include "tlu.hpp"
 #include "tuple.hpp"
 #include "machine_object_holder.hpp"
@@ -22,17 +23,17 @@ namespace maki::detail
 
 /*
 Creates a set of tuples containing all the action types, guard types and state
-types of a given transition_table.
+types of a given transition_table_t.
 
 For example, the following digest type...:
-    using transition_table = maki::transition_table
+    using transition_table_t = maki::transition_table_t
     <
         maki::transition<state0, event0, state1>,
         maki::transition<state1, event1, state2, null,     guard0>,
         maki::transition<state2, event2, state3, action0>,
         maki::transition<state3, event3, state0, action1,  guard1>
     >;
-    using digest = maki::detail::transition_table_digest<transition_table>;
+    using digest = maki::detail::transition_table_digest<transition_table_t>;
 
 ... is equivalent to this type:
     struct digest
@@ -44,79 +45,51 @@ For example, the following digest type...:
 
 namespace transition_table_digest_detail
 {
-    template<class Region>
-    struct state_def_type_list_to_state_type_list_holder
-    {
-        template<class... Ts>
-        using type = type_list<state_traits::state_def_to_state_t<Ts, Region>...>;
-    };
-
-    template<class TList, class U>
-    using push_back_unique_if_not_null = tlu::push_back_if_t
+    template<class TList, const auto& Conf>
+    using push_back_unique_if_not_null_constant = tlu::push_back_if_t
     <
         TList,
-        U,
-        (!tlu::contains_v<TList, U> && !std::is_same_v<U, null>)
+        constant<Conf>,
+        (
+            !tlu::contains_v<TList, constant<Conf>> &&
+            !same_ref(Conf, null)
+        )
     >;
 
     template<class TransitionTable>
-    using initial_state_t = typename tlu::get_t<TransitionTable, 0>::source_state_type_pattern;
-
-    template<class InitialState>
-    struct initial_digest
+    class initial_digest
     {
-        using state_def_type_list = type_list<InitialState>;
+    private:
+        static constexpr const auto& initial_state_conf = tlu::get_t<TransitionTable, 0>::source_state_conf_pattern;
+
+    public:
+        using state_conf_constant_list = type_list<constant<initial_state_conf>>;
         static constexpr auto has_null_events = false;
     };
 
     template<class Digest, class Transition>
     struct add_transition_to_digest
     {
-        using state_def_type_list = push_back_unique_if_not_null
+        using state_conf_constant_list = push_back_unique_if_not_null_constant
         <
-            typename Digest::state_def_type_list,
-            typename Transition::target_state_type
+            typename Digest::state_conf_constant_list,
+            Transition::target_state_conf
         >;
 
         static constexpr auto has_null_events =
             Digest::has_null_events ||
-            std::is_same_v<typename Transition::event_type_pattern, null>
+            std::is_same_v<typename Transition::event_type_pattern, null_t>
         ;
     };
-
-    /*
-    First step with tlu::type_list instead of
-    maki::detail::machine_object_holder_tuple, so that we don't instantiate
-    intermediate tuples.
-    */
-    template<class TransitionTable>
-    using digest_with_type_lists = tlu::left_fold_t
-    <
-        TransitionTable,
-        add_transition_to_digest,
-        initial_digest<initial_state_t<TransitionTable>>
-    >;
 }
 
-template<class TransitionTable, class Region>
-class transition_table_digest
-{
-private:
-    using digest_type = transition_table_digest_detail::digest_with_type_lists
-    <
-        TransitionTable
-    >;
-
-public:
-    using state_def_type_list = typename digest_type::state_def_type_list;
-    using state_type_list = tlu::apply_t
-    <
-        state_def_type_list,
-        transition_table_digest_detail::state_def_type_list_to_state_type_list_holder<Region>::template type
-    >;
-
-    static constexpr auto has_null_events = digest_type::has_null_events;
-};
+template<class TransitionTable>
+using transition_table_digest = tlu::left_fold_t
+<
+    TransitionTable,
+    transition_table_digest_detail::add_transition_to_digest,
+    transition_table_digest_detail::initial_digest<TransitionTable>
+>;
 
 } //namespace
 

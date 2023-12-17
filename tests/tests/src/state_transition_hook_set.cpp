@@ -25,81 +25,66 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(off0);
-        EMPTY_STATE(off1);
-        EMPTY_STATE(on0);
+        EMPTY_STATE(off0)
+        EMPTY_STATE(off1)
+        EMPTY_STATE(on0)
 
-        constexpr auto on1_transition_table = maki::empty_transition_table
+        constexpr auto on1_transition_table = maki::transition_table
             .add_c<states::off0, events::button_press, states::on0>
         ;
 
-        struct on1
-        {
-            static constexpr auto conf = maki::default_submachine_conf
-                .set_transition_tables(on1_transition_table)
-                .enable_pretty_name()
-            ;
-
-            static auto pretty_name()
-            {
-                return "on_1";
-            }
-        };
+        constexpr auto on1 = maki::submachine_conf
+            .transition_tables(on1_transition_table)
+            .pretty_name("on_1")
+        ;
     }
 
-    constexpr auto transition_table_0 = maki::empty_transition_table
+    constexpr auto transition_table_0 = maki::transition_table
         .add_c<states::off0, events::button_press, states::on0>
     ;
 
-    constexpr auto transition_table_1 = maki::empty_transition_table
+    constexpr auto transition_table_1 = maki::transition_table
         .add_c<states::off1, events::button_press, states::on1>
     ;
 
     struct machine_def
     {
-        static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table_0, transition_table_1)
-            .set_context<context>()
-            .enable_before_state_transition()
-            .enable_after_state_transition()
-            .disable_auto_start()
-            .enable_pretty_name()
+        static constexpr auto conf = maki::machine_conf
+            .transition_tables(transition_table_0, transition_table_1)
+            .context<context>()
+            .pre_state_transition_action_crset
+            (
+                [](context& ctx, const auto& region_path_constant, const auto source_state_constant, const auto& event, const auto target_state_constant)
+                {
+                    ctx.out += "Transition in ";
+                    ctx.out += region_path_constant.value.to_string();
+                    ctx.out += ": ";
+                    ctx.out += maki::pretty_name<source_state_constant.value>();
+                    ctx.out += " -> ";
+                    ctx.out += maki::pretty_name<target_state_constant.value>();
+                    ctx.out += "...;";
+
+                    ctx.out += std::to_string(event.pressure) + ";";
+                }
+            )
+            .post_state_transition_action_crset
+            (
+                [](context& ctx, const auto& region_path_constant, const auto source_state_constant, const auto& event, const auto target_state_constant)
+                {
+                    ctx.out += std::to_string(event.pressure) + ";";
+
+                    ctx.out += "Transition in ";
+                    ctx.out += region_path_constant.value.to_string();
+                    ctx.out += ": ";
+                    ctx.out += maki::pretty_name<source_state_constant.value>();
+                    ctx.out += " -> ";
+                    ctx.out += maki::pretty_name<target_state_constant.value>();
+                    ctx.out += ";";
+                }
+            )
+            .auto_start(false)
+            .pretty_name("main_sm")
         ;
-
-        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
-        void before_state_transition(const Event& event)
-        {
-            ctx.out += "Transition in ";
-            ctx.out += RegionPath.to_string();
-            ctx.out += ": ";
-            ctx.out += maki::pretty_name<SourceState>();
-            ctx.out += " -> ";
-            ctx.out += maki::pretty_name<TargetState>();
-            ctx.out += "...;";
-
-            ctx.out += std::to_string(event.pressure) + ";";
-        }
-
-        template<const auto& RegionPath, class SourceState, class Event, class TargetState>
-        void after_state_transition(const Event& event)
-        {
-            ctx.out += std::to_string(event.pressure) + ";";
-
-            ctx.out += "Transition in ";
-            ctx.out += RegionPath.to_string();
-            ctx.out += ": ";
-            ctx.out += maki::pretty_name<SourceState>();
-            ctx.out += " -> ";
-            ctx.out += maki::pretty_name<TargetState>();
-            ctx.out += ";";
-        }
-
-        static auto pretty_name()
-        {
-            return "main_sm";
-        }
-
-        context& ctx;
     };
 
     using machine_t = maki::machine<machine_def>;
@@ -110,8 +95,8 @@ TEST_CASE("state_transition_hook_set")
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
-    static constexpr auto root_0_path = maki::region_path_c<machine_def, 0>;
-    static constexpr auto root_1_path = maki::region_path_c<machine_def, 1>;
+    static constexpr auto root_0_path = maki::region_path_c<machine_def::conf, 0>;
+    static constexpr auto root_1_path = maki::region_path_c<machine_def::conf, 1>;
     static constexpr auto root_1_on_1_path = root_1_path.add<states::on1>();
 
     machine.start(events::button_press{0});

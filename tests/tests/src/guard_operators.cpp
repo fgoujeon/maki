@@ -25,11 +25,11 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(idle);
-        EMPTY_STATE(state0);
-        EMPTY_STATE(state1);
-        EMPTY_STATE(state2);
-        EMPTY_STATE(state3);
+        EMPTY_STATE(idle)
+        EMPTY_STATE(state0)
+        EMPTY_STATE(state1)
+        EMPTY_STATE(state2)
+        EMPTY_STATE(state3)
     }
 
     namespace events
@@ -69,7 +69,7 @@ namespace
         constexpr auto can_access_state2 = maki::guard_c<can_access_state2_0> != maki::guard_c<can_access_state2_1>;
     }
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<states::idle, events::start, states::state0, maki::noop, guards::can_access_state0>
         .add_c<states::idle, events::start, states::state1, maki::noop, guards::can_access_state1>
         .add_c<states::idle, events::start, states::state2, maki::noop, guards::can_access_state2>
@@ -83,9 +83,9 @@ namespace
 
     struct machine_def
     {
-        static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
+        static constexpr auto conf = maki::machine_conf
+            .transition_tables(transition_table_t)
+            .context<context>()
         ;
     };
 

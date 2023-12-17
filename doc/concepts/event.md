@@ -54,5 +54,5 @@ And here is `main.cpp`, which implements the state machine:
 @snippet events/src/main.cpp all
 
 Don't worry too much about the details for now. Just notice that:
-* all the event types are defined into `user_interface` and `motor`, which don't depend on Maki;
+* all the event types are defined in `user_interface` and `motor`, which don't depend on Maki;
 * all the events sent by `user_interface` and `motor` are forwarded to our `machine_t` instance through a call to [machine_t::process_event()](@ref maki::machine::process_event).

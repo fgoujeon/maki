@@ -4,10 +4,15 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef COMMON_EMPTY_STATE_HPP
-#define COMMON_EMPTY_STATE_HPP
+#ifndef MAKI_DETAIL_REGION_FWD_HPP
+#define MAKI_DETAIL_REGION_FWD_HPP
 
-#define EMPTY_STATE(name) \
-    inline constexpr auto name = maki::state_conf;
+namespace maki::detail
+{
+
+template<class ParentSm, int Index>
+class region;
+
+} //namespace
 
 #endif

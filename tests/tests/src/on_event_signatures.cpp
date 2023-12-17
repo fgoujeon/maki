@@ -21,11 +21,6 @@ namespace
 
     namespace events
     {
-        struct event0
-        {
-            std::string value;
-        };
-
         struct event1
         {
             std::string value;
@@ -43,40 +38,33 @@ namespace
 
     namespace states
     {
-        struct state0
-        {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_event_for<events::event0, events::event1, events::event2>()
-            ;
-
-            void on_event(const events::event0& event)
-            {
-                ctx.out = "on_event " + event.value;
-            }
-
-            void on_event_ce(context& ctxt, const events::event1& event)
-            {
-                ctxt.out = "on_event_ce " + event.value;
-            }
-
-            void on_event_mce(machine_t& /*mach*/, context& ctxt, const events::event2& event)
-            {
-                ctxt.out = "on_event_mce " + event.value;
-            }
-
-            context& ctx;
-        };
+        constexpr auto state0 = maki::state_conf
+            .internal_action_ce<events::event1>
+            (
+                [](context& ctx, const events::event1& event)
+                {
+                    ctx.out = "on_event_ce " + event.value;
+                }
+            )
+            .internal_action_ce<events::event2>
+            (
+                [](context& ctx, const events::event2& event)
+                {
+                    ctx.out = "on_event_mce " + event.value;
+                }
+            )
+        ;
     }
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<states::state0, events::unused, maki::null>
     ;
 
     struct machine_def
     {
-        static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
+        static constexpr auto conf = maki::machine_conf
+            .transition_tables(transition_table_t)
+            .context<context>()
         ;
 
         context& ctx;
@@ -87,10 +75,6 @@ TEST_CASE("on_event_signatures")
 {
     auto machine = machine_t{};
     auto& ctx = machine.context();
-
-    ctx.out.clear();
-    machine.process_event(events::event0{"0"});
-    REQUIRE(ctx.out == "on_event 0");
 
     ctx.out.clear();
     machine.process_event(events::event1{"1"});

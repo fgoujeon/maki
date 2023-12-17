@@ -10,9 +10,9 @@
 #include "call_member.hpp"
 #include "tlu.hpp"
 #include "region.hpp"
-#include "region_path_of.hpp"
 #include "machine_object_holder.hpp"
 #include "context_holder.hpp"
+#include "simple_state.hpp"
 #include "submachine_fwd.hpp"
 #include "tuple.hpp"
 #include "../machine_fwd.hpp"
@@ -25,43 +25,12 @@
 namespace maki::detail
 {
 
-template<class Def, class ParentRegion>
-struct region_path_of<submachine<Def, ParentRegion>>
-{
-    static constexpr auto value = region_path_of_v<ParentRegion>;
-};
-
-template<class Def>
-struct region_path_of<submachine<Def, void>>
-{
-    static constexpr auto value = region_path{};
-};
-
-template<class Def, class ParentRegion>
-struct machine_of<submachine<Def, ParentRegion>>
-{
-    using type = root_sm_of_t<ParentRegion>;
-
-    static type& get(submachine<Def, ParentRegion>& node)
-    {
-        return node.root_sm();
-    }
-};
-
-template<class Def>
-struct machine_of<submachine<Def, void>>
-{
-    using type = machine<Def>;
-
-    static type& get(submachine<Def, void>& node)
-    {
-        return node.root_sm();
-    }
-};
-
-template<class Def, class ParentRegion>
+template<const auto& Conf, class ParentRegion>
 struct submachine_context
 {
+    using conf_type = std::decay_t<decltype(Conf)>;
+    using conf_context_type = typename conf_type::context_type;
+
     /*
     Context type is either (in this order of priority):
     - the one specified in the submachine_opts::context option, if any;
@@ -70,16 +39,16 @@ struct submachine_context
     */
     using type = std::conditional_t
     <
-        Def::conf.context == type_c<void>,
+        std::is_void_v<conf_context_type>,
         typename ParentRegion::parent_sm_type::context_type&,
-        typename decltype(Def::conf.context)::type
+        conf_context_type
     >;
 };
 
-template<class Def>
-struct submachine_context<Def, void>
+template<const auto& Conf>
+struct submachine_context<Conf, void>
 {
-    using type = typename decltype(Def::conf.context)::type;
+    using type = typename std::decay_t<decltype(Conf)>::context_type;
 };
 
 template
@@ -110,34 +79,20 @@ struct region_tuple
     >;
 };
 
-template<class Def, class ParentRegion>
+template<const auto& Conf, class ParentRegion>
 class submachine
 {
 public:
-    static constexpr auto conf = default_state_conf
-        .enable_on_entry()
-        .enable_on_event_for(type_list_c<maki::any>)
-        .enable_on_exit()
-    ;
+    using conf_type = std::decay_t<decltype(Conf)>;
+    using context_type = typename submachine_context<Conf, ParentRegion>::type;
+    using transition_table_type_list = decltype(Conf.transition_tables_);
 
-    using def_type = Def;
-    using context_type = typename submachine_context<Def, ParentRegion>::type;
-    using root_sm_type = root_sm_of_t<submachine>;
-
-    using transition_table_type_list = decltype(Def::conf.transition_tables);
-
-    template<class... ContextArgs>
-    submachine(root_sm_type& root_sm, ContextArgs&&... ctx_args):
-        root_sm_(root_sm),
-        ctx_holder_(root_sm, std::forward<ContextArgs>(ctx_args)...),
-        def_holder_(root_sm, context()),
-        regions_(uniform_construct, *this)
+    template<class Machine, class... ContextArgs>
+    submachine(Machine& mach, ContextArgs&&... ctx_args):
+        ctx_holder_(mach, std::forward<ContextArgs>(ctx_args)...),
+        simple_state_(mach, context()),
+        regions_(uniform_construct, mach, *this)
     {
-    }
-
-    root_sm_type& root_sm()
-    {
-        return root_sm_;
     }
 
     context_type& context()
@@ -145,75 +100,80 @@ public:
         return ctx_holder_.get();
     }
 
-    Def& def()
+    auto& data()
     {
-        return def_holder_.get();
+        return simple_state_.data();
     }
 
-    template<const auto& StateRegionPath, class StateDef>
-    StateDef& state_def()
+    const auto& data() const
     {
-        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
-
-        static_assert
-        (
-            std::is_same_v
-            <
-                typename detail::tlu::front_t<state_region_path_t>::machine_def_type,
-                Def
-            >
-        );
-
-        static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
-        static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
-        return get<region_index>(regions_).template state_def<state_region_relative_path, StateDef>();
+        return simple_state_.data();
     }
 
-    template<const auto& StateRegionPath, class StateDef>
-    const StateDef& state_def() const
+    template<const auto& StateRegionPath, const auto& StateConf>
+    auto& state_data()
     {
         using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
 
         static_assert
         (
-            std::is_same_v
-            <
-                typename detail::tlu::front_t<state_region_path_t>::machine_def_type,
-                Def
-            >
+            same_ref
+            (
+                detail::tlu::front_t<state_region_path_t>::machine_conf_t,
+                Conf
+            )
         );
 
         static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
         static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
-        return get<region_index>(regions_).template state_def<state_region_relative_path, StateDef>();
+        return tuple_get<region_index>(regions_).template state_data<state_region_relative_path, StateConf>();
     }
 
-    template<const auto& StateRegionPath, class StateDef>
+    template<const auto& StateRegionPath, const auto& StateConf>
+    const auto& state_data() const
+    {
+        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
+
+        static_assert
+        (
+            same_ref
+            (
+                detail::tlu::front_t<state_region_path_t>::machine_conf_t,
+                Conf
+            )
+        );
+
+        static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
+        static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
+        return tuple_get<region_index>(regions_).template state_data<state_region_relative_path, StateConf>();
+    }
+
+    template<const auto& StateRegionPath, const auto& StateConf>
     [[nodiscard]] bool is_active_state_def() const
     {
         using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
 
         static_assert
         (
-            std::is_same_v
-            <
-                typename detail::tlu::front_t<state_region_path_t>::machine_def_type,
-                Def
-            >
+            same_ref
+            (
+                detail::tlu::front_t<state_region_path_t>::machine_conf_t,
+                Conf
+            )
         );
 
         static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
         static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
-        return get<region_index>(regions_).template is_active_state_def<state_region_relative_path, StateDef>();
+        return tuple_get<region_index>(regions_).template is_active_state_def<state_region_relative_path, StateConf>();
     }
 
-    template<class StateDef>
+    template<const auto& StateConf>
     [[nodiscard]] bool is_active_state_def() const
     {
         static_assert(tlu::size_v<transition_table_type_list> == 1);
 
         static constexpr auto state_region_relative_path = region_path<>{};
-        return get<0>(regions_).template is_active_state_def<state_region_relative_path, StateDef>();
+        return tuple_get<0>(regions_).template is_active_state_def<state_region_relative_path, StateConf>();
     }
 
     template<const auto& RegionPath>
@@ -227,45 +187,84 @@ public:
         return !is_active_state_def<states::stopped>();
     }
 
-    template<class Event>
-    void on_entry(const Event& event)
+    template<class Machine, class Context, class Event>
+    void call_entry_action(Machine& mach, Context& ctx, const Event& event)
     {
-        call_on_entry(def_holder_.get(), root_sm_, event);
-        tlu::for_each<region_tuple_type, region_start>(*this, event);
+        simple_state_.call_entry_action
+        (
+            mach,
+            own_context_or(ctx),
+            event
+        );
+        tlu::for_each<region_tuple_type, region_start>(*this, mach, own_context_or(ctx), event);
     }
 
-    template<class Event>
-    void on_event(const Event& event)
+    template<class Machine, class Context, class Event>
+    void call_internal_action
+    (
+        Machine& mach,
+        Context& ctx,
+        const Event& event
+    )
     {
-        if constexpr(state_traits::requires_on_event_v<Def, Event>)
+        if constexpr(simple_state_type::template has_internal_action_for_event<Event>())
         {
-            call_on_event(def_holder_.get(), root_sm_, context(), event);
+            simple_state_.call_internal_action
+            (
+                mach,
+                own_context_or(ctx),
+                event
+            );
         }
 
-        tlu::for_each<region_tuple_type, region_process_event>(*this, event);
+        tlu::for_each<region_tuple_type, region_process_event>(*this, mach, own_context_or(ctx), event);
     }
 
-    template<class Event>
-    void on_event(const Event& event, bool& processed)
+    template<class Machine, class Context, class Event>
+    void call_internal_action
+    (
+        Machine& mach,
+        Context& ctx,
+        const Event& event,
+        bool& processed
+    )
     {
-        if constexpr(state_traits::requires_on_event_v<Def, Event>)
+        if constexpr(simple_state_type::template has_internal_action_for_event<Event>())
         {
-            call_on_event(def_holder_.get(), root_sm_, context(), event);
-            tlu::for_each<region_tuple_type, region_process_event>(*this, event);
+            simple_state_.call_internal_action
+            (
+                mach,
+                own_context_or(ctx),
+                event
+            );
+            tlu::for_each<region_tuple_type, region_process_event>(*this, mach, own_context_or(ctx), event);
             processed = true;
         }
         else
         {
-            tlu::for_each<region_tuple_type, region_process_event>(*this, event, processed);
+            tlu::for_each<region_tuple_type, region_process_event>(*this, mach, own_context_or(ctx), event, processed);
         }
     }
 
-    template<class Event>
-    void on_exit(const Event& event)
+    template<class Machine, class Context, class Event>
+    void call_exit_action(Machine& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each<region_tuple_type, region_stop>(*this, event);
-        call_on_exit(def_holder_.get(), root_sm_, event);
+        tlu::for_each<region_tuple_type, region_stop>(*this, mach, own_context_or(ctx), event);
+        simple_state_.call_exit_action
+        (
+            mach,
+            own_context_or(ctx),
+            event
+        );
     }
+
+    template<class /*Event*/>
+    static constexpr bool has_internal_action_for_event()
+    {
+        return true;
+    }
+
+    static constexpr const auto& conf = Conf;
 
 private:
     using region_tuple_type = typename region_tuple
@@ -274,38 +273,51 @@ private:
         std::make_integer_sequence<int, tlu::size_v<transition_table_type_list>>
     >::type;
 
+    //We need a simple_state to manage data and actions
+    using simple_state_type = simple_state<Conf>;
+
     struct region_start
     {
-        template<class Region, class Event>
-        static void call(submachine& self, const Event& event)
+        template<class Region, class Machine, class Context, class Event>
+        static void call(submachine& self, Machine& mach, Context& ctx, const Event& event)
         {
-            get<Region>(self.regions_).start(event);
+            tuple_get<Region>(self.regions_).start(mach, ctx, event);
         }
     };
 
     struct region_process_event
     {
-        template<class Region, class Event, class... ExtraArgs>
-        static void call(submachine& self, const Event& event, ExtraArgs&... extra_args)
+        template<class Region, class Machine, class Context, class Event, class... ExtraArgs>
+        static void call(submachine& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
-            get<Region>(self.regions_).process_event(event, extra_args...);
+            tuple_get<Region>(self.regions_).process_event(mach, ctx, event, extra_args...);
         }
     };
 
     struct region_stop
     {
-        template<class Region, class Event>
-        static void call(submachine& self, const Event& event)
+        template<class Region, class Machine, class Context, class Event>
+        static void call(submachine& self, Machine& mach, Context& ctx, const Event& event)
         {
-            get<Region>(self.regions_).stop(event);
+            tuple_get<Region>(self.regions_).stop(mach, ctx, event);
         }
     };
 
-    //Store references for faster access
-    root_sm_type& root_sm_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+    template<class Context>
+    auto& own_context_or(Context& ctx)
+    {
+        if constexpr(std::is_void_v<typename conf_type::context_type>)
+        {
+            return ctx;
+        }
+        else
+        {
+            return ctx_holder_.get();
+        }
+    }
 
     context_holder<context_type> ctx_holder_;
-    detail::machine_object_holder<Def> def_holder_;
+    simple_state_type simple_state_;
     region_tuple_type regions_;
 };
 

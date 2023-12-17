@@ -29,11 +29,12 @@ namespace
 
     namespace states
     {
-        struct off
+        struct off_data
         {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_event_auto()
-            ;
+            template<class Event>
+            void on_event(const Event& /*event*/)
+            {
+            }
 
             void on_event(const events::button_press& event)
             {
@@ -43,11 +44,23 @@ namespace
             context& ctx;
         };
 
-        struct on
+        constexpr auto off = maki::state_conf
+            .data<off_data>()
+            .internal_action_de<maki::any_t>
+            (
+                [](off_data& dat, const auto& event)
+                {
+                    dat.on_event(event);
+                }
+            )
+        ;
+
+        struct on_data
         {
-            static constexpr auto conf = maki::default_state_conf
-                .enable_on_event_auto()
-            ;
+            template<class Event>
+            void on_event(const Event& /*event*/)
+            {
+            }
 
             void on_event(const events::button_press& /*event*/)
             {
@@ -61,27 +74,37 @@ namespace
 
             context& ctx;
         };
+
+        constexpr auto on = maki::state_conf
+            .data<on_data>()
+            .internal_action_de<maki::any_t>
+            (
+                [](on_data& dat, const auto& event)
+                {
+                    dat.on_event(event);
+                }
+            )
+        ;
     }
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<states::off, events::button_press, states::on>
         .add_c<states::on,  events::button_press, states::off>
     ;
 
     struct machine_def
     {
-        static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
-            .enable_on_event_auto()
+        static constexpr auto conf = maki::machine_conf
+            .transition_tables(transition_table_t)
+            .context<context>()
+            .event_action_ce<events::button_press>
+            (
+                [](context& ctx, const events::button_press& event)
+                {
+                    ctx.out += event.data + "1;";
+                }
+            )
         ;
-
-        void on_event(const events::button_press& event)
-        {
-            ctx.out += event.data + "1;";
-        }
-
-        context& ctx;
     };
 
     using machine_t = maki::machine<machine_def>;

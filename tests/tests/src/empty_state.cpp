@@ -21,28 +21,28 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(state0);
+        EMPTY_STATE(state0)
 
         //Check empty state without default constructor
-        struct state1
+        struct state1_data
         {
-            static constexpr auto conf = maki::default_state_conf;
-
-            state1(context& /*ctx*/)
+            state1_data(context& /*ctx*/)
             {
             }
         };
+
+        constexpr auto state1 = maki::state_conf.data<state1_data>();
     }
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<states::state0, events::event, states::state1>
     ;
 
     struct machine_def
     {
-        static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
+        static constexpr auto conf = maki::machine_conf
+            .transition_tables(transition_table_t)
+            .context<context>()
         ;
     };
 

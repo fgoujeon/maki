@@ -32,47 +32,42 @@ namespace
 
     namespace states
     {
-        EMPTY_STATE(off);
-        EMPTY_STATE(emitting_red);
-        EMPTY_STATE(emitting_green);
-        EMPTY_STATE(emitting_blue);
+        EMPTY_STATE(off)
+        EMPTY_STATE(emitting_red)
+        EMPTY_STATE(emitting_green)
+        EMPTY_STATE(emitting_blue)
 
-        using not_emitting_red = maki::any_but<emitting_red>;
-        using emitting_red_or_green = maki::any_of<emitting_red, emitting_green>;
+        constexpr auto not_emitting_red = maki::any_but<emitting_red>;
+        constexpr auto emitting_red_or_green = maki::any_of<emitting_red, emitting_green>;
 
-        constexpr auto on_transition_table = maki::empty_transition_table
+        constexpr auto on_transition_table = maki::transition_table
             .add_c<states::emitting_red,   events::color_button_press, states::emitting_green>
             .add_c<states::emitting_green, events::color_button_press, states::emitting_blue>
             .add_c<states::emitting_blue,  events::color_button_press, states::emitting_red>
         ;
 
-        struct on
-        {
-            static constexpr auto conf = maki::default_submachine_conf
-                .set_transition_tables(on_transition_table)
-            ;
-
-            context& ctx;
-        };
+        constexpr auto on = maki::submachine_conf
+            .transition_tables(on_transition_table)
+        ;
     }
 
-    constexpr auto transition_table = maki::empty_transition_table
+    constexpr auto transition_table_t = maki::transition_table
         .add_c<states::off, events::power_button_press, states::on>
         .add_c<states::on,  events::power_button_press, states::off>
     ;
 
     struct machine_def
     {
-        static constexpr auto conf = maki::default_machine_conf
-            .set_transition_tables(transition_table)
-            .set_context<context>()
+        static constexpr auto conf = maki::machine_conf
+            .transition_tables(transition_table_t)
+            .context<context>()
         ;
     };
 }
 
 TEST_CASE("is_active_state_filter")
 {
-    static constexpr auto machine_on_region_path_v = maki::region_path_c<machine_def>.add<states::on>();
+    static constexpr auto machine_on_region_path_v = maki::region_path_c<machine_def::conf>.add<states::on>();
 
     auto machine = machine_t{};
 

@@ -24,9 +24,12 @@
 namespace maki
 {
 
+#ifdef DOXYGEN
 /**
 @brief Submachine configuration
 */
+template<IMPLEMENTATION_DETAIL>
+#else
 template
 <
     class Data = void,
@@ -36,8 +39,10 @@ template
     class ExitActionTuple = detail::tuple<>,
     class TransitionTableTypeList = type_list<>
 >
-struct submachine_conf_t
+#endif
+class submachine_conf_t
 {
+public:
     using data_type = Data;
     using context_type = Context;
 
@@ -86,21 +91,6 @@ struct submachine_conf_t
 #undef MAKI_DETAIL_ARG_data_type
     }
 
-    template<class EventFilter = maki::any_t, detail::event_action_signature Sig, class Action>
-    [[nodiscard]] constexpr auto entry_action(const Action& action) const
-    {
-        const auto new_entry_actions = tuple_append
-        (
-            entry_actions_,
-            detail::event_action<EventFilter, Action, Sig>{action}
-        );
-
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_entry_actions new_entry_actions
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_entry_actions
-    }
-
 #define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     template<class EventFilter = maki::any_t, class Action> \
     [[nodiscard]] constexpr auto entry_action_##signature(const Action& action) const \
@@ -110,21 +100,6 @@ struct submachine_conf_t
     MAKI_DETAIL_EVENT_ACTION_SIGNATURES
 #undef X
 
-    template<class EventFilter, detail::event_action_signature Sig, class Action>
-    [[nodiscard]] constexpr auto internal_action(const Action& action) const
-    {
-        const auto new_internal_actions = tuple_append
-        (
-            internal_actions_,
-            detail::event_action<EventFilter, Action, Sig>{action}
-        );
-
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_internal_actions new_internal_actions
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_internal_actions
-    }
-
 #define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     template<class EventFilter, class Action> \
     [[nodiscard]] constexpr auto internal_action_##signature(const Action& action) const \
@@ -133,21 +108,6 @@ struct submachine_conf_t
     }
     MAKI_DETAIL_EVENT_ACTION_SIGNATURES
 #undef X
-
-    template<class EventFilter = maki::any_t, detail::event_action_signature Sig, class Action>
-    [[nodiscard]] constexpr auto exit_action(const Action& action) const
-    {
-        const auto new_exit_actions = tuple_append
-        (
-            exit_actions_,
-            detail::event_action<EventFilter, Action, Sig>{action}
-        );
-
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_exit_actions new_exit_actions
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_exit_actions
-    }
 
 #define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     template<class EventFilter = maki::any_t, class Action> \
@@ -173,6 +133,54 @@ struct submachine_conf_t
 #define MAKI_DETAIL_ARG_transition_tables type_list_c<TransitionTables...>
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_transition_tables
+    }
+
+#if DOXYGEN
+private:
+#endif
+    template<class EventFilter = maki::any_t, detail::event_action_signature Sig, class Action>
+    [[nodiscard]] constexpr auto entry_action(const Action& action) const
+    {
+        const auto new_entry_actions = tuple_append
+        (
+            entry_actions_,
+            detail::event_action<EventFilter, Action, Sig>{action}
+        );
+
+        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_entry_actions new_entry_actions
+        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_entry_actions
+    }
+
+    template<class EventFilter, detail::event_action_signature Sig, class Action>
+    [[nodiscard]] constexpr auto internal_action(const Action& action) const
+    {
+        const auto new_internal_actions = tuple_append
+        (
+            internal_actions_,
+            detail::event_action<EventFilter, Action, Sig>{action}
+        );
+
+        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_internal_actions new_internal_actions
+        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_internal_actions
+    }
+
+    template<class EventFilter = maki::any_t, detail::event_action_signature Sig, class Action>
+    [[nodiscard]] constexpr auto exit_action(const Action& action) const
+    {
+        const auto new_exit_actions = tuple_append
+        (
+            exit_actions_,
+            detail::event_action<EventFilter, Action, Sig>{action}
+        );
+
+        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_exit_actions new_exit_actions
+        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_exit_actions
     }
 
 #undef MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END

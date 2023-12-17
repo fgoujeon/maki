@@ -76,7 +76,7 @@ spinning_med -> spinning_low : minus button press
 spinning_high -> spinning_med : minus button press
 @enduml
 
-## How to use guards within Maki
+## How to define guards within Maki
 
 Within Maki, guards are non-member functions, preferably without side effect, that return a `bool`. Maki accepts the following signatures, in this order of priority:
 
@@ -91,12 +91,12 @@ Maki also accepts `constexpr` callables with the same signatures for `operator()
 
 Once you've defined your guard, you just have to pass the function name as the fifth argument of the transition of your choice, like so:
 
-@code
-using transition_table_t = maki::transition_table_t
-    ::add<source_state_type, event_type, target_state_type, action, guard>
+~~~{.cpp}
+constexpr auto transition_table = maki::transition_table
+    .add_c<source_state_type, event_type, target_state_type, action, guard>
     //...
 ;
-@endcode
+~~~
 
 ### Example
 

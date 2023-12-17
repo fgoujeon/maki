@@ -71,7 +71,7 @@ When you set up a state machine with Maki, you have to write a transition table.
 
 This is hopefully self-explanatory, but here is how it is structured:
 
-* each row (i.e. each `maki::transition_table_tpl::add`) of the table represents a possible state transition;
+* each row (prefixed with `add_c`) of the table represents a possible state transition;
 * when `source state` is the active state and `event` occurs, the state machine executes `action` and activates `target state`.
 
 This gives you a nice overview of what a program does. Moreover, the more complex a state machine is, the more valuable a transition table is for the readability of your code.

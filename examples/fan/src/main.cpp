@@ -32,7 +32,7 @@ struct plus_button_press{};
 //States
 constexpr auto reading_memory = maki::state_conf;
 constexpr auto spinning_low = maki::state_conf
-    .entry_action_v<maki::any_t>([]
+    .entry_action_v([]
     {
         std::cout << "Speed is low\n";
 
@@ -41,7 +41,7 @@ constexpr auto spinning_low = maki::state_conf
     })
 ;
 constexpr auto spinning_med = maki::state_conf
-    .entry_action_v<maki::any_t>([]
+    .entry_action_v([]
     {
         std::cout << "Speed is med\n";
 
@@ -50,7 +50,7 @@ constexpr auto spinning_med = maki::state_conf
     })
 ;
 constexpr auto spinning_high = maki::state_conf
-    .entry_action_v<maki::any_t>([]
+    .entry_action_v([]
     {
         std::cout << "Speed is high\n";
 
@@ -77,7 +77,7 @@ bool is_speed_high(context& /*ctx*/, const memory_read& event)
 
 //Transition table
 //! [transition-table]
-constexpr auto transition_table_t = maki::transition_table
+constexpr auto transition_table = maki::transition_table
     //     source state,   event,              target state,  action,     guard
     .add_c<reading_memory, memory_read,        spinning_low,  maki::noop, is_speed_low>
     .add_c<reading_memory, memory_read,        spinning_med,  maki::noop, is_speed_med>
@@ -89,18 +89,18 @@ constexpr auto transition_table_t = maki::transition_table
 ;
 //! [transition-table]
 
-//State machine definition
-struct machine_def
+//State machine configuration
+struct machine_conf_holder
 {
     //The configuration of the state machine
     static constexpr auto conf = maki::machine_conf
-        .transition_tables(transition_table_t)
+        .transition_tables(transition_table)
         .context<context>()
     ;
 };
 
 //State machine
-using machine_t = maki::machine<machine_def>;
+using machine_t = maki::machine<machine_conf_holder>;
 
 int main()
 {

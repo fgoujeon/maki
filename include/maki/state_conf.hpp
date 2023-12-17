@@ -23,7 +23,7 @@
 namespace maki
 {
 
-#ifdef DOXYGEN
+#ifdef MAKI_DETAIL_DOXYGEN
 /**
 @brief State configuration
 */
@@ -73,32 +73,32 @@ public:
 #undef MAKI_DETAIL_ARG_data_type
     }
 
-#define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     template<class EventFilter = maki::any_t, class Action> \
     [[nodiscard]] constexpr auto entry_action_##signature(const Action& action) const \
     { \
         return entry_action<EventFilter, detail::event_action_signature::signature>(action); \
     }
     MAKI_DETAIL_EVENT_ACTION_SIGNATURES
-#undef X
+#undef MAKI_DETAIL_X
 
-#define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     template<class EventFilter, class Action> \
     [[nodiscard]] constexpr auto internal_action_##signature(const Action& action) const \
     { \
         return internal_action<EventFilter, detail::event_action_signature::signature>(action); \
     }
     MAKI_DETAIL_EVENT_ACTION_SIGNATURES
-#undef X
+#undef MAKI_DETAIL_X
 
-#define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     template<class EventFilter = maki::any_t, class Action> \
     [[nodiscard]] constexpr auto exit_action_##signature(const Action& action) const \
     { \
         return exit_action<EventFilter, detail::event_action_signature::signature>(action); \
     }
     MAKI_DETAIL_EVENT_ACTION_SIGNATURES
-#undef X
+#undef MAKI_DETAIL_X
 
     [[nodiscard]] constexpr auto pretty_name(const std::string_view value) const
     {
@@ -108,7 +108,7 @@ public:
 #undef MAKI_DETAIL_ARG_pretty_name_view
     }
 
-#if DOXYGEN
+#if MAKI_DETAIL_DOXYGEN
 private:
 #endif
     template<class EventFilter = maki::any_t, detail::event_action_signature Sig, class Action>

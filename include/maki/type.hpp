@@ -17,7 +17,7 @@
 namespace maki
 {
 
-#ifdef DOXYGEN
+#ifdef MAKI_DETAIL_DOXYGEN
 /**
 @brief A type holder
 */

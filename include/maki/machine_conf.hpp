@@ -25,7 +25,7 @@
 namespace maki
 {
 
-#ifdef DOXYGEN
+#ifdef MAKI_DETAIL_DOXYGEN
 /**
 @brief @ref machine configuration
 */
@@ -114,7 +114,7 @@ public:
 #undef MAKI_DETAIL_ARG_data_type
     }
 
-#define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
     @brief Adds an entry action. \
     */ \
@@ -124,9 +124,9 @@ public:
         return entry_action<EventFilter, detail::event_action_signature::signature>(action); \
     }
     MAKI_DETAIL_EVENT_ACTION_SIGNATURES
-#undef X
+#undef MAKI_DETAIL_X
 
-#define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
     @brief Adds an action to be called whenever `maki::machine` is about to \
     process an event. \
@@ -137,9 +137,9 @@ public:
         return event_action<EventFilter, detail::event_action_signature::signature>(action); \
     }
     MAKI_DETAIL_EVENT_ACTION_SIGNATURES
-#undef X
+#undef MAKI_DETAIL_X
 
-#define X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
     @brief Adds an exit action. \
     */ \
@@ -149,7 +149,7 @@ public:
         return exit_action<EventFilter, detail::event_action_signature::signature>(action); \
     }
     MAKI_DETAIL_EVENT_ACTION_SIGNATURES
-#undef X
+#undef MAKI_DETAIL_X
 
     /**
     @brief Specifies an action to be called after any external state transition.
@@ -427,7 +427,7 @@ public:
 #undef MAKI_DETAIL_ARG_transition_tables
     }
 
-#if DOXYGEN
+#if MAKI_DETAIL_DOXYGEN
 private:
 #endif
     template<class EventFilter, detail::event_action_signature Sig, class Action>

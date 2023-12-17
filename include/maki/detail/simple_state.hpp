@@ -9,6 +9,7 @@
 
 #include "call_member.hpp"
 #include "machine_object_holder.hpp"
+#include "maybe_bool_util.hpp"
 #include "tlu.hpp"
 #include "../type_patterns.hpp"
 #include "../null.hpp"
@@ -31,16 +32,6 @@ namespace simple_state_detail
             >;
         };
     };
-
-    inline void set_to_true(bool& value)
-    {
-        value = true;
-    }
-
-    inline void set_to_true()
-    {
-        //nothing
-    }
 }
 
 /*
@@ -87,8 +78,8 @@ public:
         );
     }
 
-    template<class Machine, class Context, class Event, class... ExtraArgs>
-    void call_internal_action(Machine& mach, Context& ctx, const Event& event, ExtraArgs&... args)
+    template<class Machine, class Context, class Event, class... MaybeBool>
+    void call_internal_action(Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
     {
         call_state_action
         (
@@ -98,7 +89,7 @@ public:
             data(),
             event
         );
-        simple_state_detail::set_to_true(args...);
+        maybe_bool_util::set_to_true(processed...);
     }
 
     template<class Machine, class Context, class Event>

@@ -10,6 +10,7 @@
 #include "call_member.hpp"
 #include "tlu.hpp"
 #include "region.hpp"
+#include "maybe_bool_util.hpp"
 #include "machine_object_holder.hpp"
 #include "context_holder.hpp"
 #include "simple_state.hpp"
@@ -292,10 +293,10 @@ private:
     template<bool Dry>
     struct region_process_event
     {
-        template<class Region, class Self, class Machine, class Context, class Event, class... ExtraArgs>
-        static void call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
+        template<class Region, class Self, class Machine, class Context, class Event, class... MaybeBool>
+        static void call(Self& self, Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
         {
-            tuple_get<Region>(self.regions_).template process_event<Dry>(mach, ctx, event, extra_args...);
+            tuple_get<Region>(self.regions_).template process_event<Dry>(mach, ctx, event, processed...);
         }
     };
 
@@ -308,39 +309,14 @@ private:
         }
     };
 
-    template<bool Dry, class Self, class Machine, class Context, class Event>
-    static void call_internal_action_2
-    (
-        Self& self,
-        Machine& mach,
-        Context& ctx,
-        const Event& event
-    )
-    {
-        if constexpr(simple_state_type::template has_internal_action_for_event<Event>())
-        {
-            if constexpr(!Dry)
-            {
-                self.simple_state_.call_internal_action
-                (
-                    mach,
-                    self.own_context_or(ctx),
-                    event
-                );
-            }
-        }
-
-        tlu::for_each<region_tuple_type, region_process_event<Dry>>(self, mach, self.own_context_or(ctx), event);
-    }
-
-    template<bool Dry, class Self, class Machine, class Context, class Event>
+    template<bool Dry, class Self, class Machine, class Context, class Event, class... MaybeBool>
     static void call_internal_action_2
     (
         Self& self,
         Machine& mach,
         Context& ctx,
         const Event& event,
-        bool& processed
+        MaybeBool&... processed
     )
     {
         if constexpr(simple_state_type::template has_internal_action_for_event<Event>())
@@ -353,12 +329,16 @@ private:
                     self.own_context_or(ctx),
                     event
                 );
+
                 tlu::for_each<region_tuple_type, region_process_event<Dry>>(self, mach, self.own_context_or(ctx), event);
             }
-            processed = true;
-        }
 
-        tlu::for_each<region_tuple_type, region_process_event<Dry>>(self, mach, self.own_context_or(ctx), event, processed);
+            maybe_bool_util::set_to_true(processed...);
+        }
+        else
+        {
+            tlu::for_each<region_tuple_type, region_process_event<Dry>>(self, mach, self.own_context_or(ctx), event, processed...);
+        }
     }
 
     template<class Context>

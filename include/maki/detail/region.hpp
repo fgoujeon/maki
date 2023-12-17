@@ -17,6 +17,7 @@
 #include "noop_ex.hpp"
 #include "same_ref.hpp"
 #include "constant.hpp"
+#include "maybe_bool_util.hpp"
 #include "../submachine_conf.hpp"
 #include "../states.hpp"
 #include <type_traits>
@@ -129,7 +130,6 @@ public:
         {
             process_event_in_transition
             <
-                false,
                 states::stopped,
                 initial_state_conf,
                 noop
@@ -198,48 +198,8 @@ private:
 
     static constexpr const auto& initial_state_conf = detail::tlu::front_t<state_conf_constant_list>::value;
 
-    template<bool Dry, class Self, class Machine, class Context, class Event>
-    static void process_event_2(Self& self, Machine& mach, Context& ctx, const Event& event)
-    {
-        //List the transitions whose event type pattern matches Event
-        using candidate_transition_type_list = transition_table_filters::by_event_t
-        <
-            transition_table_type,
-            Event
-        >;
-
-        //List the state types that require us to call their on_event()
-        using candidate_state_type_list =
-            state_type_list_filters::by_required_on_event_t
-            <
-                state_type_list,
-                region,
-                Event
-            >
-        ;
-
-        constexpr auto must_try_processing_event_in_transitions = !tlu::empty_v<candidate_transition_type_list>;
-        constexpr auto must_try_processing_event_in_active_state = !tlu::empty_v<candidate_state_type_list>;
-
-        if constexpr(must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
-        {
-            if(!try_processing_event_in_transitions<candidate_transition_type_list, Dry>(self, mach, ctx, event))
-            {
-                try_processing_event_in_active_state<candidate_state_type_list, Dry>(self, mach, ctx, event);
-            }
-        }
-        else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
-        {
-            try_processing_event_in_active_state<candidate_state_type_list, Dry>(self, mach, ctx, event);
-        }
-        else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
-        {
-            try_processing_event_in_transitions<candidate_transition_type_list, Dry>(self, mach, ctx, event);
-        }
-    }
-
-    template<bool Dry, class Self, class Machine, class Context, class Event>
-    static void process_event_2(Self& self, Machine& mach, Context& ctx, const Event& event, bool& processed)
+    template<bool Dry, class Self, class Machine, class Context, class Event, class... MaybeBool>
+    static void process_event_2(Self& self, Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
     {
         //List the transitions whose event type pattern matches Event
         using candidate_transition_type_list = transition_table_filters::by_event_t
@@ -265,20 +225,20 @@ private:
         {
             if(try_processing_event_in_transitions<candidate_transition_type_list, Dry>(self, mach, ctx, event))
             {
-                processed = true;
+                maybe_bool_util::set_to_true(processed...);
             }
             else
             {
-                try_processing_event_in_active_state<candidate_state_type_list, Dry>(self, mach, ctx, event, processed);
+                try_processing_event_in_active_state<candidate_state_type_list, Dry>(self, mach, ctx, event, processed...);
             }
         }
         else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
         {
-            try_processing_event_in_active_state<candidate_state_type_list, Dry>(self, mach, ctx, event, processed);
+            try_processing_event_in_active_state<candidate_state_type_list, Dry>(self, mach, ctx, event, processed...);
         }
         else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
         {
-            try_processing_event_in_transitions<candidate_transition_type_list, Dry>(self, mach, ctx, event, processed);
+            try_processing_event_in_transitions<candidate_transition_type_list, Dry>(self, mach, ctx, event, processed...);
         }
     }
 
@@ -289,7 +249,6 @@ private:
         {
             self.process_event_in_transition
             <
-                false,
                 ActiveStateConf,
                 states::stopped,
                 noop
@@ -367,7 +326,7 @@ private:
             class Machine,
             class Context,
             class Event,
-            class... ExtraArgs
+            class... MaybeBool
         >
         static bool call
         (
@@ -375,7 +334,7 @@ private:
             Machine& mach,
             Context& ctx,
             const Event& event,
-            ExtraArgs&... extra_args
+            MaybeBool&... processed
         )
         {
             //Make sure the transition source state is the active state
@@ -390,13 +349,17 @@ private:
                 return false;
             }
 
-            self.template process_event_in_transition
-            <
-                Dry,
-                SourceStateConfConstant::value,
-                TargetStateConf,
-                Action
-            >(mach, ctx, event, extra_args...);
+            if constexpr(!Dry)
+            {
+                self.template process_event_in_transition
+                <
+                    SourceStateConfConstant::value,
+                    TargetStateConf,
+                    Action
+                >(mach, ctx, event);
+            }
+
+            maybe_bool_util::set_to_true(processed...);
 
             return true;
         }
@@ -404,67 +367,6 @@ private:
 
     template
     <
-        bool Dry,
-        const auto& SourceStateConf,
-        const auto& TargetStateConf,
-        const auto& Action,
-        class Machine,
-        class Context,
-        class Event
-    >
-    void process_event_in_transition
-    (
-        Machine& mach,
-        Context& ctx,
-        const Event& event,
-        bool& processed
-    )
-    {
-        if constexpr(!Dry)
-        {
-            process_event_in_transition<Dry, SourceStateConf, TargetStateConf, Action>
-            (
-                mach,
-                ctx,
-                event
-            );
-        }
-        processed = true;
-    }
-
-    template
-    <
-        bool Dry,
-        const auto& SourceStateConf,
-        const auto& TargetStateConf,
-        const auto& Action,
-        class Machine,
-        class Context,
-        class Event
-    >
-    void process_event_in_transition
-    (
-        Machine& mach,
-        Context& ctx,
-        const Event& event,
-        bool& processed
-    ) const
-    {
-        if constexpr(!Dry)
-        {
-            process_event_in_transition<Dry, SourceStateConf, TargetStateConf, Action>
-            (
-                mach,
-                ctx,
-                event
-            );
-        }
-        processed = true;
-    }
-
-    template
-    <
-        bool Dry,
         const auto& SourceStateConf,
         const auto& TargetStateConf,
         const auto& Action,
@@ -479,8 +381,6 @@ private:
         const Event& event
     )
     {
-        static_assert(!Dry);
-
         using machine_conf_type = std::decay_t<decltype(Machine::conf)>;
 
         constexpr const auto& path = region_path_of_v<region>;

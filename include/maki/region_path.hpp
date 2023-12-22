@@ -91,28 +91,6 @@ struct region_path;
 
 namespace detail
 {
-    template<class RegionPath, const auto& MachineConf, int RegionIndex>
-    struct region_path_add;
-
-    template<class... Ts, const auto& MachineConf, int RegionIndex>
-    struct region_path_add<region_path<Ts...>, MachineConf, RegionIndex>
-    {
-        static constexpr auto value = region_path<Ts..., region_path_element<MachineConf, RegionIndex>>{};
-    };
-
-    template<class... Ts, const auto& MachineConf>
-    struct region_path_add<region_path<Ts...>, MachineConf, -1>
-    {
-        using transition_table_list_type = decltype(MachineConf.transition_tables_);
-        static_assert
-        (
-            tlu::size_v<transition_table_list_type> == 1,
-            "RegionIndex must be specified for multiple-region machines"
-        );
-
-        static constexpr auto value = region_path<Ts..., region_path_element<MachineConf, 0>>{};
-    };
-
     template<class Element>
     struct region_path_element_add_pretty_name_holder;
 
@@ -179,10 +157,10 @@ struct region_path
     @tparam RegionIndex see @ref region_path_element; can be omitted if (and
     only if) `MachineDef` contains only one region
     */
-    template<const auto& MachineConf, int RegionIndex = -1>
+    template<const auto& MachineConf, int RegionIndex>
     [[nodiscard]] constexpr auto add() const
     {
-        return detail::region_path_add<region_path, MachineConf, RegionIndex>::value;
+        return region_path<Ts..., region_path_element<MachineConf, RegionIndex>>{};
     }
 
     /**
@@ -222,7 +200,7 @@ constexpr bool operator==(const region_path<Ts...> /*lhs*/, const region_path<Us
 @tparam RegionIndex see @ref region_path_element; can be omitted if (and
 only if) `MachineDef` contains only one region
 */
-template<const auto& MachineConf, int RegionIndex = -1>
+template<const auto& MachineConf, int RegionIndex>
 inline constexpr auto region_path_c = region_path<>{}.add<MachineConf, RegionIndex>();
 
 /**

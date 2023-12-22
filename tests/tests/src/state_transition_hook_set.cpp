@@ -97,7 +97,7 @@ TEST_CASE("state_transition_hook_set")
 
     static constexpr auto root_0_path = maki::region_path_c<machine_def::conf, 0>;
     static constexpr auto root_1_path = maki::region_path_c<machine_def::conf, 1>;
-    static constexpr auto root_1_on_1_path = root_1_path.add<states::on1>();
+    static constexpr auto root_1_on_1_path = root_1_path.add<states::on1, 0>();
 
     machine.start(events::button_press{0});
     REQUIRE(machine.is_active_state<root_0_path, states::off0>());

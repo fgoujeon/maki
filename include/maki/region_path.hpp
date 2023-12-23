@@ -14,6 +14,7 @@
 
 #include "transition_table.hpp"
 #include "pretty_name.hpp"
+#include "detail/tuple.hpp"
 #include "detail/tlu.hpp"
 #include <string>
 #include <sstream>
@@ -80,12 +81,12 @@ using same_region_path_t = maki::region_path_c<machine_def>::add<some_submachine
 template<class MachineConf>
 struct region_path_element
 {
-    const MachineConf& mach_conf;
+    const MachineConf& mach_conf; /*NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)*/
     int region_index = 0;
 };
 
-template<class... Ts>
-struct region_path;
+template<class... Elems>
+class region_path;
 
 namespace detail
 {
@@ -112,13 +113,21 @@ public:
 
     constexpr region_path(const region_path& other) = default;
 
+    constexpr region_path(region_path&& other) noexcept = default;
+
+    constexpr region_path& operator=(const region_path& other) = default;
+
+    constexpr region_path& operator=(region_path&& other) noexcept = default;
+
+    ~region_path() = default;
+
     template<int Index>
-    constexpr const auto& at() const
+    [[nodiscard]] constexpr const auto& at() const
     {
         return detail::tuple_get<Index>(elems_);
     }
 
-    constexpr const auto& front() const
+    [[nodiscard]] constexpr const auto& front() const
     {
         return at<0>();
     }
@@ -185,7 +194,7 @@ inline constexpr auto region_path_c = region_path<>{}.add(MachineConf, RegionInd
 namespace detail
 {
     template<const auto& RegionPath, int Index>
-    constexpr std::string region_path_element_to_string()
+    std::string region_path_element_to_string()
     {
         constexpr const auto& elem = RegionPath.template at<Index>();
         using transition_table_list_type = decltype(elem.mach_conf.transition_tables_);

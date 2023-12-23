@@ -50,7 +50,7 @@ namespace
                     //REQUIRE(region_path_constant.value == maki::region_path<maki::region_path_element<machine_def, 0>>{});
 
                     ctx.out += "Transition in ";
-                    ctx.out += region_path_constant.value.to_string();
+                    ctx.out += maki::region_path_to_string(region_path_constant);
                     ctx.out += ": ";
                     ctx.out += maki::pretty_name<source_state_constant.value>();
                     ctx.out += " -> ";
@@ -65,7 +65,7 @@ namespace
                     //REQUIRE(region_path_constant.value == maki::region_path<maki::region_path_element<machine_def, 0>>{});
 
                     ctx.out += "Transition in ";
-                    ctx.out += region_path_constant.value.to_string();
+                    ctx.out += maki::region_path_to_string(region_path_constant);
                     ctx.out += ": ";
                     ctx.out += maki::pretty_name<source_state_constant.value>();
                     ctx.out += " -> ";

@@ -119,18 +119,16 @@ public:
     template<const auto& StateRegionPath, const auto& StateConf>
     auto& state_data()
     {
-        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
-
         static_assert
         (
             same_ref
             (
-                detail::tlu::front_t<state_region_path_t>::machine_conf,
+                StateRegionPath.front().mach_conf,
                 Conf
             )
         );
 
-        static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
+        static constexpr auto region_index = StateRegionPath.front().region_index;
         static constexpr auto state_region_relative_path = StateRegionPath.pop_front();
         return tuple_get<region_index>(regions_).template state_data<state_region_relative_path, StateConf>();
     }
@@ -138,18 +136,16 @@ public:
     template<const auto& StateRegionPath, const auto& StateConf>
     const auto& state_data() const
     {
-        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
-
         static_assert
         (
             same_ref
             (
-                detail::tlu::front_t<state_region_path_t>::machine_conf,
+                StateRegionPath.front().mach_conf,
                 Conf
             )
         );
 
-        static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
+        static constexpr auto region_index = StateRegionPath.front().region_index;
         static constexpr auto state_region_relative_path = StateRegionPath.pop_front();
         return tuple_get<region_index>(regions_).template state_data<state_region_relative_path, StateConf>();
     }
@@ -157,18 +153,16 @@ public:
     template<const auto& StateRegionPath, const auto& StateConf>
     [[nodiscard]] bool is_active_state_def() const
     {
-        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
-
         static_assert
         (
             same_ref
             (
-                detail::tlu::front_t<state_region_path_t>::machine_conf,
+                StateRegionPath.front().mach_conf,
                 Conf
             )
         );
 
-        static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
+        static constexpr auto region_index = StateRegionPath.front().region_index;
         static constexpr auto state_region_relative_path = StateRegionPath.pop_front();
         return tuple_get<region_index>(regions_).template is_active_state_def<state_region_relative_path, StateConf>();
     }

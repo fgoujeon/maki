@@ -74,7 +74,7 @@ namespace orthogonal_regions_ns
             (
                 [](context& ctx, const auto& region_path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
                 {
-                    constexpr auto region_index = maki::detail::tlu::get_t<std::decay_t<decltype(region_path_constant.value)>, 0>::region_index;
+                    constexpr auto region_index = region_path_constant.value.front().region_index;
                     ctx.out += "before_state_transition[" + std::to_string(region_index) + "];";
                 }
             )
@@ -82,7 +82,7 @@ namespace orthogonal_regions_ns
             (
                 [](context& ctx, const auto& region_path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
                 {
-                    constexpr auto region_index = maki::detail::tlu::get_t<std::decay_t<decltype(region_path_constant.value)>, 0>::region_index;
+                    constexpr auto region_index = region_path_constant.value.front().region_index;
                     ctx.out += "after_state_transition[" + std::to_string(region_index) + "];";
                 }
             )

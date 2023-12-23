@@ -35,7 +35,7 @@ struct region_path_of<submachine<Conf, void>>
 template<class ParentSm, int Index>
 struct region_path_of<region<ParentSm, Index>>
 {
-    static constexpr auto value = region_path_of_v<ParentSm>.template add<ParentSm::conf, Index>();
+    static constexpr auto value = region_path_of_v<ParentSm>.add(ParentSm::conf, Index);
 };
 
 } //namespace

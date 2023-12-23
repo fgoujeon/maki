@@ -81,7 +81,11 @@ TEST_CASE("region_path")
         <
             maki::region_path_element<machine_def::conf, 1>,
             maki::region_path_element<states::on1, 0>
-        >{};
+        >
+        {
+            maki::region_path_element<machine_def::conf, 1>{},
+            maki::region_path_element<states::on1, 0>{}
+        };
 
         constexpr auto region_path_2 = maki::region_path_c<machine_def::conf, 1>.add<states::on1, 0>();
 

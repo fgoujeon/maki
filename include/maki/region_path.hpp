@@ -139,16 +139,30 @@ namespace detail
             return oss.str();
         }
     }
+
+    template<class... Elems>
+    constexpr auto make_region_path(const Elems&... elems)
+    {
+        return region_path<Elems...>{elems...};
+    }
 }
 
 /**
 @brief Represents a path to a region.
 
-@tparam Ts the elements, which must be instances of @ref region_path_element
+@tparam Elems the elements, which must be instances of @ref region_path_element
 */
-template<class... Ts>
-struct region_path
+template<class... Elems>
+class region_path
 {
+public:
+    constexpr region_path(const Elems&... elems):
+        elems_(detail::distributed_construct, elems...)
+    {
+    }
+
+    constexpr region_path(const region_path& other) = default;
+
     /**
     @brief A type alias to a @ref region_path with an appended @ref
     region_path_element.
@@ -160,7 +174,26 @@ struct region_path
     template<const auto& MachineConf, int RegionIndex>
     [[nodiscard]] constexpr auto add() const
     {
-        return region_path<Ts..., region_path_element<MachineConf, RegionIndex>>{};
+        return tuple_apply
+        (
+            elems_,
+            [](const auto&... elems)
+            {
+                return detail::make_region_path(elems..., region_path_element<MachineConf, RegionIndex>{});
+            }
+        );
+    }
+
+    [[nodiscard]] constexpr auto pop_front() const
+    {
+        return tuple_apply
+        (
+            elems_,
+            [](const auto& /*elem*/, const auto&... elems)
+            {
+                return detail::make_region_path(elems...);
+            }
+        );
     }
 
     /**
@@ -181,9 +214,12 @@ struct region_path
     */
     static std::string_view to_string()
     {
-        static const auto str = detail::region_path_pretty_name<Ts...>();
+        static const auto str = detail::region_path_pretty_name<Elems...>();
         return str;
     }
+
+private:
+    detail::tuple<Elems...> elems_;
 };
 
 template<class... Ts, class... Us>

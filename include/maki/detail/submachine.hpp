@@ -131,7 +131,7 @@ public:
         );
 
         static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
-        static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
+        static constexpr auto state_region_relative_path = StateRegionPath.pop_front();
         return tuple_get<region_index>(regions_).template state_data<state_region_relative_path, StateConf>();
     }
 
@@ -150,7 +150,7 @@ public:
         );
 
         static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
-        static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
+        static constexpr auto state_region_relative_path = StateRegionPath.pop_front();
         return tuple_get<region_index>(regions_).template state_data<state_region_relative_path, StateConf>();
     }
 
@@ -169,7 +169,7 @@ public:
         );
 
         static constexpr auto region_index = tlu::front_t<state_region_path_t>::region_index;
-        static constexpr auto state_region_relative_path = tlu::pop_front_t<state_region_path_t>{};
+        static constexpr auto state_region_relative_path = StateRegionPath.pop_front();
         return tuple_get<region_index>(regions_).template is_active_state_def<state_region_relative_path, StateConf>();
     }
 

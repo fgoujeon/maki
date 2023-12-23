@@ -123,15 +123,28 @@ struct tuple_apply_impl;
 template<int... Indexes>
 struct tuple_apply_impl<std::integer_sequence<int, Indexes...>>
 {
+    template<class Tuple, class F>
+    static constexpr auto call(Tuple& tpl, const F& fun)
+    {
+        return fun(tuple_get<Indexes>(tpl)...);
+    }
+
     template<class Tuple, class F, class... ExtraArgs>
-    static auto call(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
+    static constexpr auto call(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
     {
         return fun(std::forward<ExtraArgs>(extra_args)..., tuple_get<Indexes>(tpl)...);
     }
 };
 
+template<class Tuple, class F>
+constexpr auto tuple_apply(Tuple& tpl, const F& fun)
+{
+    using impl_t = tuple_apply_impl<std::make_integer_sequence<int, Tuple::size>>;
+    return impl_t::call(tpl, fun);
+}
+
 template<class Tuple, class F, class... ExtraArgs>
-auto tuple_apply(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
+constexpr auto tuple_apply(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
 {
     using impl_t = tuple_apply_impl<std::make_integer_sequence<int, Tuple::size>>;
     return impl_t::call(tpl, fun, std::forward<ExtraArgs>(extra_args)...);

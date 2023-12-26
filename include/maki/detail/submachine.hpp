@@ -116,54 +116,27 @@ public:
         return simple_state_.data();
     }
 
-    template<const auto& StateRegionPath, const auto& StateConf>
+    template<const auto& StatePath>
     auto& state_data()
     {
-        static_assert
-        (
-            same_ref
-            (
-                StateRegionPath.front(),
-                Conf
-            )
-        );
-
-        static constexpr auto region_index = StateRegionPath.pop_front().front();
-        static constexpr auto state_region_relative_path = StateRegionPath.pop_front().pop_front();
-        return tuple_get<region_index>(regions_).template state_data<state_region_relative_path, StateConf>();
+        static constexpr int region_index = StatePath.head();
+        static constexpr auto state_path_tail = StatePath.tail();
+        return tuple_get<region_index>(regions_).template state_data<state_path_tail>();
     }
 
-    template<const auto& StateRegionPath, const auto& StateConf>
+    template<const auto& StatePath>
     const auto& state_data() const
     {
-        static_assert
-        (
-            same_ref
-            (
-                StateRegionPath.front(),
-                Conf
-            )
-        );
-
-        static constexpr auto region_index = StateRegionPath.pop_front().front();
-        static constexpr auto state_region_relative_path = StateRegionPath.pop_front().pop_front();
-        return tuple_get<region_index>(regions_).template state_data<state_region_relative_path, StateConf>();
+        static constexpr int region_index = StatePath.head();
+        static constexpr auto state_path_tail = StatePath.tail();
+        return tuple_get<region_index>(regions_).template state_data<state_path_tail>();
     }
 
     template<const auto& StateRegionPath, const auto& StateConf>
     [[nodiscard]] bool is_active_state_def() const
     {
-        static_assert
-        (
-            same_ref
-            (
-                StateRegionPath.front(),
-                Conf
-            )
-        );
-
-        static constexpr auto region_index = StateRegionPath.pop_front().front();
-        static constexpr auto state_region_relative_path = StateRegionPath.pop_front().pop_front();
+        static constexpr auto region_index = StateRegionPath.head();
+        static constexpr auto state_region_relative_path = StateRegionPath.tail();
         return tuple_get<region_index>(regions_).template is_active_state_def<state_region_relative_path, StateConf>();
     }
 

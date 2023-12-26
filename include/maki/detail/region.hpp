@@ -77,16 +77,16 @@ public:
     region& operator=(region&&) = delete;
     ~region() = default;
 
-    template<const auto& StateRegionPath, const auto& StateConf>
+    template<const auto& StatePath>
     const auto& state_data() const
     {
-        return static_state_data<StateRegionPath, StateConf>(*this);
+        return static_state_data<StatePath>(*this);
     }
 
-    template<const auto& StateRegionPath, const auto& StateConf>
+    template<const auto& StatePath>
     auto& state_data()
     {
-        return static_state_data<StateRegionPath, StateConf>(*this);
+        return static_state_data<StatePath>(*this);
     }
 
     template<const auto& StateRelativeRegionPath, const auto& StateConf>
@@ -100,10 +100,11 @@ public:
         }
         else
         {
-            constexpr const auto& submach_conf = StateRelativeRegionPath.front();
+            constexpr const auto& submach_conf = StateRelativeRegionPath.head();
+            static constexpr auto region_path_tail = StateRelativeRegionPath.tail();
             constexpr auto submach_index = tlu::index_of_v<state_conf_constant_list, cref_constant<submach_conf>>;
             const auto& state = tuple_get<submach_index>(states_);
-            return state.template is_active_state_def<StateRelativeRegionPath, StateConf>();
+            return state.template is_active_state_def<region_path_tail, StateConf>();
         }
     }
 
@@ -612,21 +613,22 @@ private:
     }
 
     //Note: We use static to factorize const and non-const Region
-    template<const auto& StateRegionPath, const auto& StateConf, class Region>
+    template<const auto& StatePath, class Region>
     static auto& static_state_data(Region& self)
     {
-        using state_path_t = std::decay_t<decltype(StateRegionPath)>;
+        using state_path_t = std::decay_t<decltype(StatePath)>;
 
-        if constexpr(tlu::size_v<state_path_t> == 0)
+        if constexpr(tlu::size_v<state_path_t> == 1)
         {
-            return static_state<StateConf>(self).data();
+            return static_state<StatePath.head()>(self).data();
         }
         else
         {
-            constexpr const auto& submach_conf = StateRegionPath.front();
+            constexpr const auto& submach_conf = StatePath.head();
+            static constexpr auto state_path_tail = StatePath.tail();
             constexpr auto submachine_index = tlu::index_of_v<typename Region::state_conf_constant_list, cref_constant<submach_conf>>;
             auto& submach = tuple_get<submachine_index>(self.states_);
-            return submach.template state_data<StateRegionPath, StateConf>(); //recursive
+            return submach.template state_data<state_path_tail>(); //recursive
         }
     }
 

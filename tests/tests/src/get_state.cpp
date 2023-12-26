@@ -129,18 +129,20 @@ TEST_CASE("state")
     auto machine = machine_t{};
     const auto& const_sm = machine;
 
-    static constexpr auto root_path = maki::path{machine_def::conf} / 0;
-    static constexpr auto on_path = root_path / states::on / 0;
+    static constexpr auto on_path = maki::path{machine_def::conf} / 0 / states::on;
+    static constexpr auto emitting_red_path = on_path / 0 / states::emitting_red;
+    static constexpr auto emitting_green_path = on_path / 0 / states::emitting_green;
+    static constexpr auto emitting_blue_path = on_path / 0 / states::emitting_blue;
 
-    auto& red_state = machine.state_data<on_path, states::emitting_red>();
+    auto& red_state = machine.state_data<emitting_red_path>();
     REQUIRE(red_state.color == led_color::red);
 
-    const auto& green_state = const_sm.state_data<on_path, states::emitting_green>();
+    const auto& green_state = const_sm.state_data<emitting_green_path>();
     REQUIRE(green_state.color == led_color::green);
 
-    auto& blue_state = machine.state_data<on_path, states::emitting_blue>();
+    auto& blue_state = machine.state_data<emitting_blue_path>();
     REQUIRE(blue_state.color == led_color::blue);
 
-    auto& on_state = machine.state_data<root_path, states::on>();
+    auto& on_state = machine.state_data<on_path>();
     REQUIRE(on_state.is_on_state);
 }

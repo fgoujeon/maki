@@ -66,8 +66,10 @@ TEST_CASE("state_data_same_type")
 {
     auto machine = machine_t{};
     static constexpr auto region_0_path = maki::path{machine_def::conf} / 0;
-    auto& off_counter = machine.state_data<region_0_path, states::off>().counter;
-    auto& on_counter = machine.state_data<region_0_path, states::on>().counter;
+    static constexpr auto off_path = region_0_path / states::off;
+    static constexpr auto on_path = region_0_path / states::on;
+    auto& off_counter = machine.state_data<off_path>().counter;
+    auto& on_counter = machine.state_data<on_path>().counter;
 
     REQUIRE(off_counter == 0);
     REQUIRE(on_counter == 0);

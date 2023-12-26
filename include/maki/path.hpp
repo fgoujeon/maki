@@ -137,9 +137,21 @@ public:
         return detail::tuple_get<Index>(elems_);
     }
 
-    [[nodiscard]] constexpr decltype(auto) front() const
+    [[nodiscard]] constexpr decltype(auto) head() const
     {
         return at<0>();
+    }
+
+    [[nodiscard]] constexpr auto tail() const
+    {
+        return tuple_apply
+        (
+            elems_,
+            [](const auto& /*elem*/, const auto&... elems)
+            {
+                return detail::make_path(elems...);
+            }
+        );
     }
 
     template<class Elem>
@@ -153,18 +165,6 @@ public:
                 return detail::make_path(elems..., elem);
             },
             elem
-        );
-    }
-
-    [[nodiscard]] constexpr auto pop_front() const
-    {
-        return tuple_apply
-        (
-            elems_,
-            [](const auto& /*elem*/, const auto&... elems)
-            {
-                return detail::make_path(elems...);
-            }
         );
     }
 

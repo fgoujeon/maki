@@ -76,7 +76,8 @@ TEST_CASE("state_data_submachine")
 {
     auto machine = machine_t{};
     static constexpr auto region_0_path = maki::path{machine_def::conf} / 0;
-    auto& counter = machine.state_data<region_0_path, states::on>().counter;
+    static constexpr auto on_path = region_0_path / states::on;
+    auto& counter = machine.state_data<on_path>().counter;
 
     machine.process_event(events::button_press{});
     REQUIRE(counter == 0);

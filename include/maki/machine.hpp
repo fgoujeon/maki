@@ -137,10 +137,12 @@ public:
     region of interest (see @ref RegionPath)
     @tparam State the state type
     */
-    template<const auto& RegionPath, const auto& StateConf>
+    template<const auto& StatePath>
     auto& state_data()
     {
-        return submachine_.template state_data<RegionPath, StateConf>();
+        static_assert(same_ref(StatePath.head(), conf));
+        static constexpr auto state_path_tail = StatePath.tail();
+        return submachine_.template state_data<state_path_tail>();
     }
 
     /**
@@ -150,10 +152,12 @@ public:
     region of interest (see @ref RegionPath)
     @tparam State the state type
     */
-    template<const auto& RegionPath, const auto& StateConf>
+    template<const auto& StatePath>
     const auto& state_data() const
     {
-        return submachine_.template state_data<RegionPath, StateConf>();
+        static_assert(same_ref(StatePath.head(), conf));
+        static constexpr auto state_path_tail = StatePath.tail();
+        return submachine_.template state_data<state_path_tail>();
     }
 
     /**
@@ -164,7 +168,9 @@ public:
     template<const auto& RegionPath>
     [[nodiscard]] bool is_running() const
     {
-        return submachine_.template is_running<RegionPath>();
+        static_assert(same_ref(RegionPath.head(), conf));
+        static constexpr auto region_path_tail = RegionPath.tail();
+        return submachine_.template is_running<region_path_tail>();
     }
 
     /**
@@ -187,7 +193,9 @@ public:
     template<const auto& RegionPath, const auto& StateConf>
     [[nodiscard]] bool is_active_state() const
     {
-        return submachine_.template is_active_state_def<RegionPath, StateConf>();
+        static_assert(same_ref(RegionPath.head(), conf));
+        static constexpr auto region_path_tail = RegionPath.tail();
+        return submachine_.template is_active_state_def<region_path_tail, StateConf>();
     }
 
     /**

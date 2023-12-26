@@ -134,7 +134,7 @@ public:
     @brief Returns the state of type `State` instantiated by the region
     indicated by `RegionPath`.
     @tparam RegionPath an instance of @ref path pointing to the
-    region of interest (see @ref RegionPath)
+    region of interest
     @tparam State the state type
     */
     template<const auto& StatePath>
@@ -147,7 +147,7 @@ public:
     @brief Returns the state of type `State` instantiated by the region
     indicated by `RegionPath`.
     @tparam RegionPath an instance of @ref path pointing to the
-    region of interest (see @ref RegionPath)
+    region of interest
     @tparam State the state type
     */
     template<const auto& StatePath>
@@ -159,7 +159,7 @@ public:
     /**
     @brief Returns whether the region indicated by `RegionPath` is running.
     @tparam RegionPath an instance of @ref path pointing to the
-    region of interest (see @ref RegionPath)
+    region of interest
     */
     template<const auto& RegionPath>
     [[nodiscard]] bool is_running() const
@@ -181,7 +181,7 @@ public:
     @brief Returns whether `State` is active in the region indicated by
     `RegionPath`.
     @tparam RegionPath an instance of @ref path pointing to the
-    region of interest (see @ref RegionPath)
+    region of interest
     @tparam State the state type
     */
     template<const auto& RegionPath, const auto& StateConf>

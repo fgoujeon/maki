@@ -22,56 +22,6 @@
 namespace maki
 {
 
-/**
-@defgroup RegionPath Region Path
-
-@brief A path to a region or subregion of an @ref machine.
-
-In some places in the API, you must provide or are provided a path to a region.
-
-Conceptually, a path to a region consists in a sequence of
-`(machine_def, region_index)` pairs, starting from a region of the root @ref machine.
-This is the same concept as a path to a directory on a filesystem, which
-consists in a sequence of directories, starting from the root directory.
-
-In terms of C++ code, a `(machine_def, region_index)` pair is defined with an
-instance of the @ref path_element struct template. These instances are
-sequenced in the template argument list given to the @ref path
-template instance.
-Here is an example:
-```cpp
-//A submachine with multiple regions, used machine_def
-struct some_submachine
-{
-    //...
-};
-
-//A machine with a single region
-struct machine_def
-{
-    //...
-};
-
-using machine_t = maki::machine<machine_def>;
-
-//Path to the second region (index 1) of some_submachine
-using path_t = maki::path
-<
-    maki::path_element<machine_def, 0>,
-    maki::path_element<some_submachine, 1>
->;
-```
-
-This is admittedly verbose and inconvenient. This is why the library provides
-@ref path_c and @ref path.add to make things much more terse:
-```cpp
-//Path to the exam same region
-using same_path_t = maki::path_c<machine_def>::add<some_submachine, 1>;
-```
-
-@{
-*/
-
 template<class... Elems>
 class path;
 
@@ -100,9 +50,16 @@ namespace detail
 }
 
 /**
-@brief Represents a path to a region.
+@brief Represents a path to a machine, submachine, state or region.
 
-@tparam Elems the elements, which must be instances of @ref path_element
+@tparam Elems the type of each element of the path
+
+In some places in the API, you must provide or are provided a path to a state or region.
+
+Conceptually, a path consists in a sequence of machine/submachine/state conf
+reference and region indexes.
+This is the same concept as a path to a directory on a filesystem, which
+consists in a sequence of directories, optionaly ending with a filename.
 */
 template<class... Elems>
 class path
@@ -182,10 +139,10 @@ path(const Elem&) -> path<Elem>;
 
 namespace detail
 {
-    template<const auto& RegionPath, int Index>
+    template<const auto& Path, int Index>
     std::string path_element_to_string()
     {
-        constexpr decltype(auto) elem = RegionPath.template at<Index>();
+        constexpr decltype(auto) elem = Path.template at<Index>();
         using elem_type = std::decay_t<decltype(elem)>;
 
         if constexpr(std::is_same_v<elem_type, int>)
@@ -212,30 +169,26 @@ namespace detail
         }
     }
 
-    template<const auto& RegionPath, class IndexSequence>
+    template<const auto& Path, class IndexSequence>
     struct path_to_string_impl;
 
-    template<const auto& RegionPath, int... Indexes>
-    struct path_to_string_impl<RegionPath, std::integer_sequence<int, Indexes...>>
+    template<const auto& Path, int... Indexes>
+    struct path_to_string_impl<Path, std::integer_sequence<int, Indexes...>>
     {
         static constexpr auto call()
         {
-            return (path_element_to_string<RegionPath, Indexes>() + ...);
+            return (path_element_to_string<Path, Indexes>() + ...);
         }
     };
 }
 
-template<class RegionPathConstant>
-auto path_to_string(const RegionPathConstant& /*path*/)
+template<class PathConstant>
+auto path_to_string(const PathConstant& /*path*/)
 {
-    constexpr auto size = detail::tlu::size_v<std::decay_t<decltype(RegionPathConstant::value)>>;
+    constexpr auto size = detail::tlu::size_v<std::decay_t<decltype(PathConstant::value)>>;
     using idx_sequence_t = std::make_integer_sequence<int, size>;
-    return detail::path_to_string_impl<RegionPathConstant::value, idx_sequence_t>::call();
+    return detail::path_to_string_impl<PathConstant::value, idx_sequence_t>::call();
 }
-
-/**
-@}
-*/
 
 } //namespace
 

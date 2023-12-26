@@ -99,8 +99,8 @@ TEST_CASE("orthogonal_regions")
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
-    static constexpr auto machine_region_0_path = maki::region_path_c<machine_def::conf, 0>;
-    static constexpr auto machine_region_1_path = maki::region_path_c<machine_def::conf, 1>;
+    static constexpr auto machine_region_0_path = maki::region_path_c / machine_def::conf / 0;
+    static constexpr auto machine_region_1_path = maki::region_path_c / machine_def::conf / 1;
 
     machine.start();
     REQUIRE(machine.is_active_state<machine_region_0_path, states::off0>());

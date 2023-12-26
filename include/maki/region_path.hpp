@@ -131,26 +131,17 @@ public:
         return at<0>();
     }
 
-    /**
-    @brief A type alias to a @ref region_path with an appended @ref
-    region_path_element.
-
-    @tparam MachineDef see @ref region_path_element
-    @tparam RegionIndex see @ref region_path_element; can be omitted if (and
-    only if) `MachineDef` contains only one region
-    */
-    template<class MachineConf>
-    [[nodiscard]] constexpr auto add(const MachineConf& mach_conf, const int region_index) const
+    template<class Elem>
+    [[nodiscard]] constexpr auto operator/(const Elem& elem) const
     {
         return tuple_apply
         (
             elems_,
-            [](const MachineConf& mach_conf, const int region_index, const auto&... elems)
+            [](const Elem& elem, const auto&... elems)
             {
-                return detail::make_region_path(elems..., mach_conf, region_index);
+                return detail::make_region_path(elems..., elem);
             },
-            mach_conf,
-            region_index
+            elem
         );
     }
 
@@ -187,8 +178,7 @@ constexpr bool operator==(const region_path<Ts...> /*lhs*/, const region_path<Us
 @tparam RegionIndex see @ref region_path_element; can be omitted if (and
 only if) `MachineDef` contains only one region
 */
-template<const auto& MachineConf, int RegionIndex>
-inline constexpr auto region_path_c = region_path<>{}.add(MachineConf, RegionIndex);
+inline constexpr auto region_path_c = region_path<>{};
 
 namespace detail
 {

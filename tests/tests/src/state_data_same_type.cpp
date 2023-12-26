@@ -65,8 +65,9 @@ namespace
 TEST_CASE("state_data_same_type")
 {
     auto machine = machine_t{};
-    auto& off_counter = machine.state_data<maki::region_path_c<machine_def::conf, 0>, states::off>().counter;
-    auto& on_counter = machine.state_data<maki::region_path_c<machine_def::conf, 0>, states::on>().counter;
+    static constexpr auto region_0_path = maki::region_path_c / machine_def::conf / 0;
+    auto& off_counter = machine.state_data<region_0_path, states::off>().counter;
+    auto& on_counter = machine.state_data<region_0_path, states::on>().counter;
 
     REQUIRE(off_counter == 0);
     REQUIRE(on_counter == 0);

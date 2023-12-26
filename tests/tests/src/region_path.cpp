@@ -62,17 +62,17 @@ namespace
 TEST_CASE("region_path")
 {
     {
-        static constexpr auto region_path = maki::region_path_c<machine_def::conf, 0>;
+        static constexpr auto region_path = maki::region_path_c / machine_def::conf / 0;
         REQUIRE(maki::region_path_to_string(maki::cref_constant_c<region_path>) == "main_sm/0");
     }
 
     {
-        static constexpr auto region_path = maki::region_path_c<machine_def::conf, 1>;
+        static constexpr auto region_path = maki::region_path_c / machine_def::conf / 1;
         REQUIRE(maki::region_path_to_string(maki::cref_constant_c<region_path>) == "main_sm/1");
     }
 
     {
-        static constexpr auto region_path = maki::region_path_c<machine_def::conf, 1>.add(states::on1, 0);
+        static constexpr auto region_path = maki::region_path_c / machine_def::conf / 1 / states::on1 / 0;
         REQUIRE(maki::region_path_to_string(maki::cref_constant_c<region_path>) == "main_sm/1/on_1/0");
     }
 
@@ -85,7 +85,7 @@ TEST_CASE("region_path")
             0
         };
 
-        constexpr auto region_path_2 = maki::region_path_c<machine_def::conf, 1>.add(states::on1, 0);
+        constexpr auto region_path_2 = maki::region_path_c / machine_def::conf / 1 / states::on1 / 0;
 
         REQUIRE(std::is_same_v<decltype(region_path), decltype(region_path_2)>);
     }

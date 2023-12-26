@@ -120,7 +120,7 @@ namespace
 
 TEST_CASE("submachine")
 {
-    static constexpr auto machine_on_region_path = maki::region_path_c<machine_def::conf, 0>.add(states::on, 0);
+    static constexpr auto machine_on_region_path = maki::region_path_c / machine_def::conf / 0 / states::on / 0;
 
     auto machine = machine_t{};
     auto& ctx = machine.context();

@@ -164,12 +164,6 @@ private:
 template<class... Elems>
 region_path(const Elems&...) -> region_path<Elems...>;
 
-template<class... Ts, class... Us>
-constexpr bool operator==(const region_path<Ts...> /*lhs*/, const region_path<Us...> /*rhs*/)
-{
-    return (std::is_same_v<Ts, Us> && ...);
-}
-
 /**
 @brief A handy variable template for defining a @ref region_path with a single
 @ref region_path_element.

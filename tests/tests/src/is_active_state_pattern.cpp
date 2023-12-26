@@ -68,7 +68,6 @@ namespace
 TEST_CASE("is_active_state_filter")
 {
     static constexpr auto on_reg_path = maki::path{0} / states::on / 0;
-    static constexpr auto emitting_red_path = on_reg_path / states::emitting_red;
 
     auto machine = machine_t{};
 

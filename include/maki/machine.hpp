@@ -140,9 +140,7 @@ public:
     template<const auto& StatePath>
     auto& state_data()
     {
-        static_assert(same_ref(StatePath.head(), conf));
-        static constexpr auto state_path_tail = StatePath.tail();
-        return submachine_.template state_data<state_path_tail>();
+        return submachine_.template state_data<StatePath>();
     }
 
     /**
@@ -155,9 +153,7 @@ public:
     template<const auto& StatePath>
     const auto& state_data() const
     {
-        static_assert(same_ref(StatePath.head(), conf));
-        static constexpr auto state_path_tail = StatePath.tail();
-        return submachine_.template state_data<state_path_tail>();
+        return submachine_.template state_data<StatePath>();
     }
 
     /**
@@ -168,9 +164,7 @@ public:
     template<const auto& RegionPath>
     [[nodiscard]] bool is_running() const
     {
-        static_assert(same_ref(RegionPath.head(), conf));
-        static constexpr auto region_path_tail = RegionPath.tail();
-        return submachine_.template is_running<region_path_tail>();
+        return submachine_.template is_running<RegionPath>();
     }
 
     /**
@@ -193,9 +187,7 @@ public:
     template<const auto& RegionPath, const auto& StateConf>
     [[nodiscard]] bool is_active_state() const
     {
-        static_assert(same_ref(RegionPath.head(), conf));
-        static constexpr auto region_path_tail = RegionPath.tail();
-        return submachine_.template is_active_state_def<region_path_tail, StateConf>();
+        return submachine_.template is_active_state_def<RegionPath, StateConf>();
     }
 
     /**

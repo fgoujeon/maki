@@ -100,7 +100,7 @@ TEST_CASE("on_unprocessed")
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
-    static constexpr auto on_path = maki::path{machine_def::conf} / 0 / states::on / 0;
+    static constexpr auto on_path = maki::path{0} / states::on / 0;
 
     ctx.clear();
     machine.start();

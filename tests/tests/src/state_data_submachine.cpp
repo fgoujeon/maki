@@ -75,7 +75,7 @@ namespace
 TEST_CASE("state_data_submachine")
 {
     auto machine = machine_t{};
-    static constexpr auto region_0_path = maki::path{machine_def::conf} / 0;
+    static constexpr auto region_0_path = maki::path{0};
     static constexpr auto on_path = region_0_path / states::on;
     auto& counter = machine.state_data<on_path>().counter;
 

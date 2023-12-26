@@ -129,7 +129,7 @@ TEST_CASE("state")
     auto machine = machine_t{};
     const auto& const_sm = machine;
 
-    static constexpr auto on_path = maki::path{machine_def::conf} / 0 / states::on;
+    static constexpr auto on_path = maki::path{0} / states::on;
     static constexpr auto emitting_red_path = on_path / 0 / states::emitting_red;
     static constexpr auto emitting_green_path = on_path / 0 / states::emitting_green;
     static constexpr auto emitting_blue_path = on_path / 0 / states::emitting_blue;

@@ -116,11 +116,6 @@ public:
     {
     }
 
-    constexpr explicit path(const detail::path_direct_construct_t /*tag*/, const Elems&... elems):
-        elems_(detail::distributed_construct, elems...)
-    {
-    }
-
     constexpr path(const path& other) = default;
 
     constexpr path(path&& other) noexcept = default;
@@ -169,6 +164,14 @@ public:
     }
 
 private:
+    template<class... Elems2>
+    friend constexpr auto detail::make_path(const Elems2&...);
+
+    constexpr explicit path(const detail::path_direct_construct_t /*tag*/, const Elems&... elems):
+        elems_(detail::distributed_construct, elems...)
+    {
+    }
+
     detail::tuple<typename detail::to_path_storage_type<Elems>::type...> elems_;
 };
 
@@ -176,9 +179,6 @@ path() -> path<>;
 
 template<class Elem>
 path(const Elem&) -> path<Elem>;
-
-template<class... Elems>
-path(detail::path_direct_construct_t, const Elems&...) -> path<Elems...>;
 
 namespace detail
 {

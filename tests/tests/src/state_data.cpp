@@ -68,7 +68,7 @@ namespace
 TEST_CASE("state_data")
 {
     auto machine = machine_t{};
-    static constexpr auto region_0_path = maki::path_c / machine_def::conf / 0;
+    static constexpr auto region_0_path = maki::path{machine_def::conf} / 0;
     auto& counter = machine.state_data<region_0_path, states::on>().counter;
 
     machine.process_event(events::button_press{});

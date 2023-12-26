@@ -77,10 +77,13 @@ class path;
 
 namespace detail
 {
+    struct path_direct_construct_t{};
+    inline constexpr auto path_direct_construct = path_direct_construct_t{};
+
     template<class... Elems>
     constexpr auto make_path(const Elems&... elems)
     {
-        return path<Elems...>{elems...};
+        return path<Elems...>{path_direct_construct, elems...};
     }
 
     template<class Elem>
@@ -105,7 +108,15 @@ template<class... Elems>
 class path
 {
 public:
-    constexpr path(const Elems&... elems):
+    constexpr path() = default;
+
+    template<class Elem>
+    constexpr explicit path(const Elem& elem):
+        elems_(detail::distributed_construct, elem)
+    {
+    }
+
+    constexpr explicit path(const detail::path_direct_construct_t /*tag*/, const Elems&... elems):
         elems_(detail::distributed_construct, elems...)
     {
     }
@@ -161,18 +172,13 @@ private:
     detail::tuple<typename detail::to_path_storage_type<Elems>::type...> elems_;
 };
 
+path() -> path<>;
+
+template<class Elem>
+path(const Elem&) -> path<Elem>;
+
 template<class... Elems>
-path(const Elems&...) -> path<Elems...>;
-
-/**
-@brief A handy variable template for defining a @ref path with a single
-@ref path_element.
-
-@tparam MachineDef see @ref path_element
-@tparam RegionIndex see @ref path_element; can be omitted if (and
-only if) `MachineDef` contains only one region
-*/
-inline constexpr auto path_c = path<>{};
+path(detail::path_direct_construct_t, const Elems&...) -> path<Elems...>;
 
 namespace detail
 {

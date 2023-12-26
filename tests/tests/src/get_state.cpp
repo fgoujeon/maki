@@ -134,15 +134,15 @@ TEST_CASE("state")
     static constexpr auto emitting_green_path = on_path / 0 / states::emitting_green;
     static constexpr auto emitting_blue_path = on_path / 0 / states::emitting_blue;
 
-    auto& red_state = machine.state_data<emitting_red_path>();
+    auto& red_state = machine.data<emitting_red_path>();
     REQUIRE(red_state.color == led_color::red);
 
-    const auto& green_state = const_sm.state_data<emitting_green_path>();
+    const auto& green_state = const_sm.data<emitting_green_path>();
     REQUIRE(green_state.color == led_color::green);
 
-    auto& blue_state = machine.state_data<emitting_blue_path>();
+    auto& blue_state = machine.data<emitting_blue_path>();
     REQUIRE(blue_state.color == led_color::blue);
 
-    auto& on_state = machine.state_data<on_path>();
+    auto& on_state = machine.data<on_path>();
     REQUIRE(on_state.is_on_state);
 }

@@ -117,19 +117,33 @@ public:
     }
 
     template<const auto& StatePath>
-    auto& state_data()
+    auto& data()
     {
-        static constexpr int region_index = StatePath.head();
-        static constexpr auto state_path_tail = StatePath.tail();
-        return tuple_get<region_index>(regions_).template state_data<state_path_tail>();
+        if constexpr(StatePath.empty())
+        {
+            return simple_state_.data();
+        }
+        else
+        {
+            static constexpr int region_index = StatePath.head();
+            static constexpr auto state_path_tail = StatePath.tail();
+            return tuple_get<region_index>(regions_).template data<state_path_tail>();
+        }
     }
 
     template<const auto& StatePath>
-    const auto& state_data() const
+    const auto& data() const
     {
-        static constexpr int region_index = StatePath.head();
-        static constexpr auto state_path_tail = StatePath.tail();
-        return tuple_get<region_index>(regions_).template state_data<state_path_tail>();
+        if constexpr(StatePath.empty())
+        {
+            return simple_state_.data();
+        }
+        else
+        {
+            static constexpr int region_index = StatePath.head();
+            static constexpr auto state_path_tail = StatePath.tail();
+            return tuple_get<region_index>(regions_).template data<state_path_tail>();
+        }
     }
 
     template<const auto& StateRegionPath, const auto& StateConf>

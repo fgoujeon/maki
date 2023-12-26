@@ -83,6 +83,16 @@ public:
 
     ~path() = default;
 
+    static constexpr int size()
+    {
+        return static_cast<int>(sizeof...(Elems));
+    }
+
+    static constexpr bool empty()
+    {
+        return sizeof...(Elems) == 0;
+    }
+
     template<int Index>
     [[nodiscard]] constexpr decltype(auto) at() const
     {
@@ -189,6 +199,8 @@ auto path_to_string(const PathConstant& /*path*/)
     using idx_sequence_t = std::make_integer_sequence<int, size>;
     return detail::path_to_string_impl<PathConstant::value, idx_sequence_t>::call();
 }
+
+inline constexpr auto empty_path_c = path<>{};
 
 } //namespace
 

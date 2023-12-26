@@ -125,35 +125,16 @@ public:
         return submachine_.context();
     }
 
+    template<const auto& MachineOrStatePath = empty_path_c>
     auto& data()
     {
-        return submachine_.data();
+        return submachine_.template data<MachineOrStatePath>();
     }
 
-    /**
-    @brief Returns the state of type `State` instantiated by the region
-    indicated by `RegionPath`.
-    @tparam RegionPath an instance of @ref path pointing to the
-    region of interest
-    @tparam State the state type
-    */
-    template<const auto& StatePath>
-    auto& state_data()
+    template<const auto& MachineOrStatePath = empty_path_c>
+    const auto& data() const
     {
-        return submachine_.template state_data<StatePath>();
-    }
-
-    /**
-    @brief Returns the state of type `State` instantiated by the region
-    indicated by `RegionPath`.
-    @tparam RegionPath an instance of @ref path pointing to the
-    region of interest
-    @tparam State the state type
-    */
-    template<const auto& StatePath>
-    const auto& state_data() const
-    {
-        return submachine_.template state_data<StatePath>();
+        return submachine_.template data<MachineOrStatePath>();
     }
 
     /**

@@ -69,7 +69,7 @@ TEST_CASE("state_data")
 {
     auto machine = machine_t{};
     static constexpr auto on_path = maki::path{0} / states::on;
-    auto& counter = machine.state_data<on_path>().counter;
+    auto& counter = machine.data<on_path>().counter;
 
     machine.process_event(events::button_press{});
     REQUIRE(counter == 0);

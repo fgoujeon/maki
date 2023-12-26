@@ -78,15 +78,15 @@ public:
     ~region() = default;
 
     template<const auto& StatePath>
-    const auto& state_data() const
+    const auto& data() const
     {
-        return static_state_data<StatePath>(*this);
+        return static_data<StatePath>(*this);
     }
 
     template<const auto& StatePath>
-    auto& state_data()
+    auto& data()
     {
-        return static_state_data<StatePath>(*this);
+        return static_data<StatePath>(*this);
     }
 
     template<const auto& StateRelativeRegionPath, const auto& StateConf>
@@ -614,21 +614,16 @@ private:
 
     //Note: We use static to factorize const and non-const Region
     template<const auto& StatePath, class Region>
-    static auto& static_state_data(Region& self)
+    static auto& static_data(Region& self)
     {
-        using state_path_t = std::decay_t<decltype(StatePath)>;
-
-        if constexpr(tlu::size_v<state_path_t> == 1)
+        if constexpr(StatePath.size() == 1)
         {
             return static_state<StatePath.head()>(self).data();
         }
         else
         {
-            constexpr const auto& submach_conf = StatePath.head();
             static constexpr auto state_path_tail = StatePath.tail();
-            constexpr auto submachine_index = tlu::index_of_v<typename Region::state_conf_constant_list, cref_constant<submach_conf>>;
-            auto& submach = tuple_get<submachine_index>(self.states_);
-            return submach.template state_data<state_path_tail>(); //recursive
+            return static_state<StatePath.head()>(self).template data<state_path_tail>();
         }
     }
 

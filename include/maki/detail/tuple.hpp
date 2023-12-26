@@ -23,7 +23,7 @@ template<int Index, class T>
 struct tuple_element
 {
     template<class... Args>
-    explicit constexpr tuple_element(Args&... args):
+    explicit constexpr tuple_element(Args&&... args):
         value{args...}
     {
     }
@@ -45,19 +45,19 @@ struct tuple_base<std::integer_sequence<int, Indexes...>, Ts...>:
     constexpr tuple_base(tuple_base&& other) = delete;
 
     template<class... Args>
-    explicit constexpr tuple_base(distributed_construct_t /*tag*/, Args&... args):
+    explicit constexpr tuple_base(distributed_construct_t /*tag*/, Args&&... args):
         tuple_element<Indexes, Ts>{args}...
     {
     }
 
     template<class Arg>
-    constexpr tuple_base(uniform_construct_t /*tag*/, Arg& arg):
+    constexpr tuple_base(uniform_construct_t /*tag*/, Arg&& arg):
         tuple_element<Indexes, Ts>{arg}...
     {
     }
 
     template<class Arg0, class Arg1>
-    constexpr tuple_base(uniform_construct_t /*tag*/, Arg0& arg0, Arg1& arg1):
+    constexpr tuple_base(uniform_construct_t /*tag*/, Arg0& arg0, Arg1&& arg1):
         tuple_element<Indexes, Ts>{arg0, arg1}...
     {
     }

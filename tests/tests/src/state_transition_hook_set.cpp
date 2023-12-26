@@ -105,10 +105,10 @@ TEST_CASE("state_transition_hook_set")
     REQUIRE
     (
         ctx.out ==
-        "Transition in main_sm[0]: stopped -> off0...;0;"
-        "0;Transition in main_sm[0]: stopped -> off0;"
-        "Transition in main_sm[1]: stopped -> off1...;0;"
-        "0;Transition in main_sm[1]: stopped -> off1;"
+        "Transition in main_sm/0: stopped -> off0...;0;"
+        "0;Transition in main_sm/0: stopped -> off0;"
+        "Transition in main_sm/1: stopped -> off1...;0;"
+        "0;Transition in main_sm/1: stopped -> off1;"
     );
 
     ctx.out.clear();
@@ -119,12 +119,12 @@ TEST_CASE("state_transition_hook_set")
     REQUIRE
     (
         ctx.out ==
-        "Transition in main_sm[0]: off0 -> on0...;1;"
-        "1;Transition in main_sm[0]: off0 -> on0;"
-        "Transition in main_sm[1]: off1 -> on_1...;1;"
-        "Transition in main_sm[1].on_1: stopped -> off0...;1;"
-        "1;Transition in main_sm[1].on_1: stopped -> off0;"
-        "1;Transition in main_sm[1]: off1 -> on_1;"
+        "Transition in main_sm/0: off0 -> on0...;1;"
+        "1;Transition in main_sm/0: off0 -> on0;"
+        "Transition in main_sm/1: off1 -> on_1...;1;"
+        "Transition in main_sm/1/on_1/0: stopped -> off0...;1;"
+        "1;Transition in main_sm/1/on_1/0: stopped -> off0;"
+        "1;Transition in main_sm/1: off1 -> on_1;"
     );
 
     ctx.out.clear();
@@ -135,7 +135,7 @@ TEST_CASE("state_transition_hook_set")
     REQUIRE
     (
         ctx.out ==
-        "Transition in main_sm[1].on_1: off0 -> on0...;2;"
-        "2;Transition in main_sm[1].on_1: off0 -> on0;"
+        "Transition in main_sm/1/on_1/0: off0 -> on0...;2;"
+        "2;Transition in main_sm/1/on_1/0: off0 -> on0;"
     );
 }

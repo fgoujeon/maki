@@ -123,13 +123,13 @@ public:
         (
             same_ref
             (
-                StateRegionPath.front().mach_conf,
+                StateRegionPath.front(),
                 Conf
             )
         );
 
-        static constexpr auto region_index = StateRegionPath.front().region_index;
-        static constexpr auto state_region_relative_path = StateRegionPath.pop_front();
+        static constexpr auto region_index = StateRegionPath.pop_front().front();
+        static constexpr auto state_region_relative_path = StateRegionPath.pop_front().pop_front();
         return tuple_get<region_index>(regions_).template state_data<state_region_relative_path, StateConf>();
     }
 
@@ -140,13 +140,13 @@ public:
         (
             same_ref
             (
-                StateRegionPath.front().mach_conf,
+                StateRegionPath.front(),
                 Conf
             )
         );
 
-        static constexpr auto region_index = StateRegionPath.front().region_index;
-        static constexpr auto state_region_relative_path = StateRegionPath.pop_front();
+        static constexpr auto region_index = StateRegionPath.pop_front().front();
+        static constexpr auto state_region_relative_path = StateRegionPath.pop_front().pop_front();
         return tuple_get<region_index>(regions_).template state_data<state_region_relative_path, StateConf>();
     }
 
@@ -157,13 +157,13 @@ public:
         (
             same_ref
             (
-                StateRegionPath.front().mach_conf,
+                StateRegionPath.front(),
                 Conf
             )
         );
 
-        static constexpr auto region_index = StateRegionPath.front().region_index;
-        static constexpr auto state_region_relative_path = StateRegionPath.pop_front();
+        static constexpr auto region_index = StateRegionPath.pop_front().front();
+        static constexpr auto state_region_relative_path = StateRegionPath.pop_front().pop_front();
         return tuple_get<region_index>(regions_).template is_active_state_def<state_region_relative_path, StateConf>();
     }
 

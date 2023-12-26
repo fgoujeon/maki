@@ -72,19 +72,6 @@ using same_region_path_t = maki::region_path_c<machine_def>::add<some_submachine
 @{
 */
 
-/**
-@brief Represents an element of a path to a region.
-
-@tparam MachineDef an @ref machine or submachine definition
-@tparam RegionIndex the index of the region among the regions of `MachineDef`
-*/
-template<class MachineConf>
-struct region_path_element
-{
-    const MachineConf& mach_conf; /*NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)*/
-    int region_index = 0;
-};
-
 template<class... Elems>
 class region_path;
 
@@ -95,6 +82,18 @@ namespace detail
     {
         return region_path<Elems...>{elems...};
     }
+
+    template<class Elem>
+    struct to_region_path_storage_type
+    {
+        using type = const std::decay_t<Elem>&;
+    };
+
+    template<>
+    struct to_region_path_storage_type<int>
+    {
+        using type = int;
+    };
 }
 
 /**
@@ -122,12 +121,12 @@ public:
     ~region_path() = default;
 
     template<int Index>
-    [[nodiscard]] constexpr const auto& at() const
+    [[nodiscard]] constexpr decltype(auto) at() const
     {
         return detail::tuple_get<Index>(elems_);
     }
 
-    [[nodiscard]] constexpr const auto& front() const
+    [[nodiscard]] constexpr decltype(auto) front() const
     {
         return at<0>();
     }
@@ -148,7 +147,7 @@ public:
             elems_,
             [](const MachineConf& mach_conf, const int region_index, const auto&... elems)
             {
-                return detail::make_region_path(elems..., region_path_element<MachineConf>{mach_conf, region_index});
+                return detail::make_region_path(elems..., mach_conf, region_index);
             },
             mach_conf,
             region_index
@@ -168,7 +167,7 @@ public:
     }
 
 private:
-    detail::tuple<Elems...> elems_;
+    detail::tuple<typename detail::to_region_path_storage_type<Elems>::type...> elems_;
 };
 
 template<class... Elems>
@@ -196,29 +195,29 @@ namespace detail
     template<const auto& RegionPath, int Index>
     std::string region_path_element_to_string()
     {
-        constexpr const auto& elem = RegionPath.template at<Index>();
-        using transition_table_list_type = decltype(elem.mach_conf.transition_tables_);
+        constexpr decltype(auto) elem = RegionPath.template at<Index>();
+        using elem_type = std::decay_t<decltype(elem)>;
 
-        if constexpr(detail::tlu::size_v<transition_table_list_type> > 1)
+        if constexpr(std::is_same_v<elem_type, int>)
         {
             if constexpr(Index == 0)
             {
-                return std::string{maki::pretty_name<elem.mach_conf>()} + '[' + std::to_string(elem.region_index) + ']';
+                return std::to_string(elem);
             }
             else
             {
-                return '.' + std::string{maki::pretty_name<elem.mach_conf>()} + '[' + std::to_string(elem.region_index) + ']';
+                return '/' + std::to_string(elem);
             }
         }
         else
         {
             if constexpr(Index == 0)
             {
-                return std::string{maki::pretty_name<elem.mach_conf>()};
+                return std::string{maki::pretty_name<elem>()};
             }
             else
             {
-                return '.' + std::string{maki::pretty_name<elem.mach_conf>()};
+                return '/' + std::string{maki::pretty_name<elem>()};
             }
         }
     }

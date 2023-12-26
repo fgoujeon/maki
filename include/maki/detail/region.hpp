@@ -100,7 +100,7 @@ public:
         }
         else
         {
-            constexpr const auto& submach_conf = StateRelativeRegionPath.front().mach_conf;
+            constexpr const auto& submach_conf = StateRelativeRegionPath.front();
             constexpr auto submach_index = tlu::index_of_v<state_conf_constant_list, cref_constant<submach_conf>>;
             const auto& state = tuple_get<submach_index>(states_);
             return state.template is_active_state_def<StateRelativeRegionPath, StateConf>();
@@ -623,7 +623,7 @@ private:
         }
         else
         {
-            constexpr const auto& submach_conf = StateRegionPath.front().mach_conf;
+            constexpr const auto& submach_conf = StateRegionPath.front();
             constexpr auto submachine_index = tlu::index_of_v<typename Region::state_conf_constant_list, cref_constant<submach_conf>>;
             auto& submach = tuple_get<submachine_index>(self.states_);
             return submach.template state_data<StateRegionPath, StateConf>(); //recursive

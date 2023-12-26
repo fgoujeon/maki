@@ -74,7 +74,7 @@ namespace orthogonal_regions_ns
             (
                 [](context& ctx, const auto& region_path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
                 {
-                    const auto region_index = region_path_constant.value.front().region_index;
+                    const auto region_index = region_path_constant.value.pop_front().front();
                     ctx.out += "before_state_transition[" + std::to_string(region_index) + "];";
                 }
             )
@@ -82,7 +82,7 @@ namespace orthogonal_regions_ns
             (
                 [](context& ctx, const auto& region_path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
                 {
-                    const auto region_index = region_path_constant.value.front().region_index;
+                    const auto region_index = region_path_constant.value.pop_front().front();
                     ctx.out += "after_state_transition[" + std::to_string(region_index) + "];";
                 }
             )

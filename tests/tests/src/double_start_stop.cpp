@@ -45,12 +45,12 @@ namespace
             .context<context>()
             .pre_state_transition_action_crset
             (
-                [](context& ctx, const auto& region_path_constant, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)
+                [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)
                 {
-                    //REQUIRE(region_path_constant.value == maki::region_path<maki::region_path_element<machine_def, 0>>{});
+                    //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
 
                     ctx.out += "Transition in ";
-                    ctx.out += maki::region_path_to_string(region_path_constant);
+                    ctx.out += maki::path_to_string(path_constant);
                     ctx.out += ": ";
                     ctx.out += maki::pretty_name<source_state_constant.value>();
                     ctx.out += " -> ";
@@ -60,12 +60,12 @@ namespace
             )
             .post_state_transition_action_crset
             (
-                [](context& ctx, const auto& region_path_constant, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)
+                [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)
                 {
-                    //REQUIRE(region_path_constant.value == maki::region_path<maki::region_path_element<machine_def, 0>>{});
+                    //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
 
                     ctx.out += "Transition in ";
-                    ctx.out += maki::region_path_to_string(region_path_constant);
+                    ctx.out += maki::path_to_string(path_constant);
                     ctx.out += ": ";
                     ctx.out += maki::pretty_name<source_state_constant.value>();
                     ctx.out += " -> ";

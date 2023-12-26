@@ -167,7 +167,7 @@ public:
     void action
     (
         context& ctx,
-        const maki::cref_constant<RegionPath> region_path_constant,
+        const maki::cref_constant<RegionPath> path_constant,
         const maki::cref_constant<SourceStateConf> source_state_conf_constant,
         const Event& event,
         const maki::cref_constant<TargetStateConf> target_state_conf_constant
@@ -182,7 +182,7 @@ public:
         []
         (
             context& ctx,
-            const auto region_path_constant,
+            const auto path_constant,
             const auto source_state_constant,
             const auto& event,
             const auto target_state_constant
@@ -190,7 +190,7 @@ public:
         {
             std::cout
                 << "Beginning of transition in "
-                << region_path_constant.value.to_string()
+                << path_constant.value.to_string()
                 << ": "
                 << maki::pretty_name<source_state_constant.value>()
                 << " -> "
@@ -236,7 +236,7 @@ public:
     void action
     (
         context& ctx,
-        const maki::cref_constant<RegionPath> region_path_constant,
+        const maki::cref_constant<RegionPath> path_constant,
         const maki::cref_constant<SourceStateConf> source_state_conf_constant,
         const Event& event,
         const maki::cref_constant<TargetStateConf> target_state_conf_constant
@@ -251,7 +251,7 @@ public:
         []
         (
             context& ctx,
-            const auto region_path_constant,
+            const auto path_constant,
             const auto source_state_constant,
             const auto& event,
             const auto target_state_constant
@@ -259,7 +259,7 @@ public:
         {
             std::cout
                 << "End of transition in "
-                << region_path_constant.value.to_string()
+                << path_constant.value.to_string()
                 << ": "
                 << maki::pretty_name<source_state_constant.value>()
                 << " -> "

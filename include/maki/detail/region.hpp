@@ -7,7 +7,7 @@
 #ifndef MAKI_DETAIL_REGION_HPP
 #define MAKI_DETAIL_REGION_HPP
 
-#include "region_path_of.hpp"
+#include "path_of.hpp"
 #include "state_traits.hpp"
 #include "call_member.hpp"
 #include "transition_table_digest.hpp"
@@ -92,9 +92,9 @@ public:
     template<const auto& StateRelativeRegionPath, const auto& StateConf>
     [[nodiscard]] bool is_active_state_def() const
     {
-        using state_relative_region_path_t = std::decay_t<decltype(StateRelativeRegionPath)>;
+        using state_relative_path_t = std::decay_t<decltype(StateRelativeRegionPath)>;
 
-        if constexpr(tlu::size_v<state_relative_region_path_t> == 0)
+        if constexpr(tlu::size_v<state_relative_path_t> == 0)
         {
             return is_active_state_def<StateConf>();
         }
@@ -383,7 +383,7 @@ private:
     {
         using machine_conf_type = std::decay_t<decltype(Machine::conf)>;
 
-        constexpr const auto& path = region_path_of_v<region>;
+        constexpr const auto& path = path_of_v<region>;
 
         constexpr auto is_internal_transition = same_ref(TargetStateConf, null_c);
 
@@ -615,9 +615,9 @@ private:
     template<const auto& StateRegionPath, const auto& StateConf, class Region>
     static auto& static_state_data(Region& self)
     {
-        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
+        using state_path_t = std::decay_t<decltype(StateRegionPath)>;
 
-        if constexpr(tlu::size_v<state_region_path_t> == 0)
+        if constexpr(tlu::size_v<state_path_t> == 0)
         {
             return static_state<StateConf>(self).data();
         }

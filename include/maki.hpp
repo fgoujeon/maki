@@ -23,7 +23,7 @@
 #include "maki/machine_ref.hpp"
 #include "maki/machine_ref_conf.hpp"
 #include "maki/pretty_name.hpp"
-#include "maki/region_path.hpp"
+#include "maki/path.hpp"
 #include "maki/state_conf.hpp"
 #include "maki/state_confs.hpp"
 #include "maki/submachine_conf.hpp"

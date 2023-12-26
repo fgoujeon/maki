@@ -54,10 +54,10 @@ namespace
             .context<context>()
             .pre_state_transition_action_crset
             (
-                [](context& ctx, const auto& region_path_constant, const auto source_state_constant, const auto& event, const auto target_state_constant)
+                [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& event, const auto target_state_constant)
                 {
                     ctx.out += "Transition in ";
-                    ctx.out += maki::region_path_to_string(region_path_constant);
+                    ctx.out += maki::path_to_string(path_constant);
                     ctx.out += ": ";
                     ctx.out += maki::pretty_name<source_state_constant.value>();
                     ctx.out += " -> ";
@@ -69,12 +69,12 @@ namespace
             )
             .post_state_transition_action_crset
             (
-                [](context& ctx, const auto& region_path_constant, const auto source_state_constant, const auto& event, const auto target_state_constant)
+                [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& event, const auto target_state_constant)
                 {
                     ctx.out += std::to_string(event.pressure) + ";";
 
                     ctx.out += "Transition in ";
-                    ctx.out += maki::region_path_to_string(region_path_constant);
+                    ctx.out += maki::path_to_string(path_constant);
                     ctx.out += ": ";
                     ctx.out += maki::pretty_name<source_state_constant.value>();
                     ctx.out += " -> ";
@@ -95,8 +95,8 @@ TEST_CASE("state_transition_hook_set")
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
-    static constexpr auto root_0_path = maki::region_path_c / machine_def::conf / 0;
-    static constexpr auto root_1_path = maki::region_path_c / machine_def::conf / 1;
+    static constexpr auto root_0_path = maki::path_c / machine_def::conf / 0;
+    static constexpr auto root_1_path = maki::path_c / machine_def::conf / 1;
     static constexpr auto root_1_on_1_path = root_1_path / states::on1 / 0;
 
     machine.start(events::button_press{0});

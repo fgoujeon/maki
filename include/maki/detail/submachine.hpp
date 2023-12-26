@@ -19,7 +19,7 @@
 #include "../machine_fwd.hpp"
 #include "../state_conf.hpp"
 #include "../transition_table.hpp"
-#include "../region_path.hpp"
+#include "../path.hpp"
 #include "../type_patterns.hpp"
 #include <type_traits>
 
@@ -172,7 +172,7 @@ public:
     {
         static_assert(tlu::size_v<transition_table_type_list> == 1);
 
-        static constexpr auto state_region_relative_path = region_path<>{};
+        static constexpr auto state_region_relative_path = path<>{};
         return tuple_get<0>(regions_).template is_active_state_def<state_region_relative_path, StateConf>();
     }
 

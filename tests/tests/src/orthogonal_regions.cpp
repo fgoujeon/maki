@@ -72,17 +72,17 @@ namespace orthogonal_regions_ns
             )
             .pre_state_transition_action_crset
             (
-                [](context& ctx, const auto& region_path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
+                [](context& ctx, const auto& path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
                 {
-                    const auto region_index = region_path_constant.value.pop_front().front();
+                    const auto region_index = path_constant.value.pop_front().front();
                     ctx.out += "before_state_transition[" + std::to_string(region_index) + "];";
                 }
             )
             .post_state_transition_action_crset
             (
-                [](context& ctx, const auto& region_path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
+                [](context& ctx, const auto& path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
                 {
-                    const auto region_index = region_path_constant.value.pop_front().front();
+                    const auto region_index = path_constant.value.pop_front().front();
                     ctx.out += "after_state_transition[" + std::to_string(region_index) + "];";
                 }
             )
@@ -99,8 +99,8 @@ TEST_CASE("orthogonal_regions")
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
-    static constexpr auto machine_region_0_path = maki::region_path_c / machine_def::conf / 0;
-    static constexpr auto machine_region_1_path = maki::region_path_c / machine_def::conf / 1;
+    static constexpr auto machine_region_0_path = maki::path_c / machine_def::conf / 0;
+    static constexpr auto machine_region_1_path = maki::path_c / machine_def::conf / 1;
 
     machine.start();
     REQUIRE(machine.is_active_state<machine_region_0_path, states::off0>());

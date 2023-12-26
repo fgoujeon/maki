@@ -67,37 +67,37 @@ namespace
 
 TEST_CASE("is_active_state_filter")
 {
-    static constexpr auto machine_on_region_path_v = maki::region_path_c / machine_def::conf / 0 / states::on / 0;
+    static constexpr auto machine_on_path_v = maki::path_c / machine_def::conf / 0 / states::on / 0;
 
     auto machine = machine_t{};
 
     machine.start();
 
     REQUIRE(machine.is_active_state<states::off>());
-    REQUIRE(!machine.is_running<machine_on_region_path_v>());
+    REQUIRE(!machine.is_running<machine_on_path_v>());
 
     machine.process_event(events::power_button_press{});
     REQUIRE(!machine.is_active_state<states::emitting_red_or_green>());
-    REQUIRE(machine.is_active_state<machine_on_region_path_v, states::emitting_red>());
-    REQUIRE(machine.is_active_state<machine_on_region_path_v, states::emitting_red_or_green>());
-    REQUIRE(!machine.is_active_state<machine_on_region_path_v, states::not_emitting_red>());
+    REQUIRE(machine.is_active_state<machine_on_path_v, states::emitting_red>());
+    REQUIRE(machine.is_active_state<machine_on_path_v, states::emitting_red_or_green>());
+    REQUIRE(!machine.is_active_state<machine_on_path_v, states::not_emitting_red>());
 
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.is_active_state<machine_on_region_path_v, states::emitting_green>());
-    REQUIRE(machine.is_active_state<machine_on_region_path_v, states::emitting_red_or_green>());
-    REQUIRE(machine.is_active_state<machine_on_region_path_v, states::not_emitting_red>());
+    REQUIRE(machine.is_active_state<machine_on_path_v, states::emitting_green>());
+    REQUIRE(machine.is_active_state<machine_on_path_v, states::emitting_red_or_green>());
+    REQUIRE(machine.is_active_state<machine_on_path_v, states::not_emitting_red>());
 
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.is_active_state<machine_on_region_path_v, states::emitting_blue>());
-    REQUIRE(!machine.is_active_state<machine_on_region_path_v, states::emitting_red_or_green>());
-    REQUIRE(machine.is_active_state<machine_on_region_path_v, states::not_emitting_red>());
+    REQUIRE(machine.is_active_state<machine_on_path_v, states::emitting_blue>());
+    REQUIRE(!machine.is_active_state<machine_on_path_v, states::emitting_red_or_green>());
+    REQUIRE(machine.is_active_state<machine_on_path_v, states::not_emitting_red>());
 
     machine.process_event(events::power_button_press{});
     REQUIRE(machine.is_active_state<states::off>());
     REQUIRE(!machine.is_active_state<states::emitting_red_or_green>());
-    REQUIRE(machine.is_active_state<machine_on_region_path_v, maki::state_confs::stopped>());
-    REQUIRE(!machine.is_active_state<machine_on_region_path_v, states::emitting_red_or_green>());
-    REQUIRE(machine.is_active_state<machine_on_region_path_v, states::not_emitting_red>());
+    REQUIRE(machine.is_active_state<machine_on_path_v, maki::state_confs::stopped>());
+    REQUIRE(!machine.is_active_state<machine_on_path_v, states::emitting_red_or_green>());
+    REQUIRE(machine.is_active_state<machine_on_path_v, states::not_emitting_red>());
 
     machine.process_event(events::power_button_press{});
     REQUIRE(machine.is_active_state<states::on>());

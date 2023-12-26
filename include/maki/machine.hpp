@@ -13,7 +13,7 @@
 #define MAKI_MACHINE_HPP
 
 #include "machine_conf.hpp"
-#include "region_path.hpp"
+#include "path.hpp"
 #include "detail/noinline.hpp"
 #include "detail/submachine.hpp"
 #include "detail/function_queue.hpp"
@@ -133,7 +133,7 @@ public:
     /**
     @brief Returns the state of type `State` instantiated by the region
     indicated by `RegionPath`.
-    @tparam RegionPath an instance of @ref region_path pointing to the
+    @tparam RegionPath an instance of @ref path pointing to the
     region of interest (see @ref RegionPath)
     @tparam State the state type
     */
@@ -146,7 +146,7 @@ public:
     /**
     @brief Returns the state of type `State` instantiated by the region
     indicated by `RegionPath`.
-    @tparam RegionPath an instance of @ref region_path pointing to the
+    @tparam RegionPath an instance of @ref path pointing to the
     region of interest (see @ref RegionPath)
     @tparam State the state type
     */
@@ -158,7 +158,7 @@ public:
 
     /**
     @brief Returns whether the region indicated by `RegionPath` is running.
-    @tparam RegionPath an instance of @ref region_path pointing to the
+    @tparam RegionPath an instance of @ref path pointing to the
     region of interest (see @ref RegionPath)
     */
     template<const auto& RegionPath>
@@ -180,7 +180,7 @@ public:
     /**
     @brief Returns whether `State` is active in the region indicated by
     `RegionPath`.
-    @tparam RegionPath an instance of @ref region_path pointing to the
+    @tparam RegionPath an instance of @ref path pointing to the
     region of interest (see @ref RegionPath)
     @tparam State the state type
     */

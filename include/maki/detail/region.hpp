@@ -89,27 +89,24 @@ public:
         return static_data<StatePath>(*this);
     }
 
-    template<const auto& StateRelativeRegionPath, const auto& StateConf>
-    [[nodiscard]] bool is_active_state_def() const
+    template<const auto& RegionPath, const auto& StateConf>
+    [[nodiscard]] bool is_active_state() const
     {
-        using state_relative_path_t = std::decay_t<decltype(StateRelativeRegionPath)>;
-
-        if constexpr(tlu::size_v<state_relative_path_t> == 0)
+        if constexpr(RegionPath.empty())
         {
-            return is_active_state_def<StateConf>();
+            return is_active_state<StateConf>();
         }
         else
         {
-            constexpr const auto& submach_conf = StateRelativeRegionPath.head();
-            static constexpr auto region_path_tail = StateRelativeRegionPath.tail();
-            constexpr auto submach_index = tlu::index_of_v<state_conf_constant_list, cref_constant<submach_conf>>;
-            const auto& state = tuple_get<submach_index>(states_);
-            return state.template is_active_state_def<region_path_tail, StateConf>();
+            static constexpr const auto& submach_conf = RegionPath.head();
+            static constexpr auto region_path_tail = RegionPath.tail();
+            const auto& submach = state<submach_conf>();
+            return submach.template is_active_state<region_path_tail, StateConf>();
         }
     }
 
     template<const auto& StateConf>
-    [[nodiscard]] bool is_active_state_def() const
+    [[nodiscard]] bool is_active_state() const
     {
         if constexpr(is_type_pattern_v<std::decay_t<decltype(StateConf)>>)
         {
@@ -120,14 +117,14 @@ public:
         }
         else
         {
-            return is_active_state_def_type<StateConf>();
+            return is_active_state_type<StateConf>();
         }
     }
 
     template<class Machine, class Context, class Event>
     void start(Machine& mach, Context& ctx, const Event& event)
     {
-        if(is_active_state_def_type<state_confs::stopped>())
+        if(is_active_state_type<state_confs::stopped>())
         {
             process_event_in_transition
             <
@@ -141,7 +138,7 @@ public:
     template<class Machine, class Context, class Event>
     void stop(Machine& mach, Context& ctx, const Event& event)
     {
-        if(!is_active_state_def_type<state_confs::stopped>())
+        if(!is_active_state_type<state_confs::stopped>())
         {
             with_active_state_conf<state_conf_constant_list, stop_2>
             (
@@ -339,7 +336,7 @@ private:
         )
         {
             //Make sure the transition source state is the active state
-            if(!self.template is_active_state_def_type<SourceStateConfConstant::value>())
+            if(!self.template is_active_state_type<SourceStateConfConstant::value>())
             {
                 return false;
             }
@@ -531,7 +528,7 @@ private:
     }
 
     template<const auto& StateConf>
-    [[nodiscard]] bool is_active_state_def_type() const
+    [[nodiscard]] bool is_active_state_type() const
     {
         constexpr auto given_state_index = region_detail::index_of_state_conf_v
         <
@@ -582,7 +579,7 @@ private:
         template<class StateConfConstant, class... Args>
         static bool call(const region& self, Args&&... args)
         {
-            if(self.is_active_state_def_type<StateConfConstant::value>())
+            if(self.is_active_state_type<StateConfConstant::value>())
             {
                 F::template call<StateConfConstant::value>(std::forward<Args>(args)...);
                 return true;
@@ -593,6 +590,12 @@ private:
 
     template<const auto& StateConf>
     auto& state()
+    {
+        return static_state<StateConf>(*this);
+    }
+
+    template<const auto& StateConf>
+    const auto& state() const
     {
         return static_state<StateConf>(*this);
     }

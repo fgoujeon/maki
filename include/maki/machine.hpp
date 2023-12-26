@@ -168,7 +168,7 @@ public:
     template<const auto& RegionPath, const auto& StateConf>
     [[nodiscard]] bool is_active_state() const
     {
-        return submachine_.template is_active_state_def<RegionPath, StateConf>();
+        return submachine_.template is_active_state<RegionPath, StateConf>();
     }
 
     /**
@@ -180,7 +180,7 @@ public:
     template<const auto& StateConf>
     [[nodiscard]] bool is_active_state() const
     {
-        return submachine_.template is_active_state_def<StateConf>();
+        return submachine_.template is_active_state<StateConf>();
     }
 
     /**

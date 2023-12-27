@@ -50,7 +50,7 @@ namespace
                     //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
 
                     ctx.out += "Transition in ";
-                    ctx.out += maki::path_to_string(path_constant);
+                    ctx.out += maki::to_string(path_constant);
                     ctx.out += ": ";
                     ctx.out += maki::pretty_name<source_state_constant.value>();
                     ctx.out += " -> ";
@@ -65,7 +65,7 @@ namespace
                     //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
 
                     ctx.out += "Transition in ";
-                    ctx.out += maki::path_to_string(path_constant);
+                    ctx.out += maki::to_string(path_constant);
                     ctx.out += ": ";
                     ctx.out += maki::pretty_name<source_state_constant.value>();
                     ctx.out += " -> ";

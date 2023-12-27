@@ -192,12 +192,11 @@ namespace detail
     };
 }
 
-template<class PathConstant>
-auto path_to_string(const PathConstant& /*path*/)
+template<class... Elems, const path<Elems...>& Path>
+std::string to_string(const std::integral_constant<const path<Elems...>&, Path>& /*path*/)
 {
-    constexpr auto size = detail::tlu::size_v<std::decay_t<decltype(PathConstant::value)>>;
-    using idx_sequence_t = std::make_integer_sequence<int, size>;
-    return detail::path_to_string_impl<PathConstant::value, idx_sequence_t>::call();
+    using idx_sequence_t = std::make_integer_sequence<int, Path.size()>;
+    return detail::path_to_string_impl<Path, idx_sequence_t>::call();
 }
 
 inline constexpr auto empty_path_c = path<>{};

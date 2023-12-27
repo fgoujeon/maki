@@ -63,16 +63,16 @@ TEST_CASE("path")
 {
     {
         static constexpr auto path = maki::path{machine_def::conf} / 0;
-        REQUIRE(maki::path_to_string(maki::cref_constant_c<path>) == "main_sm/0");
+        REQUIRE(maki::to_string(maki::cref_constant_c<path>) == "main_sm/0");
     }
 
     {
         static constexpr auto path = maki::path{machine_def::conf} / 1;
-        REQUIRE(maki::path_to_string(maki::cref_constant_c<path>) == "main_sm/1");
+        REQUIRE(maki::to_string(maki::cref_constant_c<path>) == "main_sm/1");
     }
 
     {
         static constexpr auto path = maki::path{machine_def::conf} / 1 / states::on1 / 0;
-        REQUIRE(maki::path_to_string(maki::cref_constant_c<path>) == "main_sm/1/on_1/0");
+        REQUIRE(maki::to_string(maki::cref_constant_c<path>) == "main_sm/1/on_1/0");
     }
 }

@@ -57,7 +57,7 @@ namespace
                 [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& event, const auto target_state_constant)
                 {
                     ctx.out += "Transition in ";
-                    ctx.out += maki::path_to_string(path_constant);
+                    ctx.out += to_string(path_constant);
                     ctx.out += ": ";
                     ctx.out += maki::pretty_name<source_state_constant.value>();
                     ctx.out += " -> ";
@@ -74,7 +74,7 @@ namespace
                     ctx.out += std::to_string(event.pressure) + ";";
 
                     ctx.out += "Transition in ";
-                    ctx.out += maki::path_to_string(path_constant);
+                    ctx.out += to_string(path_constant);
                     ctx.out += ": ";
                     ctx.out += maki::pretty_name<source_state_constant.value>();
                     ctx.out += " -> ";

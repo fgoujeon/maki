@@ -51,10 +51,10 @@ TEST_CASE("any state")
 
     machine.process_event(events::stop_button_press{});
     machine.process_event(events::error{});
-    REQUIRE(machine.is_active_state<states::failed>());
+    REQUIRE(machine.active_state<states::failed>());
 
     machine.process_event(events::stop_button_press{});
     machine.process_event(events::start_button_press{});
     machine.process_event(events::error{});
-    REQUIRE(machine.is_active_state<states::failed>());
+    REQUIRE(machine.active_state<states::failed>());
 }

@@ -92,11 +92,11 @@ TEST_CASE("basic_exception")
 {
     auto machine = machine_t{};
 
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.active_state<states::off>());
     REQUIRE(machine.context().out == "off::on_entry;");
 
     machine.context().out.clear();
     machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.active_state<states::off>());
     REQUIRE(machine.context().out == "off::on_exit;");
 }

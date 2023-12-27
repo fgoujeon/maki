@@ -61,20 +61,20 @@ TEST_CASE("submachine_in_type_pattern")
     auto machine = machine_t{};
 
     machine.start();
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.active_state<states::off>());
 
     machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::s0>());
+    REQUIRE(machine.active_state<states::s0>());
 
     machine.process_event(events::off_button_press{});
-    REQUIRE(machine.is_active_state<states::s0>());
+    REQUIRE(machine.active_state<states::s0>());
 
     machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::s1>());
+    REQUIRE(machine.active_state<states::s1>());
 
     machine.process_event(events::off_button_press{});
-    REQUIRE(machine.is_active_state<states::s1>());
+    REQUIRE(machine.active_state<states::s1>());
 
     machine.process_event(events::destruction_button_press{});
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.active_state<states::off>());
 }

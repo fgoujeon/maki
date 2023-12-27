@@ -79,15 +79,15 @@ TEST_CASE("start_stop")
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
-    REQUIRE(!machine.is_running());
+    REQUIRE(!machine.running());
     REQUIRE(ctx.out == "");
 
     machine.start();
-    REQUIRE(machine.is_active_state<states::s1>());
+    REQUIRE(machine.active_state<states::s1>());
     REQUIRE(ctx.out == "s0::on_entry;s0::on_exit;s1::on_entry;");
 
     ctx.out.clear();
     machine.stop();
-    REQUIRE(!machine.is_running());
+    REQUIRE(!machine.running());
     REQUIRE(ctx.out == "s1::on_exit;");
 }

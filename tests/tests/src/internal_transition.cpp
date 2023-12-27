@@ -80,7 +80,7 @@ TEST_CASE("internal transition")
     {
         machine.process_event(events::next_state{});
     }
-    REQUIRE(machine.is_active_state<states::benchmarking>());
+    REQUIRE(machine.active_state<states::benchmarking>());
 
     machine.process_event(events::internal_transition{});
     REQUIRE(ctx.side_effect == 1);

@@ -147,31 +147,31 @@ public:
     }
 
     template<const auto& StateRegionPath, const auto& StateConf>
-    [[nodiscard]] bool is_active_state() const
+    [[nodiscard]] bool active_state() const
     {
         static constexpr auto region_index = StateRegionPath.head();
         static constexpr auto state_region_relative_path = StateRegionPath.tail();
-        return tuple_get<region_index>(regions_).template is_active_state<state_region_relative_path, StateConf>();
+        return tuple_get<region_index>(regions_).template active_state<state_region_relative_path, StateConf>();
     }
 
     template<const auto& StateConf>
-    [[nodiscard]] bool is_active_state() const
+    [[nodiscard]] bool active_state() const
     {
         static_assert(tlu::size_v<transition_table_type_list> == 1);
 
         static constexpr auto state_region_relative_path = path<>{};
-        return tuple_get<0>(regions_).template is_active_state<state_region_relative_path, StateConf>();
+        return tuple_get<0>(regions_).template active_state<state_region_relative_path, StateConf>();
     }
 
     template<const auto& RegionPath>
-    [[nodiscard]] bool is_running() const
+    [[nodiscard]] bool running() const
     {
-        return !is_active_state<RegionPath, state_confs::stopped>();
+        return !active_state<RegionPath, state_confs::stopped>();
     }
 
-    [[nodiscard]] bool is_running() const
+    [[nodiscard]] bool running() const
     {
-        return !is_active_state<state_confs::stopped>();
+        return !active_state<state_confs::stopped>();
     }
 
     template<class Machine, class Context, class Event>

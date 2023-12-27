@@ -46,11 +46,11 @@ TEST_CASE("non_copyable_context")
 {
     auto machine = machine_t{};
 
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.active_state<states::off>());
 
     machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.active_state<states::on>());
 
     machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.active_state<states::off>());
 }

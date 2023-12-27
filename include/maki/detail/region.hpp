@@ -90,23 +90,23 @@ public:
     }
 
     template<const auto& RegionPath, const auto& StateConf>
-    [[nodiscard]] bool is_active_state() const
+    [[nodiscard]] bool active_state() const
     {
         if constexpr(RegionPath.empty())
         {
-            return is_active_state<StateConf>();
+            return active_state<StateConf>();
         }
         else
         {
             static constexpr const auto& submach_conf = RegionPath.head();
             static constexpr auto region_path_tail = RegionPath.tail();
             const auto& submach = state<submach_conf>();
-            return submach.template is_active_state<region_path_tail, StateConf>();
+            return submach.template active_state<region_path_tail, StateConf>();
         }
     }
 
     template<const auto& StateConf>
-    [[nodiscard]] bool is_active_state() const
+    [[nodiscard]] bool active_state() const
     {
         if constexpr(is_type_pattern_v<std::decay_t<decltype(StateConf)>>)
         {

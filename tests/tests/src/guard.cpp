@@ -70,9 +70,9 @@ TEST_CASE("guard")
     machine.start();
 
     machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.active_state<states::off>());
 
     machine.context().has_power = true;
     machine.process_event(events::button_press{true});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.active_state<states::on>());
 }

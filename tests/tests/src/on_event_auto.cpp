@@ -119,11 +119,11 @@ TEST_CASE("on_event_auto")
 
     ctx.out.clear();
     machine.process_event(events::button_press{"a"});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.active_state<states::on>());
     REQUIRE(ctx.out == "a1;");
 
     ctx.out.clear();
     machine.process_event(events::alert_button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.active_state<states::on>());
     REQUIRE(ctx.out == "beep;");
 }

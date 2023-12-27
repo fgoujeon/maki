@@ -143,9 +143,9 @@ public:
     region of interest
     */
     template<const auto& RegionPath>
-    [[nodiscard]] bool is_running() const
+    [[nodiscard]] bool running() const
     {
-        return submachine_.template is_running<RegionPath>();
+        return submachine_.template running<RegionPath>();
     }
 
     /**
@@ -153,9 +153,9 @@ public:
     This function can only be called if the state machine contains a single
     region.
     */
-    [[nodiscard]] bool is_running() const
+    [[nodiscard]] bool running() const
     {
-        return submachine_.is_running();
+        return submachine_.running();
     }
 
     /**
@@ -166,9 +166,9 @@ public:
     @tparam State the state type
     */
     template<const auto& RegionPath, const auto& StateConf>
-    [[nodiscard]] bool is_active_state() const
+    [[nodiscard]] bool active_state() const
     {
-        return submachine_.template is_active_state<RegionPath, StateConf>();
+        return submachine_.template active_state<RegionPath, StateConf>();
     }
 
     /**
@@ -178,9 +178,9 @@ public:
     @tparam State the state type
     */
     template<const auto& StateConf>
-    [[nodiscard]] bool is_active_state() const
+    [[nodiscard]] bool active_state() const
     {
-        return submachine_.template is_active_state<StateConf>();
+        return submachine_.template active_state<StateConf>();
     }
 
     /**

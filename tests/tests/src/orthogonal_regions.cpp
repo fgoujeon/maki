@@ -103,14 +103,14 @@ TEST_CASE("orthogonal_regions")
     static constexpr auto machine_region_1_path = maki::path{1};
 
     machine.start();
-    REQUIRE(machine.is_active_state<machine_region_0_path, states::off0>());
-    REQUIRE(machine.is_active_state<machine_region_1_path, states::off1>());
+    REQUIRE(machine.active_state<machine_region_0_path, states::off0>());
+    REQUIRE(machine.active_state<machine_region_1_path, states::off1>());
     REQUIRE(ctx.out == "before_state_transition[0];after_state_transition[0];before_state_transition[1];after_state_transition[1];");
 
     ctx.out.clear();
     machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<machine_region_0_path, states::on0>());
-    REQUIRE(machine.is_active_state<machine_region_1_path, states::on1>());
+    REQUIRE(machine.active_state<machine_region_0_path, states::on0>());
+    REQUIRE(machine.active_state<machine_region_1_path, states::on1>());
     REQUIRE(ctx.out == "before_state_transition[0];after_state_transition[0];before_state_transition[1];after_state_transition[1];");
 
     ctx.out.clear();

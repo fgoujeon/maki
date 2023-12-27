@@ -51,8 +51,8 @@ TEST_CASE("anonymous transition")
     machine.start();
 
     machine.process_event(events::go_on{});
-    REQUIRE(machine.is_active_state<states::s2>());
+    REQUIRE(machine.active_state<states::s2>());
 
     machine.process_event(events::go_on{});
-    REQUIRE(machine.is_active_state<states::s0>());
+    REQUIRE(machine.active_state<states::s0>());
 }

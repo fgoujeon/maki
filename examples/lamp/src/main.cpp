@@ -15,8 +15,8 @@ struct context{};
 struct button_press{};
 
 //States are constexpr objects (more about that later)
-constexpr auto off = maki::state_conf_c;
-constexpr auto on = maki::state_conf_c;
+constexpr auto off = maki::state_conf{};
+constexpr auto on = maki::state_conf{};
 
 //Actions are callables (more about that later)
 void turn_light_on()

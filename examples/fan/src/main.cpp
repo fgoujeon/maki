@@ -30,7 +30,7 @@ struct plus_button_press{};
 //! [events-and-datatypes]
 
 //States
-constexpr auto reading_memory = maki::state_conf_c;
+constexpr auto reading_memory = maki::state_conf{};
 constexpr auto spinning_low = maki::state_conf_c
     .entry_action_v([]
     {

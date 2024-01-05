@@ -42,6 +42,18 @@ class state_conf
 public:
     using data_type = Data;
 
+    constexpr state_conf() = default;
+
+    state_conf(const state_conf&) = delete;
+
+    state_conf(state_conf&&) = delete;
+
+    ~state_conf() = default;
+
+    state_conf& operator=(const state_conf&) = delete;
+
+    state_conf& operator=(state_conf&&) = delete;
+
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<data_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions_; \
@@ -111,6 +123,20 @@ public:
 #if MAKI_DETAIL_DOXYGEN
 private:
 #endif
+    constexpr state_conf
+    (
+        const EntryActionTuple& entry_actions,
+        const InternalActionTuple& internal_actions,
+        const ExitActionTuple& exit_actions,
+        const std::string_view pretty_name
+    ):
+        entry_actions_(entry_actions),
+        internal_actions_(internal_actions),
+        exit_actions_(exit_actions),
+        pretty_name_(pretty_name)
+    {
+    }
+
     template<class EventFilter = maki::any, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto entry_action(const Action& action) const
     {

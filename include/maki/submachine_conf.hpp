@@ -46,6 +46,18 @@ public:
     using data_type = Data;
     using context_type = Context;
 
+    constexpr submachine_conf() = default;
+
+    submachine_conf(const submachine_conf&) = delete;
+
+    submachine_conf(submachine_conf&&) = delete;
+
+    ~submachine_conf() = default;
+
+    submachine_conf& operator=(const submachine_conf&) = delete;
+
+    submachine_conf& operator=(submachine_conf&&) = delete;
+
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<data_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type_c<context_type>; \
@@ -185,6 +197,25 @@ private:
 
 #undef MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
+
+#if MAKI_DETAIL_DOXYGEN
+private:
+#endif
+    constexpr submachine_conf
+    (
+        const EntryActionTuple& entry_actions,
+        const InternalActionTuple& internal_actions,
+        const ExitActionTuple& exit_actions,
+        const std::string_view pretty_name,
+        const TransitionTableTypeList& transition_tables
+    ):
+        entry_actions_(entry_actions),
+        internal_actions_(internal_actions),
+        exit_actions_(exit_actions),
+        pretty_name_(pretty_name),
+        transition_tables_(transition_tables)
+    {
+    }
 
     EntryActionTuple entry_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
     InternalActionTuple internal_actions_; //NOLINT(misc-non-private-member-variables-in-classes)

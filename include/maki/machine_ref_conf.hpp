@@ -25,13 +25,28 @@ namespace maki
 template<class EventTypeList = type_list<>>
 struct machine_ref_conf
 {
-    EventTypeList has_on_event_for;
+    machine_ref_conf() = default;
+
+    machine_ref_conf(const machine_ref_conf&) = delete;
+
+    machine_ref_conf(machine_ref_conf&&) = delete;
+
+    ~machine_ref_conf() = default;
+
+    machine_ref_conf& operator=(const machine_ref_conf&) = delete;
+
+    machine_ref_conf& operator=(machine_ref_conf&&) = delete;
 
     template<class... Ts>
     [[nodiscard]] constexpr auto enable_on_event_for() const
     {
         return machine_ref_conf<type_list<Ts...>>{};
     }
+
+#if MAKI_DETAIL_DOXYGEN
+private:
+#endif
+    EventTypeList has_on_event_for; //NOLINT(misc-non-private-member-variables-in-classes)
 };
 
 inline constexpr auto default_machine_ref_conf = machine_ref_conf<>{};

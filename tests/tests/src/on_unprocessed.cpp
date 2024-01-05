@@ -55,7 +55,7 @@ namespace
             .internal_action_v<events::ignored_by_emitting_blue>([]{})
         ;
 
-        constexpr auto emitting_blue = maki::state_conf_c;
+        constexpr auto emitting_blue = maki::state_conf{};
 
         constexpr auto on_transition_table = maki::transition_table_c
             .add_c<states::emitting_red,   events::color_button_press, states::emitting_green>

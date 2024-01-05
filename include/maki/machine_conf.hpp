@@ -55,6 +55,18 @@ public:
     using post_state_transition_action_type = PostStateTransitionAction;
     using fallback_transition_action_tuple_type = FallbackTransitionActionTuple;
 
+    constexpr machine_conf() = default;
+
+    machine_conf(const machine_conf&) = delete;
+
+    machine_conf(machine_conf&&) = delete;
+
+    ~machine_conf() = default;
+
+    machine_conf& operator=(const machine_conf&) = delete;
+
+    machine_conf& operator=(machine_conf&&) = delete;
+
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = auto_start_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type_c<context_type>; \
@@ -430,6 +442,38 @@ public:
 #if MAKI_DETAIL_DOXYGEN
 private:
 #endif
+    constexpr machine_conf
+    (
+        const bool auto_start,
+        const EntryActionTuple& entry_actions,
+        const EventActionTuple& internal_actions,
+        const ExitActionTuple& exit_actions,
+        const PostStateTransitionAction& post_state_transition_action,
+        const PreStateTransitionAction& pre_state_transition_action,
+        const ExceptionAction& exception_action,
+        const FallbackTransitionActionTuple& fallback_transition_actions,
+        const std::string_view pretty_name,
+        const bool run_to_completion,
+        const std::size_t small_event_max_align, //NOLINT(bugprone-easily-swappable-parameters)
+        const std::size_t small_event_max_size, //NOLINT(bugprone-easily-swappable-parameters)
+        const TransitionTableTypeList& transition_tables
+    ):
+        auto_start_(auto_start),
+        entry_actions_(entry_actions),
+        internal_actions_(internal_actions),
+        exit_actions_(exit_actions),
+        post_state_transition_action_(post_state_transition_action),
+        pre_state_transition_action_(pre_state_transition_action),
+        exception_action_(exception_action),
+        fallback_transition_actions_(fallback_transition_actions),
+        pretty_name_(pretty_name),
+        run_to_completion_(run_to_completion),
+        small_event_max_align_(small_event_max_align),
+        small_event_max_size_(small_event_max_size),
+        transition_tables_(transition_tables)
+    {
+    }
+
     template<class EventFilter, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto entry_action(const Action& action) const
     {

@@ -19,8 +19,8 @@ struct some_other_event
 struct yet_another_event{};
 
 //States
-constexpr auto state0 = maki::state_conf_c;
-constexpr auto state1 = maki::state_conf_c;
+constexpr auto state0 = maki::state_conf{};
+constexpr auto state1 = maki::state_conf{};
 //! [short-in-state]
 constexpr auto state2 = maki::state_conf_c
     //Entry action.

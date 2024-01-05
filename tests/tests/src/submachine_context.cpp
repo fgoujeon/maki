@@ -49,7 +49,7 @@ namespace
 
             namespace emitting_red_ns
             {
-                constexpr auto emitting_cold_red = maki::state_conf_c;
+                constexpr auto emitting_cold_red = maki::state_conf{};
                 EMPTY_STATE(emitting_hot_red)
 
                 constexpr auto transition_table = maki::transition_table_c

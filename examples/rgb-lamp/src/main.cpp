@@ -135,9 +135,9 @@ namespace states
     /*
     These are minimal valid state classes.
     */
-    constexpr auto emitting_red = maki::state_conf_c;
-    constexpr auto emitting_green = maki::state_conf_c;
-    constexpr auto emitting_blue = maki::state_conf_c;
+    constexpr auto emitting_red = maki::state_conf{};
+    constexpr auto emitting_green = maki::state_conf{};
+    constexpr auto emitting_blue = maki::state_conf{};
 }
 
 /*

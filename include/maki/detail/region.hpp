@@ -28,35 +28,37 @@ namespace maki::detail
 
 namespace region_detail
 {
+    inline constexpr auto stopped_state_index = -1;
+
     template<class StateList, class State>
-    struct index_of_state
+    struct find_state
     {
         static constexpr auto value = tlu::index_of_v<StateList, State>;
     };
 
     template<class StateList, class Region>
-    struct index_of_state<StateList, state_traits::state_conf_to_state<state_confs::stopped, Region>>
+    struct find_state<StateList, state_traits::state_conf_to_state<state_confs::stopped, Region>>
     {
-        static constexpr auto value = -1;
+        static constexpr auto value = stopped_state_index;
     };
 
     template<class StateList, class State>
-    inline constexpr auto index_of_state_v = index_of_state<StateList, State>::value;
+    inline constexpr auto find_state_v = find_state<StateList, State>::value;
 
     template<class StateList, const auto& StateConf>
-    struct index_of_state_conf
+    struct find_state_conf
     {
-        static constexpr auto value = tlu::index_of_v<StateList, cref_constant<StateConf>>;
+        static constexpr auto value = tlu::find_if_v<StateList, state_traits::for_conf<StateConf>::template has_conf>;
     };
 
     template<class StateList>
-    struct index_of_state_conf<StateList, state_confs::stopped>
+    struct find_state_conf<StateList, state_confs::stopped>
     {
-        static constexpr auto value = -1;
+        static constexpr auto value = stopped_state_index;
     };
 
     template<class StateList, const auto& StateConf>
-    inline constexpr auto index_of_state_conf_v = index_of_state_conf<StateList, StateConf>::value;
+    inline constexpr auto find_state_from_conf_v = find_state_conf<StateList, StateConf>::value;
 }
 
 template<class ParentSm, int Index>
@@ -410,9 +412,9 @@ private:
                 );
             }
 
-            active_state_index_ = region_detail::index_of_state_conf_v
+            active_state_index_ = region_detail::find_state_from_conf_v
             <
-                state_conf_constant_list,
+                state_type_list,
                 TargetStateConf
             >;
         }
@@ -519,7 +521,7 @@ private:
     template<class State>
     [[nodiscard]] bool is_active_state_type() const
     {
-        constexpr auto given_state_index = region_detail::index_of_state_v
+        constexpr auto given_state_index = region_detail::find_state_v
         <
             state_type_list,
             State
@@ -530,9 +532,9 @@ private:
     template<const auto& StateConf>
     [[nodiscard]] bool is_active_state_type() const
     {
-        constexpr auto given_state_index = region_detail::index_of_state_conf_v
+        constexpr auto given_state_index = region_detail::find_state_from_conf_v
         <
-            state_conf_constant_list,
+            state_type_list,
             StateConf
         >;
         return given_state_index == active_state_index_;
@@ -610,7 +612,9 @@ private:
     template<class State, class Region>
     static auto& static_state(Region& self)
     {
-        static constexpr auto state_index = tlu::index_of_v<state_type_list, State>;
+        static constexpr auto state_index =
+            region_detail::find_state_v<state_type_list, State>
+        ;
         return tuple_get<state_index>(self.states_);
     }
 
@@ -618,7 +622,9 @@ private:
     template<const auto& StateConf, class Region>
     static auto& static_state(Region& self)
     {
-        static constexpr auto state_index = tlu::find_if_v<state_type_list, state_traits::for_conf<StateConf>::template has_conf>;
+        static constexpr auto state_index =
+            region_detail::find_state_from_conf_v<state_type_list, StateConf>
+        ;
         return tuple_get<state_index>(self.states_);
     }
 
@@ -639,7 +645,7 @@ private:
     }
 
     state_tuple_type states_;
-    int active_state_index_ = region_detail::index_of_state_conf_v<state_conf_constant_list, state_confs::stopped>;
+    int active_state_index_ = region_detail::stopped_state_index;
 };
 
 } //namespace

@@ -191,8 +191,6 @@ private:
     std::string_view pretty_name_; //NOLINT(misc-non-private-member-variables-in-classes)
 };
 
-inline constexpr auto state_conf_c = state_conf<>{};
-
 } //namespace
 
 #endif

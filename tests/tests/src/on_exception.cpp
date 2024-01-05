@@ -18,7 +18,7 @@ namespace
 
     namespace states
     {
-        constexpr auto off = maki::state_conf_c
+        constexpr auto off = maki::state_conf{}
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -35,7 +35,7 @@ namespace
             )
         ;
 
-        constexpr auto on = maki::state_conf_c
+        constexpr auto on = maki::state_conf{}
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -78,14 +78,14 @@ namespace
         struct button_press{};
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::off, events::button_press, states::on>
         .add_c<states::on,  events::button_press, states::off>
     ;
 
     struct default_sm_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)
             .context<context>()
         ;
@@ -95,7 +95,7 @@ namespace
 
     struct custom_sm_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)
             .context<context>()
             .exception_action_me

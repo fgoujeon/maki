@@ -27,7 +27,7 @@ namespace
     {
         EMPTY_STATE(idle)
 
-        constexpr auto english = maki::state_conf_c
+        constexpr auto english = maki::state_conf{}
             .entry_action_c
             (
                 [](context& ctx)
@@ -51,7 +51,7 @@ namespace
             )
         ;
 
-        constexpr auto french = maki::state_conf_c
+        constexpr auto french = maki::state_conf{}
             .entry_action_m
             (
                 [](auto& mach)
@@ -76,7 +76,7 @@ namespace
         ;
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::idle,    events::next_language_request, states::english>
         .add_c<states::english, events::next_language_request, states::french>
         .add_c<states::french,  events::next_language_request, states::idle>
@@ -84,7 +84,7 @@ namespace
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)
             .context<context>()
         ;

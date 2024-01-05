@@ -180,9 +180,9 @@ public:
     (
         context& ctx,
         const maki::cref_constant<RegionPath> path_constant,
-        const maki::cref_constant<SourceStateConf> source_state_conf_constant,
+        const maki::cref_constant<SourceStateConf> source_state_conf{}onstant,
         const Event& event,
-        const maki::cref_constant<TargetStateConf> target_state_conf_constant
+        const maki::cref_constant<TargetStateConf> target_state_conf{}onstant
     );
     @endcode
 
@@ -249,9 +249,9 @@ public:
     (
         context& ctx,
         const maki::cref_constant<RegionPath> path_constant,
-        const maki::cref_constant<SourceStateConf> source_state_conf_constant,
+        const maki::cref_constant<SourceStateConf> source_state_conf{}onstant,
         const Event& event,
-        const maki::cref_constant<TargetStateConf> target_state_conf_constant
+        const maki::cref_constant<TargetStateConf> target_state_conf{}onstant
     );
     @endcode
 
@@ -372,7 +372,7 @@ public:
 
     Example:
     @code
-    constexpr auto conf = maki::machine_conf_c
+    constexpr auto conf = maki::machine_conf{}
         //...
         .fallback_transition_action_me<some_event_type>([](auto& mach, const some_event_type& event)
         {
@@ -536,8 +536,6 @@ private:
     std::size_t small_event_max_size_ = 16; //NOLINT(misc-non-private-member-variables-in-classes, cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
     TransitionTableTypeList transition_tables_; //NOLINT(misc-non-private-member-variables-in-classes)
 };
-
-inline constexpr auto machine_conf_c = machine_conf<>{};
 
 namespace detail
 {

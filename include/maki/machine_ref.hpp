@@ -131,7 +131,7 @@ private:
 };
 
 template<class... Events>
-inline constexpr auto machine_ref_e_conf = default_machine_ref_conf
+inline constexpr auto machine_ref_e_conf = machine_ref_conf{}
     .enable_on_event_for<Events...>()
 ;
 

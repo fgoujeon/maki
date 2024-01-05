@@ -35,7 +35,7 @@ namespace
     {
         EMPTY_STATE(off)
 
-        constexpr auto on_0 = maki::state_conf_c
+        constexpr auto on_0 = maki::state_conf{}
             .entry_action_ce<events::button_press>
             (
                 [](context& ctx, const events::button_press& event)
@@ -59,11 +59,11 @@ namespace
             )
         ;
 
-        constexpr auto on_transition_table = maki::transition_table_c
+        constexpr auto on_transition_table = maki::transition_table{}
             .add_c<states::on_0, events::button_press, maki::null_c>
         ;
 
-        constexpr auto on = maki::submachine_conf_c
+        constexpr auto on = maki::submachine_conf{}
             .transition_tables(on_transition_table)
             .entry_action_ce<events::button_press>
             (
@@ -89,14 +89,14 @@ namespace
         ;
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::off, events::button_press, states::on>
         .add_c<states::on,  events::button_press, states::off>
     ;
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)
             .context<context>()
         ;

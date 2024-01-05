@@ -40,25 +40,25 @@ namespace
         constexpr auto not_emitting_red = maki::any_but_c<emitting_red>;
         constexpr auto emitting_red_or_green = maki::any_of_c<emitting_red, emitting_green>;
 
-        constexpr auto on_transition_table = maki::transition_table_c
+        constexpr auto on_transition_table = maki::transition_table{}
             .add_c<states::emitting_red,   events::color_button_press, states::emitting_green>
             .add_c<states::emitting_green, events::color_button_press, states::emitting_blue>
             .add_c<states::emitting_blue,  events::color_button_press, states::emitting_red>
         ;
 
-        constexpr auto on = maki::submachine_conf_c
+        constexpr auto on = maki::submachine_conf{}
             .transition_tables(on_transition_table)
         ;
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::off, events::power_button_press, states::on>
         .add_c<states::on,  events::power_button_press, states::off>
     ;
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)
             .context<context>()
         ;

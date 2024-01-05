@@ -27,7 +27,7 @@ namespace transition_table_digest_ns
     bool guard0(){return true;}
     bool guard1(){return true;}
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<state0,      event0, state1>
         .add_c<state1,      event1, state2, maki::noop, guard0>
         .add_c<state2,      event2, state3, action0>

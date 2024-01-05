@@ -49,8 +49,6 @@ private:
     EventTypeList has_on_event_for; //NOLINT(misc-non-private-member-variables-in-classes)
 };
 
-inline constexpr auto default_machine_ref_conf = machine_ref_conf<>{};
-
 } //namespace
 
 #endif

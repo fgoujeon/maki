@@ -224,8 +224,6 @@ private:
     TransitionTableTypeList transition_tables_; //NOLINT(misc-non-private-member-variables-in-classes)
 };
 
-inline constexpr auto submachine_conf_c = submachine_conf{};
-
 namespace detail
 {
     template<class T>

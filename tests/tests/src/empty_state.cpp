@@ -31,16 +31,16 @@ namespace
             }
         };
 
-        constexpr auto state1 = maki::state_conf_c.data<state1_data>();
+        constexpr auto state1 = maki::state_conf{}.data<state1_data>();
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::state0, events::event, states::state1>
     ;
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)
             .context<context>()
         ;

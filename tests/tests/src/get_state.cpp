@@ -39,7 +39,7 @@ namespace
             led_color color = led_color::red;
         };
 
-        constexpr auto emitting_red = maki::state_conf_c
+        constexpr auto emitting_red = maki::state_conf{}
             .data<emitting_red_data>()
             .entry_action_c<maki::any>
             (
@@ -56,7 +56,7 @@ namespace
             led_color color = led_color::green;
         };
 
-        constexpr auto emitting_green = maki::state_conf_c
+        constexpr auto emitting_green = maki::state_conf{}
             .data<emitting_green_data>()
             .entry_action_c<maki::any>
             (
@@ -73,7 +73,7 @@ namespace
             led_color color = led_color::blue;
         };
 
-        constexpr auto emitting_blue = maki::state_conf_c
+        constexpr auto emitting_blue = maki::state_conf{}
             .data<emitting_blue_data>()
             .entry_action_c<maki::any>
             (
@@ -84,7 +84,7 @@ namespace
             )
         ;
 
-        constexpr auto on_transition_table = maki::transition_table_c
+        constexpr auto on_transition_table = maki::transition_table{}
             .add_c<states::emitting_red,   events::color_button_press, states::emitting_green>
             .add_c<states::emitting_green, events::color_button_press, states::emitting_blue>
             .add_c<states::emitting_blue,  events::color_button_press, states::emitting_red>
@@ -95,7 +95,7 @@ namespace
             bool is_on_state = true;
         };
 
-        constexpr auto on = maki::submachine_conf_c
+        constexpr auto on = maki::submachine_conf{}
             .data<on_data>()
             .transition_tables(on_transition_table)
             .exit_action_c<maki::any>
@@ -108,14 +108,14 @@ namespace
         ;
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::off, events::power_button_press, states::on>
         .add_c<states::on,  events::power_button_press, states::off>
     ;
 
     struct machine_def
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)
             .context<context>()
         ;

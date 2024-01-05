@@ -38,15 +38,12 @@ namespace
         .add_c<states::on,  events::button_press, states::off, maki::noop>
     ;
 
-    struct machine_conf_holder
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context<context>()
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+    ;
 
-    using machine_t = maki::machine<machine_conf_holder>;
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("check_event")

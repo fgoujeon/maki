@@ -32,15 +32,12 @@ namespace
         .add_c<maki::any_c,     events::error,              states::failed>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context<context>()
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("any state")

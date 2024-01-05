@@ -37,21 +37,17 @@ constexpr auto transition_table = maki::transition_table{}
 ;
 //! [transition-table]
 
-//The definition of the state machine
+//The configuration of the state machine
 //! [machine-def]
-struct machine_conf_holder
-{
-    //The configuration of the state machine
-    static constexpr auto conf = maki::machine_conf{}
-        .transition_tables(transition_table)
-        .context<context>()
-    ;
-};
+constexpr auto machine_conf = maki::machine_conf{}
+    .transition_tables(transition_table)
+    .context<context>()
+;
 //! [machine-def]
 
 //The state machine
 //! [machine]
-using machine_t = maki::machine<machine_conf_holder>;
+using machine_t = maki::machine<machine_conf>;
 //! [machine]
 
 int main()

@@ -35,16 +35,13 @@ namespace pretty_name_ns
         .add_c<state, maki::null, maki::null_c>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::submachine_conf{}
-            .transition_tables(transition_table)
-            .context<context>()
-            .pretty_name("my_sm")
-        ;
-    };
+    constexpr auto machine_conf = maki::submachine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+        .pretty_name("my_sm")
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::machine<machine_conf>;
 
     struct path{};
 }
@@ -65,7 +62,7 @@ TEST_CASE("pretty_name")
 
     REQUIRE
     (
-        maki::pretty_name<pretty_name_ns::machine_def>() ==
+        maki::pretty_name<pretty_name_ns::machine_conf>() ==
         std::string_view{"my_sm"}
     );
 

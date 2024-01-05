@@ -17,7 +17,7 @@ namespace maki
 {
 
 template<class ConfHolder>
-class machine;
+class machine_from_conf_holder;
 
 } //namespace
 

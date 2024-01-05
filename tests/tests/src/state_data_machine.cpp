@@ -39,23 +39,20 @@ namespace
         int counter = 0;
     };
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context<context>()
-            .data<machine_data>()
-            .event_action_de<events::accumulate_request>
-            (
-                [](machine_data& data, const events::accumulate_request& event)
-                {
-                    data.counter += event.n;
-                }
-            )
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+        .data<machine_data>()
+        .event_action_de<events::accumulate_request>
+        (
+            [](machine_data& data, const events::accumulate_request& event)
+            {
+                data.counter += event.n;
+            }
+        )
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("state_data_machine")

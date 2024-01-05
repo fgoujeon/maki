@@ -10,9 +10,9 @@
 
 namespace
 {
-    struct machine_def;
+    struct machine_conf_holder;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::machine_from_conf_holder<machine_conf_holder>;
 
     struct context
     {
@@ -60,7 +60,7 @@ namespace
         .add_c<states::state0, events::unused, maki::null_c>
     ;
 
-    struct machine_def
+    struct machine_conf_holder
     {
         static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)

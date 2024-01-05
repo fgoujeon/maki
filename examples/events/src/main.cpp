@@ -80,16 +80,13 @@ constexpr auto transition_table = maki::transition_table{}
 ;
 
 //State machine configuration
-struct machine_conf_holder
-{
-    static constexpr auto conf = maki::machine_conf{}
-        .transition_tables(transition_table)
-        .context<context>()
-    ;
-};
+constexpr auto machine_conf = maki::machine_conf{}
+    .transition_tables(transition_table)
+    .context<context>()
+;
 
 //State machine
-using machine_t = maki::machine<machine_conf_holder>;
+using machine_t = maki::machine<machine_conf>;
 
 int main()
 {

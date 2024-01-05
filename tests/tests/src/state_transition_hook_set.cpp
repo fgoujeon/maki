@@ -47,47 +47,44 @@ namespace
         .add_c<states::off1, events::button_press, states::on1>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables(transition_table_0, transition_table_1)
-            .context<context>()
-            .pre_state_transition_action_crset
-            (
-                [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& event, const auto target_state_constant)
-                {
-                    ctx.out += "Transition in ";
-                    ctx.out += to_string(path_constant);
-                    ctx.out += ": ";
-                    ctx.out += maki::pretty_name<source_state_constant.value>();
-                    ctx.out += " -> ";
-                    ctx.out += maki::pretty_name<target_state_constant.value>();
-                    ctx.out += "...;";
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table_0, transition_table_1)
+        .context<context>()
+        .pre_state_transition_action_crset
+        (
+            [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& event, const auto target_state_constant)
+            {
+                ctx.out += "Transition in ";
+                ctx.out += to_string(path_constant);
+                ctx.out += ": ";
+                ctx.out += maki::pretty_name<source_state_constant.value>();
+                ctx.out += " -> ";
+                ctx.out += maki::pretty_name<target_state_constant.value>();
+                ctx.out += "...;";
 
-                    ctx.out += std::to_string(event.pressure) + ";";
-                }
-            )
-            .post_state_transition_action_crset
-            (
-                [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& event, const auto target_state_constant)
-                {
-                    ctx.out += std::to_string(event.pressure) + ";";
+                ctx.out += std::to_string(event.pressure) + ";";
+            }
+        )
+        .post_state_transition_action_crset
+        (
+            [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& event, const auto target_state_constant)
+            {
+                ctx.out += std::to_string(event.pressure) + ";";
 
-                    ctx.out += "Transition in ";
-                    ctx.out += to_string(path_constant);
-                    ctx.out += ": ";
-                    ctx.out += maki::pretty_name<source_state_constant.value>();
-                    ctx.out += " -> ";
-                    ctx.out += maki::pretty_name<target_state_constant.value>();
-                    ctx.out += ";";
-                }
-            )
-            .auto_start(false)
-            .pretty_name("main_sm")
-        ;
-    };
+                ctx.out += "Transition in ";
+                ctx.out += to_string(path_constant);
+                ctx.out += ": ";
+                ctx.out += maki::pretty_name<source_state_constant.value>();
+                ctx.out += " -> ";
+                ctx.out += maki::pretty_name<target_state_constant.value>();
+                ctx.out += ";";
+            }
+        )
+        .auto_start(false)
+        .pretty_name("main_sm")
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("state_transition_hook_set")

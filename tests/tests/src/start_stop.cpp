@@ -62,16 +62,13 @@ namespace
         .add_c<states::s1, events::button_press, states::s0>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context<context>()
-            .auto_start(false)
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+        .auto_start(false)
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("start_stop")

@@ -45,51 +45,48 @@ namespace orthogonal_regions_ns
         ;
     }
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables
-            (
-                maki::transition_table{}
-                    .add_c<states::off0, events::button_press, states::on0>,
-                maki::transition_table{}
-                    .add_c<states::off1, events::button_press, states::on1>
-            )
-            .context<context>()
-            .exception_action_me
-            (
-                [](auto& mach, const std::exception_ptr& eptr)
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables
+        (
+            maki::transition_table{}
+                .add_c<states::off0, events::button_press, states::on0>,
+            maki::transition_table{}
+                .add_c<states::off1, events::button_press, states::on1>
+        )
+        .context<context>()
+        .exception_action_me
+        (
+            [](auto& mach, const std::exception_ptr& eptr)
+            {
+                try
                 {
-                    try
-                    {
-                        std::rethrow_exception(eptr);
-                    }
-                    catch(const std::exception& e)
-                    {
-                        mach.context().out += std::string{"on_exception:"} + e.what() + ";";
-                    }
+                    std::rethrow_exception(eptr);
                 }
-            )
-            .pre_state_transition_action_crset
-            (
-                [](context& ctx, const auto& path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
+                catch(const std::exception& e)
                 {
-                    const auto region_index = path_constant.value.tail().head();
-                    ctx.out += "before_state_transition[" + std::to_string(region_index) + "];";
+                    mach.context().out += std::string{"on_exception:"} + e.what() + ";";
                 }
-            )
-            .post_state_transition_action_crset
-            (
-                [](context& ctx, const auto& path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
-                {
-                    const auto region_index = path_constant.value.tail().head();
-                    ctx.out += "after_state_transition[" + std::to_string(region_index) + "];";
-                }
-            )
-        ;
-    };
+            }
+        )
+        .pre_state_transition_action_crset
+        (
+            [](context& ctx, const auto& path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
+            {
+                const auto region_index = path_constant.value.tail().head();
+                ctx.out += "before_state_transition[" + std::to_string(region_index) + "];";
+            }
+        )
+        .post_state_transition_action_crset
+        (
+            [](context& ctx, const auto& path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
+            {
+                const auto region_index = path_constant.value.tail().head();
+                ctx.out += "after_state_transition[" + std::to_string(region_index) + "];";
+            }
+        )
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("orthogonal_regions")

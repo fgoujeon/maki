@@ -45,15 +45,12 @@ namespace
         .add_c<any_of_s0_s1,  events::destruction_button_press, states::off>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context<context>()
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("submachine_in_type_pattern")

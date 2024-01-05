@@ -29,18 +29,15 @@ namespace
         .add_c<states::on,  events::button_press, states::off>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context<context>()
-            .auto_start(false)
-            .run_to_completion(false)
-            .exception_action_me([](auto& /*mach*/, const std::exception_ptr& /*eptr*/){})
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+        .auto_start(false)
+        .run_to_completion(false)
+        .exception_action_me([](auto& /*mach*/, const std::exception_ptr& /*eptr*/){})
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("basic_transition")

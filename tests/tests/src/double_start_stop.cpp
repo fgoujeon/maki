@@ -34,50 +34,47 @@ namespace
         .add_c<states::on,  events::button_press, states::off>
     ;
 
-    struct machine_def;
+    struct machine_conf_holder;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::machine_from_conf_holder<machine_conf_holder>;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context<context>()
-            .pre_state_transition_action_crset
-            (
-                [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)
-                {
-                    //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+        .pre_state_transition_action_crset
+        (
+            [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)
+            {
+                //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
 
-                    ctx.out += "Transition in ";
-                    ctx.out += maki::to_string(path_constant);
-                    ctx.out += ": ";
-                    ctx.out += maki::pretty_name<source_state_constant.value>();
-                    ctx.out += " -> ";
-                    ctx.out += maki::pretty_name<target_state_constant.value>();
-                    ctx.out += "...;";
-                }
-            )
-            .post_state_transition_action_crset
-            (
-                [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)
-                {
-                    //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
+                ctx.out += "Transition in ";
+                ctx.out += maki::to_string(path_constant);
+                ctx.out += ": ";
+                ctx.out += maki::pretty_name<source_state_constant.value>();
+                ctx.out += " -> ";
+                ctx.out += maki::pretty_name<target_state_constant.value>();
+                ctx.out += "...;";
+            }
+        )
+        .post_state_transition_action_crset
+        (
+            [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)
+            {
+                //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
 
-                    ctx.out += "Transition in ";
-                    ctx.out += maki::to_string(path_constant);
-                    ctx.out += ": ";
-                    ctx.out += maki::pretty_name<source_state_constant.value>();
-                    ctx.out += " -> ";
-                    ctx.out += maki::pretty_name<target_state_constant.value>();
-                    ctx.out += ";";
-                }
-            )
-            .pretty_name("main_sm")
-        ;
+                ctx.out += "Transition in ";
+                ctx.out += maki::to_string(path_constant);
+                ctx.out += ": ";
+                ctx.out += maki::pretty_name<source_state_constant.value>();
+                ctx.out += " -> ";
+                ctx.out += maki::pretty_name<target_state_constant.value>();
+                ctx.out += ";";
+            }
+        )
+        .pretty_name("main_sm")
+    ;
 
-        context& ctx;
-    };
+    struct machine_conf_holder: maki::conf_holder<machine_conf>{};
 }
 
 TEST_CASE("double_start_stop")

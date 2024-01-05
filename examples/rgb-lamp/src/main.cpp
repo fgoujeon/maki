@@ -223,22 +223,19 @@ constexpr auto transition_table = maki::transition_table{}
 ;
 
 /*
-We have to define this struct to configure our state machine.
-Here, we just specify the transition table, but we can configure many other
-aspects of the state machine.
+We have to define this variable to configure our state machine.
+Here, we just specify the transition table and the context type, but we can
+configure many other aspects of the state machine.
 */
-struct machine_conf_holder
-{
-    static constexpr auto conf = maki::machine_conf{}
-        .transition_tables(transition_table)
-        .context<context>()
-    ;
-};
+constexpr auto machine_conf = maki::machine_conf{}
+    .transition_tables(transition_table)
+    .context<context>()
+;
 
 /*
 We finally have our configured state machine.
 */
-using machine_t = maki::machine<machine_conf_holder>;
+using machine_t = maki::machine<machine_conf>;
 
 int main()
 {

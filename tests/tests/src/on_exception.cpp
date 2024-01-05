@@ -83,40 +83,34 @@ namespace
         .add_c<states::on,  events::button_press, states::off>
     ;
 
-    struct default_sm_def
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context<context>()
-        ;
-    };
+    constexpr auto default_machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+    ;
 
-    using default_sm_t = maki::machine<default_sm_def>;
+    using default_sm_t = maki::machine<default_machine_conf>;
 
-    struct custom_sm_def
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context<context>()
-            .exception_action_me
-            (
-                [](auto& mach, const std::exception_ptr& eptr)
+    constexpr auto custom_machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+        .exception_action_me
+        (
+            [](auto& mach, const std::exception_ptr& eptr)
+            {
+                try
                 {
-                    try
-                    {
-                        std::rethrow_exception(eptr);
-                    }
-                    catch(const std::exception& e)
-                    {
-                        mach.context().out += "custom;";
-                        mach.context().out += e.what();
-                    }
+                    std::rethrow_exception(eptr);
                 }
-            )
-        ;
-    };
+                catch(const std::exception& e)
+                {
+                    mach.context().out += "custom;";
+                    mach.context().out += e.what();
+                }
+            }
+        )
+    ;
 
-    using custom_sm_t = maki::machine<custom_sm_def>;
+    using custom_sm_t = maki::machine<custom_machine_conf>;
 }
 
 TEST_CASE("on_exception")

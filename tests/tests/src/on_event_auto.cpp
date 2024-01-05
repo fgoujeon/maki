@@ -92,22 +92,19 @@ namespace
         .add_c<states::on,  events::button_press, states::off>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context<context>()
-            .event_action_ce<events::button_press>
-            (
-                [](context& ctx, const events::button_press& event)
-                {
-                    ctx.out += event.data + "1;";
-                }
-            )
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+        .event_action_ce<events::button_press>
+        (
+            [](context& ctx, const events::button_press& event)
+            {
+                ctx.out += event.data + "1;";
+            }
+        )
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("on_event_auto")

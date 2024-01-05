@@ -45,34 +45,29 @@ namespace
         .add_c<states::off1, events::button_press, states::on1>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::submachine_conf{}
-            .transition_tables(transition_table_0_t, transition_table_1_t)
-            .context<context>()
-            .pretty_name("main_sm")
-        ;
+    constexpr auto machine_conf = maki::submachine_conf{}
+        .transition_tables(transition_table_0_t, transition_table_1_t)
+        .context<context>()
+        .pretty_name("main_sm")
+    ;
 
-        context& ctx;
-    };
-
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("path")
 {
     {
-        static constexpr auto path = maki::path{machine_def::conf} / 0;
+        static constexpr auto path = maki::path{machine_conf} / 0;
         REQUIRE(maki::to_string(maki::cref_constant_c<path>) == "main_sm/0");
     }
 
     {
-        static constexpr auto path = maki::path{machine_def::conf} / 1;
+        static constexpr auto path = maki::path{machine_conf} / 1;
         REQUIRE(maki::to_string(maki::cref_constant_c<path>) == "main_sm/1");
     }
 
     {
-        static constexpr auto path = maki::path{machine_def::conf} / 1 / states::on1 / 0;
+        static constexpr auto path = maki::path{machine_conf} / 1 / states::on1 / 0;
         REQUIRE(maki::to_string(maki::cref_constant_c<path>) == "main_sm/1/on_1/0");
     }
 }

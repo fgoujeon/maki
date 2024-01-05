@@ -29,13 +29,13 @@ namespace detail
     {
     public:
         template<class MachineDef>
-        machine_ref_event_impl(machine<MachineDef>& mach):
+        machine_ref_event_impl(machine_from_conf_holder<MachineDef>& mach):
             machine_ref_event_impl<Events...>{mach},
             pprocess_event_
             {
                 [](void* const vpsm, const Event& event)
                 {
-                    using machine_t = machine<MachineDef>;
+                    using machine_t = machine_from_conf_holder<MachineDef>;
                     const auto psm = reinterpret_cast<machine_t*>(vpsm); //NOLINT
                     psm->process_event(event);
                 }
@@ -62,7 +62,7 @@ namespace detail
     {
     public:
         template<class MachineDef>
-        machine_ref_event_impl(machine<MachineDef>& mach):
+        machine_ref_event_impl(machine_from_conf_holder<MachineDef>& mach):
             vpsm_(&mach)
         {
         }
@@ -92,7 +92,7 @@ class machine_ref
 {
 public:
     template<class MachineConfHolder>
-    machine_ref(machine<MachineConfHolder>& mach):
+    machine_ref(machine_from_conf_holder<MachineConfHolder>& mach):
         impl_{mach}
     {
     }

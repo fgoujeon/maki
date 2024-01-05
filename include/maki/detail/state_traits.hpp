@@ -10,6 +10,7 @@
 #include "submachine_fwd.hpp"
 #include "simple_state_fwd.hpp"
 #include "tlu.hpp"
+#include "same_ref.hpp"
 #include "../type_patterns.hpp"
 #include "../submachine_conf.hpp"
 #include <type_traits>
@@ -70,6 +71,19 @@ public:
 
 template<class State, class Event>
 constexpr auto requires_on_event_v = requires_on_event<State, Event>::value;
+
+
+//has_conf
+
+template<const auto& Conf>
+struct for_conf
+{
+    template<class T>
+    struct has_conf
+    {
+        static constexpr auto value = same_ref(T::conf, Conf);
+    };
+};
 
 } //namespace
 

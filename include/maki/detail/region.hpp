@@ -603,15 +603,22 @@ private:
     template<class State>
     auto& state()
     {
-        constexpr auto state_index = tlu::index_of_v<state_type_list, State>;
-        return tuple_get<state_index>(states_);
+        return static_state<State>(*this);
+    }
+
+    //Note: We use static to factorize const and non-const Region
+    template<class State, class Region>
+    static auto& static_state(Region& self)
+    {
+        static constexpr auto state_index = tlu::index_of_v<state_type_list, State>;
+        return tuple_get<state_index>(self.states_);
     }
 
     //Note: We use static to factorize const and non-const Region
     template<const auto& StateConf, class Region>
     static auto& static_state(Region& self)
     {
-        constexpr auto state_index = tlu::index_of_v<state_conf_constant_list, cref_constant<StateConf>>;
+        static constexpr auto state_index = tlu::find_if_v<state_type_list, state_traits::for_conf<StateConf>::template has_conf>;
         return tuple_get<state_index>(self.states_);
     }
 
@@ -625,8 +632,9 @@ private:
         }
         else
         {
+            static constexpr const auto& submach_conf = StatePath.head();
             static constexpr auto state_path_tail = StatePath.tail();
-            return static_state<StatePath.head()>(self).template data<state_path_tail>();
+            return static_state<submach_conf>(self).template data<state_path_tail>();
         }
     }
 

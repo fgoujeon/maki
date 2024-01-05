@@ -54,7 +54,7 @@ private:
         >;
     };
 
-    using first_matching_action_type = tlu::find_t
+    using first_matching_action_type = tlu::find_if_or_t
     <
         decltype(State::conf.internal_actions_),
         takes_event,

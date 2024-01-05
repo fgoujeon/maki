@@ -110,7 +110,7 @@ public:
     {
         struct not_found{};
 
-        using first_matching_action_type = tlu::find_t
+        using first_matching_action_type = tlu::find_if_or_t
         <
             decltype(Conf.internal_actions_),
             simple_state_detail::for_event<Event>::template takes_event,

@@ -125,7 +125,7 @@ public:
         }
         else
         {
-            static constexpr int region_index = StatePath.head();
+            static constexpr int region_index = StatePath.raw_head();
             static constexpr auto state_path_tail = StatePath.tail();
             return tuple_get<region_index>(regions_).template data<state_path_tail>();
         }
@@ -140,7 +140,7 @@ public:
         }
         else
         {
-            static constexpr int region_index = StatePath.head();
+            static constexpr int region_index = StatePath.raw_head();
             static constexpr auto state_path_tail = StatePath.tail();
             return tuple_get<region_index>(regions_).template data<state_path_tail>();
         }

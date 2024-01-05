@@ -59,6 +59,21 @@ namespace region_detail
 
     template<class StateList, const auto& StateConf>
     inline constexpr auto find_state_from_conf_v = find_state_conf<StateList, StateConf>::value;
+
+    template<class StateList, auto StateConfPtr>
+    struct find_state_conf_ptr
+    {
+        static constexpr auto value = tlu::find_if_v<StateList, state_traits::for_conf_ptr<StateConfPtr>::template has_conf_ptr>;
+    };
+
+    template<class StateList>
+    struct find_state_conf_ptr<StateList, &state_confs::stopped>
+    {
+        static constexpr auto value = stopped_state_index;
+    };
+
+    template<class StateList, auto StateConfPtr>
+    inline constexpr auto find_state_from_conf_ptr_v = find_state_conf_ptr<StateList, StateConfPtr>::value;
 }
 
 template<class ParentSm, int Index>
@@ -100,9 +115,9 @@ public:
         }
         else
         {
-            static constexpr const auto& submach_conf = RegionPath.head();
+            static constexpr auto psubmach_conf = RegionPath.raw_head();
             static constexpr auto region_path_tail = RegionPath.tail();
-            const auto& submach = state<submach_conf>();
+            const auto& submach = state_from_conf_ptr<psubmach_conf>();
             return submach.template active_state<region_path_tail, StateConf>();
         }
     }
@@ -403,7 +418,7 @@ private:
 
             if constexpr(!same_ref(SourceStateConf, state_confs::stopped))
             {
-                auto& stt = state<SourceStateConf>();
+                auto& stt = state_from_conf<SourceStateConf>();
                 stt.call_exit_action
                 (
                     mach,
@@ -430,7 +445,7 @@ private:
         {
             if constexpr(!same_ref(TargetStateConf, state_confs::stopped))
             {
-                auto& stt = state<TargetStateConf>();
+                auto& stt = state_from_conf<TargetStateConf>();
                 stt.call_entry_action
                 (
                     mach,
@@ -590,22 +605,28 @@ private:
         }
     };
 
-    template<const auto& StateConf>
-    auto& state()
-    {
-        return static_state<StateConf>(*this);
-    }
-
-    template<const auto& StateConf>
-    const auto& state() const
-    {
-        return static_state<StateConf>(*this);
-    }
-
     template<class State>
     auto& state()
     {
         return static_state<State>(*this);
+    }
+
+    template<const auto& StateConf>
+    auto& state_from_conf()
+    {
+        return static_state_from_conf<StateConf>(*this);
+    }
+
+    template<const auto& StateConf>
+    const auto& state_from_conf() const
+    {
+        return static_state_from_conf<StateConf>(*this);
+    }
+
+    template<auto StateConfPtr>
+    const auto& state_from_conf_ptr() const
+    {
+        return static_state_from_conf_ptr<StateConfPtr>(*this);
     }
 
     //Note: We use static to factorize const and non-const Region
@@ -620,10 +641,20 @@ private:
 
     //Note: We use static to factorize const and non-const Region
     template<const auto& StateConf, class Region>
-    static auto& static_state(Region& self)
+    static auto& static_state_from_conf(Region& self)
     {
         static constexpr auto state_index =
             region_detail::find_state_from_conf_v<state_type_list, StateConf>
+        ;
+        return tuple_get<state_index>(self.states_);
+    }
+
+    //Note: We use static to factorize const and non-const Region
+    template<auto StateConfPtr, class Region>
+    static auto& static_state_from_conf_ptr(Region& self)
+    {
+        static constexpr auto state_index =
+            region_detail::find_state_from_conf_ptr_v<state_type_list, StateConfPtr>
         ;
         return tuple_get<state_index>(self.states_);
     }
@@ -634,13 +665,13 @@ private:
     {
         if constexpr(StatePath.size() == 1)
         {
-            return static_state<StatePath.head()>(self).data();
+            return static_state_from_conf_ptr<StatePath.raw_head()>(self).data();
         }
         else
         {
-            static constexpr const auto& submach_conf = StatePath.head();
+            static constexpr auto psubmach_conf = StatePath.raw_head();
             static constexpr auto state_path_tail = StatePath.tail();
-            return static_state<submach_conf>(self).template data<state_path_tail>();
+            return static_state_from_conf_ptr<psubmach_conf>(self).template data<state_path_tail>();
         }
     }
 

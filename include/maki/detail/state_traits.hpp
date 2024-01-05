@@ -85,6 +85,19 @@ struct for_conf
     };
 };
 
+
+//has_conf_ptr
+
+template<auto ConfPtr>
+struct for_conf_ptr
+{
+    template<class T>
+    struct has_conf_ptr
+    {
+        static constexpr auto value = &T::conf == static_cast<const void*>(ConfPtr);
+    };
+};
+
 } //namespace
 
 #endif

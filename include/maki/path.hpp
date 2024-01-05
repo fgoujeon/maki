@@ -39,7 +39,7 @@ namespace detail
     template<class Elem>
     struct to_path_storage_type
     {
-        using type = const std::decay_t<Elem>&;
+        using type = const std::decay_t<Elem>*;
     };
 
     template<>
@@ -47,6 +47,28 @@ namespace detail
     {
         using type = int;
     };
+
+    template<class Elem>
+    constexpr auto to_path_storage(const Elem& elem)
+    {
+        return &elem;
+    }
+
+    inline constexpr int to_path_storage(const int elem)
+    {
+        return elem;
+    }
+
+    template<class Elem>
+    constexpr const Elem& from_path_storage(const Elem* pelem)
+    {
+        return *pelem;
+    }
+
+    inline constexpr int from_path_storage(const int elem)
+    {
+        return elem;
+    }
 }
 
 /**
@@ -69,7 +91,7 @@ public:
 
     template<class Elem>
     constexpr explicit path(const Elem& elem):
-        elems_(detail::distributed_construct, elem)
+        elems_(detail::distributed_construct, detail::to_path_storage(elem))
     {
     }
 
@@ -96,7 +118,7 @@ public:
     template<int Index>
     [[nodiscard]] constexpr decltype(auto) at() const
     {
-        return detail::tuple_get<Index>(elems_);
+        return detail::from_path_storage(detail::tuple_get<Index>(elems_));
     }
 
     [[nodiscard]] constexpr decltype(auto) head() const
@@ -109,9 +131,9 @@ public:
         return tuple_apply
         (
             elems_,
-            [](const auto& /*elem*/, const auto&... elems)
+            [](const auto /*elem*/, const auto... elems)
             {
-                return detail::make_path(elems...);
+                return detail::make_path(detail::from_path_storage(elems)...);
             }
         );
     }
@@ -122,12 +144,26 @@ public:
         return tuple_apply
         (
             elems_,
-            [](const Elem& elem, const auto&... elems)
+            [](const Elem& elem, const auto... elems)
             {
-                return detail::make_path(elems..., elem);
+                return detail::make_path(detail::from_path_storage(elems)..., elem);
             },
             elem
         );
+    }
+
+#if MAKI_DETAIL_DOXYGEN
+private:
+#endif
+    template<int Index>
+    [[nodiscard]] constexpr auto raw_at() const
+    {
+        return detail::tuple_get<Index>(elems_);
+    }
+
+    [[nodiscard]] constexpr auto raw_head() const
+    {
+        return raw_at<0>();
     }
 
 private:
@@ -135,7 +171,7 @@ private:
     friend constexpr auto detail::make_path(const Elems2&...);
 
     constexpr explicit path(const detail::path_direct_construct_t /*tag*/, const Elems&... elems):
-        elems_(detail::distributed_construct, elems...)
+        elems_(detail::distributed_construct, detail::to_path_storage(elems)...)
     {
     }
 

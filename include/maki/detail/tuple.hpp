@@ -93,7 +93,7 @@ template<class T, class Tuple>
 constexpr auto& tuple_get(Tuple& tpl)
 {
     using tuple_t = std::decay_t<Tuple>;
-    constexpr auto element_index = tlu::index_of_v<tuple_t, T>;
+    constexpr auto element_index = tlu::find_v<tuple_t, T>;
     return tpl.tuple_element<element_index, T>::value;
 }
 

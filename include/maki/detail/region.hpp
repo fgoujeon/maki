@@ -33,7 +33,7 @@ namespace region_detail
     template<class StateList, class State>
     struct find_state
     {
-        static constexpr auto value = tlu::index_of_v<StateList, State>;
+        static constexpr auto value = tlu::find_v<StateList, State>;
     };
 
     template<class StateList, class Region>

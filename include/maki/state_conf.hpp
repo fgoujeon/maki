@@ -36,10 +36,10 @@ namespace detail
     {
         using data_type = Data;
 
-        EntryActionTuple entry_actions_;
-        InternalActionTuple internal_actions_;
-        ExitActionTuple exit_actions_;
-        std::string_view pretty_name_;
+        EntryActionTuple entry_actions;
+        InternalActionTuple internal_actions;
+        ExitActionTuple exit_actions;
+        std::string_view pretty_name;
     };
 }
 
@@ -85,10 +85,10 @@ public:
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<typename OptionSet::data_type>; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = options_.internal_actions_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = options_.exit_actions_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = options_.pretty_name_;
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = options_.internal_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = options_.exit_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = options_.pretty_name;
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return state_conf \
@@ -170,7 +170,7 @@ private:
     {
         const auto new_entry_actions = tuple_append
         (
-            options_.entry_actions_,
+            options_.entry_actions,
             detail::event_action<EventFilter, Action, Sig>{action}
         );
 
@@ -185,7 +185,7 @@ private:
     {
         const auto new_internal_actions = tuple_append
         (
-            options_.internal_actions_,
+            options_.internal_actions,
             detail::event_action<EventFilter, Action, Sig>{action}
         );
 
@@ -200,7 +200,7 @@ private:
     {
         const auto new_exit_actions = tuple_append
         (
-            options_.exit_actions_,
+            options_.exit_actions,
             detail::event_action<EventFilter, Action, Sig>{action}
         );
 

@@ -23,13 +23,13 @@ namespace maki
 template<const auto& Conf>
 decltype(auto) pretty_name()
 {
-    if constexpr(opts(Conf).pretty_name_.empty())
+    if constexpr(opts(Conf).pretty_name.empty())
     {
         return detail::decayed_constant_name<Conf>();
     }
     else
     {
-        return opts(Conf).pretty_name_;
+        return opts(Conf).pretty_name;
     }
 }
 

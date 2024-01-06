@@ -24,27 +24,60 @@
 namespace maki
 {
 
+namespace detail
+{
+    template
+    <
+        class Data = void,
+        class Context = void,
+        class EntryActionTuple = detail::tuple<>,
+        class InternalActionTuple = detail::tuple<>,
+        class ExitActionTuple = detail::tuple<>,
+        class TransitionTableTypeList = type_list<>
+    >
+    struct submachine_conf_option_set
+    {
+        using data_type = Data;
+        using context_type = Context;
+
+        EntryActionTuple entry_actions_;
+        InternalActionTuple internal_actions_;
+        ExitActionTuple exit_actions_;
+        std::string_view pretty_name_;
+        TransitionTableTypeList transition_tables_;
+    };
+}
+
 #ifdef MAKI_DETAIL_DOXYGEN
 /**
 @brief Submachine configuration
 */
 template<IMPLEMENTATION_DETAIL>
 #else
-template
-<
-    class Data = void,
-    class Context = void,
-    class EntryActionTuple = detail::tuple<>,
-    class InternalActionTuple = detail::tuple<>,
-    class ExitActionTuple = detail::tuple<>,
-    class TransitionTableTypeList = type_list<>
->
+template<class OptionSet = detail::submachine_conf_option_set<>>
+#endif
+class submachine_conf;
+
+namespace detail
+{
+    //Read access to options
+    template<class OptionSet>
+    constexpr const auto& opts(const submachine_conf<OptionSet>& conf)
+    {
+        return conf.options_;
+    }
+}
+
+#ifdef MAKI_DETAIL_DOXYGEN
+template<IMPLEMENTATION_DETAIL>
+#else
+template<class OptionSet>
 #endif
 class submachine_conf
 {
 public:
-    using data_type = Data;
-    using context_type = Context;
+    using data_type = typename OptionSet::data_type;
+    using context_type = typename OptionSet::context_type;
 
     constexpr submachine_conf() = default;
 
@@ -61,21 +94,24 @@ public:
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<data_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type_c<context_type>; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = internal_actions_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = exit_actions_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = pretty_name_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = transition_tables_;
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions_; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = options_.internal_actions_; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = options_.exit_actions_; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = options_.pretty_name_; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = options_.transition_tables_;
 
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return submachine_conf \
     < \
-        typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
-        typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
+        detail::submachine_conf_option_set \
+        < \
+            typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
+            typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
+        > \
     > \
     { \
         MAKI_DETAIL_ARG_entry_actions, \
@@ -147,15 +183,25 @@ public:
 #undef MAKI_DETAIL_ARG_transition_tables
     }
 
-#if MAKI_DETAIL_DOXYGEN
 private:
-#endif
+    template<class OptionSet2>
+    friend class submachine_conf;
+
+    template<class OptionSet2>
+    friend constexpr const auto& detail::opts(const submachine_conf<OptionSet2>& conf);
+
+    template<class... Args>
+    constexpr submachine_conf(Args&&... args):
+        options_{std::forward<Args>(args)...}
+    {
+    }
+
     template<class EventFilter = maki::any, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto entry_action(const Action& action) const
     {
         const auto new_entry_actions = tuple_append
         (
-            entry_actions_,
+            options_.entry_actions_,
             detail::event_action<EventFilter, Action, Sig>{action}
         );
 
@@ -170,7 +216,7 @@ private:
     {
         const auto new_internal_actions = tuple_append
         (
-            internal_actions_,
+            options_.internal_actions_,
             detail::event_action<EventFilter, Action, Sig>{action}
         );
 
@@ -185,7 +231,7 @@ private:
     {
         const auto new_exit_actions = tuple_append
         (
-            exit_actions_,
+            options_.exit_actions_,
             detail::event_action<EventFilter, Action, Sig>{action}
         );
 
@@ -198,30 +244,7 @@ private:
 #undef MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
 
-#if MAKI_DETAIL_DOXYGEN
-private:
-#endif
-    constexpr submachine_conf
-    (
-        const EntryActionTuple& entry_actions,
-        const InternalActionTuple& internal_actions,
-        const ExitActionTuple& exit_actions,
-        const std::string_view pretty_name,
-        const TransitionTableTypeList& transition_tables
-    ):
-        entry_actions_(entry_actions),
-        internal_actions_(internal_actions),
-        exit_actions_(exit_actions),
-        pretty_name_(pretty_name),
-        transition_tables_(transition_tables)
-    {
-    }
-
-    EntryActionTuple entry_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
-    InternalActionTuple internal_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
-    ExitActionTuple exit_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
-    std::string_view pretty_name_; //NOLINT(misc-non-private-member-variables-in-classes)
-    TransitionTableTypeList transition_tables_; //NOLINT(misc-non-private-member-variables-in-classes)
+    OptionSet options_;
 };
 
 namespace detail

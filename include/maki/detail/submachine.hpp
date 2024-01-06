@@ -86,7 +86,7 @@ class submachine
 public:
     using conf_type = std::decay_t<decltype(Conf)>;
     using context_type = typename submachine_context<Conf, ParentRegion>::type;
-    using transition_table_type_list = decltype(Conf.transition_tables_);
+    using transition_table_type_list = decltype(opts(Conf).transition_tables_);
 
     template<class Machine, class... ContextArgs>
     submachine(Machine& mach, ContextArgs&&... ctx_args):

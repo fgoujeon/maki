@@ -70,7 +70,7 @@ public:
     {
         call_state_action
         (
-            Conf.entry_actions_,
+            opts(Conf).entry_actions_,
             mach,
             ctx,
             data(),
@@ -83,7 +83,7 @@ public:
     {
         call_state_action
         (
-            Conf.internal_actions_,
+            opts(Conf).internal_actions_,
             mach,
             ctx,
             data(),
@@ -97,7 +97,7 @@ public:
     {
         call_state_action
         (
-            Conf.exit_actions_,
+            opts(Conf).exit_actions_,
             mach,
             ctx,
             data(),
@@ -112,7 +112,7 @@ public:
 
         using first_matching_action_type = tlu::find_if_or_t
         <
-            decltype(Conf.internal_actions_),
+            decltype(opts(Conf).internal_actions_),
             simple_state_detail::for_event<Event>::template takes_event,
             not_found
         >;

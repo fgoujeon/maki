@@ -406,7 +406,7 @@ private:
         {
             if constexpr(!std::is_same_v<typename machine_conf_type::pre_state_transition_action_type, noop_ex>)
             {
-                Machine::conf.pre_state_transition_action_
+                opts(Machine::conf).pre_state_transition_action_
                 (
                     ctx,
                     cref_constant_c<path>,
@@ -456,7 +456,7 @@ private:
 
             if constexpr(!std::is_same_v<typename machine_conf_type::post_state_transition_action_type, noop_ex>)
             {
-                Machine::conf.post_state_transition_action_
+                opts(Machine::conf).post_state_transition_action_
                 (
                     ctx,
                     cref_constant_c<path>,

@@ -97,7 +97,7 @@ public:
     explicit machine(ContextArgs&&... ctx_args):
         submachine_(*this, std::forward<ContextArgs>(ctx_args)...)
     {
-        if constexpr(conf.auto_start_)
+        if constexpr(opts(conf).auto_start_)
         {
             //start
             execute_operation_now<detail::machine_operation::start>(events::start{});
@@ -390,8 +390,8 @@ private:
         using type = detail::function_queue
         <
             machine&,
-            conf.small_event_max_size_,
-            conf.small_event_max_align_
+            opts(conf).small_event_max_size_,
+            opts(conf).small_event_max_align_
         >;
     };
     struct empty_holder
@@ -401,7 +401,7 @@ private:
     };
     using operation_queue_type = typename std::conditional_t
     <
-        conf.run_to_completion_,
+        opts(conf).run_to_completion_,
         real_operation_queue_holder,
         empty_holder
     >::template type<>;
@@ -411,7 +411,7 @@ private:
     {
         try
         {
-            if constexpr(conf.run_to_completion_)
+            if constexpr(opts(conf).run_to_completion_)
             {
                 if(!executing_operation_) //If call is not recursive
                 {
@@ -437,7 +437,7 @@ private:
     template<detail::machine_operation Operation, class Event>
     void execute_operation_now(const Event& event)
     {
-        if constexpr(conf.run_to_completion_)
+        if constexpr(opts(conf).run_to_completion_)
         {
             auto grd = executing_operation_guard{*this};
 
@@ -476,7 +476,7 @@ private:
         }
         else
         {
-            conf.exception_action_(*this, eptr);
+            opts(conf).exception_action_(*this, eptr);
         }
     }
 
@@ -506,7 +506,7 @@ private:
                     int dummy_data = 0;
                     call_state_action
                     (
-                        conf.fallback_transition_actions_,
+                        opts(conf).fallback_transition_actions_,
                         *this,
                         context(),
                         dummy_data,

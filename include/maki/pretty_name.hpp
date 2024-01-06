@@ -18,32 +18,18 @@ namespace maki
 {
 
 /**
-@brief Gets the pretty name of a @ref machine def type, submachine type or state
-type.
+@brief Gets the pretty name of a @ref machine, submachine or state.
 */
-template<class T>
-decltype(auto) pretty_name()
-{
-    if constexpr(T::conf.pretty_name_.empty())
-    {
-        return detail::decayed_type_name<T>();
-    }
-    else
-    {
-        return T::conf.pretty_name_;
-    }
-}
-
 template<const auto& Conf>
 decltype(auto) pretty_name()
 {
-    if constexpr(Conf.pretty_name_.empty())
+    if constexpr(opts(Conf).pretty_name_.empty())
     {
         return detail::decayed_constant_name<Conf>();
     }
     else
     {
-        return Conf.pretty_name_;
+        return opts(Conf).pretty_name_;
     }
 }
 

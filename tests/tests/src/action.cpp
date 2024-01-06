@@ -38,20 +38,17 @@ namespace
         }
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::off, events::button_press, states::on,  actions::beep>
         .add_c<states::on,  events::button_press, states::off, actions::boop>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf_c
-            .transition_tables(transition_table)
-            .context<context>()
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::make_machine<machine_conf>;
 }
 
 TEST_CASE("action")
@@ -61,10 +58,10 @@ TEST_CASE("action")
     machine.start();
 
     machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.active_state<states::on>());
     REQUIRE(machine.context().i == 1);
 
     machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.active_state<states::off>());
     REQUIRE(machine.context().i == 0);
 }

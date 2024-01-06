@@ -4,10 +4,23 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef COMMON_EMPTY_STATE_HPP
-#define COMMON_EMPTY_STATE_HPP
+/**
+@file
+@brief Defines the maki::machine class template
+*/
 
-#define EMPTY_STATE(name) \
-    inline constexpr auto name = maki::state_conf{};
+#ifndef MAKI_CONF_HOLDER_HPP
+#define MAKI_CONF_HOLDER_HPP
+
+namespace maki
+{
+
+template<const auto& Conf>
+struct conf_holder
+{
+    static constexpr const auto& conf = Conf;
+};
+
+} //namespace
 
 #endif

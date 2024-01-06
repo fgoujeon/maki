@@ -7,7 +7,7 @@
 #ifndef MAKI_DETAIL_REGION_HPP
 #define MAKI_DETAIL_REGION_HPP
 
-#include "region_path_of.hpp"
+#include "path_of.hpp"
 #include "state_traits.hpp"
 #include "call_member.hpp"
 #include "transition_table_digest.hpp"
@@ -28,35 +28,52 @@ namespace maki::detail
 
 namespace region_detail
 {
+    inline constexpr auto stopped_state_index = -1;
+
     template<class StateList, class State>
-    struct index_of_state
+    struct find_state
     {
-        static constexpr auto value = tlu::index_of_v<StateList, State>;
+        static constexpr auto value = tlu::find_v<StateList, State>;
     };
 
     template<class StateList, class Region>
-    struct index_of_state<StateList, state_traits::state_conf_to_state<state_confs::stopped, Region>>
+    struct find_state<StateList, state_traits::state_conf_to_state<state_confs::stopped, Region>>
     {
-        static constexpr auto value = -1;
+        static constexpr auto value = stopped_state_index;
     };
 
     template<class StateList, class State>
-    inline constexpr auto index_of_state_v = index_of_state<StateList, State>::value;
+    inline constexpr auto find_state_v = find_state<StateList, State>::value;
 
     template<class StateList, const auto& StateConf>
-    struct index_of_state_conf
+    struct find_state_conf
     {
-        static constexpr auto value = tlu::index_of_v<StateList, cref_constant<StateConf>>;
+        static constexpr auto value = tlu::find_if_v<StateList, state_traits::for_conf<StateConf>::template has_conf>;
     };
 
     template<class StateList>
-    struct index_of_state_conf<StateList, state_confs::stopped>
+    struct find_state_conf<StateList, state_confs::stopped>
     {
-        static constexpr auto value = -1;
+        static constexpr auto value = stopped_state_index;
     };
 
     template<class StateList, const auto& StateConf>
-    inline constexpr auto index_of_state_conf_v = index_of_state_conf<StateList, StateConf>::value;
+    inline constexpr auto find_state_from_conf_v = find_state_conf<StateList, StateConf>::value;
+
+    template<class StateList, auto StateConfPtr>
+    struct find_state_conf_ptr
+    {
+        static constexpr auto value = tlu::find_if_v<StateList, state_traits::for_conf_ptr<StateConfPtr>::template has_conf_ptr>;
+    };
+
+    template<class StateList>
+    struct find_state_conf_ptr<StateList, &state_confs::stopped>
+    {
+        static constexpr auto value = stopped_state_index;
+    };
+
+    template<class StateList, auto StateConfPtr>
+    inline constexpr auto find_state_from_conf_ptr_v = find_state_conf_ptr<StateList, StateConfPtr>::value;
 }
 
 template<class ParentSm, int Index>
@@ -77,38 +94,36 @@ public:
     region& operator=(region&&) = delete;
     ~region() = default;
 
-    template<const auto& StateRegionPath, const auto& StateConf>
-    const auto& state_data() const
+    template<const auto& StatePath>
+    const auto& data() const
     {
-        return static_state_data<StateRegionPath, StateConf>(*this);
+        return static_data<StatePath>(*this);
     }
 
-    template<const auto& StateRegionPath, const auto& StateConf>
-    auto& state_data()
+    template<const auto& StatePath>
+    auto& data()
     {
-        return static_state_data<StateRegionPath, StateConf>(*this);
+        return static_data<StatePath>(*this);
     }
 
-    template<const auto& StateRelativeRegionPath, const auto& StateConf>
-    [[nodiscard]] bool is_active_state_def() const
+    template<const auto& RegionPath, const auto& StateConf>
+    [[nodiscard]] bool active_state() const
     {
-        using state_relative_region_path_t = std::decay_t<decltype(StateRelativeRegionPath)>;
-
-        if constexpr(tlu::size_v<state_relative_region_path_t> == 0)
+        if constexpr(RegionPath.empty())
         {
-            return is_active_state_def<StateConf>();
+            return active_state<StateConf>();
         }
         else
         {
-            constexpr const auto& submach_conf = tlu::front_t<state_relative_region_path_t>::machine_conf;
-            constexpr auto submach_index = tlu::index_of_v<state_conf_constant_list, cref_constant<submach_conf>>;
-            const auto& state = tuple_get<submach_index>(states_);
-            return state.template is_active_state_def<StateRelativeRegionPath, StateConf>();
+            static constexpr auto psubmach_conf = path_raw_head(RegionPath);
+            static constexpr auto region_path_tail = path_tail(RegionPath);
+            const auto& submach = state_from_conf_ptr<psubmach_conf>();
+            return submach.template active_state<region_path_tail, StateConf>();
         }
     }
 
     template<const auto& StateConf>
-    [[nodiscard]] bool is_active_state_def() const
+    [[nodiscard]] bool active_state() const
     {
         if constexpr(is_type_pattern_v<std::decay_t<decltype(StateConf)>>)
         {
@@ -119,14 +134,14 @@ public:
         }
         else
         {
-            return is_active_state_def_type<StateConf>();
+            return is_active_state_type<StateConf>();
         }
     }
 
     template<class Machine, class Context, class Event>
     void start(Machine& mach, Context& ctx, const Event& event)
     {
-        if(is_active_state_def_type<state_confs::stopped>())
+        if(is_active_state_type<state_confs::stopped>())
         {
             process_event_in_transition
             <
@@ -140,7 +155,7 @@ public:
     template<class Machine, class Context, class Event>
     void stop(Machine& mach, Context& ctx, const Event& event)
     {
-        if(!is_active_state_def_type<state_confs::stopped>())
+        if(!is_active_state_type<state_confs::stopped>())
         {
             with_active_state_conf<state_conf_constant_list, stop_2>
             (
@@ -338,7 +353,7 @@ private:
         )
         {
             //Make sure the transition source state is the active state
-            if(!self.template is_active_state_def_type<SourceStateConfConstant::value>())
+            if(!self.template is_active_state_type<SourceStateConfConstant::value>())
             {
                 return false;
             }
@@ -383,7 +398,7 @@ private:
     {
         using machine_conf_type = std::decay_t<decltype(Machine::conf)>;
 
-        constexpr const auto& path = region_path_of_v<region>;
+        constexpr const auto& path = path_of_v<region>;
 
         constexpr auto is_internal_transition = same_ref(TargetStateConf, null_c);
 
@@ -403,7 +418,7 @@ private:
 
             if constexpr(!same_ref(SourceStateConf, state_confs::stopped))
             {
-                auto& stt = state<SourceStateConf>();
+                auto& stt = state_from_conf<SourceStateConf>();
                 stt.call_exit_action
                 (
                     mach,
@@ -412,9 +427,9 @@ private:
                 );
             }
 
-            active_state_index_ = region_detail::index_of_state_conf_v
+            active_state_index_ = region_detail::find_state_from_conf_v
             <
-                state_conf_constant_list,
+                state_type_list,
                 TargetStateConf
             >;
         }
@@ -430,7 +445,7 @@ private:
         {
             if constexpr(!same_ref(TargetStateConf, state_confs::stopped))
             {
-                auto& stt = state<TargetStateConf>();
+                auto& stt = state_from_conf<TargetStateConf>();
                 stt.call_entry_action
                 (
                     mach,
@@ -521,7 +536,7 @@ private:
     template<class State>
     [[nodiscard]] bool is_active_state_type() const
     {
-        constexpr auto given_state_index = region_detail::index_of_state_v
+        constexpr auto given_state_index = region_detail::find_state_v
         <
             state_type_list,
             State
@@ -530,11 +545,11 @@ private:
     }
 
     template<const auto& StateConf>
-    [[nodiscard]] bool is_active_state_def_type() const
+    [[nodiscard]] bool is_active_state_type() const
     {
-        constexpr auto given_state_index = region_detail::index_of_state_conf_v
+        constexpr auto given_state_index = region_detail::find_state_from_conf_v
         <
-            state_conf_constant_list,
+            state_type_list,
             StateConf
         >;
         return given_state_index == active_state_index_;
@@ -581,7 +596,7 @@ private:
         template<class StateConfConstant, class... Args>
         static bool call(const region& self, Args&&... args)
         {
-            if(self.is_active_state_def_type<StateConfConstant::value>())
+            if(self.is_active_state_type<StateConfConstant::value>())
             {
                 F::template call<StateConfConstant::value>(std::forward<Args>(args)...);
                 return true;
@@ -590,48 +605,78 @@ private:
         }
     };
 
-    template<const auto& StateConf>
-    auto& state()
-    {
-        return static_state<StateConf>(*this);
-    }
-
     template<class State>
     auto& state()
     {
-        constexpr auto state_index = tlu::index_of_v<state_type_list, State>;
-        return tuple_get<state_index>(states_);
+        return static_state<State>(*this);
+    }
+
+    template<const auto& StateConf>
+    auto& state_from_conf()
+    {
+        return static_state_from_conf<StateConf>(*this);
+    }
+
+    template<const auto& StateConf>
+    const auto& state_from_conf() const
+    {
+        return static_state_from_conf<StateConf>(*this);
+    }
+
+    template<auto StateConfPtr>
+    const auto& state_from_conf_ptr() const
+    {
+        return static_state_from_conf_ptr<StateConfPtr>(*this);
     }
 
     //Note: We use static to factorize const and non-const Region
-    template<const auto& StateConf, class Region>
+    template<class State, class Region>
     static auto& static_state(Region& self)
     {
-        constexpr auto state_index = tlu::index_of_v<state_conf_constant_list, cref_constant<StateConf>>;
+        static constexpr auto state_index =
+            region_detail::find_state_v<state_type_list, State>
+        ;
         return tuple_get<state_index>(self.states_);
     }
 
     //Note: We use static to factorize const and non-const Region
-    template<const auto& StateRegionPath, const auto& StateConf, class Region>
-    static auto& static_state_data(Region& self)
+    template<const auto& StateConf, class Region>
+    static auto& static_state_from_conf(Region& self)
     {
-        using state_region_path_t = std::decay_t<decltype(StateRegionPath)>;
+        static constexpr auto state_index =
+            region_detail::find_state_from_conf_v<state_type_list, StateConf>
+        ;
+        return tuple_get<state_index>(self.states_);
+    }
 
-        if constexpr(tlu::size_v<state_region_path_t> == 0)
+    //Note: We use static to factorize const and non-const Region
+    template<auto StateConfPtr, class Region>
+    static auto& static_state_from_conf_ptr(Region& self)
+    {
+        static constexpr auto state_index =
+            region_detail::find_state_from_conf_ptr_v<state_type_list, StateConfPtr>
+        ;
+        return tuple_get<state_index>(self.states_);
+    }
+
+    //Note: We use static to factorize const and non-const Region
+    template<const auto& StatePath, class Region>
+    static auto& static_data(Region& self)
+    {
+        if constexpr(StatePath.size() == 1)
         {
-            return static_state<StateConf>(self).data();
+            return static_state_from_conf_ptr<path_raw_head(StatePath)>(self).data();
         }
         else
         {
-            constexpr const auto& submach_conf = tlu::front_t<state_region_path_t>::machine_conf;
-            constexpr auto submachine_index = tlu::index_of_v<typename Region::state_conf_constant_list, cref_constant<submach_conf>>;
-            auto& submach = tuple_get<submachine_index>(self.states_);
-            return submach.template state_data<StateRegionPath, StateConf>(); //recursive
+            static constexpr auto psubmach_conf = path_raw_head(StatePath);
+            static constexpr auto state_path_tail = path_tail(StatePath);
+            return static_state_from_conf_ptr<psubmach_conf>(self).template data<state_path_tail>();
         }
     }
 
     state_tuple_type states_;
-    int active_state_index_ = region_detail::index_of_state_conf_v<state_conf_constant_list, state_confs::stopped>;
+    int active_state_index_ = region_detail::stopped_state_index;
 };
 
 } //namespace

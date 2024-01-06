@@ -69,7 +69,7 @@ namespace
         constexpr auto can_access_state2 = maki::guard_c<can_access_state2_0> != maki::guard_c<can_access_state2_1>;
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::idle, events::start, states::state0, maki::noop, guards::can_access_state0>
         .add_c<states::idle, events::start, states::state1, maki::noop, guards::can_access_state1>
         .add_c<states::idle, events::start, states::state2, maki::noop, guards::can_access_state2>
@@ -81,15 +81,12 @@ namespace
         .add_c<states::state3, events::stop, states::idle>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf_c
-            .transition_tables(transition_table)
-            .context<context>()
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::make_machine<machine_conf>;
 }
 
 TEST_CASE("guard operators")
@@ -105,25 +102,25 @@ TEST_CASE("guard operators")
        ctx.can_access_state0_0 = false;
        ctx.can_access_state0_1 = false;
        machine.process_event(events::start{});
-       REQUIRE(machine.is_active_state<states::idle>());
+       REQUIRE(machine.active_state<states::idle>());
 
        machine.process_event(events::stop{});
        ctx.can_access_state0_0 = false;
        ctx.can_access_state0_1 = true;
        machine.process_event(events::start{});
-       REQUIRE(machine.is_active_state<states::idle>());
+       REQUIRE(machine.active_state<states::idle>());
 
        machine.process_event(events::stop{});
        ctx.can_access_state0_0 = true;
        ctx.can_access_state0_1 = false;
        machine.process_event(events::start{});
-       REQUIRE(machine.is_active_state<states::idle>());
+       REQUIRE(machine.active_state<states::idle>());
 
        machine.process_event(events::stop{});
        ctx.can_access_state0_0 = true;
        ctx.can_access_state0_1 = true;
        machine.process_event(events::start{});
-       REQUIRE(machine.is_active_state<states::state0>());
+       REQUIRE(machine.active_state<states::state0>());
     }
 
     SECTION("or")
@@ -132,25 +129,25 @@ TEST_CASE("guard operators")
        ctx.can_access_state1_0 = false;
        ctx.can_access_state1_1 = false;
        machine.process_event(events::start{});
-       REQUIRE(machine.is_active_state<states::idle>());
+       REQUIRE(machine.active_state<states::idle>());
 
        machine.process_event(events::stop{});
        ctx.can_access_state1_0 = false;
        ctx.can_access_state1_1 = true;
        machine.process_event(events::start{});
-       REQUIRE(machine.is_active_state<states::state1>());
+       REQUIRE(machine.active_state<states::state1>());
 
        machine.process_event(events::stop{});
        ctx.can_access_state1_0 = true;
        ctx.can_access_state1_1 = false;
        machine.process_event(events::start{});
-       REQUIRE(machine.is_active_state<states::state1>());
+       REQUIRE(machine.active_state<states::state1>());
 
        machine.process_event(events::stop{});
        ctx.can_access_state1_0 = true;
        ctx.can_access_state1_1 = true;
        machine.process_event(events::start{});
-       REQUIRE(machine.is_active_state<states::state1>());
+       REQUIRE(machine.active_state<states::state1>());
     }
 
     SECTION("xor")
@@ -159,25 +156,25 @@ TEST_CASE("guard operators")
        ctx.can_access_state2_0 = false;
        ctx.can_access_state2_1 = false;
        machine.process_event(events::start{});
-       REQUIRE(machine.is_active_state<states::idle>());
+       REQUIRE(machine.active_state<states::idle>());
 
        machine.process_event(events::stop{});
        ctx.can_access_state2_0 = false;
        ctx.can_access_state2_1 = true;
        machine.process_event(events::start{});
-       REQUIRE(machine.is_active_state<states::state2>());
+       REQUIRE(machine.active_state<states::state2>());
 
        machine.process_event(events::stop{});
        ctx.can_access_state2_0 = true;
        ctx.can_access_state2_1 = false;
        machine.process_event(events::start{});
-       REQUIRE(machine.is_active_state<states::state2>());
+       REQUIRE(machine.active_state<states::state2>());
 
        machine.process_event(events::stop{});
        ctx.can_access_state2_0 = true;
        ctx.can_access_state2_1 = true;
        machine.process_event(events::start{});
-       REQUIRE(machine.is_active_state<states::idle>());
+       REQUIRE(machine.active_state<states::idle>());
     }
 
     SECTION("not")
@@ -185,11 +182,11 @@ TEST_CASE("guard operators")
        machine.process_event(events::stop{});
        ctx.cant_access_state3 = true;
        machine.process_event(events::start{});
-       REQUIRE(machine.is_active_state<states::idle>());
+       REQUIRE(machine.active_state<states::idle>());
 
        machine.process_event(events::stop{});
        ctx.cant_access_state3 = false;
        machine.process_event(events::start{});
-       REQUIRE(machine.is_active_state<states::state3>());
+       REQUIRE(machine.active_state<states::state3>());
     }
 }

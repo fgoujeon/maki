@@ -55,10 +55,10 @@ struct context
 };
 
 //States
-constexpr auto idle = maki::state_conf_c;
-constexpr auto starting = maki::state_conf_c;
-constexpr auto running = maki::state_conf_c;
-constexpr auto stopping = maki::state_conf_c;
+constexpr auto idle = maki::state_conf{};
+constexpr auto starting = maki::state_conf{};
+constexpr auto running = maki::state_conf{};
+constexpr auto stopping = maki::state_conf{};
 
 //Actions
 void start_motor(context& ctx)
@@ -71,7 +71,7 @@ void stop_motor(context& ctx)
 }
 
 //Transition table
-constexpr auto transition_table = maki::transition_table_c
+constexpr auto transition_table = maki::transition_table{}
     //     source state, event,                         target state, action
     .add_c<idle,         user_interface::start_request, starting,     start_motor>
     .add_c<starting,     motor::start_event,            running>
@@ -80,16 +80,13 @@ constexpr auto transition_table = maki::transition_table_c
 ;
 
 //State machine configuration
-struct machine_conf_holder
-{
-    static constexpr auto conf = maki::machine_conf_c
-        .transition_tables(transition_table)
-        .context<context>()
-    ;
-};
+constexpr auto machine_conf = maki::machine_conf{}
+    .transition_tables(transition_table)
+    .context<context>()
+;
 
 //State machine
-using machine_t = maki::machine<machine_conf_holder>;
+using machine_t = maki::make_machine<machine_conf>;
 
 int main()
 {
@@ -109,31 +106,31 @@ int main()
 int main()
 {
     auto machine = machine_t{};
-    if(machine.is_active_state<idle>())
+    if(machine.active_state<idle>())
     {
         std::cout << "1\n";
     }
 
     machine.process_event(user_interface::start_request{});
-    if(machine.is_active_state<starting>())
+    if(machine.active_state<starting>())
     {
         std::cout << "2\n";
     }
 
     machine.process_event(motor::start_event{});
-    if(machine.is_active_state<running>())
+    if(machine.active_state<running>())
     {
         std::cout << "3\n";
     }
 
     machine.process_event(user_interface::stop_request{});
-    if(machine.is_active_state<stopping>())
+    if(machine.active_state<stopping>())
     {
         std::cout << "4\n";
     }
 
     machine.process_event(motor::stop_event{});
-    if(machine.is_active_state<idle>())
+    if(machine.active_state<idle>())
     {
         std::cout << "5\n";
     }

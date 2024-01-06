@@ -33,20 +33,17 @@ namespace
         }
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::off, events::button_press, states::on,  maki::noop, guards::is_pressing_hard>
         .add_c<states::on,  events::button_press, states::off, maki::noop>
     ;
 
-    struct machine_conf_holder
-    {
-        static constexpr auto conf = maki::machine_conf_c
-            .transition_tables(transition_table)
-            .context<context>()
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+    ;
 
-    using machine_t = maki::machine<machine_conf_holder>;
+    using machine_t = maki::make_machine<machine_conf>;
 }
 
 TEST_CASE("check_event")
@@ -54,13 +51,13 @@ TEST_CASE("check_event")
     auto machine = machine_t{};
     machine.start();
 
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.active_state<states::off>());
     REQUIRE(!machine.check_event(events::button_press{})); // should fail guard
     REQUIRE(machine.check_event(events::button_press{true}));
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.active_state<states::off>());
 
     machine.process_event(events::button_press{true});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.active_state<states::on>());
     REQUIRE(machine.check_event(events::button_press{}));
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.active_state<states::on>());
 }

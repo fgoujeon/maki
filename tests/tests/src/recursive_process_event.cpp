@@ -9,8 +9,8 @@
 
 namespace
 {
-    struct machine_def;
-    using machine_t = maki::machine<machine_def>;
+    struct machine_conf_holder;
+    using machine_t = maki::machine<machine_conf_holder>;
 
     struct context
     {
@@ -26,7 +26,7 @@ namespace
 
     namespace states
     {
-        constexpr auto s0 = maki::state_conf_c
+        constexpr auto s0 = maki::state_conf{}
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -43,7 +43,7 @@ namespace
             )
         ;
 
-        constexpr auto s1 = maki::state_conf_c
+        constexpr auto s1 = maki::state_conf{}
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -60,7 +60,7 @@ namespace
             )
         ;
 
-        constexpr auto s2 = maki::state_conf_c
+        constexpr auto s2 = maki::state_conf{}
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -101,15 +101,15 @@ namespace
         };
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::s0, events::s0_to_s1_request, states::s1, actions::s0_to_s1>
         .add_c<states::s1, events::s1_to_s2_request, states::s2, actions::s1_to_s2>
         .add_c<states::s2, events::s2_to_s0_request, states::s0>
     ;
 
-    struct machine_def
+    struct machine_conf_holder
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)
             .context<context>()
         ;

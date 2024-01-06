@@ -27,7 +27,7 @@ namespace
     {
         EMPTY_STATE(idle)
 
-        constexpr auto english = maki::state_conf_c
+        constexpr auto english = maki::state_conf{}
             .entry_action_c
             (
                 [](context& ctx)
@@ -51,7 +51,7 @@ namespace
             )
         ;
 
-        constexpr auto french = maki::state_conf_c
+        constexpr auto french = maki::state_conf{}
             .entry_action_m
             (
                 [](auto& mach)
@@ -76,21 +76,18 @@ namespace
         ;
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::idle,    events::next_language_request, states::english>
         .add_c<states::english, events::next_language_request, states::french>
         .add_c<states::french,  events::next_language_request, states::idle>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf_c
-            .transition_tables(transition_table)
-            .context<context>()
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::make_machine<machine_conf>;
 }
 
 TEST_CASE("entry_action_event_exit")
@@ -100,37 +97,37 @@ TEST_CASE("entry_action_event_exit")
 
     machine.start();
 
-    REQUIRE(machine.is_active_state<states::idle>());
+    REQUIRE(machine.active_state<states::idle>());
     REQUIRE(ctx.hello == "");
     REQUIRE(ctx.dog == "");
     REQUIRE(ctx.goodbye == "");
 
     machine.process_event(events::next_language_request{});
-    REQUIRE(machine.is_active_state<states::english>());
+    REQUIRE(machine.active_state<states::english>());
     REQUIRE(ctx.hello == "hello");
     REQUIRE(ctx.dog == "");
     REQUIRE(ctx.goodbye == "");
 
     machine.process_event(events::say_dog{});
-    REQUIRE(machine.is_active_state<states::english>());
+    REQUIRE(machine.active_state<states::english>());
     REQUIRE(ctx.hello == "hello");
     REQUIRE(ctx.dog == "dog");
     REQUIRE(ctx.goodbye == "");
 
     machine.process_event(events::next_language_request{});
-    REQUIRE(machine.is_active_state<states::french>());
+    REQUIRE(machine.active_state<states::french>());
     REQUIRE(ctx.hello == "bonjour");
     REQUIRE(ctx.dog == "dog");
     REQUIRE(ctx.goodbye == "goodbye");
 
     machine.process_event(events::say_dog{});
-    REQUIRE(machine.is_active_state<states::french>());
+    REQUIRE(machine.active_state<states::french>());
     REQUIRE(ctx.hello == "bonjour");
     REQUIRE(ctx.dog == "chien");
     REQUIRE(ctx.goodbye == "goodbye");
 
     machine.process_event(events::next_language_request{});
-    REQUIRE(machine.is_active_state<states::idle>());
+    REQUIRE(machine.active_state<states::idle>());
     REQUIRE(ctx.hello == "bonjour");
     REQUIRE(ctx.dog == "chien");
     REQUIRE(ctx.goodbye == "au revoir");

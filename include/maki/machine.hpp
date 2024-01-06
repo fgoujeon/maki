@@ -12,8 +12,9 @@
 #ifndef MAKI_MACHINE_HPP
 #define MAKI_MACHINE_HPP
 
+#include "conf_holder.hpp"
 #include "machine_conf.hpp"
-#include "region_path.hpp"
+#include "path.hpp"
 #include "detail/noinline.hpp"
 #include "detail/submachine.hpp"
 #include "detail/function_queue.hpp"
@@ -125,46 +126,27 @@ public:
         return submachine_.context();
     }
 
+    template<const auto& MachineOrStatePath = empty_path_c>
     auto& data()
     {
-        return submachine_.data();
+        return submachine_.template data<MachineOrStatePath>();
     }
 
-    /**
-    @brief Returns the state of type `State` instantiated by the region
-    indicated by `RegionPath`.
-    @tparam RegionPath an instance of @ref region_path pointing to the
-    region of interest (see @ref RegionPath)
-    @tparam State the state type
-    */
-    template<const auto& RegionPath, const auto& StateConf>
-    auto& state_data()
+    template<const auto& MachineOrStatePath = empty_path_c>
+    const auto& data() const
     {
-        return submachine_.template state_data<RegionPath, StateConf>();
-    }
-
-    /**
-    @brief Returns the state of type `State` instantiated by the region
-    indicated by `RegionPath`.
-    @tparam RegionPath an instance of @ref region_path pointing to the
-    region of interest (see @ref RegionPath)
-    @tparam State the state type
-    */
-    template<const auto& RegionPath, const auto& StateConf>
-    const auto& state_data() const
-    {
-        return submachine_.template state_data<RegionPath, StateConf>();
+        return submachine_.template data<MachineOrStatePath>();
     }
 
     /**
     @brief Returns whether the region indicated by `RegionPath` is running.
-    @tparam RegionPath an instance of @ref region_path pointing to the
-    region of interest (see @ref RegionPath)
+    @tparam RegionPath an instance of @ref path pointing to the
+    region of interest
     */
     template<const auto& RegionPath>
-    [[nodiscard]] bool is_running() const
+    [[nodiscard]] bool running() const
     {
-        return submachine_.template is_running<RegionPath>();
+        return submachine_.template running<RegionPath>();
     }
 
     /**
@@ -172,22 +154,22 @@ public:
     This function can only be called if the state machine contains a single
     region.
     */
-    [[nodiscard]] bool is_running() const
+    [[nodiscard]] bool running() const
     {
-        return submachine_.is_running();
+        return submachine_.running();
     }
 
     /**
     @brief Returns whether `State` is active in the region indicated by
     `RegionPath`.
-    @tparam RegionPath an instance of @ref region_path pointing to the
-    region of interest (see @ref RegionPath)
+    @tparam RegionPath an instance of @ref path pointing to the
+    region of interest
     @tparam State the state type
     */
     template<const auto& RegionPath, const auto& StateConf>
-    [[nodiscard]] bool is_active_state() const
+    [[nodiscard]] bool active_state() const
     {
-        return submachine_.template is_active_state_def<RegionPath, StateConf>();
+        return submachine_.template active_state<RegionPath, StateConf>();
     }
 
     /**
@@ -197,9 +179,9 @@ public:
     @tparam State the state type
     */
     template<const auto& StateConf>
-    [[nodiscard]] bool is_active_state() const
+    [[nodiscard]] bool active_state() const
     {
-        return submachine_.template is_active_state_def<StateConf>();
+        return submachine_.template active_state<StateConf>();
     }
 
     /**
@@ -539,6 +521,9 @@ private:
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;
 };
+
+template<const auto& Conf>
+using make_machine = machine<conf_holder<Conf>>;
 
 } //namespace
 

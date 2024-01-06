@@ -35,38 +35,38 @@ namespace
             dat.counter += req.n;
         }
 
-        constexpr auto off = maki::state_conf_c
+        constexpr auto off = maki::state_conf{}
             .data<data>()
             .internal_action_de<events::accumulate_request>(&accumulate)
         ;
 
-        constexpr auto on = maki::state_conf_c
+        constexpr auto on = maki::state_conf{}
             .data<data>()
             .internal_action_de<events::accumulate_request>(&accumulate)
         ;
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::off, events::button_press, states::on>
         .add_c<states::on,  events::button_press, states::off>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf_c
-            .transition_tables(transition_table)
-            .context<context>()
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::make_machine<machine_conf>;
 }
 
 TEST_CASE("state_data_same_type")
 {
     auto machine = machine_t{};
-    auto& off_counter = machine.state_data<maki::region_path_c<machine_def::conf, 0>, states::off>().counter;
-    auto& on_counter = machine.state_data<maki::region_path_c<machine_def::conf, 0>, states::on>().counter;
+    static constexpr auto region_0_path = maki::path{0};
+    static constexpr auto off_path = region_0_path / states::off;
+    static constexpr auto on_path = region_0_path / states::on;
+    auto& off_counter = machine.data<off_path>().counter;
+    auto& on_counter = machine.data<on_path>().counter;
 
     REQUIRE(off_counter == 0);
     REQUIRE(on_counter == 0);

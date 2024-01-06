@@ -23,7 +23,7 @@ template<int Index, class T>
 struct tuple_element
 {
     template<class... Args>
-    explicit constexpr tuple_element(Args&... args):
+    explicit constexpr tuple_element(Args&&... args):
         value{args...}
     {
     }
@@ -45,19 +45,19 @@ struct tuple_base<std::integer_sequence<int, Indexes...>, Ts...>:
     constexpr tuple_base(tuple_base&& other) = delete;
 
     template<class... Args>
-    explicit constexpr tuple_base(distributed_construct_t /*tag*/, Args&... args):
+    explicit constexpr tuple_base(distributed_construct_t /*tag*/, Args&&... args):
         tuple_element<Indexes, Ts>{args}...
     {
     }
 
     template<class Arg>
-    constexpr tuple_base(uniform_construct_t /*tag*/, Arg& arg):
+    constexpr tuple_base(uniform_construct_t /*tag*/, Arg&& arg):
         tuple_element<Indexes, Ts>{arg}...
     {
     }
 
     template<class Arg0, class Arg1>
-    constexpr tuple_base(uniform_construct_t /*tag*/, Arg0& arg0, Arg1& arg1):
+    constexpr tuple_base(uniform_construct_t /*tag*/, Arg0& arg0, Arg1&& arg1):
         tuple_element<Indexes, Ts>{arg0, arg1}...
     {
     }
@@ -93,7 +93,7 @@ template<class T, class Tuple>
 constexpr auto& tuple_get(Tuple& tpl)
 {
     using tuple_t = std::decay_t<Tuple>;
-    constexpr auto element_index = tlu::index_of_v<tuple_t, T>;
+    constexpr auto element_index = tlu::find_v<tuple_t, T>;
     return tpl.tuple_element<element_index, T>::value;
 }
 
@@ -123,15 +123,28 @@ struct tuple_apply_impl;
 template<int... Indexes>
 struct tuple_apply_impl<std::integer_sequence<int, Indexes...>>
 {
+    template<class Tuple, class F>
+    static constexpr auto call(Tuple& tpl, const F& fun)
+    {
+        return fun(tuple_get<Indexes>(tpl)...);
+    }
+
     template<class Tuple, class F, class... ExtraArgs>
-    static auto call(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
+    static constexpr auto call(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
     {
         return fun(std::forward<ExtraArgs>(extra_args)..., tuple_get<Indexes>(tpl)...);
     }
 };
 
+template<class Tuple, class F>
+constexpr auto tuple_apply(Tuple& tpl, const F& fun)
+{
+    using impl_t = tuple_apply_impl<std::make_integer_sequence<int, Tuple::size>>;
+    return impl_t::call(tpl, fun);
+}
+
 template<class Tuple, class F, class... ExtraArgs>
-auto tuple_apply(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
+constexpr auto tuple_apply(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
 {
     using impl_t = tuple_apply_impl<std::make_integer_sequence<int, Tuple::size>>;
     return impl_t::call(tpl, fun, std::forward<ExtraArgs>(extra_args)...);

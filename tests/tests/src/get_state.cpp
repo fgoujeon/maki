@@ -39,7 +39,7 @@ namespace
             led_color color = led_color::red;
         };
 
-        constexpr auto emitting_red = maki::state_conf_c
+        constexpr auto emitting_red = maki::state_conf{}
             .data<emitting_red_data>()
             .entry_action_c<maki::any>
             (
@@ -56,7 +56,7 @@ namespace
             led_color color = led_color::green;
         };
 
-        constexpr auto emitting_green = maki::state_conf_c
+        constexpr auto emitting_green = maki::state_conf{}
             .data<emitting_green_data>()
             .entry_action_c<maki::any>
             (
@@ -73,7 +73,7 @@ namespace
             led_color color = led_color::blue;
         };
 
-        constexpr auto emitting_blue = maki::state_conf_c
+        constexpr auto emitting_blue = maki::state_conf{}
             .data<emitting_blue_data>()
             .entry_action_c<maki::any>
             (
@@ -84,7 +84,7 @@ namespace
             )
         ;
 
-        constexpr auto on_transition_table = maki::transition_table_c
+        constexpr auto on_transition_table = maki::transition_table{}
             .add_c<states::emitting_red,   events::color_button_press, states::emitting_green>
             .add_c<states::emitting_green, events::color_button_press, states::emitting_blue>
             .add_c<states::emitting_blue,  events::color_button_press, states::emitting_red>
@@ -95,7 +95,7 @@ namespace
             bool is_on_state = true;
         };
 
-        constexpr auto on = maki::submachine_conf_c
+        constexpr auto on = maki::submachine_conf{}
             .data<on_data>()
             .transition_tables(on_transition_table)
             .exit_action_c<maki::any>
@@ -108,20 +108,17 @@ namespace
         ;
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::off, events::power_button_press, states::on>
         .add_c<states::on,  events::power_button_press, states::off>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf_c
-            .transition_tables(transition_table)
-            .context<context>()
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::make_machine<machine_conf>;
 }
 
 TEST_CASE("state")
@@ -129,18 +126,20 @@ TEST_CASE("state")
     auto machine = machine_t{};
     const auto& const_sm = machine;
 
-    static constexpr auto root_region_path = maki::region_path_c<machine_def::conf, 0>;
-    static constexpr auto on_region_path = root_region_path.add<states::on, 0>();
+    static constexpr auto on_path = maki::path{0} / states::on;
+    static constexpr auto emitting_red_path = on_path / 0 / states::emitting_red;
+    static constexpr auto emitting_green_path = on_path / 0 / states::emitting_green;
+    static constexpr auto emitting_blue_path = on_path / 0 / states::emitting_blue;
 
-    auto& red_state = machine.state_data<on_region_path, states::emitting_red>();
+    auto& red_state = machine.data<emitting_red_path>();
     REQUIRE(red_state.color == led_color::red);
 
-    const auto& green_state = const_sm.state_data<on_region_path, states::emitting_green>();
+    const auto& green_state = const_sm.data<emitting_green_path>();
     REQUIRE(green_state.color == led_color::green);
 
-    auto& blue_state = machine.state_data<on_region_path, states::emitting_blue>();
+    auto& blue_state = machine.data<emitting_blue_path>();
     REQUIRE(blue_state.color == led_color::blue);
 
-    auto& on_state = machine.state_data<root_region_path, states::on>();
+    auto& on_state = machine.data<on_path>();
     REQUIRE(on_state.is_on_state);
 }

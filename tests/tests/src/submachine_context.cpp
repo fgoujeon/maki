@@ -49,15 +49,15 @@ namespace
 
             namespace emitting_red_ns
             {
-                constexpr auto emitting_cold_red = maki::state_conf_c;
+                constexpr auto emitting_cold_red = maki::state_conf{};
                 EMPTY_STATE(emitting_hot_red)
 
-                constexpr auto transition_table = maki::transition_table_c
+                constexpr auto transition_table = maki::transition_table{}
                     .add_c<emitting_cold_red, events::color_button_press, emitting_hot_red>
                 ;
             }
 
-            constexpr auto emitting_red = maki::submachine_conf_c
+            constexpr auto emitting_red = maki::submachine_conf{}
                 .transition_tables(emitting_red_ns::transition_table)
                 .entry_action_c<maki::any>
                 (
@@ -71,14 +71,14 @@ namespace
             EMPTY_STATE(emitting_green)
             EMPTY_STATE(emitting_blue)
 
-            constexpr auto transition_table = maki::transition_table_c
+            constexpr auto transition_table = maki::transition_table{}
                 .add_c<emitting_red,   events::color_button_press, emitting_green>
                 .add_c<emitting_green, events::color_button_press, emitting_blue>
                 .add_c<emitting_blue,  events::color_button_press, emitting_red>
             ;
         }
 
-        constexpr auto on = maki::submachine_conf_c
+        constexpr auto on = maki::submachine_conf{}
             .transition_tables(on_ns::transition_table)
             .context<on_ns::context>()
             .exit_action_c<maki::any>
@@ -91,46 +91,43 @@ namespace
         ;
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::off, events::power_button_press, states::on>
         .add_c<states::on,  events::power_button_press, states::off>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf_c
-            .transition_tables(transition_table)
-            .context<context>()
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::make_machine<machine_conf>;
 }
 
 TEST_CASE("submachine_context")
 {
-    static constexpr auto machine_on_region_path = maki::region_path_c<machine_def::conf, 0>.add<states::on, 0>();
+    static constexpr auto machine_on_path = maki::path{0} / states::on / 0;
 
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is_active_state<machine_on_region_path, states::on_ns::emitting_red>());
+    REQUIRE(machine.active_state<machine_on_path, states::on_ns::emitting_red>());
 
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.is_active_state<machine_on_region_path, states::on_ns::emitting_green>());
+    REQUIRE(machine.active_state<machine_on_path, states::on_ns::emitting_green>());
 
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.is_active_state<machine_on_region_path, states::on_ns::emitting_blue>());
+    REQUIRE(machine.active_state<machine_on_path, states::on_ns::emitting_blue>());
 
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.is_active_state<machine_on_region_path, states::on_ns::emitting_red>());
+    REQUIRE(machine.active_state<machine_on_path, states::on_ns::emitting_red>());
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.active_state<states::off>());
 
     REQUIRE(ctx.out == "2");
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.active_state<states::on>());
 }

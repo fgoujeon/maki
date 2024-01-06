@@ -19,10 +19,10 @@ struct some_other_event
 struct yet_another_event{};
 
 //States
-constexpr auto state0 = maki::state_conf_c;
-constexpr auto state1 = maki::state_conf_c;
+constexpr auto state0 = maki::state_conf{};
+constexpr auto state1 = maki::state_conf{};
 //! [short-in-state]
-constexpr auto state2 = maki::state_conf_c
+constexpr auto state2 = maki::state_conf{}
     //Entry action.
     //Called on state entry for state transitions caused by some_other_event.
     .entry_action_e<some_other_event>([](const some_other_event& event)
@@ -72,7 +72,7 @@ void some_other_action(context& /*ctx*/, const some_other_event& event)
 }
 
 //Transition table
-constexpr auto transition_table = maki::transition_table_c
+constexpr auto transition_table = maki::transition_table{}
     //     source state, event,             target state, action
     .add_c<state0,       some_event,        state1,       some_action /*state transition action*/>
     .add_c<state0,       some_other_event,  maki::null_c, some_other_action /*internal transition action*/>
@@ -83,17 +83,13 @@ constexpr auto transition_table = maki::transition_table_c
 //! [short-in-transition]
 
 //State machine configuration
-struct machine_conf_holder
-{
-    //The configuration of the state machine
-    static constexpr auto conf = maki::machine_conf_c
-        .transition_tables(transition_table)
-        .context<context>()
-    ;
-};
+constexpr auto machine_conf = maki::machine_conf{}
+    .transition_tables(transition_table)
+    .context<context>()
+;
 
 //State machine
-using machine_t = maki::machine<machine_conf_holder>;
+using machine_t = maki::make_machine<machine_conf>;
 
 int main()
 {

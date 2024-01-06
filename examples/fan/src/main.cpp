@@ -30,8 +30,8 @@ struct plus_button_press{};
 //! [events-and-datatypes]
 
 //States
-constexpr auto reading_memory = maki::state_conf_c;
-constexpr auto spinning_low = maki::state_conf_c
+constexpr auto reading_memory = maki::state_conf{};
+constexpr auto spinning_low = maki::state_conf{}
     .entry_action_v([]
     {
         std::cout << "Speed is low\n";
@@ -40,7 +40,7 @@ constexpr auto spinning_low = maki::state_conf_c
         //[Implementation detail...]
     })
 ;
-constexpr auto spinning_med = maki::state_conf_c
+constexpr auto spinning_med = maki::state_conf{}
     .entry_action_v([]
     {
         std::cout << "Speed is med\n";
@@ -49,7 +49,7 @@ constexpr auto spinning_med = maki::state_conf_c
         //[Implementation detail...]
     })
 ;
-constexpr auto spinning_high = maki::state_conf_c
+constexpr auto spinning_high = maki::state_conf{}
     .entry_action_v([]
     {
         std::cout << "Speed is high\n";
@@ -77,7 +77,7 @@ bool is_speed_high(context& /*ctx*/, const memory_read& event)
 
 //Transition table
 //! [transition-table]
-constexpr auto transition_table = maki::transition_table_c
+constexpr auto transition_table = maki::transition_table{}
     //     source state,   event,              target state,  action,     guard
     .add_c<reading_memory, memory_read,        spinning_low,  maki::noop, is_speed_low>
     .add_c<reading_memory, memory_read,        spinning_med,  maki::noop, is_speed_med>
@@ -90,17 +90,13 @@ constexpr auto transition_table = maki::transition_table_c
 //! [transition-table]
 
 //State machine configuration
-struct machine_conf_holder
-{
-    //The configuration of the state machine
-    static constexpr auto conf = maki::machine_conf_c
-        .transition_tables(transition_table)
-        .context<context>()
-    ;
-};
+constexpr auto machine_conf = maki::machine_conf{}
+    .transition_tables(transition_table)
+    .context<context>()
+;
 
 //State machine
-using machine_t = maki::machine<machine_conf_holder>;
+using machine_t = maki::make_machine<machine_conf>;
 
 int main()
 {

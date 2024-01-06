@@ -15,8 +15,8 @@ struct context{};
 struct button_press{};
 
 //States are constexpr objects (more about that later)
-constexpr auto off = maki::state_conf_c;
-constexpr auto on = maki::state_conf_c;
+constexpr auto off = maki::state_conf{};
+constexpr auto on = maki::state_conf{};
 
 //Actions are callables (more about that later)
 void turn_light_on()
@@ -30,28 +30,24 @@ void turn_light_off()
 
 //The transition table
 //! [transition-table]
-constexpr auto transition_table = maki::transition_table_c
+constexpr auto transition_table = maki::transition_table{}
     //     source state, event,        target state, action
     .add_c<off,          button_press, on,           turn_light_on>
     .add_c<on,           button_press, off,          turn_light_off>
 ;
 //! [transition-table]
 
-//The definition of the state machine
+//The configuration of the state machine
 //! [machine-def]
-struct machine_conf_holder
-{
-    //The configuration of the state machine
-    static constexpr auto conf = maki::machine_conf_c
-        .transition_tables(transition_table)
-        .context<context>()
-    ;
-};
+constexpr auto machine_conf = maki::machine_conf{}
+    .transition_tables(transition_table)
+    .context<context>()
+;
 //! [machine-def]
 
 //The state machine
 //! [machine]
-using machine_t = maki::machine<machine_conf_holder>;
+using machine_t = maki::make_machine<machine_conf>;
 //! [machine]
 
 int main()

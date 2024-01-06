@@ -17,7 +17,7 @@ namespace
 
     namespace states
     {
-        constexpr auto s0 = maki::state_conf_c
+        constexpr auto s0 = maki::state_conf{}
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -34,7 +34,7 @@ namespace
             )
         ;
 
-        constexpr auto s1 = maki::state_conf_c
+        constexpr auto s1 = maki::state_conf{}
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -57,21 +57,18 @@ namespace
         struct button_press{};
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::s0, maki::null,           states::s1>
         .add_c<states::s1, events::button_press, states::s0>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf_c
-            .transition_tables(transition_table)
-            .context<context>()
-            .auto_start(false)
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+        .auto_start(false)
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::make_machine<machine_conf>;
 }
 
 TEST_CASE("start_stop")
@@ -79,15 +76,15 @@ TEST_CASE("start_stop")
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
-    REQUIRE(!machine.is_running());
+    REQUIRE(!machine.running());
     REQUIRE(ctx.out == "");
 
     machine.start();
-    REQUIRE(machine.is_active_state<states::s1>());
+    REQUIRE(machine.active_state<states::s1>());
     REQUIRE(ctx.out == "s0::on_entry;s0::on_exit;s1::on_entry;");
 
     ctx.out.clear();
     machine.stop();
-    REQUIRE(!machine.is_running());
+    REQUIRE(!machine.running());
     REQUIRE(ctx.out == "s1::on_exit;");
 }

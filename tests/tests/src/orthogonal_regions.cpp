@@ -31,7 +31,7 @@ namespace orthogonal_regions_ns
         EMPTY_STATE(off0)
         EMPTY_STATE(off1)
         EMPTY_STATE(on0)
-        constexpr auto on1 = maki::state_conf_c
+        constexpr auto on1 = maki::state_conf{}
             .internal_action_c<events::exception_request>
             (
                 [](context& ctx)
@@ -45,51 +45,48 @@ namespace orthogonal_regions_ns
         ;
     }
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf_c
-            .transition_tables
-            (
-                maki::transition_table_c
-                    .add_c<states::off0, events::button_press, states::on0>,
-                maki::transition_table_c
-                    .add_c<states::off1, events::button_press, states::on1>
-            )
-            .context<context>()
-            .exception_action_me
-            (
-                [](auto& mach, const std::exception_ptr& eptr)
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables
+        (
+            maki::transition_table{}
+                .add_c<states::off0, events::button_press, states::on0>,
+            maki::transition_table{}
+                .add_c<states::off1, events::button_press, states::on1>
+        )
+        .context<context>()
+        .exception_action_me
+        (
+            [](auto& mach, const std::exception_ptr& eptr)
+            {
+                try
                 {
-                    try
-                    {
-                        std::rethrow_exception(eptr);
-                    }
-                    catch(const std::exception& e)
-                    {
-                        mach.context().out += std::string{"on_exception:"} + e.what() + ";";
-                    }
+                    std::rethrow_exception(eptr);
                 }
-            )
-            .pre_state_transition_action_crset
-            (
-                [](context& ctx, const auto& region_path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
+                catch(const std::exception& e)
                 {
-                    constexpr auto region_index = maki::detail::tlu::get_t<std::decay_t<decltype(region_path_constant.value)>, 0>::region_index;
-                    ctx.out += "before_state_transition[" + std::to_string(region_index) + "];";
+                    mach.context().out += std::string{"on_exception:"} + e.what() + ";";
                 }
-            )
-            .post_state_transition_action_crset
-            (
-                [](context& ctx, const auto& region_path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
-                {
-                    constexpr auto region_index = maki::detail::tlu::get_t<std::decay_t<decltype(region_path_constant.value)>, 0>::region_index;
-                    ctx.out += "after_state_transition[" + std::to_string(region_index) + "];";
-                }
-            )
-        ;
-    };
+            }
+        )
+        .pre_state_transition_action_crset
+        (
+            [](context& ctx, const auto& path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
+            {
+                const auto region_index = path_constant.value.template at<1>();
+                ctx.out += "before_state_transition[" + std::to_string(region_index) + "];";
+            }
+        )
+        .post_state_transition_action_crset
+        (
+            [](context& ctx, const auto& path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
+            {
+                const auto region_index = path_constant.value.template at<1>();
+                ctx.out += "after_state_transition[" + std::to_string(region_index) + "];";
+            }
+        )
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::make_machine<machine_conf>;
 }
 
 TEST_CASE("orthogonal_regions")
@@ -99,18 +96,18 @@ TEST_CASE("orthogonal_regions")
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
-    static constexpr auto machine_region_0_path = maki::region_path_c<machine_def::conf, 0>;
-    static constexpr auto machine_region_1_path = maki::region_path_c<machine_def::conf, 1>;
+    static constexpr auto machine_region_0_path = maki::path{0};
+    static constexpr auto machine_region_1_path = maki::path{1};
 
     machine.start();
-    REQUIRE(machine.is_active_state<machine_region_0_path, states::off0>());
-    REQUIRE(machine.is_active_state<machine_region_1_path, states::off1>());
+    REQUIRE(machine.active_state<machine_region_0_path, states::off0>());
+    REQUIRE(machine.active_state<machine_region_1_path, states::off1>());
     REQUIRE(ctx.out == "before_state_transition[0];after_state_transition[0];before_state_transition[1];after_state_transition[1];");
 
     ctx.out.clear();
     machine.process_event(events::button_press{});
-    REQUIRE(machine.is_active_state<machine_region_0_path, states::on0>());
-    REQUIRE(machine.is_active_state<machine_region_1_path, states::on1>());
+    REQUIRE(machine.active_state<machine_region_0_path, states::on0>());
+    REQUIRE(machine.active_state<machine_region_1_path, states::on1>());
     REQUIRE(ctx.out == "before_state_transition[0];after_state_transition[0];before_state_transition[1];after_state_transition[1];");
 
     ctx.out.clear();

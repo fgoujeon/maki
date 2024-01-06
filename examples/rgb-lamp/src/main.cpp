@@ -76,7 +76,7 @@ States are represented by constexpr objects.
 */
 namespace states
 {
-    constexpr auto off = maki::state_conf_c
+    constexpr auto off = maki::state_conf{}
         /*
         Entry action invoked whenever the state machine enters the `off` state
         with a `button::push_event`.
@@ -124,7 +124,7 @@ namespace states
     {
         int counter = 0;
     };
-    constexpr auto emitting_white = maki::state_conf_c
+    constexpr auto emitting_white = maki::state_conf{}
         .data<emitting_white_data>()
         .entry_action_d([](emitting_white_data& data)
         {
@@ -135,9 +135,9 @@ namespace states
     /*
     These are minimal valid state classes.
     */
-    constexpr auto emitting_red = maki::state_conf_c;
-    constexpr auto emitting_green = maki::state_conf_c;
-    constexpr auto emitting_blue = maki::state_conf_c;
+    constexpr auto emitting_red = maki::state_conf{};
+    constexpr auto emitting_green = maki::state_conf{};
+    constexpr auto emitting_blue = maki::state_conf{};
 }
 
 /*
@@ -212,7 +212,7 @@ When a match is found, Maki:
 The initial active state of the state machine is the first state encountered in
 the transition table (`off`, is our case).
 */
-constexpr auto transition_table = maki::transition_table_c
+constexpr auto transition_table = maki::transition_table{}
     //     source_state,         event,       target_state,   action,           guard
     .add_c<off,                  button_push, emitting_white, turn_light_white>
     .add_c<emitting_white,       button_push, emitting_red,   turn_light_red,   is_short_push>
@@ -223,22 +223,19 @@ constexpr auto transition_table = maki::transition_table_c
 ;
 
 /*
-We have to define this struct to configure our state machine.
-Here, we just specify the transition table, but we can configure many other
-aspects of the state machine.
+We have to define this variable to configure our state machine.
+Here, we just specify the transition table and the context type, but we can
+configure many other aspects of the state machine.
 */
-struct machine_conf_holder
-{
-    static constexpr auto conf = maki::machine_conf_c
-        .transition_tables(transition_table)
-        .context<context>()
-    ;
-};
+constexpr auto machine_conf = maki::machine_conf{}
+    .transition_tables(transition_table)
+    .context<context>()
+;
 
 /*
 We finally have our configured state machine.
 */
-using machine_t = maki::machine<machine_conf_holder>;
+using machine_t = maki::make_machine<machine_conf>;
 
 int main()
 {
@@ -272,31 +269,31 @@ int main()
         std::cout << "OK\n";
     };
 
-    check(machine.is_active_state<states::off>());
+    check(machine.active_state<states::off>());
     check(ctx.led.get_color() == rgb_led::color::off);
 
     simulate_push(200);
-    check(machine.is_active_state<states::emitting_white>());
+    check(machine.active_state<states::emitting_white>());
     check(ctx.led.get_color() == rgb_led::color::white);
 
     simulate_push(200);
-    check(machine.is_active_state<states::emitting_red>());
+    check(machine.active_state<states::emitting_red>());
     check(ctx.led.get_color() == rgb_led::color::red);
 
     simulate_push(200);
-    check(machine.is_active_state<states::emitting_green>());
+    check(machine.active_state<states::emitting_green>());
     check(ctx.led.get_color() == rgb_led::color::green);
 
     simulate_push(200);
-    check(machine.is_active_state<states::emitting_blue>());
+    check(machine.active_state<states::emitting_blue>());
     check(ctx.led.get_color() == rgb_led::color::blue);
 
     simulate_push(200);
-    check(machine.is_active_state<states::emitting_white>());
+    check(machine.active_state<states::emitting_white>());
     check(ctx.led.get_color() == rgb_led::color::white);
 
     simulate_push(1500);
-    check(machine.is_active_state<states::off>());
+    check(machine.active_state<states::off>());
     check(ctx.led.get_color() == rgb_led::color::off);
 
     std::cout << "Test succeeded\n";

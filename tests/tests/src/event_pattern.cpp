@@ -34,38 +34,35 @@ namespace
             events::alert_button_press
         >;
 
-        return maki::transition_table_c
+        return maki::transition_table{}
             .add_c<states::off, any_button_press,           states::on>
             .add_c<states::on,  events::power_button_press, states::off>
         ;
     }
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf_c
-            .transition_tables(make_sm_transition_table())
-            .context<context>()
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(make_sm_transition_table())
+        .context<context>()
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::make_machine<machine_conf>;
 }
 
 TEST_CASE("event_pattern")
 {
     auto machine = machine_t{};
 
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.active_state<states::off>());
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.active_state<states::on>());
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.active_state<states::off>());
 
     machine.process_event(events::alert_button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.active_state<states::on>());
 
     machine.process_event(events::alert_button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.active_state<states::on>());
 }

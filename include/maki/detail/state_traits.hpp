@@ -10,6 +10,7 @@
 #include "submachine_fwd.hpp"
 #include "simple_state_fwd.hpp"
 #include "tlu.hpp"
+#include "same_ref.hpp"
 #include "../type_patterns.hpp"
 #include "../submachine_conf.hpp"
 #include <type_traits>
@@ -53,7 +54,7 @@ private:
         >;
     };
 
-    using first_matching_action_type = tlu::find_t
+    using first_matching_action_type = tlu::find_if_or_t
     <
         decltype(State::conf.internal_actions_),
         takes_event,
@@ -70,6 +71,32 @@ public:
 
 template<class State, class Event>
 constexpr auto requires_on_event_v = requires_on_event<State, Event>::value;
+
+
+//has_conf
+
+template<const auto& Conf>
+struct for_conf
+{
+    template<class T>
+    struct has_conf
+    {
+        static constexpr auto value = same_ref(T::conf, Conf);
+    };
+};
+
+
+//has_conf_ptr
+
+template<auto ConfPtr>
+struct for_conf_ptr
+{
+    template<class T>
+    struct has_conf_ptr
+    {
+        static constexpr auto value = &T::conf == static_cast<const void*>(ConfPtr);
+    };
+};
 
 } //namespace
 

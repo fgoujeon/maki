@@ -9,8 +9,8 @@
 
 namespace
 {
-    struct machine_def;
-    using machine_t = maki::machine<machine_def>;
+    struct machine_conf_holder;
+    using machine_t = maki::machine<machine_conf_holder>;
 
     enum class led_color
     {
@@ -41,7 +41,7 @@ namespace
             context& ctx;
         };
 
-        constexpr auto emitting_red = maki::state_conf_c
+        constexpr auto emitting_red = maki::state_conf{}
             .data<emitting_red_data>()
             .entry_action_c<maki::any>
             (
@@ -58,7 +58,7 @@ namespace
             context& ctx;
         };
 
-        constexpr auto emitting_green = maki::state_conf_c
+        constexpr auto emitting_green = maki::state_conf{}
             .data<emitting_green_data>()
             .entry_action_c<maki::any>
             (
@@ -75,7 +75,7 @@ namespace
             context& ctx;
         };
 
-        constexpr auto emitting_blue = maki::state_conf_c
+        constexpr auto emitting_blue = maki::state_conf{}
             .data<emitting_blue_data>()
             .entry_action_c<maki::any>
             (
@@ -86,13 +86,13 @@ namespace
             )
         ;
 
-        constexpr auto on_transition_table = maki::transition_table_c
+        constexpr auto on_transition_table = maki::transition_table{}
             .add_c<states::emitting_red,   events::color_button_press, states::emitting_green>
             .add_c<states::emitting_green, events::color_button_press, states::emitting_blue>
             .add_c<states::emitting_blue,  events::color_button_press, states::emitting_red>
         ;
 
-        constexpr auto on = maki::submachine_conf_c
+        constexpr auto on = maki::submachine_conf{}
             .transition_tables(on_transition_table)
             .exit_action_c<maki::any>
             (
@@ -104,14 +104,14 @@ namespace
         ;
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::off, events::power_button_press, states::on>
         .add_c<states::on,  events::power_button_press, states::off>
     ;
 
-    struct machine_def
+    struct machine_conf_holder
     {
-        static constexpr auto conf = maki::machine_conf_c
+        static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)
             .context<context>()
         ;
@@ -120,35 +120,35 @@ namespace
 
 TEST_CASE("submachine")
 {
-    static constexpr auto machine_on_region_path = maki::region_path_c<machine_def::conf, 0>.add<states::on, 0>();
+    static constexpr auto machine_on_path = maki::path{0} / states::on / 0;
 
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
     machine.start();
 
-    REQUIRE(machine.is_active_state<states::off>());
-    REQUIRE(!machine.is_running<machine_on_region_path>());
+    REQUIRE(machine.active_state<states::off>());
+    REQUIRE(!machine.running<machine_on_path>());
     REQUIRE(ctx.current_led_color == led_color::off);
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
-    REQUIRE(machine.is_active_state<machine_on_region_path, states::emitting_red>());
+    REQUIRE(machine.active_state<states::on>());
+    REQUIRE(machine.active_state<machine_on_path, states::emitting_red>());
     REQUIRE(ctx.current_led_color == led_color::red);
 
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.active_state<states::on>());
     REQUIRE(ctx.current_led_color == led_color::green);
 
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.active_state<states::on>());
     REQUIRE(ctx.current_led_color == led_color::blue);
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is_active_state<states::off>());
+    REQUIRE(machine.active_state<states::off>());
     REQUIRE(ctx.current_led_color == led_color::off);
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is_active_state<states::on>());
+    REQUIRE(machine.active_state<states::on>());
     REQUIRE(ctx.current_led_color == led_color::red);
 }

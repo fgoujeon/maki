@@ -23,7 +23,7 @@ namespace
 
     namespace states
     {
-        constexpr auto idle = maki::state_conf_c
+        constexpr auto idle = maki::state_conf{}
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -47,7 +47,7 @@ namespace
             )
         ;
 
-        constexpr auto running = maki::state_conf_c
+        constexpr auto running = maki::state_conf{}
             .entry_action_c<maki::any>
             (
                 [](context& ctx)
@@ -80,21 +80,18 @@ namespace
         }
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::idle,    events::power_button_press, states::running>
         .add_c<states::running, events::power_button_press, states::idle>
         .add_c<states::running, events::beep_button_press,  maki::null_c, actions::beep>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf_c
-            .transition_tables(transition_table)
-            .context<context>()
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::make_machine<machine_conf>;
 }
 
 TEST_CASE("internal_transition_in_transition_table")

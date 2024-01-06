@@ -33,7 +33,7 @@ namespace
         EMPTY_STATE(state8)
         EMPTY_STATE(state9)
 
-        constexpr auto benchmarking = maki::state_conf_c
+        constexpr auto benchmarking = maki::state_conf{}
             .internal_action_c<events::internal_transition>
             (
                 [](context& ctx)
@@ -44,7 +44,7 @@ namespace
         ;
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::state0, events::next_state, states::state1>
         .add_c<states::state1, events::next_state, states::state2>
         .add_c<states::state2, events::next_state, states::state3>
@@ -57,16 +57,13 @@ namespace
         .add_c<states::state9, events::next_state, states::benchmarking>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf_c
-            .transition_tables(transition_table)
-            .context<context>()
-            .run_to_completion(false)
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+        .run_to_completion(false)
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::make_machine<machine_conf>;
 }
 
 TEST_CASE("internal transition")
@@ -80,7 +77,7 @@ TEST_CASE("internal transition")
     {
         machine.process_event(events::next_state{});
     }
-    REQUIRE(machine.is_active_state<states::benchmarking>());
+    REQUIRE(machine.active_state<states::benchmarking>());
 
     machine.process_event(events::internal_transition{});
     REQUIRE(ctx.side_effect == 1);

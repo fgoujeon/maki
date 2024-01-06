@@ -14,15 +14,15 @@ namespace pretty_name_ns
     template<class T, class U>
     class templ{};
 
-    constexpr auto state = maki::state_conf_c
+    constexpr auto state = maki::state_conf{}
         .pretty_name("my_state")
     ;
 
-    constexpr auto submachine_transition_table = maki::transition_table_c
+    constexpr auto submachine_transition_table = maki::transition_table{}
         .add_c<state, maki::null, maki::null_c>
     ;
 
-    constexpr auto submachine = maki::submachine_conf_c
+    constexpr auto submachine = maki::submachine_conf{}
         .transition_tables(submachine_transition_table)
         .pretty_name("my_submachine")
     ;
@@ -31,22 +31,19 @@ namespace pretty_name_ns
     {
     };
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<state, maki::null, maki::null_c>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::submachine_conf_c
-            .transition_tables(transition_table)
-            .context<context>()
-            .pretty_name("my_sm")
-        ;
-    };
+    constexpr auto machine_conf = maki::submachine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+        .pretty_name("my_sm")
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::make_machine<machine_conf>;
 
-    struct region_path{};
+    struct path{};
 }
 
 TEST_CASE("pretty_name")
@@ -65,7 +62,7 @@ TEST_CASE("pretty_name")
 
     REQUIRE
     (
-        maki::pretty_name<pretty_name_ns::machine_def>() ==
+        maki::pretty_name<pretty_name_ns::machine_conf>() ==
         std::string_view{"my_sm"}
     );
 

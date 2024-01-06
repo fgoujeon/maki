@@ -25,7 +25,7 @@ namespace
         EMPTY_STATE(s4)
     }
 
-    constexpr auto transition_table = maki::transition_table_c
+    constexpr auto transition_table = maki::transition_table{}
         .add_c<states::s0, events::go_on, states::s1>
         .add_c<states::s1, maki::null,  states::s2>
         .add_c<states::s2, events::go_on, states::s3>
@@ -33,15 +33,12 @@ namespace
         .add_c<states::s4, maki::null,  states::s0>
     ;
 
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf_c
-            .transition_tables(transition_table)
-            .context<context>()
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context<context>()
+    ;
 
-    using machine_t = maki::machine<machine_def>;
+    using machine_t = maki::make_machine<machine_conf>;
 }
 
 TEST_CASE("anonymous transition")
@@ -51,8 +48,8 @@ TEST_CASE("anonymous transition")
     machine.start();
 
     machine.process_event(events::go_on{});
-    REQUIRE(machine.is_active_state<states::s2>());
+    REQUIRE(machine.active_state<states::s2>());
 
     machine.process_event(events::go_on{});
-    REQUIRE(machine.is_active_state<states::s0>());
+    REQUIRE(machine.active_state<states::s0>());
 }

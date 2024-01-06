@@ -125,8 +125,8 @@ public:
         }
         else
         {
-            static constexpr int region_index = StatePath.raw_head();
-            static constexpr auto state_path_tail = StatePath.tail();
+            static constexpr int region_index = path_raw_head(StatePath);
+            static constexpr auto state_path_tail = path_tail(StatePath);
             return tuple_get<region_index>(regions_).template data<state_path_tail>();
         }
     }
@@ -140,8 +140,8 @@ public:
         }
         else
         {
-            static constexpr int region_index = StatePath.raw_head();
-            static constexpr auto state_path_tail = StatePath.tail();
+            static constexpr int region_index = path_raw_head(StatePath);
+            static constexpr auto state_path_tail = path_tail(StatePath);
             return tuple_get<region_index>(regions_).template data<state_path_tail>();
         }
     }
@@ -149,8 +149,8 @@ public:
     template<const auto& StateRegionPath, const auto& StateConf>
     [[nodiscard]] bool active_state() const
     {
-        static constexpr auto region_index = StateRegionPath.head();
-        static constexpr auto state_region_relative_path = StateRegionPath.tail();
+        static constexpr auto region_index = path_raw_head(StateRegionPath);
+        static constexpr auto state_region_relative_path = path_tail(StateRegionPath);
         return tuple_get<region_index>(regions_).template active_state<state_region_relative_path, StateConf>();
     }
 

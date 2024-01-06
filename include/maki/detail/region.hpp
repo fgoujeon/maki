@@ -115,8 +115,8 @@ public:
         }
         else
         {
-            static constexpr auto psubmach_conf = RegionPath.raw_head();
-            static constexpr auto region_path_tail = RegionPath.tail();
+            static constexpr auto psubmach_conf = path_raw_head(RegionPath);
+            static constexpr auto region_path_tail = path_tail(RegionPath);
             const auto& submach = state_from_conf_ptr<psubmach_conf>();
             return submach.template active_state<region_path_tail, StateConf>();
         }
@@ -665,12 +665,12 @@ private:
     {
         if constexpr(StatePath.size() == 1)
         {
-            return static_state_from_conf_ptr<StatePath.raw_head()>(self).data();
+            return static_state_from_conf_ptr<path_raw_head(StatePath)>(self).data();
         }
         else
         {
-            static constexpr auto psubmach_conf = StatePath.raw_head();
-            static constexpr auto state_path_tail = StatePath.tail();
+            static constexpr auto psubmach_conf = path_raw_head(StatePath);
+            static constexpr auto state_path_tail = path_tail(StatePath);
             return static_state_from_conf_ptr<psubmach_conf>(self).template data<state_path_tail>();
         }
     }

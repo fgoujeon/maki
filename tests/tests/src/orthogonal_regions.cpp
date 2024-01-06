@@ -72,7 +72,7 @@ namespace orthogonal_regions_ns
         (
             [](context& ctx, const auto& path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
             {
-                const auto region_index = path_constant.value.tail().head();
+                const auto region_index = path_constant.value.template at<1>();
                 ctx.out += "before_state_transition[" + std::to_string(region_index) + "];";
             }
         )
@@ -80,7 +80,7 @@ namespace orthogonal_regions_ns
         (
             [](context& ctx, const auto& path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
             {
-                const auto region_index = path_constant.value.tail().head();
+                const auto region_index = path_constant.value.template at<1>();
                 ctx.out += "after_state_transition[" + std::to_string(region_index) + "];";
             }
         )

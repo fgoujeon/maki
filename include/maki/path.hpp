@@ -69,6 +69,24 @@ namespace detail
     {
         return elem;
     }
+
+    template<int Index, class Path>
+    [[nodiscard]] constexpr auto path_raw_at(Path& pth)
+    {
+        return pth.template raw_at<Index>();
+    }
+
+    template<class Path>
+    [[nodiscard]] constexpr auto path_raw_head(Path& pth)
+    {
+        return path_raw_at<0>(pth);
+    }
+
+    template<class Path>
+    [[nodiscard]] constexpr auto path_tail(Path& pth)
+    {
+        return pth.tail();
+    }
 }
 
 /**
@@ -121,23 +139,6 @@ public:
         return detail::from_path_storage(detail::tuple_get<Index>(elems_));
     }
 
-    [[nodiscard]] constexpr decltype(auto) head() const
-    {
-        return at<0>();
-    }
-
-    [[nodiscard]] constexpr auto tail() const
-    {
-        return tuple_apply
-        (
-            elems_,
-            [](const auto /*elem*/, const auto... elems)
-            {
-                return detail::make_path(detail::from_path_storage(elems)...);
-            }
-        );
-    }
-
     template<class Elem>
     [[nodiscard]] constexpr auto operator/(const Elem& elem) const
     {
@@ -152,27 +153,37 @@ public:
         );
     }
 
-#if MAKI_DETAIL_DOXYGEN
 private:
-#endif
+    template<class... Elems2>
+    friend constexpr auto detail::make_path(const Elems2&...);
+
+    template<int Index, class Path>
+    friend constexpr auto detail::path_raw_at(Path& pth);
+
+    template<class Path>
+    friend constexpr auto detail::path_tail(Path& pth);
+
+    constexpr explicit path(const detail::path_direct_construct_t /*tag*/, const Elems&... elems):
+        elems_(detail::distributed_construct, detail::to_path_storage(elems)...)
+    {
+    }
+
     template<int Index>
     [[nodiscard]] constexpr auto raw_at() const
     {
         return detail::tuple_get<Index>(elems_);
     }
 
-    [[nodiscard]] constexpr auto raw_head() const
+    [[nodiscard]] constexpr auto tail() const
     {
-        return raw_at<0>();
-    }
-
-private:
-    template<class... Elems2>
-    friend constexpr auto detail::make_path(const Elems2&...);
-
-    constexpr explicit path(const detail::path_direct_construct_t /*tag*/, const Elems&... elems):
-        elems_(detail::distributed_construct, detail::to_path_storage(elems)...)
-    {
+        return tuple_apply
+        (
+            elems_,
+            [](const auto /*elem*/, const auto... elems)
+            {
+                return detail::make_path(detail::from_path_storage(elems)...);
+            }
+        );
     }
 
     detail::tuple<typename detail::to_path_storage_type<Elems>::type...> elems_;
@@ -188,7 +199,7 @@ namespace detail
     template<const auto& Path, int Index>
     std::string path_element_to_string()
     {
-        constexpr decltype(auto) elem = Path.template at<Index>();
+        constexpr auto elem = path_raw_at<Index>(Path);
         using elem_type = std::decay_t<decltype(elem)>;
 
         if constexpr(std::is_same_v<elem_type, int>)
@@ -206,11 +217,11 @@ namespace detail
         {
             if constexpr(Index == 0)
             {
-                return std::string{maki::pretty_name<elem>()};
+                return std::string{maki::pretty_name<*elem>()};
             }
             else
             {
-                return '/' + std::string{maki::pretty_name<elem>()};
+                return '/' + std::string{maki::pretty_name<*elem>()};
             }
         }
     }

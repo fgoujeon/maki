@@ -11,7 +11,6 @@
 #include "tlu.hpp"
 #include "region.hpp"
 #include "maybe_bool_util.hpp"
-#include "machine_object_holder.hpp"
 #include "context_holder.hpp"
 #include "simple_state.hpp"
 #include "submachine_fwd.hpp"

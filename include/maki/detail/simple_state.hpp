@@ -8,7 +8,6 @@
 #define MAKI_DETAIL_SIMPLE_STATE_HPP
 
 #include "call_member.hpp"
-#include "machine_object_holder.hpp"
 #include "maybe_bool_util.hpp"
 #include "tlu.hpp"
 #include "../type_patterns.hpp"
@@ -49,20 +48,49 @@ public:
         typename option_set_type::data_type
     >;
 
-    template<class Machine, class Context>
+    template
+    <
+        class Machine,
+        class Context,
+        class U = data_type,
+        std::enable_if_t<is_brace_constructible<U, Machine&, Context&>, bool> = true
+    >
     simple_state(Machine& mach, Context& ctx):
-        data_holder_(mach, ctx)
+        data_{mach, ctx}
+    {
+    }
+
+    template
+    <
+        class Machine,
+        class Context,
+        class U = data_type,
+        std::enable_if_t<is_brace_constructible<U, Context&>, bool> = true
+    >
+    simple_state(Machine& /*mach*/, Context& ctx):
+        data_{ctx}
+    {
+    }
+
+    template
+    <
+        class Machine,
+        class Context,
+        class U = data_type,
+        std::enable_if_t<std::is_default_constructible_v<U>, bool> = true
+    >
+    simple_state(Machine& /*mach*/, Context& /*ctx*/)
     {
     }
 
     data_type& data()
     {
-        return data_holder_.get();
+        return data_;
     }
 
     const data_type& data() const
     {
-        return data_holder_.get();
+        return data_;
     }
 
     template<class Machine, class Context, class Event>
@@ -127,7 +155,7 @@ public:
     static constexpr const auto& conf = Conf;
 
 private:
-    machine_object_holder<data_type> data_holder_;
+    data_type data_;
 };
 
 } //namespace

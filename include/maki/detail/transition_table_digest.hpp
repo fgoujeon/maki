@@ -14,7 +14,6 @@
 #include "same_ref.hpp"
 #include "tlu.hpp"
 #include "tuple.hpp"
-#include "machine_object_holder.hpp"
 #include "state_traits.hpp"
 #include <type_traits>
 

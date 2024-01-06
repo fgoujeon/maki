@@ -63,12 +63,12 @@ public:
     /**
     @brief The state machine configuration type.
     */
-    using conf_type = std::decay_t<decltype(conf)>;
+    using option_set_type = std::decay_t<decltype(opts(conf))>;
 
     /**
     @brief The state machine context type.
     */
-    using context_type = typename conf_type::context_type;
+    using context_type = typename option_set_type::context_type;
 
     static_assert
     (
@@ -97,7 +97,7 @@ public:
     explicit machine(ContextArgs&&... ctx_args):
         submachine_(*this, std::forward<ContextArgs>(ctx_args)...)
     {
-        if constexpr(conf.auto_start_)
+        if constexpr(opts(conf).auto_start)
         {
             //start
             execute_operation_now<detail::machine_operation::start>(events::start{});
@@ -390,8 +390,8 @@ private:
         using type = detail::function_queue
         <
             machine&,
-            conf.small_event_max_size_,
-            conf.small_event_max_align_
+            opts(conf).small_event_max_size,
+            opts(conf).small_event_max_align
         >;
     };
     struct empty_holder
@@ -401,7 +401,7 @@ private:
     };
     using operation_queue_type = typename std::conditional_t
     <
-        conf.run_to_completion_,
+        opts(conf).run_to_completion,
         real_operation_queue_holder,
         empty_holder
     >::template type<>;
@@ -411,7 +411,7 @@ private:
     {
         try
         {
-            if constexpr(conf.run_to_completion_)
+            if constexpr(opts(conf).run_to_completion)
             {
                 if(!executing_operation_) //If call is not recursive
                 {
@@ -437,7 +437,7 @@ private:
     template<detail::machine_operation Operation, class Event>
     void execute_operation_now(const Event& event)
     {
-        if constexpr(conf.run_to_completion_)
+        if constexpr(opts(conf).run_to_completion)
         {
             auto grd = executing_operation_guard{*this};
 
@@ -470,13 +470,13 @@ private:
 
     void process_exception(const std::exception_ptr& eptr)
     {
-        if constexpr(std::is_same_v<typename conf_type::exception_action_type, detail::noop_ex>)
+        if constexpr(std::is_same_v<typename option_set_type::exception_action_type, detail::noop_ex>)
         {
             process_event(events::exception{eptr});
         }
         else
         {
-            conf.exception_action_(*this, eptr);
+            opts(conf).exception_action(*this, eptr);
         }
     }
 
@@ -493,7 +493,7 @@ private:
         }
         else
         {
-            if constexpr(std::is_same_v<typename conf_type::fallback_transition_action_tuple_type, detail::tuple<>>)
+            if constexpr(std::is_same_v<typename option_set_type::fallback_transition_action_tuple_type, detail::tuple<>>)
             {
                 submachine_.call_internal_action(*this, context(), event);
             }
@@ -506,7 +506,7 @@ private:
                     int dummy_data = 0;
                     call_state_action
                     (
-                        conf.fallback_transition_actions_,
+                        opts(conf).fallback_transition_actions,
                         *this,
                         context(),
                         dummy_data,

@@ -396,7 +396,7 @@ private:
         const Event& event
     )
     {
-        using machine_conf_type = std::decay_t<decltype(Machine::conf)>;
+        using machine_option_set_type = typename Machine::option_set_type;
 
         constexpr const auto& path = path_of_v<region>;
 
@@ -404,9 +404,9 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(!std::is_same_v<typename machine_conf_type::pre_state_transition_action_type, noop_ex>)
+            if constexpr(!std::is_same_v<typename machine_option_set_type::pre_state_transition_action_type, noop_ex>)
             {
-                Machine::conf.pre_state_transition_action_
+                opts(Machine::conf).pre_state_transition_action
                 (
                     ctx,
                     cref_constant_c<path>,
@@ -454,9 +454,9 @@ private:
                 );
             }
 
-            if constexpr(!std::is_same_v<typename machine_conf_type::post_state_transition_action_type, noop_ex>)
+            if constexpr(!std::is_same_v<typename machine_option_set_type::post_state_transition_action_type, noop_ex>)
             {
-                Machine::conf.post_state_transition_action_
+                opts(Machine::conf).post_state_transition_action
                 (
                     ctx,
                     cref_constant_c<path>,

@@ -41,12 +41,12 @@ template<const auto& Conf>
 class simple_state
 {
 public:
-    using conf_type = std::decay_t<decltype(Conf)>;
+    using option_set_type = std::decay_t<decltype(opts(Conf))>;
     using data_type = std::conditional_t
     <
-        std::is_void_v<typename conf_type::data_type>,
+        std::is_void_v<typename option_set_type::data_type>,
         null,
-        typename conf_type::data_type
+        typename option_set_type::data_type
     >;
 
     template<class Machine, class Context>
@@ -70,7 +70,7 @@ public:
     {
         call_state_action
         (
-            Conf.entry_actions_,
+            opts(Conf).entry_actions,
             mach,
             ctx,
             data(),
@@ -83,7 +83,7 @@ public:
     {
         call_state_action
         (
-            Conf.internal_actions_,
+            opts(Conf).internal_actions,
             mach,
             ctx,
             data(),
@@ -97,7 +97,7 @@ public:
     {
         call_state_action
         (
-            Conf.exit_actions_,
+            opts(Conf).exit_actions,
             mach,
             ctx,
             data(),
@@ -112,7 +112,7 @@ public:
 
         using first_matching_action_type = tlu::find_if_or_t
         <
-            decltype(Conf.internal_actions_),
+            decltype(opts(Conf).internal_actions),
             simple_state_detail::for_event<Event>::template takes_event,
             not_found
         >;

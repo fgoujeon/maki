@@ -25,36 +25,77 @@
 namespace maki
 {
 
+inline constexpr auto machine_conf_default_small_event_max_align = 8;
+inline constexpr auto machine_conf_default_small_event_max_size = 16;
+
+namespace detail
+{
+    template
+    <
+        class Context = void,
+        class Data = void,
+        class EntryActionTuple = detail::tuple<>,
+        class EventActionTuple = detail::tuple<>,
+        class ExitActionTuple = detail::tuple<>,
+        class ExceptionAction = detail::noop_ex,
+        class PreStateTransitionAction = detail::noop_ex,
+        class PostStateTransitionAction = detail::noop_ex,
+        class FallbackTransitionActionTuple = detail::tuple<>,
+        class TransitionTableTypeList = type_list<>
+    >
+    struct machine_conf_option_set
+    {
+        using data_type = Data;
+        using context_type = Context;
+        using exception_action_type = ExceptionAction;
+        using pre_state_transition_action_type = PreStateTransitionAction;
+        using post_state_transition_action_type = PostStateTransitionAction;
+        using fallback_transition_action_tuple_type = FallbackTransitionActionTuple;
+
+        bool auto_start = true;
+        EntryActionTuple entry_actions;
+        EventActionTuple internal_actions;
+        ExitActionTuple exit_actions;
+        PostStateTransitionAction post_state_transition_action;
+        PreStateTransitionAction pre_state_transition_action;
+        ExceptionAction exception_action;
+        FallbackTransitionActionTuple fallback_transition_actions;
+        std::string_view pretty_name;
+        bool run_to_completion = true;
+        std::size_t small_event_max_align = machine_conf_default_small_event_max_align;
+        std::size_t small_event_max_size = machine_conf_default_small_event_max_size;
+        TransitionTableTypeList transition_tables;
+    };
+}
+
 #ifdef MAKI_DETAIL_DOXYGEN
 /**
 @brief @ref machine configuration
 */
 template<IMPLEMENTATION_DETAIL>
 #else
-template
-<
-    class Context = void,
-    class Data = void,
-    class EntryActionTuple = detail::tuple<>,
-    class EventActionTuple = detail::tuple<>,
-    class ExitActionTuple = detail::tuple<>,
-    class ExceptionAction = detail::noop_ex,
-    class PreStateTransitionAction = detail::noop_ex,
-    class PostStateTransitionAction = detail::noop_ex,
-    class FallbackTransitionActionTuple = detail::tuple<>,
-    class TransitionTableTypeList = type_list<>
->
+template<class OptionSet = detail::machine_conf_option_set<>>
+#endif
+class machine_conf;
+
+namespace detail
+{
+    //Read access to options
+    template<class OptionSet>
+    constexpr const auto& opts(const machine_conf<OptionSet>& conf)
+    {
+        return conf.options_;
+    }
+}
+
+#ifdef MAKI_DETAIL_DOXYGEN
+template<IMPLEMENTATION_DETAIL>
+#else
+template<class OptionSet>
 #endif
 class machine_conf
 {
 public:
-    using data_type = Data;
-    using context_type = Context;
-    using exception_action_type = ExceptionAction;
-    using pre_state_transition_action_type = PreStateTransitionAction;
-    using post_state_transition_action_type = PostStateTransitionAction;
-    using fallback_transition_action_tuple_type = FallbackTransitionActionTuple;
-
     constexpr machine_conf() = default;
 
     machine_conf(const machine_conf&) = delete;
@@ -68,35 +109,38 @@ public:
     machine_conf& operator=(machine_conf&&) = delete;
 
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = auto_start_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type_c<context_type>; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<data_type>; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = entry_actions_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = internal_actions_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = exit_actions_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_state_transition_action = post_state_transition_action_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_state_transition_action = pre_state_transition_action_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_action = exception_action_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_fallback_transition_actions = fallback_transition_actions_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = pretty_name_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = run_to_completion_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_align = small_event_max_align_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_size = small_event_max_size_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = transition_tables_;
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = options_.auto_start; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type_c<typename OptionSet::context_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<typename OptionSet::data_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = options_.internal_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = options_.exit_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_state_transition_action = options_.post_state_transition_action; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_state_transition_action = options_.pre_state_transition_action; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_action = options_.exception_action; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_fallback_transition_actions = options_.fallback_transition_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = options_.pretty_name; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = options_.run_to_completion; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_align = options_.small_event_max_align; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_size = options_.small_event_max_size; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = options_.transition_tables;
 
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return machine_conf \
     < \
-        typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
-        typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_exception_action)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_pre_state_transition_action)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_post_state_transition_action)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_fallback_transition_actions)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
+        detail::machine_conf_option_set \
+        < \
+            typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
+            typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_exception_action)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_pre_state_transition_action)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_post_state_transition_action)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_fallback_transition_actions)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
+        > \
     > \
     { \
         MAKI_DETAIL_ARG_auto_start, \
@@ -390,7 +434,7 @@ public:
     {
         const auto new_fallback_transition_actions = tuple_append
         (
-            fallback_transition_actions_,
+            options_.fallback_transition_actions,
             detail::event_action<EventFilter, Action, detail::event_action_signature::me>{action}
         );
 
@@ -439,38 +483,21 @@ public:
 #undef MAKI_DETAIL_ARG_transition_tables
     }
 
-#if MAKI_DETAIL_DOXYGEN
+    constexpr const auto& storage() const
+    {
+        return *this;
+    }
+
 private:
-#endif
-    constexpr machine_conf
-    (
-        const bool auto_start,
-        const EntryActionTuple& entry_actions,
-        const EventActionTuple& internal_actions,
-        const ExitActionTuple& exit_actions,
-        const PostStateTransitionAction& post_state_transition_action,
-        const PreStateTransitionAction& pre_state_transition_action,
-        const ExceptionAction& exception_action,
-        const FallbackTransitionActionTuple& fallback_transition_actions,
-        const std::string_view pretty_name,
-        const bool run_to_completion,
-        const std::size_t small_event_max_align, //NOLINT(bugprone-easily-swappable-parameters)
-        const std::size_t small_event_max_size, //NOLINT(bugprone-easily-swappable-parameters)
-        const TransitionTableTypeList& transition_tables
-    ):
-        auto_start_(auto_start),
-        entry_actions_(entry_actions),
-        internal_actions_(internal_actions),
-        exit_actions_(exit_actions),
-        post_state_transition_action_(post_state_transition_action),
-        pre_state_transition_action_(pre_state_transition_action),
-        exception_action_(exception_action),
-        fallback_transition_actions_(fallback_transition_actions),
-        pretty_name_(pretty_name),
-        run_to_completion_(run_to_completion),
-        small_event_max_align_(small_event_max_align),
-        small_event_max_size_(small_event_max_size),
-        transition_tables_(transition_tables)
+    template<class OptionSet2>
+    friend class machine_conf;
+
+    template<class OptionSet2>
+    friend constexpr const auto& detail::opts(const machine_conf<OptionSet2>& conf);
+
+    template<class... Args>
+    constexpr machine_conf(Args&&... args):
+        options_{std::forward<Args>(args)...}
     {
     }
 
@@ -479,7 +506,7 @@ private:
     {
         const auto new_entry_actions = tuple_append
         (
-            entry_actions_,
+            options_.entry_actions,
             detail::event_action<EventFilter, Action, Sig>{action}
         );
 
@@ -494,7 +521,7 @@ private:
     {
         const auto new_internal_actions = tuple_append
         (
-            internal_actions_,
+            options_.internal_actions,
             detail::event_action<EventFilter, Action, Sig>{action}
         );
 
@@ -509,7 +536,7 @@ private:
     {
         const auto new_exit_actions = tuple_append
         (
-            exit_actions_,
+            options_.exit_actions,
             detail::event_action<EventFilter, Action, Sig>{action}
         );
 
@@ -522,19 +549,7 @@ private:
 #undef MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 
-    bool auto_start_ = true; //NOLINT(misc-non-private-member-variables-in-classes)
-    EntryActionTuple entry_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
-    EventActionTuple internal_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
-    ExitActionTuple exit_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
-    PostStateTransitionAction post_state_transition_action_; //NOLINT(misc-non-private-member-variables-in-classes)
-    PreStateTransitionAction pre_state_transition_action_; //NOLINT(misc-non-private-member-variables-in-classes)
-    ExceptionAction exception_action_; //NOLINT(misc-non-private-member-variables-in-classes)
-    FallbackTransitionActionTuple fallback_transition_actions_; //NOLINT(misc-non-private-member-variables-in-classes)
-    std::string_view pretty_name_; //NOLINT(misc-non-private-member-variables-in-classes)
-    bool run_to_completion_ = true; //NOLINT(misc-non-private-member-variables-in-classes)
-    std::size_t small_event_max_align_ = 8; //NOLINT(misc-non-private-member-variables-in-classes, cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-    std::size_t small_event_max_size_ = 16; //NOLINT(misc-non-private-member-variables-in-classes, cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-    TransitionTableTypeList transition_tables_; //NOLINT(misc-non-private-member-variables-in-classes)
+    OptionSet options_;
 };
 
 namespace detail

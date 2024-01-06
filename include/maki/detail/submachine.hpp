@@ -29,8 +29,8 @@ namespace maki::detail
 template<const auto& Conf, class ParentRegion>
 struct submachine_context
 {
-    using conf_type = std::decay_t<decltype(Conf)>;
-    using conf_context_type = typename conf_type::context_type;
+    using option_set_type = std::decay_t<decltype(opts(Conf))>;
+    using conf_context_type = typename option_set_type::context_type;
 
     /*
     Context type is either (in this order of priority):
@@ -49,7 +49,7 @@ struct submachine_context
 template<const auto& Conf>
 struct submachine_context<Conf, void>
 {
-    using type = typename std::decay_t<decltype(Conf)>::context_type;
+    using type = typename std::decay_t<decltype(opts(Conf))>::context_type;
 };
 
 template
@@ -84,9 +84,9 @@ template<const auto& Conf, class ParentRegion>
 class submachine
 {
 public:
-    using conf_type = std::decay_t<decltype(Conf)>;
+    using option_set_type = std::decay_t<decltype(opts(Conf))>;
     using context_type = typename submachine_context<Conf, ParentRegion>::type;
-    using transition_table_type_list = decltype(Conf.transition_tables_);
+    using transition_table_type_list = decltype(opts(Conf).transition_tables);
 
     template<class Machine, class... ContextArgs>
     submachine(Machine& mach, ContextArgs&&... ctx_args):
@@ -325,7 +325,7 @@ private:
     template<class Context>
     auto& own_context_or(Context& ctx)
     {
-        if constexpr(std::is_void_v<typename conf_type::context_type>)
+        if constexpr(std::is_void_v<typename option_set_type::context_type>)
         {
             return ctx;
         }
@@ -338,7 +338,7 @@ private:
     template<class Context>
     const auto& own_context_or(const Context& ctx) const
     {
-        if constexpr(std::is_void_v<typename conf_type::context_type>)
+        if constexpr(std::is_void_v<typename option_set_type::context_type>)
         {
             return ctx;
         }

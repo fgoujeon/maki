@@ -27,15 +27,17 @@ namespace detail
 {
     template
     <
-        class Data = void,
-        class EntryActionTuple = detail::tuple<>,
-        class InternalActionTuple = detail::tuple<>,
-        class ExitActionTuple = detail::tuple<>
+        class DataType = type<void>,
+        class EntryActionTuple = tuple<>,
+        class InternalActionTuple = tuple<>,
+        class ExitActionTuple = tuple<>,
+        class PrettyName = std::string_view
     >
     struct state_conf_option_set
     {
-        using data_type = Data;
+        using data_type = typename DataType::type;
 
+        DataType data_type_holder;
         EntryActionTuple entry_actions;
         InternalActionTuple internal_actions;
         ExitActionTuple exit_actions;
@@ -60,6 +62,13 @@ namespace detail
     constexpr const auto& opts(const state_conf<OptionSet>& conf)
     {
         return conf.options_;
+    }
+
+    template<class... Args>
+    constexpr auto make_state_conf(const Args&... args)
+    {
+        using option_set_t = state_conf_option_set<Args...>;
+        return state_conf<option_set_t>{args...};
     }
 }
 
@@ -91,22 +100,14 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = options_.pretty_name;
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    return state_conf \
-    < \
-        detail::state_conf_option_set \
-        < \
-            typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)> \
-        > \
-    > \
-    { \
+    return detail::make_state_conf \
+    ( \
+        MAKI_DETAIL_ARG_data_type, \
         MAKI_DETAIL_ARG_entry_actions, \
         MAKI_DETAIL_ARG_internal_actions, \
         MAKI_DETAIL_ARG_exit_actions, \
         MAKI_DETAIL_ARG_pretty_name_view \
-    };
+    );
 
     template<class Data2>
     [[nodiscard]] constexpr auto data() const
@@ -153,15 +154,18 @@ public:
     }
 
 private:
-    template<class Storage2>
+    template<class OptionSet2>
     friend class state_conf;
 
-    template<class Storage2>
-    friend constexpr const auto& detail::opts(const state_conf<Storage2>& conf);
+    template<class... Args>
+    friend constexpr auto detail::make_state_conf(const Args&... args);
+
+    template<class OptionSet2>
+    friend constexpr const auto& detail::opts(const state_conf<OptionSet2>& conf);
 
     template<class... Args>
-    constexpr state_conf(Args&&... args):
-        options_{std::forward<Args>(args)...}
+    constexpr state_conf(const Args&... args):
+        options_{args...}
     {
     }
 

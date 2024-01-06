@@ -11,7 +11,7 @@
 namespace
 {
     struct machine_conf_holder;
-    using machine_t = maki::machine_from_conf_holder<machine_conf_holder>;
+    using machine_t = maki::machine<machine_conf_holder>;
 
     struct context
     {

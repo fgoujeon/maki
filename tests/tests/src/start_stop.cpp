@@ -68,7 +68,7 @@ namespace
         .auto_start(false)
     ;
 
-    using machine_t = maki::machine<machine_conf>;
+    using machine_t = maki::make_machine<machine_conf>;
 }
 
 TEST_CASE("start_stop")

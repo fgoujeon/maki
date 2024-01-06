@@ -78,7 +78,7 @@ namespace
     };
 
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
-    using machine_t = maki::machine_from_conf_holder<machine_def<SmallEventMaxSize, SmallEventMaxAlign>>;
+    using machine_t = maki::machine<machine_def<SmallEventMaxSize, SmallEventMaxAlign>>;
 
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
     void test

@@ -6,18 +6,20 @@
 
 /**
 @file
-@brief Forward-declares the maki::machine class template.
-Useful for forward-declaring a user-defined machine.
+@brief Defines the maki::machine class template
 */
 
-#ifndef MAKI_MACHINE_FWD_HPP
-#define MAKI_MACHINE_FWD_HPP
+#ifndef MAKI_CONF_HOLDER_HPP
+#define MAKI_CONF_HOLDER_HPP
 
 namespace maki
 {
 
-template<class ConfHolder>
-class machine;
+template<const auto& Conf>
+struct conf_holder
+{
+    static constexpr const auto& conf = Conf;
+};
 
 } //namespace
 

@@ -88,7 +88,7 @@ namespace
         .context<context>()
     ;
 
-    using default_sm_t = maki::machine<default_machine_conf>;
+    using default_sm_t = maki::machine<maki::conf_holder<default_machine_conf>>;
 
     constexpr auto custom_machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
@@ -110,7 +110,7 @@ namespace
         )
     ;
 
-    using custom_sm_t = maki::machine<custom_machine_conf>;
+    using custom_sm_t = maki::machine<maki::conf_holder<custom_machine_conf>>;
 }
 
 TEST_CASE("on_exception")

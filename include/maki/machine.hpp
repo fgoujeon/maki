@@ -12,6 +12,7 @@
 #ifndef MAKI_MACHINE_HPP
 #define MAKI_MACHINE_HPP
 
+#include "conf_holder.hpp"
 #include "machine_conf.hpp"
 #include "path.hpp"
 #include "detail/noinline.hpp"
@@ -51,7 +52,7 @@ The state machine type itself can then be defined like so:
 @snippet lamp/src/main.cpp machine
 */
 template<class ConfHolder>
-class machine_from_conf_holder
+class machine
 {
 public:
     /**
@@ -93,7 +94,7 @@ public:
     called.
     */
     template<class... ContextArgs>
-    explicit machine_from_conf_holder(ContextArgs&&... ctx_args):
+    explicit machine(ContextArgs&&... ctx_args):
         submachine_(*this, std::forward<ContextArgs>(ctx_args)...)
     {
         if constexpr(conf.auto_start_)
@@ -103,11 +104,11 @@ public:
         }
     }
 
-    machine_from_conf_holder(const machine_from_conf_holder&) = delete;
-    machine_from_conf_holder(machine_from_conf_holder&&) = delete;
-    machine_from_conf_holder& operator=(const machine_from_conf_holder&) = delete;
-    machine_from_conf_holder& operator=(machine_from_conf_holder&&) = delete;
-    ~machine_from_conf_holder() = default;
+    machine(const machine&) = delete;
+    machine(machine&&) = delete;
+    machine& operator=(const machine&) = delete;
+    machine& operator=(machine&&) = delete;
+    ~machine() = default;
 
     /**
     @brief Returns the context instantiated at construction.
@@ -363,7 +364,7 @@ private:
     class executing_operation_guard
     {
     public:
-        executing_operation_guard(machine_from_conf_holder& self):
+        executing_operation_guard(machine& self):
             self_(self)
         {
             self_.executing_operation_ = true;
@@ -380,7 +381,7 @@ private:
         }
 
     private:
-        machine_from_conf_holder& self_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+        machine& self_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
     };
 
     struct real_operation_queue_holder
@@ -388,7 +389,7 @@ private:
         template<bool = true> //Dummy template for lazy evaluation
         using type = detail::function_queue
         <
-            machine_from_conf_holder&,
+            machine&,
             conf.small_event_max_size_,
             conf.small_event_max_align_
         >;
@@ -461,7 +462,7 @@ private:
     struct any_event_visitor
     {
         template<class Event>
-        static void call(const Event& event, machine_from_conf_holder& self)
+        static void call(const Event& event, machine& self)
         {
             self.execute_one_operation<Operation>(event);
         }
@@ -522,13 +523,7 @@ private:
 };
 
 template<const auto& Conf>
-struct conf_holder
-{
-    static constexpr const auto& conf = Conf;
-};
-
-template<const auto& Conf>
-using machine = machine_from_conf_holder<conf_holder<Conf>>;
+using make_machine = machine<conf_holder<Conf>>;
 
 } //namespace
 

@@ -36,7 +36,7 @@ namespace
 
     struct machine_conf_holder;
 
-    using machine_t = maki::machine_from_conf_holder<machine_conf_holder>;
+    using machine_t = maki::machine<machine_conf_holder>;
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)

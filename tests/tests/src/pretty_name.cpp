@@ -41,7 +41,7 @@ namespace pretty_name_ns
         .pretty_name("my_sm")
     ;
 
-    using machine_t = maki::machine<machine_conf>;
+    using machine_t = maki::make_machine<machine_conf>;
 
     struct path{};
 }

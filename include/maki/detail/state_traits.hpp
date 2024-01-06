@@ -36,43 +36,6 @@ template<const auto& StateConf, class Region>
 using state_conf_to_state_t = typename state_conf_to_state<StateConf, Region>::type;
 
 
-//requires_on_event
-
-template<class State, class Event>
-class requires_on_event
-{
-private:
-    struct not_found{};
-
-    template<class Action>
-    struct takes_event
-    {
-        static constexpr auto value = matches_pattern_v
-        <
-            Event,
-            typename Action::event_type_filter
-        >;
-    };
-
-    using first_matching_action_type = tlu::find_if_or_t
-    <
-        decltype(State::conf.internal_actions_),
-        takes_event,
-        not_found
-    >;
-
-public:
-    static constexpr bool value = !std::is_same_v
-    <
-        first_matching_action_type,
-        not_found
-    >;
-};
-
-template<class State, class Event>
-constexpr auto requires_on_event_v = requires_on_event<State, Event>::value;
-
-
 //has_conf
 
 template<const auto& Conf>

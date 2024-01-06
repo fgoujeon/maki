@@ -41,12 +41,12 @@ template<const auto& Conf>
 class simple_state
 {
 public:
-    using conf_type = std::decay_t<decltype(Conf)>;
+    using option_set_type = std::decay_t<decltype(opts(Conf))>;
     using data_type = std::conditional_t
     <
-        std::is_void_v<typename conf_type::data_type>,
+        std::is_void_v<typename option_set_type::data_type>,
         null,
-        typename conf_type::data_type
+        typename option_set_type::data_type
     >;
 
     template<class Machine, class Context>

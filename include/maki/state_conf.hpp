@@ -71,8 +71,6 @@ template<class OptionSet>
 class state_conf
 {
 public:
-    using data_type = typename OptionSet::data_type;
-
     constexpr state_conf() = default;
 
     state_conf(const state_conf&) = delete;
@@ -86,7 +84,7 @@ public:
     state_conf& operator=(state_conf&&) = delete;
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<data_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<typename OptionSet::data_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = options_.internal_actions_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = options_.exit_actions_; \

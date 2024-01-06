@@ -63,12 +63,12 @@ public:
     /**
     @brief The state machine configuration type.
     */
-    using conf_type = std::decay_t<decltype(conf)>;
+    using option_set_type = std::decay_t<decltype(opts(conf))>;
 
     /**
     @brief The state machine context type.
     */
-    using context_type = typename conf_type::context_type;
+    using context_type = typename option_set_type::context_type;
 
     static_assert
     (
@@ -470,7 +470,7 @@ private:
 
     void process_exception(const std::exception_ptr& eptr)
     {
-        if constexpr(std::is_same_v<typename conf_type::exception_action_type, detail::noop_ex>)
+        if constexpr(std::is_same_v<typename option_set_type::exception_action_type, detail::noop_ex>)
         {
             process_event(events::exception{eptr});
         }
@@ -493,7 +493,7 @@ private:
         }
         else
         {
-            if constexpr(std::is_same_v<typename conf_type::fallback_transition_action_tuple_type, detail::tuple<>>)
+            if constexpr(std::is_same_v<typename option_set_type::fallback_transition_action_tuple_type, detail::tuple<>>)
             {
                 submachine_.call_internal_action(*this, context(), event);
             }

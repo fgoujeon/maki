@@ -76,9 +76,6 @@ template<class OptionSet>
 class submachine_conf
 {
 public:
-    using data_type = typename OptionSet::data_type;
-    using context_type = typename OptionSet::context_type;
-
     constexpr submachine_conf() = default;
 
     submachine_conf(const submachine_conf&) = delete;
@@ -92,8 +89,8 @@ public:
     submachine_conf& operator=(submachine_conf&&) = delete;
 
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<data_type>; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type_c<context_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<typename OptionSet::data_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type_c<typename OptionSet::context_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = options_.internal_actions_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = options_.exit_actions_; \

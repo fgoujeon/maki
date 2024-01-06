@@ -93,13 +93,6 @@ template<class OptionSet>
 class machine_conf
 {
 public:
-    using data_type = typename OptionSet::data_type;
-    using context_type = typename OptionSet::context_type;
-    using exception_action_type = typename OptionSet::exception_action_type;
-    using pre_state_transition_action_type = typename OptionSet::pre_state_transition_action_type;
-    using post_state_transition_action_type = typename OptionSet::post_state_transition_action_type;
-    using fallback_transition_action_tuple_type = typename OptionSet::fallback_transition_action_tuple_type;
-
     constexpr machine_conf() = default;
 
     machine_conf(const machine_conf&) = delete;
@@ -114,8 +107,8 @@ public:
 
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = options_.auto_start_; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type_c<context_type>; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<data_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type_c<typename OptionSet::context_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<typename OptionSet::data_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = options_.internal_actions_; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = options_.exit_actions_; \

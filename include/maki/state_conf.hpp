@@ -13,7 +13,6 @@
 #define MAKI_STATE_CONF_HPP
 
 #include "type_patterns.hpp"
-#include "type_list.hpp"
 #include "type.hpp"
 #include "detail/event_action.hpp"
 #include "detail/tuple.hpp"

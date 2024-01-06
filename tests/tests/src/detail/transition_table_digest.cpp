@@ -40,7 +40,7 @@ namespace transition_table_digest_ns
         std::decay_t<decltype(transition_table)>
     >;
 
-    using state_conf_constant_list = maki::type_list
+    using state_conf_constant_list = maki::detail::type_list
     <
         maki::cref_constant<state0>,
         maki::cref_constant<state1>,

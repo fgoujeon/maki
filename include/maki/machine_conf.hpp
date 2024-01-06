@@ -14,11 +14,11 @@
 
 #include "transition_table.hpp"
 #include "type_patterns.hpp"
-#include "type_list.hpp"
 #include "type.hpp"
 #include "detail/noop_ex.hpp"
 #include "detail/event_action.hpp"
 #include "detail/tuple.hpp"
+#include "detail/type_list.hpp"
 #include "detail/tlu.hpp"
 #include <string_view>
 
@@ -478,7 +478,7 @@ public:
     [[nodiscard]] constexpr auto transition_tables(const TransitionTables&... /*tables*/) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_transition_tables type_list_c<TransitionTables...>
+#define MAKI_DETAIL_ARG_transition_tables detail::type_list_c<TransitionTables...>
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_transition_tables
     }

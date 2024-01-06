@@ -7,7 +7,6 @@
 #ifndef MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 #define MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 
-#include "../type_list.hpp"
 #include "../type_patterns.hpp"
 #include "../transition_table.hpp"
 #include "../events.hpp"
@@ -15,6 +14,7 @@
 #include "tlu.hpp"
 #include "tuple.hpp"
 #include "state_traits.hpp"
+#include "type_list.hpp"
 #include <type_traits>
 
 namespace maki::detail

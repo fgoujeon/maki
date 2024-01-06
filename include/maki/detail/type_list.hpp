@@ -9,10 +9,10 @@
 @brief Defines the maki::type_list struct template
 */
 
-#ifndef MAKI_TYPE_LIST_HPP
-#define MAKI_TYPE_LIST_HPP
+#ifndef MAKI_DETAIL_TYPE_LIST_HPP
+#define MAKI_DETAIL_TYPE_LIST_HPP
 
-namespace maki
+namespace maki::detail
 {
 
 /**

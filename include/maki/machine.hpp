@@ -326,7 +326,7 @@ public:
     template<class Event>
     MAKI_NOINLINE void enqueue_event(const Event& event)
     {
-        static_assert(conf.run_to_completion_);
+        static_assert(opts(conf).run_to_completion);
         try
         {
             enqueue_event_impl<detail::machine_operation::process_event>(event);

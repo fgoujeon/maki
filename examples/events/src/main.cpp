@@ -72,11 +72,11 @@ void stop_motor(context& ctx)
 
 //Transition table
 constexpr auto transition_table = maki::transition_table{}
-    //     source state, event,                         target state, action
-    .add_c<idle,         user_interface::start_request, starting,     start_motor>
-    .add_c<starting,     motor::start_event,            running>
-    .add_c<running,      user_interface::stop_request,  stopping,     stop_motor>
-    .add_c<stopping,     motor::stop_event,             idle>
+    //   source state, event,                         target state, action
+    .add<idle,         user_interface::start_request, starting,     start_motor>()
+    .add<starting,     motor::start_event,            running>()
+    .add<running,      user_interface::stop_request,  stopping,     stop_motor>()
+    .add<stopping,     motor::stop_event,             idle>()
 ;
 
 //State machine configuration

@@ -102,9 +102,9 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        .add_c<states::s0, events::s0_to_s1_request, states::s1, actions::s0_to_s1>
-        .add_c<states::s1, events::s1_to_s2_request, states::s2, actions::s1_to_s2>
-        .add_c<states::s2, events::s2_to_s0_request, states::s0>
+        .add<states::s0, events::s0_to_s1_request, states::s1, actions::s0_to_s1>()
+        .add<states::s1, events::s1_to_s2_request, states::s2, actions::s1_to_s2>()
+        .add<states::s2, events::s2_to_s0_request, states::s0>()
     ;
 
     struct machine_conf_holder

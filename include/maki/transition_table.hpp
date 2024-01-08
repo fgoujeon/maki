@@ -13,6 +13,7 @@
 #define MAKI_TRANSITION_TABLE_HPP
 
 #include "null.hpp"
+#include "detail/tuple.hpp"
 
 namespace maki
 {
@@ -64,46 +65,21 @@ inline constexpr bool yes()
     return true;
 }
 
-/**
-@brief Represents a possible state transition.
-
-Used as a template argument of @ref transition_table.
-
-@tparam SourceStatePattern the active state (or states, plural, if it's a @ref TypePatterns "type pattern") from which the transition can occur
-@tparam EventPattern the event type (or types, plural, if it's a @ref TypePatterns "type pattern") that can cause the transition to occur
-@tparam TargetState the state that becomes active after the transition occurs
-@tparam Action the function invoked when the transition occurs
-@tparam Guard the function that must return `true` for the transition to occur
-*/
-template
-<
-    const auto& SourceStateConfPattern,
-    class EventPattern,
-    const auto& TargetStateConf,
-    const auto& Action = noop,
-    const auto& Guard = yes
->
-struct transition
-{
-    using event_type_pattern = EventPattern;
-
-    static constexpr const auto& source_state_conf_pattern = SourceStateConfPattern;
-    static constexpr const auto& target_state_conf = TargetStateConf;
-    static constexpr const auto& action = Action;
-    static constexpr const auto& guard = Guard;
-};
-
-/**
-@brief Represents a transition table.
-
-@tparam Transitions the transitions, which must be instances of @ref transition
-*/
 template<class... Transitions>
-struct transition_table
+class transition_table;
+
+namespace detail
 {
     /**
-    A type alias to a @ref transition_table with an appended @ref transition.
-    See @ref transition for a description of the template parameters.
+    @brief Represents a possible state transition.
+
+    Used as a template argument of @ref transition_table.
+
+    @tparam SourceStatePattern the active state (or states, plural, if it's a @ref TypePatterns "type pattern") from which the transition can occur
+    @tparam EventPattern the event type (or types, plural, if it's a @ref TypePatterns "type pattern") that can cause the transition to occur
+    @tparam TargetState the state that becomes active after the transition occurs
+    @tparam Action the function invoked when the transition occurs
+    @tparam Guard the function that must return `true` for the transition to occur
     */
     template
     <
@@ -113,18 +89,86 @@ struct transition_table
         const auto& Action = noop,
         const auto& Guard = yes
     >
-    static constexpr auto add_c = transition_table
+    struct transition
+    {
+        using event_type_pattern = EventPattern;
+
+        static constexpr const auto& source_state_conf_pattern = SourceStateConfPattern;
+        static constexpr const auto& target_state_conf = TargetStateConf;
+        static constexpr const auto& action = Action;
+        static constexpr const auto& guard = Guard;
+    };
+
+    template<class... Transitions>
+    constexpr auto make_transition_table(const Transitions&... transitions)
+    {
+        return transition_table<Transitions...>{transitions...};
+    }
+}
+
+/**
+@brief Represents a transition table.
+
+@tparam Transitions the transitions, which must be instances of @ref transition
+*/
+template<class... Transitions>
+class transition_table
+{
+public:
+    constexpr transition_table() = default;
+
+    transition_table(const transition_table&) = delete;
+
+    transition_table(transition_table&&) = delete;
+
+    ~transition_table() = default;
+
+    transition_table& operator=(const transition_table&) = delete;
+
+    transition_table& operator=(transition_table&&) = delete;
+
+    template
     <
-        Transitions...,
-        transition
-        <
-            SourceStateConfPattern,
-            EventPattern,
-            TargetStateConf,
-            Action,
-            Guard
-        >
-    >{};
+        const auto& SourceStateConfPattern,
+        class EventPattern,
+        const auto& TargetStateConf,
+        const auto& Action = noop,
+        const auto& Guard = yes
+    >
+    constexpr auto add()
+    {
+        return tuple_apply
+        (
+            transitions_,
+            [](const auto... transitions)
+            {
+                return detail::make_transition_table
+                (
+                    transitions...,
+                    detail::transition
+                    <
+                        SourceStateConfPattern,
+                        EventPattern,
+                        TargetStateConf,
+                        Action,
+                        Guard
+                    >{}
+                );
+            }
+        );
+    }
+
+private:
+    template<class... Transitions2>
+    friend constexpr auto detail::make_transition_table(const Transitions2&...);
+
+    template<class... Transitions2>
+    constexpr explicit transition_table(const Transitions&... transitions):
+        transitions_{detail::distributed_construct, transitions...}
+    {
+    }
+
+    detail::tuple<Transitions...> transitions_;
 };
 
 /**

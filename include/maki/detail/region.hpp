@@ -293,6 +293,8 @@ private:
         static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
             static constexpr const auto& trans = TransitionConstant::value;
+            static constexpr auto action = trans.action;
+            static constexpr auto guard = trans.guard;
 
             if constexpr(is_type_pattern_v<std::decay_t<decltype(trans.source_state_conf_pattern)>>)
             {
@@ -312,8 +314,8 @@ private:
                     <
                         Dry,
                         trans.target_state_conf,
-                        trans.action,
-                        trans.guard
+                        action,
+                        guard
                     >
                 >(self, mach, ctx, event, extra_args...);
             }
@@ -323,8 +325,8 @@ private:
                 <
                     Dry,
                     trans.target_state_conf,
-                    trans.action,
-                    trans.guard
+                    action,
+                    guard
                 >::template call<cref_constant<trans.source_state_conf_pattern>>
                 (
                     self,

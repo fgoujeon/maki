@@ -100,15 +100,7 @@ constexpr auto& tuple_get(Tuple& tpl)
 }
 
 template<const auto& Tuple, int Index>
-struct tuple_static_get
-{
-    using tuple_t = std::decay_t<decltype(Tuple)>;
-    using type = tlu::get_t<tuple_t, Index>;
-    static constexpr auto value = Tuple.tuple_element<Index, type>::value;
-};
-
-template<const auto& Tuple, int Index>
-constexpr auto tuple_static_get_c = tuple_static_get<Tuple, Index>::value;
+constexpr auto tuple_static_get_copy_c = tuple_get<Index>(Tuple);
 
 template<class IndexSequence>
 struct tuple_append_impl;
@@ -169,7 +161,7 @@ struct tuple_to_constant_list_impl;
 template<const auto& Tuple, int... Indexes>
 struct tuple_to_constant_list_impl<Tuple, std::integer_sequence<int, Indexes...>>
 {
-    using type = type_list<cref_constant<tuple_static_get_c<Tuple, Indexes>>...>;
+    using type = type_list<cref_constant<tuple_static_get_copy_c<Tuple, Indexes>>...>;
 };
 
 template<const auto& Tuple>

@@ -70,6 +70,27 @@ class transition_table;
 
 namespace detail
 {
+    template<class R, class... Args>
+    using function_ptr = R(*)(Args...);
+
+    template<class R, class... Args>
+    using function_type = R(Args...);
+
+    template<class F>
+    struct storable_function
+    {
+        using type = F;
+    };
+
+    template<class R, class... Args>
+    struct storable_function<function_type<R, Args...>>
+    {
+        using type = function_ptr<R, Args...>;
+    };
+
+    template<class F>
+    using storable_function_t = typename storable_function<F>::type;
+
     /**
     @brief Represents a possible state transition.
 
@@ -95,8 +116,8 @@ namespace detail
 
         const SourceStateConfPattern& source_state_conf_pattern; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
         const TargetStateConf& target_state_conf; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
-        const Action& action; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
-        const Guard& guard; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+        Action action;
+        Guard guard;
     };
 
     template
@@ -115,7 +136,14 @@ namespace detail
         const Guard& guard
     )
     {
-        return transition<SourceStateConfPattern, EventPattern, TargetStateConf, Action, Guard>
+        return transition
+        <
+            SourceStateConfPattern,
+            EventPattern,
+            TargetStateConf,
+            storable_function_t<Action>,
+            storable_function_t<Guard>
+        >
         {
             source_state_conf_pattern,
             target_state_conf,
@@ -163,8 +191,8 @@ public:
         class SourceStateConfPattern,
         class EventPatternType,
         class TargetStateConf,
-        class Action = decltype(noop),
-        class Guard = decltype(yes)
+        class Action = void(*)(),
+        class Guard = bool(*)()
     >
     constexpr auto operator()
     (
@@ -178,7 +206,14 @@ public:
         return tuple_apply
         (
             transitions_,
-            [&](const auto&... transitions)
+            []
+            (
+                const SourceStateConfPattern& source_state_conf_pattern,
+                const TargetStateConf& target_state_conf,
+                const Action& action,
+                const Guard& guard,
+                const auto&... transitions
+            )
             {
                 return detail::make_transition_table
                 (
@@ -191,7 +226,11 @@ public:
                         guard
                     )
                 );
-            }
+            },
+            source_state_conf_pattern,
+            target_state_conf,
+            action,
+            guard
         );
     }
 

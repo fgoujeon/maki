@@ -83,21 +83,46 @@ namespace detail
     */
     template
     <
-        const auto& SourceStateConfPattern,
+        class SourceStateConfPattern,
         class EventPattern,
-        const auto& TargetStateConf,
-        const auto& Action = noop,
-        const auto& Guard = yes
+        class TargetStateConf,
+        class Action,
+        class Guard
     >
     struct transition
     {
         using event_type_pattern = EventPattern;
 
-        static constexpr const auto& source_state_conf_pattern = SourceStateConfPattern;
-        static constexpr const auto& target_state_conf = TargetStateConf;
-        static constexpr const auto& action = Action;
-        static constexpr const auto& guard = Guard;
+        const SourceStateConfPattern& source_state_conf_pattern; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+        const TargetStateConf& target_state_conf; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+        const Action& action; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+        const Guard& guard; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
     };
+
+    template
+    <
+        class EventPattern,
+        class SourceStateConfPattern,
+        class TargetStateConf,
+        class Action,
+        class Guard
+    >
+    constexpr auto make_transition
+    (
+        const SourceStateConfPattern& source_state_conf_pattern,
+        const TargetStateConf& target_state_conf,
+        const Action& action,
+        const Guard& guard
+    )
+    {
+        return transition<SourceStateConfPattern, EventPattern, TargetStateConf, Action, Guard>
+        {
+            source_state_conf_pattern,
+            target_state_conf,
+            action,
+            guard
+        };
+    }
 
     template<class... Transitions>
     constexpr auto make_transition_table(const Transitions&... transitions)
@@ -123,7 +148,7 @@ class transition_table
 public:
     constexpr transition_table() = default;
 
-    transition_table(const transition_table&) = default;
+    constexpr transition_table(const transition_table&) = default;
 
     transition_table(transition_table&&) = delete;
 
@@ -146,19 +171,18 @@ public:
         return tuple_apply
         (
             transitions_,
-            [](const auto... transitions)
+            [](const auto&... transitions)
             {
                 return detail::make_transition_table
                 (
                     transitions...,
-                    detail::transition
-                    <
+                    detail::make_transition<EventPattern>
+                    (
                         SourceStateConfPattern,
-                        EventPattern,
                         TargetStateConf,
                         Action,
                         Guard
-                    >{}
+                    )
                 );
             }
         );

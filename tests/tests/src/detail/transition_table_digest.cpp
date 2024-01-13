@@ -35,9 +35,13 @@ namespace transition_table_digest_ns
         .add<maki::any_c, event3, state0>()
     ;
 
+    constexpr auto transition_tuple = maki::detail::rows(transition_table);
+
+    using transition_constant_list = maki::detail::tuple_to_constant_list_t<transition_tuple>;
+
     using digest_t = maki::detail::transition_table_digest
     <
-        std::decay_t<decltype(transition_table)>
+        transition_constant_list
     >;
 
     using state_conf_constant_list = maki::detail::type_list

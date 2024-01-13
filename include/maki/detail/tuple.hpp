@@ -8,6 +8,8 @@
 #define MAKI_DETAIL_TUPLE_HPP
 
 #include "tlu.hpp"
+#include "type_list.hpp"
+#include "../cref_constant.hpp"
 #include <utility>
 
 namespace maki::detail
@@ -97,6 +99,17 @@ constexpr auto& tuple_get(Tuple& tpl)
     return tpl.tuple_element<element_index, T>::value;
 }
 
+template<const auto& Tuple, int Index>
+struct tuple_static_get
+{
+    using tuple_t = std::decay_t<decltype(Tuple)>;
+    using type = tlu::get_t<tuple_t, Index>;
+    static constexpr auto value = Tuple.tuple_element<Index, type>::value;
+};
+
+template<const auto& Tuple, int Index>
+constexpr auto tuple_static_get_c = tuple_static_get<Tuple, Index>::value;
+
 template<class IndexSequence>
 struct tuple_append_impl;
 
@@ -149,6 +162,24 @@ constexpr auto tuple_apply(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
     using impl_t = tuple_apply_impl<std::make_integer_sequence<int, Tuple::size>>;
     return impl_t::call(tpl, fun, std::forward<ExtraArgs>(extra_args)...);
 }
+
+template<const auto& Tuple, class IndexSequence>
+struct tuple_to_constant_list_impl;
+
+template<const auto& Tuple, int... Indexes>
+struct tuple_to_constant_list_impl<Tuple, std::integer_sequence<int, Indexes...>>
+{
+    using type = type_list<cref_constant<tuple_static_get_c<Tuple, Indexes>>...>;
+};
+
+template<const auto& Tuple>
+struct tuple_to_constant_list
+{
+    using type = typename tuple_to_constant_list_impl<Tuple, std::make_integer_sequence<int, Tuple.size>>::type;
+};
+
+template<const auto& Tuple>
+using tuple_to_constant_list_t = typename tuple_to_constant_list<Tuple>::type;
 
 } //namespace
 

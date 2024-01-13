@@ -7,8 +7,6 @@
 #ifndef MAKI_DETAIL_CREF_CONSTANT_HPP
 #define MAKI_DETAIL_CREF_CONSTANT_HPP
 
-#include <type_traits>
-
 namespace maki
 {
 
@@ -18,7 +16,10 @@ namespace maki
 Maki uses this template to pass such references as type template arguments.
 */
 template<const auto& Value>
-using cref_constant = std::integral_constant<decltype(Value), Value>;
+struct cref_constant
+{
+    static constexpr const auto& value = Value;
+};
 
 template<const auto& Value>
 constexpr auto cref_constant_c = cref_constant<Value>{};

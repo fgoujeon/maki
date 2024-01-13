@@ -475,10 +475,11 @@ public:
     transmission table is created.
     */
     template<class... TransitionTables>
-    [[nodiscard]] constexpr auto transition_tables(const TransitionTables&... /*tables*/) const
+    [[nodiscard]] constexpr auto transition_tables(const TransitionTables&... tables) const
     {
+        const auto tpl = detail::tuple<TransitionTables...>{detail::distributed_construct, tables...};
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_transition_tables detail::type_list_c<TransitionTables...>
+#define MAKI_DETAIL_ARG_transition_tables tpl
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_transition_tables
     }

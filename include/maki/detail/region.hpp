@@ -86,6 +86,8 @@ public:
     region(Machine& mach, ParentSm& parent_sm):
         states_(uniform_construct, mach, parent_sm.context())
     {
+        //int auinertsa = 0;
+        //const transition_constant_list* auinerstauie = &auinertsa;
     }
 
     region(const region&) = delete;
@@ -192,10 +194,14 @@ public:
     }
 
 private:
+    static constexpr auto transition_table = tuple_get<Index>(opts(ParentSm::conf).transition_tables);
+    static constexpr auto transition_tuple = detail::rows(transition_table);
+    using transition_constant_list = tuple_to_constant_list_t<transition_tuple>;
+
     using transition_table_type = tlu::get_t<typename ParentSm::transition_table_type_list, Index>;
 
     using transition_table_digest_type =
-        detail::transition_table_digest<transition_table_type>
+        detail::transition_table_digest<transition_constant_list>
     ;
 
     using state_conf_constant_list = typename transition_table_digest_type::state_conf_constant_list;

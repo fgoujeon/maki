@@ -104,6 +104,12 @@ namespace detail
     {
         return transition_table<Transitions...>{transitions...};
     }
+
+    template<class... Transitions>
+    constexpr const auto& rows(const transition_table<Transitions...>& table)
+    {
+        return table.transitions_;
+    }
 }
 
 /**
@@ -117,7 +123,7 @@ class transition_table
 public:
     constexpr transition_table() = default;
 
-    transition_table(const transition_table&) = delete;
+    transition_table(const transition_table&) = default;
 
     transition_table(transition_table&&) = delete;
 
@@ -161,6 +167,9 @@ public:
 private:
     template<class... Transitions2>
     friend constexpr auto detail::make_transition_table(const Transitions2&...);
+
+    template<class... Transitions2>
+    friend constexpr const auto& detail::rows(const transition_table<Transitions2...>&);
 
     template<class... Transitions2>
     constexpr explicit transition_table(const Transitions&... transitions):

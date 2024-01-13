@@ -81,9 +81,9 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        .add<states::idle,    events::power_button_press, states::running>()
-        .add<states::running, events::power_button_press, states::idle>()
-        .add<states::running, events::beep_button_press,  maki::null_c, actions::beep>()
+        (states::idle,    maki::event<events::power_button_press>, states::running)
+        (states::running, maki::event<events::power_button_press>, states::idle)
+        (states::running, maki::event<events::beep_button_press>,  maki::null_c, actions::beep)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

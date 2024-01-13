@@ -27,7 +27,7 @@ namespace
         EMPTY_STATE(s1)
 
         constexpr auto s0_transition_table = maki::transition_table{}
-            .add<s0_sub, events::button_press, maki::null_c>()
+            (s0_sub, maki::event<events::button_press>, maki::null_c)
         ;
 
         constexpr auto s0 = maki::submachine_conf{}
@@ -39,10 +39,10 @@ namespace
     constexpr auto any_of_s0_s1 = maki::any_of_c<states::s0, states::s1>;
 
     constexpr auto transition_table = maki::transition_table{}
-        .add<states::off,   events::button_press,             states::s0>()
-        .add<states::s0,    events::button_press,             states::s1>()
-        .add<any_but_s0_s1, events::off_button_press,         states::off>()
-        .add<any_of_s0_s1,  events::destruction_button_press, states::off>()
+        (states::off,   maki::event<events::button_press>,             states::s0)
+        (states::s0,    maki::event<events::button_press>,             states::s1)
+        (any_but_s0_s1, maki::event<events::off_button_press>,         states::off)
+        (any_of_s0_s1,  maki::event<events::destruction_button_press>, states::off)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

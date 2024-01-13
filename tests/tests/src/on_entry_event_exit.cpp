@@ -77,9 +77,9 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        .add<states::idle,    events::next_language_request, states::english>()
-        .add<states::english, events::next_language_request, states::french>()
-        .add<states::french,  events::next_language_request, states::idle>()
+        (states::idle,    maki::event<events::next_language_request>, states::english)
+        (states::english, maki::event<events::next_language_request>, states::french)
+        (states::french,  maki::event<events::next_language_request>, states::idle)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

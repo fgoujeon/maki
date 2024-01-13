@@ -160,28 +160,35 @@ public:
 
     template
     <
-        const auto& SourceStateConfPattern,
-        class EventPattern,
-        const auto& TargetStateConf,
-        const auto& Action = noop,
-        const auto& Guard = yes
+        class SourceStateConfPattern,
+        class EventPatternType,
+        class TargetStateConf,
+        class Action = decltype(noop),
+        class Guard = decltype(yes)
     >
-    constexpr auto add()
+    constexpr auto operator()
+    (
+        const SourceStateConfPattern& source_state_conf_pattern,
+        const EventPatternType& /*event_pattern_type*/,
+        const TargetStateConf& target_state_conf,
+        const Action& action = noop,
+        const Guard& guard = yes
+    )
     {
         return tuple_apply
         (
             transitions_,
-            [](const auto&... transitions)
+            [&](const auto&... transitions)
             {
                 return detail::make_transition_table
                 (
                     transitions...,
-                    detail::make_transition<EventPattern>
+                    detail::make_transition<typename EventPatternType::type>
                     (
-                        SourceStateConfPattern,
-                        TargetStateConf,
-                        Action,
-                        Guard
+                        source_state_conf_pattern,
+                        target_state_conf,
+                        action,
+                        guard
                     )
                 );
             }

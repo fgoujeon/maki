@@ -26,11 +26,11 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        .add_c<states::s0, events::go_on, states::s1>
-        .add_c<states::s1, maki::null,  states::s2>
-        .add_c<states::s2, events::go_on, states::s3>
-        .add_c<states::s3, maki::null,  states::s4>
-        .add_c<states::s4, maki::null,  states::s0>
+        (states::s0, maki::event<events::go_on>, states::s1)
+        (states::s1, maki::event<maki::null>,    states::s2)
+        (states::s2, maki::event<events::go_on>, states::s3)
+        (states::s3, maki::event<maki::null>,    states::s4)
+        (states::s4, maki::event<maki::null>,    states::s0)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

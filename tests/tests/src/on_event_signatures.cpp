@@ -57,7 +57,7 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        .add_c<states::state0, events::unused, maki::null_c>
+        (states::state0, maki::event<events::unused>, maki::null_c)
     ;
 
     struct machine_conf_holder

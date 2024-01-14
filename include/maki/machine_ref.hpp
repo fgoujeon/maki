@@ -33,11 +33,11 @@ namespace detail
             machine_ref_event_impl<Events...>{mach},
             pprocess_event_
             {
-                [](void* const vpsm, const Event& event)
+                [](void* const vpsm, const Event& evt)
                 {
                     using machine_t = machine<MachineDef>;
                     const auto psm = reinterpret_cast<machine_t*>(vpsm); //NOLINT
-                    psm->process_event(event);
+                    psm->process_event(evt);
                 }
             }
         {
@@ -45,9 +45,9 @@ namespace detail
 
         using machine_ref_event_impl<Events...>::process_event;
 
-        void process_event(const Event& event)
+        void process_event(const Event& evt)
         {
-            (*pprocess_event_)(get_vpsm(), event);
+            (*pprocess_event_)(get_vpsm(), evt);
         }
 
     protected:
@@ -104,7 +104,7 @@ public:
     ~machine_ref() = default;
 
     template<class Event>
-    void process_event(const Event& event)
+    void process_event(const Event& evt)
     {
         static_assert
         (
@@ -115,7 +115,7 @@ public:
             >,
             "Given event type must be part of the 'on_event' option type list"
         );
-        impl_.process_event(event);
+        impl_.process_event(evt);
     }
 
 private:

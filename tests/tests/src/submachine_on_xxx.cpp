@@ -60,7 +60,7 @@ namespace
         ;
 
         constexpr auto on_transition_table = maki::transition_table{}
-            .add_c<states::on_0, events::button_press, maki::null_c>
+            (states::on_0, maki::event<events::button_press>, maki::null_c)
         ;
 
         constexpr auto on = maki::submachine_conf{}
@@ -90,8 +90,8 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        .add_c<states::off, events::button_press, states::on>
-        .add_c<states::on,  events::button_press, states::off>
+        (states::off, maki::event<events::button_press>, states::on)
+        (states::on,  maki::event<events::button_press>, states::off)
     ;
 
     struct machine_conf_holder

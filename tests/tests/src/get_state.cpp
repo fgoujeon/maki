@@ -85,9 +85,9 @@ namespace
         ;
 
         constexpr auto on_transition_table = maki::transition_table{}
-            .add_c<states::emitting_red,   events::color_button_press, states::emitting_green>
-            .add_c<states::emitting_green, events::color_button_press, states::emitting_blue>
-            .add_c<states::emitting_blue,  events::color_button_press, states::emitting_red>
+            (states::emitting_red,   maki::event<events::color_button_press>, states::emitting_green)
+            (states::emitting_green, maki::event<events::color_button_press>, states::emitting_blue)
+            (states::emitting_blue,  maki::event<events::color_button_press>, states::emitting_red)
         ;
 
         struct on_data
@@ -109,8 +109,8 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        .add_c<states::off, events::power_button_press, states::on>
-        .add_c<states::on,  events::power_button_press, states::off>
+        (states::off, maki::event<events::power_button_press>, states::on)
+        (states::on,  maki::event<events::power_button_press>, states::off)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

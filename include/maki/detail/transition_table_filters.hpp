@@ -19,18 +19,18 @@ namespace by_event_detail
     template<class Event>
     struct for_event
     {
-        template<class Row>
+        template<class TransitionConstant>
         struct matches_event_pattern
         {
-            static constexpr auto value = matches_pattern_v<Event, typename Row::event_type_pattern>;
+            static constexpr auto value = matches_pattern_v<Event, typename std::decay_t<decltype(TransitionConstant::value)>::event_type_pattern>;
         };
     };
 }
 
-template<class TransitionTable, class Event>
+template<class TransitionConstantList, class Event>
 using by_event_t = tlu::filter_t
 <
-    TransitionTable,
+    TransitionConstantList,
     by_event_detail::for_event<Event>::template matches_event_pattern
 >;
 

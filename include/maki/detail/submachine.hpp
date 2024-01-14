@@ -150,7 +150,7 @@ public:
     {
         static constexpr auto region_index = path_raw_head(StateRegionPath);
         static constexpr auto state_region_relative_path = path_tail(StateRegionPath);
-        return tuple_get<region_index>(regions_).template active_state<state_region_relative_path, StateConf>();
+        return tuple_get<region_index>(regions_).template active_state<state_region_relative_path, &StateConf>();
     }
 
     template<const auto& StateConf>
@@ -159,7 +159,7 @@ public:
         static_assert(tlu::size_v<transition_table_type_list> == 1);
 
         static constexpr auto state_region_relative_path = path<>{};
-        return tuple_get<0>(regions_).template active_state<state_region_relative_path, StateConf>();
+        return tuple_get<0>(regions_).template active_state<state_region_relative_path, &StateConf>();
     }
 
     template<const auto& RegionPath>

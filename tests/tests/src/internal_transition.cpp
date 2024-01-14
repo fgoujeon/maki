@@ -45,16 +45,16 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        .add_c<states::state0, events::next_state, states::state1>
-        .add_c<states::state1, events::next_state, states::state2>
-        .add_c<states::state2, events::next_state, states::state3>
-        .add_c<states::state3, events::next_state, states::state4>
-        .add_c<states::state4, events::next_state, states::state5>
-        .add_c<states::state5, events::next_state, states::state6>
-        .add_c<states::state6, events::next_state, states::state7>
-        .add_c<states::state7, events::next_state, states::state8>
-        .add_c<states::state8, events::next_state, states::state9>
-        .add_c<states::state9, events::next_state, states::benchmarking>
+        (states::state0, maki::event<events::next_state>, states::state1)
+        (states::state1, maki::event<events::next_state>, states::state2)
+        (states::state2, maki::event<events::next_state>, states::state3)
+        (states::state3, maki::event<events::next_state>, states::state4)
+        (states::state4, maki::event<events::next_state>, states::state5)
+        (states::state5, maki::event<events::next_state>, states::state6)
+        (states::state6, maki::event<events::next_state>, states::state7)
+        (states::state7, maki::event<events::next_state>, states::state8)
+        (states::state8, maki::event<events::next_state>, states::state9)
+        (states::state9, maki::event<events::next_state>, states::benchmarking)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

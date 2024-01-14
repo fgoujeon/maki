@@ -70,15 +70,15 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        .add_c<states::idle, events::start, states::state0, maki::noop, guards::can_access_state0>
-        .add_c<states::idle, events::start, states::state1, maki::noop, guards::can_access_state1>
-        .add_c<states::idle, events::start, states::state2, maki::noop, guards::can_access_state2>
-        .add_c<states::idle, events::start, states::state3, maki::noop, !maki::guard_c<guards::cant_access_state3>>
+        (states::idle, maki::event<events::start>, states::state0, maki::noop, guards::can_access_state0)
+        (states::idle, maki::event<events::start>, states::state1, maki::noop, guards::can_access_state1)
+        (states::idle, maki::event<events::start>, states::state2, maki::noop, guards::can_access_state2)
+        (states::idle, maki::event<events::start>, states::state3, maki::noop, !maki::guard_c<guards::cant_access_state3>)
 
-        .add_c<states::state0, events::stop, states::idle>
-        .add_c<states::state1, events::stop, states::idle>
-        .add_c<states::state2, events::stop, states::idle>
-        .add_c<states::state3, events::stop, states::idle>
+        (states::state0, maki::event<events::stop>, states::idle)
+        (states::state1, maki::event<events::stop>, states::idle)
+        (states::state2, maki::event<events::stop>, states::idle)
+        (states::state3, maki::event<events::stop>, states::idle)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

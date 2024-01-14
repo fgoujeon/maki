@@ -35,8 +35,8 @@ namespace
         >;
 
         return maki::transition_table{}
-            .add_c<states::off, any_button_press,           states::on>
-            .add_c<states::on,  events::power_button_press, states::off>
+            (states::off, maki::event<any_button_press>,           states::on)
+            (states::on,  maki::event<events::power_button_press>, states::off)
         ;
     }
 

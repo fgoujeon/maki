@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_CREF_CONSTANT_HPP
-#define MAKI_DETAIL_CREF_CONSTANT_HPP
+#ifndef MAKI_CREF_CONSTANT_HPP
+#define MAKI_CREF_CONSTANT_HPP
 
 namespace maki
 {

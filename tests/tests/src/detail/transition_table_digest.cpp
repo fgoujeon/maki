@@ -44,18 +44,18 @@ namespace transition_table_digest_ns
         transition_constant_list
     >;
 
-    using state_conf_constant_list = maki::detail::type_list
+    using state_conf_ptr_constant_list = maki::detail::type_list
     <
-        maki::cref_constant<state0>,
-        maki::cref_constant<state1>,
-        maki::cref_constant<state2>,
-        maki::cref_constant<state3>
+        maki::detail::constant<&state0>,
+        maki::detail::constant<&state1>,
+        maki::detail::constant<&state2>,
+        maki::detail::constant<&state3>
     >;
 }
 
 TEST_CASE("detail::transition_table_digest")
 {
     using namespace transition_table_digest_ns;
-    REQUIRE(std::is_same_v<digest_t::state_conf_constant_list, state_conf_constant_list>);
+    REQUIRE(std::is_same_v<digest_t::state_conf_ptr_constant_list, state_conf_ptr_constant_list>);
     REQUIRE(!digest_t::has_null_events);
 }

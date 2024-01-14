@@ -104,9 +104,9 @@ namespace detail
     */
     template
     <
-        class SourceStateConfPattern,
+        class SourceStateConfPatternPtr,
         class EventPattern,
-        class TargetStateConf,
+        class TargetStateConfPtr,
         class Action,
         class Guard
     >
@@ -114,8 +114,8 @@ namespace detail
     {
         using event_type_pattern = EventPattern;
 
-        const SourceStateConfPattern& source_state_conf_pattern; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
-        const TargetStateConf& target_state_conf; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+        SourceStateConfPatternPtr psource_state_conf_pattern;
+        TargetStateConfPtr ptarget_state_conf;
         Action action;
         Guard guard;
     };
@@ -123,30 +123,30 @@ namespace detail
     template
     <
         class EventPattern,
-        class SourceStateConfPattern,
-        class TargetStateConf,
+        class SourceStateConfPatternPtr,
+        class TargetStateConfPtr,
         class Action,
         class Guard
     >
     constexpr auto make_transition
     (
-        const SourceStateConfPattern& source_state_conf_pattern,
-        const TargetStateConf& target_state_conf,
+        const SourceStateConfPatternPtr psource_state_conf_pattern,
+        const TargetStateConfPtr ptarget_state_conf,
         const Action& action,
         const Guard& guard
     )
     {
         return transition
         <
-            SourceStateConfPattern,
+            SourceStateConfPatternPtr,
             EventPattern,
-            TargetStateConf,
+            TargetStateConfPtr,
             storable_function_t<Action>,
             storable_function_t<Guard>
         >
         {
-            source_state_conf_pattern,
-            target_state_conf,
+            psource_state_conf_pattern,
+            ptarget_state_conf,
             action,
             guard
         };
@@ -220,8 +220,8 @@ public:
                     transitions...,
                     detail::make_transition<typename EventPatternType::type>
                     (
-                        source_state_conf_pattern,
-                        target_state_conf,
+                        &source_state_conf_pattern,
+                        &target_state_conf,
                         action,
                         guard
                     )

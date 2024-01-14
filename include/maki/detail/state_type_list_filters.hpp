@@ -17,22 +17,22 @@ namespace maki::detail::state_type_list_filters
 
 namespace by_pattern_detail
 {
-    template<const auto& Pattern>
+    template<auto PatternPtr>
     struct for_pattern
     {
-        template<class StateConfConstant>
+        template<class StateConfPtrConstant>
         struct matches
         {
-            static constexpr auto value = matches_pattern_v<StateConfConstant, std::decay_t<decltype(Pattern)>>;
+            static constexpr auto value = matches_pattern_v<constant<StateConfPtrConstant::value>, std::decay_t<decltype(*PatternPtr)>>;
         };
     };
 }
 
-template<class StateConfConstantList, const auto& Pattern>
+template<class StateConfPtrConstantList, auto PatternPtr>
 using by_pattern_t = tlu::filter_t
 <
-    StateConfConstantList,
-    by_pattern_detail::for_pattern<Pattern>::template matches
+    StateConfPtrConstantList,
+    by_pattern_detail::for_pattern<PatternPtr>::template matches
 >;
 
 namespace by_required_on_event_detail

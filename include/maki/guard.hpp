@@ -31,6 +31,9 @@ namespace detail
     };
 }
 
+/**
+@brief A guard wrapper that allows boolean composition
+*/
 template<detail::guard_operator Operator, class Operand, class Operand2 = null>
 class guard;
 
@@ -49,18 +52,10 @@ namespace detail
     }
 }
 
-/**
-@brief A guard wrapper that allows boolean composition
-*/
 template<detail::guard_operator Operator, class Operand, class Operand2>
 class guard
 {
 public:
-    constexpr guard(const Operand& operand):
-        op_(operand)
-    {
-    }
-
     constexpr guard(const Operand& operand, const Operand2& operand2):
         op_(operand),
         op2_(operand2)
@@ -80,31 +75,86 @@ public:
     template<class Sm, class Context, class Event>
     bool operator()(Sm& mach, Context& ctx, const Event& event) const
     {
-        if constexpr(Operator == detail::guard_operator::none)
-        {
-            return detail::call_action_or_guard(op_, mach, ctx, event);
-        }
-        if constexpr(Operator == detail::guard_operator::not_)
-        {
-            return !op_(mach, ctx, event);
-        }
         if constexpr(Operator == detail::guard_operator::and_)
         {
             return op_(mach, ctx, event) && op2_(mach, ctx, event);
         }
-        if constexpr(Operator == detail::guard_operator::or_)
+        else if constexpr(Operator == detail::guard_operator::or_)
         {
             return op_(mach, ctx, event) || op2_(mach, ctx, event);
         }
-        if constexpr(Operator == detail::guard_operator::xor_)
+        else if constexpr(Operator == detail::guard_operator::xor_)
         {
             return op_(mach, ctx, event) != op2_(mach, ctx, event);
+        }
+        else
+        {
+            constexpr auto is_false = sizeof(Sm) == 0;
+            static_assert(is_false, "Invalid template arguments for guard");
         }
     }
 
 private:
     Operand op_;
     Operand2 op2_;
+};
+
+template<class Operand>
+class guard<detail::guard_operator::none, Operand, null>
+{
+public:
+    constexpr guard(const Operand& operand):
+        op_(operand)
+    {
+    }
+
+    constexpr guard(const guard& rhs) = default;
+
+    guard(guard&& rhs) = delete;
+
+    ~guard() = default;
+
+    constexpr guard& operator=(const guard& rhs) = default;
+
+    guard& operator=(guard&& rhs) = delete;
+
+    template<class Sm, class Context, class Event>
+    bool operator()(Sm& mach, Context& ctx, const Event& event) const
+    {
+        return detail::call_action_or_guard(op_, mach, ctx, event);
+    }
+
+private:
+    Operand op_;
+};
+
+template<class Operand>
+class guard<detail::guard_operator::not_, Operand, null>
+{
+public:
+    constexpr guard(const Operand& operand):
+        op_(operand)
+    {
+    }
+
+    constexpr guard(const guard& rhs) = default;
+
+    guard(guard&& rhs) = delete;
+
+    ~guard() = default;
+
+    constexpr guard& operator=(const guard& rhs) = default;
+
+    guard& operator=(guard&& rhs) = delete;
+
+    template<class Sm, class Context, class Event>
+    bool operator()(Sm& mach, Context& ctx, const Event& event) const
+    {
+        return !op_(mach, ctx, event);
+    }
+
+private:
+    Operand op_;
 };
 
 template<class Guard>

@@ -112,31 +112,30 @@ void call_state_action
     }
 }
 
-template<const auto& Fn, class Sm, class Context, class Event>
+template<class Fn, class Sm, class Context, class Event>
 auto call_action_or_guard
 (
+    const Fn& fun,
     [[maybe_unused]] Sm& mach,
     [[maybe_unused]] Context& ctx,
     [[maybe_unused]] const Event& event
 )
 {
-    using fn_t = std::decay_t<decltype(Fn)>;
-
-    if constexpr(std::is_invocable_v<fn_t, Sm&, Context&, const Event&>)
+    if constexpr(std::is_invocable_v<Fn, Sm&, Context&, const Event&>)
     {
-        return Fn(mach, ctx, event);
+        return fun(mach, ctx, event);
     }
-    else if constexpr(std::is_invocable_v<fn_t, Context&, const Event&>)
+    else if constexpr(std::is_invocable_v<Fn, Context&, const Event&>)
     {
-        return Fn(ctx, event);
+        return fun(ctx, event);
     }
-    else if constexpr(std::is_invocable_v<fn_t, Context&>)
+    else if constexpr(std::is_invocable_v<Fn, Context&>)
     {
-        return Fn(ctx);
+        return fun(ctx);
     }
-    else if constexpr(is_nullary_v<fn_t>)
+    else if constexpr(is_nullary_v<Fn>)
     {
-        return Fn();
+        return fun();
     }
     else
     {

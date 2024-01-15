@@ -13,6 +13,7 @@
 #define MAKI_TRANSITION_TABLE_HPP
 
 #include "null.hpp"
+#include "detail/storable_function.hpp"
 #include "detail/tuple.hpp"
 
 namespace maki
@@ -55,27 +56,6 @@ class transition_table;
 
 namespace detail
 {
-    template<class R, class... Args>
-    using function_ptr = R(*)(Args...);
-
-    template<class R, class... Args>
-    using function_type = R(Args...);
-
-    template<class F>
-    struct storable_function
-    {
-        using type = F;
-    };
-
-    template<class R, class... Args>
-    struct storable_function<function_type<R, Args...>>
-    {
-        using type = function_ptr<R, Args...>;
-    };
-
-    template<class F>
-    using storable_function_t = typename storable_function<F>::type;
-
     /**
     @brief Represents a possible state transition.
 

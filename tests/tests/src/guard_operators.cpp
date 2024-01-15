@@ -64,16 +64,16 @@ namespace
 
 #undef GUARD
 
-        constexpr auto can_access_state0 = maki::guard_c<can_access_state0_0> && maki::guard_c<can_access_state0_1>;
-        constexpr auto can_access_state1 = maki::guard_c<can_access_state1_0> || maki::guard_c<can_access_state1_1>;
-        constexpr auto can_access_state2 = maki::guard_c<can_access_state2_0> != maki::guard_c<can_access_state2_1>;
+        constexpr auto can_access_state0 = maki::guard{can_access_state0_0} && maki::guard{can_access_state0_1};
+        constexpr auto can_access_state1 = maki::guard{can_access_state1_0} || maki::guard{can_access_state1_1};
+        constexpr auto can_access_state2 = maki::guard{can_access_state2_0} != maki::guard{can_access_state2_1};
     }
 
     constexpr auto transition_table = maki::transition_table{}
         (states::idle, maki::event<events::start>, states::state0, maki::null_c, guards::can_access_state0)
         (states::idle, maki::event<events::start>, states::state1, maki::null_c, guards::can_access_state1)
         (states::idle, maki::event<events::start>, states::state2, maki::null_c, guards::can_access_state2)
-        (states::idle, maki::event<events::start>, states::state3, maki::null_c, !maki::guard_c<guards::cant_access_state3>)
+        (states::idle, maki::event<events::start>, states::state3, maki::null_c, !maki::guard{guards::cant_access_state3})
 
         (states::state0, maki::event<events::stop>, states::idle)
         (states::state1, maki::event<events::stop>, states::idle)

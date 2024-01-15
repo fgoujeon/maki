@@ -50,21 +50,6 @@ in order to avoid awkward `typename`s and `template`s.
 @{
 */
 
-/**
-@brief An action that does nothing.
-*/
-inline constexpr void noop()
-{
-}
-
-/**
-@brief A guard that returns `true`.
-*/
-inline constexpr bool yes()
-{
-    return true;
-}
-
 template<class... Transitions>
 class transition_table;
 
@@ -191,16 +176,16 @@ public:
         class SourceStateConfPattern,
         class EventPatternType,
         class TargetStateConf,
-        class Action = void(*)(),
-        class Guard = bool(*)()
+        class Action = null,
+        class Guard = null
     >
     constexpr auto operator()
     (
         const SourceStateConfPattern& source_state_conf_pattern,
         const EventPatternType& /*event_pattern_type*/,
         const TargetStateConf& target_state_conf,
-        const Action& action = noop,
-        const Guard& guard = yes
+        const Action& action = null_c,
+        const Guard& guard = null_c
     )
     {
         return tuple_apply

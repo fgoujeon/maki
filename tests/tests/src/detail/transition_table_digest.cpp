@@ -29,7 +29,7 @@ namespace transition_table_digest_ns
 
     constexpr auto transition_table = maki::transition_table{}
         (state0,      maki::event<event0>, state1)
-        (state1,      maki::event<event1>, state2, maki::noop, guard0)
+        (state1,      maki::event<event1>, state2, maki::null_c, guard0)
         (state2,      maki::event<event2>, state3, action0)
         (state3,      maki::event<event3>, state0, action1,    guard1)
         (maki::any_c, maki::event<event3>, state0)

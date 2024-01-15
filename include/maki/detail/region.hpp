@@ -149,7 +149,7 @@ public:
             <
                 &state_confs::stopped,
                 pinitial_state_conf,
-                noop
+                &null_c
             >(mach, ctx, event);
         }
     }
@@ -270,7 +270,7 @@ private:
             <
                 ActiveStateConfPtr,
                 &state_confs::stopped,
-                noop
+                &null_c
             >(mach, ctx, event);
         }
     };
@@ -367,9 +367,12 @@ private:
             }
 
             //Check guard
-            if(!detail::call_action_or_guard<Guard>(mach, ctx, event))
+            if constexpr(!std::is_same_v<decltype(Guard), const null&>)
             {
-                return false;
+                if(!detail::call_action_or_guard<Guard>(mach, ctx, event))
+                {
+                    return false;
+                }
             }
 
             if constexpr(!Dry)
@@ -442,12 +445,15 @@ private:
             >;
         }
 
-        detail::call_action_or_guard<*ActionPtr>
-        (
-            mach,
-            ctx,
-            event
-        );
+        if constexpr(!std::is_same_v<decltype(ActionPtr), const null*>)
+        {
+            detail::call_action_or_guard<*ActionPtr>
+            (
+                mach,
+                ctx,
+                event
+            );
+        }
 
         if constexpr(!is_internal_transition)
         {

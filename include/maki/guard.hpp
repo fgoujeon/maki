@@ -102,47 +102,6 @@ public:
         }
     }
 
-    template
-    <
-        detail::guard_operator RhsOperator, class RhsOperand, class RhsOperand2
-    >
-    constexpr auto operator&&
-    (
-        const guard<RhsOperator, RhsOperand, RhsOperand2>& rhs
-    ) const
-    {
-        return detail::make_guard<detail::guard_operator::and_>(*this, rhs);
-    }
-
-    template
-    <
-        detail::guard_operator RhsOperator, class RhsOperand, class RhsOperand2
-    >
-    constexpr auto operator||
-    (
-        const guard<RhsOperator, RhsOperand, RhsOperand2>& rhs
-    ) const
-    {
-        return detail::make_guard<detail::guard_operator::or_>(*this, rhs);
-    }
-
-    template
-    <
-        detail::guard_operator RhsOperator, class RhsOperand, class RhsOperand2
-    >
-    constexpr auto operator!=
-    (
-        const guard<RhsOperator, RhsOperand, RhsOperand2>& rhs
-    ) const
-    {
-        return detail::make_guard<detail::guard_operator::xor_>(*this, rhs);
-    }
-
-    constexpr auto operator!() const
-    {
-        return detail::make_guard<detail::guard_operator::not_>(*this);
-    }
-
 private:
     Operand op_;
     Operand2 op2_;
@@ -150,6 +109,60 @@ private:
 
 template<class Guard>
 guard(const Guard&) -> guard<detail::guard_operator::none, detail::storable_function_t<Guard>>;
+
+template
+<
+    detail::guard_operator LhsOperator, class LhsOperand, class LhsOperand2,
+    detail::guard_operator RhsOperator, class RhsOperand, class RhsOperand2
+>
+constexpr auto operator&&
+(
+    const guard<LhsOperator, LhsOperand, LhsOperand2>& lhs,
+    const guard<RhsOperator, RhsOperand, RhsOperand2>& rhs
+)
+{
+    return detail::make_guard<detail::guard_operator::and_>(lhs, rhs);
+}
+
+template
+<
+    detail::guard_operator LhsOperator, class LhsOperand, class LhsOperand2,
+    detail::guard_operator RhsOperator, class RhsOperand, class RhsOperand2
+>
+constexpr auto operator||
+(
+    const guard<LhsOperator, LhsOperand, LhsOperand2>& lhs,
+    const guard<RhsOperator, RhsOperand, RhsOperand2>& rhs
+)
+{
+    return detail::make_guard<detail::guard_operator::or_>(lhs, rhs);
+}
+
+template
+<
+    detail::guard_operator LhsOperator, class LhsOperand, class LhsOperand2,
+    detail::guard_operator RhsOperator, class RhsOperand, class RhsOperand2
+>
+constexpr auto operator!=
+(
+    const guard<LhsOperator, LhsOperand, LhsOperand2>& lhs,
+    const guard<RhsOperator, RhsOperand, RhsOperand2>& rhs
+)
+{
+    return detail::make_guard<detail::guard_operator::xor_>(lhs, rhs);
+}
+
+template
+<
+    detail::guard_operator RhsOperator, class RhsOperand, class RhsOperand2
+>
+constexpr auto operator!
+(
+    const guard<RhsOperator, RhsOperand, RhsOperand2>& rhs
+)
+{
+    return detail::make_guard<detail::guard_operator::not_>(rhs);
+}
 
 } //namespace
 

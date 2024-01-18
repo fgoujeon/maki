@@ -13,8 +13,6 @@
     MAKI_DETAIL_X(me) \
     MAKI_DETAIL_X(c) \
     MAKI_DETAIL_X(ce) \
-    MAKI_DETAIL_X(d) \
-    MAKI_DETAIL_X(de) \
     MAKI_DETAIL_X(e)
 
 namespace maki::detail
@@ -24,7 +22,6 @@ namespace maki::detail
 v means void
 m means machine
 c means context
-d means data
 e means event
 */
 enum class event_action_signature

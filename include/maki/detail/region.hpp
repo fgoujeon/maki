@@ -17,6 +17,7 @@
 #include "noop_ex.hpp"
 #include "same_ref.hpp"
 #include "maybe_bool_util.hpp"
+#include "context_holder.hpp"
 #include "../cref_constant.hpp"
 #include "../submachine_conf.hpp"
 #include "../state_confs.hpp"
@@ -81,13 +82,12 @@ class region
 {
 public:
     using parent_sm_type = ParentSm;
+    using context_type = typename parent_sm_type::context_type;
 
     template<class Machine>
-    region(Machine& mach, ParentSm& parent_sm):
-        states_(uniform_construct, mach, parent_sm.context())
+    region(Machine& mach, context_type& ctx):
+        states_(uniform_construct, mach, ctx)
     {
-        //int auinertsa = 0;
-        //const transition_constant_list* auinerstauie = &auinertsa;
     }
 
     region(const region&) = delete;
@@ -97,15 +97,15 @@ public:
     ~region() = default;
 
     template<const auto& StatePath>
-    const auto& data() const
+    const auto& context() const
     {
-        return static_data<StatePath>(*this);
+        return static_context<StatePath>(*this);
     }
 
     template<const auto& StatePath>
-    auto& data()
+    auto& context()
     {
-        return static_data<StatePath>(*this);
+        return static_context<StatePath>(*this);
     }
 
     template<const auto& RegionPath, auto StateConfPtr>
@@ -205,7 +205,10 @@ private:
     using state_conf_ptr_constant_list = typename transition_table_digest_type::state_conf_ptr_constant_list;
 
     template<class... ConfPtrConstants>
-    using state_conf_ptr_constant_list_to_state_type_list_t = type_list<state_traits::state_conf_to_state_t<*ConfPtrConstants::value, region>...>;
+    using state_conf_ptr_constant_list_to_state_type_list_t = type_list
+    <
+        state_traits::state_conf_to_state_t<*ConfPtrConstants::value, region>...
+    >;
 
     using state_type_list = tlu::apply_t
     <
@@ -676,17 +679,17 @@ private:
 
     //Note: We use static to factorize const and non-const Region
     template<const auto& StatePath, class Region>
-    static auto& static_data(Region& self)
+    static auto& static_context(Region& self)
     {
         if constexpr(StatePath.size() == 1)
         {
-            return static_state_from_conf_ptr<path_raw_head(StatePath)>(self).data();
+            return static_state_from_conf_ptr<path_raw_head(StatePath)>(self).context();
         }
         else
         {
             static constexpr auto psubmach_conf = path_raw_head(StatePath);
             static constexpr auto state_path_tail = path_tail(StatePath);
-            return static_state_from_conf_ptr<psubmach_conf>(self).template data<state_path_tail>();
+            return static_state_from_conf_ptr<psubmach_conf>(self).template context<state_path_tail>();
         }
     }
 

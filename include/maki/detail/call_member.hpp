@@ -19,12 +19,11 @@
 namespace maki::detail
 {
 
-template<class Sm, class Context, class StateData, class Event, class EventAction, class... EventActions>
+template<class Machine, class Context, class Event, class EventAction, class... EventActions>
 void call_event_action
 (
-    [[maybe_unused]] Sm& mach,
+    [[maybe_unused]] Machine& mach,
     [[maybe_unused]] Context& ctx,
-    [[maybe_unused]] StateData& state_data,
     [[maybe_unused]] const Event& event,
     [[maybe_unused]] const EventAction& event_action,
     [[maybe_unused]] const EventActions&... event_actions
@@ -53,45 +52,35 @@ void call_event_action
         {
             std::invoke(event_action.action, ctx, event);
         }
-        else if constexpr(EventAction::sig == event_action_signature::d)
-        {
-            std::invoke(event_action.action, state_data);
-        }
-        else if constexpr(EventAction::sig == event_action_signature::de)
-        {
-            std::invoke(event_action.action, state_data, event);
-        }
         else if constexpr(EventAction::sig == event_action_signature::e)
         {
             std::invoke(event_action.action, event);
         }
         else
         {
-            constexpr auto is_false = sizeof(Sm) == 0;
+            constexpr auto is_false = sizeof(Machine) == 0;
             static_assert(is_false, "Unsupported event_action_signature value");
         }
     }
     else
     {
         static_assert(sizeof...(EventActions) != 0, "No event action found for this state and event");
-        call_event_action(mach, ctx, state_data, event, event_actions...);
+        call_event_action(mach, ctx, event, event_actions...);
     }
 }
 
 template
 <
     class ActionTuple,
-    class Sm,
+    class Machine,
     class Context,
-    class StateData,
     class Event
 >
 void call_state_action
 (
     const ActionTuple& actions,
-    Sm& mach,
+    Machine& mach,
     Context& ctx,
-    StateData& state_data,
     const Event& event
 )
 {
@@ -100,28 +89,27 @@ void call_state_action
         tuple_apply
         (
             actions,
-            [](auto&&... args)
+            [](auto&... args)
             {
-                call_event_action(std::forward<decltype(args)>(args)...);
+                call_event_action(args...);
             },
             mach,
             ctx,
-            state_data,
             event
         );
     }
 }
 
-template<class Fn, class Sm, class Context, class Event>
+template<class Fn, class Machine, class Context, class Event>
 auto call_action_or_guard
 (
     const Fn& fun,
-    [[maybe_unused]] Sm& mach,
+    [[maybe_unused]] Machine& mach,
     [[maybe_unused]] Context& ctx,
     [[maybe_unused]] const Event& event
 )
 {
-    if constexpr(std::is_invocable_v<Fn, Sm&, Context&, const Event&>)
+    if constexpr(std::is_invocable_v<Fn, Machine&, Context&, const Event&>)
     {
         return fun(mach, ctx, event);
     }
@@ -139,7 +127,7 @@ auto call_action_or_guard
     }
     else
     {
-        constexpr auto is_false = sizeof(Sm) == 0;
+        constexpr auto is_false = sizeof(Machine) == 0;
         static_assert(is_false, "No valid signature found for action/guard");
     }
 }

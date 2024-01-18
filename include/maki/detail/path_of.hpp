@@ -9,6 +9,7 @@
 
 #include "submachine_fwd.hpp"
 #include "region_fwd.hpp"
+#include "../machine_fwd.hpp"
 #include "../path.hpp"
 
 namespace maki::detail
@@ -20,16 +21,16 @@ struct path_of;
 template<class T>
 inline constexpr auto path_of_v = path_of<T>::value;
 
-template<const auto& Conf, class ParentRegion>
-struct path_of<submachine<Conf, ParentRegion>>
-{
-    static constexpr auto value = path_of_v<ParentRegion>;
-};
-
-template<const auto& Conf>
-struct path_of<submachine<Conf, void>>
+template<class ConfHolder>
+struct path_of<machine<ConfHolder>>
 {
     static constexpr auto value = path{};
+};
+
+template<const auto& Conf, class Parent>
+struct path_of<submachine<Conf, Parent>>
+{
+    static constexpr auto value = path_of_v<Parent>;
 };
 
 template<class ParentSm, int Index>

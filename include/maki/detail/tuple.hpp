@@ -59,7 +59,7 @@ struct tuple_base<std::integer_sequence<int, Indexes...>, Ts...>:
     }
 
     template<class Arg0, class Arg1>
-    constexpr tuple_base(uniform_construct_t /*tag*/, Arg0& arg0, Arg1&& arg1):
+    constexpr tuple_base(uniform_construct_t /*tag*/, Arg0&& arg0, Arg1&& arg1):
         tuple_element<Indexes, Ts>{arg0, arg1}...
     {
     }

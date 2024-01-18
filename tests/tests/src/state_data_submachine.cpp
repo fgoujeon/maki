@@ -44,9 +44,9 @@ namespace
         }
 
         constexpr auto on = maki::submachine_conf{}
-            .data<on_data>()
+            .context<on_data>()
             .transition_tables(on_transition_table)
-            .internal_action_de<events::accumulate_request>
+            .internal_action_ce<events::accumulate_request>
             (
                 [](on_data& self, const events::accumulate_request& event)
                 {
@@ -74,7 +74,7 @@ TEST_CASE("state_data_submachine")
     auto machine = machine_t{};
     static constexpr auto region_0_path = maki::path{0};
     static constexpr auto on_path = region_0_path / states::on;
-    auto& counter = machine.data<on_path>().counter;
+    auto& counter = machine.context<on_path>().counter;
 
     machine.process_event(events::button_press{});
     REQUIRE(counter == 0);

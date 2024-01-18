@@ -33,7 +33,6 @@ namespace detail
     template
     <
         class Context = void,
-        class Data = void,
         class EntryActionTuple = detail::tuple<>,
         class EventActionTuple = detail::tuple<>,
         class ExitActionTuple = detail::tuple<>,
@@ -45,7 +44,6 @@ namespace detail
     >
     struct machine_conf_option_set
     {
-        using data_type = Data;
         using context_type = Context;
         using exception_action_type = ExceptionAction;
         using pre_state_transition_action_type = PreStateTransitionAction;
@@ -111,7 +109,6 @@ public:
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = options_.auto_start; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type_c<typename OptionSet::context_type>; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<typename OptionSet::data_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = options_.internal_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = options_.exit_actions; \
@@ -131,7 +128,6 @@ public:
         detail::machine_conf_option_set \
         < \
             typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
-            typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
@@ -157,18 +153,6 @@ public:
         MAKI_DETAIL_ARG_small_event_max_size, \
         MAKI_DETAIL_ARG_transition_tables \
     };
-
-    /**
-    @brief Specifies the data type.
-    */
-    template<class Data2>
-    [[nodiscard]] constexpr auto data() const
-    {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_data_type type_c<Data2>
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_data_type
-    }
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \

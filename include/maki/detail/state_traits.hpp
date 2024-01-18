@@ -20,20 +20,20 @@ namespace maki::detail::state_traits
 
 //state_conf_to_state
 
-template<const auto& StateConf, class Region, class Enable = void>
+template<const auto& StateConf, class Parent, class Enable = void>
 struct state_conf_to_state
 {
-    using type = simple_state<StateConf>;
+    using type = simple_state<StateConf, Parent>;
 };
 
-template<const auto& StateConf, class Region>
-struct state_conf_to_state<StateConf, Region, std::enable_if_t<is_submachine_conf_v<std::decay_t<decltype(StateConf)>>>>
+template<const auto& StateConf, class Parent>
+struct state_conf_to_state<StateConf, Parent, std::enable_if_t<is_submachine_conf_v<std::decay_t<decltype(StateConf)>>>>
 {
-    using type = submachine<StateConf, Region>;
+    using type = submachine<StateConf, Parent>;
 };
 
-template<const auto& StateConf, class Region>
-using state_conf_to_state_t = typename state_conf_to_state<StateConf, Region>::type;
+template<const auto& StateConf, class Parent>
+using state_conf_to_state_t = typename state_conf_to_state<StateConf, Parent>::type;
 
 
 //has_conf
@@ -60,6 +60,51 @@ struct for_conf_ptr
         static constexpr auto value = &T::conf == static_cast<const void*>(ConfPtr);
     };
 };
+
+
+//has_own_context
+
+template<const auto& Conf>
+class has_own_context
+{
+private:
+    using option_set_type = std::decay_t<decltype(opts(Conf))>;
+    using conf_context_type = typename option_set_type::context_type;
+
+public:
+    static constexpr auto value = !std::is_void_v<conf_context_type>;
+};
+
+template<const auto& Conf>
+constexpr auto has_own_context_v = has_own_context<Conf>::value;
+
+
+//context
+
+template<const auto& Conf, class ParentContext>
+class context
+{
+private:
+    using option_set_type = std::decay_t<decltype(opts(Conf))>;
+    using conf_context_type = typename option_set_type::context_type;
+
+public:
+    /*
+    Context type is either (in this order of priority):
+    - the one specified through *_conf::context(), if any;
+    - a reference to the context type of the parent machine (not necessarily the
+    root machine).
+    */
+    using type = std::conditional_t
+    <
+        std::is_void_v<conf_context_type>,
+        ParentContext&,
+        conf_context_type
+    >;
+};
+
+template<const auto& Conf, class ParentContext>
+using context_t = typename context<Conf, ParentContext>::type;
 
 } //namespace
 

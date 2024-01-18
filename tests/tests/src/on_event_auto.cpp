@@ -45,12 +45,12 @@ namespace
         };
 
         constexpr auto off = maki::state_conf{}
-            .data<off_data>()
-            .internal_action_de<maki::any>
+            .context<off_data>()
+            .internal_action_ce<maki::any>
             (
-                [](off_data& dat, const auto& event)
+                [](off_data& ctx, const auto& event)
                 {
-                    dat.on_event(event);
+                    ctx.on_event(event);
                 }
             )
         ;
@@ -76,12 +76,12 @@ namespace
         };
 
         constexpr auto on = maki::state_conf{}
-            .data<on_data>()
-            .internal_action_de<maki::any>
+            .context<on_data>()
+            .internal_action_ce<maki::any>
             (
-                [](on_data& dat, const auto& event)
+                [](on_data& ctx, const auto& event)
                 {
-                    dat.on_event(event);
+                    ctx.on_event(event);
                 }
             )
         ;

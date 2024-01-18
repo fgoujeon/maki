@@ -11,6 +11,7 @@ namespace
 {
     struct context
     {
+        int counter = 0;
     };
 
     namespace events
@@ -36,16 +37,14 @@ namespace
 
     struct machine_data
     {
-        int counter = 0;
     };
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
         .context<context>()
-        .data<machine_data>()
-        .event_action_de<events::accumulate_request>
+        .event_action_ce<events::accumulate_request>
         (
-            [](machine_data& data, const events::accumulate_request& event)
+            [](context& data, const events::accumulate_request& event)
             {
                 data.counter += event.n;
             }
@@ -58,7 +57,7 @@ namespace
 TEST_CASE("state_data_machine")
 {
     auto machine = machine_t{};
-    int& counter = machine.data().counter;
+    int& counter = machine.context().counter;
 
     machine.process_event(events::button_press{});
     REQUIRE(counter == 0);

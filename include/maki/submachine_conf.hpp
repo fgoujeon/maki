@@ -28,7 +28,6 @@ namespace detail
 {
     template
     <
-        class Data = void,
         class Context = void,
         class EntryActionTuple = detail::tuple<>,
         class InternalActionTuple = detail::tuple<>,
@@ -37,7 +36,6 @@ namespace detail
     >
     struct submachine_conf_option_set
     {
-        using data_type = Data;
         using context_type = Context;
 
         EntryActionTuple entry_actions;
@@ -89,7 +87,6 @@ public:
     submachine_conf& operator=(submachine_conf&&) = delete;
 
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<typename OptionSet::data_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type_c<typename OptionSet::context_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = options_.internal_actions; \
@@ -102,7 +99,6 @@ public:
     < \
         detail::submachine_conf_option_set \
         < \
-            typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
             typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
@@ -125,15 +121,6 @@ public:
 #define MAKI_DETAIL_ARG_context_type type_c<Context2>
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_context_type
-    }
-
-    template<class Data2>
-    [[nodiscard]] constexpr auto data() const
-    {
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_data_type type_c<Data2>
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_data_type
     }
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \

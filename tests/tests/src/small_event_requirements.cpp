@@ -87,8 +87,7 @@ namespace
         const new_operator_type expected_new_operator_type_for_big_event
     )
     {
-        auto ctx = context{};
-        auto machine = machine_t<SmallEventMaxSize, SmallEventMaxAlign>{ctx};
+        auto machine = machine_t<SmallEventMaxSize, SmallEventMaxAlign>{};
 
         machine.start();
 

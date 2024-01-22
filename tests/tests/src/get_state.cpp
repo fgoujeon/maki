@@ -33,53 +33,79 @@ namespace
     {
         EMPTY_STATE(off)
 
+        struct on_data
+        {
+            on_data(context& parent):
+                parent(parent)
+            {
+            }
+
+            context& parent;
+            bool is_on_state = true;
+        };
+
         struct emitting_red_data
         {
-            context& ctx;
+            emitting_red_data(on_data& parent):
+                parent(parent)
+            {
+            }
+
+            on_data& parent;
             led_color color = led_color::red;
         };
 
         constexpr auto emitting_red = maki::state_conf{}
-            .data<emitting_red_data>()
+            .context<emitting_red_data>()
             .entry_action_c<maki::any>
             (
-                [](context& ctx)
+                [](emitting_red_data& ctx)
                 {
-                    ctx.current_led_color = led_color::red;
+                    ctx.parent.parent.current_led_color = led_color::red;
                 }
             )
         ;
 
         struct emitting_green_data
         {
-            context& ctx;
+            emitting_green_data(on_data& parent):
+                parent(parent)
+            {
+            }
+
+            on_data& parent;
             led_color color = led_color::green;
         };
 
         constexpr auto emitting_green = maki::state_conf{}
-            .data<emitting_green_data>()
+            .context<emitting_green_data>()
             .entry_action_c<maki::any>
             (
-                [](context& ctx)
+                [](emitting_green_data& ctx)
                 {
-                    ctx.current_led_color = led_color::green;
+                    ctx.parent.parent.current_led_color = led_color::green;
                 }
             )
         ;
 
         struct emitting_blue_data
         {
-            context& ctx;
+            emitting_blue_data(on_data& parent):
+                parent(parent)
+            {
+            }
+
+            on_data& parent;
             led_color color = led_color::blue;
         };
 
         constexpr auto emitting_blue = maki::state_conf{}
-            .data<emitting_blue_data>()
+            .context<emitting_blue_data>()
             .entry_action_c<maki::any>
             (
-                [](context& ctx)
+                [](emitting_blue_data& ctx)
                 {
-                    ctx.current_led_color = led_color::blue;
+                    ctx.parent.parent.current_led_color = led_color::blue;
                 }
             )
         ;
@@ -90,13 +116,8 @@ namespace
             (states::emitting_blue,  maki::event<events::color_button_press>, states::emitting_red)
         ;
 
-        struct on_data
-        {
-            bool is_on_state = true;
-        };
-
         constexpr auto on = maki::submachine_conf{}
-            .data<on_data>()
+            .context<on_data>()
             .transition_tables(on_transition_table)
             .exit_action_c<maki::any>
             (
@@ -131,15 +152,15 @@ TEST_CASE("state")
     static constexpr auto emitting_green_path = on_path / 0 / states::emitting_green;
     static constexpr auto emitting_blue_path = on_path / 0 / states::emitting_blue;
 
-    auto& red_state = machine.data<emitting_red_path>();
+    auto& red_state = machine.context<emitting_red_path>();
     REQUIRE(red_state.color == led_color::red);
 
-    const auto& green_state = const_sm.data<emitting_green_path>();
+    const auto& green_state = const_sm.context<emitting_green_path>();
     REQUIRE(green_state.color == led_color::green);
 
-    auto& blue_state = machine.data<emitting_blue_path>();
+    auto& blue_state = machine.context<emitting_blue_path>();
     REQUIRE(blue_state.color == led_color::blue);
 
-    auto& on_state = machine.data<on_path>();
+    auto& on_state = machine.context<on_path>();
     REQUIRE(on_state.is_on_state);
 }

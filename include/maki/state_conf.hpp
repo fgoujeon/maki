@@ -26,14 +26,14 @@ namespace detail
 {
     template
     <
-        class Data = void,
+        class Context = void,
         class EntryActionTuple = detail::tuple<>,
         class InternalActionTuple = detail::tuple<>,
         class ExitActionTuple = detail::tuple<>
     >
     struct state_conf_option_set
     {
-        using data_type = Data;
+        using context_type = Context;
 
         EntryActionTuple entry_actions;
         InternalActionTuple internal_actions;
@@ -83,7 +83,7 @@ public:
     state_conf& operator=(state_conf&&) = delete;
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_data_type = type_c<typename OptionSet::data_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type_c<typename OptionSet::context_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = options_.internal_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = options_.exit_actions; \
@@ -94,7 +94,7 @@ public:
     < \
         detail::state_conf_option_set \
         < \
-            typename std::decay_t<decltype(MAKI_DETAIL_ARG_data_type)>::type, \
+            typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)> \
@@ -107,13 +107,13 @@ public:
         MAKI_DETAIL_ARG_pretty_name_view \
     };
 
-    template<class Data2>
-    [[nodiscard]] constexpr auto data() const
+    template<class Context2>
+    [[nodiscard]] constexpr auto context() const
     {
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_data_type type_c<Data2>
+#define MAKI_DETAIL_ARG_context_type type_c<Context2>
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_data_type
+#undef MAKI_DETAIL_ARG_context_type
     }
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \

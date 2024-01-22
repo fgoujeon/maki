@@ -10,7 +10,7 @@
 namespace maki::detail
 {
 
-template<const auto& Conf, class ParentRegion>
+template<const auto& Conf, class Parent>
 class submachine;
 
 } //namespace

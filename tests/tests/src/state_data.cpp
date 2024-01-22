@@ -38,8 +38,8 @@ namespace
         }
 
         constexpr auto on = maki::state_conf{}
-            .data<on_data>()
-            .internal_action_de<events::accumulate_request>
+            .context<on_data>()
+            .internal_action_ce<events::accumulate_request>
             (
                 [](on_data& self, const events::accumulate_request& event)
                 {
@@ -66,7 +66,7 @@ TEST_CASE("state_data")
 {
     auto machine = machine_t{};
     static constexpr auto on_path = maki::path{0} / states::on;
-    auto& counter = machine.data<on_path>().counter;
+    auto& counter = machine.context<on_path>().counter;
 
     machine.process_event(events::button_press{});
     REQUIRE(counter == 0);

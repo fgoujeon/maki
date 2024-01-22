@@ -10,6 +10,7 @@
 #include "call_member.hpp"
 #include "maybe_bool_util.hpp"
 #include "tlu.hpp"
+#include "context_holder.hpp"
 #include "../type_patterns.hpp"
 #include "../null.hpp"
 
@@ -36,99 +37,69 @@ namespace simple_state_detail
 /*
 Implementation of a non-composite state
 */
-template<const auto& Conf>
+template<const auto& Conf, class Parent>
 class simple_state
 {
 public:
     using option_set_type = std::decay_t<decltype(opts(Conf))>;
-    using data_type = std::conditional_t
-    <
-        std::is_void_v<typename option_set_type::data_type>,
-        null,
-        typename option_set_type::data_type
-    >;
+    using parent_context_type = typename Parent::context_type;
+    using context_type = state_traits::context_t<Conf, parent_context_type>;
 
-    template
-    <
-        class Machine,
-        class Context,
-        class U = data_type,
-        std::enable_if_t<is_brace_constructible<U, Machine&, Context&>, bool> = true
-    >
-    simple_state(Machine& mach, Context& ctx):
-        data_{mach, ctx}
+    template<class Machine, class... ContextArgs>
+    simple_state(Machine& mach, ContextArgs&&... ctx_args):
+        ctx_holder_(context_holder_machine_tag, mach, std::forward<ContextArgs>(ctx_args)...)
     {
     }
 
-    template
-    <
-        class Machine,
-        class Context,
-        class U = data_type,
-        std::enable_if_t<is_brace_constructible<U, Context&>, bool> = true
-    >
-    simple_state(Machine& /*mach*/, Context& ctx):
-        data_{ctx}
+    template<class Machine>
+    simple_state(Machine& mach, parent_context_type& parent_ctx):
+        ctx_holder_(mach, parent_ctx)
     {
     }
 
-    template
-    <
-        class Machine,
-        class Context,
-        class U = data_type,
-        std::enable_if_t<std::is_default_constructible_v<U>, bool> = true
-    >
-    simple_state(Machine& /*mach*/, Context& /*ctx*/)
+    auto& context()
     {
+        return ctx_holder_.get();
     }
 
-    data_type& data()
+    const auto& context() const
     {
-        return data_;
-    }
-
-    const data_type& data() const
-    {
-        return data_;
+        return ctx_holder_.get();
     }
 
     template<class Machine, class Context, class Event>
-    void call_entry_action(Machine& mach, Context& ctx, const Event& event)
+    void call_entry_action(Machine& mach, Context& /*ctx*/, const Event& event)
     {
         call_state_action
         (
             opts(Conf).entry_actions,
             mach,
-            ctx,
-            data(),
+            context(),
             event
         );
     }
 
     template<class Machine, class Context, class Event, class... MaybeBool>
-    void call_internal_action(Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
+    void call_internal_action(Machine& mach, Context& /*ctx*/, const Event& event, MaybeBool&... processed)
     {
         call_state_action
         (
             opts(Conf).internal_actions,
             mach,
-            ctx,
-            data(),
+            context(),
             event
         );
         maybe_bool_util::set_to_true(processed...);
     }
 
     template<class Machine, class Context, class Event>
-    void call_exit_action(Machine& mach, Context& ctx, const Event& event)
+    void call_exit_action(Machine& mach, Context& /*ctx*/, const Event& event)
     {
         call_state_action
         (
             opts(Conf).exit_actions,
             mach,
-            ctx,
-            data(),
+            context(),
             event
         );
     }
@@ -155,7 +126,7 @@ public:
     static constexpr const auto& conf = Conf;
 
 private:
-    data_type data_;
+    context_holder<context_type> ctx_holder_;
 };
 
 } //namespace

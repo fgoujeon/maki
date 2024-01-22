@@ -127,15 +127,15 @@ public:
     }
 
     template<const auto& MachineOrStatePath = empty_path_c>
-    auto& data()
+    auto& context()
     {
-        return submachine_.template data<MachineOrStatePath>();
+        return submachine_.template context<MachineOrStatePath>();
     }
 
     template<const auto& MachineOrStatePath = empty_path_c>
-    const auto& data() const
+    const auto& context() const
     {
-        return submachine_.template data<MachineOrStatePath>();
+        return submachine_.template context<MachineOrStatePath>();
     }
 
     /**
@@ -503,13 +503,11 @@ private:
                 submachine_.call_internal_action(*this, context(), event, processed);
                 if(!processed)
                 {
-                    int dummy_data = 0;
                     call_state_action
                     (
                         opts(conf).fallback_transition_actions,
                         *this,
                         context(),
-                        dummy_data,
                         event
                     );
                 }
@@ -517,7 +515,7 @@ private:
         }
     }
 
-    detail::submachine<conf, void> submachine_;
+    detail::submachine<conf, machine> submachine_;
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;
 };

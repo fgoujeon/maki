@@ -125,8 +125,8 @@ namespace states
         int counter = 0;
     };
     constexpr auto emitting_white = maki::state_conf{}
-        .data<emitting_white_data>()
-        .entry_action_d([](emitting_white_data& data)
+        .context<emitting_white_data>()
+        .entry_action_c([](emitting_white_data& data)
         {
             ++data.counter;
         })

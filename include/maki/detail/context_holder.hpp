@@ -13,9 +13,13 @@
 namespace maki::detail
 {
 
+struct context_holder_machine_tag_t{};
+inline constexpr auto context_holder_machine_tag = context_holder_machine_tag_t{};
+
+
 /*
 Contexts can be constructed with one of these statements:
-    auto obj = context{root_sm, args...};
+    auto obj = context{mach, args...};
     auto obj = context{args...};
 */
 template<class T>
@@ -26,36 +30,100 @@ public:
 
     template
     <
-        class RootSm,
+        class Machine,
         class... Args,
-        std::enable_if_t<is_brace_constructible<T, RootSm&, Args...>, bool> = true
+        std::enable_if_t<is_brace_constructible<T, Machine&, Args...>, bool> = true
     >
-    context_holder(RootSm& root_sm, Args&&... args):
-        ctx_{root_sm, std::forward<Args>(args)...}
+    context_holder(context_holder_machine_tag_t /*tag*/, Machine& mach, Args&&... args):
+        ctx_{mach, std::forward<Args>(args)...}
     {
     }
 
     template
     <
-        class RootSm,
+        class Machine,
         class... Args,
         std::enable_if_t<is_brace_constructible<T, Args...>, bool> = true
     >
-    context_holder(RootSm& /*root_sm*/, Args&&... args):
+    context_holder(context_holder_machine_tag_t /*tag*/, Machine& /*mach*/, Args&&... args):
         ctx_{std::forward<Args>(args)...}
     {
     }
 
     template
     <
-        class RootSm,
+        class Machine,
+        class ParentContext,
+        std::enable_if_t<is_brace_constructible<T, Machine&, ParentContext&>, bool> = true
+    >
+    context_holder(Machine& mach, ParentContext& parent_ctx):
+        ctx_{mach, parent_ctx}
+    {
+    }
+
+    template
+    <
+        class Machine,
+        class ParentContext,
+        std::enable_if_t<is_brace_constructible<T, Machine&>, bool> = true
+    >
+    context_holder(Machine& mach, ParentContext& /*parent_ctx*/):
+        ctx_{mach}
+    {
+    }
+
+    template
+    <
+        class Machine,
+        class ParentContext,
+        std::enable_if_t<is_brace_constructible<T, ParentContext&>, bool> = true
+    >
+    context_holder(Machine& /*mach*/, ParentContext& parent_ctx):
+        ctx_{parent_ctx}
+    {
+    }
+
+    template
+    <
+        class Machine,
+        class ParentContext,
+        class U = T,
+        std::enable_if_t<std::is_default_constructible_v<U>, bool> = true
+    >
+    context_holder(Machine& /*mach*/, ParentContext& /*ctx*/)
+    {
+    }
+
+    template
+    <
+        class Machine,
         class U = T,
         std::enable_if_t<std::is_reference_v<U>, bool> = true
     >
-    context_holder(RootSm& /*root_sm*/, T& ctx):
+    context_holder(Machine& /*mach*/, T& ctx):
         ctx_{ctx}
     {
     }
+
+    T& get()
+    {
+        return ctx_;
+    }
+
+    const T& get() const
+    {
+        return ctx_;
+    }
+
+private:
+    T ctx_;
+};
+
+template<class T>
+class machine_context_holder
+{
+public:
+    using context_type = T;
 
     T& get()
     {

@@ -418,13 +418,13 @@ public:
     ;
     @endcode
     */
-    template<const auto& EventFilter, class Action>
-    [[nodiscard]] constexpr auto fallback_transition_action_me(const Action& action) const
+    template<class EventFilter, class Action>
+    [[nodiscard]] constexpr auto fallback_transition_action_me(const EventFilter& event_filter, const Action& action) const
     {
         const auto new_fallback_transition_actions = tuple_append
         (
             options_.fallback_transition_actions,
-            detail::event_action<std::decay_t<decltype(EventFilter)>, Action, detail::event_action_signature::me>{EventFilter, action}
+            detail::make_event_action<detail::event_action_signature::me>(event_filter, action)
         );
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN

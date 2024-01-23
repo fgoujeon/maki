@@ -34,8 +34,9 @@ namespace
     namespace states
     {
         constexpr auto off = maki::state_conf{}
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.current_led_color = led_color::off;
@@ -44,8 +45,9 @@ namespace
         ;
 
         constexpr auto emitting_red = maki::state_conf{}
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.current_led_color = led_color::red;
@@ -54,8 +56,9 @@ namespace
         ;
 
         constexpr auto emitting_green = maki::state_conf{}
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.current_led_color = led_color::green;
@@ -64,8 +67,9 @@ namespace
         ;
 
         constexpr auto emitting_blue = maki::state_conf{}
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.current_led_color = led_color::blue;

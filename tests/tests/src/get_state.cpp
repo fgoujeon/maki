@@ -57,8 +57,9 @@ namespace
 
         constexpr auto emitting_red = maki::state_conf{}
             .context<emitting_red_data>()
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](emitting_red_data& ctx)
                 {
                     ctx.parent.parent.current_led_color = led_color::red;
@@ -79,8 +80,9 @@ namespace
 
         constexpr auto emitting_green = maki::state_conf{}
             .context<emitting_green_data>()
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](emitting_green_data& ctx)
                 {
                     ctx.parent.parent.current_led_color = led_color::green;
@@ -101,8 +103,9 @@ namespace
 
         constexpr auto emitting_blue = maki::state_conf{}
             .context<emitting_blue_data>()
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](emitting_blue_data& ctx)
                 {
                     ctx.parent.parent.current_led_color = led_color::blue;
@@ -119,8 +122,9 @@ namespace
         constexpr auto on = maki::submachine_conf{}
             .context<on_data>()
             .transition_tables(on_transition_table)
-            .exit_action_c<maki::any>
+            .exit_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.current_led_color = led_color::off;

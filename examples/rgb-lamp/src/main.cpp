@@ -81,7 +81,7 @@ namespace states
         Entry action invoked whenever the state machine enters the `off` state
         with a `button::push_event`.
         */
-        .entry_action_e<maki::type_c<button::push_event>>([](const button::push_event& event)
+        .entry_action_e(maki::type_c<button::push_event>, [](const button::push_event& event)
         {
             std::cout << "Turned off after a ";
             std::cout << event.duration_ms << " millisecond push\n";
@@ -91,7 +91,7 @@ namespace states
         Entry action invoked whenever the state machine enters the `off` state
         with a state machine start event.
         */
-        .entry_action_v<maki::type_c<maki::events::start>>([]
+        .entry_action_v(maki::type_c<maki::events::start>, []
         {
             std::cout << "Started state machine\n";
         })
@@ -100,7 +100,7 @@ namespace states
         Internal action invoked whenever a `button::push_event` occurs while
         the `off` state is active.
         */
-        .internal_action_e<maki::type_c<button::push_event>>([](const button::push_event& event)
+        .internal_action_e(maki::type_c<button::push_event>, [](const button::push_event& event)
         {
             std::cout << "Received a ";
             std::cout << event.duration_ms;
@@ -111,7 +111,7 @@ namespace states
         Exit action invoked whenever the state machine exits the `off` state,
         whatever the type of the event that caused the state transition.
         */
-        .exit_action_v<maki::any>([]
+        .exit_action_v(maki::any, []
         {
             std::cout << "Turned on\n";
         })
@@ -126,7 +126,7 @@ namespace states
     };
     constexpr auto emitting_white = maki::state_conf{}
         .context<emitting_white_data>()
-        .entry_action_c([](emitting_white_data& data)
+        .entry_action_c(maki::any, [](emitting_white_data& data)
         {
             ++data.counter;
         })

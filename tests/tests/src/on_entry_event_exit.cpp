@@ -30,13 +30,15 @@ namespace
         constexpr auto english = maki::state_conf{}
             .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.hello = "hello";
                 }
             )
-            .internal_action_c<maki::type_c<events::say_dog>>
+            .internal_action_c
             (
+                maki::type_c<events::say_dog>,
                 [](context& ctx)
                 {
                     ctx.dog = "dog";
@@ -44,6 +46,7 @@ namespace
             )
             .exit_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.goodbye = "goodbye";
@@ -54,13 +57,15 @@ namespace
         constexpr auto french = maki::state_conf{}
             .entry_action_m
             (
+                maki::any,
                 [](auto& mach)
                 {
                     mach.context().hello = "bonjour";
                 }
             )
-            .internal_action_c<maki::type_c<events::say_dog>>
+            .internal_action_c
             (
+                maki::type_c<events::say_dog>,
                 [](context& ctx)
                 {
                     ctx.dog = "chien";
@@ -68,6 +73,7 @@ namespace
             )
             .exit_action_m
             (
+                maki::any,
                 [](auto& mach)
                 {
                     mach.context().goodbye = "au revoir";

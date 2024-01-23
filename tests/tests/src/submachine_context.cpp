@@ -59,8 +59,9 @@ namespace
 
             constexpr auto emitting_red = maki::submachine_conf{}
                 .transition_tables(emitting_red_ns::transition_table)
-                .entry_action_c<maki::any>
+                .entry_action_c
                 (
+                    maki::any,
                     [](context& ctx)
                     {
                         ++ctx.red_count;
@@ -81,8 +82,9 @@ namespace
         constexpr auto on = maki::submachine_conf{}
             .transition_tables(on_ns::transition_table)
             .context<on_ns::context>()
-            .exit_action_c<maki::any>
+            .exit_action_c
             (
+                maki::any,
                 [](on_ns::context& ctx)
                 {
                     ctx.parent.out = std::to_string(ctx.red_count);

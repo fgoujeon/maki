@@ -39,15 +39,17 @@ namespace
     namespace states
     {
         constexpr auto state0 = maki::state_conf{}
-            .internal_action_ce<maki::type_c<events::event1>>
+            .internal_action_ce
             (
+                maki::type_c<events::event1>,
                 [](context& ctx, const events::event1& event)
                 {
                     ctx.out = "on_event_ce " + event.value;
                 }
             )
-            .internal_action_ce<maki::type_c<events::event2>>
+            .internal_action_ce
             (
+                maki::type_c<events::event2>,
                 [](context& ctx, const events::event2& event)
                 {
                     ctx.out = "on_event_mce " + event.value;

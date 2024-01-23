@@ -36,22 +36,25 @@ namespace
         EMPTY_STATE(off)
 
         constexpr auto on_0 = maki::state_conf{}
-            .entry_action_ce<maki::type_c<events::button_press>>
+            .entry_action_ce
             (
+                maki::type_c<events::button_press>,
                 [](context& ctx, const events::button_press& event)
                 {
                     ctx.out += event.data + "2";
                 }
             )
-            .internal_action_ce<maki::type_c<events::internal>>
+            .internal_action_ce
             (
+                maki::type_c<events::internal>,
                 [](context& ctx, const events::internal& event)
                 {
                     ctx.out += event.data + "2";
                 }
             )
-            .exit_action_ce<maki::type_c<events::button_press>>
+            .exit_action_ce
             (
+                maki::type_c<events::button_press>,
                 [](context& ctx, const events::button_press& event)
                 {
                     ctx.out += event.data + "1";
@@ -65,22 +68,25 @@ namespace
 
         constexpr auto on = maki::submachine_conf{}
             .transition_tables(on_transition_table)
-            .entry_action_ce<maki::type_c<events::button_press>>
+            .entry_action_ce
             (
+                maki::type_c<events::button_press>,
                 [](context& ctx, const events::button_press& event)
                 {
                     ctx.out += event.data + "1";
                 }
             )
-            .internal_action_ce<maki::type_c<events::internal>>
+            .internal_action_ce
             (
+                maki::type_c<events::internal>,
                 [](context& ctx, const events::internal& event)
                 {
                     ctx.out += event.data + "1";
                 }
             )
-            .exit_action_ce<maki::type_c<events::button_press>>
+            .exit_action_ce
             (
+                maki::type_c<events::button_press>,
                 [](context& ctx, const events::button_press& event)
                 {
                     ctx.out += event.data + "2";

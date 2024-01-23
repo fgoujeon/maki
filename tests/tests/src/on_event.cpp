@@ -30,8 +30,9 @@ namespace
     namespace states
     {
         constexpr auto off = maki::state_conf{}
-            .internal_action_ce<maki::type_c<events::button_press>>
+            .internal_action_ce
             (
+                maki::type_c<events::button_press>,
                 [](context& ctx, const events::button_press& event)
                 {
                     ctx.out += event.data + "2;";
@@ -40,15 +41,17 @@ namespace
         ;
 
         constexpr auto on = maki::state_conf{}
-            .internal_action_c<maki::type_c<events::button_press>>
+            .internal_action_c
             (
+                maki::type_c<events::button_press>,
                 [](context& ctx)
                 {
                     ctx.out += "_";
                 }
             )
-            .internal_action_c<maki::type_c<events::alert_button_press>>
+            .internal_action_c
             (
+                maki::type_c<events::alert_button_press>,
                 [](context& ctx)
                 {
                     ctx.out += "beep;";
@@ -65,8 +68,9 @@ namespace
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
         .context<context>()
-        .event_action_ce<maki::type_c<events::button_press>>
+        .event_action_ce
         (
+            maki::type_c<events::button_press>,
             [](context& ctx, const events::button_press& event)
             {
                 ctx.out += event.data + "1;";

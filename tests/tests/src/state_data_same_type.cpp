@@ -37,12 +37,12 @@ namespace
 
         constexpr auto off = maki::state_conf{}
             .context<data>()
-            .internal_action_ce<maki::type_c<events::accumulate_request>>(&accumulate)
+            .internal_action_ce(maki::type_c<events::accumulate_request>, &accumulate)
         ;
 
         constexpr auto on = maki::state_conf{}
             .context<data>()
-            .internal_action_ce<maki::type_c<events::accumulate_request>>(&accumulate)
+            .internal_action_ce(maki::type_c<events::accumulate_request>, &accumulate)
         ;
     }
 

@@ -42,8 +42,9 @@ namespace
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
         .context<context>()
-        .event_action_ce<maki::type_c<events::accumulate_request>>
+        .event_action_ce
         (
+            maki::type_c<events::accumulate_request>,
             [](context& data, const events::accumulate_request& event)
             {
                 data.counter += event.n;

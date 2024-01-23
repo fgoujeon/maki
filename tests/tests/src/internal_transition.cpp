@@ -34,8 +34,9 @@ namespace
         EMPTY_STATE(state9)
 
         constexpr auto benchmarking = maki::state_conf{}
-            .internal_action_c<maki::type_c<events::internal_transition>>
+            .internal_action_c
             (
+                maki::type_c<events::internal_transition>,
                 [](context& ctx)
                 {
                     ++ctx.side_effect;

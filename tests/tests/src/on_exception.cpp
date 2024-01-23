@@ -19,15 +19,17 @@ namespace
     namespace states
     {
         constexpr auto off = maki::state_conf{}
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "off::on_entry;";
                 }
             )
-            .exit_action_c<maki::any>
+            .exit_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "off::on_exit;";
@@ -36,8 +38,9 @@ namespace
         ;
 
         constexpr auto on = maki::state_conf{}
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "on::on_entry;";
@@ -48,8 +51,9 @@ namespace
                     }
                 }
             )
-            .internal_action_ce<maki::type_c<maki::events::exception>>
+            .internal_action_ce
             (
+                maki::type_c<maki::events::exception>,
                 [](context& ctx, const maki::events::exception& event)
                 {
                     try
@@ -63,8 +67,9 @@ namespace
                     }
                 }
             )
-            .exit_action_c<maki::any>
+            .exit_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "on::on_exit;";

@@ -16,8 +16,8 @@ namespace maki
 {
 
 constexpr auto version_major = 0;
-constexpr auto version_minor = 3;
-constexpr auto version_patch = 30;
+constexpr auto version_minor = 4;
+constexpr auto version_patch = 0;
 
 } //namespace
 

@@ -53,7 +53,7 @@ namespace
             )
             .internal_action_ce
             (
-                maki::type_c<maki::events::exception>,
+                maki::type<maki::events::exception>,
                 [](context& ctx, const maki::events::exception& event)
                 {
                     try
@@ -84,8 +84,8 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::type_c<events::button_press>, states::on)
-        (states::on,  maki::type_c<events::button_press>, states::off)
+        (states::off, maki::type<events::button_press>, states::on)
+        (states::on,  maki::type<events::button_press>, states::off)
     ;
 
     constexpr auto default_machine_conf = maki::machine_conf{}

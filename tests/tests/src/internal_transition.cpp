@@ -36,7 +36,7 @@ namespace
         constexpr auto benchmarking = maki::state_conf{}
             .internal_action_c
             (
-                maki::type_c<events::internal_transition>,
+                maki::type<events::internal_transition>,
                 [](context& ctx)
                 {
                     ++ctx.side_effect;
@@ -46,16 +46,16 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::state0, maki::type_c<events::next_state>, states::state1)
-        (states::state1, maki::type_c<events::next_state>, states::state2)
-        (states::state2, maki::type_c<events::next_state>, states::state3)
-        (states::state3, maki::type_c<events::next_state>, states::state4)
-        (states::state4, maki::type_c<events::next_state>, states::state5)
-        (states::state5, maki::type_c<events::next_state>, states::state6)
-        (states::state6, maki::type_c<events::next_state>, states::state7)
-        (states::state7, maki::type_c<events::next_state>, states::state8)
-        (states::state8, maki::type_c<events::next_state>, states::state9)
-        (states::state9, maki::type_c<events::next_state>, states::benchmarking)
+        (states::state0, maki::type<events::next_state>, states::state1)
+        (states::state1, maki::type<events::next_state>, states::state2)
+        (states::state2, maki::type<events::next_state>, states::state3)
+        (states::state3, maki::type<events::next_state>, states::state4)
+        (states::state4, maki::type<events::next_state>, states::state5)
+        (states::state5, maki::type<events::next_state>, states::state6)
+        (states::state6, maki::type<events::next_state>, states::state7)
+        (states::state7, maki::type<events::next_state>, states::state8)
+        (states::state8, maki::type<events::next_state>, states::state9)
+        (states::state9, maki::type<events::next_state>, states::benchmarking)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

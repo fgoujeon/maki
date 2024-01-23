@@ -87,10 +87,10 @@ inline constexpr auto none = none_t{};
 
 
 template<class... Types>
-constexpr auto any_type_of = any_of<type_c<Types>...>;
+constexpr auto any_type_of = any_of<type<Types>...>;
 
 template<class... Types>
-constexpr auto any_type_but = any_but<type_c<Types>...>;
+constexpr auto any_type_but = any_but<type<Types>...>;
 
 
 //matches_pattern

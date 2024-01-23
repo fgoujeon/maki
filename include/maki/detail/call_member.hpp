@@ -29,7 +29,7 @@ void call_event_action
     [[maybe_unused]] const EventActions&... event_actions
 )
 {
-    if constexpr(matches_pattern(type_c<Event>, typename EventAction::event_filter_type{}))
+    if constexpr(matches_pattern(type<Event>, typename EventAction::event_filter_type{}))
     {
         if constexpr(EventAction::sig == event_action_signature::v)
         {

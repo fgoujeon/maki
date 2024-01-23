@@ -26,10 +26,10 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::idle,    maki::type_c<events::start_button_press>, states::running)
-        (states::running, maki::type_c<events::stop_button_press>,  states::idle)
-        (states::failed,  maki::type_c<events::stop_button_press>,  states::idle)
-        (maki::any,       maki::type_c<events::error>,              states::failed)
+        (states::idle,    maki::type<events::start_button_press>, states::running)
+        (states::running, maki::type<events::stop_button_press>,  states::idle)
+        (states::failed,  maki::type<events::stop_button_press>,  states::idle)
+        (maki::any,       maki::type<events::error>,              states::failed)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

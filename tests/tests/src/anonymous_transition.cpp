@@ -26,9 +26,9 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::s0, maki::type_c<events::go_on>, states::s1)
+        (states::s0, maki::type<events::go_on>, states::s1)
         (states::s1, maki::null_c,                states::s2)
-        (states::s2, maki::type_c<events::go_on>, states::s3)
+        (states::s2, maki::type<events::go_on>, states::s3)
         (states::s3, maki::null_c,                states::s4)
         (states::s4, maki::null_c,                states::s0)
     ;

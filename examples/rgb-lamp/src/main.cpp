@@ -81,7 +81,7 @@ namespace states
         Entry action invoked whenever the state machine enters the `off` state
         with a `button::push_event`.
         */
-        .entry_action_e(maki::type_c<button::push_event>, [](const button::push_event& event)
+        .entry_action_e(maki::type<button::push_event>, [](const button::push_event& event)
         {
             std::cout << "Turned off after a ";
             std::cout << event.duration_ms << " millisecond push\n";
@@ -91,7 +91,7 @@ namespace states
         Entry action invoked whenever the state machine enters the `off` state
         with a state machine start event.
         */
-        .entry_action_v(maki::type_c<maki::events::start>, []
+        .entry_action_v(maki::type<maki::events::start>, []
         {
             std::cout << "Started state machine\n";
         })
@@ -100,7 +100,7 @@ namespace states
         Internal action invoked whenever a `button::push_event` occurs while
         the `off` state is active.
         */
-        .internal_action_e(maki::type_c<button::push_event>, [](const button::push_event& event)
+        .internal_action_e(maki::type<button::push_event>, [](const button::push_event& event)
         {
             std::cout << "Received a ";
             std::cout << event.duration_ms;
@@ -191,7 +191,7 @@ namespace guards
 using namespace states;
 using namespace actions;
 using namespace guards;
-inline constexpr auto button_push = maki::type_c<button::push_event>;
+inline constexpr auto button_push = maki::type<button::push_event>;
 
 /*
 This is the transition table. This is where we define the actions that the state

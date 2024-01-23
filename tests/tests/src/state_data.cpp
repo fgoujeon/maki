@@ -41,7 +41,7 @@ namespace
             .context<on_data>()
             .internal_action_ce
             (
-                maki::type_c<events::accumulate_request>,
+                maki::type<events::accumulate_request>,
                 [](on_data& self, const events::accumulate_request& event)
                 {
                     on_accumulate(self, event.n);
@@ -51,8 +51,8 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::type_c<events::button_press>, states::on)
-        (states::on,  maki::type_c<events::button_press>, states::off)
+        (states::off, maki::type<events::button_press>, states::on)
+        (states::on,  maki::type<events::button_press>, states::off)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

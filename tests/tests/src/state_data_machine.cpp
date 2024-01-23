@@ -31,8 +31,8 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::type_c<events::button_press>, states::on)
-        (states::on,  maki::type_c<events::button_press>, states::off)
+        (states::off, maki::type<events::button_press>, states::on)
+        (states::on,  maki::type<events::button_press>, states::off)
     ;
 
     struct machine_data
@@ -44,7 +44,7 @@ namespace
         .context<context>()
         .event_action_ce
         (
-            maki::type_c<events::accumulate_request>,
+            maki::type<events::accumulate_request>,
             [](context& data, const events::accumulate_request& event)
             {
                 data.counter += event.n;

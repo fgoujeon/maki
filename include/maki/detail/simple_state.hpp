@@ -95,7 +95,7 @@ public:
             opts(Conf).internal_actions,
             [](const auto& act)
             {
-                return matches_pattern(type_c<Event>, act.event_filter);
+                return matches_pattern(type<Event>, act.event_filter);
             }
         );
     }

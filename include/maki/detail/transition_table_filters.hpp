@@ -36,7 +36,7 @@ template<class TransitionConstantList, class Event>
 using by_event_t = tlu::filter_t
 <
     TransitionConstantList,
-    by_event_detail::for_event<type_c<Event>>::template matches_event_pattern
+    by_event_detail::for_event<type<Event>>::template matches_event_pattern
 >;
 
 template<class TransitionConstantList>

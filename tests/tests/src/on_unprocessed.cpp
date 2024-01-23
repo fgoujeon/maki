@@ -46,7 +46,7 @@ namespace
         constexpr auto off = maki::state_conf{}
             .internal_action_v
             (
-                maki::type_c<events::ignored_by_emitting_blue>,
+                maki::type<events::ignored_by_emitting_blue>,
                 []{}
             )
         ;
@@ -54,7 +54,7 @@ namespace
         constexpr auto emitting_red = maki::state_conf{}
             .internal_action_v
             (
-                maki::type_c<events::ignored_by_emitting_blue>,
+                maki::type<events::ignored_by_emitting_blue>,
                 []{}
             )
         ;
@@ -62,7 +62,7 @@ namespace
         constexpr auto emitting_green = maki::state_conf{}
             .internal_action_v
             (
-                maki::type_c<events::ignored_by_emitting_blue>,
+                maki::type<events::ignored_by_emitting_blue>,
                 []{}
             )
         ;
@@ -70,9 +70,9 @@ namespace
         constexpr auto emitting_blue = maki::state_conf{};
 
         constexpr auto on_transition_table = maki::transition_table{}
-            (states::emitting_red,   maki::type_c<events::color_button_press>, states::emitting_green)
-            (states::emitting_green, maki::type_c<events::color_button_press>, states::emitting_blue)
-            (states::emitting_blue,  maki::type_c<events::color_button_press>, states::emitting_red)
+            (states::emitting_red,   maki::type<events::color_button_press>, states::emitting_green)
+            (states::emitting_green, maki::type<events::color_button_press>, states::emitting_blue)
+            (states::emitting_blue,  maki::type<events::color_button_press>, states::emitting_red)
         ;
 
         constexpr auto on = maki::submachine_conf{}
@@ -81,7 +81,7 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::on, maki::type_c<events::power_button_press>, states::off)
+        (states::on, maki::type<events::power_button_press>, states::off)
     ;
 
     struct machine_conf_holder
@@ -89,7 +89,7 @@ namespace
         static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)
             .context<context>()
-            .fallback_transition_action_me<maki::type_c<events::ignored_by_emitting_blue>>
+            .fallback_transition_action_me<maki::type<events::ignored_by_emitting_blue>>
             (
                 [](auto& mach, const events::ignored_by_emitting_blue& event)
                 {

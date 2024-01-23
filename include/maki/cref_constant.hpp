@@ -16,13 +16,13 @@ namespace maki
 Maki uses this template to pass such references as type template arguments.
 */
 template<const auto& Value>
-struct cref_constant
+struct cref_constant_t
 {
     static constexpr const auto& value = Value;
 };
 
 template<const auto& Value>
-constexpr auto cref_constant_c = cref_constant<Value>{};
+constexpr auto cref_constant = cref_constant_t<Value>{};
 
 } //namespace
 

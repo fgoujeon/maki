@@ -420,10 +420,10 @@ private:
                 opts(Machine::conf).pre_state_transition_action
                 (
                     ctx,
-                    cref_constant_c<path>,
-                    cref_constant_c<*SourceStateConfPtr>,
+                    cref_constant<path>,
+                    cref_constant<*SourceStateConfPtr>,
                     event,
-                    cref_constant_c<*TargetStateConfPtr>
+                    cref_constant<*TargetStateConfPtr>
                 );
             }
 
@@ -474,10 +474,10 @@ private:
                 opts(Machine::conf).post_state_transition_action
                 (
                     ctx,
-                    cref_constant_c<path>,
-                    cref_constant_c<*SourceStateConfPtr>,
+                    cref_constant<path>,
+                    cref_constant<*SourceStateConfPtr>,
                     event,
-                    cref_constant_c<*TargetStateConfPtr>
+                    cref_constant<*TargetStateConfPtr>
                 );
             }
 

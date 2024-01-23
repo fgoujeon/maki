@@ -212,10 +212,10 @@ public:
     void action
     (
         context& ctx,
-        const maki::cref_constant<RegionPath> path_constant,
-        const maki::cref_constant<SourceStateConf> source_state_conf{}onstant,
+        const maki::cref_constant_t<RegionPath> path_constant,
+        const maki::cref_constant_t<SourceStateConf> source_state_conf{}onstant,
         const Event& event,
-        const maki::cref_constant<TargetStateConf> target_state_conf{}onstant
+        const maki::cref_constant_t<TargetStateConf> target_state_conf{}onstant
     );
     @endcode
 
@@ -281,10 +281,10 @@ public:
     void action
     (
         context& ctx,
-        const maki::cref_constant<RegionPath> path_constant,
-        const maki::cref_constant<SourceStateConf> source_state_conf{}onstant,
+        const maki::cref_constant_t<RegionPath> path_constant,
+        const maki::cref_constant_t<SourceStateConf> source_state_conf{}onstant,
         const Event& event,
-        const maki::cref_constant<TargetStateConf> target_state_conf{}onstant
+        const maki::cref_constant_t<TargetStateConf> target_state_conf{}onstant
     );
     @endcode
 

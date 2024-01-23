@@ -240,7 +240,7 @@ namespace detail
 }
 
 template<class... Elems, const path<Elems...>& Path>
-std::string to_string(const cref_constant<Path>& /*path*/)
+std::string to_string(const cref_constant_t<Path>& /*path*/)
 {
     using idx_sequence_t = std::make_integer_sequence<int, Path.size()>;
     return detail::path_to_string_impl<Path, idx_sequence_t>::call();

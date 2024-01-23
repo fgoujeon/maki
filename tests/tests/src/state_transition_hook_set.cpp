@@ -30,7 +30,7 @@ namespace
         EMPTY_STATE(on0)
 
         constexpr auto on1_transition_table = maki::transition_table{}
-            (states::off0, maki::event<events::button_press>, states::on0)
+            (states::off0, maki::type<events::button_press>, states::on0)
         ;
 
         constexpr auto on1 = maki::submachine_conf{}
@@ -40,16 +40,16 @@ namespace
     }
 
     constexpr auto transition_table_0 = maki::transition_table{}
-        (states::off0, maki::event<events::button_press>, states::on0)
+        (states::off0, maki::type<events::button_press>, states::on0)
     ;
 
     constexpr auto transition_table_1 = maki::transition_table{}
-        (states::off1, maki::event<events::button_press>, states::on1)
+        (states::off1, maki::type<events::button_press>, states::on1)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table_0, transition_table_1)
-        .context<context>()
+        .context(maki::type<context>)
         .pre_state_transition_action_crset
         (
             [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& event, const auto target_state_constant)

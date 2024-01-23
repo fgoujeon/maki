@@ -29,7 +29,7 @@ For example, the following digest type...:
     using transition_table = maki::transition_table
     <
         maki::transition<state0, event0, state1>,
-        maki::transition<state1, event1, state2, null_c,   guard0>,
+        maki::transition<state1, event1, state2, null,   guard0>,
         maki::transition<state2, event2, state3, action0>,
         maki::transition<state3, event3, state0, action1,  guard1>
     >;
@@ -49,10 +49,10 @@ namespace transition_table_digest_detail
     using push_back_unique_if_not_null_constant = tlu::push_back_if_t
     <
         TList,
-        constant<ConfPtr>,
+        constant_t<ConfPtr>,
         (
-            !tlu::contains_v<TList, constant<ConfPtr>> &&
-            static_cast<const void*>(ConfPtr) != static_cast<const void*>(&null_c)
+            !tlu::contains_v<TList, constant_t<ConfPtr>> &&
+            static_cast<const void*>(ConfPtr) != static_cast<const void*>(&null)
         )
     >;
 
@@ -63,7 +63,7 @@ namespace transition_table_digest_detail
         static constexpr auto pinitial_state_conf = tlu::get_t<TransitionConstantList, 0>::value.psource_state_conf_pattern;
 
     public:
-        using state_conf_ptr_constant_list = type_list<constant<pinitial_state_conf>>;
+        using state_conf_ptr_constant_list = type_list<constant_t<pinitial_state_conf>>;
         static constexpr auto has_null_events = false;
     };
 
@@ -78,7 +78,7 @@ namespace transition_table_digest_detail
 
         static constexpr auto has_null_events =
             Digest::has_null_events ||
-            std::is_same_v<typename std::decay_t<decltype(TransitionConstant::value)>::event_type_pattern, null>
+            is_null(TransitionConstant::value.event_pattern)
         ;
     };
 }

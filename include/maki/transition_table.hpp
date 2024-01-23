@@ -77,9 +77,8 @@ namespace detail
     >
     struct transition
     {
-        using event_type_pattern = EventPattern;
-
         SourceStateConfPatternPtr psource_state_conf_pattern;
+        EventPattern event_pattern;
         TargetStateConfPtr ptarget_state_conf;
         Action action;
         Guard guard;
@@ -87,8 +86,8 @@ namespace detail
 
     template
     <
-        class EventPattern,
         class SourceStateConfPatternPtr,
+        class EventPattern,
         class TargetStateConfPtr,
         class Action,
         class Guard
@@ -96,6 +95,7 @@ namespace detail
     constexpr auto make_transition
     (
         const SourceStateConfPatternPtr psource_state_conf_pattern,
+        const EventPattern& event_pattern,
         const TargetStateConfPtr ptarget_state_conf,
         const Action& action,
         const Guard& guard
@@ -111,6 +111,7 @@ namespace detail
         >
         {
             psource_state_conf_pattern,
+            event_pattern,
             ptarget_state_conf,
             action,
             guard
@@ -154,18 +155,18 @@ public:
     template
     <
         class SourceStateConfPattern,
-        class EventPatternType,
+        class EventPattern,
         class TargetStateConf,
-        class Action = null,
-        class Guard = null
+        class Action = null_t,
+        class Guard = null_t
     >
     constexpr auto operator()
     (
         const SourceStateConfPattern& source_state_conf_pattern,
-        const EventPatternType& /*event_pattern_type*/,
+        const EventPattern& event_pattern,
         const TargetStateConf& target_state_conf,
-        const Action& action = null_c,
-        const Guard& guard = null_c
+        const Action& action = null,
+        const Guard& guard = null
     )
     {
         return tuple_apply
@@ -174,6 +175,7 @@ public:
             []
             (
                 const SourceStateConfPattern& source_state_conf_pattern,
+                const EventPattern& event_pattern,
                 const TargetStateConf& target_state_conf,
                 const Action& action,
                 const Guard& guard,
@@ -183,9 +185,10 @@ public:
                 return detail::make_transition_table
                 (
                     transitions...,
-                    detail::make_transition<typename EventPatternType::type>
+                    detail::make_transition
                     (
                         &source_state_conf_pattern,
+                        event_pattern,
                         &target_state_conf,
                         action,
                         guard
@@ -193,6 +196,7 @@ public:
                 );
             },
             source_state_conf_pattern,
+            event_pattern,
             target_state_conf,
             action,
             guard

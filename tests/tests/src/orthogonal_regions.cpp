@@ -32,8 +32,9 @@ namespace orthogonal_regions_ns
         EMPTY_STATE(off1)
         EMPTY_STATE(on0)
         constexpr auto on1 = maki::state_conf{}
-            .internal_action_c<events::exception_request>
+            .internal_action_c
             (
+                maki::type<events::exception_request>,
                 [](context& ctx)
                 {
                     if(ctx.always_zero == 0) //We need this to avoid "unreachable code" warnings
@@ -49,11 +50,11 @@ namespace orthogonal_regions_ns
         .transition_tables
         (
             maki::transition_table{}
-                (states::off0, maki::event<events::button_press>, states::on0),
+                (states::off0, maki::type<events::button_press>, states::on0),
             maki::transition_table{}
-                (states::off1, maki::event<events::button_press>, states::on1)
+                (states::off1, maki::type<events::button_press>, states::on1)
         )
-        .context<context>()
+        .context(maki::type<context>)
         .exception_action_me
         (
             [](auto& mach, const std::exception_ptr& eptr)

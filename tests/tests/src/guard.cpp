@@ -47,14 +47,14 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::event<events::button_press>, states::on,  maki::null_c, guards::has_power)
-        (states::on,  maki::event<events::button_press>, states::off, maki::null_c, guards::always_false)
-        (states::on,  maki::event<events::button_press>, states::off, maki::null_c, guards::is_pressing_hard)
+        (states::off, maki::type<events::button_press>, states::on,  maki::null, guards::has_power)
+        (states::on,  maki::type<events::button_press>, states::off, maki::null, guards::always_false)
+        (states::on,  maki::type<events::button_press>, states::off, maki::null, guards::is_pressing_hard)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context<context>()
+        .context(maki::type<context>)
     ;
 
     using machine_t = maki::make_machine<machine_conf>;

@@ -19,15 +19,17 @@ namespace
     namespace states
     {
         constexpr auto off = maki::state_conf{}
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "off::on_entry;";
                 }
             )
-            .exit_action_c<maki::any>
+            .exit_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "off::on_exit;";
@@ -36,8 +38,9 @@ namespace
         ;
 
         constexpr auto on = maki::state_conf{}
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "on::on_entry;";
@@ -48,8 +51,9 @@ namespace
                     }
                 }
             )
-            .internal_action_ce<maki::events::exception>
+            .internal_action_ce
             (
+                maki::type<maki::events::exception>,
                 [](context& ctx, const maki::events::exception& event)
                 {
                     try
@@ -63,8 +67,9 @@ namespace
                     }
                 }
             )
-            .exit_action_c<maki::any>
+            .exit_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "on::on_exit;";
@@ -79,20 +84,20 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::event<events::button_press>, states::on)
-        (states::on,  maki::event<events::button_press>, states::off)
+        (states::off, maki::type<events::button_press>, states::on)
+        (states::on,  maki::type<events::button_press>, states::off)
     ;
 
     constexpr auto default_machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context<context>()
+        .context(maki::type<context>)
     ;
 
     using default_sm_t = maki::machine<maki::conf_holder<default_machine_conf>>;
 
     constexpr auto custom_machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context<context>()
+        .context(maki::type<context>)
         .exception_action_me
         (
             [](auto& mach, const std::exception_ptr& eptr)

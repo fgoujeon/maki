@@ -24,22 +24,25 @@ namespace
     namespace states
     {
         constexpr auto idle = maki::state_conf{}
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "idle::on_entry;";
                 }
             )
-            .internal_action_c<maki::any>
+            .internal_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "idle::on_event;";
                 }
             )
-            .exit_action_c<maki::any>
+            .exit_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "idle::on_exit;";
@@ -48,22 +51,25 @@ namespace
         ;
 
         constexpr auto running = maki::state_conf{}
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "running::on_entry;";
                 }
             )
-            .internal_action_c<maki::any>
+            .internal_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "running::on_event;";
                 }
             )
-            .exit_action_c<maki::any>
+            .exit_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "running::on_exit;";
@@ -81,14 +87,14 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::idle,    maki::event<events::power_button_press>, states::running)
-        (states::running, maki::event<events::power_button_press>, states::idle)
-        (states::running, maki::event<events::beep_button_press>,  maki::null_c, actions::beep)
+        (states::idle,    maki::type<events::power_button_press>, states::running)
+        (states::running, maki::type<events::power_button_press>, states::idle)
+        (states::running, maki::type<events::beep_button_press>,  maki::null, actions::beep)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context<context>()
+        .context(maki::type<context>)
     ;
 
     using machine_t = maki::make_machine<machine_conf>;

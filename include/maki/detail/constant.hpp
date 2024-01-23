@@ -11,13 +11,13 @@ namespace maki::detail
 {
 
 template<auto Value>
-struct constant
+struct constant_t
 {
     static constexpr auto value = Value;
 };
 
 template<auto Value>
-constexpr auto constant_c = constant<Value>{};
+constexpr auto constant = constant_t<Value>{};
 
 } //namespace
 

@@ -127,12 +127,9 @@ public:
     template<auto StateConfPtr>
     [[nodiscard]] bool active_state() const
     {
-        if constexpr(is_type_pattern_v<std::decay_t<decltype(*StateConfPtr)>>)
+        if constexpr(is_type_pattern(*StateConfPtr))
         {
-            return does_active_state_def_match_pattern
-            <
-                std::decay_t<decltype(*StateConfPtr)>
-            >();
+            return does_active_state_def_match_pattern<*StateConfPtr>();
         }
         else
         {
@@ -149,7 +146,7 @@ public:
             <
                 &state_confs::stopped,
                 pinitial_state_conf,
-                &null_c
+                &null
             >(mach, ctx, event);
         }
     }
@@ -273,7 +270,7 @@ private:
             <
                 ActiveStateConfPtr,
                 &state_confs::stopped,
-                &null_c
+                &null
             >(mach, ctx, event);
         }
     };
@@ -299,7 +296,7 @@ private:
             static constexpr auto action = trans.action;
             static constexpr auto guard = trans.guard;
 
-            if constexpr(is_type_pattern_v<std::decay_t<decltype(*trans.psource_state_conf_pattern)>>)
+            if constexpr(is_type_pattern(*trans.psource_state_conf_pattern))
             {
                 //List of state defs that match with the source state pattern
                 using matching_state_conf_constant_list = state_type_list_filters::by_pattern_t
@@ -330,7 +327,7 @@ private:
                     *trans.ptarget_state_conf,
                     action,
                     guard
-                >::template call<constant<trans.psource_state_conf_pattern>>
+                >::template call<constant_t<trans.psource_state_conf_pattern>>
                 (
                     self,
                     mach,
@@ -370,7 +367,7 @@ private:
             }
 
             //Check guard
-            if constexpr(!std::is_same_v<decltype(Guard), const null&>)
+            if constexpr(!std::is_same_v<decltype(Guard), const null_t&>)
             {
                 if(!detail::call_action_or_guard(Guard, mach, ctx, event))
                 {
@@ -414,7 +411,7 @@ private:
 
         constexpr const auto& path = path_of_v<region>;
 
-        constexpr auto is_internal_transition = same_ref(*TargetStateConfPtr, null_c);
+        constexpr auto is_internal_transition = same_ref(*TargetStateConfPtr, null);
 
         if constexpr(!is_internal_transition)
         {
@@ -423,10 +420,10 @@ private:
                 opts(Machine::conf).pre_state_transition_action
                 (
                     ctx,
-                    cref_constant_c<path>,
-                    cref_constant_c<*SourceStateConfPtr>,
+                    cref_constant<path>,
+                    cref_constant<*SourceStateConfPtr>,
                     event,
-                    cref_constant_c<*TargetStateConfPtr>
+                    cref_constant<*TargetStateConfPtr>
                 );
             }
 
@@ -448,7 +445,7 @@ private:
             >;
         }
 
-        if constexpr(!std::is_same_v<decltype(ActionPtr), const null*>)
+        if constexpr(!std::is_same_v<decltype(ActionPtr), const null_t*>)
         {
             detail::call_action_or_guard
             (
@@ -477,23 +474,22 @@ private:
                 opts(Machine::conf).post_state_transition_action
                 (
                     ctx,
-                    cref_constant_c<path>,
-                    cref_constant_c<*SourceStateConfPtr>,
+                    cref_constant<path>,
+                    cref_constant<*SourceStateConfPtr>,
                     event,
-                    cref_constant_c<*TargetStateConfPtr>
+                    cref_constant<*TargetStateConfPtr>
                 );
             }
 
             //Anonymous transition
             if constexpr(transition_table_digest_type::has_null_events)
             {
-                using candidate_transition_constant_list = transition_table_filters::by_event_t
+                using candidate_transition_constant_list = transition_table_filters::by_null_event_t
                 <
-                    transition_constant_list,
-                    null
+                    transition_constant_list
                 >;
 
-                try_processing_event_in_transitions<candidate_transition_constant_list>(*this, mach, ctx, null_c);
+                try_processing_event_in_transitions<candidate_transition_constant_list>(*this, mach, ctx, null);
             }
         }
     }
@@ -573,25 +569,25 @@ private:
         return given_state_index == active_state_index_;
     }
 
-    template<class TypePattern>
+    template<const auto& TypePattern>
     [[nodiscard]] bool does_active_state_def_match_pattern() const
     {
         auto matches = false;
         with_active_state_conf
         <
-            tlu::push_back_t<state_conf_ptr_constant_list, constant<&state_confs::stopped>>,
+            tlu::push_back_t<state_conf_ptr_constant_list, constant_t<&state_confs::stopped>>,
             does_active_state_def_match_pattern_2<TypePattern>
         >(matches);
         return matches;
     }
 
-    template<class TypePattern>
+    template<const auto& TypePattern>
     struct does_active_state_def_match_pattern_2
     {
         template<auto ActiveStateConfPtr>
         static void call([[maybe_unused]] bool& matches)
         {
-            if constexpr(matches_pattern_v<constant<ActiveStateConfPtr>, TypePattern>)
+            if constexpr(matches_pattern(*ActiveStateConfPtr, TypePattern))
             {
                 matches = true;
             }

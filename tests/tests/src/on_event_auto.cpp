@@ -45,9 +45,10 @@ namespace
         };
 
         constexpr auto off = maki::state_conf{}
-            .context<off_data>()
-            .internal_action_ce<maki::any>
+            .context(maki::type<off_data>)
+            .internal_action_ce
             (
+                maki::any,
                 [](off_data& ctx, const auto& event)
                 {
                     ctx.on_event(event);
@@ -76,9 +77,10 @@ namespace
         };
 
         constexpr auto on = maki::state_conf{}
-            .context<on_data>()
-            .internal_action_ce<maki::any>
+            .context(maki::type<on_data>)
+            .internal_action_ce
             (
+                maki::any,
                 [](on_data& ctx, const auto& event)
                 {
                     ctx.on_event(event);
@@ -88,15 +90,16 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::event<events::button_press>, states::on)
-        (states::on,  maki::event<events::button_press>, states::off)
+        (states::off, maki::type<events::button_press>, states::on)
+        (states::on,  maki::type<events::button_press>, states::off)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context<context>()
-        .event_action_ce<events::button_press>
+        .context(maki::type<context>)
+        .event_action_ce
         (
+            maki::type<events::button_press>,
             [](context& ctx, const events::button_press& event)
             {
                 ctx.out += event.data + "1;";

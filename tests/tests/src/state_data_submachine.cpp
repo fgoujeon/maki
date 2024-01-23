@@ -30,7 +30,7 @@ namespace
         EMPTY_STATE(on1)
 
         constexpr auto on_transition_table = maki::transition_table{}
-            (states::on0, maki::event<maki::null>, states::on1)
+            (states::on0, maki::null, states::on1)
         ;
 
         struct on_data
@@ -44,10 +44,11 @@ namespace
         }
 
         constexpr auto on = maki::submachine_conf{}
-            .context<on_data>()
+            .context(maki::type<on_data>)
             .transition_tables(on_transition_table)
-            .internal_action_ce<events::accumulate_request>
+            .internal_action_ce
             (
+                maki::type<events::accumulate_request>,
                 [](on_data& self, const events::accumulate_request& event)
                 {
                     on_accumulate(self, event.n);
@@ -57,13 +58,13 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::event<events::button_press>, states::on)
-        (states::on,  maki::event<events::button_press>, states::off)
+        (states::off, maki::type<events::button_press>, states::on)
+        (states::on,  maki::type<events::button_press>, states::off)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context<context>()
+        .context(maki::type<context>)
     ;
 
     using machine_t = maki::make_machine<machine_conf>;

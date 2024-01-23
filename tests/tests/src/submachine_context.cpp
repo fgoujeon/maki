@@ -53,14 +53,15 @@ namespace
                 EMPTY_STATE(emitting_hot_red)
 
                 constexpr auto transition_table = maki::transition_table{}
-                    (emitting_cold_red, maki::event<events::color_button_press>, emitting_hot_red)
+                    (emitting_cold_red, maki::type<events::color_button_press>, emitting_hot_red)
                 ;
             }
 
             constexpr auto emitting_red = maki::submachine_conf{}
                 .transition_tables(emitting_red_ns::transition_table)
-                .entry_action_c<maki::any>
+                .entry_action_c
                 (
+                    maki::any,
                     [](context& ctx)
                     {
                         ++ctx.red_count;
@@ -72,17 +73,18 @@ namespace
             EMPTY_STATE(emitting_blue)
 
             constexpr auto transition_table = maki::transition_table{}
-                (emitting_red,   maki::event<events::color_button_press>, emitting_green)
-                (emitting_green, maki::event<events::color_button_press>, emitting_blue)
-                (emitting_blue,  maki::event<events::color_button_press>, emitting_red)
+                (emitting_red,   maki::type<events::color_button_press>, emitting_green)
+                (emitting_green, maki::type<events::color_button_press>, emitting_blue)
+                (emitting_blue,  maki::type<events::color_button_press>, emitting_red)
             ;
         }
 
         constexpr auto on = maki::submachine_conf{}
             .transition_tables(on_ns::transition_table)
-            .context<on_ns::context>()
-            .exit_action_c<maki::any>
+            .context(maki::type<on_ns::context>)
+            .exit_action_c
             (
+                maki::any,
                 [](on_ns::context& ctx)
                 {
                     ctx.parent.out = std::to_string(ctx.red_count);
@@ -92,13 +94,13 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::event<events::power_button_press>, states::on)
-        (states::on,  maki::event<events::power_button_press>, states::off)
+        (states::off, maki::type<events::power_button_press>, states::on)
+        (states::on,  maki::type<events::power_button_press>, states::off)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context<context>()
+        .context(maki::type<context>)
     ;
 
     using machine_t = maki::make_machine<machine_conf>;

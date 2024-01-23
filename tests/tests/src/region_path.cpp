@@ -28,7 +28,7 @@ namespace
         EMPTY_STATE(on0)
 
         constexpr auto on1_transition_table = maki::transition_table{}
-            (states::off0, maki::event<events::button_press>, states::on0)
+            (states::off0, maki::type<events::button_press>, states::on0)
         ;
 
         constexpr auto on1 = maki::submachine_conf{}
@@ -38,16 +38,16 @@ namespace
     }
 
     constexpr auto transition_table_0_t = maki::transition_table{}
-        (states::off0, maki::event<events::button_press>, states::on0)
+        (states::off0, maki::type<events::button_press>, states::on0)
     ;
 
     constexpr auto transition_table_1_t = maki::transition_table{}
-        (states::off1, maki::event<events::button_press>, states::on1)
+        (states::off1, maki::type<events::button_press>, states::on1)
     ;
 
     constexpr auto machine_conf = maki::submachine_conf{}
         .transition_tables(transition_table_0_t, transition_table_1_t)
-        .context<context>()
+        .context(maki::type<context>)
         .pretty_name("main_sm")
     ;
 
@@ -58,16 +58,16 @@ TEST_CASE("path")
 {
     {
         static constexpr auto path = maki::path{machine_conf} / 0;
-        REQUIRE(maki::to_string(maki::cref_constant_c<path>) == "main_sm/0");
+        REQUIRE(maki::to_string(maki::cref_constant<path>) == "main_sm/0");
     }
 
     {
         static constexpr auto path = maki::path{machine_conf} / 1;
-        REQUIRE(maki::to_string(maki::cref_constant_c<path>) == "main_sm/1");
+        REQUIRE(maki::to_string(maki::cref_constant<path>) == "main_sm/1");
     }
 
     {
         static constexpr auto path = maki::path{machine_conf} / 1 / states::on1 / 0;
-        REQUIRE(maki::to_string(maki::cref_constant_c<path>) == "main_sm/1/on_1/0");
+        REQUIRE(maki::to_string(maki::cref_constant<path>) == "main_sm/1/on_1/0");
     }
 }

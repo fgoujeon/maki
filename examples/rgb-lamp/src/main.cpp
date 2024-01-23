@@ -81,7 +81,7 @@ namespace states
         Entry action invoked whenever the state machine enters the `off` state
         with a `button::push_event`.
         */
-        .entry_action_e<button::push_event>([](const button::push_event& event)
+        .entry_action_e(maki::type<button::push_event>, [](const button::push_event& event)
         {
             std::cout << "Turned off after a ";
             std::cout << event.duration_ms << " millisecond push\n";
@@ -91,7 +91,7 @@ namespace states
         Entry action invoked whenever the state machine enters the `off` state
         with a state machine start event.
         */
-        .entry_action_v<maki::events::start>([]
+        .entry_action_v(maki::type<maki::events::start>, []
         {
             std::cout << "Started state machine\n";
         })
@@ -100,7 +100,7 @@ namespace states
         Internal action invoked whenever a `button::push_event` occurs while
         the `off` state is active.
         */
-        .internal_action_e<button::push_event>([](const button::push_event& event)
+        .internal_action_e(maki::type<button::push_event>, [](const button::push_event& event)
         {
             std::cout << "Received a ";
             std::cout << event.duration_ms;
@@ -111,7 +111,7 @@ namespace states
         Exit action invoked whenever the state machine exits the `off` state,
         whatever the type of the event that caused the state transition.
         */
-        .exit_action_v<maki::any>([]
+        .exit_action_v(maki::any, []
         {
             std::cout << "Turned on\n";
         })
@@ -125,8 +125,8 @@ namespace states
         int counter = 0;
     };
     constexpr auto emitting_white = maki::state_conf{}
-        .context<emitting_white_data>()
-        .entry_action_c([](emitting_white_data& data)
+        .context(maki::type<emitting_white_data>)
+        .entry_action_c(maki::any, [](emitting_white_data& data)
         {
             ++data.counter;
         })
@@ -191,7 +191,7 @@ namespace guards
 using namespace states;
 using namespace actions;
 using namespace guards;
-inline constexpr auto button_push = maki::event<button::push_event>;
+inline constexpr auto button_push = maki::type<button::push_event>;
 
 /*
 This is the transition table. This is where we define the actions that the state
@@ -213,13 +213,13 @@ The initial active state of the state machine is the first state encountered in
 the transition table (`off`, is our case).
 */
 constexpr auto transition_table = maki::transition_table{}
-    //   source_state,     event,       target_state,   action,           guard
-    (off,                  button_push, emitting_white, turn_light_white)
-    (emitting_white,       button_push, emitting_red,   turn_light_red,   is_short_push)
-    (emitting_red,         button_push, emitting_green, turn_light_green, is_short_push)
-    (emitting_green,       button_push, emitting_blue,  turn_light_blue,  is_short_push)
-    (emitting_blue,        button_push, emitting_white, turn_light_white, is_short_push)
-    (maki::any_but_c<off>, button_push, off,            turn_light_off,   is_long_push)
+    //   source_state,   event,       target_state,   action,           guard
+    (off,                button_push, emitting_white, turn_light_white)
+    (emitting_white,     button_push, emitting_red,   turn_light_red,   is_short_push)
+    (emitting_red,       button_push, emitting_green, turn_light_green, is_short_push)
+    (emitting_green,     button_push, emitting_blue,  turn_light_blue,  is_short_push)
+    (emitting_blue,      button_push, emitting_white, turn_light_white, is_short_push)
+    (maki::any_but<off>, button_push, off,            turn_light_off,   is_long_push)
 ;
 
 /*
@@ -229,7 +229,7 @@ configure many other aspects of the state machine.
 */
 constexpr auto machine_conf = maki::machine_conf{}
     .transition_tables(transition_table)
-    .context<context>()
+    .context(maki::type<context>)
 ;
 
 /*

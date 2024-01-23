@@ -126,13 +126,13 @@ public:
         return submachine_.context();
     }
 
-    template<const auto& MachineOrStatePath = empty_path_c>
+    template<const auto& MachineOrStatePath = empty_path>
     auto& context()
     {
         return submachine_.template context<MachineOrStatePath>();
     }
 
-    template<const auto& MachineOrStatePath = empty_path_c>
+    template<const auto& MachineOrStatePath = empty_path>
     const auto& context() const
     {
         return submachine_.template context<MachineOrStatePath>();

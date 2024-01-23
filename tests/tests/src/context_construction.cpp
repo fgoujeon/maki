@@ -38,25 +38,25 @@ namespace
         EMPTY_STATE(emitting_blue)
 
         constexpr auto on_transition_table = maki::transition_table{}
-            (states::emitting_red,   maki::event<events::color_button_press>, states::emitting_green)
-            (states::emitting_green, maki::event<events::color_button_press>, states::emitting_blue)
-            (states::emitting_blue,  maki::event<events::color_button_press>, states::emitting_red)
+            (states::emitting_red,   maki::type<events::color_button_press>, states::emitting_green)
+            (states::emitting_green, maki::type<events::color_button_press>, states::emitting_blue)
+            (states::emitting_blue,  maki::type<events::color_button_press>, states::emitting_red)
         ;
 
         constexpr auto on = maki::submachine_conf{}
             .transition_tables(on_transition_table)
-            .context<on_context>()
+            .context(maki::type<on_context>)
         ;
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::event<events::power_button_press>, states::on)
-        (states::on,  maki::event<events::power_button_press>, states::off)
+        (states::off, maki::type<events::power_button_press>, states::on)
+        (states::on,  maki::type<events::power_button_press>, states::off)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context<context>()
+        .context(maki::type<context>)
     ;
 
     struct machine_conf_holder

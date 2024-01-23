@@ -31,29 +31,33 @@ namespace nullary_member_functions_ns
         EMPTY_STATE(off)
 
         constexpr auto on = maki::state_conf{}
-            .entry_action_c<events::e1>
+            .entry_action_c
             (
+                maki::type<events::e1>,
                 [](context& ctx)
                 {
                     ctx.out += "on_entry(e1);";
                 }
             )
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "on_entry();";
                 }
             )
-            .exit_action_c<events::e1>
+            .exit_action_c
             (
+                maki::type<events::e1>,
                 [](context& ctx)
                 {
                     ctx.out += "on_exit(e1);";
                 }
             )
-            .exit_action_c<maki::any>
+            .exit_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "on_exit();";
@@ -90,15 +94,15 @@ namespace nullary_member_functions_ns
     };
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::event<events::e1>, states::on,  action, guard)
-        (states::off, maki::event<events::e2>, states::on,  action, guard)
-        (states::on,  maki::event<events::e1>, states::off, action, guard)
-        (states::on,  maki::event<events::e2>, states::off, action, guard)
+        (states::off, maki::type<events::e1>, states::on,  action, guard)
+        (states::off, maki::type<events::e2>, states::on,  action, guard)
+        (states::on,  maki::type<events::e1>, states::off, action, guard)
+        (states::on,  maki::type<events::e2>, states::off, action, guard)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context<context>()
+        .context(maki::type<context>)
     ;
 
     using machine_t = maki::make_machine<machine_conf>;

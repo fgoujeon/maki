@@ -17,23 +17,6 @@
 namespace maki::detail
 {
 
-namespace simple_state_detail
-{
-    template<class Event>
-    struct for_event
-    {
-        template<class Action>
-        struct takes_event
-        {
-            static constexpr auto value = matches_pattern_v
-            <
-                Event,
-                typename Action::event_type_filter
-            >;
-        };
-    };
-}
-
 /*
 Implementation of a non-composite state
 */
@@ -107,20 +90,14 @@ public:
     template<class Event>
     static constexpr bool has_internal_action_for_event()
     {
-        struct not_found{};
-
-        using first_matching_action_type = tlu::find_if_or_t
-        <
-            decltype(opts(Conf).internal_actions),
-            simple_state_detail::for_event<Event>::template takes_event,
-            not_found
-        >;
-
-        return !std::is_same_v
-        <
-            first_matching_action_type,
-            not_found
-        >;
+        return tuple_contains_if
+        (
+            opts(Conf).internal_actions,
+            [](const auto& act)
+            {
+                return matches_pattern(type<Event>, act.event_filter);
+            }
+        );
     }
 
     static constexpr const auto& conf = Conf;

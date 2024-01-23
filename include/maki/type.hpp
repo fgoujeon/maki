@@ -6,7 +6,7 @@
 
 /**
 @file
-@brief Defines the maki::type struct template
+@brief Defines the maki::t struct template
 */
 
 #ifndef MAKI_TYPE_HPP
@@ -17,36 +17,24 @@
 namespace maki
 {
 
-#ifdef MAKI_DETAIL_DOXYGEN
 /**
 @brief A type holder
 */
 template<class T>
-struct type
+struct type_t
 {
     /**
     @brief An alias for the given type
     */
     using type = T;
 };
-#else
-//A type holder
-template<class T>
-struct type_impl
-{
-    using type = T;
-};
-
-template<class T>
-using type = type_impl<T>;
-#endif
 
 /**
 @related type
 @brief Returns whether T and U are the same type
 */
 template<class T, class U>
-constexpr bool operator==(const type<T> /*lhs*/, const type<U> /*rhs*/)
+constexpr bool operator==(const type_t<T> /*lhs*/, const type_t<U> /*rhs*/)
 {
     return std::is_same_v<T, U>;
 }
@@ -56,7 +44,7 @@ constexpr bool operator==(const type<T> /*lhs*/, const type<U> /*rhs*/)
 @brief A convenient variable template for @ref type
 */
 template<class T>
-constexpr auto type_c = type<T>{};
+constexpr auto type = type_t<T>{};
 
 } //namespace
 

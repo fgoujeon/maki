@@ -34,10 +34,18 @@ enum class event_action_signature
 template<class EventFilter, class Action, event_action_signature Sig>
 struct event_action
 {
-    using event_type_filter = EventFilter;
+    using event_filter_type = EventFilter;
+
     static constexpr auto sig = Sig;
+    EventFilter event_filter;
     Action action;
 };
+
+template<event_action_signature Sig, class EventFilter, class Action>
+constexpr auto make_event_action(const EventFilter& event_filter, const Action& action)
+{
+    return event_action<EventFilter, Action, Sig>{event_filter, action};
+}
 
 } //namespace
 

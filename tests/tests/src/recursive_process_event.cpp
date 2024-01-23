@@ -27,15 +27,17 @@ namespace
     namespace states
     {
         constexpr auto s0 = maki::state_conf{}
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.output += "s0::on_entry;";
                 }
             )
-            .exit_action_c<maki::any>
+            .exit_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.output += "s0::on_exit;";
@@ -44,15 +46,17 @@ namespace
         ;
 
         constexpr auto s1 = maki::state_conf{}
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.output += "s1::on_entry;";
                 }
             )
-            .exit_action_c<maki::any>
+            .exit_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.output += "s1::on_exit;";
@@ -61,15 +65,17 @@ namespace
         ;
 
         constexpr auto s2 = maki::state_conf{}
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.output += "s2::on_entry;";
                 }
             )
-            .exit_action_c<maki::any>
+            .exit_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.output += "s2::on_exit;";
@@ -102,16 +108,16 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::s0, maki::event<events::s0_to_s1_request>, states::s1, actions::s0_to_s1)
-        (states::s1, maki::event<events::s1_to_s2_request>, states::s2, actions::s1_to_s2)
-        (states::s2, maki::event<events::s2_to_s0_request>, states::s0)
+        (states::s0, maki::type<events::s0_to_s1_request>, states::s1, actions::s0_to_s1)
+        (states::s1, maki::type<events::s1_to_s2_request>, states::s2, actions::s1_to_s2)
+        (states::s2, maki::type<events::s2_to_s0_request>, states::s0)
     ;
 
     struct machine_conf_holder
     {
         static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)
-            .context<context>()
+            .context(maki::type<context>)
         ;
     };
 }

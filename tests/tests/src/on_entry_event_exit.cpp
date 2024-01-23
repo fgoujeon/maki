@@ -30,13 +30,15 @@ namespace
         constexpr auto english = maki::state_conf{}
             .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.hello = "hello";
                 }
             )
-            .internal_action_c<events::say_dog>
+            .internal_action_c
             (
+                maki::type<events::say_dog>,
                 [](context& ctx)
                 {
                     ctx.dog = "dog";
@@ -44,6 +46,7 @@ namespace
             )
             .exit_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.goodbye = "goodbye";
@@ -54,13 +57,15 @@ namespace
         constexpr auto french = maki::state_conf{}
             .entry_action_m
             (
+                maki::any,
                 [](auto& mach)
                 {
                     mach.context().hello = "bonjour";
                 }
             )
-            .internal_action_c<events::say_dog>
+            .internal_action_c
             (
+                maki::type<events::say_dog>,
                 [](context& ctx)
                 {
                     ctx.dog = "chien";
@@ -68,6 +73,7 @@ namespace
             )
             .exit_action_m
             (
+                maki::any,
                 [](auto& mach)
                 {
                     mach.context().goodbye = "au revoir";
@@ -77,14 +83,14 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::idle,    maki::event<events::next_language_request>, states::english)
-        (states::english, maki::event<events::next_language_request>, states::french)
-        (states::french,  maki::event<events::next_language_request>, states::idle)
+        (states::idle,    maki::type<events::next_language_request>, states::english)
+        (states::english, maki::type<events::next_language_request>, states::french)
+        (states::french,  maki::type<events::next_language_request>, states::idle)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context<context>()
+        .context(maki::type<context>)
     ;
 
     using machine_t = maki::make_machine<machine_conf>;

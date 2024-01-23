@@ -93,7 +93,7 @@ Once you've defined your guard, you just have to pass the function name as the f
 
 ~~~{.cpp}
 constexpr auto transition_table = maki::transition_table{}
-    .add_c<source_state_type, event_type, target_state_type, action, guard>
+    (source_state_type, maki::type<event_type>, target_state_type, action, guard)
     //...
 ;
 ~~~

@@ -39,15 +39,17 @@ namespace
     namespace states
     {
         constexpr auto state0 = maki::state_conf{}
-            .internal_action_ce<events::event1>
+            .internal_action_ce
             (
+                maki::type<events::event1>,
                 [](context& ctx, const events::event1& event)
                 {
                     ctx.out = "on_event_ce " + event.value;
                 }
             )
-            .internal_action_ce<events::event2>
+            .internal_action_ce
             (
+                maki::type<events::event2>,
                 [](context& ctx, const events::event2& event)
                 {
                     ctx.out = "on_event_mce " + event.value;
@@ -57,14 +59,14 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::state0, maki::event<events::unused>, maki::null_c)
+        (states::state0, maki::type<events::unused>, maki::null)
     ;
 
     struct machine_conf_holder
     {
         static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)
-            .context<context>()
+            .context(maki::type<context>)
         ;
 
         context& ctx;

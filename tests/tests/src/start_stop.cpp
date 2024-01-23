@@ -18,15 +18,17 @@ namespace
     namespace states
     {
         constexpr auto s0 = maki::state_conf{}
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "s0::on_entry;";
                 }
             )
-            .exit_action_c<maki::any>
+            .exit_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "s0::on_exit;";
@@ -35,15 +37,17 @@ namespace
         ;
 
         constexpr auto s1 = maki::state_conf{}
-            .entry_action_c<maki::any>
+            .entry_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "s1::on_entry;";
                 }
             )
-            .exit_action_c<maki::any>
+            .exit_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "s1::on_exit;";
@@ -58,13 +62,13 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::s0, maki::event<maki::null>,           states::s1)
-        (states::s1, maki::event<events::button_press>, states::s0)
+        (states::s0, maki::null,                       states::s1)
+        (states::s1, maki::type<events::button_press>, states::s0)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context<context>()
+        .context(maki::type<context>)
         .auto_start(false)
     ;
 

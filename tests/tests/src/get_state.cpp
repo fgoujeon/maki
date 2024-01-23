@@ -56,9 +56,10 @@ namespace
         };
 
         constexpr auto emitting_red = maki::state_conf{}
-            .context<emitting_red_data>()
-            .entry_action_c<maki::any>
+            .context(maki::type<emitting_red_data>)
+            .entry_action_c
             (
+                maki::any,
                 [](emitting_red_data& ctx)
                 {
                     ctx.parent.parent.current_led_color = led_color::red;
@@ -78,9 +79,10 @@ namespace
         };
 
         constexpr auto emitting_green = maki::state_conf{}
-            .context<emitting_green_data>()
-            .entry_action_c<maki::any>
+            .context(maki::type<emitting_green_data>)
+            .entry_action_c
             (
+                maki::any,
                 [](emitting_green_data& ctx)
                 {
                     ctx.parent.parent.current_led_color = led_color::green;
@@ -100,9 +102,10 @@ namespace
         };
 
         constexpr auto emitting_blue = maki::state_conf{}
-            .context<emitting_blue_data>()
-            .entry_action_c<maki::any>
+            .context(maki::type<emitting_blue_data>)
+            .entry_action_c
             (
+                maki::any,
                 [](emitting_blue_data& ctx)
                 {
                     ctx.parent.parent.current_led_color = led_color::blue;
@@ -111,16 +114,17 @@ namespace
         ;
 
         constexpr auto on_transition_table = maki::transition_table{}
-            (states::emitting_red,   maki::event<events::color_button_press>, states::emitting_green)
-            (states::emitting_green, maki::event<events::color_button_press>, states::emitting_blue)
-            (states::emitting_blue,  maki::event<events::color_button_press>, states::emitting_red)
+            (states::emitting_red,   maki::type<events::color_button_press>, states::emitting_green)
+            (states::emitting_green, maki::type<events::color_button_press>, states::emitting_blue)
+            (states::emitting_blue,  maki::type<events::color_button_press>, states::emitting_red)
         ;
 
         constexpr auto on = maki::submachine_conf{}
-            .context<on_data>()
+            .context(maki::type<on_data>)
             .transition_tables(on_transition_table)
-            .exit_action_c<maki::any>
+            .exit_action_c
             (
+                maki::any,
                 [](context& ctx)
                 {
                     ctx.current_led_color = led_color::off;
@@ -130,13 +134,13 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::event<events::power_button_press>, states::on)
-        (states::on,  maki::event<events::power_button_press>, states::off)
+        (states::off, maki::type<events::power_button_press>, states::on)
+        (states::on,  maki::type<events::power_button_press>, states::off)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context<context>()
+        .context(maki::type<context>)
     ;
 
     using machine_t = maki::make_machine<machine_conf>;

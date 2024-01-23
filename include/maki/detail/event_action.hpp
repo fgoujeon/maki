@@ -45,7 +45,7 @@ template<event_action_signature Sig, class EventFilter, class Action>
 constexpr auto make_event_action(const EventFilter& event_filter, const Action& action)
 {
     return event_action<EventFilter, Action, Sig>{event_filter, action};
-};
+}
 
 } //namespace
 

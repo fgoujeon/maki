@@ -23,7 +23,7 @@ namespace by_pattern_detail
         template<class StateConfPtrConstant>
         struct matches
         {
-            static constexpr auto value = matches_pattern_v<constant<StateConfPtrConstant::value>, std::decay_t<decltype(*PatternPtr)>>;
+            static constexpr auto value = matches_pattern(*StateConfPtrConstant::value, *PatternPtr);
         };
     };
 }

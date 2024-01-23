@@ -32,8 +32,8 @@ void turn_light_off()
 //! [transition-table]
 constexpr auto transition_table = maki::transition_table{}
     //source state, event,                     target state, action
-    (off,           maki::event<button_press>, on,           turn_light_on)
-    (on,            maki::event<button_press>, off,          turn_light_off)
+    (off,           maki::type_c<button_press>, on,           turn_light_on)
+    (on,            maki::type_c<button_press>, off,          turn_light_off)
 ;
 //! [transition-table]
 

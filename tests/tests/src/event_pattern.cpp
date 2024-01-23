@@ -28,15 +28,15 @@ namespace
     [[maybe_unused]]
     constexpr auto make_sm_transition_table()
     {
-        using any_button_press = maki::any_of
+        constexpr auto any_button_press = maki::any_type_of
         <
             events::power_button_press,
             events::alert_button_press
         >;
 
         return maki::transition_table{}
-            (states::off, maki::event<any_button_press>,           states::on)
-            (states::on,  maki::event<events::power_button_press>, states::off)
+            (states::off, any_button_press,                        states::on)
+            (states::on,  maki::type_c<events::power_button_press>, states::off)
         ;
     }
 

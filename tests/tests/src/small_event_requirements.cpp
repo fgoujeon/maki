@@ -62,8 +62,8 @@ namespace
     };
 
     constexpr auto transition_table = maki::transition_table{}
-        (state, maki::event<event_processing_request<small_event>>, maki::null_c, process_event<small_event>)
-        (state, maki::event<event_processing_request<big_event>>,   maki::null_c, process_event<big_event>)
+        (state, maki::type_c<event_processing_request<small_event>>, maki::null_c, process_event<small_event>)
+        (state, maki::type_c<event_processing_request<big_event>>,   maki::null_c, process_event<big_event>)
     ;
 
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>

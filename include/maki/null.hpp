@@ -21,6 +21,22 @@ struct null{};
 
 inline constexpr auto null_c = null{};
 
+inline constexpr bool operator==(const null& /*lhs*/, const null& /*rhs*/)
+{
+    return true;
+}
+
+inline constexpr bool is_null(const null /*ignored*/)
+{
+    return true;
+}
+
+template<class Other>
+inline constexpr bool is_null(const Other& /*ignored*/)
+{
+    return false;
+}
+
 } //namespace
 
 #endif

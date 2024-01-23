@@ -106,6 +106,11 @@ public:
 
     machine_conf& operator=(machine_conf&&) = delete;
 
+    constexpr bool operator==(const machine_conf& other) const
+    {
+        return this == &other;
+    }
+
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = options_.auto_start; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type_c<typename OptionSet::context_type>; \
@@ -158,7 +163,7 @@ public:
     /** \
     @brief Adds an entry action. \
     */ \
-    template<class EventFilter, class Action> \
+    template<const auto& EventFilter, class Action> \
     [[nodiscard]] constexpr auto entry_action_##signature(const Action& action) const \
     { \
         return entry_action<EventFilter, detail::event_action_signature::signature>(action); \
@@ -171,7 +176,7 @@ public:
     @brief Adds an action to be called whenever `maki::machine` is about to \
     process an event. \
     */ \
-    template<class EventFilter, class Action> \
+    template<const auto& EventFilter, class Action> \
     [[nodiscard]] constexpr auto event_action_##signature(const Action& action) const \
     { \
         return event_action<EventFilter, detail::event_action_signature::signature>(action); \
@@ -183,7 +188,7 @@ public:
     /** \
     @brief Adds an exit action. \
     */ \
-    template<class EventFilter, class Action> \
+    template<const auto& EventFilter, class Action> \
     [[nodiscard]] constexpr auto exit_action_##signature(const Action& action) const \
     { \
         return exit_action<EventFilter, detail::event_action_signature::signature>(action); \
@@ -413,13 +418,13 @@ public:
     ;
     @endcode
     */
-    template<class EventFilter, class Action>
+    template<const auto& EventFilter, class Action>
     [[nodiscard]] constexpr auto fallback_transition_action_me(const Action& action) const
     {
         const auto new_fallback_transition_actions = tuple_append
         (
             options_.fallback_transition_actions,
-            detail::event_action<EventFilter, Action, detail::event_action_signature::me>{action}
+            detail::event_action<std::decay_t<decltype(EventFilter)>, Action, detail::event_action_signature::me>{EventFilter, action}
         );
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
@@ -486,13 +491,13 @@ private:
     {
     }
 
-    template<class EventFilter, detail::event_action_signature Sig, class Action>
+    template<const auto& EventFilter, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto entry_action(const Action& action) const
     {
         const auto new_entry_actions = tuple_append
         (
             options_.entry_actions,
-            detail::event_action<EventFilter, Action, Sig>{action}
+            detail::make_event_action<Sig>(EventFilter, action)
         );
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
@@ -501,13 +506,13 @@ private:
 #undef MAKI_DETAIL_ARG_entry_actions
     }
 
-    template<class EventFilter, detail::event_action_signature Sig, class Action>
+    template<const auto& EventFilter, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto event_action(const Action& action) const
     {
         const auto new_internal_actions = tuple_append
         (
             options_.internal_actions,
-            detail::event_action<EventFilter, Action, Sig>{action}
+            detail::make_event_action<Sig>(EventFilter, action)
         );
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
@@ -516,13 +521,13 @@ private:
 #undef MAKI_DETAIL_ARG_internal_actions
     }
 
-    template<class EventFilter, detail::event_action_signature Sig, class Action>
+    template<const auto& EventFilter, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto exit_action(const Action& action) const
     {
         const auto new_exit_actions = tuple_append
         (
             options_.exit_actions,
-            detail::event_action<EventFilter, Action, Sig>{action}
+            detail::make_event_action<Sig>(EventFilter, action)
         );
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN

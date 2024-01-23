@@ -39,8 +39,8 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::event<events::button_press>, states::on,  actions::beep)
-        (states::on,  maki::event<events::button_press>, states::off, actions::boop)
+        (states::off, maki::type_c<events::button_press>, states::on,  actions::beep)
+        (states::on,  maki::type_c<events::button_press>, states::off, actions::boop)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

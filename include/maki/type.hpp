@@ -6,7 +6,7 @@
 
 /**
 @file
-@brief Defines the maki::type struct template
+@brief Defines the maki::type_c struct template
 */
 
 #ifndef MAKI_TYPE_HPP

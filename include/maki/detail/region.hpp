@@ -127,12 +127,9 @@ public:
     template<auto StateConfPtr>
     [[nodiscard]] bool active_state() const
     {
-        if constexpr(is_type_pattern_v<std::decay_t<decltype(*StateConfPtr)>>)
+        if constexpr(is_type_pattern(*StateConfPtr))
         {
-            return does_active_state_def_match_pattern
-            <
-                std::decay_t<decltype(*StateConfPtr)>
-            >();
+            return does_active_state_def_match_pattern<*StateConfPtr>();
         }
         else
         {
@@ -299,7 +296,7 @@ private:
             static constexpr auto action = trans.action;
             static constexpr auto guard = trans.guard;
 
-            if constexpr(is_type_pattern_v<std::decay_t<decltype(*trans.psource_state_conf_pattern)>>)
+            if constexpr(is_type_pattern(*trans.psource_state_conf_pattern))
             {
                 //List of state defs that match with the source state pattern
                 using matching_state_conf_constant_list = state_type_list_filters::by_pattern_t
@@ -487,10 +484,9 @@ private:
             //Anonymous transition
             if constexpr(transition_table_digest_type::has_null_events)
             {
-                using candidate_transition_constant_list = transition_table_filters::by_event_t
+                using candidate_transition_constant_list = transition_table_filters::by_null_event_t
                 <
-                    transition_constant_list,
-                    null
+                    transition_constant_list
                 >;
 
                 try_processing_event_in_transitions<candidate_transition_constant_list>(*this, mach, ctx, null_c);
@@ -573,7 +569,7 @@ private:
         return given_state_index == active_state_index_;
     }
 
-    template<class TypePattern>
+    template<const auto& TypePattern>
     [[nodiscard]] bool does_active_state_def_match_pattern() const
     {
         auto matches = false;
@@ -585,13 +581,13 @@ private:
         return matches;
     }
 
-    template<class TypePattern>
+    template<const auto& TypePattern>
     struct does_active_state_def_match_pattern_2
     {
         template<auto ActiveStateConfPtr>
         static void call([[maybe_unused]] bool& matches)
         {
-            if constexpr(matches_pattern_v<constant<ActiveStateConfPtr>, TypePattern>)
+            if constexpr(matches_pattern(*ActiveStateConfPtr, TypePattern))
             {
                 matches = true;
             }

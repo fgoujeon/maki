@@ -36,21 +36,21 @@ namespace
         EMPTY_STATE(off)
 
         constexpr auto on_0 = maki::state_conf{}
-            .entry_action_ce<events::button_press>
+            .entry_action_ce<maki::type_c<events::button_press>>
             (
                 [](context& ctx, const events::button_press& event)
                 {
                     ctx.out += event.data + "2";
                 }
             )
-            .internal_action_ce<events::internal>
+            .internal_action_ce<maki::type_c<events::internal>>
             (
                 [](context& ctx, const events::internal& event)
                 {
                     ctx.out += event.data + "2";
                 }
             )
-            .exit_action_ce<events::button_press>
+            .exit_action_ce<maki::type_c<events::button_press>>
             (
                 [](context& ctx, const events::button_press& event)
                 {
@@ -60,26 +60,26 @@ namespace
         ;
 
         constexpr auto on_transition_table = maki::transition_table{}
-            (states::on_0, maki::event<events::button_press>, maki::null_c)
+            (states::on_0, maki::type_c<events::button_press>, maki::null_c)
         ;
 
         constexpr auto on = maki::submachine_conf{}
             .transition_tables(on_transition_table)
-            .entry_action_ce<events::button_press>
+            .entry_action_ce<maki::type_c<events::button_press>>
             (
                 [](context& ctx, const events::button_press& event)
                 {
                     ctx.out += event.data + "1";
                 }
             )
-            .internal_action_ce<events::internal>
+            .internal_action_ce<maki::type_c<events::internal>>
             (
                 [](context& ctx, const events::internal& event)
                 {
                     ctx.out += event.data + "1";
                 }
             )
-            .exit_action_ce<events::button_press>
+            .exit_action_ce<maki::type_c<events::button_press>>
             (
                 [](context& ctx, const events::button_press& event)
                 {
@@ -90,8 +90,8 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::event<events::button_press>, states::on)
-        (states::on,  maki::event<events::button_press>, states::off)
+        (states::off, maki::type_c<events::button_press>, states::on)
+        (states::on,  maki::type_c<events::button_press>, states::off)
     ;
 
     struct machine_conf_holder

@@ -16,7 +16,6 @@
 
 #include "maki/conf_holder.hpp"
 #include "maki/cref_constant.hpp"
-#include "maki/event.hpp"
 #include "maki/events.hpp"
 #include "maki/guard.hpp"
 #include "maki/machine.hpp"

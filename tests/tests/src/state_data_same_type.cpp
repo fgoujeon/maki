@@ -37,18 +37,18 @@ namespace
 
         constexpr auto off = maki::state_conf{}
             .context<data>()
-            .internal_action_ce<events::accumulate_request>(&accumulate)
+            .internal_action_ce<maki::type_c<events::accumulate_request>>(&accumulate)
         ;
 
         constexpr auto on = maki::state_conf{}
             .context<data>()
-            .internal_action_ce<events::accumulate_request>(&accumulate)
+            .internal_action_ce<maki::type_c<events::accumulate_request>>(&accumulate)
         ;
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::event<events::button_press>, states::on)
-        (states::on,  maki::event<events::button_press>, states::off)
+        (states::off, maki::type_c<events::button_press>, states::on)
+        (states::on,  maki::type_c<events::button_press>, states::off)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

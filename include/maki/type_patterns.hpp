@@ -13,6 +13,7 @@
 #define MAKI_TYPE_PATTERNS_HPP
 
 #include "detail/constant.hpp"
+#include "type.hpp"
 #include <type_traits>
 
 namespace maki
@@ -29,164 +30,170 @@ tables) in lieu of single types to concisely express a set of types.
 /**
 @brief A type pattern that matches with any type.
 */
-struct any{};
+struct any_t{};
 
 /**
 @brief A type pattern that matches with any type that verifies `Predicate<T>::value == true`.
 @tparam Predicate the predicate against which types are tested
 */
-template<template<class> class Predicate>
-struct any_if{};
+template<const auto& Predicate>
+struct any_if_t{};
 
 /**
 @brief A type pattern that matches with any type that verifies `Predicate<T>::value == false`.
 @tparam Predicate the predicate against which types are tested
 */
-template<template<class> class Predicate>
-struct any_if_not{};
+template<const auto& Predicate>
+struct any_if_not_t{};
 
 /**
 @brief A type pattern that matches with the given types.
 @tparam Ts the types the pattern matches with
 */
-template<class... Ts>
-struct any_of{};
+template<const auto&... Values>
+struct any_of_t{};
 
 /**
 @brief A type pattern that matches with any type but the given ones.
 @tparam Ts the types the pattern doesn't match with
 */
-template<class... Ts>
-struct any_but{};
+template<const auto&... Values>
+struct any_but_t{};
 
 /**
 @brief A type pattern that doesn't match with any type.
 */
-struct none{};
+struct none_t{};
 
 /**
 @}
 */
 
-inline constexpr auto any_c = any{};
+inline constexpr auto any = any_t{};
 
-template<template<class> class Predicate>
-constexpr auto any_if_c = any_if<Predicate>{};
+template<const auto& Predicate>
+constexpr auto any_if = any_if_t<Predicate>{};
 
-template<template<class> class Predicate>
-constexpr auto any_if_not_c = any_if_not<Predicate>{};
+template<const auto& Predicate>
+constexpr auto any_if_not = any_if_not_t<Predicate>{};
 
-template<const auto&... StateConfs>
-constexpr auto any_of_c = any_of<detail::constant<&StateConfs>...>{};
+template<const auto&... Values>
+constexpr auto any_of = any_of_t<Values...>{};
 
-template<const auto&... StateConfs>
-constexpr auto any_but_c = any_but<detail::constant<&StateConfs>...>{};
+template<const auto&... Values>
+constexpr auto any_but = any_but_t<Values...>{};
 
-inline constexpr auto none_c = none{};
+inline constexpr auto none = none_t{};
+
+
+template<class... Types>
+constexpr auto any_type_of = any_of<type_c<Types>...>;
+
+template<class... Types>
+constexpr auto any_type_but = any_but<type_c<Types>...>;
+
 
 //matches_pattern
 namespace detail
 {
     //Pattern is a regular type
-    template<class T, class Pattern>
-    struct matches_pattern
+    template<class Value, class Pattern>
+    constexpr bool matches_pattern(const Value& value, const Pattern& pattern)
     {
-        static constexpr bool regular = true;
-        static constexpr bool value = std::is_same_v<T, Pattern>;
-    };
-
-    template<class T, class Pattern>
-    constexpr auto matches_pattern_v = matches_pattern<T, Pattern>::value;
-
-    template<class T>
-    struct matches_pattern<T, any>
-    {
-        static constexpr bool value = true;
-    };
-
-    template<class T, template<class> class Predicate>
-    struct matches_pattern<T, any_if<Predicate>>
-    {
-        static constexpr bool value = Predicate<T>::value;
-    };
-
-    template<class T, template<class> class Predicate>
-    struct matches_pattern<T, any_if_not<Predicate>>
-    {
-        static constexpr bool value = !Predicate<T>::value;
-    };
-
-    template<class T, class... Ts>
-    struct matches_pattern<T, any_of<Ts...>>
-    {
-        //MSVC wants a function for the fold expression
-        static constexpr bool make_value()
+        if constexpr(std::is_same_v<Value, Pattern>)
         {
-            return (matches_pattern_v<T, Ts> || ...);
+            return value == pattern;
         }
-
-        static constexpr bool value = make_value();
-    };
-
-    template<class T, class... Ts>
-    struct matches_pattern<T, any_but<Ts...>>
-    {
-        //MSVC wants a function for the fold expression
-        static constexpr bool make_value()
+        else
         {
-            return (!matches_pattern_v<T, Ts> && ...);
+            return false;
         }
+    }
 
-        static constexpr bool value = make_value();
-    };
-
-    template<class T>
-    struct matches_pattern<T, none>
+    template<class Value>
+    constexpr bool matches_pattern(const Value& /*value*/, const any_t /*pattern*/)
     {
-        static constexpr bool value = false;
-    };
+        return true;
+    }
+
+    template<class Value, const auto& Predicate>
+    constexpr bool matches_pattern(const Value& value, const any_if_t<Predicate> /*pattern*/)
+    {
+        return Predicate(value);
+    }
+
+    template<class Value, const auto& Predicate>
+    constexpr bool matches_pattern(const Value& value, const any_if_not_t<Predicate> /*pattern*/)
+    {
+        return !Predicate(value);
+    }
+
+    template<class Value, const auto&... Values>
+    constexpr bool matches_pattern(const Value& value, const any_of_t<Values...> /*pattern*/)
+    {
+        return (matches_pattern(value, Values) || ...);
+    }
+
+    template<class Value, const auto&... Values>
+    constexpr bool matches_pattern(const Value& value, const any_but_t<Values...> /*pattern*/)
+    {
+        return (!matches_pattern(value, Values) && ...);
+    }
+
+    template<class Value>
+    constexpr bool matches_pattern(const Value& /*value*/, const none_t /*pattern*/)
+    {
+        return false;
+    }
 }
 
 namespace detail
 {
-    template<class T, class Enable = void>
-    struct is_type_pattern
-    {
-        static constexpr auto value = true;
-    };
-
     template<class T>
-    struct is_type_pattern
-    <
-        T,
-        std::enable_if_t<matches_pattern<void, T>::regular>
-    >
+    constexpr bool is_type_pattern(const T& /*pattern*/)
     {
-        static constexpr auto value = false;
-    };
+        return false;
+    }
 
-    template<class T>
-    constexpr auto is_type_pattern_v = is_type_pattern<T>::value;
-
-    template<class T, class PatternList>
-    class matches_any_pattern;
-
-    template<class T, template<class...> class PatternList, class... Patterns>
-    class matches_any_pattern<T, PatternList<Patterns...>>
+    inline constexpr bool is_type_pattern(const any_t /*pattern*/)
     {
-    private:
-        //MSVC wants a function for the fold expression
-        static constexpr bool make_value()
-        {
-            return (matches_pattern<T, Patterns>::value || ...);
-        }
+        return true;
+    }
 
-    public:
-        static constexpr auto value = make_value();
-    };
+    template<const auto& Predicate>
+    constexpr bool is_type_pattern(const any_if_t<Predicate> /*pattern*/)
+    {
+        return true;
+    }
 
-    template<class T, class PatternList>
-    constexpr auto matches_any_pattern_v = matches_any_pattern<T, PatternList>::value;
+    template<const auto& Predicate>
+    constexpr bool is_type_pattern(const any_if_not_t<Predicate> /*pattern*/)
+    {
+        return true;
+    }
+
+    template<const auto&... Values>
+    constexpr bool is_type_pattern(const any_of_t<Values...> /*pattern*/)
+    {
+        return true;
+    }
+
+    template<const auto&... Values>
+    constexpr bool is_type_pattern(const any_but_t<Values...> /*pattern*/)
+    {
+        return true;
+    }
+
+    inline constexpr bool is_type_pattern(const none_t /*pattern*/)
+    {
+        return true;
+    }
+
+    template<class Value, class... Patterns>
+    constexpr bool matches_any_pattern(const Value& value, const Patterns&... patterns)
+    {
+        return (matches_pattern(value, patterns) || ...);
+    }
 }
 
 } //namespace

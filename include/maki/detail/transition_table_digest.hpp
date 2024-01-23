@@ -78,7 +78,7 @@ namespace transition_table_digest_detail
 
         static constexpr auto has_null_events =
             Digest::has_null_events ||
-            std::is_same_v<typename std::decay_t<decltype(TransitionConstant::value)>::event_type_pattern, null>
+            is_null(TransitionConstant::value.event_pattern)
         ;
     };
 }

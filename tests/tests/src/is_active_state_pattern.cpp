@@ -37,13 +37,13 @@ namespace
         EMPTY_STATE(emitting_green)
         EMPTY_STATE(emitting_blue)
 
-        constexpr auto not_emitting_red = maki::any_but_c<emitting_red>;
-        constexpr auto emitting_red_or_green = maki::any_of_c<emitting_red, emitting_green>;
+        constexpr auto not_emitting_red = maki::any_but<emitting_red>;
+        constexpr auto emitting_red_or_green = maki::any_of<emitting_red, emitting_green>;
 
         constexpr auto on_transition_table = maki::transition_table{}
-            (states::emitting_red,   maki::event<events::color_button_press>, states::emitting_green)
-            (states::emitting_green, maki::event<events::color_button_press>, states::emitting_blue)
-            (states::emitting_blue,  maki::event<events::color_button_press>, states::emitting_red)
+            (states::emitting_red,   maki::type_c<events::color_button_press>, states::emitting_green)
+            (states::emitting_green, maki::type_c<events::color_button_press>, states::emitting_blue)
+            (states::emitting_blue,  maki::type_c<events::color_button_press>, states::emitting_red)
         ;
 
         constexpr auto on = maki::submachine_conf{}
@@ -52,8 +52,8 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::event<events::power_button_press>, states::on)
-        (states::on,  maki::event<events::power_button_press>, states::off)
+        (states::off, maki::type_c<events::power_button_press>, states::on)
+        (states::on,  maki::type_c<events::power_button_press>, states::off)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

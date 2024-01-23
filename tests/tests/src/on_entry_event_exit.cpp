@@ -35,7 +35,7 @@ namespace
                     ctx.hello = "hello";
                 }
             )
-            .internal_action_c<events::say_dog>
+            .internal_action_c<maki::type_c<events::say_dog>>
             (
                 [](context& ctx)
                 {
@@ -59,7 +59,7 @@ namespace
                     mach.context().hello = "bonjour";
                 }
             )
-            .internal_action_c<events::say_dog>
+            .internal_action_c<maki::type_c<events::say_dog>>
             (
                 [](context& ctx)
                 {
@@ -77,9 +77,9 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::idle,    maki::event<events::next_language_request>, states::english)
-        (states::english, maki::event<events::next_language_request>, states::french)
-        (states::french,  maki::event<events::next_language_request>, states::idle)
+        (states::idle,    maki::type_c<events::next_language_request>, states::english)
+        (states::english, maki::type_c<events::next_language_request>, states::french)
+        (states::french,  maki::type_c<events::next_language_request>, states::idle)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

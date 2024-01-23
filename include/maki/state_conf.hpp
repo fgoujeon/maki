@@ -82,6 +82,11 @@ public:
 
     state_conf& operator=(state_conf&&) = delete;
 
+    constexpr bool operator==(const state_conf& other) const
+    {
+        return this == &other;
+    }
+
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type_c<typename OptionSet::context_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions; \
@@ -117,7 +122,7 @@ public:
     }
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    template<class EventFilter = maki::any, class Action> \
+    template<const auto& EventFilter = maki::any, class Action> \
     [[nodiscard]] constexpr auto entry_action_##signature(const Action& action) const \
     { \
         return entry_action<EventFilter, detail::event_action_signature::signature>(action); \
@@ -126,7 +131,7 @@ public:
 #undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    template<class EventFilter, class Action> \
+    template<const auto& EventFilter, class Action> \
     [[nodiscard]] constexpr auto internal_action_##signature(const Action& action) const \
     { \
         return internal_action<EventFilter, detail::event_action_signature::signature>(action); \
@@ -135,7 +140,7 @@ public:
 #undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    template<class EventFilter = maki::any, class Action> \
+    template<const auto& EventFilter = maki::any, class Action> \
     [[nodiscard]] constexpr auto exit_action_##signature(const Action& action) const \
     { \
         return exit_action<EventFilter, detail::event_action_signature::signature>(action); \
@@ -164,13 +169,13 @@ private:
     {
     }
 
-    template<class EventFilter = maki::any, detail::event_action_signature Sig, class Action>
+    template<const auto& EventFilter = maki::any, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto entry_action(const Action& action) const
     {
         const auto new_entry_actions = tuple_append
         (
             options_.entry_actions,
-            detail::event_action<EventFilter, Action, Sig>{action}
+            detail::make_event_action<Sig>(EventFilter, action)
         );
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
@@ -179,13 +184,13 @@ private:
 #undef MAKI_DETAIL_ARG_entry_actions
     }
 
-    template<class EventFilter, detail::event_action_signature Sig, class Action>
+    template<const auto& EventFilter, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto internal_action(const Action& action) const
     {
         const auto new_internal_actions = tuple_append
         (
             options_.internal_actions,
-            detail::event_action<EventFilter, Action, Sig>{action}
+            detail::make_event_action<Sig>(EventFilter, action)
         );
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
@@ -194,13 +199,13 @@ private:
 #undef MAKI_DETAIL_ARG_internal_actions
     }
 
-    template<class EventFilter = maki::any, detail::event_action_signature Sig, class Action>
+    template<const auto& EventFilter = maki::any, detail::event_action_signature Sig, class Action>
     [[nodiscard]] constexpr auto exit_action(const Action& action) const
     {
         const auto new_exit_actions = tuple_append
         (
             options_.exit_actions,
-            detail::event_action<EventFilter, Action, Sig>{action}
+            detail::make_event_action<Sig>(EventFilter, action)
         );
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN

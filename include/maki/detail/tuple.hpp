@@ -155,6 +155,17 @@ constexpr auto tuple_apply(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
     return impl_t::call(tpl, fun, std::forward<ExtraArgs>(extra_args)...);
 }
 
+inline constexpr auto tuple_contains_if_impl = [](const auto& pred, const auto&... elems)
+{
+    return (pred(elems) || ...);
+};
+
+template<class Tuple, class Predicate>
+constexpr bool tuple_contains_if(Tuple& tpl, const Predicate& pred)
+{
+    return tuple_apply(tpl, tuple_contains_if_impl, pred);
+}
+
 template<const auto& Tuple, class IndexSequence>
 struct tuple_to_constant_list_impl;
 

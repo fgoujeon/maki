@@ -42,7 +42,7 @@ namespace
         };
 
         constexpr auto emitting_red = maki::state_conf{}
-            .context<emitting_red_data>()
+            .context(maki::type<emitting_red_data>)
             .entry_action_c
             (
                 maki::any,
@@ -60,7 +60,7 @@ namespace
         };
 
         constexpr auto emitting_green = maki::state_conf{}
-            .context<emitting_green_data>()
+            .context(maki::type<emitting_green_data>)
             .entry_action_c
             (
                 maki::any,
@@ -78,7 +78,7 @@ namespace
         };
 
         constexpr auto emitting_blue = maki::state_conf{}
-            .context<emitting_blue_data>()
+            .context(maki::type<emitting_blue_data>)
             .entry_action_c
             (
                 maki::any,
@@ -117,7 +117,7 @@ namespace
     {
         static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)
-            .context<context>()
+            .context(maki::type<context>)
         ;
     };
 }

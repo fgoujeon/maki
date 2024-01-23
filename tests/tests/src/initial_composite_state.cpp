@@ -94,7 +94,7 @@ namespace
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context<context>()
+        .context(maki::type<context>)
     ;
 
     struct machine_conf_holder: maki::conf_holder<machine_conf>{};

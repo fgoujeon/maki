@@ -47,7 +47,7 @@ namespace
 
     constexpr auto machine_conf = maki::submachine_conf{}
         .transition_tables(transition_table_0_t, transition_table_1_t)
-        .context<context>()
+        .context(maki::type<context>)
         .pretty_name("main_sm")
     ;
 

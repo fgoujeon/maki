@@ -44,7 +44,7 @@ namespace
         }
 
         constexpr auto on = maki::submachine_conf{}
-            .context<on_data>()
+            .context(maki::type<on_data>)
             .transition_tables(on_transition_table)
             .internal_action_ce
             (
@@ -64,7 +64,7 @@ namespace
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context<context>()
+        .context(maki::type<context>)
     ;
 
     using machine_t = maki::make_machine<machine_conf>;

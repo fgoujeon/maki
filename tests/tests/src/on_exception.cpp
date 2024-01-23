@@ -90,14 +90,14 @@ namespace
 
     constexpr auto default_machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context<context>()
+        .context(maki::type<context>)
     ;
 
     using default_sm_t = maki::machine<maki::conf_holder<default_machine_conf>>;
 
     constexpr auto custom_machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context<context>()
+        .context(maki::type<context>)
         .exception_action_me
         (
             [](auto& mach, const std::exception_ptr& eptr)

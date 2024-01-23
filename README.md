@@ -292,7 +292,7 @@ configure many other aspects of the state machine.
 */
 constexpr auto machine_conf = maki::machine_conf{}
     .transition_tables(transition_table)
-    .context<context>()
+    .context(maki::type<context>)
 ;
 
 /*

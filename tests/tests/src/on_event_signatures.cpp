@@ -66,7 +66,7 @@ namespace
     {
         static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)
-            .context<context>()
+            .context(maki::type<context>)
         ;
 
         context& ctx;

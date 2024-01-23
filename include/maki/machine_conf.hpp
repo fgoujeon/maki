@@ -326,7 +326,7 @@ public:
     @brief Specifies the context type.
     */
     template<class Context2>
-    [[nodiscard]] constexpr auto context() const
+    [[nodiscard]] constexpr auto context(const type_t<Context2> /*ignored*/) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_context_type type<Context2>

@@ -49,9 +49,9 @@ namespace transition_table_digest_detail
     using push_back_unique_if_not_null_constant = tlu::push_back_if_t
     <
         TList,
-        constant<ConfPtr>,
+        constant_t<ConfPtr>,
         (
-            !tlu::contains_v<TList, constant<ConfPtr>> &&
+            !tlu::contains_v<TList, constant_t<ConfPtr>> &&
             static_cast<const void*>(ConfPtr) != static_cast<const void*>(&null)
         )
     >;
@@ -63,7 +63,7 @@ namespace transition_table_digest_detail
         static constexpr auto pinitial_state_conf = tlu::get_t<TransitionConstantList, 0>::value.psource_state_conf_pattern;
 
     public:
-        using state_conf_ptr_constant_list = type_list<constant<pinitial_state_conf>>;
+        using state_conf_ptr_constant_list = type_list<constant_t<pinitial_state_conf>>;
         static constexpr auto has_null_events = false;
     };
 

@@ -327,7 +327,7 @@ private:
                     *trans.ptarget_state_conf,
                     action,
                     guard
-                >::template call<constant<trans.psource_state_conf_pattern>>
+                >::template call<constant_t<trans.psource_state_conf_pattern>>
                 (
                     self,
                     mach,
@@ -575,7 +575,7 @@ private:
         auto matches = false;
         with_active_state_conf
         <
-            tlu::push_back_t<state_conf_ptr_constant_list, constant<&state_confs::stopped>>,
+            tlu::push_back_t<state_conf_ptr_constant_list, constant_t<&state_confs::stopped>>,
             does_active_state_def_match_pattern_2<TypePattern>
         >(matches);
         return matches;

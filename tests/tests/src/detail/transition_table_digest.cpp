@@ -46,10 +46,10 @@ namespace transition_table_digest_ns
 
     using state_conf_ptr_constant_list = maki::detail::type_list
     <
-        maki::detail::constant<&state0>,
-        maki::detail::constant<&state1>,
-        maki::detail::constant<&state2>,
-        maki::detail::constant<&state3>
+        maki::detail::constant_t<&state0>,
+        maki::detail::constant_t<&state1>,
+        maki::detail::constant_t<&state2>,
+        maki::detail::constant_t<&state3>
     >;
 }
 

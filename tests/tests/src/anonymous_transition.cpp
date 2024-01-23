@@ -27,10 +27,10 @@ namespace
 
     constexpr auto transition_table = maki::transition_table{}
         (states::s0, maki::type<events::go_on>, states::s1)
-        (states::s1, maki::null_c,                states::s2)
+        (states::s1, maki::null,                states::s2)
         (states::s2, maki::type<events::go_on>, states::s3)
-        (states::s3, maki::null_c,                states::s4)
-        (states::s4, maki::null_c,                states::s0)
+        (states::s3, maki::null,                states::s4)
+        (states::s4, maki::null,                states::s0)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

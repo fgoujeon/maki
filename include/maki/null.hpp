@@ -17,16 +17,16 @@ Represents either:
 - a null event (for anonymous transitions);
 - a null target state (for internal transitions in transition table).
 */
-struct null{};
+struct null_t{};
 
-inline constexpr auto null_c = null{};
+inline constexpr auto null = null_t{};
 
-inline constexpr bool operator==(const null& /*lhs*/, const null& /*rhs*/)
+inline constexpr bool operator==(const null_t /*lhs*/, const null_t /*rhs*/)
 {
     return true;
 }
 
-inline constexpr bool is_null(const null /*ignored*/)
+inline constexpr bool is_null(const null_t /*ignored*/)
 {
     return true;
 }

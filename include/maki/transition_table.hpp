@@ -157,16 +157,16 @@ public:
         class SourceStateConfPattern,
         class EventPattern,
         class TargetStateConf,
-        class Action = null,
-        class Guard = null
+        class Action = null_t,
+        class Guard = null_t
     >
     constexpr auto operator()
     (
         const SourceStateConfPattern& source_state_conf_pattern,
         const EventPattern& event_pattern,
         const TargetStateConf& target_state_conf,
-        const Action& action = null_c,
-        const Guard& guard = null_c
+        const Action& action = null,
+        const Guard& guard = null
     )
     {
         return tuple_apply

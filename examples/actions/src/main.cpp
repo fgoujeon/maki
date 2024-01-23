@@ -79,7 +79,7 @@ void some_other_action(context& /*ctx*/, const some_other_event& event)
 constexpr auto transition_table = maki::transition_table{}
     //source state, event,                          target state, action
     (state0,        maki::type<some_event>,        state1,       some_action /*state transition action*/)
-    (state0,        maki::type<some_other_event>,  maki::null_c, some_other_action /*internal transition action*/)
+    (state0,        maki::type<some_other_event>,  maki::null, some_other_action /*internal transition action*/)
     (state0,        maki::type<yet_another_event>, state2)
     (state1,        maki::type<yet_another_event>, state2)
     (state2,        maki::type<yet_another_event>, state0)

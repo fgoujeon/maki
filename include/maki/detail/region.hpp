@@ -146,7 +146,7 @@ public:
             <
                 &state_confs::stopped,
                 pinitial_state_conf,
-                &null_c
+                &null
             >(mach, ctx, event);
         }
     }
@@ -270,7 +270,7 @@ private:
             <
                 ActiveStateConfPtr,
                 &state_confs::stopped,
-                &null_c
+                &null
             >(mach, ctx, event);
         }
     };
@@ -367,7 +367,7 @@ private:
             }
 
             //Check guard
-            if constexpr(!std::is_same_v<decltype(Guard), const null&>)
+            if constexpr(!std::is_same_v<decltype(Guard), const null_t&>)
             {
                 if(!detail::call_action_or_guard(Guard, mach, ctx, event))
                 {
@@ -411,7 +411,7 @@ private:
 
         constexpr const auto& path = path_of_v<region>;
 
-        constexpr auto is_internal_transition = same_ref(*TargetStateConfPtr, null_c);
+        constexpr auto is_internal_transition = same_ref(*TargetStateConfPtr, null);
 
         if constexpr(!is_internal_transition)
         {
@@ -445,7 +445,7 @@ private:
             >;
         }
 
-        if constexpr(!std::is_same_v<decltype(ActionPtr), const null*>)
+        if constexpr(!std::is_same_v<decltype(ActionPtr), const null_t*>)
         {
             detail::call_action_or_guard
             (
@@ -489,7 +489,7 @@ private:
                     transition_constant_list
                 >;
 
-                try_processing_event_in_transitions<candidate_transition_constant_list>(*this, mach, ctx, null_c);
+                try_processing_event_in_transitions<candidate_transition_constant_list>(*this, mach, ctx, null);
             }
         }
     }

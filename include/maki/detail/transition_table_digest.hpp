@@ -29,7 +29,7 @@ For example, the following digest type...:
     using transition_table = maki::transition_table
     <
         maki::transition<state0, event0, state1>,
-        maki::transition<state1, event1, state2, null_c,   guard0>,
+        maki::transition<state1, event1, state2, null,   guard0>,
         maki::transition<state2, event2, state3, action0>,
         maki::transition<state3, event3, state0, action1,  guard1>
     >;
@@ -52,7 +52,7 @@ namespace transition_table_digest_detail
         constant<ConfPtr>,
         (
             !tlu::contains_v<TList, constant<ConfPtr>> &&
-            static_cast<const void*>(ConfPtr) != static_cast<const void*>(&null_c)
+            static_cast<const void*>(ConfPtr) != static_cast<const void*>(&null)
         )
     >;
 

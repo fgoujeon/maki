@@ -70,10 +70,10 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::idle, maki::type<events::start>, states::state0, maki::null_c, guards::can_access_state0)
-        (states::idle, maki::type<events::start>, states::state1, maki::null_c, guards::can_access_state1)
-        (states::idle, maki::type<events::start>, states::state2, maki::null_c, guards::can_access_state2)
-        (states::idle, maki::type<events::start>, states::state3, maki::null_c, !maki::guard{guards::cant_access_state3})
+        (states::idle, maki::type<events::start>, states::state0, maki::null, guards::can_access_state0)
+        (states::idle, maki::type<events::start>, states::state1, maki::null, guards::can_access_state1)
+        (states::idle, maki::type<events::start>, states::state2, maki::null, guards::can_access_state2)
+        (states::idle, maki::type<events::start>, states::state3, maki::null, !maki::guard{guards::cant_access_state3})
 
         (states::state0, maki::type<events::stop>, states::idle)
         (states::state1, maki::type<events::stop>, states::idle)

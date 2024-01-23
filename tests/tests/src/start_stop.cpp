@@ -62,7 +62,7 @@ namespace
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::s0, maki::null_c,                       states::s1)
+        (states::s0, maki::null,                       states::s1)
         (states::s1, maki::type<events::button_press>, states::s0)
     ;
 

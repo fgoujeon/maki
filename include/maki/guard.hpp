@@ -34,7 +34,7 @@ namespace detail
 /**
 @brief A guard wrapper that allows boolean composition
 */
-template<detail::guard_operator Operator, class Operand, class Operand2 = null>
+template<detail::guard_operator Operator, class Operand, class Operand2 = null_t>
 class guard;
 
 namespace detail
@@ -100,7 +100,7 @@ private:
 };
 
 template<class Operand>
-class guard<detail::guard_operator::none, Operand, null>
+class guard<detail::guard_operator::none, Operand, null_t>
 {
 public:
     constexpr guard(const Operand& operand):
@@ -129,7 +129,7 @@ private:
 };
 
 template<class Operand>
-class guard<detail::guard_operator::not_, Operand, null>
+class guard<detail::guard_operator::not_, Operand, null_t>
 {
 public:
     constexpr guard(const Operand& operand):

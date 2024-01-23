@@ -473,11 +473,6 @@ public:
 #undef MAKI_DETAIL_ARG_transition_tables
     }
 
-    constexpr const auto& storage() const
-    {
-        return *this;
-    }
-
 private:
     template<class OptionSet2>
     friend class machine_conf;

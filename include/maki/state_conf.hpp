@@ -157,11 +157,11 @@ public:
     }
 
 private:
-    template<class Storage2>
+    template<class OptionSet2>
     friend class state_conf;
 
-    template<class Storage2>
-    friend constexpr const auto& detail::opts(const state_conf<Storage2>& conf);
+    template<class OptionSet2>
+    friend constexpr const auto& detail::opts(const state_conf<OptionSet2>& conf);
 
     template<class... Args>
     constexpr state_conf(Args&&... args):

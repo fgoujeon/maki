@@ -8,14 +8,11 @@
 #define MAKI_DETAIL_CONTEXT_HOLDER_HPP
 
 #include "type_traits.hpp"
+#include "root_tag.hpp"
 #include <type_traits>
 
 namespace maki::detail
 {
-
-struct context_holder_machine_tag_t{};
-inline constexpr auto context_holder_machine_tag = context_holder_machine_tag_t{};
-
 
 /*
 Contexts can be constructed with one of these statements:
@@ -34,7 +31,7 @@ public:
         class... Args,
         std::enable_if_t<is_brace_constructible<T, Machine&, Args...>, bool> = true
     >
-    context_holder(context_holder_machine_tag_t /*tag*/, Machine& mach, Args&&... args):
+    context_holder(root_tag_t /*tag*/, Machine& mach, Args&&... args):
         ctx_{mach, std::forward<Args>(args)...}
     {
     }
@@ -45,7 +42,7 @@ public:
         class... Args,
         std::enable_if_t<is_brace_constructible<T, Args...>, bool> = true
     >
-    context_holder(context_holder_machine_tag_t /*tag*/, Machine& /*mach*/, Args&&... args):
+    context_holder(root_tag_t /*tag*/, Machine& /*mach*/, Args&&... args):
         ctx_{std::forward<Args>(args)...}
     {
     }
@@ -56,7 +53,7 @@ public:
         class ParentContext,
         std::enable_if_t<is_brace_constructible<T, Machine&, ParentContext&>, bool> = true
     >
-    context_holder(Machine& mach, ParentContext& parent_ctx):
+    context_holder(non_root_tag_t /*tag*/, Machine& mach, ParentContext& parent_ctx):
         ctx_{mach, parent_ctx}
     {
     }
@@ -65,9 +62,10 @@ public:
     <
         class Machine,
         class ParentContext,
-        std::enable_if_t<is_brace_constructible<T, Machine&>, bool> = true
+        class U = T,
+        std::enable_if_t<!std::is_same_v<U, Machine> && is_brace_constructible<T, Machine&>, bool> = true
     >
-    context_holder(Machine& mach, ParentContext& /*parent_ctx*/):
+    context_holder(non_root_tag_t /*tag*/, Machine& mach, ParentContext& /*parent_ctx*/):
         ctx_{mach}
     {
     }
@@ -76,9 +74,10 @@ public:
     <
         class Machine,
         class ParentContext,
-        std::enable_if_t<is_brace_constructible<T, ParentContext&>, bool> = true
+        class U = T,
+        std::enable_if_t<!std::is_same_v<U, ParentContext> && is_brace_constructible<U, ParentContext&>, bool> = true
     >
-    context_holder(Machine& /*mach*/, ParentContext& parent_ctx):
+    context_holder(non_root_tag_t /*tag*/, Machine& /*mach*/, ParentContext& parent_ctx):
         ctx_{parent_ctx}
     {
     }
@@ -90,18 +89,7 @@ public:
         class U = T,
         std::enable_if_t<std::is_default_constructible_v<U>, bool> = true
     >
-    context_holder(Machine& /*mach*/, ParentContext& /*ctx*/)
-    {
-    }
-
-    template
-    <
-        class Machine,
-        class U = T,
-        std::enable_if_t<std::is_reference_v<U>, bool> = true
-    >
-    context_holder(Machine& /*mach*/, T& ctx):
-        ctx_{ctx}
+    context_holder(non_root_tag_t /*tag*/, Machine& /*mach*/, ParentContext& /*ctx*/)
     {
     }
 

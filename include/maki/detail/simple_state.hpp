@@ -11,6 +11,7 @@
 #include "maybe_bool_util.hpp"
 #include "tlu.hpp"
 #include "context_holder.hpp"
+#include "root_tag.hpp"
 #include "../type_patterns.hpp"
 #include "../null.hpp"
 
@@ -25,64 +26,79 @@ class simple_state
 {
 public:
     using option_set_type = std::decay_t<decltype(opts(Conf))>;
-    using parent_context_type = typename Parent::context_type;
-    using context_type = state_traits::context_t<Conf, parent_context_type>;
+    using context_type = state_traits::context_t<Conf>;
 
     template<class Machine, class... ContextArgs>
-    simple_state(Machine& mach, ContextArgs&&... ctx_args):
-        ctx_holder_(context_holder_machine_tag, mach, std::forward<ContextArgs>(ctx_args)...)
+    simple_state(root_tag_t /*tag*/, Machine& mach, ContextArgs&&... ctx_args):
+        ctx_holder_(root_tag, mach, std::forward<ContextArgs>(ctx_args)...)
     {
     }
 
-    template<class Machine>
-    simple_state(Machine& mach, parent_context_type& parent_ctx):
-        ctx_holder_(mach, parent_ctx)
+    template<class Machine, class ParentContext>
+    simple_state(non_root_tag_t /*tag*/, Machine& mach, ParentContext& parent_ctx):
+        ctx_holder_(non_root_tag, mach, parent_ctx)
     {
     }
 
-    auto& context()
+    template<class Context>
+    auto& context(Context& ctx)
     {
-        return ctx_holder_.get();
+        if constexpr(std::is_void_v<typename option_set_type::context_type>)
+        {
+            return ctx;
+        }
+        else
+        {
+            return ctx_holder_.get();
+        }
     }
 
-    const auto& context() const
+    template<class Context>
+    const auto& context(Context& ctx) const
     {
-        return ctx_holder_.get();
+        if constexpr(std::is_void_v<typename option_set_type::context_type>)
+        {
+            return ctx;
+        }
+        else
+        {
+            return ctx_holder_.get();
+        }
     }
 
     template<class Machine, class Context, class Event>
-    void call_entry_action(Machine& mach, Context& /*ctx*/, const Event& event)
+    void call_entry_action(Machine& mach, Context& parent_ctx, const Event& event)
     {
         call_state_action
         (
             opts(Conf).entry_actions,
             mach,
-            context(),
+            context(parent_ctx),
             event
         );
     }
 
     template<class Machine, class Context, class Event, class... MaybeBool>
-    void call_internal_action(Machine& mach, Context& /*ctx*/, const Event& event, MaybeBool&... processed)
+    void call_internal_action(Machine& mach, Context& parent_ctx, const Event& event, MaybeBool&... processed)
     {
         call_state_action
         (
             opts(Conf).internal_actions,
             mach,
-            context(),
+            context(parent_ctx),
             event
         );
         maybe_bool_util::set_to_true(processed...);
     }
 
     template<class Machine, class Context, class Event>
-    void call_exit_action(Machine& mach, Context& /*ctx*/, const Event& event)
+    void call_exit_action(Machine& mach, Context& parent_ctx, const Event& event)
     {
         call_state_action
         (
             opts(Conf).exit_actions,
             mach,
-            context(),
+            context(parent_ctx),
             event
         );
     }

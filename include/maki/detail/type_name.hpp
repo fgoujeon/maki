@@ -101,6 +101,8 @@ namespace type_name_detail
                     case '>':
                         ++template_level;
                         break;
+                    case ' ':
+                        break;
                     default:
                         if(template_level == 0)
                         {

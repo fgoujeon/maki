@@ -14,6 +14,9 @@ namespace pretty_name_ns
     template<class T, class U>
     class templ{};
 
+    template<class T>
+    class templ_inner{};
+
     constexpr auto state = maki::state_conf{}
         .pretty_name("my_state")
     ;
@@ -57,6 +60,12 @@ TEST_CASE("pretty_name")
     REQUIRE
     (
         maki::detail::decayed_type_name<pretty_name_ns::templ<int, pretty_name_ns::test>>() ==
+        std::string_view{"templ"}
+    );
+
+    REQUIRE
+    (
+        maki::detail::decayed_type_name<pretty_name_ns::templ<pretty_name_ns::templ_inner<int>, pretty_name_ns::templ_inner<char>>>() ==
         std::string_view{"templ"}
     );
 

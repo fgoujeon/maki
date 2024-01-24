@@ -227,7 +227,7 @@ private:
     >::type;
 
     //We need a simple_state to manage context and actions
-    using simple_state_type = simple_state<Conf, Parent>;
+    using simple_state_type = simple_state<Conf>;
 
     struct region_start
     {

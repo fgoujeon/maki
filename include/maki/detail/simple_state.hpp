@@ -21,7 +21,7 @@ namespace maki::detail
 /*
 Implementation of a non-composite state
 */
-template<const auto& Conf, class Parent>
+template<const auto& Conf>
 class simple_state
 {
 public:
@@ -40,12 +40,12 @@ public:
     {
     }
 
-    template<class Context>
-    auto& context(Context& ctx)
+    template<class ParentContext>
+    auto& context(ParentContext& parent_ctx)
     {
         if constexpr(std::is_void_v<typename option_set_type::context_type>)
         {
-            return ctx;
+            return parent_ctx;
         }
         else
         {
@@ -53,12 +53,12 @@ public:
         }
     }
 
-    template<class Context>
-    const auto& context(Context& ctx) const
+    template<class ParentContext>
+    const auto& context(ParentContext& parent_ctx) const
     {
         if constexpr(std::is_void_v<typename option_set_type::context_type>)
         {
-            return ctx;
+            return parent_ctx;
         }
         else
         {

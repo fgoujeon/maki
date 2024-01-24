@@ -18,6 +18,7 @@
 #include "same_ref.hpp"
 #include "maybe_bool_util.hpp"
 #include "context_holder.hpp"
+#include "root_tag.hpp"
 #include "../cref_constant.hpp"
 #include "../submachine_conf.hpp"
 #include "../state_confs.hpp"
@@ -81,12 +82,9 @@ template<class ParentSm, int Index>
 class region
 {
 public:
-    using parent_sm_type = ParentSm;
-    using context_type = typename parent_sm_type::context_type;
-
-    template<class Machine>
-    region(Machine& mach, context_type& ctx):
-        states_(uniform_construct, mach, ctx)
+    template<class Machine, class Context>
+    region(Machine& mach, Context& ctx):
+        states_(uniform_construct, non_root_tag, mach, ctx)
     {
     }
 
@@ -96,16 +94,16 @@ public:
     region& operator=(region&&) = delete;
     ~region() = default;
 
-    template<const auto& StatePath>
-    const auto& context() const
+    template<const auto& StatePath, class ParentContext>
+    const auto& context(ParentContext& parent_ctx) const
     {
-        return static_context<StatePath>(*this);
+        return static_context<StatePath>(*this, parent_ctx);
     }
 
-    template<const auto& StatePath>
-    auto& context()
+    template<const auto& StatePath, class ParentContext>
+    auto& context(ParentContext& parent_ctx)
     {
-        return static_context<StatePath>(*this);
+        return static_context<StatePath>(*this, parent_ctx);
     }
 
     template<const auto& RegionPath, auto StateConfPtr>
@@ -674,18 +672,18 @@ private:
     }
 
     //Note: We use static to factorize const and non-const Region
-    template<const auto& StatePath, class Region>
-    static auto& static_context(Region& self)
+    template<const auto& StatePath, class Region, class ParentContext>
+    static auto& static_context(Region& self, ParentContext& parent_ctx)
     {
         if constexpr(StatePath.size() == 1)
         {
-            return static_state_from_conf_ptr<path_raw_head(StatePath)>(self).context();
+            return static_state_from_conf_ptr<path_raw_head(StatePath)>(self).context(parent_ctx);
         }
         else
         {
             static constexpr auto psubmach_conf = path_raw_head(StatePath);
             static constexpr auto state_path_tail = path_tail(StatePath);
-            return static_state_from_conf_ptr<psubmach_conf>(self).template context<state_path_tail>();
+            return static_state_from_conf_ptr<psubmach_conf>(self).template context<state_path_tail>(parent_ctx);
         }
     }
 

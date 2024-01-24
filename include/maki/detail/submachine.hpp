@@ -16,6 +16,7 @@
 #include "submachine_fwd.hpp"
 #include "state_traits.hpp"
 #include "tuple.hpp"
+#include "root_tag.hpp"
 #include "../machine_fwd.hpp"
 #include "../state_conf.hpp"
 #include "../transition_table.hpp"
@@ -60,60 +61,60 @@ class submachine
 public:
     using option_set_type = std::decay_t<decltype(opts(Conf))>;
     using transition_table_type_list = decltype(opts(Conf).transition_tables);
-    using parent_context_type = typename Parent::context_type;
-    using context_type = state_traits::context_t<Conf, parent_context_type>;
 
     template<class Machine, class... ContextArgs>
-    submachine(Machine& mach, ContextArgs&&... ctx_args):
-        simple_state_(mach, std::forward<ContextArgs>(ctx_args)...),
-        regions_(uniform_construct, mach, context())
+    submachine(root_tag_t /*tag*/, Machine& mach, ContextArgs&&... ctx_args):
+        simple_state_(root_tag, mach, std::forward<ContextArgs>(ctx_args)...),
+        regions_(uniform_construct, mach, context(null))
     {
     }
 
-    template<class Machine>
-    submachine(Machine& mach, parent_context_type& parent_ctx):
-        simple_state_(mach, parent_ctx),
-        regions_(uniform_construct, mach, context())
+    template<class Machine, class ParentContext>
+    submachine(non_root_tag_t /*tag*/, Machine& mach, ParentContext& parent_ctx):
+        simple_state_(non_root_tag, mach, parent_ctx),
+        regions_(uniform_construct, mach, context(parent_ctx))
     {
     }
 
-    context_type& context()
+    template<class ParentContext>
+    auto& context(ParentContext& parent_ctx)
     {
-        return simple_state_.context();
+        return simple_state_.context(parent_ctx);
     }
 
-    const context_type& context() const
+    template<class ParentContext>
+    const auto& context(ParentContext& parent_ctx) const
     {
-        return simple_state_.context();
+        return simple_state_.context(parent_ctx);
     }
 
-    template<const auto& StatePath>
-    auto& context()
+    template<const auto& StatePath, class ParentContext>
+    auto& context(ParentContext& parent_ctx)
     {
         if constexpr(StatePath.empty())
         {
-            return context();
+            return context(parent_ctx);
         }
         else
         {
             static constexpr int region_index = path_raw_head(StatePath);
             static constexpr auto state_path_tail = path_tail(StatePath);
-            return tuple_get<region_index>(regions_).template context<state_path_tail>();
+            return tuple_get<region_index>(regions_).template context<state_path_tail>(context(parent_ctx));
         }
     }
 
-    template<const auto& StatePath>
-    const auto& context() const
+    template<const auto& StatePath, class ParentContext>
+    const auto& context(ParentContext& parent_ctx) const
     {
         if constexpr(StatePath.empty())
         {
-            return context();
+            return context(parent_ctx);
         }
         else
         {
             static constexpr int region_index = path_raw_head(StatePath);
             static constexpr auto state_path_tail = path_tail(StatePath);
-            return tuple_get<region_index>(regions_).template context<state_path_tail>();
+            return tuple_get<region_index>(regions_).template context<state_path_tail>(context(parent_ctx));
         }
     }
 
@@ -145,67 +146,67 @@ public:
         return !active_state<state_confs::stopped>();
     }
 
-    template<class Machine, class Context, class Event>
-    void call_entry_action(Machine& mach, Context& ctx, const Event& event)
+    template<class Machine, class ParentContext, class Event>
+    void call_entry_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
     {
-        simple_state_.call_entry_action(mach, ctx, event);
-        tlu::for_each<region_tuple_type, region_start>(*this, mach, ctx, event);
+        simple_state_.call_entry_action(mach, context(parent_ctx), event);
+        tlu::for_each<region_tuple_type, region_start>(*this, mach, context(parent_ctx), event);
     }
 
-    template<bool Dry = false, class Machine, class Context, class Event>
+    template<bool Dry = false, class Machine, class ParentContext, class Event>
     void call_internal_action
     (
         Machine& mach,
-        Context& ctx,
+        ParentContext& parent_ctx,
         const Event& event
     )
     {
-        call_internal_action_2<Dry>(*this, mach, ctx, event);
+        call_internal_action_2<Dry>(*this, mach, context(parent_ctx), event);
     }
 
-    template<bool Dry = false, class Machine, class Context, class Event>
+    template<bool Dry = false, class Machine, class ParentContext, class Event>
     void call_internal_action
     (
         Machine& mach,
-        Context& ctx,
+        ParentContext& parent_ctx,
         const Event& event,
         bool& processed
     )
     {
-        call_internal_action_2<Dry>(*this, mach, ctx, event, processed);
+        call_internal_action_2<Dry>(*this, mach, context(parent_ctx), event, processed);
     }
 
-    template<bool Dry = false, class Machine, class Context, class Event>
+    template<bool Dry = false, class Machine, class ParentContext, class Event>
     void call_internal_action
     (
         Machine& mach,
-        Context& ctx,
+        ParentContext& parent_ctx,
         const Event& event
     ) const
     {
-        call_internal_action_2<Dry>(*this, mach, ctx, event);
+        call_internal_action_2<Dry>(*this, mach, context(parent_ctx), event);
     }
 
-    template<bool Dry = false, class Machine, class Context, class Event>
+    template<bool Dry = false, class Machine, class ParentContext, class Event>
     void call_internal_action
     (
         Machine& mach,
-        Context& ctx,
+        ParentContext& parent_ctx,
         const Event& event,
         bool& processed
     ) const
     {
-        call_internal_action_2<Dry>(*this, mach, ctx, event, processed);
+        call_internal_action_2<Dry>(*this, mach, context(parent_ctx), event, processed);
     }
 
-    template<class Machine, class Context, class Event>
-    void call_exit_action(Machine& mach, Context& ctx, const Event& event)
+    template<class Machine, class ParentContext, class Event>
+    void call_exit_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
     {
-        tlu::for_each<region_tuple_type, region_stop>(*this, mach, ctx, event);
+        tlu::for_each<region_tuple_type, region_stop>(*this, mach, context(parent_ctx), event);
         simple_state_.call_exit_action
         (
             mach,
-            ctx,
+            context(parent_ctx),
             event
         );
     }
@@ -226,7 +227,7 @@ private:
     >::type;
 
     //We need a simple_state to manage context and actions
-    using simple_state_type = simple_state<Conf, Parent>;
+    using simple_state_type = simple_state<Conf>;
 
     struct region_start
     {

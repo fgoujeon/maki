@@ -11,6 +11,7 @@
 #include "simple_state_fwd.hpp"
 #include "tlu.hpp"
 #include "same_ref.hpp"
+#include "../null.hpp"
 #include "../type_patterns.hpp"
 #include "../submachine_conf.hpp"
 #include <type_traits>
@@ -23,7 +24,7 @@ namespace maki::detail::state_traits
 template<const auto& StateConf, class Parent, class Enable = void>
 struct state_conf_to_state
 {
-    using type = simple_state<StateConf, Parent>;
+    using type = simple_state<StateConf>;
 };
 
 template<const auto& StateConf, class Parent>
@@ -81,7 +82,7 @@ constexpr auto has_own_context_v = has_own_context<Conf>::value;
 
 //context
 
-template<const auto& Conf, class ParentContext>
+template<const auto& Conf>
 class context
 {
 private:
@@ -98,13 +99,13 @@ public:
     using type = std::conditional_t
     <
         std::is_void_v<conf_context_type>,
-        ParentContext&,
+        null_t,
         conf_context_type
     >;
 };
 
-template<const auto& Conf, class ParentContext>
-using context_t = typename context<Conf, ParentContext>::type;
+template<const auto& Conf>
+using context_t = typename context<Conf>::type;
 
 } //namespace
 

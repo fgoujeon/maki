@@ -4,14 +4,17 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_SIMPLE_STATE_FWD_HPP
-#define MAKI_DETAIL_SIMPLE_STATE_FWD_HPP
+#ifndef MAKI_DETAIL_ROOT_TAG_HPP
+#define MAKI_DETAIL_ROOT_TAG_HPP
 
 namespace maki::detail
 {
 
-template<const auto& Conf>
-class simple_state;
+struct root_tag_t{};
+inline constexpr auto root_tag = root_tag_t{};
+
+struct non_root_tag_t{};
+inline constexpr auto non_root_tag = non_root_tag_t{};
 
 } //namespace
 

@@ -95,7 +95,7 @@ public:
     */
     template<class... ContextArgs>
     explicit machine(ContextArgs&&... ctx_args):
-        submachine_(*this, std::forward<ContextArgs>(ctx_args)...)
+        submachine_(detail::root_tag, *this, std::forward<ContextArgs>(ctx_args)...)
     {
         if constexpr(opts(conf).auto_start)
         {
@@ -115,7 +115,7 @@ public:
     */
     context_type& context()
     {
-        return submachine_.context();
+        return submachine_.context(null);
     }
 
     /**
@@ -123,19 +123,33 @@ public:
     */
     const context_type& context() const
     {
-        return submachine_.context();
+        return submachine_.context(null);
     }
 
     template<const auto& MachineOrStatePath = empty_path>
     auto& context()
     {
-        return submachine_.template context<MachineOrStatePath>();
+        if constexpr(MachineOrStatePath.empty())
+        {
+            return context();
+        }
+        else
+        {
+            return submachine_.template context<MachineOrStatePath>(context());
+        }
     }
 
     template<const auto& MachineOrStatePath = empty_path>
     const auto& context() const
     {
-        return submachine_.template context<MachineOrStatePath>();
+        if constexpr(MachineOrStatePath.empty())
+        {
+            return context();
+        }
+        else
+        {
+            return submachine_.template context<MachineOrStatePath>(context());
+        }
     }
 
     /**

@@ -64,6 +64,12 @@ struct tuple_base<std::integer_sequence<int, Indexes...>, Ts...>:
     {
     }
 
+    template<class Arg0, class Arg1, class Arg2>
+    constexpr tuple_base(uniform_construct_t /*tag*/, Arg0&& arg0, Arg1&& arg1, Arg2&& arg2):
+        tuple_element<Indexes, Ts>{arg0, arg1, arg2}...
+    {
+    }
+
     ~tuple_base() = default;
 
     tuple_base& operator=(const tuple_base& other) = delete;

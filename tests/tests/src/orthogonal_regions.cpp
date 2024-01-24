@@ -73,16 +73,14 @@ namespace orthogonal_regions_ns
         (
             [](context& ctx, const auto& path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
             {
-                const auto region_index = path_constant.value.template at<1>();
-                ctx.out += "before_state_transition[" + std::to_string(region_index) + "];";
+                ctx.out += "before_state_transition[" + to_string(path_constant) + "];";
             }
         )
         .post_state_transition_action_crset
         (
             [](context& ctx, const auto& path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
             {
-                const auto region_index = path_constant.value.template at<1>();
-                ctx.out += "after_state_transition[" + std::to_string(region_index) + "];";
+                ctx.out += "after_state_transition[" + to_string(path_constant) + "];";
             }
         )
     ;
@@ -103,13 +101,13 @@ TEST_CASE("orthogonal_regions")
     machine.start();
     REQUIRE(machine.active_state<machine_region_0_path, states::off0>());
     REQUIRE(machine.active_state<machine_region_1_path, states::off1>());
-    REQUIRE(ctx.out == "before_state_transition[0];after_state_transition[0];before_state_transition[1];after_state_transition[1];");
+    REQUIRE(ctx.out == "before_state_transition[machine_conf/0];after_state_transition[machine_conf/0];before_state_transition[machine_conf/1];after_state_transition[machine_conf/1];");
 
     ctx.out.clear();
     machine.process_event(events::button_press{});
     REQUIRE(machine.active_state<machine_region_0_path, states::on0>());
     REQUIRE(machine.active_state<machine_region_1_path, states::on1>());
-    REQUIRE(ctx.out == "before_state_transition[0];after_state_transition[0];before_state_transition[1];after_state_transition[1];");
+    REQUIRE(ctx.out == "before_state_transition[machine_conf/0];after_state_transition[machine_conf/0];before_state_transition[machine_conf/1];after_state_transition[machine_conf/1];");
 
     ctx.out.clear();
     machine.process_event(events::exception_request{});

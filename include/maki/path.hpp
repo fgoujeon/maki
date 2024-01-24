@@ -133,12 +133,6 @@ public:
         return sizeof...(Elems) == 0;
     }
 
-    template<int Index>
-    [[nodiscard]] constexpr decltype(auto) at() const
-    {
-        return detail::from_path_storage(detail::tuple_get<Index>(elems_));
-    }
-
     template<class Elem>
     [[nodiscard]] constexpr auto operator/(const Elem& elem) const
     {

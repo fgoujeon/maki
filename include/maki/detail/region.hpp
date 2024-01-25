@@ -94,15 +94,15 @@ public:
     ~region() = default;
 
     template<const auto& StatePath, class ParentContext>
-    const auto& context(ParentContext& parent_ctx) const
+    const auto& context_or(ParentContext& parent_ctx) const
     {
-        return static_context<StatePath>(*this, parent_ctx);
+        return static_context_or<StatePath>(*this, parent_ctx);
     }
 
     template<const auto& StatePath, class ParentContext>
-    auto& context(ParentContext& parent_ctx)
+    auto& context_or(ParentContext& parent_ctx)
     {
-        return static_context<StatePath>(*this, parent_ctx);
+        return static_context_or<StatePath>(*this, parent_ctx);
     }
 
     template<const auto& RegionPath, auto StateConfPtr>
@@ -672,17 +672,17 @@ private:
 
     //Note: We use static to factorize const and non-const Region
     template<const auto& StatePath, class Region, class ParentContext>
-    static auto& static_context(Region& self, ParentContext& parent_ctx)
+    static auto& static_context_or(Region& self, ParentContext& parent_ctx)
     {
         if constexpr(StatePath.size() == 1)
         {
-            return static_state_from_conf_ptr<path_raw_head(StatePath)>(self).context(parent_ctx);
+            return static_state_from_conf_ptr<path_raw_head(StatePath)>(self).context_or(parent_ctx);
         }
         else
         {
             static constexpr auto psubmach_conf = path_raw_head(StatePath);
             static constexpr auto state_path_tail = path_tail(StatePath);
-            return static_state_from_conf_ptr<psubmach_conf>(self).template context<state_path_tail>(parent_ctx);
+            return static_state_from_conf_ptr<psubmach_conf>(self).template context_or<state_path_tail>(parent_ctx);
         }
     }
 

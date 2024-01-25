@@ -95,8 +95,20 @@ public:
     {
     }
 
+    auto& context()
+    {
+        static_assert(!std::is_void_v<typename option_set_type::context_type>);
+        return ctx_;
+    }
+
+    const auto& context() const
+    {
+        static_assert(!std::is_void_v<typename option_set_type::context_type>);
+        return ctx_;
+    }
+
     template<class ParentContext>
-    auto& context(ParentContext& parent_ctx)
+    auto& context_or(ParentContext& parent_ctx)
     {
         if constexpr(std::is_void_v<typename option_set_type::context_type>)
         {
@@ -109,7 +121,7 @@ public:
     }
 
     template<class ParentContext>
-    const auto& context(ParentContext& parent_ctx) const
+    const auto& context_or(ParentContext& parent_ctx) const
     {
         if constexpr(std::is_void_v<typename option_set_type::context_type>)
         {
@@ -128,7 +140,7 @@ public:
         (
             opts(Conf).entry_actions,
             mach,
-            context(parent_ctx),
+            context_or(parent_ctx),
             event
         );
     }
@@ -140,7 +152,7 @@ public:
         (
             opts(Conf).internal_actions,
             mach,
-            context(parent_ctx),
+            context_or(parent_ctx),
             event
         );
         maybe_bool_util::set_to_true(processed...);
@@ -153,7 +165,7 @@ public:
         (
             opts(Conf).exit_actions,
             mach,
-            context(parent_ctx),
+            context_or(parent_ctx),
             event
         );
     }

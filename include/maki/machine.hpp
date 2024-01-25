@@ -115,7 +115,7 @@ public:
     */
     context_type& context()
     {
-        return submachine_.context(null);
+        return submachine_.context();
     }
 
     /**
@@ -123,7 +123,7 @@ public:
     */
     const context_type& context() const
     {
-        return submachine_.context(null);
+        return submachine_.context();
     }
 
     template<const auto& MachineOrStatePath = empty_path>
@@ -135,7 +135,7 @@ public:
         }
         else
         {
-            return submachine_.template context<MachineOrStatePath>(context());
+            return submachine_.template context_or<MachineOrStatePath>(context());
         }
     }
 
@@ -148,7 +148,7 @@ public:
         }
         else
         {
-            return submachine_.template context<MachineOrStatePath>(context());
+            return submachine_.template context_or<MachineOrStatePath>(context());
         }
     }
 

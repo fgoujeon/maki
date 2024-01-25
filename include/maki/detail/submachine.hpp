@@ -64,56 +64,66 @@ public:
     template<class Machine, class... ContextArgs>
     submachine(root_tag_t /*tag*/, Machine& mach, ContextArgs&&... ctx_args):
         simple_state_(root_tag, mach, std::forward<ContextArgs>(ctx_args)...),
-        regions_(uniform_construct, mach, context(null))
+        regions_(uniform_construct, mach, context())
     {
     }
 
     template<class Machine, class ParentContext>
     submachine(non_root_tag_t /*tag*/, Machine& mach, ParentContext& parent_ctx):
         simple_state_(non_root_tag, mach, parent_ctx),
-        regions_(uniform_construct, mach, context(parent_ctx))
+        regions_(uniform_construct, mach, context_or(parent_ctx))
     {
     }
 
-    template<class ParentContext>
-    auto& context(ParentContext& parent_ctx)
+    auto& context()
     {
-        return simple_state_.context(parent_ctx);
+        return simple_state_.context();
+    }
+
+    const auto& context() const
+    {
+        return simple_state_.context();
     }
 
     template<class ParentContext>
-    const auto& context(ParentContext& parent_ctx) const
+    auto& context_or(ParentContext& parent_ctx)
     {
-        return simple_state_.context(parent_ctx);
+        return simple_state_.context_or(parent_ctx);
+    }
+
+    template<class ParentContext>
+    const auto& context_or(ParentContext& parent_ctx) const
+    {
+        return simple_state_.context_or(parent_ctx);
     }
 
     template<const auto& StatePath, class ParentContext>
-    auto& context(ParentContext& parent_ctx)
+    auto& context_or(ParentContext& parent_ctx)
     {
         if constexpr(StatePath.empty())
         {
-            return context(parent_ctx);
+            return context_or(parent_ctx);
         }
         else
         {
             static constexpr int region_index = path_raw_head(StatePath);
             static constexpr auto state_path_tail = path_tail(StatePath);
-            return tuple_get<region_index>(regions_).template context<state_path_tail>(context(parent_ctx));
+            return tuple_get<region_index>(regions_).template context_or<state_path_tail>(context_or(parent_ctx));
         }
     }
 
     template<const auto& StatePath, class ParentContext>
-    const auto& context(ParentContext& parent_ctx) const
+    const auto& context_or(ParentContext& parent_ctx) const
     {
         if constexpr(StatePath.empty())
         {
-            return context(parent_ctx);
+            return context_or(parent_ctx);
         }
         else
         {
             static constexpr int region_index = path_raw_head(StatePath);
             static constexpr auto state_path_tail = path_tail(StatePath);
-            return tuple_get<region_index>(regions_).template context<state_path_tail>(context(parent_ctx));
+            return tuple_get<region_index>(regions_).template context_or<state_path_tail>(context_or(parent_ctx));
         }
     }
 
@@ -148,8 +158,8 @@ public:
     template<class Machine, class ParentContext, class Event>
     void call_entry_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
     {
-        simple_state_.call_entry_action(mach, context(parent_ctx), event);
-        tlu::for_each<region_tuple_type, region_start>(*this, mach, context(parent_ctx), event);
+        simple_state_.call_entry_action(mach, context_or(parent_ctx), event);
+        tlu::for_each<region_tuple_type, region_start>(*this, mach, context_or(parent_ctx), event);
     }
 
     template<bool Dry = false, class Machine, class ParentContext, class Event>
@@ -160,7 +170,7 @@ public:
         const Event& event
     )
     {
-        call_internal_action_2<Dry>(*this, mach, context(parent_ctx), event);
+        call_internal_action_2<Dry>(*this, mach, context_or(parent_ctx), event);
     }
 
     template<bool Dry = false, class Machine, class ParentContext, class Event>
@@ -172,7 +182,7 @@ public:
         bool& processed
     )
     {
-        call_internal_action_2<Dry>(*this, mach, context(parent_ctx), event, processed);
+        call_internal_action_2<Dry>(*this, mach, context_or(parent_ctx), event, processed);
     }
 
     template<bool Dry = false, class Machine, class ParentContext, class Event>
@@ -183,7 +193,7 @@ public:
         const Event& event
     ) const
     {
-        call_internal_action_2<Dry>(*this, mach, context(parent_ctx), event);
+        call_internal_action_2<Dry>(*this, mach, context_or(parent_ctx), event);
     }
 
     template<bool Dry = false, class Machine, class ParentContext, class Event>
@@ -195,17 +205,17 @@ public:
         bool& processed
     ) const
     {
-        call_internal_action_2<Dry>(*this, mach, context(parent_ctx), event, processed);
+        call_internal_action_2<Dry>(*this, mach, context_or(parent_ctx), event, processed);
     }
 
     template<class Machine, class ParentContext, class Event>
     void call_exit_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
     {
-        tlu::for_each<region_tuple_type, region_stop>(*this, mach, context(parent_ctx), event);
+        tlu::for_each<region_tuple_type, region_stop>(*this, mach, context_or(parent_ctx), event);
         simple_state_.call_exit_action
         (
             mach,
-            context(parent_ctx),
+            context_or(parent_ctx),
             event
         );
     }

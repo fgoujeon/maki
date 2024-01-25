@@ -70,6 +70,8 @@ template<class OptionSet>
 class state_conf
 {
 public:
+    using context_type = typename OptionSet::context_type;
+
     constexpr state_conf() = default;
 
     state_conf(const state_conf&) = delete;

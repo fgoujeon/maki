@@ -74,6 +74,8 @@ template<class OptionSet>
 class submachine_conf
 {
 public:
+    using context_type = typename OptionSet::context_type;
+
     constexpr submachine_conf() = default;
 
     submachine_conf(const submachine_conf&) = delete;

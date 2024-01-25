@@ -94,6 +94,8 @@ template<class OptionSet>
 class machine_conf
 {
 public:
+    using context_type = typename OptionSet::context_type;
+
     constexpr machine_conf() = default;
 
     machine_conf(const machine_conf&) = delete;

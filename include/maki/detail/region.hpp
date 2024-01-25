@@ -14,7 +14,6 @@
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
 #include "tlu.hpp"
-#include "noop_ex.hpp"
 #include "same_ref.hpp"
 #include "maybe_bool_util.hpp"
 #include "root_tag.hpp"
@@ -412,7 +411,7 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(!std::is_same_v<typename machine_option_set_type::pre_state_transition_action_type, noop_ex>)
+            if constexpr(!std::is_same_v<typename machine_option_set_type::pre_state_transition_action_type, null_t>)
             {
                 opts(Machine::conf).pre_state_transition_action
                 (
@@ -466,7 +465,7 @@ private:
                 );
             }
 
-            if constexpr(!std::is_same_v<typename machine_option_set_type::post_state_transition_action_type, noop_ex>)
+            if constexpr(!std::is_same_v<typename machine_option_set_type::post_state_transition_action_type, null_t>)
             {
                 opts(Machine::conf).post_state_transition_action
                 (

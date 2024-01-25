@@ -484,7 +484,7 @@ private:
 
     void process_exception(const std::exception_ptr& eptr)
     {
-        if constexpr(std::is_same_v<typename option_set_type::exception_action_type, detail::noop_ex>)
+        if constexpr(std::is_same_v<typename option_set_type::exception_action_type, null_t>)
         {
             process_event(events::exception{eptr});
         }

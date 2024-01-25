@@ -15,7 +15,6 @@
 #include "transition_table.hpp"
 #include "type_patterns.hpp"
 #include "type.hpp"
-#include "detail/noop_ex.hpp"
 #include "detail/event_action.hpp"
 #include "detail/tuple.hpp"
 #include "detail/type_list.hpp"
@@ -36,9 +35,9 @@ namespace detail
         class EntryActionTuple = detail::tuple<>,
         class EventActionTuple = detail::tuple<>,
         class ExitActionTuple = detail::tuple<>,
-        class ExceptionAction = detail::noop_ex,
-        class PreStateTransitionAction = detail::noop_ex,
-        class PostStateTransitionAction = detail::noop_ex,
+        class ExceptionAction = null_t,
+        class PreStateTransitionAction = null_t,
+        class PostStateTransitionAction = null_t,
         class FallbackTransitionActionTuple = detail::tuple<>,
         class TransitionTableTypeList = type_list<>
     >

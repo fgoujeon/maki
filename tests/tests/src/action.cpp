@@ -11,6 +11,11 @@ namespace
 {
     struct context
     {
+        void boop()
+        {
+            i = 0;
+        }
+
         int i = 0;
     };
 
@@ -31,16 +36,11 @@ namespace
         {
             ctx.i = 1;
         }
-
-        void boop(context& ctx)
-        {
-            ctx.i = 0;
-        }
     }
 
     constexpr auto transition_table = maki::transition_table{}
         (states::off, maki::type<events::button_press>, states::on,  actions::beep)
-        (states::on,  maki::type<events::button_press>, states::off, actions::boop)
+        (states::on,  maki::type<events::button_press>, states::off, &context::boop)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

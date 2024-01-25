@@ -49,7 +49,7 @@ namespace
 
 //Test with another signature
 #define GUARD_2(NAME) \
-    inline constexpr auto NAME = [](auto& /*machine*/, context& ctx, const auto& /*event*/) \
+    inline constexpr auto NAME = [](context& ctx, auto& /*machine*/, const auto& /*event*/) \
     { \
         return ctx.NAME; \
     };

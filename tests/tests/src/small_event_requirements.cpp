@@ -56,7 +56,7 @@ namespace
     constexpr auto state = maki::state_conf{};
 
     template<class Event>
-    inline constexpr auto process_event = [](auto& machine, context& /*ctx*/, const auto& /*event*/)
+    inline constexpr auto process_event = [](context& /*ctx*/, auto& machine, const auto& /*event*/)
     {
         machine.process_event(Event{});
     };

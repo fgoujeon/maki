@@ -88,8 +88,8 @@ namespace
     {
         constexpr auto s0_to_s1 = []
         (
-            maki::machine_ref_e<events::s1_to_s2_request> mach,
             context& /*ctx*/,
+            maki::machine_ref_e<events::s1_to_s2_request> mach,
             const auto& /*event*/
         )
         {
@@ -98,8 +98,8 @@ namespace
 
         constexpr auto s1_to_s2 = []
         (
-            maki::machine_ref_e<events::s2_to_s0_request> mach,
             context& /*ctx*/,
+            maki::machine_ref_e<events::s2_to_s0_request> mach,
             const auto& /*event*/
         )
         {

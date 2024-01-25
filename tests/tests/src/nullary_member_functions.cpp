@@ -66,7 +66,7 @@ namespace nullary_member_functions_ns
         ;
     }
 
-    constexpr auto action = [](auto& /*machine*/, context& ctx, const auto& event)
+    constexpr auto action = [](context& ctx, auto& /*machine*/, const auto& event)
     {
         using event_type = std::decay_t<decltype(event)>;
         if constexpr(std::is_same_v<event_type, events::e1>)
@@ -79,7 +79,7 @@ namespace nullary_member_functions_ns
         }
     };
 
-    constexpr auto guard = [](auto& /*machine*/, context& ctx, const auto& event)
+    constexpr auto guard = [](context& ctx, auto& /*machine*/, const auto& event)
     {
         using event_type = std::decay_t<decltype(event)>;
         if constexpr(std::is_same_v<event_type, events::e1>)

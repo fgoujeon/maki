@@ -112,21 +112,21 @@ auto call_action_or_guard
     [[maybe_unused]] const Event& event
 )
 {
-    if constexpr(std::is_invocable_v<Fn, Machine&, Context&, const Event&>)
+    if constexpr(std::is_invocable_v<Fn, Context&, Machine&, const Event&>)
     {
-        return fun(mach, ctx, event);
+        return std::invoke(fun, ctx, mach, event);
     }
     else if constexpr(std::is_invocable_v<Fn, Context&, const Event&>)
     {
-        return fun(ctx, event);
+        return std::invoke(fun, ctx, event);
     }
     else if constexpr(std::is_invocable_v<Fn, Context&>)
     {
-        return fun(ctx);
+        return std::invoke(fun, ctx);
     }
     else if constexpr(is_nullary_v<Fn>)
     {
-        return fun();
+        return std::invoke(fun);
     }
     else
     {

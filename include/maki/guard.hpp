@@ -72,20 +72,20 @@ public:
 
     guard& operator=(guard&& rhs) = delete;
 
-    template<class Sm, class Context, class Event>
-    bool operator()(Sm& mach, Context& ctx, const Event& event) const
+    template<class Context, class Sm, class Event>
+    bool operator()(Context& ctx, Sm& mach, const Event& event) const
     {
         if constexpr(Operator == detail::guard_operator::and_)
         {
-            return op_(mach, ctx, event) && op2_(mach, ctx, event);
+            return op_(ctx, mach, event) && op2_(ctx, mach, event);
         }
         else if constexpr(Operator == detail::guard_operator::or_)
         {
-            return op_(mach, ctx, event) || op2_(mach, ctx, event);
+            return op_(ctx, mach, event) || op2_(ctx, mach, event);
         }
         else if constexpr(Operator == detail::guard_operator::xor_)
         {
-            return op_(mach, ctx, event) != op2_(mach, ctx, event);
+            return op_(ctx, mach, event) != op2_(ctx, mach, event);
         }
         else
         {
@@ -118,8 +118,8 @@ public:
 
     guard& operator=(guard&& rhs) = delete;
 
-    template<class Sm, class Context, class Event>
-    bool operator()(Sm& mach, Context& ctx, const Event& event) const
+    template<class Context, class Sm, class Event>
+    bool operator()(Context& ctx, Sm& mach, const Event& event) const
     {
         return detail::call_action_or_guard(op_, mach, ctx, event);
     }
@@ -147,10 +147,10 @@ public:
 
     guard& operator=(guard&& rhs) = delete;
 
-    template<class Sm, class Context, class Event>
-    bool operator()(Sm& mach, Context& ctx, const Event& event) const
+    template<class Context, class Sm, class Event>
+    bool operator()(Context& ctx, Sm& mach, const Event& event) const
     {
-        return !op_(mach, ctx, event);
+        return !op_(ctx, mach, event);
     }
 
 private:

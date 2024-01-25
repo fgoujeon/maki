@@ -147,7 +147,7 @@ namespace actions
 {
     /*
     One of the following expressions must be valid:
-        action(machine, context, event);
+        action(context, machine, event);
         action(context, event);
         action(context);
     */
@@ -175,7 +175,7 @@ namespace guards
 {
     /*
     One of the following expressions must be valid:
-        guard(machine, context, event);
+        guard(context, machine, event);
         guard(context, event);
         guard(context);
     */
@@ -213,7 +213,7 @@ The initial active state of the state machine is the first state encountered in
 the transition table (`off`, is our case).
 */
 constexpr auto transition_table = maki::transition_table{}
-    //   source_state,   event,       target_state,   action,           guard
+    //source_state,      event,       target_state,   action,           guard
     (off,                button_push, emitting_white, turn_light_white)
     (emitting_white,     button_push, emitting_red,   turn_light_red,   is_short_push)
     (emitting_red,       button_push, emitting_green, turn_light_green, is_short_push)

@@ -35,6 +35,18 @@ void call_event_action
         {
             std::invoke(event_action.action);
         }
+        else if constexpr(EventAction::sig == event_action_signature::c)
+        {
+            std::invoke(event_action.action, ctx);
+        }
+        else if constexpr(EventAction::sig == event_action_signature::cm)
+        {
+            std::invoke(event_action.action, ctx, mach);
+        }
+        else if constexpr(EventAction::sig == event_action_signature::ce)
+        {
+            std::invoke(event_action.action, ctx, event);
+        }
         else if constexpr(EventAction::sig == event_action_signature::m)
         {
             std::invoke(event_action.action, mach);
@@ -42,14 +54,6 @@ void call_event_action
         else if constexpr(EventAction::sig == event_action_signature::me)
         {
             std::invoke(event_action.action, mach, event);
-        }
-        else if constexpr(EventAction::sig == event_action_signature::c)
-        {
-            std::invoke(event_action.action, ctx);
-        }
-        else if constexpr(EventAction::sig == event_action_signature::ce)
-        {
-            std::invoke(event_action.action, ctx, event);
         }
         else if constexpr(EventAction::sig == event_action_signature::e)
         {

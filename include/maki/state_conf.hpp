@@ -133,6 +133,15 @@ public:
 #undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    template<class Action> \
+    [[nodiscard]] constexpr auto entry_action_##signature(const Action& action) const \
+    { \
+        return entry_action<detail::event_action_signature::signature>(any, action); \
+    }
+    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+#undef MAKI_DETAIL_X
+
+#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     template<class EventFilter, class Action> \
     [[nodiscard]] constexpr auto internal_action_##signature(const EventFilter& event_filter, const Action& action) const \
     { \
@@ -146,6 +155,15 @@ public:
     [[nodiscard]] constexpr auto exit_action_##signature(const EventFilter& event_filter, const Action& action) const \
     { \
         return exit_action<detail::event_action_signature::signature>(event_filter, action); \
+    }
+    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+#undef MAKI_DETAIL_X
+
+#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    template<class Action> \
+    [[nodiscard]] constexpr auto exit_action_##signature(const Action& action) const \
+    { \
+        return exit_action<detail::event_action_signature::signature>(any, action); \
     }
     MAKI_DETAIL_EVENT_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X

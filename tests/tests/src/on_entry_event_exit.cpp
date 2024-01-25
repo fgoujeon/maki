@@ -57,7 +57,6 @@ namespace
         constexpr auto french = maki::state_conf{}
             .entry_action_m
             (
-                maki::any,
                 [](auto& mach)
                 {
                     mach.context().hello = "bonjour";
@@ -73,7 +72,6 @@ namespace
             )
             .exit_action_m
             (
-                maki::any,
                 [](auto& mach)
                 {
                     mach.context().goodbye = "au revoir";

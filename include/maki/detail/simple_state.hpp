@@ -10,7 +10,6 @@
 #include "call_member.hpp"
 #include "maybe_bool_util.hpp"
 #include "tlu.hpp"
-#include "context_holder.hpp"
 #include "root_tag.hpp"
 #include "../type_patterns.hpp"
 #include "../null.hpp"
@@ -28,15 +27,71 @@ public:
     using option_set_type = std::decay_t<decltype(opts(Conf))>;
     using context_type = state_traits::context_t<Conf>;
 
-    template<class Machine, class... ContextArgs>
-    simple_state(root_tag_t /*tag*/, Machine& mach, ContextArgs&&... ctx_args):
-        ctx_holder_(root_tag, mach, std::forward<ContextArgs>(ctx_args)...)
+    template
+    <
+        class Machine,
+        class... Args,
+        std::enable_if_t<is_brace_constructible<context_type, Machine&, Args...>, bool> = true
+    >
+    simple_state(root_tag_t /*tag*/, Machine& mach, Args&&... args):
+        ctx_{mach, std::forward<Args>(args)...}
     {
     }
 
-    template<class Machine, class ParentContext>
+    template
+    <
+        class Machine,
+        class... Args,
+        std::enable_if_t<is_brace_constructible<context_type, Args...>, bool> = true
+    >
+    simple_state(root_tag_t /*tag*/, Machine& /*mach*/, Args&&... args):
+        ctx_{std::forward<Args>(args)...}
+    {
+    }
+
+    template
+    <
+        class Machine,
+        class ParentContext,
+        std::enable_if_t<is_brace_constructible<context_type, Machine&, ParentContext&>, bool> = true
+    >
     simple_state(non_root_tag_t /*tag*/, Machine& mach, ParentContext& parent_ctx):
-        ctx_holder_(non_root_tag, mach, parent_ctx)
+        ctx_{mach, parent_ctx}
+    {
+    }
+
+    template
+    <
+        class Machine,
+        class ParentContext,
+        class U = context_type,
+        std::enable_if_t<!std::is_same_v<U, Machine> && is_brace_constructible<context_type, Machine&>, bool> = true
+    >
+    simple_state(non_root_tag_t /*tag*/, Machine& mach, ParentContext& /*parent_ctx*/):
+        ctx_{mach}
+    {
+    }
+
+    template
+    <
+        class Machine,
+        class ParentContext,
+        class U = context_type,
+        std::enable_if_t<!std::is_same_v<U, ParentContext> && is_brace_constructible<U, ParentContext&>, bool> = true
+    >
+    simple_state(non_root_tag_t /*tag*/, Machine& /*mach*/, ParentContext& parent_ctx):
+        ctx_{parent_ctx}
+    {
+    }
+
+    template
+    <
+        class Machine,
+        class ParentContext,
+        class U = context_type,
+        std::enable_if_t<std::is_default_constructible_v<U>, bool> = true
+    >
+    simple_state(non_root_tag_t /*tag*/, Machine& /*mach*/, ParentContext& /*ctx*/)
     {
     }
 
@@ -49,7 +104,7 @@ public:
         }
         else
         {
-            return ctx_holder_.get();
+            return ctx_;
         }
     }
 
@@ -62,7 +117,7 @@ public:
         }
         else
         {
-            return ctx_holder_.get();
+            return ctx_;
         }
     }
 
@@ -119,7 +174,7 @@ public:
     static constexpr const auto& conf = Conf;
 
 private:
-    context_holder<context_type> ctx_holder_;
+    context_type ctx_;
 };
 
 } //namespace

@@ -17,7 +17,6 @@
 #include "noop_ex.hpp"
 #include "same_ref.hpp"
 #include "maybe_bool_util.hpp"
-#include "context_holder.hpp"
 #include "root_tag.hpp"
 #include "../cref_constant.hpp"
 #include "../submachine_conf.hpp"

@@ -45,7 +45,7 @@ namespace
         };
 
         constexpr auto off = maki::state_conf{}
-            .context(maki::type<off_data>)
+            .context_c(maki::type<off_data>)
             .internal_action_ce
             (
                 maki::any,
@@ -77,7 +77,7 @@ namespace
         };
 
         constexpr auto on = maki::state_conf{}
-            .context(maki::type<on_data>)
+            .context_c(maki::type<on_data>)
             .internal_action_ce
             (
                 maki::any,
@@ -96,7 +96,7 @@ namespace
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context(maki::type<context>)
+        .context_a(maki::type<context>)
         .event_action_ce
         (
             maki::type<events::button_press>,

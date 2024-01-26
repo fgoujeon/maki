@@ -15,6 +15,7 @@
 #include "transition_table.hpp"
 #include "type_patterns.hpp"
 #include "type.hpp"
+#include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"
 #include "detail/tuple.hpp"
 #include "detail/type_list.hpp"
@@ -32,6 +33,7 @@ namespace detail
     template
     <
         class Context = void,
+        class ContextSigTag = context_signature_v_tag_t,
         class EntryActionTuple = detail::tuple<>,
         class EventActionTuple = detail::tuple<>,
         class ExitActionTuple = detail::tuple<>,
@@ -44,6 +46,7 @@ namespace detail
     struct machine_conf_option_set
     {
         using context_type = Context;
+        using context_sig_tag_type = ContextSigTag;
         using exception_action_type = ExceptionAction;
         using pre_state_transition_action_type = PreStateTransitionAction;
         using post_state_transition_action_type = PostStateTransitionAction;
@@ -115,6 +118,7 @@ public:
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = options_.auto_start; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type<typename OptionSet::context_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig_tag_type = type<typename OptionSet::context_sig_tag_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = options_.internal_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = options_.exit_actions; \
@@ -134,6 +138,7 @@ public:
         detail::machine_conf_option_set \
         < \
             typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
+            typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_sig_tag_type)>::type, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
@@ -159,6 +164,15 @@ public:
         MAKI_DETAIL_ARG_small_event_max_size, \
         MAKI_DETAIL_ARG_transition_tables \
     };
+
+#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    template<class Context> \
+    [[nodiscard]] constexpr auto context_##signature(const type_t<Context>& /*ignored*/) const \
+    { \
+        return context<Context, detail::context_signature_##signature##_tag_t>(); \
+    }
+    MAKI_DETAIL_CONTEXT_SIGNATURES_FOR_MACHINE
+#undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
@@ -324,18 +338,6 @@ public:
     }
 
     /**
-    @brief Specifies the context type.
-    */
-    template<class Context2>
-    [[nodiscard]] constexpr auto context(const type_t<Context2> /*ignored*/) const
-    {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_context_type type<Context2>
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_context_type
-    }
-
-    /**
     @brief Specifies whether run-to-completion is enabled.
 
     Disabling run-to-completion makes the state machine much faster, but you
@@ -485,6 +487,17 @@ private:
     constexpr machine_conf(Args&&... args):
         options_{std::forward<Args>(args)...}
     {
+    }
+
+    template<class Context2, class ContextSigTag>
+    [[nodiscard]] constexpr auto context() const
+    {
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_context_type type<Context2>
+#define MAKI_DETAIL_ARG_context_sig_tag_type type<ContextSigTag>
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_context_type
+#undef MAKI_DETAIL_ARG_context_sig_tag_type
     }
 
     template<detail::event_action_signature Sig, class EventFilter, class Action>

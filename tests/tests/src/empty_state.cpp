@@ -31,7 +31,9 @@ namespace
             }
         };
 
-        constexpr auto state1 = maki::state_conf{}.context(maki::type<state1_data>);
+        constexpr auto state1 = maki::state_conf{}
+            .context_c(maki::type<state1_data>)
+        ;
     }
 
     constexpr auto transition_table = maki::transition_table{}
@@ -40,7 +42,7 @@ namespace
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context(maki::type<context>)
+        .context_a(maki::type<context>)
     ;
 
     using machine_t = maki::make_machine<machine_conf>;

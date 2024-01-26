@@ -20,8 +20,8 @@ namespace
 
     struct on_context
     {
-        machine_t& machine;
         context& parent;
+        machine_t& machine;
     };
 
     namespace events
@@ -45,7 +45,7 @@ namespace
 
         constexpr auto on = maki::submachine_conf{}
             .transition_tables(on_transition_table)
-            .context(maki::type<on_context>)
+            .context_cm(maki::type<on_context>)
         ;
     }
 
@@ -56,7 +56,7 @@ namespace
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context(maki::type<context>)
+        .context_am(maki::type<context>)
     ;
 
     struct machine_conf_holder

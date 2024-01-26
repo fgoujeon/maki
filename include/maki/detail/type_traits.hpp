@@ -14,30 +14,6 @@ namespace maki::detail
 {
 
 //
-//is_brace_constructible
-//
-
-namespace is_brace_constructible_detail
-{
-    template<class T, class... Args>
-    constexpr auto impl(overload_priority::high /*ignored*/) -> decltype(T{std::declval<Args>()...}, bool())
-    {
-        return true;
-    }
-
-    template<class T, class... Args>
-    constexpr bool impl(overload_priority::low /*ignored*/)
-    {
-        return false;
-    }
-}
-
-template<class T, class... Args>
-constexpr bool is_brace_constructible =
-    is_brace_constructible_detail::impl<T, Args...>(overload_priority::probe)
-;
-
-//
 //is_nullary
 //
 

@@ -38,9 +38,9 @@ namespace pretty_name_ns
         (state, maki::null, maki::null)
     ;
 
-    constexpr auto machine_conf = maki::submachine_conf{}
+    constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context(maki::type<context>)
+        .context_a(maki::type<context>)
         .pretty_name("my_sm")
     ;
 

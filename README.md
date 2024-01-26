@@ -188,7 +188,7 @@ namespace states
         int counter = 0;
     };
     constexpr auto emitting_white = maki::state_conf{}
-        .context(maki::type<emitting_white_data>)
+        .context_v(maki::type<emitting_white_data>)
         .entry_action_c(maki::any, [](emitting_white_data& data)
         {
             ++data.counter;
@@ -292,7 +292,7 @@ configure many other aspects of the state machine.
 */
 constexpr auto machine_conf = maki::machine_conf{}
     .transition_tables(transition_table)
-    .context(maki::type<context>)
+    .context_a(maki::type<context>)
 ;
 
 /*

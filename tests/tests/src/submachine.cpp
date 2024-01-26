@@ -37,12 +37,12 @@ namespace
 
         struct emitting_red_data
         {
-            machine_t& machine;
             context& ctx;
+            machine_t& machine;
         };
 
         constexpr auto emitting_red = maki::state_conf{}
-            .context(maki::type<emitting_red_data>)
+            .context_cm(maki::type<emitting_red_data>)
             .entry_action_c
             (
                 maki::any,
@@ -55,12 +55,12 @@ namespace
 
         struct emitting_green_data
         {
-            machine_t& machine;
             context& ctx;
+            machine_t& machine;
         };
 
         constexpr auto emitting_green = maki::state_conf{}
-            .context(maki::type<emitting_green_data>)
+            .context_cm(maki::type<emitting_green_data>)
             .entry_action_c
             (
                 maki::any,
@@ -73,12 +73,12 @@ namespace
 
         struct emitting_blue_data
         {
-            machine_t& machine;
             context& ctx;
+            machine_t& machine;
         };
 
         constexpr auto emitting_blue = maki::state_conf{}
-            .context(maki::type<emitting_blue_data>)
+            .context_cm(maki::type<emitting_blue_data>)
             .entry_action_c
             (
                 maki::any,
@@ -117,7 +117,7 @@ namespace
     {
         static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)
-            .context(maki::type<context>)
+            .context_a(maki::type<context>)
         ;
     };
 }

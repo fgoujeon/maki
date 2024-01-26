@@ -16,7 +16,6 @@
 #include "tlu.hpp"
 #include "same_ref.hpp"
 #include "maybe_bool_util.hpp"
-#include "root_tag.hpp"
 #include "../cref_constant.hpp"
 #include "../submachine_conf.hpp"
 #include "../state_confs.hpp"
@@ -80,9 +79,9 @@ template<class ParentSm, int Index>
 class region
 {
 public:
-    template<class Machine, class Context>
-    region(Machine& mach, Context& ctx):
-        states_(uniform_construct, non_root_tag, mach, ctx)
+    template<class Context, class Machine>
+    region(Context& ctx, Machine& mach):
+        states_(uniform_construct, context_signature_auto_tag, ctx, mach)
     {
     }
 

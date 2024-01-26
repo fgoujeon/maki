@@ -88,7 +88,7 @@ namespace
     {
         static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)
-            .context(maki::type<context>)
+            .context_a(maki::type<context>)
             .fallback_transition_action_me
             (
                 maki::type<events::ignored_by_emitting_blue>,

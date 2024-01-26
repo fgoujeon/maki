@@ -40,7 +40,7 @@ namespace
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context(maki::type<context>)
+        .context_a(maki::type<context>)
         .pre_state_transition_action_crset
         (
             [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)

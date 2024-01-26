@@ -10,7 +10,6 @@
 #include "call_member.hpp"
 #include "maybe_bool_util.hpp"
 #include "tlu.hpp"
-#include "root_tag.hpp"
 #include "../type_patterns.hpp"
 #include "../null.hpp"
 
@@ -27,71 +26,84 @@ public:
     using option_set_type = std::decay_t<decltype(opts(Conf))>;
     using context_type = state_traits::context_t<Conf>;
 
-    template
-    <
-        class Machine,
-        class... Args,
-        std::enable_if_t<is_brace_constructible<context_type, Machine&, Args...>, bool> = true
-    >
-    simple_state(root_tag_t /*tag*/, Machine& mach, Args&&... args):
-        ctx_{mach, std::forward<Args>(args)...}
-    {
-    }
-
-    template
-    <
-        class Machine,
-        class... Args,
-        std::enable_if_t<is_brace_constructible<context_type, Args...>, bool> = true
-    >
-    simple_state(root_tag_t /*tag*/, Machine& /*mach*/, Args&&... args):
+    template<class Machine, class... Args>
+    simple_state
+    (
+        context_signature_a_tag_t /*tag*/,
+        Machine& /*mach*/,
+        Args&&... args
+    ):
         ctx_{std::forward<Args>(args)...}
     {
     }
 
-    template
-    <
-        class Machine,
-        class ParentContext,
-        std::enable_if_t<is_brace_constructible<context_type, Machine&, ParentContext&>, bool> = true
-    >
-    simple_state(non_root_tag_t /*tag*/, Machine& mach, ParentContext& parent_ctx):
-        ctx_{mach, parent_ctx}
+    template<class Machine, class... Args>
+    simple_state
+    (
+        context_signature_am_tag_t /*tag*/,
+        Machine& mach,
+        Args&&... args
+    ):
+        ctx_{std::forward<Args>(args)..., mach}
     {
     }
 
-    template
-    <
-        class Machine,
-        class ParentContext,
-        class U = context_type,
-        std::enable_if_t<!std::is_same_v<U, Machine> && is_brace_constructible<context_type, Machine&>, bool> = true
-    >
-    simple_state(non_root_tag_t /*tag*/, Machine& mach, ParentContext& /*parent_ctx*/):
-        ctx_{mach}
+    template<class ParentContext, class Machine>
+    simple_state
+    (
+        const context_signature_auto_tag_t /*tag*/,
+        ParentContext& parent_ctx,
+        Machine& mach
+    ):
+        simple_state
+        {
+            typename option_set_type::context_sig_tag_type{},
+            parent_ctx,
+            mach
+        }
     {
     }
 
-    template
-    <
-        class Machine,
-        class ParentContext,
-        class U = context_type,
-        std::enable_if_t<!std::is_same_v<U, ParentContext> && is_brace_constructible<U, ParentContext&>, bool> = true
-    >
-    simple_state(non_root_tag_t /*tag*/, Machine& /*mach*/, ParentContext& parent_ctx):
+    template<class ParentContext, class Machine>
+    simple_state
+    (
+        context_signature_c_tag_t /*tag*/,
+        ParentContext& parent_ctx,
+        Machine& /*mach*/
+    ):
         ctx_{parent_ctx}
     {
     }
 
-    template
-    <
-        class Machine,
-        class ParentContext,
-        class U = context_type,
-        std::enable_if_t<std::is_default_constructible_v<U>, bool> = true
-    >
-    simple_state(non_root_tag_t /*tag*/, Machine& /*mach*/, ParentContext& /*ctx*/)
+    template<class ParentContext, class Machine>
+    simple_state
+    (
+        context_signature_cm_tag_t /*tag*/,
+        ParentContext& parent_ctx,
+        Machine& mach
+    ):
+        ctx_{parent_ctx, mach}
+    {
+    }
+
+    template<class ParentContext, class Machine>
+    simple_state
+    (
+        context_signature_m_tag_t /*tag*/,
+        ParentContext& /*parent_ctx*/,
+        Machine& mach
+    ):
+        ctx_{mach}
+    {
+    }
+
+    template<class ParentContext, class Machine>
+    simple_state
+    (
+        context_signature_v_tag_t /*tag*/,
+        ParentContext& /*parent_ctx*/,
+        Machine& /*mach*/
+    )
     {
     }
 

@@ -51,7 +51,7 @@ public:
     template<class ParentContext, class Machine>
     simple_state
     (
-        const context_signature_auto_tag_t /*tag*/,
+        context_signature_auto_tag_t /*tag*/,
         ParentContext& parent_ctx,
         Machine& mach
     ):

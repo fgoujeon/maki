@@ -16,6 +16,7 @@
 #include "pretty_name.hpp"
 #include "detail/tuple.hpp"
 #include "detail/tlu.hpp"
+#include "detail/tu.hpp"
 #include <string>
 #include <sstream>
 
@@ -136,7 +137,7 @@ public:
     template<class Elem>
     [[nodiscard]] constexpr auto operator/(const Elem& elem) const
     {
-        return tuple_apply
+        return detail::tu::apply
         (
             elems_,
             [](const Elem& elem, const auto... elems)
@@ -165,12 +166,12 @@ private:
     template<int Index>
     [[nodiscard]] constexpr auto raw_at() const
     {
-        return detail::tuple_get<Index>(elems_);
+        return detail::tu::get<Index>(elems_);
     }
 
     [[nodiscard]] constexpr auto tail() const
     {
-        return tuple_apply
+        return detail::tu::apply
         (
             elems_,
             [](const auto /*elem*/, const auto... elems)

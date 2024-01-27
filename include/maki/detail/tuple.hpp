@@ -7,10 +7,7 @@
 #ifndef MAKI_DETAIL_TUPLE_HPP
 #define MAKI_DETAIL_TUPLE_HPP
 
-#include "tlu.hpp"
-#include "type_list.hpp"
 #include "constant.hpp"
-#include "../cref_constant.hpp"
 #include "../type.hpp"
 #include <utility>
 
@@ -155,99 +152,6 @@ constexpr auto make_tuple(distributed_construct_t /*tag*/, const Args&... args)
     return tuple<Args...>{distributed_construct, args...};
 }
 
-
-/*
-get
-*/
-
-template<int Index, class Tuple>
-constexpr auto& tuple_get(Tuple& tpl)
-{
-    return tpl.template get(constant<Index>);
-}
-
-template<class T, class Tuple>
-constexpr auto& tuple_get(Tuple& tpl)
-{
-    return tpl.template get(type<T>);
-}
-
-
-/*
-static_get_copy
-*/
-
-template<const auto& Tuple, int Index>
-constexpr auto tuple_static_get_copy_c = tuple_get<Index>(Tuple);
-
-
-/*
-append
-*/
-
-template<class IndexSequence>
-struct tuple_append_impl;
-
-template<int... Indexes>
-struct tuple_append_impl<std::integer_sequence<int, Indexes...>>
-{
-    template<class... Ts, class U>
-    static constexpr tuple<Ts..., U> call(const tuple<Ts...>& tpl, const U& elem)
-    {
-        return tuple<Ts..., U>{distributed_construct, tuple_get<Indexes>(tpl)..., elem};
-    }
-};
-
-template<class... Ts, class U>
-constexpr tuple<Ts..., U> tuple_append(const tuple<Ts...>& tpl, const U& elem)
-{
-    using impl_t = tuple_append_impl<std::make_integer_sequence<int, sizeof...(Ts)>>;
-    return impl_t::call(tpl, elem);
-}
-
-
-/*
-apply
-*/
-
-template<class IndexSequence>
-struct tuple_apply_impl;
-
-template<int... Indexes>
-struct tuple_apply_impl<std::integer_sequence<int, Indexes...>>
-{
-    template<class Tuple, class F>
-    static constexpr auto call(Tuple& tpl, const F& fun)
-    {
-        return fun(tuple_get<Indexes>(tpl)...);
-    }
-
-    template<class Tuple, class F, class... ExtraArgs>
-    static constexpr auto call(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
-    {
-        return fun(std::forward<ExtraArgs>(extra_args)..., tuple_get<Indexes>(tpl)...);
-    }
-};
-
-template<class Tuple, class F>
-constexpr auto tuple_apply(Tuple& tpl, const F& fun)
-{
-    using impl_t = tuple_apply_impl<std::make_integer_sequence<int, Tuple::size>>;
-    return impl_t::call(tpl, fun);
-}
-
-template<class Tuple, class F, class... ExtraArgs>
-constexpr auto tuple_apply(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
-{
-    using impl_t = tuple_apply_impl<std::make_integer_sequence<int, Tuple::size>>;
-    return impl_t::call(tpl, fun, std::forward<ExtraArgs>(extra_args)...);
-}
-
-
-/*
-operator==
-*/
-
 template<class IndexSequence>
 struct tuple_equality_impl;
 
@@ -258,7 +162,7 @@ struct tuple_equality_impl<std::integer_sequence<int, Index, Indexes...>>
     static constexpr bool call(const tuple<Args...>& lhs, const tuple<Args...>& rhs)
     {
         return
-            tuple_get<Index>(lhs) == tuple_get<Index>(rhs) &&
+            lhs.get(constant<Index>) == rhs.get(constant<Index>) &&
             tuple_equality_impl<std::integer_sequence<int, Indexes...>>::call(lhs, rhs);
         ;
     }
@@ -286,140 +190,6 @@ constexpr bool operator==(const tuple<LhsArgs...>& /*lhs*/, const tuple<RhsArgs.
 {
     return false;
 }
-
-
-/*
-contains
-*/
-
-template<class Tuple, class T>
-constexpr bool tuple_contains(const Tuple& tpl, const T& value)
-{
-    return tuple_apply
-    (
-        tpl,
-        [](const T& value, const auto&... elems)
-        {
-            auto weak_equals = [](const auto& lhs, const auto& rhs)
-            {
-                if constexpr(std::is_same_v<decltype(lhs), decltype(rhs)>)
-                {
-                    return lhs == rhs;
-                }
-                else
-                {
-                    return false;
-                }
-            };
-
-            return (weak_equals(elems, value) || ...);
-        },
-        value
-    );
-}
-
-
-/*
-contains_if
-*/
-
-inline constexpr auto tuple_contains_if_impl = [](const auto& pred, const auto&... elems)
-{
-    return (pred(elems) || ...);
-};
-
-template<class Tuple, class Predicate>
-constexpr bool tuple_contains_if(Tuple& tpl, const Predicate& pred)
-{
-    return tuple_apply(tpl, tuple_contains_if_impl, pred);
-}
-
-
-/*
-to_constant_list
-*/
-
-template<const auto& Tuple, class IndexSequence>
-struct tuple_to_constant_list_impl;
-
-template<const auto& Tuple, int... Indexes>
-struct tuple_to_constant_list_impl<Tuple, std::integer_sequence<int, Indexes...>>
-{
-    using type = type_list<cref_constant_t<tuple_static_get_copy_c<Tuple, Indexes>>...>;
-};
-
-template<const auto& Tuple>
-struct tuple_to_constant_list
-{
-    using type = typename tuple_to_constant_list_impl<Tuple, std::make_integer_sequence<int, Tuple.size>>::type;
-};
-
-template<const auto& Tuple>
-using tuple_to_constant_list_t = typename tuple_to_constant_list<Tuple>::type;
-
-
-/*
-static_left_fold
-
-Applies a left fold on the given tuple.
-
-Operation must be a metafunction whose parameters are:
-- a tuple;
-- a tuple element.
-*/
-
-template
-<
-    const auto& Tuple,
-    template<const auto&, const auto&> class Operation,
-    const auto& Initial,
-    class IndexSequence
->
-struct tuple_static_left_fold_impl;
-
-template
-<
-    const auto& Tuple,
-    template<const auto&, const auto&> class Operation,
-    const auto& Initial,
-    int Index,
-    int... Indexes
->
-struct tuple_static_left_fold_impl<Tuple, Operation, Initial, std::integer_sequence<int, Index, Indexes...>>
-{
-    static constexpr auto value = tuple_static_left_fold_impl
-    <
-        Tuple,
-        Operation,
-        Operation<Initial, tuple_static_get_copy_c<Tuple, Index>>::value,
-        std::integer_sequence<int, Indexes...>
-    >::value;
-};
-
-template
-<
-    const auto& Tuple,
-    template<const auto&, const auto&> class Operation,
-    const auto& Initial
->
-struct tuple_static_left_fold_impl<Tuple, Operation, Initial, std::integer_sequence<int>>
-{
-    static constexpr auto value = Initial;
-};
-
-template
-<
-    const auto& Tuple,
-    template<const auto&, const auto&> class Operation,
-    const auto& Initial
->
-constexpr auto tuple_static_left_fold_v = tuple_static_left_fold_impl
-<
-    Tuple,
-    Operation,
-    Initial,
-    std::make_integer_sequence<int, Tuple.size>
->::value;
 
 } //namespace
 

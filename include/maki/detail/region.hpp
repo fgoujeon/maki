@@ -14,6 +14,7 @@
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
 #include "tlu.hpp"
+#include "tu.hpp"
 #include "same_ref.hpp"
 #include "maybe_bool_util.hpp"
 #include "../cref_constant.hpp"
@@ -186,16 +187,16 @@ public:
     }
 
 private:
-    static constexpr auto transition_table = tuple_get<Index>(opts(ParentSm::conf).transition_tables);
+    static constexpr auto transition_table = tu::get<Index>(opts(ParentSm::conf).transition_tables);
     static constexpr auto transition_tuple = detail::rows(transition_table);
-    using transition_constant_list = tuple_to_constant_list_t<transition_tuple>;
+    using transition_constant_list = tu::static_to_constant_list_t<transition_tuple>;
 
     static constexpr auto transition_table_digest =
         detail::transition_table_digest<transition_tuple>
     ;
 
     static constexpr auto state_conf_ptrs = transition_table_digest.state_conf_ptrs;
-    using state_conf_ptr_constant_list = tuple_to_constant_list_t<state_conf_ptrs>;
+    using state_conf_ptr_constant_list = tu::static_to_constant_list_t<state_conf_ptrs>;
 
     template<class... ConfPtrConstants>
     using state_conf_ptr_constant_list_to_state_type_list_t = type_list
@@ -211,7 +212,7 @@ private:
 
     using state_tuple_type = tlu::apply_t<state_type_list, tuple>;
 
-    static constexpr auto pinitial_state_conf = tuple_get<0>(transition_table_digest.state_conf_ptrs);
+    static constexpr auto pinitial_state_conf = tu::get<0>(transition_table_digest.state_conf_ptrs);
 
     template<bool Dry, class Self, class Machine, class Context, class Event, class... MaybeBool>
     static void process_event_2(Self& self, Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
@@ -646,7 +647,7 @@ private:
         static constexpr auto state_index =
             region_detail::find_state_v<state_type_list, State>
         ;
-        return tuple_get<state_index>(self.states_);
+        return tu::get<state_index>(self.states_);
     }
 
     //Note: We use static to factorize const and non-const Region
@@ -656,7 +657,7 @@ private:
         static constexpr auto state_index =
             region_detail::find_state_from_conf_v<state_type_list, StateConf>
         ;
-        return tuple_get<state_index>(self.states_);
+        return tu::get<state_index>(self.states_);
     }
 
     //Note: We use static to factorize const and non-const Region
@@ -666,7 +667,7 @@ private:
         static constexpr auto state_index =
             region_detail::find_state_from_conf_ptr_v<state_type_list, StateConfPtr>
         ;
-        return tuple_get<state_index>(self.states_);
+        return tu::get<state_index>(self.states_);
     }
 
     //Note: We use static to factorize const and non-const Region

@@ -10,6 +10,7 @@
 #include "call_member.hpp"
 #include "maybe_bool_util.hpp"
 #include "tlu.hpp"
+#include "tu.hpp"
 #include "../type_patterns.hpp"
 #include "../null.hpp"
 
@@ -185,7 +186,7 @@ public:
     template<class Event>
     static constexpr bool has_internal_action_for_event()
     {
-        return tuple_contains_if
+        return tu::contains_if
         (
             opts(Conf).internal_actions,
             [](const auto& act)

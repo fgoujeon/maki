@@ -11,6 +11,7 @@
 #include "state_traits.hpp"
 #include "event_action.hpp"
 #include "tlu.hpp"
+#include "tu.hpp"
 #include "../type_patterns.hpp"
 #include <functional>
 #include <type_traits>
@@ -89,7 +90,7 @@ void call_state_action
 {
     if constexpr(!tlu::empty_v<ActionTuple>)
     {
-        tuple_apply
+        tu::apply
         (
             actions,
             [](auto&... args)

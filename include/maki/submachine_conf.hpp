@@ -20,6 +20,7 @@
 #include "detail/tuple.hpp"
 #include "detail/type_list.hpp"
 #include "detail/tlu.hpp"
+#include "detail/tu.hpp"
 #include <string_view>
 
 namespace maki
@@ -207,7 +208,7 @@ private:
     template<detail::event_action_signature Sig, class EventFilter, class Action>
     [[nodiscard]] constexpr auto entry_action(const EventFilter& event_filter, const Action& action) const
     {
-        const auto new_entry_actions = tuple_append
+        const auto new_entry_actions = detail::tu::append
         (
             options_.entry_actions,
             detail::make_event_action<Sig>(event_filter, action)
@@ -222,7 +223,7 @@ private:
     template<detail::event_action_signature Sig, class EventFilter, class Action>
     [[nodiscard]] constexpr auto internal_action(const EventFilter& event_filter, const Action& action) const
     {
-        const auto new_internal_actions = tuple_append
+        const auto new_internal_actions = detail::tu::append
         (
             options_.internal_actions,
             detail::make_event_action<Sig>(event_filter, action)
@@ -237,7 +238,7 @@ private:
     template<detail::event_action_signature Sig, class EventFilter, class Action>
     [[nodiscard]] constexpr auto exit_action(const EventFilter& event_filter, const Action& action) const
     {
-        const auto new_exit_actions = tuple_append
+        const auto new_exit_actions = detail::tu::append
         (
             options_.exit_actions,
             detail::make_event_action<Sig>(event_filter, action)

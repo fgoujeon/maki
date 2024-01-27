@@ -424,7 +424,7 @@ public:
     template<class EventFilter, class Action>
     [[nodiscard]] constexpr auto fallback_transition_action_me(const EventFilter& event_filter, const Action& action) const
     {
-        const auto new_fallback_transition_actions = tuple_append
+        const auto new_fallback_transition_actions = detail::tu::append
         (
             options_.fallback_transition_actions,
             detail::make_event_action<detail::event_action_signature::me>(event_filter, action)
@@ -503,7 +503,7 @@ private:
     template<detail::event_action_signature Sig, class EventFilter, class Action>
     [[nodiscard]] constexpr auto entry_action(const EventFilter& event_filter, const Action& action) const
     {
-        const auto new_entry_actions = tuple_append
+        const auto new_entry_actions = detail::tu::append
         (
             options_.entry_actions,
             detail::make_event_action<Sig>(event_filter, action)
@@ -518,7 +518,7 @@ private:
     template<detail::event_action_signature Sig, class EventFilter, class Action>
     [[nodiscard]] constexpr auto event_action(const EventFilter& event_filter, const Action& action) const
     {
-        const auto new_internal_actions = tuple_append
+        const auto new_internal_actions = detail::tu::append
         (
             options_.internal_actions,
             detail::make_event_action<Sig>(event_filter, action)
@@ -533,7 +533,7 @@ private:
     template<detail::event_action_signature Sig, class EventFilter, class Action>
     [[nodiscard]] constexpr auto exit_action(const EventFilter& event_filter, const Action& action) const
     {
-        const auto new_exit_actions = tuple_append
+        const auto new_exit_actions = detail::tu::append
         (
             options_.exit_actions,
             detail::make_event_action<Sig>(event_filter, action)

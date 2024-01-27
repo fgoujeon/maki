@@ -15,6 +15,7 @@
 #include "null.hpp"
 #include "detail/storable_function.hpp"
 #include "detail/tuple.hpp"
+#include "detail/tu.hpp"
 
 namespace maki
 {
@@ -169,7 +170,7 @@ public:
         const Guard& guard = null
     )
     {
-        return tuple_apply
+        return detail::tu::apply
         (
             transitions_,
             []

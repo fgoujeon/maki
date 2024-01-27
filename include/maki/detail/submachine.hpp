@@ -107,7 +107,7 @@ public:
         {
             static constexpr int region_index = path_raw_head(StatePath);
             static constexpr auto state_path_tail = path_tail(StatePath);
-            return tuple_get<region_index>(regions_).template context_or<state_path_tail>(context_or(parent_ctx));
+            return tu::get<region_index>(regions_).template context_or<state_path_tail>(context_or(parent_ctx));
         }
     }
 
@@ -122,7 +122,7 @@ public:
         {
             static constexpr int region_index = path_raw_head(StatePath);
             static constexpr auto state_path_tail = path_tail(StatePath);
-            return tuple_get<region_index>(regions_).template context_or<state_path_tail>(context_or(parent_ctx));
+            return tu::get<region_index>(regions_).template context_or<state_path_tail>(context_or(parent_ctx));
         }
     }
 
@@ -131,7 +131,7 @@ public:
     {
         static constexpr auto region_index = path_raw_head(StateRegionPath);
         static constexpr auto state_region_relative_path = path_tail(StateRegionPath);
-        return tuple_get<region_index>(regions_).template active_state<state_region_relative_path, &StateConf>();
+        return tu::get<region_index>(regions_).template active_state<state_region_relative_path, &StateConf>();
     }
 
     template<const auto& StateConf>
@@ -140,7 +140,7 @@ public:
         static_assert(tlu::size_v<transition_table_type_list> == 1);
 
         static constexpr auto state_region_relative_path = path<>{};
-        return tuple_get<0>(regions_).template active_state<state_region_relative_path, &StateConf>();
+        return tu::get<0>(regions_).template active_state<state_region_relative_path, &StateConf>();
     }
 
     template<const auto& RegionPath>
@@ -242,7 +242,7 @@ private:
         template<class Region, class Self, class Machine, class Context, class Event>
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
-            tuple_get<Region>(self.regions_).start(mach, ctx, event);
+            tu::get<Region>(self.regions_).start(mach, ctx, event);
         }
     };
 
@@ -252,7 +252,7 @@ private:
         template<class Region, class Self, class Machine, class Context, class Event, class... MaybeBool>
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
         {
-            tuple_get<Region>(self.regions_).template process_event<Dry>(mach, ctx, event, processed...);
+            tu::get<Region>(self.regions_).template process_event<Dry>(mach, ctx, event, processed...);
         }
     };
 
@@ -261,7 +261,7 @@ private:
         template<class Region, class Self, class Machine, class Context, class Event>
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
-            tuple_get<Region>(self.regions_).stop(mach, ctx, event);
+            tu::get<Region>(self.regions_).stop(mach, ctx, event);
         }
     };
 

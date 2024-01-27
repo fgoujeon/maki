@@ -14,6 +14,7 @@
 #include "same_ref.hpp"
 #include "tlu.hpp"
 #include "tuple.hpp"
+#include "tu.hpp"
 #include "state_traits.hpp"
 #include "type_list.hpp"
 #include <type_traits>
@@ -61,7 +62,7 @@ namespace transition_table_digest_detail
     template<const auto& TransitionTuple>
     constexpr auto initial_digest = make_transition_table_digest
     (
-        tuple_append(tuple{}, tuple_static_get_copy_c<TransitionTuple, 0>.psource_state_conf_pattern),
+        tu::append(tuple{}, tu::static_get_copy_v<TransitionTuple, 0>.psource_state_conf_pattern),
         false
     );
 
@@ -73,10 +74,10 @@ namespace transition_table_digest_detail
             if constexpr
             (
                 static_cast<const void*>(Transition.ptarget_state_conf) != static_cast<const void*>(&null) &&
-                !tuple_contains(Digest.state_conf_ptrs, Transition.ptarget_state_conf)
+                !tu::contains(Digest.state_conf_ptrs, Transition.ptarget_state_conf)
             )
             {
-                return tuple_append
+                return tu::append
                 (
                     Digest.state_conf_ptrs,
                     Transition.ptarget_state_conf
@@ -102,7 +103,7 @@ namespace transition_table_digest_detail
 }
 
 template<const auto& TransitionTuple>
-constexpr auto transition_table_digest = tuple_static_left_fold_v
+constexpr auto transition_table_digest = tu::static_left_fold_v
 <
     TransitionTuple,
     transition_table_digest_detail::add_transition_to_digest,

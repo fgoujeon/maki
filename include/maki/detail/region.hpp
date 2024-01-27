@@ -190,11 +190,12 @@ private:
     static constexpr auto transition_tuple = detail::rows(transition_table);
     using transition_constant_list = tuple_to_constant_list_t<transition_tuple>;
 
-    using transition_table_digest_type =
-        detail::transition_table_digest<transition_constant_list>
+    static constexpr auto transition_table_digest =
+        detail::transition_table_digest<transition_tuple>
     ;
 
-    using state_conf_ptr_constant_list = typename transition_table_digest_type::state_conf_ptr_constant_list;
+    static constexpr auto state_conf_ptrs = transition_table_digest.state_conf_ptrs;
+    using state_conf_ptr_constant_list = tuple_to_constant_list_t<state_conf_ptrs>;
 
     template<class... ConfPtrConstants>
     using state_conf_ptr_constant_list_to_state_type_list_t = type_list
@@ -210,7 +211,7 @@ private:
 
     using state_tuple_type = tlu::apply_t<state_type_list, tuple>;
 
-    static constexpr auto pinitial_state_conf = detail::tlu::front_t<state_conf_ptr_constant_list>::value;
+    static constexpr auto pinitial_state_conf = tuple_get<0>(transition_table_digest.state_conf_ptrs);
 
     template<bool Dry, class Self, class Machine, class Context, class Event, class... MaybeBool>
     static void process_event_2(Self& self, Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
@@ -477,7 +478,7 @@ private:
             }
 
             //Anonymous transition
-            if constexpr(transition_table_digest_type::has_null_events)
+            if constexpr(transition_table_digest.has_null_events)
             {
                 using candidate_transition_constant_list = transition_table_filters::by_null_event_t
                 <

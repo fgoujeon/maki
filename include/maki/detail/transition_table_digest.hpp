@@ -43,52 +43,70 @@ For example, the following digest type...:
     };
 */
 
+template<class StateConfPtrTuple>
+struct transition_table_digest_t
+{
+    StateConfPtrTuple state_conf_ptrs;
+    bool has_null_events = false;
+};
+
+template<class StateConfPtrTuple>
+constexpr auto make_transition_table_digest(const StateConfPtrTuple& state_conf_ptrs, bool has_null_events)
+{
+    return transition_table_digest_t<StateConfPtrTuple>{state_conf_ptrs, has_null_events};
+}
+
 namespace transition_table_digest_detail
 {
-    template<class TList, auto ConfPtr>
-    using push_back_unique_if_not_null_constant = tlu::push_back_if_t
-    <
-        TList,
-        constant_t<ConfPtr>,
-        (
-            !tlu::contains_v<TList, constant_t<ConfPtr>> &&
-            static_cast<const void*>(ConfPtr) != static_cast<const void*>(&null)
-        )
-    >;
+    template<const auto& TransitionTuple>
+    constexpr auto initial_digest = make_transition_table_digest
+    (
+        tuple_append(tuple{}, tuple_static_get_copy_c<TransitionTuple, 0>.psource_state_conf_pattern),
+        false
+    );
 
-    template<class TransitionConstantList>
-    class initial_digest
-    {
-    private:
-        static constexpr auto pinitial_state_conf = tlu::get_t<TransitionConstantList, 0>::value.psource_state_conf_pattern;
-
-    public:
-        using state_conf_ptr_constant_list = type_list<constant_t<pinitial_state_conf>>;
-        static constexpr auto has_null_events = false;
-    };
-
-    template<class Digest, class TransitionConstant>
+    template<const auto& Digest, const auto& Transition>
     struct add_transition_to_digest
     {
-        using state_conf_ptr_constant_list = push_back_unique_if_not_null_constant
-        <
-            typename Digest::state_conf_ptr_constant_list,
-            TransitionConstant::value.ptarget_state_conf
-        >;
+        static constexpr auto state_conf_ptrs = []
+        {
+            if constexpr
+            (
+                static_cast<const void*>(Transition.ptarget_state_conf) != static_cast<const void*>(&null) &&
+                !tuple_contains(Digest.state_conf_ptrs, Transition.ptarget_state_conf)
+            )
+            {
+                return tuple_append
+                (
+                    Digest.state_conf_ptrs,
+                    Transition.ptarget_state_conf
+                );
+            }
+            else
+            {
+                return Digest.state_conf_ptrs;
+            }
+        }();
 
         static constexpr auto has_null_events =
-            Digest::has_null_events ||
-            is_null(TransitionConstant::value.event_pattern)
+            Digest.has_null_events ||
+            is_null(Transition.event_pattern)
         ;
+
+        static constexpr auto value = make_transition_table_digest
+        (
+            state_conf_ptrs,
+            has_null_events
+        );
     };
 }
 
-template<class TransitionConstantList>
-using transition_table_digest = tlu::left_fold_t
+template<const auto& TransitionTuple>
+constexpr auto transition_table_digest = tuple_static_left_fold_v
 <
-    TransitionConstantList,
+    TransitionTuple,
     transition_table_digest_detail::add_transition_to_digest,
-    transition_table_digest_detail::initial_digest<TransitionConstantList>
+    transition_table_digest_detail::initial_digest<TransitionTuple>
 >;
 
 } //namespace

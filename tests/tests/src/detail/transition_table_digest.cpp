@@ -37,25 +37,21 @@ namespace transition_table_digest_ns
 
     constexpr auto transition_tuple = maki::detail::rows(transition_table);
 
-    using transition_constant_list = maki::detail::tuple_to_constant_list_t<transition_tuple>;
+    constexpr auto digest = maki::detail::transition_table_digest<transition_tuple>;
 
-    using digest_t = maki::detail::transition_table_digest
-    <
-        transition_constant_list
-    >;
-
-    using state_conf_ptr_constant_list = maki::detail::type_list
-    <
-        maki::detail::constant_t<&state0>,
-        maki::detail::constant_t<&state1>,
-        maki::detail::constant_t<&state2>,
-        maki::detail::constant_t<&state3>
-    >;
+    constexpr auto expected_state_conf_ptrs = maki::detail::make_tuple
+    (
+        maki::detail::distributed_construct,
+        &state0,
+        &state1,
+        &state2,
+        &state3
+    );
 }
 
 TEST_CASE("detail::transition_table_digest")
 {
     using namespace transition_table_digest_ns;
-    REQUIRE(std::is_same_v<digest_t::state_conf_ptr_constant_list, state_conf_ptr_constant_list>);
-    REQUIRE(!digest_t::has_null_events);
+    REQUIRE(digest.state_conf_ptrs == expected_state_conf_ptrs);
+    REQUIRE(!digest.has_null_events);
 }

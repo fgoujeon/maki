@@ -66,39 +66,37 @@ namespace transition_table_digest_detail
         false
     );
 
-    template<const auto& Digest, const auto& Transition>
-    struct add_transition_to_digest
+    constexpr auto add_transition_to_digest = [](const auto& digest_constant, const auto& transition_constant)
     {
-        static constexpr auto state_conf_ptrs = []
+        constexpr const auto& digest = digest_constant.value;
+        constexpr const auto& trans = transition_constant.value;
+
+        const auto state_conf_ptrs = [&]
         {
             if constexpr
             (
-                static_cast<const void*>(Transition.ptarget_state_conf) != static_cast<const void*>(&null) &&
-                !tu::contains(Digest.state_conf_ptrs, Transition.ptarget_state_conf)
+                static_cast<const void*>(trans.ptarget_state_conf) != static_cast<const void*>(&null) &&
+                !tu::contains(digest.state_conf_ptrs, trans.ptarget_state_conf)
             )
             {
                 return tu::append
                 (
-                    Digest.state_conf_ptrs,
-                    Transition.ptarget_state_conf
+                    digest.state_conf_ptrs,
+                    trans.ptarget_state_conf
                 );
             }
             else
             {
-                return Digest.state_conf_ptrs;
+                return digest.state_conf_ptrs;
             }
         }();
 
-        static constexpr auto has_null_events =
-            Digest.has_null_events ||
-            is_null(Transition.event_pattern)
+        const auto has_null_events =
+            digest.has_null_events ||
+            is_null(trans.event_pattern)
         ;
 
-        static constexpr auto value = make_transition_table_digest
-        (
-            state_conf_ptrs,
-            has_null_events
-        );
+        return make_transition_table_digest(state_conf_ptrs, has_null_events);
     };
 }
 

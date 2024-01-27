@@ -26,7 +26,6 @@ A type list is an instance of a type template of this form:
 #include "tlu/for_each_or.hpp"
 #include "tlu/front.hpp"
 #include "tlu/get.hpp"
-#include "tlu/left_fold.hpp"
 #include "tlu/pop_front.hpp"
 #include "tlu/push_back.hpp"
 #include "tlu/push_back_if.hpp"

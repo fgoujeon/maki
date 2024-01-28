@@ -62,51 +62,6 @@ struct for_conf_ptr
     };
 };
 
-
-//has_own_context
-
-template<const auto& Conf>
-class has_own_context
-{
-private:
-    using option_set_type = std::decay_t<decltype(opts(Conf))>;
-    using conf_context_type = typename option_set_type::context_type;
-
-public:
-    static constexpr auto value = !std::is_void_v<conf_context_type>;
-};
-
-template<const auto& Conf>
-constexpr auto has_own_context_v = has_own_context<Conf>::value;
-
-
-//context
-
-template<const auto& Conf>
-class context
-{
-private:
-    using option_set_type = std::decay_t<decltype(opts(Conf))>;
-    using conf_context_type = typename option_set_type::context_type;
-
-public:
-    /*
-    Context type is either (in this order of priority):
-    - the one specified through *_conf::context(), if any;
-    - a reference to the context type of the parent machine (not necessarily the
-    root machine).
-    */
-    using type = std::conditional_t
-    <
-        std::is_void_v<conf_context_type>,
-        null_t,
-        conf_context_type
-    >;
-};
-
-template<const auto& Conf>
-using context_t = typename context<Conf>::type;
-
 } //namespace
 
 #endif

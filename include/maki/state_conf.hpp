@@ -14,6 +14,7 @@
 
 #include "type_patterns.hpp"
 #include "type.hpp"
+#include "null.hpp"
 #include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"
 #include "detail/tuple.hpp"
@@ -27,7 +28,7 @@ namespace detail
 {
     template
     <
-        class Context = void,
+        class Context = null_t,
         class ContextSigTag = context_signature_v_tag_t,
         class EntryActionTuple = detail::tuple<>,
         class InternalActionTuple = detail::tuple<>,

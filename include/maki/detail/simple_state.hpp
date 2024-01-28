@@ -24,7 +24,7 @@ class simple_state
 {
 public:
     using option_set_type = std::decay_t<decltype(opts(Conf))>;
-    using context_type = state_traits::context_t<Conf>;
+    using context_type = typename option_set_type::context_type;
 
     template<class Machine, class... Args>
     simple_state
@@ -109,39 +109,39 @@ public:
 
     auto& context()
     {
-        static_assert(!std::is_void_v<typename option_set_type::context_type>);
+        static_assert(has_own_context);
         return ctx_;
     }
 
     const auto& context() const
     {
-        static_assert(!std::is_void_v<typename option_set_type::context_type>);
+        static_assert(has_own_context);
         return ctx_;
     }
 
     template<class ParentContext>
     auto& context_or(ParentContext& parent_ctx)
     {
-        if constexpr(std::is_void_v<typename option_set_type::context_type>)
+        if constexpr(has_own_context)
         {
-            return parent_ctx;
+            return ctx_;
         }
         else
         {
-            return ctx_;
+            return parent_ctx;
         }
     }
 
     template<class ParentContext>
     const auto& context_or(ParentContext& parent_ctx) const
     {
-        if constexpr(std::is_void_v<typename option_set_type::context_type>)
+        if constexpr(has_own_context)
         {
-            return parent_ctx;
+            return ctx_;
         }
         else
         {
-            return ctx_;
+            return parent_ctx;
         }
     }
 
@@ -198,6 +198,8 @@ public:
     static constexpr const auto& conf = Conf;
 
 private:
+    static constexpr bool has_own_context = !std::is_same_v<context_type, null_t>;
+
     context_type ctx_;
 };
 

@@ -111,7 +111,7 @@ class tuple: private tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, 
 public:
     using base_t = tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>;
 
-    using base_t::tuple_base;
+    using base_t::base_t;
     using base_t::get;
 
     static constexpr auto size = sizeof...(Ts);

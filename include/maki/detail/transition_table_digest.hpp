@@ -68,8 +68,8 @@ namespace transition_table_digest_detail
 
     constexpr auto add_transition_to_digest = [](const auto& digest_constant, const auto& transition_constant)
     {
-        constexpr const auto& digest = digest_constant.value;
-        constexpr const auto& trans = transition_constant.value;
+        constexpr const auto& digest = std::decay_t<decltype(digest_constant)>::value;
+        constexpr const auto& trans = std::decay_t<decltype(transition_constant)>::value;
 
         const auto state_conf_ptrs = [&]
         {

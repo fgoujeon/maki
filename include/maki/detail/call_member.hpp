@@ -72,6 +72,28 @@ void call_event_action
     }
 }
 
+template<int... Indexes>
+struct call_state_action_2
+{
+    template
+    <
+        class ActionTuple,
+        class Machine,
+        class Context,
+        class Event
+    >
+    static void call
+    (
+        const ActionTuple& actions,
+        Machine& mach,
+        Context& ctx,
+        const Event& event
+    )
+    {
+        call_event_action(mach, ctx, event, tuple_get<Indexes>(actions)...);
+    }
+};
+
 template
 <
     class ActionTuple,
@@ -89,13 +111,9 @@ void call_state_action
 {
     if constexpr(!tlu::empty_v<ActionTuple>)
     {
-        tuple_apply
+        tlu::apply_index_sequence_t<ActionTuple, call_state_action_2>::call
         (
             actions,
-            [](auto&... args)
-            {
-                call_event_action(args...);
-            },
             mach,
             ctx,
             event

@@ -197,18 +197,16 @@ private:
     using state_conf_ptr_constant_list = typename transition_table_digest_type::state_conf_ptr_constant_list;
 
     template<class... ConfPtrConstants>
-    using state_conf_ptr_constant_list_to_state_type_list_t = type_list
+    using state_conf_ptr_constant_list_to_state_tuple_t = tuple
     <
         state_traits::state_conf_to_state_t<*ConfPtrConstants::value, region>...
     >;
 
-    using state_type_list = tlu::apply_t
+    using state_tuple_type = tlu::apply_t
     <
         state_conf_ptr_constant_list,
-        state_conf_ptr_constant_list_to_state_type_list_t
+        state_conf_ptr_constant_list_to_state_tuple_t
     >;
-
-    using state_tuple_type = tlu::apply_t<state_type_list, tuple>;
 
     static constexpr auto pinitial_state_conf = detail::tlu::front_t<state_conf_ptr_constant_list>::value;
 
@@ -226,7 +224,7 @@ private:
         using candidate_state_type_list =
             state_type_list_filters::by_required_on_event_t
             <
-                state_type_list,
+                state_tuple_type,
                 region,
                 Event
             >
@@ -435,7 +433,7 @@ private:
 
             active_state_index_ = region_detail::find_state_from_conf_v
             <
-                state_type_list,
+                state_tuple_type,
                 *TargetStateConfPtr
             >;
         }
@@ -547,7 +545,7 @@ private:
     {
         constexpr auto given_state_index = region_detail::find_state_v
         <
-            state_type_list,
+            state_tuple_type,
             State
         >;
         return given_state_index == active_state_index_;
@@ -558,7 +556,7 @@ private:
     {
         constexpr auto given_state_index = region_detail::find_state_from_conf_v
         <
-            state_type_list,
+            state_tuple_type,
             *StateConfPtr
         >;
         return given_state_index == active_state_index_;
@@ -643,7 +641,7 @@ private:
     static auto& static_state(Region& self)
     {
         static constexpr auto state_index =
-            region_detail::find_state_v<state_type_list, State>
+            region_detail::find_state_v<state_tuple_type, State>
         ;
         return tuple_get<state_index>(self.states_);
     }
@@ -653,7 +651,7 @@ private:
     static auto& static_state_from_conf(Region& self)
     {
         static constexpr auto state_index =
-            region_detail::find_state_from_conf_v<state_type_list, StateConf>
+            region_detail::find_state_from_conf_v<state_tuple_type, StateConf>
         ;
         return tuple_get<state_index>(self.states_);
     }
@@ -663,7 +661,7 @@ private:
     static auto& static_state_from_conf_ptr(Region& self)
     {
         static constexpr auto state_index =
-            region_detail::find_state_from_conf_ptr_v<state_type_list, StateConfPtr>
+            region_detail::find_state_from_conf_ptr_v<state_tuple_type, StateConfPtr>
         ;
         return tuple_get<state_index>(self.states_);
     }

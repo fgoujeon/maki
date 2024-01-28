@@ -9,7 +9,9 @@
 
 #include "tlu.hpp"
 #include "type_list.hpp"
+#include "constant.hpp"
 #include "../cref_constant.hpp"
+#include "../type.hpp"
 #include <utility>
 
 namespace maki::detail
@@ -22,24 +24,47 @@ struct distributed_construct_t{};
 inline constexpr auto distributed_construct = distributed_construct_t{};
 
 template<int Index, class T>
-struct tuple_element
+class tuple_element
 {
+public:
     template<class... Args>
     explicit constexpr tuple_element(Args&&... args):
-        value{args...}
+        value_{args...}
     {
     }
 
-    T value;
+    constexpr T& get(constant_t<Index> /*tag*/)
+    {
+        return value_;
+    }
+
+    constexpr const T& get(constant_t<Index> /*tag*/) const
+    {
+        return value_;
+    }
+
+    constexpr T& get(type_t<T> /*tag*/)
+    {
+        return value_;
+    }
+
+    constexpr const T& get(type_t<T> /*tag*/) const
+    {
+        return value_;
+    }
+
+private:
+    T value_;
 };
 
 template<class IndexSequence, class... Ts>
-struct tuple_base;
+class tuple_base;
 
 template<int... Indexes, class... Ts>
-struct tuple_base<std::integer_sequence<int, Indexes...>, Ts...>:
-    tuple_element<Indexes, Ts>...
+class tuple_base<std::integer_sequence<int, Indexes...>, Ts...>:
+    private tuple_element<Indexes, Ts>...
 {
+public:
     constexpr tuple_base() = default;
 
     constexpr tuple_base(const tuple_base& other) = default;
@@ -75,6 +100,8 @@ struct tuple_base<std::integer_sequence<int, Indexes...>, Ts...>:
     tuple_base& operator=(const tuple_base& other) = delete;
 
     tuple_base& operator=(tuple_base&& other) = delete;
+
+    using tuple_element<Indexes, Ts>::get...;
 };
 
 /*
@@ -82,27 +109,103 @@ A minimal std::tuple-like container.
 Using this instead of std::tuple improves build time.
 */
 template<class... Ts>
-struct tuple: tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>
+class tuple: private tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>
 {
-    static constexpr auto size = sizeof...(Ts);
+public:
+    using base_t = tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>;
 
-    using tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>::tuple_base;
+    using base_t::base_t;
+    using base_t::get;
+
+    static constexpr auto size = sizeof...(Ts);
 };
+
+template<>
+class tuple<>
+{
+public:
+    constexpr tuple() = default;
+
+    constexpr tuple(const tuple& other) = default;
+
+    constexpr tuple(tuple&& other) = delete;
+
+    template<class... Args>
+    explicit constexpr tuple(distributed_construct_t /*tag*/, Args&&... /*args*/)
+    {
+    }
+
+    template<class... Args>
+    explicit constexpr tuple(uniform_construct_t /*tag*/, Args&&... /*args*/)
+    {
+    }
+
+    ~tuple() = default;
+
+    tuple& operator=(const tuple& other) = delete;
+
+    tuple& operator=(tuple&& other) = delete;
+
+    static constexpr auto size = 0;
+};
+
+template<class... Args>
+constexpr auto make_tuple(distributed_construct_t /*tag*/, const Args&... args)
+{
+    return tuple<Args...>{distributed_construct, args...};
+}
+
+inline constexpr auto empty_tuple = make_tuple(distributed_construct);
+
+template<class IndexSequence>
+struct tuple_equality_impl;
+
+template<int Index, int... Indexes>
+struct tuple_equality_impl<std::integer_sequence<int, Index, Indexes...>>
+{
+    template<class... Args>
+    static constexpr bool call(const tuple<Args...>& lhs, const tuple<Args...>& rhs)
+    {
+        return
+            lhs.get(constant<Index>) == rhs.get(constant<Index>) &&
+            tuple_equality_impl<std::integer_sequence<int, Indexes...>>::call(lhs, rhs);
+        ;
+    }
+};
+
+template<>
+struct tuple_equality_impl<std::integer_sequence<int>>
+{
+    template<class... Args>
+    static constexpr bool call(const tuple<Args...>& /*lhs*/, const tuple<Args...>& /*rhs*/)
+    {
+        return true;
+    }
+};
+
+template<class... Args>
+constexpr bool operator==(const tuple<Args...>& lhs, const tuple<Args...>& rhs)
+{
+    using impl_t = tuple_equality_impl<std::make_integer_sequence<int, static_cast<int>(sizeof...(Args))>>;
+    return impl_t::call(lhs, rhs);
+}
+
+template<class... LhsArgs, class... RhsArgs>
+constexpr bool operator==(const tuple<LhsArgs...>& /*lhs*/, const tuple<RhsArgs...>& /*rhs*/)
+{
+    return false;
+}
 
 template<int Index, class Tuple>
 constexpr auto& tuple_get(Tuple& tpl)
 {
-    using tuple_t = std::decay_t<Tuple>;
-    using type_t = tlu::get_t<tuple_t, Index>;
-    return tpl.tuple_element<Index, type_t>::value;
+    return tpl.get(constant<Index>);
 }
 
 template<class T, class Tuple>
 constexpr auto& tuple_get(Tuple& tpl)
 {
-    using tuple_t = std::decay_t<Tuple>;
-    constexpr auto element_index = tlu::find_v<tuple_t, T>;
-    return tpl.tuple_element<element_index, T>::value;
+    return tpl.get(type<T>);
 }
 
 template<const auto& Tuple, int Index>

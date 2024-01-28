@@ -189,7 +189,20 @@ public:
 private:
     static constexpr auto transition_table = tu::get<Index>(opts(ParentSm::conf).transition_tables);
     static constexpr auto transition_tuple = detail::rows(transition_table);
-    using transition_constant_list = tu::static_to_constant_list_t<transition_tuple>;
+
+    template<class Event>
+    static constexpr auto transition_tuple_for_event = transition_table_filters::by_event_v
+    <
+        transition_tuple,
+        Event
+    >;
+
+    template<auto SourceStateConfPtr>
+    static constexpr auto anonymous_transition_tuple_with_source_state_conf = transition_table_filters::by_null_event_v
+    <
+        transition_tuple,
+        SourceStateConfPtr
+    >;
 
     static constexpr auto transition_table_digest =
         detail::transition_table_digest<transition_tuple>
@@ -218,11 +231,7 @@ private:
     static void process_event_2(Self& self, Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
     {
         //List the transitions whose event type pattern matches Event
-        using candidate_transition_constant_list = transition_table_filters::by_event_t
-        <
-            transition_constant_list,
-            Event
-        >;
+        using candidate_transition_constant_list = tu::static_to_constant_list_t<transition_tuple_for_event<Event>>;
 
         //List the state types that require us to call their on_event()
         using candidate_state_type_list =
@@ -481,9 +490,9 @@ private:
             //Anonymous transition
             if constexpr(transition_table_digest.has_null_events)
             {
-                using candidate_transition_constant_list = transition_table_filters::by_null_event_t
+                using candidate_transition_constant_list = tu::static_to_constant_list_t
                 <
-                    transition_constant_list
+                    anonymous_transition_tuple_with_source_state_conf<TargetStateConfPtr>
                 >;
 
                 try_processing_event_in_transitions<candidate_transition_constant_list>(*this, mach, ctx, null);

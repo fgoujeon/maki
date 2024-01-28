@@ -13,6 +13,7 @@ TU = Tuple Utility
 #include "tu/contains.hpp"
 #include "tu/contains_if.hpp"
 #include "tu/get.hpp"
+#include "tu/static_filter.hpp"
 #include "tu/static_get_copy.hpp"
 #include "tu/static_left_fold.hpp"
 #include "tu/static_to_constant_list.hpp"

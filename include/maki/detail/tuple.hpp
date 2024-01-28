@@ -152,6 +152,8 @@ constexpr auto make_tuple(distributed_construct_t /*tag*/, const Args&... args)
     return tuple<Args...>{distributed_construct, args...};
 }
 
+inline constexpr auto empty_tuple = make_tuple(distributed_construct);
+
 template<class IndexSequence>
 struct tuple_equality_impl;
 

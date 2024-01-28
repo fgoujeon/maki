@@ -8,6 +8,7 @@
 #define MAKI_DETAIL_TRANSITION_TABLE_FILTERS_HPP
 
 #include "tlu.hpp"
+#include "tu.hpp"
 #include "../type_patterns.hpp"
 #include "../null.hpp"
 #include <type_traits>
@@ -18,32 +19,36 @@ namespace maki::detail::transition_table_filters
 namespace by_event_detail
 {
     template<const auto& Event>
-    struct for_event
+    constexpr auto matches_event_pattern = [](const auto transition_constant)
     {
-        template<class TransitionConstant>
-        struct matches_event_pattern
-        {
-            static constexpr auto value = matches_pattern
-            (
-                Event,
-                TransitionConstant::value.event_pattern
-            );
-        };
+        return matches_pattern(Event, transition_constant.value.event_pattern);
     };
 }
 
-template<class TransitionConstantList, class Event>
-using by_event_t = tlu::filter_t
+template<const auto& TransitionTuple, class Event>
+constexpr auto by_event_v = tu::static_filter_v
 <
-    TransitionConstantList,
-    by_event_detail::for_event<type<Event>>::template matches_event_pattern
+    TransitionTuple,
+    by_event_detail::matches_event_pattern<type<Event>>
 >;
 
-template<class TransitionConstantList>
-using by_null_event_t = tlu::filter_t
+namespace by_null_event_detail
+{
+    template<auto SourceStateConfPtr>
+    constexpr auto has_null_event = [](const auto transition_constant)
+    {
+        return
+            transition_constant.value.psource_state_conf_pattern == static_cast<const void*>(SourceStateConfPtr) &&
+            is_null(transition_constant.value.event_pattern)
+        ;
+    };
+}
+
+template<const auto& TransitionTuple, auto SourceStateConfPtr>
+constexpr auto by_null_event_v = tu::static_filter_v
 <
-    TransitionConstantList,
-    by_event_detail::for_event<null>::template matches_event_pattern
+    TransitionTuple,
+    by_null_event_detail::has_null_event<SourceStateConfPtr>
 >;
 
 } //namespace

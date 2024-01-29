@@ -127,7 +127,7 @@ public:
         return submachine_.context();
     }
 
-    template<const auto& MachineOrStatePath = empty_path>
+    template<const auto& MachineOrStatePath>
     auto& context()
     {
         if constexpr(MachineOrStatePath.empty())
@@ -140,7 +140,7 @@ public:
         }
     }
 
-    template<const auto& MachineOrStatePath = empty_path>
+    template<const auto& MachineOrStatePath>
     const auto& context() const
     {
         if constexpr(MachineOrStatePath.empty())

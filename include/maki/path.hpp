@@ -240,8 +240,6 @@ std::string to_string(const cref_constant_t<Path>& /*path*/)
     return detail::path_to_string_impl<Path, idx_sequence_t>::call();
 }
 
-inline constexpr auto empty_path = path<>{};
-
 } //namespace
 
 #endif

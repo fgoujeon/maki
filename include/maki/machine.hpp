@@ -15,6 +15,7 @@
 #include "conf_holder.hpp"
 #include "machine_conf.hpp"
 #include "path.hpp"
+#include "detail/event_action.hpp"
 #include "detail/noinline.hpp"
 #include "detail/submachine.hpp"
 #include "detail/function_queue.hpp"
@@ -517,7 +518,7 @@ private:
                 submachine_.call_internal_action(*this, context(), event, processed);
                 if(!processed)
                 {
-                    call_state_action
+                    call_matching_event_action
                     (
                         opts(conf).fallback_transition_actions,
                         *this,

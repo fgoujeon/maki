@@ -9,6 +9,7 @@
 
 #include "call_member.hpp"
 #include "maybe_bool_util.hpp"
+#include "event_action.hpp"
 #include "tlu.hpp"
 #include "../type_patterns.hpp"
 #include "../null.hpp"
@@ -148,7 +149,7 @@ public:
     template<class Machine, class Context, class Event>
     void call_entry_action(Machine& mach, Context& parent_ctx, const Event& event)
     {
-        call_state_action
+        call_matching_event_action
         (
             opts(Conf).entry_actions,
             mach,
@@ -160,7 +161,7 @@ public:
     template<class Machine, class Context, class Event, class... MaybeBool>
     void call_internal_action(Machine& mach, Context& parent_ctx, const Event& event, MaybeBool&... processed)
     {
-        call_state_action
+        call_matching_event_action
         (
             opts(Conf).internal_actions,
             mach,
@@ -173,7 +174,7 @@ public:
     template<class Machine, class Context, class Event>
     void call_exit_action(Machine& mach, Context& parent_ctx, const Event& event)
     {
-        call_state_action
+        call_matching_event_action
         (
             opts(Conf).exit_actions,
             mach,

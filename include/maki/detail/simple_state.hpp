@@ -8,6 +8,7 @@
 #define MAKI_DETAIL_SIMPLE_STATE_HPP
 
 #include "call_member.hpp"
+#include "machine_of.hpp"
 #include "maybe_bool_util.hpp"
 #include "event_action.hpp"
 #include "tlu.hpp"
@@ -26,35 +27,38 @@ class simple_state
 public:
     using option_set_type = std::decay_t<decltype(opts(Conf))>;
     using context_type = typename option_set_type::context_type;
+    using machine_type = machine_of_t<simple_state>;
 
-    template<class Machine, class... Args>
+    template<class... Args>
     simple_state
     (
         context_signature_a_tag_t /*tag*/,
-        Machine& /*mach*/,
+        machine_type& mach,
         Args&&... args
     ):
-        ctx_{std::forward<Args>(args)...}
+        ctx_{std::forward<Args>(args)...},
+        mach_(mach)
     {
     }
 
-    template<class Machine, class... Args>
+    template<class... Args>
     simple_state
     (
         context_signature_am_tag_t /*tag*/,
-        Machine& mach,
+        machine_type& mach,
         Args&&... args
     ):
-        ctx_{std::forward<Args>(args)..., mach}
+        ctx_{std::forward<Args>(args)..., mach},
+        mach_(mach)
     {
     }
 
-    template<class ParentContext, class Machine>
+    template<class ParentContext>
     simple_state
     (
         context_signature_auto_tag_t /*tag*/,
         ParentContext& parent_ctx,
-        Machine& mach
+        machine_type& mach
     ):
         simple_state
         {
@@ -65,46 +69,50 @@ public:
     {
     }
 
-    template<class ParentContext, class Machine>
+    template<class ParentContext>
     simple_state
     (
         context_signature_c_tag_t /*tag*/,
         ParentContext& parent_ctx,
-        Machine& /*mach*/
+        machine_type& mach
     ):
-        ctx_{parent_ctx}
+        ctx_{parent_ctx},
+        mach_(mach)
     {
     }
 
-    template<class ParentContext, class Machine>
+    template<class ParentContext>
     simple_state
     (
         context_signature_cm_tag_t /*tag*/,
         ParentContext& parent_ctx,
-        Machine& mach
+        machine_type& mach
     ):
-        ctx_{parent_ctx, mach}
+        ctx_{parent_ctx, mach},
+        mach_(mach)
     {
     }
 
-    template<class ParentContext, class Machine>
+    template<class ParentContext>
     simple_state
     (
         context_signature_m_tag_t /*tag*/,
         ParentContext& /*parent_ctx*/,
-        Machine& mach
+        machine_type& mach
     ):
-        ctx_{mach}
+        ctx_{mach},
+        mach_(mach)
     {
     }
 
-    template<class ParentContext, class Machine>
+    template<class ParentContext>
     simple_state
     (
         context_signature_v_tag_t /*tag*/,
         ParentContext& /*parent_ctx*/,
-        Machine& /*mach*/
-    )
+        machine_type& mach
+    ):
+        mach_(mach)
     {
     }
 
@@ -146,8 +154,8 @@ public:
         }
     }
 
-    template<class Machine, class Context, class Event>
-    void call_entry_action(Machine& mach, Context& parent_ctx, const Event& event)
+    template<class Context, class Event>
+    void call_entry_action(Context& parent_ctx, const Event& event)
     {
         if constexpr(!tlu::empty_v<entry_action_cref_constant_list>)
         {
@@ -157,15 +165,15 @@ public:
             */
             call_matching_event_action<entry_action_cref_constant_list>
             (
-                mach,
+                mach_,
                 context_or(parent_ctx),
                 event
             );
         }
     }
 
-    template<class Machine, class Context, class Event, class... MaybeBool>
-    void call_internal_action(Machine& mach, Context& parent_ctx, const Event& event, MaybeBool&... processed)
+    template<class Context, class Event, class... MaybeBool>
+    void call_internal_action(Context& parent_ctx, const Event& event, MaybeBool&... processed)
     {
         /*
         Caller is supposed to check an interal action exists for the given event
@@ -175,7 +183,7 @@ public:
 
         call_matching_event_action<internal_action_cref_constant_list>
         (
-            mach,
+            mach_,
             context_or(parent_ctx),
             event
         );
@@ -183,8 +191,8 @@ public:
         maybe_bool_util::set_to_true(processed...);
     }
 
-    template<class Machine, class Context, class Event>
-    void call_exit_action(Machine& mach, Context& parent_ctx, const Event& event)
+    template<class Context, class Event>
+    void call_exit_action(Context& parent_ctx, const Event& event)
     {
         if constexpr(!tlu::empty_v<exit_action_cref_constant_list>)
         {
@@ -194,7 +202,7 @@ public:
             */
             call_matching_event_action<exit_action_cref_constant_list>
             (
-                mach,
+                mach_,
                 context_or(parent_ctx),
                 event
             );
@@ -226,6 +234,7 @@ private:
     using exit_action_cref_constant_list = tuple_to_constant_list_t<exit_actions>;
 
     context_type ctx_;
+    machine_type& mach_;
 };
 
 } //namespace

@@ -154,66 +154,61 @@ public:
         return !active_state<state_confs::stopped>();
     }
 
-    template<class Machine, class ParentContext, class Event>
-    void call_entry_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
+    template<class ParentContext, class Event>
+    void call_entry_action(ParentContext& parent_ctx, const Event& event)
     {
-        simple_state_.call_entry_action(mach, context_or(parent_ctx), event);
-        tlu::for_each<region_tuple_type, region_start>(*this, mach, context_or(parent_ctx), event);
+        simple_state_.call_entry_action(context_or(parent_ctx), event);
+        tlu::for_each<region_tuple_type, region_start>(*this, context_or(parent_ctx), event);
     }
 
-    template<bool Dry = false, class Machine, class ParentContext, class Event>
+    template<bool Dry = false, class ParentContext, class Event>
     void call_internal_action
     (
-        Machine& mach,
         ParentContext& parent_ctx,
         const Event& event
     )
     {
-        call_internal_action_2<Dry>(*this, mach, context_or(parent_ctx), event);
+        call_internal_action_2<Dry>(*this, context_or(parent_ctx), event);
     }
 
-    template<bool Dry = false, class Machine, class ParentContext, class Event>
+    template<bool Dry = false, class ParentContext, class Event>
     void call_internal_action
     (
-        Machine& mach,
         ParentContext& parent_ctx,
         const Event& event,
         bool& processed
     )
     {
-        call_internal_action_2<Dry>(*this, mach, context_or(parent_ctx), event, processed);
+        call_internal_action_2<Dry>(*this, context_or(parent_ctx), event, processed);
     }
 
-    template<bool Dry = false, class Machine, class ParentContext, class Event>
+    template<bool Dry = false, class ParentContext, class Event>
     void call_internal_action
     (
-        Machine& mach,
         ParentContext& parent_ctx,
         const Event& event
     ) const
     {
-        call_internal_action_2<Dry>(*this, mach, context_or(parent_ctx), event);
+        call_internal_action_2<Dry>(*this, context_or(parent_ctx), event);
     }
 
-    template<bool Dry = false, class Machine, class ParentContext, class Event>
+    template<bool Dry = false, class ParentContext, class Event>
     void call_internal_action
     (
-        Machine& mach,
         ParentContext& parent_ctx,
         const Event& event,
         bool& processed
     ) const
     {
-        call_internal_action_2<Dry>(*this, mach, context_or(parent_ctx), event, processed);
+        call_internal_action_2<Dry>(*this, context_or(parent_ctx), event, processed);
     }
 
-    template<class Machine, class ParentContext, class Event>
-    void call_exit_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
+    template<class ParentContext, class Event>
+    void call_exit_action(ParentContext& parent_ctx, const Event& event)
     {
-        tlu::for_each<region_tuple_type, region_stop>(*this, mach, context_or(parent_ctx), event);
+        tlu::for_each<region_tuple_type, region_stop>(*this, context_or(parent_ctx), event);
         simple_state_.call_exit_action
         (
-            mach,
             context_or(parent_ctx),
             event
         );
@@ -239,37 +234,36 @@ private:
 
     struct region_start
     {
-        template<class Region, class Self, class Machine, class Context, class Event>
-        static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
+        template<class Region, class Self, class Context, class Event>
+        static void call(Self& self, Context& ctx, const Event& event)
         {
-            tuple_get<Region>(self.regions_).start(mach, ctx, event);
+            tuple_get<Region>(self.regions_).start(ctx, event);
         }
     };
 
     template<bool Dry>
     struct region_process_event
     {
-        template<class Region, class Self, class Machine, class Context, class Event, class... MaybeBool>
-        static void call(Self& self, Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
+        template<class Region, class Self, class Context, class Event, class... MaybeBool>
+        static void call(Self& self, Context& ctx, const Event& event, MaybeBool&... processed)
         {
-            tuple_get<Region>(self.regions_).template process_event<Dry>(mach, ctx, event, processed...);
+            tuple_get<Region>(self.regions_).template process_event<Dry>(ctx, event, processed...);
         }
     };
 
     struct region_stop
     {
-        template<class Region, class Self, class Machine, class Context, class Event>
-        static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
+        template<class Region, class Self, class Context, class Event>
+        static void call(Self& self, Context& ctx, const Event& event)
         {
-            tuple_get<Region>(self.regions_).stop(mach, ctx, event);
+            tuple_get<Region>(self.regions_).stop(ctx, event);
         }
     };
 
-    template<bool Dry, class Self, class Machine, class Context, class Event, class... MaybeBool>
+    template<bool Dry, class Self, class Context, class Event, class... MaybeBool>
     static void call_internal_action_2
     (
         Self& self,
-        Machine& mach,
         Context& ctx,
         const Event& event,
         MaybeBool&... processed
@@ -281,19 +275,18 @@ private:
             {
                 self.simple_state_.call_internal_action
                 (
-                    mach,
                     ctx,
                     event
                 );
 
-                tlu::for_each<region_tuple_type, region_process_event<Dry>>(self, mach, ctx, event);
+                tlu::for_each<region_tuple_type, region_process_event<Dry>>(self, ctx, event);
             }
 
             maybe_bool_util::set_to_true(processed...);
         }
         else
         {
-            tlu::for_each<region_tuple_type, region_process_event<Dry>>(self, mach, ctx, event, processed...);
+            tlu::for_each<region_tuple_type, region_process_event<Dry>>(self, ctx, event, processed...);
         }
     }
 

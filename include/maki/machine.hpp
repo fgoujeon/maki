@@ -324,7 +324,7 @@ public:
     bool check_event(const Event& event) const
     {
         auto processed = false;
-        submachine_.template call_internal_action<true>(*this, context(), event, processed);
+        submachine_.template call_internal_action<true>(context(), event, processed);
         return processed;
     }
 
@@ -500,22 +500,22 @@ private:
     {
         if constexpr(Operation == detail::machine_operation::start)
         {
-            submachine_.call_entry_action(*this, context(), event);
+            submachine_.call_entry_action(context(), event);
         }
         else if constexpr(Operation == detail::machine_operation::stop)
         {
-            submachine_.call_exit_action(*this, context(), event);
+            submachine_.call_exit_action(context(), event);
         }
         else
         {
             if constexpr(std::is_same_v<typename option_set_type::fallback_transition_action_tuple_type, detail::tuple<>>)
             {
-                submachine_.call_internal_action(*this, context(), event);
+                submachine_.call_internal_action(context(), event);
             }
             else
             {
                 auto processed = false;
-                submachine_.call_internal_action(*this, context(), event, processed);
+                submachine_.call_internal_action(context(), event, processed);
                 if(!processed)
                 {
                     detail::call_matching_event_action<fallback_transition_action_cref_constant_list>

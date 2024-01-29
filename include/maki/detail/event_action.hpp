@@ -123,21 +123,18 @@ void call_matching_event_action
     const Event& event
 )
 {
-    if constexpr(!tlu::empty_v<ActionConstantList>)
-    {
-        constexpr auto matching_action_index = tlu::find_if_v
-        <
-            ActionConstantList,
-            event_action_traits::for_event<Event>::template has_matching_event_filter
-        >;
+    constexpr auto matching_action_index = tlu::find_if_v
+    <
+        ActionConstantList,
+        event_action_traits::for_event<Event>::template has_matching_event_filter
+    >;
 
-        call_event_action<tlu::get_t<ActionConstantList, matching_action_index>::value>
-        (
-            mach,
-            ctx,
-            event
-        );
-    }
+    call_event_action<tlu::get_t<ActionConstantList, matching_action_index>::value>
+    (
+        mach,
+        ctx,
+        event
+    );
 }
 
 } //namespace

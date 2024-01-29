@@ -20,7 +20,7 @@ namespace maki::detail
 /*
 Implementation of a non-composite state
 */
-template<const auto& Conf>
+template<const auto& Conf, class Parent>
 class simple_state
 {
 public:

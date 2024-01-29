@@ -235,7 +235,7 @@ private:
     >::type;
 
     //We need a simple_state to manage context and actions
-    using simple_state_type = simple_state<Conf>;
+    using simple_state_type = simple_state<Conf, submachine>;
 
     struct region_start
     {

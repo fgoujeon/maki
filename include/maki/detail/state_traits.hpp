@@ -24,7 +24,7 @@ namespace maki::detail::state_traits
 template<const auto& StateConf, class Parent, class Enable = void>
 struct state_conf_to_state
 {
-    using type = simple_state<StateConf>;
+    using type = simple_state<StateConf, Parent>;
 };
 
 template<const auto& StateConf, class Parent>

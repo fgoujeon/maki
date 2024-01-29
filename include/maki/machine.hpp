@@ -518,9 +518,8 @@ private:
                 submachine_.call_internal_action(*this, context(), event, processed);
                 if(!processed)
                 {
-                    call_matching_event_action
+                    detail::call_matching_event_action<fallback_transition_action_cref_constant_list>
                     (
-                        opts(conf).fallback_transition_actions,
                         *this,
                         context(),
                         event
@@ -529,6 +528,9 @@ private:
             }
         }
     }
+
+    static constexpr auto fallback_transition_actions = opts(conf).fallback_transition_actions;
+    using fallback_transition_action_cref_constant_list = detail::tuple_to_constant_list_t<fallback_transition_actions>;
 
     detail::submachine<conf, machine> submachine_;
     bool executing_operation_ = false;

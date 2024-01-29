@@ -149,9 +149,8 @@ public:
     template<class Machine, class Context, class Event>
     void call_entry_action(Machine& mach, Context& parent_ctx, const Event& event)
     {
-        call_matching_event_action
+        call_matching_event_action<entry_action_cref_constant_list>
         (
-            opts(Conf).entry_actions,
             mach,
             context_or(parent_ctx),
             event
@@ -161,9 +160,8 @@ public:
     template<class Machine, class Context, class Event, class... MaybeBool>
     void call_internal_action(Machine& mach, Context& parent_ctx, const Event& event, MaybeBool&... processed)
     {
-        call_matching_event_action
+        call_matching_event_action<internal_action_cref_constant_list>
         (
-            opts(Conf).internal_actions,
             mach,
             context_or(parent_ctx),
             event
@@ -174,9 +172,8 @@ public:
     template<class Machine, class Context, class Event>
     void call_exit_action(Machine& mach, Context& parent_ctx, const Event& event)
     {
-        call_matching_event_action
+        call_matching_event_action<exit_action_cref_constant_list>
         (
-            opts(Conf).exit_actions,
             mach,
             context_or(parent_ctx),
             event
@@ -200,6 +197,15 @@ public:
 
 private:
     static constexpr bool has_own_context = !std::is_same_v<context_type, null_t>;
+
+    static constexpr auto entry_actions = opts(Conf).entry_actions;
+    using entry_action_cref_constant_list = tuple_to_constant_list_t<entry_actions>;
+
+    static constexpr auto internal_actions = opts(Conf).internal_actions;
+    using internal_action_cref_constant_list = tuple_to_constant_list_t<internal_actions>;
+
+    static constexpr auto exit_actions = opts(Conf).exit_actions;
+    using exit_action_cref_constant_list = tuple_to_constant_list_t<exit_actions>;
 
     context_type ctx_;
 };

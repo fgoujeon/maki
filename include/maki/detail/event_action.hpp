@@ -58,50 +58,49 @@ namespace event_action_traits
     template<class Event>
     struct for_event
     {
-        template<class EventAction>
+        template<class EventActionConstant>
         struct has_matching_event_filter
         {
-            static constexpr auto value = matches_pattern(type<Event>, typename EventAction::event_filter_type{});
+            static constexpr auto value = matches_pattern(type<Event>, EventActionConstant::value.event_filter);
         };
     };
 }
 
-template<class EventAction, class Machine, class Context, class Event>
+template<const auto& EventAction, class Machine, class Context, class Event>
 void call_event_action
 (
-    [[maybe_unused]] const EventAction& event_action,
     [[maybe_unused]] Machine& mach,
     [[maybe_unused]] Context& ctx,
     [[maybe_unused]] const Event& event
 )
 {
-    if constexpr(EventAction::sig == event_action_signature::v)
+    if constexpr(EventAction.sig == event_action_signature::v)
     {
-        std::invoke(event_action.action);
+        std::invoke(EventAction.action);
     }
-    else if constexpr(EventAction::sig == event_action_signature::c)
+    else if constexpr(EventAction.sig == event_action_signature::c)
     {
-        std::invoke(event_action.action, ctx);
+        std::invoke(EventAction.action, ctx);
     }
-    else if constexpr(EventAction::sig == event_action_signature::cm)
+    else if constexpr(EventAction.sig == event_action_signature::cm)
     {
-        std::invoke(event_action.action, ctx, mach);
+        std::invoke(EventAction.action, ctx, mach);
     }
-    else if constexpr(EventAction::sig == event_action_signature::ce)
+    else if constexpr(EventAction.sig == event_action_signature::ce)
     {
-        std::invoke(event_action.action, ctx, event);
+        std::invoke(EventAction.action, ctx, event);
     }
-    else if constexpr(EventAction::sig == event_action_signature::m)
+    else if constexpr(EventAction.sig == event_action_signature::m)
     {
-        std::invoke(event_action.action, mach);
+        std::invoke(EventAction.action, mach);
     }
-    else if constexpr(EventAction::sig == event_action_signature::me)
+    else if constexpr(EventAction.sig == event_action_signature::me)
     {
-        std::invoke(event_action.action, mach, event);
+        std::invoke(EventAction.action, mach, event);
     }
-    else if constexpr(EventAction::sig == event_action_signature::e)
+    else if constexpr(EventAction.sig == event_action_signature::e)
     {
-        std::invoke(event_action.action, event);
+        std::invoke(EventAction.action, event);
     }
     else
     {
@@ -112,30 +111,28 @@ void call_event_action
 
 template
 <
-    class ActionTuple,
+    class ActionConstantList,
     class Machine,
     class Context,
     class Event
 >
 void call_matching_event_action
 (
-    const ActionTuple& actions,
     Machine& mach,
     Context& ctx,
     const Event& event
 )
 {
-    if constexpr(!tlu::empty_v<ActionTuple>)
+    if constexpr(!tlu::empty_v<ActionConstantList>)
     {
         constexpr auto matching_action_index = tlu::find_if_v
         <
-            ActionTuple,
+            ActionConstantList,
             event_action_traits::for_event<Event>::template has_matching_event_filter
         >;
 
-        call_event_action
+        call_event_action<tlu::get_t<ActionConstantList, matching_action_index>::value>
         (
-            tuple_get<matching_action_index>(actions),
             mach,
             ctx,
             event

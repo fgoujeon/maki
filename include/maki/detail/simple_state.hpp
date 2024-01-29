@@ -183,14 +183,11 @@ public:
     template<class Event>
     static constexpr bool has_internal_action_for_event()
     {
-        return tuple_contains_if
-        (
-            opts(Conf).internal_actions,
-            [](const auto& act)
-            {
-                return matches_pattern(type<Event>, act.event_filter);
-            }
-        );
+        return tlu::contains_if_v
+        <
+            internal_action_cref_constant_list,
+            event_action_traits::for_event<Event>::template has_matching_event_filter
+        >;
     }
 
     static constexpr const auto& conf = Conf;

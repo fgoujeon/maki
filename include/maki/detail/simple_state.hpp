@@ -9,6 +9,7 @@
 
 #include "call_member.hpp"
 #include "maybe_bool_util.hpp"
+#include "event_action.hpp"
 #include "tlu.hpp"
 #include "../type_patterns.hpp"
 #include "../null.hpp"
@@ -24,7 +25,7 @@ class simple_state
 {
 public:
     using option_set_type = std::decay_t<decltype(opts(Conf))>;
-    using context_type = state_traits::context_t<Conf>;
+    using context_type = typename option_set_type::context_type;
 
     template<class Machine, class... Args>
     simple_state
@@ -109,95 +110,121 @@ public:
 
     auto& context()
     {
-        static_assert(!std::is_void_v<typename option_set_type::context_type>);
+        static_assert(has_own_context);
         return ctx_;
     }
 
     const auto& context() const
     {
-        static_assert(!std::is_void_v<typename option_set_type::context_type>);
+        static_assert(has_own_context);
         return ctx_;
     }
 
     template<class ParentContext>
     auto& context_or(ParentContext& parent_ctx)
     {
-        if constexpr(std::is_void_v<typename option_set_type::context_type>)
+        if constexpr(has_own_context)
         {
-            return parent_ctx;
+            return ctx_;
         }
         else
         {
-            return ctx_;
+            return parent_ctx;
         }
     }
 
     template<class ParentContext>
     const auto& context_or(ParentContext& parent_ctx) const
     {
-        if constexpr(std::is_void_v<typename option_set_type::context_type>)
+        if constexpr(has_own_context)
         {
-            return parent_ctx;
+            return ctx_;
         }
         else
         {
-            return ctx_;
+            return parent_ctx;
         }
     }
 
     template<class Machine, class Context, class Event>
     void call_entry_action(Machine& mach, Context& parent_ctx, const Event& event)
     {
-        call_state_action
-        (
-            opts(Conf).entry_actions,
-            mach,
-            context_or(parent_ctx),
-            event
-        );
+        if constexpr(!tlu::empty_v<entry_action_cref_constant_list>)
+        {
+            /*
+            If at least one entry action is defined, state is required to define
+            entry actions for all possible event types.
+            */
+            call_matching_event_action<entry_action_cref_constant_list>
+            (
+                mach,
+                context_or(parent_ctx),
+                event
+            );
+        }
     }
 
     template<class Machine, class Context, class Event, class... MaybeBool>
     void call_internal_action(Machine& mach, Context& parent_ctx, const Event& event, MaybeBool&... processed)
     {
-        call_state_action
+        /*
+        Caller is supposed to check an interal action exists for the given event
+        type before calling this function.
+        */
+        static_assert(!tlu::empty_v<internal_action_cref_constant_list>);
+
+        call_matching_event_action<internal_action_cref_constant_list>
         (
-            opts(Conf).internal_actions,
             mach,
             context_or(parent_ctx),
             event
         );
+
         maybe_bool_util::set_to_true(processed...);
     }
 
     template<class Machine, class Context, class Event>
     void call_exit_action(Machine& mach, Context& parent_ctx, const Event& event)
     {
-        call_state_action
-        (
-            opts(Conf).exit_actions,
-            mach,
-            context_or(parent_ctx),
-            event
-        );
+        if constexpr(!tlu::empty_v<exit_action_cref_constant_list>)
+        {
+            /*
+            If at least one exit action is defined, state is required to define
+            entry actions for all possible event types.
+            */
+            call_matching_event_action<exit_action_cref_constant_list>
+            (
+                mach,
+                context_or(parent_ctx),
+                event
+            );
+        }
     }
 
     template<class Event>
     static constexpr bool has_internal_action_for_event()
     {
-        return tuple_contains_if
-        (
-            opts(Conf).internal_actions,
-            [](const auto& act)
-            {
-                return matches_pattern(type<Event>, act.event_filter);
-            }
-        );
+        return tlu::contains_if_v
+        <
+            internal_action_cref_constant_list,
+            event_action_traits::for_event<Event>::template has_matching_event_filter
+        >;
     }
 
     static constexpr const auto& conf = Conf;
 
 private:
+    static constexpr bool has_own_context = !std::is_same_v<context_type, null_t>;
+
+    static constexpr auto entry_actions = opts(Conf).entry_actions;
+    using entry_action_cref_constant_list = tuple_to_constant_list_t<entry_actions>;
+
+    static constexpr auto internal_actions = opts(Conf).internal_actions;
+    using internal_action_cref_constant_list = tuple_to_constant_list_t<internal_actions>;
+
+    static constexpr auto exit_actions = opts(Conf).exit_actions;
+    using exit_action_cref_constant_list = tuple_to_constant_list_t<exit_actions>;
+
     context_type ctx_;
 };
 

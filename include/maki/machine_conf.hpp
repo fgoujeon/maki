@@ -32,7 +32,7 @@ namespace detail
 {
     template
     <
-        class Context = void,
+        class Context = null_t,
         class ContextSigTag = context_signature_v_tag_t,
         class EntryActionTuple = detail::tuple<>,
         class EventActionTuple = detail::tuple<>,

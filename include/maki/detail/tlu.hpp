@@ -17,6 +17,7 @@ A type list is an instance of a type template of this form:
 #include "tlu/apply.hpp"
 #include "tlu/back.hpp"
 #include "tlu/contains.hpp"
+#include "tlu/contains_if.hpp"
 #include "tlu/empty.hpp"
 #include "tlu/filter.hpp"
 #include "tlu/find.hpp"

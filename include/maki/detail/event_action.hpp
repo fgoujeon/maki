@@ -7,6 +7,11 @@
 #ifndef MAKI_DETAIL_EVENT_ACTION_HPP
 #define MAKI_DETAIL_EVENT_ACTION_HPP
 
+#include "tlu.hpp"
+#include "tuple.hpp"
+#include "../type_patterns.hpp"
+#include <functional>
+
 #define MAKI_DETAIL_EVENT_ACTION_SIGNATURES \
     MAKI_DETAIL_X(v) \
     MAKI_DETAIL_X(c) \
@@ -46,6 +51,90 @@ template<event_action_signature Sig, class EventFilter, class Action>
 constexpr auto make_event_action(const EventFilter& event_filter, const Action& action)
 {
     return event_action<EventFilter, Action, Sig>{event_filter, action};
+}
+
+namespace event_action_traits
+{
+    template<class Event>
+    struct for_event
+    {
+        template<class EventActionConstant>
+        struct has_matching_event_filter
+        {
+            static constexpr auto value = matches_pattern(type<Event>, EventActionConstant::value.event_filter);
+        };
+    };
+}
+
+template<const auto& EventAction, class Machine, class Context, class Event>
+void call_event_action
+(
+    [[maybe_unused]] Machine& mach,
+    [[maybe_unused]] Context& ctx,
+    [[maybe_unused]] const Event& event
+)
+{
+    if constexpr(EventAction.sig == event_action_signature::v)
+    {
+        std::invoke(EventAction.action);
+    }
+    else if constexpr(EventAction.sig == event_action_signature::c)
+    {
+        std::invoke(EventAction.action, ctx);
+    }
+    else if constexpr(EventAction.sig == event_action_signature::cm)
+    {
+        std::invoke(EventAction.action, ctx, mach);
+    }
+    else if constexpr(EventAction.sig == event_action_signature::ce)
+    {
+        std::invoke(EventAction.action, ctx, event);
+    }
+    else if constexpr(EventAction.sig == event_action_signature::m)
+    {
+        std::invoke(EventAction.action, mach);
+    }
+    else if constexpr(EventAction.sig == event_action_signature::me)
+    {
+        std::invoke(EventAction.action, mach, event);
+    }
+    else if constexpr(EventAction.sig == event_action_signature::e)
+    {
+        std::invoke(EventAction.action, event);
+    }
+    else
+    {
+        constexpr auto is_false = sizeof(Machine) == 0;
+        static_assert(is_false, "Unsupported event_action_signature value");
+    }
+}
+
+template
+<
+    class ActionConstantList,
+    class Machine,
+    class Context,
+    class Event
+>
+void call_matching_event_action
+(
+    Machine& mach,
+    Context& ctx,
+    const Event& event
+)
+{
+    constexpr auto matching_action_index = tlu::find_if_v
+    <
+        ActionConstantList,
+        event_action_traits::for_event<Event>::template has_matching_event_filter
+    >;
+
+    call_event_action<tlu::get_t<ActionConstantList, matching_action_index>::value>
+    (
+        mach,
+        ctx,
+        event
+    );
 }
 
 } //namespace

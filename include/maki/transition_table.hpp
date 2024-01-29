@@ -119,9 +119,9 @@ namespace detail
     }
 
     template<class... Transitions>
-    constexpr auto make_transition_table(const Transitions&... transitions)
+    constexpr auto make_transition_table(const tuple<Transitions...>& transitions)
     {
-        return transition_table<Transitions...>{transitions...};
+        return transition_table<Transitions...>{transitions};
     }
 
     template<class... Transitions>
@@ -169,50 +169,33 @@ public:
         const Guard& guard = null
     )
     {
-        return tuple_apply
+        return detail::make_transition_table
         (
-            transitions_,
-            []
+            tuple_append
             (
-                const SourceStateConfPattern& source_state_conf_pattern,
-                const EventPattern& event_pattern,
-                const TargetStateConf& target_state_conf,
-                const Action& action,
-                const Guard& guard,
-                const auto&... transitions
-            )
-            {
-                return detail::make_transition_table
+                transitions_,
+                detail::make_transition
                 (
-                    transitions...,
-                    detail::make_transition
-                    (
-                        &source_state_conf_pattern,
-                        event_pattern,
-                        &target_state_conf,
-                        action,
-                        guard
-                    )
-                );
-            },
-            source_state_conf_pattern,
-            event_pattern,
-            target_state_conf,
-            action,
-            guard
+                    &source_state_conf_pattern,
+                    event_pattern,
+                    &target_state_conf,
+                    action,
+                    guard
+                )
+            )
         );
     }
 
 private:
     template<class... Transitions2>
-    friend constexpr auto detail::make_transition_table(const Transitions2&...);
+    friend constexpr auto detail::make_transition_table(const detail::tuple<Transitions2...>&);
 
     template<class... Transitions2>
     friend constexpr const auto& detail::rows(const transition_table<Transitions2...>&);
 
-    template<class... Transitions2>
-    constexpr explicit transition_table(const Transitions&... transitions):
-        transitions_{detail::distributed_construct, transitions...}
+    template<class TransitionTuple>
+    constexpr explicit transition_table(const TransitionTuple& transitions):
+        transitions_{transitions}
     {
     }
 

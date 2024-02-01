@@ -96,7 +96,7 @@ public:
     */
     template<class... ContextArgs>
     explicit machine(ContextArgs&&... ctx_args):
-        submachine_(typename option_set_type::context_sig_tag_type{}, *this, std::forward<ContextArgs>(ctx_args)...)
+        submachine_(*this, std::forward<ContextArgs>(ctx_args)...)
     {
         if constexpr(opts(conf).auto_start)
         {

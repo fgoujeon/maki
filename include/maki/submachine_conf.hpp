@@ -30,7 +30,6 @@ namespace detail
     template
     <
         class Context = null_t,
-        class ContextSigTag = context_signature_v_tag_t,
         class EntryActionTuple = detail::tuple<>,
         class InternalActionTuple = detail::tuple<>,
         class ExitActionTuple = detail::tuple<>,
@@ -39,8 +38,8 @@ namespace detail
     struct submachine_conf_option_set
     {
         using context_type = Context;
-        using context_sig_tag_type = ContextSigTag;
 
+        context_signature context_sig = context_signature::v;
         EntryActionTuple entry_actions;
         InternalActionTuple internal_actions;
         ExitActionTuple exit_actions;
@@ -98,7 +97,7 @@ public:
 
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type<typename OptionSet::context_type>; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig_tag_type = type<typename OptionSet::context_sig_tag_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = options_.context_sig; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = options_.internal_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = options_.exit_actions; \
@@ -111,7 +110,6 @@ public:
         detail::submachine_conf_option_set \
         < \
             typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
-            typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_sig_tag_type)>::type, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
@@ -119,6 +117,7 @@ public:
         > \
     > \
     { \
+        MAKI_DETAIL_ARG_context_sig, \
         MAKI_DETAIL_ARG_entry_actions, \
         MAKI_DETAIL_ARG_internal_actions, \
         MAKI_DETAIL_ARG_exit_actions, \
@@ -130,7 +129,7 @@ public:
     template<class Context> \
     [[nodiscard]] constexpr auto context_##signature(const type_t<Context>& /*ignored*/) const \
     { \
-        return context<Context, detail::context_signature_##signature##_tag_t>(); \
+        return context<Context, detail::context_signature::signature>(); \
     }
     MAKI_DETAIL_CONTEXT_SIGNATURES_FOR_STATE
 #undef MAKI_DETAIL_X
@@ -193,15 +192,15 @@ private:
     {
     }
 
-    template<class Context, class ContextSigTag>
+    template<class Context, auto ContextSig>
     [[nodiscard]] constexpr auto context() const
     {
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_context_type type<Context>
-#define MAKI_DETAIL_ARG_context_sig_tag_type type<ContextSigTag>
+#define MAKI_DETAIL_ARG_context_sig ContextSig
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_context_type
-#undef MAKI_DETAIL_ARG_context_sig_tag_type
+#undef MAKI_DETAIL_ARG_context_sig
     }
 
     template<detail::event_action_signature Sig, class EventFilter, class Action>

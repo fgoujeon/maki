@@ -17,6 +17,7 @@
 #include "tuple.hpp"
 #include "../machine_fwd.hpp"
 #include "../state_conf.hpp"
+#include "../machine_conf.hpp"
 #include "../transition_table.hpp"
 #include "../path.hpp"
 #include "../type_patterns.hpp"
@@ -57,20 +58,33 @@ template<const auto& Conf, class Parent>
 class submachine
 {
 public:
+    using conf_type = std::decay_t<decltype(Conf)>;
     using option_set_type = std::decay_t<decltype(opts(Conf))>;
     using transition_table_type_list = decltype(opts(Conf).transition_tables);
 
-    template<class ContextSigTag, class Machine, class... ContextArgs>
-    submachine(const ContextSigTag ctx_sig_tag, Machine& mach, ContextArgs&&... ctx_args):
-        simple_state_(ctx_sig_tag, mach, std::forward<ContextArgs>(ctx_args)...),
-        regions_(uniform_construct, context(), mach)
+    template
+    <
+        class Machine,
+        class... ContextArgs,
+        class ConfType = conf_type,
+        std::enable_if_t<is_root_sm_conf_v<ConfType>, bool> = true
+    >
+    submachine(Machine& mach, ContextArgs&&... ctx_args):
+        simple_state_(mach, std::forward<ContextArgs>(ctx_args)...),
+        regions_(uniform_construct, mach, context())
     {
     }
 
-    template<class ParentContext, class Machine>
-    submachine(const context_signature_auto_tag_t /*tag*/, ParentContext& parent_ctx, Machine& mach):
-        simple_state_(typename option_set_type::context_sig_tag_type{}, parent_ctx, mach),
-        regions_(uniform_construct, context_or(parent_ctx), mach)
+    template
+    <
+        class Machine,
+        class ParentContext,
+        class ConfType = conf_type,
+        std::enable_if_t<!is_root_sm_conf_v<ConfType>, bool> = true
+    >
+    submachine(Machine& mach, ParentContext& parent_ctx):
+        simple_state_(mach, parent_ctx),
+        regions_(uniform_construct, mach, context_or(parent_ctx))
     {
     }
 

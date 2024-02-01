@@ -27,84 +27,76 @@ public:
     using option_set_type = std::decay_t<decltype(opts(Conf))>;
     using context_type = typename option_set_type::context_type;
 
-    template<class Machine, class... Args>
-    simple_state
-    (
-        context_signature_a_tag_t /*tag*/,
-        Machine& /*mach*/,
-        Args&&... args
-    ):
+    static constexpr auto context_sig = opts(Conf).context_sig;
+
+    template
+    <
+        class Machine,
+        class... Args,
+        auto ContextSignature = context_sig,
+        std::enable_if_t<ContextSignature == context_signature::a, bool> = true
+    >
+    simple_state(Machine& /*mach*/, Args&&... args):
         ctx_{std::forward<Args>(args)...}
     {
     }
 
-    template<class Machine, class... Args>
-    simple_state
-    (
-        context_signature_am_tag_t /*tag*/,
-        Machine& mach,
-        Args&&... args
-    ):
+    template
+    <
+        class Machine,
+        class... Args,
+        auto ContextSignature = context_sig,
+        std::enable_if_t<ContextSignature == context_signature::am, bool> = true
+    >
+    simple_state(Machine& mach, Args&&... args):
         ctx_{std::forward<Args>(args)..., mach}
     {
     }
 
-    template<class ParentContext, class Machine>
-    simple_state
-    (
-        context_signature_auto_tag_t /*tag*/,
-        ParentContext& parent_ctx,
-        Machine& mach
-    ):
-        simple_state
-        {
-            typename option_set_type::context_sig_tag_type{},
-            parent_ctx,
-            mach
-        }
-    {
-    }
-
-    template<class ParentContext, class Machine>
-    simple_state
-    (
-        context_signature_c_tag_t /*tag*/,
-        ParentContext& parent_ctx,
-        Machine& /*mach*/
-    ):
+    template
+    <
+        class Machine,
+        class ParentContext,
+        auto ContextSignature = context_sig,
+        std::enable_if_t<ContextSignature == context_signature::c, bool> = true
+    >
+    simple_state(Machine& /*mach*/, ParentContext& parent_ctx):
         ctx_{parent_ctx}
     {
     }
 
-    template<class ParentContext, class Machine>
-    simple_state
-    (
-        context_signature_cm_tag_t /*tag*/,
-        ParentContext& parent_ctx,
-        Machine& mach
-    ):
+    template
+    <
+        class Machine,
+        class ParentContext,
+        auto ContextSignature = context_sig,
+        std::enable_if_t<ContextSignature == context_signature::cm, bool> = true
+    >
+    simple_state(Machine& mach, ParentContext& parent_ctx):
         ctx_{parent_ctx, mach}
     {
     }
 
-    template<class ParentContext, class Machine>
-    simple_state
-    (
-        context_signature_m_tag_t /*tag*/,
-        ParentContext& /*parent_ctx*/,
-        Machine& mach
-    ):
+    template
+    <
+        class Machine,
+        class ParentContext,
+        auto ContextSignature = context_sig,
+        std::enable_if_t<ContextSignature == context_signature::m, bool> = true
+    >
+    simple_state(Machine& mach, ParentContext& /*parent_ctx*/):
         ctx_{mach}
     {
     }
 
-    template<class ParentContext, class Machine>
-    simple_state
-    (
-        context_signature_v_tag_t /*tag*/,
-        ParentContext& /*parent_ctx*/,
-        Machine& /*mach*/
-    )
+    template
+    <
+        class Machine,
+        class ParentContext,
+        auto ContextSignature = context_sig,
+        std::enable_if_t<ContextSignature == context_signature::v, bool> = true
+    >
+    simple_state(Machine& /*mach*/, ParentContext& /*parent_ctx*/)
     {
     }
 

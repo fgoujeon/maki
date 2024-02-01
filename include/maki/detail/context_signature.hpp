@@ -24,21 +24,20 @@ m means machine
     MAKI_DETAIL_X(cm) \
     MAKI_DETAIL_X(m)
 
+#define MAKI_DETAIL_CONTEXT_SIGNATURES \
+    MAKI_DETAIL_CONTEXT_SIGNATURES_FOR_MACHINE \
+    MAKI_DETAIL_CONTEXT_SIGNATURES_FOR_STATE
+
 namespace maki::detail
 {
 
-struct context_signature_auto_tag_t{};
-inline constexpr auto context_signature_auto_tag =
-    context_signature_auto_tag_t{}
-;
-
+enum class context_signature
+{
 #define MAKI_DETAIL_X(name) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    struct context_signature_##name##_tag_t{};
-
-MAKI_DETAIL_CONTEXT_SIGNATURES_FOR_MACHINE
-MAKI_DETAIL_CONTEXT_SIGNATURES_FOR_STATE
-
+    name,
+    MAKI_DETAIL_CONTEXT_SIGNATURES
 #undef MAKI_DETAIL_X
+};
 
 } //namespace
 

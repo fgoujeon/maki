@@ -79,9 +79,9 @@ template<class ParentSm, int Index>
 class region
 {
 public:
-    template<class Context, class Machine>
-    region(Context& ctx, Machine& mach):
-        states_(uniform_construct, context_signature_auto_tag, ctx, mach)
+    template<class Machine, class Context>
+    region(Machine& mach, Context& ctx):
+        states_(uniform_construct, mach, ctx)
     {
     }
 

@@ -138,6 +138,26 @@ public:
         }
     }
 
+    template<class Machine, class Event>
+    void call_entry_action(Machine& mach, const Event& event)
+    {
+        static_assert(has_own_context);
+
+        if constexpr(!tlu::empty_v<entry_action_cref_constant_list>)
+        {
+            /*
+            If at least one entry action is defined, state is required to define
+            entry actions for all possible event types.
+            */
+            call_matching_event_action<entry_action_cref_constant_list>
+            (
+                mach,
+                ctx_,
+                event
+            );
+        }
+    }
+
     template<class Machine, class Context, class Event>
     void call_entry_action(Machine& mach, Context& parent_ctx, const Event& event)
     {
@@ -154,6 +174,27 @@ public:
                 event
             );
         }
+    }
+
+    template<class Machine, class Event, class... MaybeBool>
+    void call_internal_action(Machine& mach, const Event& event, MaybeBool&... processed)
+    {
+        static_assert(has_own_context);
+
+        /*
+        Caller is supposed to check an interal action exists for the given event
+        type before calling this function.
+        */
+        static_assert(!tlu::empty_v<internal_action_cref_constant_list>);
+
+        call_matching_event_action<internal_action_cref_constant_list>
+        (
+            mach,
+            context(),
+            event
+        );
+
+        maybe_bool_util::set_to_true(processed...);
     }
 
     template<class Machine, class Context, class Event, class... MaybeBool>
@@ -173,6 +214,26 @@ public:
         );
 
         maybe_bool_util::set_to_true(processed...);
+    }
+
+    template<class Machine, class Event>
+    void call_exit_action(Machine& mach, const Event& event)
+    {
+        static_assert(has_own_context);
+
+        if constexpr(!tlu::empty_v<exit_action_cref_constant_list>)
+        {
+            /*
+            If at least one exit action is defined, state is required to define
+            entry actions for all possible event types.
+            */
+            call_matching_event_action<exit_action_cref_constant_list>
+            (
+                mach,
+                ctx_,
+                event
+            );
+        }
     }
 
     template<class Machine, class Context, class Event>

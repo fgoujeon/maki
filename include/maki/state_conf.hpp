@@ -37,7 +37,7 @@ namespace detail
     {
         using context_type = Context;
 
-        context_signature context_sig = context_signature::v;
+        context_signature context_sig = context_signature::c;
         EntryActionTuple entry_actions;
         InternalActionTuple internal_actions;
         ExitActionTuple exit_actions;

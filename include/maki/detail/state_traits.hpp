@@ -7,6 +7,7 @@
 #ifndef MAKI_DETAIL_STATE_TRAITS_HPP
 #define MAKI_DETAIL_STATE_TRAITS_HPP
 
+#include "context_of.hpp"
 #include "submachine_fwd.hpp"
 #include "simple_state_fwd.hpp"
 #include "tlu.hpp"
@@ -24,7 +25,7 @@ namespace maki::detail::state_traits
 template<const auto& StateConf, class Parent, class Enable = void>
 struct state_conf_to_state
 {
-    using type = simple_state<StateConf>;
+    using type = simple_state<StateConf, decayed_context_of_t<Parent>>;
 };
 
 template<const auto& StateConf, class Parent>

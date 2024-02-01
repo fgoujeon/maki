@@ -241,12 +241,12 @@ private:
             }
             else
             {
-                try_processing_event_in_active_state<candidate_state_type_list, Dry>(self, mach, ctx, event, processed...);
+                try_processing_event_in_active_state<candidate_state_type_list, Dry>(self, mach, event, processed...);
             }
         }
         else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
         {
-            try_processing_event_in_active_state<candidate_state_type_list, Dry>(self, mach, ctx, event, processed...);
+            try_processing_event_in_active_state<candidate_state_type_list, Dry>(self, mach, event, processed...);
         }
         else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
         {
@@ -423,12 +423,7 @@ private:
             if constexpr(!same_ref(*SourceStateConfPtr, state_confs::stopped))
             {
                 auto& stt = state_from_conf<*SourceStateConfPtr>();
-                stt.call_exit_action
-                (
-                    mach,
-                    ctx,
-                    event
-                );
+                stt.call_exit_action(mach, event);
             }
 
             active_state_index_ = region_detail::find_state_from_conf_v
@@ -457,7 +452,6 @@ private:
                 stt.call_entry_action
                 (
                     mach,
-                    ctx,
                     event
                 );
             }
@@ -490,12 +484,11 @@ private:
     /*
     Call active_state.on_event(event)
     */
-    template<class StateTypeList, bool Dry, class Self, class Machine, class Context, class Event, class... ExtraArgs>
+    template<class StateTypeList, bool Dry, class Self, class Machine, class Event, class... ExtraArgs>
     static void try_processing_event_in_active_state
     (
         Self& self,
         Machine& mach,
-        Context& ctx,
         const Event& event,
         ExtraArgs&... extra_args
     )
@@ -504,18 +497,17 @@ private:
         <
             StateTypeList,
             try_processing_event_in_active_state_2<Dry>
-        >(self, mach, ctx, event, extra_args...);
+        >(self, mach, event, extra_args...);
     }
 
     template<bool Dry>
     struct try_processing_event_in_active_state_2
     {
-        template<class State, class Self, class Machine, class Context, class Event, class... ExtraArgs>
+        template<class State, class Self, class Machine, class Event, class... ExtraArgs>
         static bool call
         (
             Self& self,
             Machine& mach,
-            Context& ctx,
             const Event& event,
             ExtraArgs&... extra_args
         )
@@ -530,7 +522,6 @@ private:
                 self.template state<State>().call_internal_action
                 (
                     mach,
-                    ctx,
                     event,
                     extra_args...
                 );

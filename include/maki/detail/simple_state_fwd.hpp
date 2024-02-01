@@ -10,7 +10,7 @@
 namespace maki::detail
 {
 
-template<const auto& Conf>
+template<const auto& Conf, class DecayedParentContext>
 class simple_state;
 
 } //namespace

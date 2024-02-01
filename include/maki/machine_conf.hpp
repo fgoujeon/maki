@@ -51,7 +51,7 @@ namespace detail
         using fallback_transition_action_tuple_type = FallbackTransitionActionTuple;
 
         bool auto_start = true;
-        context_signature context_sig = context_signature::v;
+        context_signature context_sig = context_signature::c;
         EntryActionTuple entry_actions;
         EventActionTuple internal_actions;
         ExitActionTuple exit_actions;

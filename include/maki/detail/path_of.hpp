@@ -21,22 +21,22 @@ struct path_of;
 template<class T>
 inline constexpr auto path_of_v = path_of<T>::value;
 
-template<class ConfHolder>
-struct path_of<machine<ConfHolder>>
+template<const auto& Conf, class ParentRegion>
+struct path_of<submachine<Conf, ParentRegion>>
 {
-    static constexpr auto value = path{};
+    static constexpr auto value = path_of_v<ParentRegion> / Conf;
 };
 
-template<const auto& Conf, class Parent>
-struct path_of<submachine<Conf, Parent>>
+template<const auto& Conf>
+struct path_of<submachine<Conf, void>>
 {
-    static constexpr auto value = path_of_v<Parent>;
+    static constexpr auto value = path{Conf};
 };
 
 template<class ParentSm, int Index>
 struct path_of<region<ParentSm, Index>>
 {
-    static constexpr auto value = path_of_v<ParentSm> / ParentSm::conf / Index;
+    static constexpr auto value = path_of_v<ParentSm> / Index;
 };
 
 } //namespace

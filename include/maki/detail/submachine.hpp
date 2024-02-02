@@ -54,7 +54,7 @@ struct region_tuple
     >;
 };
 
-template<const auto& Conf, class Parent>
+template<const auto& Conf, class ParentRegion>
 class submachine
 {
 public:

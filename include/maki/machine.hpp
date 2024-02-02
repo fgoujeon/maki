@@ -532,7 +532,7 @@ private:
     static constexpr auto fallback_transition_actions = opts(conf).fallback_transition_actions;
     using fallback_transition_action_cref_constant_list = detail::tuple_to_constant_list_t<fallback_transition_actions>;
 
-    detail::submachine<conf, machine> submachine_;
+    detail::submachine<conf, void> submachine_;
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;
 };

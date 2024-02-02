@@ -78,20 +78,14 @@ public:
     }
 
     template<class Arg>
-    constexpr tuple_base(uniform_construct_t /*tag*/, Arg&& arg):
+    constexpr tuple_base(uniform_construct_t /*tag*/, Arg& arg):
         tuple_element<Indexes, Ts>{arg}...
     {
     }
 
     template<class Arg0, class Arg1>
-    constexpr tuple_base(uniform_construct_t /*tag*/, Arg0&& arg0, Arg1&& arg1):
+    constexpr tuple_base(uniform_construct_t /*tag*/, Arg0& arg0, Arg1& arg1):
         tuple_element<Indexes, Ts>{arg0, arg1}...
-    {
-    }
-
-    template<class Arg0, class Arg1, class Arg2>
-    constexpr tuple_base(uniform_construct_t /*tag*/, Arg0&& arg0, Arg1&& arg1, Arg2&& arg2):
-        tuple_element<Indexes, Ts>{arg0, arg1, arg2}...
     {
     }
 

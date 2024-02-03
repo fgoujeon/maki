@@ -33,6 +33,12 @@ struct path_of<submachine<Conf, void>>
     static constexpr auto value = path{Conf};
 };
 
+template<const auto& Conf, class ParentRegion>
+struct path_of<submachine_no_context<Conf, ParentRegion>>
+{
+    static constexpr auto value = path_of_v<submachine<Conf, ParentRegion>>;
+};
+
 template<class ParentSm, int Index>
 struct path_of<region<ParentSm, Index>>
 {

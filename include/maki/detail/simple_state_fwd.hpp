@@ -11,6 +11,9 @@ namespace maki::detail
 {
 
 template<const auto& Conf>
+class simple_state_no_context;
+
+template<const auto& Conf>
 class simple_state;
 
 } //namespace

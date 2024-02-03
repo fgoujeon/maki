@@ -11,6 +11,9 @@ namespace maki::detail
 {
 
 template<const auto& Conf, class ParentRegion>
+class submachine_no_context;
+
+template<const auto& Conf, class ParentRegion>
 class submachine;
 
 } //namespace

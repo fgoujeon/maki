@@ -54,26 +54,14 @@ struct region_tuple
     >;
 };
 
-template<const auto& Conf, class ParentRegion>
-class submachine
+template<const auto& Conf, class ParentRegion, class ContextType>
+class submachine_impl
 {
 public:
     using conf_type = std::decay_t<decltype(Conf)>;
     using option_set_type = std::decay_t<decltype(opts(Conf))>;
     using transition_table_type_list = decltype(opts(Conf).transition_tables);
-
-    template
-    <
-        class Machine,
-        class... ContextArgs,
-        class ConfType = conf_type,
-        std::enable_if_t<is_root_sm_conf_v<ConfType>, bool> = true
-    >
-    submachine(Machine& mach, ContextArgs&&... ctx_args):
-        simple_state_(mach, std::forward<ContextArgs>(ctx_args)...),
-        regions_(uniform_construct, mach, context())
-    {
-    }
+    using context_type = ContextType;
 
     template
     <
@@ -82,62 +70,189 @@ public:
         class ConfType = conf_type,
         std::enable_if_t<!is_root_sm_conf_v<ConfType>, bool> = true
     >
-    submachine(Machine& mach, ParentContext& parent_ctx):
-        simple_state_(mach, parent_ctx),
-        regions_(uniform_construct, mach, context_or(parent_ctx))
+    submachine_impl(Machine& mach, ParentContext& parent_ctx):
+        ctx_holder_(mach, parent_ctx),
+        impl_(mach, context())
     {
     }
 
     auto& context()
     {
-        return simple_state_.context();
+        return ctx_holder_.get();
     }
 
     const auto& context() const
     {
-        return simple_state_.context();
+        return ctx_holder_.get();
     }
 
     template<class ParentContext>
-    auto& context_or(ParentContext& parent_ctx)
+    auto& context_or(ParentContext& /*parent_ctx*/)
     {
-        return simple_state_.context_or(parent_ctx);
+        return context();
     }
 
     template<class ParentContext>
-    const auto& context_or(ParentContext& parent_ctx) const
+    const auto& context_or(ParentContext& /*parent_ctx*/) const
     {
-        return simple_state_.context_or(parent_ctx);
+        return context();
+    }
+
+    template<const auto& StatePath, class ParentContext>
+    auto& context_or(ParentContext& /*parent_ctx*/)
+    {
+        if constexpr(StatePath.empty())
+        {
+            return context();
+        }
+        else
+        {
+            return impl_.template context_or<StatePath>(context());
+        }
+    }
+
+    template<const auto& StatePath, class ParentContext>
+    const auto& context_or(ParentContext& /*parent_ctx*/) const
+    {
+        if constexpr(StatePath.empty())
+        {
+            return context();
+        }
+        else
+        {
+            return impl_.template context_or<StatePath>(context());
+        }
+    }
+
+    template<const auto& StateRegionPath, const auto& StateConf>
+    [[nodiscard]] bool active_state() const
+    {
+        return impl_.template active_state<StateRegionPath, StateConf>();
+    }
+
+    template<const auto& StateConf>
+    [[nodiscard]] bool active_state() const
+    {
+        return impl_.template active_state<StateConf>();
+    }
+
+    template<const auto& RegionPath>
+    [[nodiscard]] bool running() const
+    {
+        return impl_.template running<RegionPath>();
+    }
+
+    [[nodiscard]] bool running() const
+    {
+        return impl_.running();
+    }
+
+    template<class Machine, class ParentContext, class Event>
+    void call_entry_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
+    {
+        impl_.call_entry_action(mach, context(), event);
+    }
+
+    template<bool Dry = false, class Machine, class ParentContext, class Event>
+    void call_internal_action
+    (
+        Machine& mach,
+        ParentContext& /*parent_ctx*/,
+        const Event& event
+    )
+    {
+        impl_.call_internal_action(mach, context(), event);
+    }
+
+    template<bool Dry = false, class Machine, class ParentContext, class Event>
+    void call_internal_action
+    (
+        Machine& mach,
+        ParentContext& /*parent_ctx*/,
+        const Event& event,
+        bool& processed
+    )
+    {
+        impl_.call_internal_action(mach, context(), event, processed);
+    }
+
+    template<bool Dry = false, class Machine, class ParentContext, class Event>
+    void call_internal_action
+    (
+        Machine& mach,
+        ParentContext& /*parent_ctx*/,
+        const Event& event
+    ) const
+    {
+        impl_.call_internal_action(mach, context(), event);
+    }
+
+    template<bool Dry = false, class Machine, class ParentContext, class Event>
+    void call_internal_action
+    (
+        Machine& mach,
+        ParentContext& /*parent_ctx*/,
+        const Event& event,
+        bool& processed
+    ) const
+    {
+        impl_.call_internal_action(mach, context(), event, processed);
+    }
+
+    template<class Machine, class ParentContext, class Event>
+    void call_exit_action
+    (
+        Machine& mach,
+        ParentContext& /*parent_ctx*/,
+        const Event& event
+    )
+    {
+        impl_.call_exit_action(mach, context(), event);
+    }
+
+    template<class /*Event*/>
+    static constexpr bool has_internal_action_for_event()
+    {
+        return true;
+    }
+
+    static constexpr const auto& conf = Conf;
+
+private:
+    using impl_type = submachine_impl<Conf, ParentRegion, void>;
+
+    context_holder<context_type, opts(Conf).context_sig> ctx_holder_;
+    impl_type impl_;
+};
+
+template<const auto& Conf, class ParentRegion>
+class submachine_impl<Conf, ParentRegion, void>
+{
+public:
+    using conf_type = std::decay_t<decltype(Conf)>;
+    using option_set_type = std::decay_t<decltype(opts(Conf))>;
+    using transition_table_type_list = decltype(opts(Conf).transition_tables);
+
+    template<class Machine, class Context>
+    submachine_impl(Machine& mach, Context& ctx):
+        regions_(uniform_construct, mach, ctx)
+    {
     }
 
     template<const auto& StatePath, class ParentContext>
     auto& context_or(ParentContext& parent_ctx)
     {
-        if constexpr(StatePath.empty())
-        {
-            return context_or(parent_ctx);
-        }
-        else
-        {
-            static constexpr int region_index = path_raw_head(StatePath);
-            static constexpr auto state_path_tail = path_tail(StatePath);
-            return tuple_get<region_index>(regions_).template context_or<state_path_tail>(context_or(parent_ctx));
-        }
+        static constexpr int region_index = path_raw_head(StatePath);
+        static constexpr auto state_path_tail = path_tail(StatePath);
+        return tuple_get<region_index>(regions_).template context_or<state_path_tail>(parent_ctx);
     }
 
     template<const auto& StatePath, class ParentContext>
     const auto& context_or(ParentContext& parent_ctx) const
     {
-        if constexpr(StatePath.empty())
-        {
-            return context_or(parent_ctx);
-        }
-        else
-        {
-            static constexpr int region_index = path_raw_head(StatePath);
-            static constexpr auto state_path_tail = path_tail(StatePath);
-            return tuple_get<region_index>(regions_).template context_or<state_path_tail>(context_or(parent_ctx));
-        }
+        static constexpr int region_index = path_raw_head(StatePath);
+        static constexpr auto state_path_tail = path_tail(StatePath);
+        return tuple_get<region_index>(regions_).template context_or<state_path_tail>(parent_ctx);
     }
 
     template<const auto& StateRegionPath, const auto& StateConf>
@@ -168,67 +283,67 @@ public:
         return !active_state<state_confs::stopped>();
     }
 
-    template<class Machine, class ParentContext, class Event>
-    void call_entry_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
+    template<class Machine, class Context, class Event>
+    void call_entry_action(Machine& mach, Context& ctx, const Event& event)
     {
-        simple_state_.call_entry_action(mach, context_or(parent_ctx), event);
-        tlu::for_each<region_tuple_type, region_start>(*this, mach, context_or(parent_ctx), event);
+        impl_.call_entry_action(mach, ctx, event);
+        tlu::for_each<region_tuple_type, region_start>(*this, mach, ctx, event);
     }
 
-    template<bool Dry = false, class Machine, class ParentContext, class Event>
+    template<bool Dry = false, class Machine, class Context, class Event>
     void call_internal_action
     (
         Machine& mach,
-        ParentContext& parent_ctx,
+        Context& ctx,
         const Event& event
     )
     {
-        call_internal_action_2<Dry>(*this, mach, context_or(parent_ctx), event);
+        call_internal_action_2<Dry>(*this, mach, ctx, event);
     }
 
-    template<bool Dry = false, class Machine, class ParentContext, class Event>
+    template<bool Dry = false, class Machine, class Context, class Event>
     void call_internal_action
     (
         Machine& mach,
-        ParentContext& parent_ctx,
+        Context& ctx,
         const Event& event,
         bool& processed
     )
     {
-        call_internal_action_2<Dry>(*this, mach, context_or(parent_ctx), event, processed);
+        call_internal_action_2<Dry>(*this, mach, ctx, event, processed);
     }
 
-    template<bool Dry = false, class Machine, class ParentContext, class Event>
+    template<bool Dry = false, class Machine, class Context, class Event>
     void call_internal_action
     (
         Machine& mach,
-        ParentContext& parent_ctx,
+        Context& ctx,
         const Event& event
     ) const
     {
-        call_internal_action_2<Dry>(*this, mach, context_or(parent_ctx), event);
+        call_internal_action_2<Dry>(*this, mach, ctx, event);
     }
 
-    template<bool Dry = false, class Machine, class ParentContext, class Event>
+    template<bool Dry = false, class Machine, class Context, class Event>
     void call_internal_action
     (
         Machine& mach,
-        ParentContext& parent_ctx,
+        Context& ctx,
         const Event& event,
         bool& processed
     ) const
     {
-        call_internal_action_2<Dry>(*this, mach, context_or(parent_ctx), event, processed);
+        call_internal_action_2<Dry>(*this, mach, ctx, event, processed);
     }
 
-    template<class Machine, class ParentContext, class Event>
-    void call_exit_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
+    template<class Machine, class Context, class Event>
+    void call_exit_action(Machine& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each<region_tuple_type, region_stop>(*this, mach, context_or(parent_ctx), event);
-        simple_state_.call_exit_action
+        tlu::for_each<region_tuple_type, region_stop>(*this, mach, ctx, event);
+        impl_.call_exit_action
         (
             mach,
-            context_or(parent_ctx),
+            ctx,
             event
         );
     }
@@ -242,14 +357,13 @@ public:
     static constexpr const auto& conf = Conf;
 
 private:
+    using impl_type = simple_state_impl<Conf, void>;
+
     using region_tuple_type = typename region_tuple
     <
-        submachine,
+        submachine_impl,
         std::make_integer_sequence<int, tlu::size_v<transition_table_type_list>>
     >::type;
-
-    //We need a simple_state to manage context and actions
-    using simple_state_type = simple_state<Conf>;
 
     struct region_start
     {
@@ -289,11 +403,11 @@ private:
         MaybeBool&... processed
     )
     {
-        if constexpr(simple_state_type::template has_internal_action_for_event<Event>())
+        if constexpr(impl_type::template has_internal_action_for_event<Event>())
         {
             if constexpr(!Dry)
             {
-                self.simple_state_.call_internal_action
+                self.impl_.call_internal_action
                 (
                     mach,
                     ctx,
@@ -311,7 +425,7 @@ private:
         }
     }
 
-    simple_state_type simple_state_;
+    impl_type impl_;
     region_tuple_type regions_;
 };
 

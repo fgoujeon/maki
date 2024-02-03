@@ -29,7 +29,7 @@ namespace detail
 {
     template
     <
-        class Context = null_t,
+        class Context = void,
         class EntryActionTuple = detail::tuple<>,
         class InternalActionTuple = detail::tuple<>,
         class ExitActionTuple = detail::tuple<>,

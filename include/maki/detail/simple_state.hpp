@@ -7,6 +7,9 @@
 #ifndef MAKI_DETAIL_SIMPLE_STATE_HPP
 #define MAKI_DETAIL_SIMPLE_STATE_HPP
 
+#include "simple_state_fwd.hpp"
+#include "context_holder.hpp"
+#include "conf_traits.hpp"
 #include "call_member.hpp"
 #include "maybe_bool_util.hpp"
 #include "event_action.hpp"
@@ -17,11 +20,8 @@
 namespace maki::detail
 {
 
-/*
-Implementation of a non-composite state
-*/
-template<const auto& Conf>
-class simple_state
+template<const auto& Conf, class Context>
+class simple_state_impl
 {
 public:
     using option_set_type = std::decay_t<decltype(opts(Conf))>;
@@ -29,117 +29,82 @@ public:
 
     static constexpr auto context_sig = opts(Conf).context_sig;
 
-    template
-    <
-        class Machine,
-        class... Args,
-        auto ContextSignature = context_sig,
-        std::enable_if_t<ContextSignature == context_signature::a, bool> = true
-    >
-    simple_state(Machine& /*mach*/, Args&&... args):
-        ctx_{std::forward<Args>(args)...}
-    {
-    }
-
-    template
-    <
-        class Machine,
-        class... Args,
-        auto ContextSignature = context_sig,
-        std::enable_if_t<ContextSignature == context_signature::am, bool> = true
-    >
-    simple_state(Machine& mach, Args&&... args):
-        ctx_{std::forward<Args>(args)..., mach}
-    {
-    }
-
-    template
-    <
-        class Machine,
-        class ParentContext,
-        auto ContextSignature = context_sig,
-        std::enable_if_t<ContextSignature == context_signature::c, bool> = true
-    >
-    simple_state(Machine& /*mach*/, ParentContext& parent_ctx):
-        ctx_{parent_ctx}
-    {
-    }
-
-    template
-    <
-        class Machine,
-        class ParentContext,
-        auto ContextSignature = context_sig,
-        std::enable_if_t<ContextSignature == context_signature::cm, bool> = true
-    >
-    simple_state(Machine& mach, ParentContext& parent_ctx):
-        ctx_{parent_ctx, mach}
-    {
-    }
-
-    template
-    <
-        class Machine,
-        class ParentContext,
-        auto ContextSignature = context_sig,
-        std::enable_if_t<ContextSignature == context_signature::m, bool> = true
-    >
-    simple_state(Machine& mach, ParentContext& /*parent_ctx*/):
-        ctx_{mach}
-    {
-    }
-
-    template
-    <
-        class Machine,
-        class ParentContext,
-        auto ContextSignature = context_sig,
-        std::enable_if_t<ContextSignature == context_signature::v, bool> = true
-    >
-    simple_state(Machine& /*mach*/, ParentContext& /*parent_ctx*/)
+    template<class... Args>
+    simple_state_impl(Args&... args):
+        ctx_holder_(args...)
     {
     }
 
     auto& context()
     {
-        static_assert(has_own_context);
-        return ctx_;
+        return ctx_holder_.get();
     }
 
     const auto& context() const
     {
-        static_assert(has_own_context);
-        return ctx_;
+        return ctx_holder_.get();
     }
 
     template<class ParentContext>
-    auto& context_or(ParentContext& parent_ctx)
+    auto& context_or(ParentContext& /*parent_ctx*/)
     {
-        if constexpr(has_own_context)
-        {
-            return ctx_;
-        }
-        else
-        {
-            return parent_ctx;
-        }
+        return context();
     }
 
     template<class ParentContext>
-    const auto& context_or(ParentContext& parent_ctx) const
+    const auto& context_or(ParentContext& /*parent_ctx*/) const
     {
-        if constexpr(has_own_context)
-        {
-            return ctx_;
-        }
-        else
-        {
-            return parent_ctx;
-        }
+        return context();
+    }
+
+    template<class Machine, class ParentContext, class Event>
+    void call_entry_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
+    {
+        impl_.call_entry_action(mach, context(), event);
+    }
+
+    template<class Machine, class ParentContext, class Event, class... MaybeBool>
+    void call_internal_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event, MaybeBool&... processed)
+    {
+        impl_.call_internal_action(mach, context(), event, processed...);
+    }
+
+    template<class Machine, class ParentContext, class Event>
+    void call_exit_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
+    {
+        impl_.call_exit_action(mach, context(), event);
+    }
+
+    template<class Event>
+    static constexpr bool has_internal_action_for_event()
+    {
+        return impl_type::template has_internal_action_for_event<Event>();
+    }
+
+    static constexpr const auto& conf = Conf;
+
+private:
+    using impl_type = simple_state_impl<Conf, void>;
+
+    context_holder<context_type, context_sig> ctx_holder_;
+    impl_type impl_;
+};
+
+template<const auto& Conf>
+class simple_state_impl<Conf, void>
+{
+public:
+    using option_set_type = std::decay_t<decltype(opts(Conf))>;
+
+    static constexpr auto context_sig = opts(Conf).context_sig;
+
+    template<class... Args>
+    simple_state_impl(Args&... /*args*/)
+    {
     }
 
     template<class Machine, class Context, class Event>
-    void call_entry_action(Machine& mach, Context& parent_ctx, const Event& event)
+    void call_entry_action(Machine& mach, Context& ctx, const Event& event)
     {
         if constexpr(!tlu::empty_v<entry_action_cref_constant_list>)
         {
@@ -150,14 +115,14 @@ public:
             call_matching_event_action<entry_action_cref_constant_list>
             (
                 mach,
-                context_or(parent_ctx),
+                ctx,
                 event
             );
         }
     }
 
     template<class Machine, class Context, class Event, class... MaybeBool>
-    void call_internal_action(Machine& mach, Context& parent_ctx, const Event& event, MaybeBool&... processed)
+    void call_internal_action(Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
     {
         /*
         Caller is supposed to check an interal action exists for the given event
@@ -168,7 +133,7 @@ public:
         call_matching_event_action<internal_action_cref_constant_list>
         (
             mach,
-            context_or(parent_ctx),
+            ctx,
             event
         );
 
@@ -176,7 +141,7 @@ public:
     }
 
     template<class Machine, class Context, class Event>
-    void call_exit_action(Machine& mach, Context& parent_ctx, const Event& event)
+    void call_exit_action(Machine& mach, Context& ctx, const Event& event)
     {
         if constexpr(!tlu::empty_v<exit_action_cref_constant_list>)
         {
@@ -187,7 +152,7 @@ public:
             call_matching_event_action<exit_action_cref_constant_list>
             (
                 mach,
-                context_or(parent_ctx),
+                ctx,
                 event
             );
         }
@@ -206,8 +171,6 @@ public:
     static constexpr const auto& conf = Conf;
 
 private:
-    static constexpr bool has_own_context = !std::is_same_v<context_type, null_t>;
-
     static constexpr auto entry_actions = opts(Conf).entry_actions;
     using entry_action_cref_constant_list = tuple_to_constant_list_t<entry_actions>;
 
@@ -216,8 +179,6 @@ private:
 
     static constexpr auto exit_actions = opts(Conf).exit_actions;
     using exit_action_cref_constant_list = tuple_to_constant_list_t<exit_actions>;
-
-    context_type ctx_;
 };
 
 } //namespace

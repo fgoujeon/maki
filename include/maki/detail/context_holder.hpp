@@ -8,6 +8,8 @@
 #define MAKI_DETAIL_CONTEXT_HOLDER_HPP
 
 #include "context_signature.hpp"
+#include <type_traits>
+#include <utility>
 
 namespace maki::detail
 {

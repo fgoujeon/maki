@@ -270,19 +270,6 @@ public:
     template
     <
         class Machine,
-        class... ContextArgs,
-        class ConfType = conf_type,
-        std::enable_if_t<is_root_sm_conf_v<ConfType>, bool> = true
-    >
-    submachine(Machine& mach, ContextArgs&&... ctx_args):
-        ctx_holder_(mach, std::forward<ContextArgs>(ctx_args)...),
-        impl_(mach, context())
-    {
-    }
-
-    template
-    <
-        class Machine,
         class ParentContext,
         class ConfType = conf_type,
         std::enable_if_t<!is_root_sm_conf_v<ConfType>, bool> = true

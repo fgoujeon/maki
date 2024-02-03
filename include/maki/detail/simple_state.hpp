@@ -7,6 +7,7 @@
 #ifndef MAKI_DETAIL_SIMPLE_STATE_HPP
 #define MAKI_DETAIL_SIMPLE_STATE_HPP
 
+#include "context_holder.hpp"
 #include "call_member.hpp"
 #include "maybe_bool_util.hpp"
 #include "event_action.hpp"
@@ -29,87 +30,22 @@ public:
 
     static constexpr auto context_sig = opts(Conf).context_sig;
 
-    template
-    <
-        class Machine,
-        class... Args,
-        auto ContextSignature = context_sig,
-        std::enable_if_t<ContextSignature == context_signature::a, bool> = true
-    >
-    simple_state(Machine& /*mach*/, Args&&... args):
-        ctx_{std::forward<Args>(args)...}
-    {
-    }
-
-    template
-    <
-        class Machine,
-        class... Args,
-        auto ContextSignature = context_sig,
-        std::enable_if_t<ContextSignature == context_signature::am, bool> = true
-    >
-    simple_state(Machine& mach, Args&&... args):
-        ctx_{std::forward<Args>(args)..., mach}
-    {
-    }
-
-    template
-    <
-        class Machine,
-        class ParentContext,
-        auto ContextSignature = context_sig,
-        std::enable_if_t<ContextSignature == context_signature::c, bool> = true
-    >
-    simple_state(Machine& /*mach*/, ParentContext& parent_ctx):
-        ctx_{parent_ctx}
-    {
-    }
-
-    template
-    <
-        class Machine,
-        class ParentContext,
-        auto ContextSignature = context_sig,
-        std::enable_if_t<ContextSignature == context_signature::cm, bool> = true
-    >
-    simple_state(Machine& mach, ParentContext& parent_ctx):
-        ctx_{parent_ctx, mach}
-    {
-    }
-
-    template
-    <
-        class Machine,
-        class ParentContext,
-        auto ContextSignature = context_sig,
-        std::enable_if_t<ContextSignature == context_signature::m, bool> = true
-    >
-    simple_state(Machine& mach, ParentContext& /*parent_ctx*/):
-        ctx_{mach}
-    {
-    }
-
-    template
-    <
-        class Machine,
-        class ParentContext,
-        auto ContextSignature = context_sig,
-        std::enable_if_t<ContextSignature == context_signature::v, bool> = true
-    >
-    simple_state(Machine& /*mach*/, ParentContext& /*parent_ctx*/)
+    template<class... Args>
+    simple_state(Args&... args):
+        ctx_holder_(args...)
     {
     }
 
     auto& context()
     {
         static_assert(has_own_context);
-        return ctx_;
+        return ctx_holder_.get();
     }
 
     const auto& context() const
     {
         static_assert(has_own_context);
-        return ctx_;
+        return ctx_holder_.get();
     }
 
     template<class ParentContext>
@@ -117,7 +53,7 @@ public:
     {
         if constexpr(has_own_context)
         {
-            return ctx_;
+            return context();
         }
         else
         {
@@ -130,7 +66,7 @@ public:
     {
         if constexpr(has_own_context)
         {
-            return ctx_;
+            return context();
         }
         else
         {
@@ -217,7 +153,7 @@ private:
     static constexpr auto exit_actions = opts(Conf).exit_actions;
     using exit_action_cref_constant_list = tuple_to_constant_list_t<exit_actions>;
 
-    context_type ctx_;
+    context_holder<context_type, context_sig> ctx_holder_;
 };
 
 } //namespace

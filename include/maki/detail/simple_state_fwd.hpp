@@ -7,14 +7,16 @@
 #ifndef MAKI_DETAIL_SIMPLE_STATE_FWD_HPP
 #define MAKI_DETAIL_SIMPLE_STATE_FWD_HPP
 
+#include "conf_traits.hpp"
+
 namespace maki::detail
 {
 
-template<const auto& Conf>
-class simple_state_no_context;
+template<const auto& Conf, class Context>
+class simple_state_impl;
 
 template<const auto& Conf>
-class simple_state;
+using simple_state = simple_state_impl<Conf, conf_traits::context_t<Conf>>;
 
 } //namespace
 

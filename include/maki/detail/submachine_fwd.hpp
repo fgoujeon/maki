@@ -7,14 +7,17 @@
 #ifndef MAKI_DETAIL_SUBMACHINE_FWD_HPP
 #define MAKI_DETAIL_SUBMACHINE_FWD_HPP
 
+#include "conf_traits.hpp"
+#include <type_traits>
+
 namespace maki::detail
 {
 
-template<const auto& Conf, class ParentRegion>
-class submachine_no_context;
+template<const auto& Conf, class ParentRegion, class Context>
+class submachine_impl;
 
 template<const auto& Conf, class ParentRegion>
-class submachine;
+using submachine = submachine_impl<Conf, ParentRegion, conf_traits::context_t<Conf>>;
 
 } //namespace
 

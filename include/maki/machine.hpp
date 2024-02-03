@@ -535,7 +535,7 @@ private:
     using fallback_transition_action_cref_constant_list = detail::tuple_to_constant_list_t<fallback_transition_actions>;
 
     detail::context_holder<context_type, opts(conf).context_sig> ctx_holder_;
-    detail::submachine_impl<conf, void, null_t> impl_;
+    detail::submachine_impl<conf, void, void> impl_;
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;
 };

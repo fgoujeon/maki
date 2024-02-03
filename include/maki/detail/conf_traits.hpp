@@ -23,7 +23,7 @@ template<const auto& Conf>
 using context_t = typename context<Conf>::type;
 
 template<const auto& Conf>
-constexpr auto has_context_v = !std::is_same_v<context_t<Conf>, null_t>;
+constexpr auto has_context_v = !std::is_void_v<context_t<Conf>>;
 
 } //namespace
 

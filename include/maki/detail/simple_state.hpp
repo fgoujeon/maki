@@ -100,16 +100,16 @@ public:
     static constexpr const auto& conf = Conf;
 
 private:
-    using impl_type = simple_state_impl<Conf, null_t>;
+    using impl_type = simple_state_impl<Conf, void>;
 
-    static constexpr bool has_own_context = !std::is_same_v<context_type, null_t>;
+    static constexpr bool has_own_context = !std::is_void_v<context_type>;
 
     context_holder<context_type, context_sig> ctx_holder_;
     impl_type impl_;
 };
 
 template<const auto& Conf>
-class simple_state_impl<Conf, null_t>
+class simple_state_impl<Conf, void>
 {
 public:
     using option_set_type = std::decay_t<decltype(opts(Conf))>;

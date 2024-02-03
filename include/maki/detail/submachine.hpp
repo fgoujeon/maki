@@ -228,16 +228,16 @@ public:
     static constexpr const auto& conf = Conf;
 
 private:
-    using impl_type = submachine_impl<Conf, ParentRegion, null_t>;
+    using impl_type = submachine_impl<Conf, ParentRegion, void>;
 
-    static constexpr bool has_own_context = !std::is_same_v<context_type, null_t>;
+    static constexpr bool has_own_context = !std::is_void_v<context_type>;
 
     context_holder<context_type, opts(Conf).context_sig> ctx_holder_;
     impl_type impl_;
 };
 
 template<const auto& Conf, class ParentRegion>
-class submachine_impl<Conf, ParentRegion, null_t>
+class submachine_impl<Conf, ParentRegion, void>
 {
 public:
     using conf_type = std::decay_t<decltype(Conf)>;
@@ -368,7 +368,7 @@ public:
     static constexpr const auto& conf = Conf;
 
 private:
-    using impl_type = simple_state_impl<Conf, null_t>;
+    using impl_type = simple_state_impl<Conf, void>;
 
     using region_tuple_type = typename region_tuple
     <

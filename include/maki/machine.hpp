@@ -53,7 +53,7 @@ The state machine type itself can then be defined like so:
 @snippet lamp/src/main.cpp machine
 */
 template<class ConfHolder>
-class machine
+class machine: private detail::submachine<ConfHolder::conf, void>
 {
 public:
     /**
@@ -96,7 +96,7 @@ public:
     */
     template<class... ContextArgs>
     explicit machine(ContextArgs&&... ctx_args):
-        submachine_(*this, std::forward<ContextArgs>(ctx_args)...)
+        base_type(*this, std::forward<ContextArgs>(ctx_args)...)
     {
         if constexpr(opts(conf).auto_start)
         {
@@ -116,7 +116,7 @@ public:
     */
     context_type& context()
     {
-        return submachine_.context();
+        return base_type::context();
     }
 
     /**
@@ -124,7 +124,7 @@ public:
     */
     const context_type& context() const
     {
-        return submachine_.context();
+        return base_type::context();
     }
 
     template<const auto& MachineOrStatePath>
@@ -136,7 +136,7 @@ public:
         }
         else
         {
-            return submachine_.template context_or<MachineOrStatePath>(context());
+            return base_type::template context_or<MachineOrStatePath>(context());
         }
     }
 
@@ -149,7 +149,7 @@ public:
         }
         else
         {
-            return submachine_.template context_or<MachineOrStatePath>(context());
+            return base_type::template context_or<MachineOrStatePath>(context());
         }
     }
 
@@ -161,7 +161,7 @@ public:
     template<const auto& RegionPath>
     [[nodiscard]] bool running() const
     {
-        return submachine_.template running<RegionPath>();
+        return base_type::template running<RegionPath>();
     }
 
     /**
@@ -171,7 +171,7 @@ public:
     */
     [[nodiscard]] bool running() const
     {
-        return submachine_.running();
+        return base_type::running();
     }
 
     /**
@@ -184,7 +184,7 @@ public:
     template<const auto& RegionPath, const auto& StateConf>
     [[nodiscard]] bool active_state() const
     {
-        return submachine_.template active_state<RegionPath, StateConf>();
+        return base_type::template active_state<RegionPath, StateConf>();
     }
 
     /**
@@ -196,7 +196,7 @@ public:
     template<const auto& StateConf>
     [[nodiscard]] bool active_state() const
     {
-        return submachine_.template active_state<StateConf>();
+        return base_type::template active_state<StateConf>();
     }
 
     /**
@@ -324,7 +324,7 @@ public:
     bool check_event(const Event& event) const
     {
         auto processed = false;
-        submachine_.template call_internal_action<true>(*this, context(), event, processed);
+        base_type::template call_internal_action<true>(*this, context(), event, processed);
         return processed;
     }
 
@@ -376,6 +376,8 @@ public:
     }
 
 private:
+    using base_type = detail::submachine<conf, void>;
+
     class executing_operation_guard
     {
     public:
@@ -500,22 +502,22 @@ private:
     {
         if constexpr(Operation == detail::machine_operation::start)
         {
-            submachine_.call_entry_action(*this, context(), event);
+            base_type::call_entry_action(*this, context(), event);
         }
         else if constexpr(Operation == detail::machine_operation::stop)
         {
-            submachine_.call_exit_action(*this, context(), event);
+            base_type::call_exit_action(*this, context(), event);
         }
         else
         {
             if constexpr(std::is_same_v<typename option_set_type::fallback_transition_action_tuple_type, detail::tuple<>>)
             {
-                submachine_.call_internal_action(*this, context(), event);
+                base_type::call_internal_action(*this, context(), event);
             }
             else
             {
                 auto processed = false;
-                submachine_.call_internal_action(*this, context(), event, processed);
+                base_type::call_internal_action(*this, context(), event, processed);
                 if(!processed)
                 {
                     detail::call_matching_event_action<fallback_transition_action_cref_constant_list>
@@ -532,7 +534,6 @@ private:
     static constexpr auto fallback_transition_actions = opts(conf).fallback_transition_actions;
     using fallback_transition_action_cref_constant_list = detail::tuple_to_constant_list_t<fallback_transition_actions>;
 
-    detail::submachine<conf, void> submachine_;
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;
 };

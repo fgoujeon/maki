@@ -55,9 +55,11 @@ struct region_tuple
 };
 
 template<const auto& Conf, class ParentRegion>
-class submachine
+class submachine: private simple_state<Conf>
 {
 public:
+    using base_type = simple_state<Conf>;
+
     using conf_type = std::decay_t<decltype(Conf)>;
     using option_set_type = std::decay_t<decltype(opts(Conf))>;
     using transition_table_type_list = decltype(opts(Conf).transition_tables);
@@ -70,7 +72,7 @@ public:
         std::enable_if_t<is_root_sm_conf_v<ConfType>, bool> = true
     >
     submachine(Machine& mach, ContextArgs&&... ctx_args):
-        simple_state_(mach, std::forward<ContextArgs>(ctx_args)...),
+        base_type(mach, std::forward<ContextArgs>(ctx_args)...),
         regions_(uniform_construct, mach, context())
     {
     }
@@ -83,31 +85,31 @@ public:
         std::enable_if_t<!is_root_sm_conf_v<ConfType>, bool> = true
     >
     submachine(Machine& mach, ParentContext& parent_ctx):
-        simple_state_(mach, parent_ctx),
+        base_type(mach, parent_ctx),
         regions_(uniform_construct, mach, context_or(parent_ctx))
     {
     }
 
     auto& context()
     {
-        return simple_state_.context();
+        return base_type::context();
     }
 
     const auto& context() const
     {
-        return simple_state_.context();
+        return base_type::context();
     }
 
     template<class ParentContext>
     auto& context_or(ParentContext& parent_ctx)
     {
-        return simple_state_.context_or(parent_ctx);
+        return base_type::context_or(parent_ctx);
     }
 
     template<class ParentContext>
     const auto& context_or(ParentContext& parent_ctx) const
     {
-        return simple_state_.context_or(parent_ctx);
+        return base_type::context_or(parent_ctx);
     }
 
     template<const auto& StatePath, class ParentContext>
@@ -171,7 +173,7 @@ public:
     template<class Machine, class ParentContext, class Event>
     void call_entry_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
     {
-        simple_state_.call_entry_action(mach, context_or(parent_ctx), event);
+        base_type::call_entry_action(mach, context_or(parent_ctx), event);
         tlu::for_each<region_tuple_type, region_start>(*this, mach, context_or(parent_ctx), event);
     }
 
@@ -225,7 +227,7 @@ public:
     void call_exit_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
     {
         tlu::for_each<region_tuple_type, region_stop>(*this, mach, context_or(parent_ctx), event);
-        simple_state_.call_exit_action
+        base_type::call_exit_action
         (
             mach,
             context_or(parent_ctx),
@@ -293,7 +295,7 @@ private:
         {
             if constexpr(!Dry)
             {
-                self.simple_state_.call_internal_action
+                self.base_type::call_internal_action
                 (
                     mach,
                     ctx,
@@ -311,7 +313,6 @@ private:
         }
     }
 
-    simple_state_type simple_state_;
     region_tuple_type regions_;
 };
 

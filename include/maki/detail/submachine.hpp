@@ -72,7 +72,7 @@ public:
     >
     submachine_impl(Machine& mach, ParentContext& parent_ctx):
         ctx_holder_(mach, parent_ctx),
-        impl_(mach, context_or(parent_ctx))
+        impl_(mach, context())
     {
     }
 
@@ -87,54 +87,40 @@ public:
     }
 
     template<class ParentContext>
-    auto& context_or(ParentContext& parent_ctx)
+    auto& context_or(ParentContext& /*parent_ctx*/)
     {
-        if constexpr(has_own_context)
-        {
-            return context();
-        }
-        else
-        {
-            return parent_ctx;
-        }
+        return context();
     }
 
     template<class ParentContext>
-    const auto& context_or(ParentContext& parent_ctx) const
+    const auto& context_or(ParentContext& /*parent_ctx*/) const
     {
-        if constexpr(has_own_context)
+        return context();
+    }
+
+    template<const auto& StatePath, class ParentContext>
+    auto& context_or(ParentContext& /*parent_ctx*/)
+    {
+        if constexpr(StatePath.empty())
         {
             return context();
         }
         else
         {
-            return parent_ctx;
+            return impl_.template context_or<StatePath>(context());
         }
     }
 
     template<const auto& StatePath, class ParentContext>
-    auto& context_or(ParentContext& parent_ctx)
+    const auto& context_or(ParentContext& /*parent_ctx*/) const
     {
         if constexpr(StatePath.empty())
         {
-            return context_or(parent_ctx);
+            return context();
         }
         else
         {
-            return impl_.template context_or<StatePath>(context_or(parent_ctx));
-        }
-    }
-
-    template<const auto& StatePath, class ParentContext>
-    const auto& context_or(ParentContext& parent_ctx) const
-    {
-        if constexpr(StatePath.empty())
-        {
-            return context_or(parent_ctx);
-        }
-        else
-        {
-            return impl_.template context_or<StatePath>(context_or(parent_ctx));
+            return impl_.template context_or<StatePath>(context());
         }
     }
 
@@ -162,61 +148,66 @@ public:
     }
 
     template<class Machine, class ParentContext, class Event>
-    void call_entry_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
+    void call_entry_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        impl_.call_entry_action(mach, context_or(parent_ctx), event);
+        impl_.call_entry_action(mach, context(), event);
     }
 
     template<bool Dry = false, class Machine, class ParentContext, class Event>
     void call_internal_action
     (
         Machine& mach,
-        ParentContext& parent_ctx,
+        ParentContext& /*parent_ctx*/,
         const Event& event
     )
     {
-        impl_.call_internal_action(mach, context_or(parent_ctx), event);
+        impl_.call_internal_action(mach, context(), event);
     }
 
     template<bool Dry = false, class Machine, class ParentContext, class Event>
     void call_internal_action
     (
         Machine& mach,
-        ParentContext& parent_ctx,
+        ParentContext& /*parent_ctx*/,
         const Event& event,
         bool& processed
     )
     {
-        impl_.call_internal_action(mach, context_or(parent_ctx), event, processed);
+        impl_.call_internal_action(mach, context(), event, processed);
     }
 
     template<bool Dry = false, class Machine, class ParentContext, class Event>
     void call_internal_action
     (
         Machine& mach,
-        ParentContext& parent_ctx,
+        ParentContext& /*parent_ctx*/,
         const Event& event
     ) const
     {
-        impl_.call_internal_action(mach, context_or(parent_ctx), event);
+        impl_.call_internal_action(mach, context(), event);
     }
 
     template<bool Dry = false, class Machine, class ParentContext, class Event>
     void call_internal_action
     (
         Machine& mach,
-        ParentContext& parent_ctx,
+        ParentContext& /*parent_ctx*/,
         const Event& event,
         bool& processed
     ) const
     {
-        impl_.call_internal_action(mach, context_or(parent_ctx), event, processed);
+        impl_.call_internal_action(mach, context(), event, processed);
     }
 
     template<class Machine, class ParentContext, class Event>
-    void call_exit_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
+    void call_exit_action
+    (
+        Machine& mach,
+        ParentContext& /*parent_ctx*/,
+        const Event& event
+    )
     {
-        impl_.call_exit_action(mach, context_or(parent_ctx), event);
+        impl_.call_exit_action(mach, context(), event);
     }
 
     template<class /*Event*/>
@@ -229,8 +220,6 @@ public:
 
 private:
     using impl_type = submachine_impl<Conf, ParentRegion, void>;
-
-    static constexpr bool has_own_context = !std::is_void_v<context_type>;
 
     context_holder<context_type, opts(Conf).context_sig> ctx_holder_;
     impl_type impl_;

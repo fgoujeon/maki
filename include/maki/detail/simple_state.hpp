@@ -37,58 +37,42 @@ public:
 
     auto& context()
     {
-        static_assert(has_own_context);
         return ctx_holder_.get();
     }
 
     const auto& context() const
     {
-        static_assert(has_own_context);
         return ctx_holder_.get();
     }
 
     template<class ParentContext>
-    auto& context_or(ParentContext& parent_ctx)
+    auto& context_or(ParentContext& /*parent_ctx*/)
     {
-        if constexpr(has_own_context)
-        {
-            return context();
-        }
-        else
-        {
-            return parent_ctx;
-        }
+        return context();
     }
 
     template<class ParentContext>
-    const auto& context_or(ParentContext& parent_ctx) const
+    const auto& context_or(ParentContext& /*parent_ctx*/) const
     {
-        if constexpr(has_own_context)
-        {
-            return context();
-        }
-        else
-        {
-            return parent_ctx;
-        }
+        return context();
     }
 
     template<class Machine, class ParentContext, class Event>
-    void call_entry_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
+    void call_entry_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        impl_.call_entry_action(mach, context_or(parent_ctx), event);
+        impl_.call_entry_action(mach, context(), event);
     }
 
     template<class Machine, class ParentContext, class Event, class... MaybeBool>
-    void call_internal_action(Machine& mach, ParentContext& parent_ctx, const Event& event, MaybeBool&... processed)
+    void call_internal_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event, MaybeBool&... processed)
     {
-        impl_.call_internal_action(mach, context_or(parent_ctx), event, processed...);
+        impl_.call_internal_action(mach, context(), event, processed...);
     }
 
     template<class Machine, class ParentContext, class Event>
-    void call_exit_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
+    void call_exit_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        impl_.call_exit_action(mach, context_or(parent_ctx), event);
+        impl_.call_exit_action(mach, context(), event);
     }
 
     template<class Event>
@@ -101,8 +85,6 @@ public:
 
 private:
     using impl_type = simple_state_impl<Conf, void>;
-
-    static constexpr bool has_own_context = !std::is_void_v<context_type>;
 
     context_holder<context_type, context_sig> ctx_holder_;
     impl_type impl_;

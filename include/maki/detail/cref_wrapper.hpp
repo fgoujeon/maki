@@ -46,6 +46,24 @@ private:
     const T* ptr_ = nullptr;
 };
 
+template<class T>
+constexpr bool operator==(const cref_wrapper<T>& lhs, const cref_wrapper<T>& rhs)
+{
+    return lhs.get_as_ptr() == rhs.get_as_ptr();
+}
+
+template<class T, class U>
+constexpr bool operator==(const cref_wrapper<T>& /*lhs*/, const cref_wrapper<U>& /*rhs*/)
+{
+    return false;
+}
+
+template<class T>
+constexpr auto make_cref_wrapper(const T& obj)
+{
+    return cref_wrapper<T>{obj};
+}
+
 } //namespace
 
 #endif

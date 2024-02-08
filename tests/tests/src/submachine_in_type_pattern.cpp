@@ -35,8 +35,8 @@ namespace
         ;
     }
 
-    constexpr auto any_but_s0_s1 = maki::any_but<states::s0, states::s1>;
-    constexpr auto any_of_s0_s1 = maki::any_of<states::s0, states::s1>;
+    constexpr auto any_but_s0_s1 = maki::any_but(states::s0, states::s1);
+    constexpr auto any_of_s0_s1 = maki::any_of(states::s0, states::s1);
 
     constexpr auto transition_table = maki::transition_table{}
         (states::off,   maki::type<events::button_press>,             states::s0)

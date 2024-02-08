@@ -16,6 +16,7 @@
 #include "detail/cref_wrapper.hpp"
 #include "detail/conf_traits.hpp"
 #include "detail/storable_function.hpp"
+#include "detail/storable_conf_pattern.hpp"
 #include "detail/tuple.hpp"
 
 namespace maki
@@ -85,24 +86,6 @@ namespace detail
         Action action;
         Guard guard;
     };
-
-    template<class T>
-    constexpr decltype(auto) to_storable_conf_pattern(const T& conf)
-    {
-        using decayed = std::decay_t<T>;
-        if constexpr
-        (
-            conf_traits::is_state_conf_v<decayed> ||
-            conf_traits::is_submachine_conf_v<decayed>
-        )
-        {
-            return cref_wrapper<decayed>{conf};
-        }
-        else
-        {
-            return conf;
-        }
-    }
 
     template
     <
@@ -198,7 +181,7 @@ public:
                 (
                     detail::to_storable_conf_pattern(source_state_conf_pattern),
                     event_pattern,
-                    detail::cref_wrapper<TargetStateConf>{target_state_conf},
+                    detail::make_cref_wrapper(target_state_conf),
                     action,
                     guard
                 )

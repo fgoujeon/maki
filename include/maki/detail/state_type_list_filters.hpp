@@ -23,7 +23,7 @@ namespace by_pattern_detail
         template<class StateConfPtrConstant>
         struct matches
         {
-            static constexpr auto value = matches_pattern(*StateConfPtrConstant::value, *PatternPtr);
+            static constexpr auto value = matches_pattern(make_cref_wrapper(*StateConfPtrConstant::value), *PatternPtr);
         };
     };
 }

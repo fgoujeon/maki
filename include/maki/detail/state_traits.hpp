@@ -7,6 +7,7 @@
 #ifndef MAKI_DETAIL_STATE_TRAITS_HPP
 #define MAKI_DETAIL_STATE_TRAITS_HPP
 
+#include "conf_traits.hpp"
 #include "submachine_fwd.hpp"
 #include "simple_state_fwd.hpp"
 #include "tlu.hpp"
@@ -28,7 +29,7 @@ struct state_conf_to_state
 };
 
 template<const auto& StateConf, class Parent>
-struct state_conf_to_state<StateConf, Parent, std::enable_if_t<is_submachine_conf_v<std::decay_t<decltype(StateConf)>>>>
+struct state_conf_to_state<StateConf, Parent, std::enable_if_t<conf_traits::is_submachine_conf_v<std::decay_t<decltype(StateConf)>>>>
 {
     using type = submachine<StateConf, Parent>;
 };

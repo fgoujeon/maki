@@ -12,6 +12,7 @@
 #ifndef MAKI_STATE_CONF_HPP
 #define MAKI_STATE_CONF_HPP
 
+#include "state_conf_fwd.hpp"
 #include "type_patterns.hpp"
 #include "type.hpp"
 #include "null.hpp"
@@ -23,37 +24,6 @@
 
 namespace maki
 {
-
-namespace detail
-{
-    template
-    <
-        class Context = void,
-        class EntryActionTuple = detail::tuple<>,
-        class InternalActionTuple = detail::tuple<>,
-        class ExitActionTuple = detail::tuple<>
-    >
-    struct state_conf_option_set
-    {
-        using context_type = Context;
-
-        context_signature context_sig = context_signature::v;
-        EntryActionTuple entry_actions;
-        InternalActionTuple internal_actions;
-        ExitActionTuple exit_actions;
-        std::string_view pretty_name;
-    };
-}
-
-#ifdef MAKI_DETAIL_DOXYGEN
-/**
-@brief State configuration
-*/
-template<IMPLEMENTATION_DETAIL>
-#else
-template<class OptionSet = detail::state_conf_option_set<>>
-#endif
-class state_conf;
 
 namespace detail
 {
@@ -86,11 +56,6 @@ public:
     state_conf& operator=(const state_conf&) = delete;
 
     state_conf& operator=(state_conf&&) = delete;
-
-    constexpr bool operator==(const state_conf& other) const
-    {
-        return this == &other;
-    }
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type<typename OptionSet::context_type>; \

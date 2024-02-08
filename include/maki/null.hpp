@@ -26,6 +26,18 @@ inline constexpr bool operator==(const null_t /*lhs*/, const null_t /*rhs*/)
     return true;
 }
 
+template<class T>
+inline constexpr bool operator==(const null_t /*lhs*/, const T& /*rhs*/)
+{
+    return false;
+}
+
+template<class T>
+inline constexpr bool operator==(const T& /*lhs*/, const null_t /*rhs*/)
+{
+    return false;
+}
+
 inline constexpr bool is_null(const null_t /*ignored*/)
 {
     return true;

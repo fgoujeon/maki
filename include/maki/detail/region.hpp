@@ -122,7 +122,7 @@ public:
     template<auto StateConfPtr>
     [[nodiscard]] bool active_state() const
     {
-        if constexpr(is_type_pattern(*StateConfPtr))
+        if constexpr(is_type_pattern_v<std::decay_t<decltype(*StateConfPtr)>>)
         {
             return does_active_state_def_match_pattern<*StateConfPtr>();
         }
@@ -286,16 +286,17 @@ private:
         static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
             static constexpr const auto& trans = TransitionConstant::value;
+            static constexpr auto source_state_conf_pattern = trans.source_state_conf_pattern;
             static constexpr auto action = trans.action;
             static constexpr auto guard = trans.guard;
 
-            if constexpr(is_type_pattern(*trans.psource_state_conf_pattern))
+            if constexpr(is_type_pattern_v<std::decay_t<decltype(source_state_conf_pattern)>>)
             {
-                //List of state defs that match with the source state pattern
+                //List of state confs that match with the source state pattern
                 using matching_state_conf_constant_list = state_type_list_filters::by_pattern_t
                 <
                     state_conf_ptr_constant_list,
-                    trans.psource_state_conf_pattern
+                    &source_state_conf_pattern
                 >;
 
                 static_assert(!tlu::empty_v<matching_state_conf_constant_list>);
@@ -306,7 +307,7 @@ private:
                     try_processing_event_in_transition_2
                     <
                         Dry,
-                        *trans.ptarget_state_conf,
+                        trans.target_state_conf.get(),
                         action,
                         guard
                     >
@@ -317,10 +318,10 @@ private:
                 return try_processing_event_in_transition_2
                 <
                     Dry,
-                    *trans.ptarget_state_conf,
+                    trans.target_state_conf.get(),
                     action,
                     guard
-                >::template call<constant_t<trans.psource_state_conf_pattern>>
+                >::template call<constant_t<trans.source_state_conf_pattern.get_as_ptr()>>
                 (
                     self,
                     mach,
@@ -580,7 +581,7 @@ private:
         template<auto ActiveStateConfPtr>
         static void call([[maybe_unused]] bool& matches)
         {
-            if constexpr(matches_pattern(*ActiveStateConfPtr, TypePattern))
+            if constexpr(matches_pattern(make_cref_wrapper(*ActiveStateConfPtr), TypePattern))
             {
                 matches = true;
             }

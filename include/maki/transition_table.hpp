@@ -13,7 +13,10 @@
 #define MAKI_TRANSITION_TABLE_HPP
 
 #include "null.hpp"
+#include "detail/cref_wrapper.hpp"
+#include "detail/conf_traits.hpp"
 #include "detail/storable_function.hpp"
+#include "detail/storable_conf_pattern.hpp"
 #include "detail/tuple.hpp"
 
 namespace maki
@@ -69,50 +72,50 @@ namespace detail
     */
     template
     <
-        class SourceStateConfPatternPtr,
+        class SourceStateConfPattern,
         class EventPattern,
-        class TargetStateConfPtr,
+        class TargetStateConf,
         class Action,
         class Guard
     >
     struct transition
     {
-        SourceStateConfPatternPtr psource_state_conf_pattern;
+        SourceStateConfPattern source_state_conf_pattern;
         EventPattern event_pattern;
-        TargetStateConfPtr ptarget_state_conf;
+        TargetStateConf target_state_conf;
         Action action;
         Guard guard;
     };
 
     template
     <
-        class SourceStateConfPatternPtr,
+        class SourceStateConfPattern,
         class EventPattern,
-        class TargetStateConfPtr,
+        class TargetStateConf,
         class Action,
         class Guard
     >
     constexpr auto make_transition
     (
-        const SourceStateConfPatternPtr psource_state_conf_pattern,
+        const SourceStateConfPattern& source_state_conf_pattern,
         const EventPattern& event_pattern,
-        const TargetStateConfPtr ptarget_state_conf,
+        const TargetStateConf& target_state_conf,
         const Action& action,
         const Guard& guard
     )
     {
         return transition
         <
-            SourceStateConfPatternPtr,
+            SourceStateConfPattern,
             EventPattern,
-            TargetStateConfPtr,
+            TargetStateConf,
             storable_function_t<Action>,
             storable_function_t<Guard>
         >
         {
-            psource_state_conf_pattern,
+            source_state_conf_pattern,
             event_pattern,
-            ptarget_state_conf,
+            target_state_conf,
             action,
             guard
         };
@@ -176,9 +179,9 @@ public:
                 transitions_,
                 detail::make_transition
                 (
-                    &source_state_conf_pattern,
+                    detail::to_storable_conf_pattern(source_state_conf_pattern),
                     event_pattern,
-                    &target_state_conf,
+                    detail::make_cref_wrapper(target_state_conf),
                     action,
                     guard
                 )

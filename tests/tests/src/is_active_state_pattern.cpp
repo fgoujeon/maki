@@ -37,8 +37,8 @@ namespace
         EMPTY_STATE(emitting_green)
         EMPTY_STATE(emitting_blue)
 
-        constexpr auto not_emitting_red = maki::any_but<emitting_red>;
-        constexpr auto emitting_red_or_green = maki::any_of<emitting_red, emitting_green>;
+        constexpr auto not_emitting_red = maki::any_but(emitting_red);
+        constexpr auto emitting_red_or_green = maki::any_of(emitting_red, emitting_green);
 
         constexpr auto on_transition_table = maki::transition_table{}
             (states::emitting_red,   maki::type<events::color_button_press>, states::emitting_green)

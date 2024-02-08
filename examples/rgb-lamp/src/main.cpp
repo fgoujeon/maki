@@ -219,7 +219,7 @@ constexpr auto transition_table = maki::transition_table{}
     (emitting_red,       button_push, emitting_green, turn_light_green, is_short_push)
     (emitting_green,     button_push, emitting_blue,  turn_light_blue,  is_short_push)
     (emitting_blue,      button_push, emitting_white, turn_light_white, is_short_push)
-    (maki::any_but<off>, button_push, off,            turn_light_off,   is_long_push)
+    (maki::any_but(off), button_push, off,            turn_light_off,   is_long_push)
 ;
 
 /*

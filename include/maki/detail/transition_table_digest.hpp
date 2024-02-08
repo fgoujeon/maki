@@ -60,7 +60,7 @@ namespace transition_table_digest_detail
     class initial_digest
     {
     private:
-        static constexpr auto pinitial_state_conf = tlu::get_t<TransitionConstantList, 0>::value.psource_state_conf_pattern;
+        static constexpr auto pinitial_state_conf = tlu::get_t<TransitionConstantList, 0>::value.source_state_conf_pattern.get_as_ptr();
 
     public:
         using state_conf_ptr_constant_list = type_list<constant_t<pinitial_state_conf>>;
@@ -73,7 +73,7 @@ namespace transition_table_digest_detail
         using state_conf_ptr_constant_list = push_back_unique_if_not_null_constant
         <
             typename Digest::state_conf_ptr_constant_list,
-            TransitionConstant::value.ptarget_state_conf
+            TransitionConstant::value.target_state_conf.get_as_ptr()
         >;
 
         static constexpr auto has_null_events =

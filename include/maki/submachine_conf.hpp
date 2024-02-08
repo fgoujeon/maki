@@ -12,6 +12,7 @@
 #ifndef MAKI_SUBMACHINE_CONF_HPP
 #define MAKI_SUBMACHINE_CONF_HPP
 
+#include "submachine_conf_fwd.hpp"
 #include "transition_table.hpp"
 #include "type_patterns.hpp"
 #include "type.hpp"
@@ -24,39 +25,6 @@
 
 namespace maki
 {
-
-namespace detail
-{
-    template
-    <
-        class Context = void,
-        class EntryActionTuple = detail::tuple<>,
-        class InternalActionTuple = detail::tuple<>,
-        class ExitActionTuple = detail::tuple<>,
-        class TransitionTableTypeList = type_list<>
-    >
-    struct submachine_conf_option_set
-    {
-        using context_type = Context;
-
-        context_signature context_sig = context_signature::v;
-        EntryActionTuple entry_actions;
-        InternalActionTuple internal_actions;
-        ExitActionTuple exit_actions;
-        std::string_view pretty_name;
-        TransitionTableTypeList transition_tables;
-    };
-}
-
-#ifdef MAKI_DETAIL_DOXYGEN
-/**
-@brief Submachine configuration
-*/
-template<IMPLEMENTATION_DETAIL>
-#else
-template<class OptionSet = detail::submachine_conf_option_set<>>
-#endif
-class submachine_conf;
 
 namespace detail
 {
@@ -89,11 +57,6 @@ public:
     submachine_conf& operator=(const submachine_conf&) = delete;
 
     submachine_conf& operator=(submachine_conf&&) = delete;
-
-    constexpr bool operator==(const submachine_conf& other) const
-    {
-        return this == &other;
-    }
 
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type<typename OptionSet::context_type>; \
@@ -253,24 +216,6 @@ private:
 
     OptionSet options_;
 };
-
-namespace detail
-{
-    template<class T>
-    struct is_submachine_conf
-    {
-        static constexpr auto value = false;
-    };
-
-    template<class... Ts>
-    struct is_submachine_conf<submachine_conf<Ts...>>
-    {
-        static constexpr auto value = true;
-    };
-
-    template<class T>
-    constexpr auto is_submachine_conf_v = is_submachine_conf<T>::value;
-}
 
 } //namespace
 

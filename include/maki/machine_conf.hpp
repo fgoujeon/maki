@@ -109,11 +109,6 @@ public:
 
     machine_conf& operator=(machine_conf&&) = delete;
 
-    constexpr bool operator==(const machine_conf& other) const
-    {
-        return this == &other;
-    }
-
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = options_.auto_start; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type<typename OptionSet::context_type>; \

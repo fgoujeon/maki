@@ -93,15 +93,18 @@ namespace nullary_member_functions_ns
         return true;
     };
 
-    constexpr auto transition_table = maki::transition_table{}
+    constexpr auto make_transition_table()
+    {
+        return maki::transition_table{}
         (states::off, maki::type<events::e1>, states::on,  action, guard)
         (states::off, maki::type<events::e2>, states::on,  action, guard)
         (states::on,  maki::type<events::e1>, states::off, action, guard)
         (states::on,  maki::type<events::e2>, states::off, action, guard)
-    ;
+        ;
+    }
 
     constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
+        .transition_tables(make_transition_table)
         .context_a(maki::type<context>)
     ;
 

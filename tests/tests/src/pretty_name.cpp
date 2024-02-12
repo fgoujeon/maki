@@ -34,12 +34,15 @@ namespace pretty_name_ns
     {
     };
 
-    constexpr auto transition_table = maki::transition_table{}
+    constexpr auto make_transition_table()
+    {
+        return maki::transition_table{}
         (state, maki::null, maki::null)
-    ;
+        ;
+    }
 
     constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
+        .transition_tables(make_transition_table)
         .context_a(maki::type<context>)
         .pretty_name("my_sm")
     ;

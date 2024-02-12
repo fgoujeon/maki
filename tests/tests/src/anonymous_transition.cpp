@@ -25,16 +25,19 @@ namespace
         EMPTY_STATE(s4)
     }
 
-    constexpr auto transition_table = maki::transition_table{}
+    constexpr auto make_transition_table()
+    {
+        return maki::transition_table{}
         (states::s0, maki::type<events::go_on>, states::s1)
         (states::s1, maki::null,                states::s2)
         (states::s2, maki::type<events::go_on>, states::s3)
         (states::s3, maki::null,                states::s4)
         (states::s4, maki::null,                states::s0)
-    ;
+        ;
+    }
 
     constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
+        .transition_tables(make_transition_table)
         .context_a(maki::type<context>)
     ;
 

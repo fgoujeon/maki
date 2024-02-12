@@ -60,7 +60,7 @@ class submachine_impl
 public:
     using conf_type = std::decay_t<decltype(Conf)>;
     using option_set_type = std::decay_t<decltype(opts(Conf))>;
-    using transition_table_type_list = decltype(opts(Conf).transition_tables);
+    using transition_table_fn_tuple_list = decltype(opts(Conf).transition_table_fns);
     using context_type = ContextType;
 
     template
@@ -231,7 +231,7 @@ class submachine_impl<Conf, ParentRegion, void>
 public:
     using conf_type = std::decay_t<decltype(Conf)>;
     using option_set_type = std::decay_t<decltype(opts(Conf))>;
-    using transition_table_type_list = decltype(opts(Conf).transition_tables);
+    using transition_table_fn_tuple_list = decltype(opts(Conf).transition_table_fns);
 
     template<class Machine, class Context>
     submachine_impl(Machine& mach, Context& ctx):
@@ -266,7 +266,7 @@ public:
     template<const auto& StateConf>
     [[nodiscard]] bool active_state() const
     {
-        static_assert(tlu::size_v<transition_table_type_list> == 1);
+        static_assert(tlu::size_v<transition_table_fn_tuple_list> == 1);
 
         static constexpr auto state_region_relative_path = path<>{};
         return tuple_get<0>(regions_).template active_state<state_region_relative_path, &StateConf>();
@@ -362,7 +362,7 @@ private:
     using region_tuple_type = typename region_tuple
     <
         submachine_impl,
-        std::make_integer_sequence<int, tlu::size_v<transition_table_type_list>>
+        std::make_integer_sequence<int, tlu::size_v<transition_table_fn_tuple_list>>
     >::type;
 
     struct region_start

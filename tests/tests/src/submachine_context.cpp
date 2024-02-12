@@ -52,13 +52,16 @@ namespace
                 constexpr auto emitting_cold_red = maki::state_conf{};
                 EMPTY_STATE(emitting_hot_red)
 
-                constexpr auto transition_table = maki::transition_table{}
-                    (emitting_cold_red, maki::type<events::color_button_press>, emitting_hot_red)
-                ;
+                constexpr auto make_transition_table()
+                {
+                    return maki::transition_table{}
+                        (emitting_cold_red, maki::type<events::color_button_press>, emitting_hot_red)
+                    ;
+                }
             }
 
             constexpr auto emitting_red = maki::submachine_conf{}
-                .transition_tables(emitting_red_ns::transition_table)
+                .transition_tables(emitting_red_ns::make_transition_table)
                 .entry_action_c
                 (
                     maki::any,
@@ -72,15 +75,18 @@ namespace
             EMPTY_STATE(emitting_green)
             EMPTY_STATE(emitting_blue)
 
-            constexpr auto transition_table = maki::transition_table{}
-                (emitting_red,   maki::type<events::color_button_press>, emitting_green)
-                (emitting_green, maki::type<events::color_button_press>, emitting_blue)
-                (emitting_blue,  maki::type<events::color_button_press>, emitting_red)
-            ;
+            constexpr auto make_transition_table()
+            {
+                return maki::transition_table{}
+                    (emitting_red,   maki::type<events::color_button_press>, emitting_green)
+                    (emitting_green, maki::type<events::color_button_press>, emitting_blue)
+                    (emitting_blue,  maki::type<events::color_button_press>, emitting_red)
+                ;
+            }
         }
 
         constexpr auto on = maki::submachine_conf{}
-            .transition_tables(on_ns::transition_table)
+            .transition_tables(on_ns::make_transition_table)
             .context_c(maki::type<on_ns::context>)
             .exit_action_c
             (
@@ -93,13 +99,16 @@ namespace
         ;
     }
 
-    constexpr auto transition_table = maki::transition_table{}
+    constexpr auto make_transition_table()
+    {
+        return maki::transition_table{}
         (states::off, maki::type<events::power_button_press>, states::on)
         (states::on,  maki::type<events::power_button_press>, states::off)
-    ;
+        ;
+    }
 
     constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
+        .transition_tables(make_transition_table)
         .context_a(maki::type<context>)
     ;
 

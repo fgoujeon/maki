@@ -188,11 +188,6 @@ namespace guards
     constexpr auto is_short_push = !maki::guard{is_long_push};
 }
 
-using namespace states;
-using namespace actions;
-using namespace guards;
-inline constexpr auto button_push = maki::type<button::push_event>;
-
 /*
 This is the transition table. This is where we define the actions that the state
 machine must execute depending on the active state and the event it receives.
@@ -212,15 +207,23 @@ When a match is found, Maki:
 The initial active state of the state machine is the first state encountered in
 the transition table (`off`, is our case).
 */
-constexpr auto transition_table = maki::transition_table{}
-    //source_state,      event,       target_state,   action,           guard
-    (off,                button_push, emitting_white, turn_light_white)
-    (emitting_white,     button_push, emitting_red,   turn_light_red,   is_short_push)
-    (emitting_red,       button_push, emitting_green, turn_light_green, is_short_push)
-    (emitting_green,     button_push, emitting_blue,  turn_light_blue,  is_short_push)
-    (emitting_blue,      button_push, emitting_white, turn_light_white, is_short_push)
-    (maki::any_but(off), button_push, off,            turn_light_off,   is_long_push)
-;
+constexpr auto make_transition_table()
+{
+    using namespace states;
+    using namespace actions;
+    using namespace guards;
+    constexpr const auto& button_push = maki::type<button::push_event>;
+
+    return maki::transition_table{}
+        //source_state,      event,       target_state,   action,           guard
+        (off,                button_push, emitting_white, turn_light_white)
+        (emitting_white,     button_push, emitting_red,   turn_light_red,   is_short_push)
+        (emitting_red,       button_push, emitting_green, turn_light_green, is_short_push)
+        (emitting_green,     button_push, emitting_blue,  turn_light_blue,  is_short_push)
+        (emitting_blue,      button_push, emitting_white, turn_light_white, is_short_push)
+        (maki::any_but(off), button_push, off,            turn_light_off,   is_long_push)
+    ;
+}
 
 /*
 We have to define this variable to configure our state machine.
@@ -228,7 +231,7 @@ Here, we just specify the transition table and the context type, but we can
 configure many other aspects of the state machine.
 */
 constexpr auto machine_conf = maki::machine_conf{}
-    .transition_tables(transition_table)
+    .transition_tables(make_transition_table)
     .context_a(maki::type<context>)
 ;
 

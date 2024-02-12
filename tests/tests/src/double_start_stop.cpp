@@ -29,17 +29,20 @@ namespace
         EMPTY_STATE(off)
     }
 
-    constexpr auto transition_table = maki::transition_table{}
+    constexpr auto make_transition_table()
+    {
+        return maki::transition_table{}
         (states::off, maki::type<events::button_press>, states::on)
         (states::on,  maki::type<events::button_press>, states::off)
-    ;
+        ;
+    }
 
     struct machine_conf_holder;
 
     using machine_t = maki::machine<machine_conf_holder>;
 
     constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
+        .transition_tables(make_transition_table)
         .context_a(maki::type<context>)
         .pre_state_transition_action_crset
         (

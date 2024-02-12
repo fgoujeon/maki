@@ -77,23 +77,29 @@ namespace
             )
         ;
 
-        constexpr auto on_transition_table = maki::transition_table{}
-            (states::emitting_red,   maki::type<events::color_button_press>, states::emitting_green)
-            (states::emitting_green, maki::type<events::color_button_press>, states::emitting_blue)
-            (states::emitting_blue,  maki::type<events::color_button_press>, states::emitting_red)
-        ;
+        constexpr auto make_on_transition_table()
+        {
+            return maki::transition_table{}
+                (states::emitting_red,   maki::type<events::color_button_press>, states::emitting_green)
+                (states::emitting_green, maki::type<events::color_button_press>, states::emitting_blue)
+                (states::emitting_blue,  maki::type<events::color_button_press>, states::emitting_red)
+            ;
+        }
 
         constexpr auto on = maki::submachine_conf{}
-            .transition_tables(on_transition_table)
+            .transition_tables(make_on_transition_table)
         ;
     }
 
-    constexpr auto transition_table = maki::transition_table{}
+    constexpr auto make_transition_table()
+    {
+        return maki::transition_table{}
         (states::on, maki::type<events::power_button_press>, states::off)
-    ;
+        ;
+    }
 
     constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
+        .transition_tables(make_transition_table)
         .context_a(maki::type<context>)
     ;
 

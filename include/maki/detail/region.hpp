@@ -186,7 +186,7 @@ public:
     }
 
 private:
-    static constexpr auto transition_table = tuple_get<Index>(opts(ParentSm::conf).transition_tables);
+    static constexpr auto transition_table = tuple_get<Index>(opts(ParentSm::conf).transition_table_fns)();
     static constexpr auto transition_tuple = detail::rows(transition_table);
     using transition_constant_list = tuple_to_constant_list_t<transition_tuple>;
 

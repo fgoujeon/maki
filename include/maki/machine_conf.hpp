@@ -15,6 +15,7 @@
 #include "transition_table.hpp"
 #include "type_patterns.hpp"
 #include "type.hpp"
+#include "detail/storable_function.hpp"
 #include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"
 #include "detail/tuple.hpp"
@@ -33,14 +34,14 @@ namespace detail
     template
     <
         class Context = void,
-        class EntryActionTuple = detail::tuple<>,
-        class EventActionTuple = detail::tuple<>,
-        class ExitActionTuple = detail::tuple<>,
+        class EntryActionTuple = tuple<>,
+        class EventActionTuple = tuple<>,
+        class ExitActionTuple = tuple<>,
         class ExceptionAction = null_t,
         class PreStateTransitionAction = null_t,
         class PostStateTransitionAction = null_t,
-        class FallbackTransitionActionTuple = detail::tuple<>,
-        class TransitionTableTypeList = type_list<>
+        class FallbackTransitionActionTuple = tuple<>,
+        class TransitionTableFnTuple = tuple<>
     >
     struct machine_conf_option_set
     {
@@ -63,7 +64,7 @@ namespace detail
         bool run_to_completion = true;
         std::size_t small_event_max_align = machine_conf_default_small_event_max_align;
         std::size_t small_event_max_size = machine_conf_default_small_event_max_size;
-        TransitionTableTypeList transition_tables;
+        TransitionTableFnTuple transition_table_fns;
     };
 }
 
@@ -124,7 +125,7 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = options_.run_to_completion; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_align = options_.small_event_max_align; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_size = options_.small_event_max_size; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = options_.transition_tables;
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_table_fns = options_.transition_table_fns;
 
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return machine_conf \
@@ -139,7 +140,7 @@ public:
             std::decay_t<decltype(MAKI_DETAIL_ARG_pre_state_transition_action)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_post_state_transition_action)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_fallback_transition_actions)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_transition_table_fns)> \
         > \
     > \
     { \
@@ -156,7 +157,7 @@ public:
         MAKI_DETAIL_ARG_run_to_completion, \
         MAKI_DETAIL_ARG_small_event_max_align, \
         MAKI_DETAIL_ARG_small_event_max_size, \
-        MAKI_DETAIL_ARG_transition_tables \
+        MAKI_DETAIL_ARG_transition_table_fns \
     };
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
@@ -460,14 +461,18 @@ public:
     @brief Specifies the list of transition tables. One region per
     transmission table is created.
     */
-    template<class... TransitionTables>
-    [[nodiscard]] constexpr auto transition_tables(const TransitionTables&... tables) const
+    template<class... TransitionTableFns>
+    [[nodiscard]] constexpr auto transition_tables(const TransitionTableFns&... tables) const
     {
-        const auto tpl = detail::tuple<TransitionTables...>{detail::distributed_construct, tables...};
+        const auto tpl = detail::tuple
+        <
+            detail::storable_function_t<TransitionTableFns>...
+        >{detail::distributed_construct, tables...};
+
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_transition_tables tpl
+#define MAKI_DETAIL_ARG_transition_table_fns tpl
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_transition_tables
+#undef MAKI_DETAIL_ARG_transition_table_fns
     }
 
 private:

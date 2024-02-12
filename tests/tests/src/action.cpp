@@ -38,13 +38,16 @@ namespace
         }
     }
 
-    constexpr auto transition_table = maki::transition_table{}
+    constexpr auto make_transition_table()
+    {
+        return maki::transition_table{}
         (states::off, maki::type<events::button_press>, states::on,  actions::beep)
         (states::on,  maki::type<events::button_press>, states::off, &context::boop)
-    ;
+        ;
+    }
 
     constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
+        .transition_tables(make_transition_table)
         .context_a(maki::type<context>)
     ;
 

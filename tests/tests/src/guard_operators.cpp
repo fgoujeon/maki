@@ -69,7 +69,9 @@ namespace
         constexpr auto can_access_state2 = maki::guard{can_access_state2_0} != maki::guard{can_access_state2_1};
     }
 
-    constexpr auto transition_table = maki::transition_table{}
+    constexpr auto make_transition_table()
+    {
+        return maki::transition_table{}
         (states::idle, maki::type<events::start>, states::state0, maki::null, guards::can_access_state0)
         (states::idle, maki::type<events::start>, states::state1, maki::null, guards::can_access_state1)
         (states::idle, maki::type<events::start>, states::state2, maki::null, guards::can_access_state2)
@@ -79,10 +81,11 @@ namespace
         (states::state1, maki::type<events::stop>, states::idle)
         (states::state2, maki::type<events::stop>, states::idle)
         (states::state3, maki::type<events::stop>, states::idle)
-    ;
+        ;
+    }
 
     constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
+        .transition_tables(make_transition_table)
         .context_a(maki::type<context>)
     ;
 

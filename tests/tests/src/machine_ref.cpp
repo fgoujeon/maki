@@ -26,13 +26,16 @@ namespace
         struct off_button_press{};
     }
 
-    constexpr auto transition_table = maki::transition_table{}
+    constexpr auto make_transition_table()
+    {
+        return maki::transition_table{}
         (states::off, maki::type<events::on_button_press>,  states::on)
         (states::on,  maki::type<events::off_button_press>, states::off)
-    ;
+        ;
+    }
 
     constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
+        .transition_tables(make_transition_table)
         .context_a(maki::type<context>)
         .run_to_completion(false)
         .exception_action_me

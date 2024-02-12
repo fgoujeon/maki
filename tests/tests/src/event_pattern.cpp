@@ -35,13 +35,13 @@ namespace
         >;
 
         return maki::transition_table{}
-            (states::off, any_button_press,                        states::on)
+            (states::off, any_button_press,                       states::on)
             (states::on,  maki::type<events::power_button_press>, states::off)
         ;
     }
 
     constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(make_sm_transition_table())
+        .transition_tables(make_sm_transition_table)
         .context_a(maki::type<context>)
     ;
 

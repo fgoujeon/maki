@@ -61,13 +61,16 @@ namespace
         struct button_press{};
     }
 
-    constexpr auto transition_table = maki::transition_table{}
+    constexpr auto make_transition_table()
+    {
+        return maki::transition_table{}
         (states::s0, maki::null,                       states::s1)
         (states::s1, maki::type<events::button_press>, states::s0)
-    ;
+        ;
+    }
 
     constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
+        .transition_tables(make_transition_table)
         .context_a(maki::type<context>)
         .auto_start(false)
     ;

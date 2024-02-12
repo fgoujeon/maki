@@ -45,7 +45,9 @@ namespace
         ;
     }
 
-    constexpr auto transition_table = maki::transition_table{}
+    constexpr auto make_transition_table()
+    {
+        return maki::transition_table{}
         (states::state0, maki::type<events::next_state>, states::state1)
         (states::state1, maki::type<events::next_state>, states::state2)
         (states::state2, maki::type<events::next_state>, states::state3)
@@ -56,10 +58,11 @@ namespace
         (states::state7, maki::type<events::next_state>, states::state8)
         (states::state8, maki::type<events::next_state>, states::state9)
         (states::state9, maki::type<events::next_state>, states::benchmarking)
-    ;
+        ;
+    }
 
     constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
+        .transition_tables(make_transition_table)
         .context_a(maki::type<context>)
         .run_to_completion(false)
     ;

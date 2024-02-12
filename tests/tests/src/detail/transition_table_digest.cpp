@@ -27,15 +27,18 @@ namespace transition_table_digest_ns
     bool guard0(){return true;}
     bool guard1(){return true;}
 
-    constexpr auto transition_table = maki::transition_table{}
+    constexpr auto make_transition_table()
+    {
+        return maki::transition_table{}
         (state0,    maki::type<event0>, state1)
         (state1,    maki::type<event1>, state2, maki::null, guard0)
         (state2,    maki::type<event2>, state3, action0)
         (state3,    maki::type<event3>, state0, action1,    guard1)
         (maki::any, maki::type<event3>, state0)
-    ;
+        ;
+    }
 
-    constexpr auto transition_tuple = maki::detail::rows(transition_table);
+    constexpr auto transition_tuple = maki::detail::rows(make_transition_table());
 
     using transition_constant_list = maki::detail::tuple_to_constant_list_t<transition_tuple>;
 

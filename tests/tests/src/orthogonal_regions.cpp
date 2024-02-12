@@ -46,14 +46,22 @@ namespace orthogonal_regions_ns
         ;
     }
 
+    constexpr auto make_transition_table_0()
+    {
+        return maki::transition_table{}
+            (states::off0, maki::type<events::button_press>, states::on0)
+        ;
+    }
+
+    constexpr auto make_transition_table_1()
+    {
+        return maki::transition_table{}
+            (states::off1, maki::type<events::button_press>, states::on1)
+        ;
+    }
+
     constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables
-        (
-            maki::transition_table{}
-                (states::off0, maki::type<events::button_press>, states::on0),
-            maki::transition_table{}
-                (states::off1, maki::type<events::button_press>, states::on1)
-        )
+        .transition_tables(make_transition_table_0, make_transition_table_1)
         .context_a(maki::type<context>)
         .exception_action_me
         (

@@ -29,26 +29,35 @@ namespace
         EMPTY_STATE(off1)
         EMPTY_STATE(on0)
 
-        constexpr auto on1_transition_table = maki::transition_table{}
-            (states::off0, maki::type<events::button_press>, states::on0)
-        ;
+        constexpr auto make_on1_transition_table()
+        {
+            return maki::transition_table{}
+                (states::off0, maki::type<events::button_press>, states::on0)
+            ;
+        }
 
         constexpr auto on1 = maki::submachine_conf{}
-            .transition_tables(on1_transition_table)
+            .transition_tables(make_on1_transition_table)
             .pretty_name("on_1")
         ;
     }
 
-    constexpr auto transition_table_0 = maki::transition_table{}
-        (states::off0, maki::type<events::button_press>, states::on0)
-    ;
+    constexpr auto make_transition_table_0()
+    {
+        return maki::transition_table{}
+            (states::off0, maki::type<events::button_press>, states::on0)
+        ;
+    }
 
-    constexpr auto transition_table_1 = maki::transition_table{}
-        (states::off1, maki::type<events::button_press>, states::on1)
-    ;
+    constexpr auto make_transition_table_1()
+    {
+        return maki::transition_table{}
+            (states::off1, maki::type<events::button_press>, states::on1)
+        ;
+    }
 
     constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table_0, transition_table_1)
+        .transition_tables(make_transition_table_0, make_transition_table_1)
         .context_a(maki::type<context>)
         .pre_state_transition_action_crset
         (

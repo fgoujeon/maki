@@ -16,6 +16,7 @@
 #include "transition_table.hpp"
 #include "type_patterns.hpp"
 #include "type.hpp"
+#include "detail/storable_function.hpp"
 #include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"
 #include "detail/tuple.hpp"
@@ -65,7 +66,7 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = options_.internal_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = options_.exit_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = options_.pretty_name; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = options_.transition_tables;
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_table_fns = options_.transition_table_fns;
 
 #define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return submachine_conf \
@@ -76,7 +77,7 @@ public:
             std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_transition_table_fns)> \
         > \
     > \
     { \
@@ -85,7 +86,7 @@ public:
         MAKI_DETAIL_ARG_internal_actions, \
         MAKI_DETAIL_ARG_exit_actions, \
         MAKI_DETAIL_ARG_pretty_name_view, \
-        MAKI_DETAIL_ARG_transition_tables \
+        MAKI_DETAIL_ARG_transition_table_fns \
     };
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
@@ -132,14 +133,14 @@ public:
 #undef MAKI_DETAIL_ARG_pretty_name_view
     }
 
-    template<class... TransitionTables>
-    [[nodiscard]] constexpr auto transition_tables(const TransitionTables&... tables) const
+    template<class... TransitionTableFns>
+    [[nodiscard]] constexpr auto transition_tables(const TransitionTableFns&... tables) const
     {
-        const auto tpl = detail::tuple<TransitionTables...>{detail::distributed_construct, tables...};
+        const auto tpl = detail::tuple<detail::storable_function_t<TransitionTableFns>...>{detail::distributed_construct, tables...};
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_transition_tables tpl
+#define MAKI_DETAIL_ARG_transition_table_fns tpl
         MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_transition_tables
+#undef MAKI_DETAIL_ARG_transition_table_fns
     }
 
 private:

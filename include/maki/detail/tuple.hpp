@@ -29,32 +29,31 @@ class tuple_element
 public:
     template<class... Args>
     explicit constexpr tuple_element(Args&&... args):
-        value_{args...}
+        value{args...}
     {
     }
 
     constexpr T& get(constant_t<Index> /*tag*/)
     {
-        return value_;
+        return value;
     }
 
     constexpr const T& get(constant_t<Index> /*tag*/) const
     {
-        return value_;
+        return value;
     }
 
     constexpr T& get(type_t<T> /*tag*/)
     {
-        return value_;
+        return value;
     }
 
     constexpr const T& get(type_t<T> /*tag*/) const
     {
-        return value_;
+        return value;
     }
 
-private:
-    T value_;
+    T value;
 };
 
 template<class IndexSequence, class... Ts>
@@ -62,7 +61,7 @@ class tuple_base;
 
 template<int... Indexes, class... Ts>
 class tuple_base<std::integer_sequence<int, Indexes...>, Ts...>:
-    private tuple_element<Indexes, Ts>...
+    public tuple_element<Indexes, Ts>...
 {
 public:
     constexpr tuple_base() = default;
@@ -98,12 +97,51 @@ public:
     using tuple_element<Indexes, Ts>::get...;
 };
 
+template<>
+class tuple_base<std::integer_sequence<int>>
+{
+public:
+    template<const tuple_base& Tuple>
+    using constant_list = type_list<>;
+
+    constexpr tuple_base() = default;
+
+    constexpr tuple_base(const tuple_base& other) = default;
+
+    constexpr tuple_base(tuple_base&& other) = delete;
+
+    template<class... Args>
+    explicit constexpr tuple_base(distributed_construct_t /*tag*/, Args&&... /*args*/)
+    {
+    }
+
+    template<class Arg>
+    constexpr tuple_base(uniform_construct_t /*tag*/, Arg& /*arg*/)
+    {
+    }
+
+    template<class Arg0, class Arg1>
+    constexpr tuple_base(uniform_construct_t /*tag*/, Arg0& /*arg0*/, Arg1& /*arg1*/)
+    {
+    }
+
+    ~tuple_base() = default;
+
+    tuple_base& operator=(const tuple_base& other) = delete;
+
+    tuple_base& operator=(tuple_base&& other) = delete;
+
+    void get() const
+    {
+    }
+};
+
 /*
 A minimal std::tuple-like container.
 Using this instead of std::tuple improves build time.
 */
 template<class... Ts>
-class tuple: private tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>
+class tuple: public tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>
 {
 public:
     using base_t = tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>;
@@ -112,35 +150,6 @@ public:
     using base_t::get;
 
     static constexpr auto size = sizeof...(Ts);
-};
-
-template<>
-class tuple<>
-{
-public:
-    constexpr tuple() = default;
-
-    constexpr tuple(const tuple& other) = default;
-
-    constexpr tuple(tuple&& other) = delete;
-
-    template<class... Args>
-    explicit constexpr tuple(distributed_construct_t /*tag*/, Args&&... /*args*/)
-    {
-    }
-
-    template<class... Args>
-    explicit constexpr tuple(uniform_construct_t /*tag*/, Args&&... /*args*/)
-    {
-    }
-
-    ~tuple() = default;
-
-    tuple& operator=(const tuple& other) = delete;
-
-    tuple& operator=(tuple&& other) = delete;
-
-    static constexpr auto size = 0;
 };
 
 template<class... Args>
@@ -202,9 +211,6 @@ constexpr auto& tuple_get(Tuple& tpl)
     return tpl.get(type<T>);
 }
 
-template<const auto& Tuple, int Index>
-constexpr auto tuple_static_get_copy_c = tuple_get<Index>(Tuple);
-
 template<class IndexSequence>
 struct tuple_append_impl;
 
@@ -258,13 +264,22 @@ constexpr auto tuple_apply(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
     return impl_t::call(tpl, fun, std::forward<ExtraArgs>(extra_args)...);
 }
 
+template<const auto& Tuple, int Index, class T>
+constexpr auto tuple_element_copy_c = static_cast<const tuple_element<Index, T>&>(Tuple).value;
+
 template<const auto& Tuple, class IndexSequence>
 struct tuple_to_constant_list_impl;
 
-template<const auto& Tuple, int... Indexes>
+template<class... Ts, const tuple<Ts...>& Tuple, int... Indexes>
 struct tuple_to_constant_list_impl<Tuple, std::integer_sequence<int, Indexes...>>
 {
-    using type = type_list<cref_constant_t<tuple_static_get_copy_c<Tuple, Indexes>>...>;
+    using type = type_list
+    <
+        cref_constant_t
+        <
+            tuple_element_copy_c<Tuple, Indexes, Ts>
+        >...
+    >;
 };
 
 template<const auto& Tuple>

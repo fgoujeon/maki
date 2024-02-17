@@ -95,43 +95,8 @@ public:
     tuple_base& operator=(tuple_base&& other) = delete;
 
     using tuple_element<Indexes, Ts>::get...;
-};
 
-template<>
-class tuple_base<std::integer_sequence<int>>
-{
-public:
-    template<const tuple_base& Tuple>
-    using constant_list = type_list<>;
-
-    constexpr tuple_base() = default;
-
-    constexpr tuple_base(const tuple_base& other) = default;
-
-    constexpr tuple_base(tuple_base&& other) = delete;
-
-    template<class... Args>
-    explicit constexpr tuple_base(distributed_construct_t /*tag*/, Args&&... /*args*/)
-    {
-    }
-
-    template<class Arg>
-    constexpr tuple_base(uniform_construct_t /*tag*/, Arg& /*arg*/)
-    {
-    }
-
-    template<class Arg0, class Arg1>
-    constexpr tuple_base(uniform_construct_t /*tag*/, Arg0& /*arg0*/, Arg1& /*arg1*/)
-    {
-    }
-
-    ~tuple_base() = default;
-
-    tuple_base& operator=(const tuple_base& other) = delete;
-
-    tuple_base& operator=(tuple_base&& other) = delete;
-
-    void get() const
+    void get()
     {
     }
 };

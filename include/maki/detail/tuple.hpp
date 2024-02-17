@@ -95,6 +95,14 @@ public:
 
     tuple_base& operator=(tuple_base&& other) = delete;
 
+    /*
+    We need this dummy function in case Ts is empty. `tuple` does a using
+    base_t::get, so there must be at least one get() function defined here.
+    */
+    void get()
+    {
+    }
+
     using tuple_element<Indexes, Ts>::get...;
 };
 
@@ -112,35 +120,6 @@ public:
     using base_t::get;
 
     static constexpr auto size = sizeof...(Ts);
-};
-
-template<>
-class tuple<>
-{
-public:
-    constexpr tuple() = default;
-
-    constexpr tuple(const tuple& other) = default;
-
-    constexpr tuple(tuple&& other) = delete;
-
-    template<class... Args>
-    explicit constexpr tuple(distributed_construct_t /*tag*/, Args&&... /*args*/)
-    {
-    }
-
-    template<class... Args>
-    explicit constexpr tuple(uniform_construct_t /*tag*/, Args&&... /*args*/)
-    {
-    }
-
-    ~tuple() = default;
-
-    tuple& operator=(const tuple& other) = delete;
-
-    tuple& operator=(tuple&& other) = delete;
-
-    static constexpr auto size = 0;
 };
 
 template<class... Args>

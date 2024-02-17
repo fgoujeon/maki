@@ -211,24 +211,10 @@ constexpr auto& tuple_get(Tuple& tpl)
     return tpl.get(type<T>);
 }
 
-template<class IndexSequence>
-struct tuple_append_impl;
-
-template<int... Indexes>
-struct tuple_append_impl<std::integer_sequence<int, Indexes...>>
+template<int... Indexes, class... Ts, class U>
+constexpr tuple<Ts..., U> tuple_append(const tuple_base<std::integer_sequence<int, Indexes...>, Ts...>& tpl, const U& elem)
 {
-    template<class... Ts, class U>
-    static constexpr tuple<Ts..., U> call(const tuple<Ts...>& tpl, const U& elem)
-    {
-        return tuple<Ts..., U>{distributed_construct, tuple_get<Indexes>(tpl)..., elem};
-    }
-};
-
-template<class... Ts, class U>
-constexpr tuple<Ts..., U> tuple_append(const tuple<Ts...>& tpl, const U& elem)
-{
-    using impl_t = tuple_append_impl<std::make_integer_sequence<int, sizeof...(Ts)>>;
-    return impl_t::call(tpl, elem);
+    return tuple<Ts..., U>{distributed_construct, tuple_get<Indexes>(tpl)..., elem};
 }
 
 template<class IndexSequence>

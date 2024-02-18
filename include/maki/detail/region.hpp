@@ -188,7 +188,6 @@ public:
 private:
     static constexpr auto transition_table = tuple_get<Index>(opts(ParentSm::conf).transition_tables);
     static constexpr auto transition_tuple = detail::rows(transition_table);
-    using transition_ptr_constant_list = tuple_to_element_ptr_constant_list_t<transition_tuple>;
 
     using transition_table_digest_type =
         detail::transition_table_digest<transition_tuple>
@@ -216,7 +215,7 @@ private:
         //List the transitions whose event type pattern matches Event
         using candidate_transition_constant_list = transition_table_filters::by_event_t
         <
-            transition_ptr_constant_list,
+            transition_tuple,
             Event
         >;
 
@@ -480,7 +479,7 @@ private:
             {
                 using candidate_transition_constant_list = transition_table_filters::by_null_event_t
                 <
-                    transition_ptr_constant_list
+                    transition_tuple
                 >;
 
                 try_processing_event_in_transitions<candidate_transition_constant_list>(*this, mach, ctx, null);

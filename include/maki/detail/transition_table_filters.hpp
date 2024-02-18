@@ -8,6 +8,7 @@
 #define MAKI_DETAIL_TRANSITION_TABLE_FILTERS_HPP
 
 #include "tlu.hpp"
+#include "integer_constant_sequence.hpp"
 #include "../type_patterns.hpp"
 #include "../null.hpp"
 #include <type_traits>
@@ -17,33 +18,40 @@ namespace maki::detail::transition_table_filters
 
 namespace by_event_detail
 {
-    template<const auto& Event>
-    struct for_event
+    template<const auto& TransitionTuple, const auto& Event>
+    struct operation_holder
     {
-        template<class TransitionPtrConstant>
-        struct matches_event_pattern
-        {
-            static constexpr auto value = matches_pattern
-            (
-                Event,
-                TransitionPtrConstant::value->event_pattern
-            );
-        };
+        template<int TransitionIndex>
+        static constexpr auto matches = matches_pattern
+        (
+            Event,
+            tuple_get<TransitionIndex>(TransitionTuple).event_pattern
+        );
+
+        template<class TransitionPtrConstantList, class TransitionIndexConstant>
+        using operation = tlu::push_back_if_t
+        <
+            TransitionPtrConstantList,
+            TransitionIndexConstant,
+            matches<TransitionIndexConstant::value>
+        >;
     };
 }
 
-template<class TransitionPtrConstantList, class Event>
-using by_event_t = tlu::filter_t
+template<const auto& TransitionTuple, class Event>
+using by_event_t = tlu::left_fold_t
 <
-    TransitionPtrConstantList,
-    by_event_detail::for_event<type<Event>>::template matches_event_pattern
+    make_integer_constant_sequence<int, TransitionTuple.size>,
+    by_event_detail::operation_holder<TransitionTuple, type<Event>>::template operation,
+    type_list<>
 >;
 
-template<class TransitionPtrConstantList>
-using by_null_event_t = tlu::filter_t
+template<const auto& TransitionTuple>
+using by_null_event_t = tlu::left_fold_t
 <
-    TransitionPtrConstantList,
-    by_event_detail::for_event<null>::template matches_event_pattern
+    make_integer_constant_sequence<int, TransitionTuple.size>,
+    by_event_detail::operation_holder<TransitionTuple, null>::template operation,
+    type_list<>
 >;
 
 } //namespace

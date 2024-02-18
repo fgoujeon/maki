@@ -191,7 +191,7 @@ private:
     using transition_ptr_constant_list = tuple_to_element_ptr_constant_list_t<transition_tuple>;
 
     using transition_table_digest_type =
-        detail::transition_table_digest<transition_ptr_constant_list>
+        detail::transition_table_digest<transition_tuple>
     ;
 
     using state_conf_ptr_constant_list = typename transition_table_digest_type::state_conf_ptr_constant_list;

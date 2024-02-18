@@ -15,6 +15,7 @@
 #include "tlu.hpp"
 #include "tuple.hpp"
 #include "state_traits.hpp"
+#include "integer_constant_sequence.hpp"
 #include "type_list.hpp"
 #include <type_traits>
 
@@ -56,39 +57,48 @@ namespace transition_table_digest_detail
         )
     >;
 
-    template<class TransitionPtrConstantList>
+    template<const auto& TransitionTuple>
     class initial_digest
     {
     private:
-        static constexpr auto pinitial_state_conf = tlu::get_t<TransitionPtrConstantList, 0>::value->source_state_conf_pattern.get_as_ptr();
+        static constexpr auto pinitial_state_conf = tuple_get<0>(TransitionTuple).source_state_conf_pattern.get_as_ptr();
 
     public:
         using state_conf_ptr_constant_list = type_list<constant_t<pinitial_state_conf>>;
         static constexpr auto has_null_events = false;
     };
 
-    template<class Digest, class TransitionPtrConstant>
-    struct add_transition_to_digest
+    template<const auto& TransitionTuple>
+    struct add_transition_to_digest_holder
     {
-        using state_conf_ptr_constant_list = push_back_unique_if_not_null_constant
-        <
-            typename Digest::state_conf_ptr_constant_list,
-            TransitionPtrConstant::value->target_state_conf.get_as_ptr()
-        >;
+        template<class Digest, class IndexConstant>
+        struct add_transition_to_digest
+        {
+            static constexpr auto index = IndexConstant::value;
 
-        static constexpr auto has_null_events =
-            Digest::has_null_events ||
-            is_null(TransitionPtrConstant::value->event_pattern)
-        ;
+            using state_conf_ptr_constant_list = push_back_unique_if_not_null_constant
+            <
+                typename Digest::state_conf_ptr_constant_list,
+                tuple_get<index>(TransitionTuple).target_state_conf.get_as_ptr()
+            >;
+
+            static constexpr auto has_null_events =
+                Digest::has_null_events ||
+                is_null(tuple_get<index>(TransitionTuple).event_pattern)
+            ;
+        };
     };
 }
 
-template<class TransitionPtrConstantList>
+template<const auto& TransitionTuple>
 using transition_table_digest = tlu::left_fold_t
 <
-    TransitionPtrConstantList,
-    transition_table_digest_detail::add_transition_to_digest,
-    transition_table_digest_detail::initial_digest<TransitionPtrConstantList>
+    make_integer_constant_sequence<int, TransitionTuple.size>,
+    transition_table_digest_detail::add_transition_to_digest_holder
+    <
+        TransitionTuple
+    >::template add_transition_to_digest,
+    transition_table_digest_detail::initial_digest<TransitionTuple>
 >;
 
 } //namespace

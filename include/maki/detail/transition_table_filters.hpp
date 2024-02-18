@@ -21,16 +21,19 @@ namespace by_event_detail
     template<const auto& TransitionTuple, const auto& Event>
     struct operation_holder
     {
+        template<int TransitionIndex>
+        static constexpr auto matches = matches_pattern
+        (
+            Event,
+            tuple_get<TransitionIndex>(TransitionTuple).event_pattern
+        );
+
         template<class TransitionPtrConstantList, class TransitionIndexConstant>
         using operation = tlu::push_back_if_t
         <
             TransitionPtrConstantList,
             TransitionIndexConstant,
-            matches_pattern
-            (
-                Event,
-                tuple_get<TransitionIndexConstant::value>(TransitionTuple).event_pattern
-            )
+            matches<TransitionIndexConstant::value>
         >;
     };
 }

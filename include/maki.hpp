@@ -30,5 +30,5 @@
 #include "maki/submachine_conf.hpp"
 #include "maki/transition_table.hpp"
 #include "maki/type.hpp"
-#include "maki/type_patterns.hpp"
+#include "maki/type_filters.hpp"
 #include "maki/version.hpp"

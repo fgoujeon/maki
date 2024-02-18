@@ -13,7 +13,7 @@
 #define MAKI_MACHINE_CONF_HPP
 
 #include "transition_table.hpp"
-#include "type_patterns.hpp"
+#include "type_filters.hpp"
 #include "type.hpp"
 #include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"

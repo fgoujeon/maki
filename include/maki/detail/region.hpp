@@ -122,9 +122,9 @@ public:
     template<auto StateConfPtr>
     [[nodiscard]] bool active_state() const
     {
-        if constexpr(is_type_pattern_v<std::decay_t<decltype(*StateConfPtr)>>)
+        if constexpr(is_type_filter_v<std::decay_t<decltype(*StateConfPtr)>>)
         {
-            return does_active_state_def_match_pattern<*StateConfPtr>();
+            return does_active_state_def_match_filter<*StateConfPtr>();
         }
         else
         {
@@ -212,7 +212,7 @@ private:
     template<bool Dry, class Self, class Machine, class Context, class Event, class... MaybeBool>
     static void process_event_2(Self& self, Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
     {
-        //List the transitions whose event type pattern matches Event
+        //List the transitions whose event type filter matches Event
         using candidate_transition_index_constant_list = transition_table_filters::by_event_t
         <
             transition_tuple,
@@ -285,17 +285,17 @@ private:
         static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
             static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(transition_tuple);
-            static constexpr auto source_state_conf_pattern = trans.source_state_conf_pattern;
+            static constexpr auto source_state_conf_filter = trans.source_state_conf_filter;
             static constexpr auto action = trans.action;
             static constexpr auto guard = trans.guard;
 
-            if constexpr(is_type_pattern_v<std::decay_t<decltype(source_state_conf_pattern)>>)
+            if constexpr(is_type_filter_v<std::decay_t<decltype(source_state_conf_filter)>>)
             {
-                //List of state confs that match with the source state pattern
-                using matching_state_conf_constant_list = state_type_list_filters::by_pattern_t
+                //List of state confs that match with the source state filter
+                using matching_state_conf_constant_list = state_type_list_filters::by_filter_t
                 <
                     state_conf_ptr_constant_list,
-                    &source_state_conf_pattern
+                    &source_state_conf_filter
                 >;
 
                 static_assert(!tlu::empty_v<matching_state_conf_constant_list>);
@@ -320,7 +320,7 @@ private:
                     trans.target_state_conf.get(),
                     action,
                     guard
-                >::template call<constant_t<trans.source_state_conf_pattern.get_as_ptr()>>
+                >::template call<constant_t<trans.source_state_conf_filter.get_as_ptr()>>
                 (
                     self,
                     mach,
@@ -562,25 +562,25 @@ private:
         return given_state_index == active_state_index_;
     }
 
-    template<const auto& TypePattern>
-    [[nodiscard]] bool does_active_state_def_match_pattern() const
+    template<const auto& TypeFilter>
+    [[nodiscard]] bool does_active_state_def_match_filter() const
     {
         auto matches = false;
         with_active_state_conf
         <
             tlu::push_back_t<state_conf_ptr_constant_list, constant_t<&state_confs::stopped>>,
-            does_active_state_def_match_pattern_2<TypePattern>
+            does_active_state_def_match_filter_2<TypeFilter>
         >(matches);
         return matches;
     }
 
-    template<const auto& TypePattern>
-    struct does_active_state_def_match_pattern_2
+    template<const auto& TypeFilter>
+    struct does_active_state_def_match_filter_2
     {
         template<auto ActiveStateConfPtr>
         static void call([[maybe_unused]] bool& matches)
         {
-            if constexpr(matches_pattern(make_cref_wrapper(*ActiveStateConfPtr), TypePattern))
+            if constexpr(matches_filter(make_cref_wrapper(*ActiveStateConfPtr), TypeFilter))
             {
                 matches = true;
             }

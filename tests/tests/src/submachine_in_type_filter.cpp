@@ -53,7 +53,7 @@ namespace
     using machine_t = maki::make_machine<machine_conf>;
 }
 
-TEST_CASE("submachine_in_type_pattern")
+TEST_CASE("submachine_in_type_filter")
 {
     auto machine = machine_t{};
 

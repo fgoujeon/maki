@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_STORABLE_CONF_PATTERN_HPP
-#define MAKI_DETAIL_STORABLE_CONF_PATTERN_HPP
+#ifndef MAKI_DETAIL_STORABLE_CONF_FILTER_HPP
+#define MAKI_DETAIL_STORABLE_CONF_FILTER_HPP
 
 #include "conf_traits.hpp"
 #include "cref_wrapper.hpp"
@@ -20,28 +20,28 @@ its conf.
 */
 
 template<class T>
-struct storable_conf_pattern
+struct storable_conf_filter
 {
     using type = T;
 };
 
 template<class T>
-using storable_conf_pattern_t = typename storable_conf_pattern<T>::type;
+using storable_conf_filter_t = typename storable_conf_filter<T>::type;
 
 template<class OptionSet>
-struct storable_conf_pattern<state_conf<OptionSet>>
+struct storable_conf_filter<state_conf<OptionSet>>
 {
     using type = cref_wrapper<state_conf<OptionSet>>;
 };
 
 template<class OptionSet>
-struct storable_conf_pattern<submachine_conf<OptionSet>>
+struct storable_conf_filter<submachine_conf<OptionSet>>
 {
     using type = cref_wrapper<submachine_conf<OptionSet>>;
 };
 
 template<class T>
-constexpr auto to_storable_conf_pattern(const T& conf)
+constexpr auto to_storable_conf_filter(const T& conf)
 {
     if constexpr
     (

@@ -48,7 +48,7 @@ namespace
     using machine_t = maki::make_machine<machine_conf>;
 }
 
-TEST_CASE("event_pattern")
+TEST_CASE("event_filter")
 {
     auto machine = machine_t{};
 

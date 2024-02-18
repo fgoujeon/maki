@@ -9,7 +9,7 @@
 
 #include "tlu.hpp"
 #include "tuple.hpp"
-#include "../type_patterns.hpp"
+#include "../type_filters.hpp"
 #include <functional>
 
 #define MAKI_DETAIL_EVENT_ACTION_SIGNATURES \
@@ -61,7 +61,7 @@ namespace event_action_traits
         template<class EventActionConstant>
         struct has_matching_event_filter
         {
-            static constexpr auto value = matches_pattern(type<Event>, EventActionConstant::value->event_filter);
+            static constexpr auto value = matches_filter(type<Event>, EventActionConstant::value->event_filter);
         };
     };
 }

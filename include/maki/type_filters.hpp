@@ -6,13 +6,13 @@
 
 /**
 @file
-@brief Defines the type pattern struct templates
+@brief Defines the type filter struct templates
 */
 
-#ifndef MAKI_TYPE_PATTERNS_HPP
-#define MAKI_TYPE_PATTERNS_HPP
+#ifndef MAKI_TYPE_FILTERS_HPP
+#define MAKI_TYPE_FILTERS_HPP
 
-#include "detail/storable_conf_pattern.hpp"
+#include "detail/storable_conf_filter.hpp"
 #include "detail/constant.hpp"
 #include "type.hpp"
 #include <type_traits>
@@ -21,20 +21,20 @@ namespace maki
 {
 
 /**
-@defgroup TypePatterns Type Patterns
-@brief Type patterns can be used in some places of the API (such as in transition
+@defgroup TypeFilters Type Filters
+@brief Type filters can be used in some places of the API (such as in transition
 tables) in lieu of single types to concisely express a set of types.
 
 @{
 */
 
 /**
-@brief A type pattern that matches with any type.
+@brief A type filter that matches with any type.
 */
 struct any_t{};
 
 /**
-@brief A type pattern that matches with any type that verifies `Predicate<T>::value == true`.
+@brief A type filter that matches with any type that verifies `Predicate<T>::value == true`.
 @tparam Predicate the predicate against which types are tested
 */
 template<class Predicate>
@@ -44,7 +44,7 @@ struct any_if_t
 };
 
 /**
-@brief A type pattern that matches with any type that verifies `Predicate<T>::value == false`.
+@brief A type filter that matches with any type that verifies `Predicate<T>::value == false`.
 @tparam Predicate the predicate against which types are tested
 */
 template<class Predicate>
@@ -54,8 +54,8 @@ struct any_if_not_t
 };
 
 /**
-@brief A type pattern that matches with the given types.
-@tparam Ts the types the pattern matches with
+@brief A type filter that matches with the given types.
+@tparam Ts the types the filter matches with
 */
 template<class... Ts>
 struct any_of_t
@@ -64,8 +64,8 @@ struct any_of_t
 };
 
 /**
-@brief A type pattern that matches with any type but the given ones.
-@tparam Ts the types the pattern doesn't match with
+@brief A type filter that matches with any type but the given ones.
+@tparam Ts the types the filter doesn't match with
 */
 template<class... Ts>
 struct any_but_t
@@ -74,7 +74,7 @@ struct any_but_t
 };
 
 /**
-@brief A type pattern that doesn't match with any type.
+@brief A type filter that doesn't match with any type.
 */
 struct none_t{};
 
@@ -99,12 +99,12 @@ constexpr auto any_if_not(const Predicate& pred)
 template<class... Ts>
 constexpr auto any_of(const Ts&... values)
 {
-    return any_of_t<detail::storable_conf_pattern_t<Ts>...>
+    return any_of_t<detail::storable_conf_filter_t<Ts>...>
     {
-        detail::tuple<detail::storable_conf_pattern_t<Ts>...>
+        detail::tuple<detail::storable_conf_filter_t<Ts>...>
         {
             detail::distributed_construct,
-            detail::to_storable_conf_pattern(values)...
+            detail::to_storable_conf_filter(values)...
         }
     };
 }
@@ -112,12 +112,12 @@ constexpr auto any_of(const Ts&... values)
 template<class... Ts>
 constexpr auto any_but(const Ts&... values)
 {
-    return any_but_t<detail::storable_conf_pattern_t<Ts>...>
+    return any_but_t<detail::storable_conf_filter_t<Ts>...>
     {
-        detail::tuple<detail::storable_conf_pattern_t<Ts>...>
+        detail::tuple<detail::storable_conf_filter_t<Ts>...>
         {
             detail::distributed_construct,
-            detail::to_storable_conf_pattern(values)...
+            detail::to_storable_conf_filter(values)...
         }
     };
 }
@@ -132,64 +132,64 @@ template<class... Types>
 constexpr auto any_type_but = any_but(type<Types>...);
 
 
-//matches_pattern
+//matches_filter
 namespace detail
 {
-    //Pattern is a regular type
-    template<class Value, class Pattern>
-    constexpr bool matches_pattern(const Value& value, const Pattern& pattern)
+    //Filter is a regular type
+    template<class Value, class Filter>
+    constexpr bool matches_filter(const Value& value, const Filter& filter)
     {
-        return value == pattern;
+        return value == filter;
     }
 
     template<class Value>
-    constexpr bool matches_pattern(const Value& /*value*/, const any_t /*pattern*/)
+    constexpr bool matches_filter(const Value& /*value*/, const any_t /*filter*/)
     {
         return true;
     }
 
     template<class Value, class Predicate>
-    constexpr bool matches_pattern(const Value& value, const any_if_t<Predicate>& pattern)
+    constexpr bool matches_filter(const Value& value, const any_if_t<Predicate>& filter)
     {
-        return pattern.pred(value);
+        return filter.pred(value);
     }
 
     template<class Value, class Predicate>
-    constexpr bool matches_pattern(const Value& value, const any_if_not_t<Predicate>& pattern)
+    constexpr bool matches_filter(const Value& value, const any_if_not_t<Predicate>& filter)
     {
-        return !pattern.pred(value);
+        return !filter.pred(value);
     }
 
     template<class Value, class... Ts>
-    constexpr bool matches_pattern(const Value& value, const any_of_t<Ts...>& pattern)
+    constexpr bool matches_filter(const Value& value, const any_of_t<Ts...>& filter)
     {
         return tuple_apply
         (
-            pattern.values,
+            filter.values,
             [](const Value& value, const Ts&... values)
             {
-                return (matches_pattern(value, values) || ...);
+                return (matches_filter(value, values) || ...);
             },
             value
         );
     }
 
     template<class Value, class... Ts>
-    constexpr bool matches_pattern(const Value& value, const any_but_t<Ts...>& pattern)
+    constexpr bool matches_filter(const Value& value, const any_but_t<Ts...>& filter)
     {
         return tuple_apply
         (
-            pattern.values,
+            filter.values,
             [](const Value& value, const Ts&... values)
             {
-                return (!matches_pattern(value, values) && ...);
+                return (!matches_filter(value, values) && ...);
             },
             value
         );
     }
 
     template<class Value>
-    constexpr bool matches_pattern(const Value& /*value*/, const none_t /*pattern*/)
+    constexpr bool matches_filter(const Value& /*value*/, const none_t /*filter*/)
     {
         return false;
     }
@@ -198,54 +198,54 @@ namespace detail
 namespace detail
 {
     template<class T>
-    struct is_type_pattern
+    struct is_type_filter
     {
         static constexpr auto value = false;
     };
 
     template<class T>
-    constexpr auto is_type_pattern_v = is_type_pattern<T>::value;
+    constexpr auto is_type_filter_v = is_type_filter<T>::value;
 
     template<>
-    struct is_type_pattern<any_t>
+    struct is_type_filter<any_t>
     {
         static constexpr auto value = true;
     };
 
     template<class Predicate>
-    struct is_type_pattern<any_if_t<Predicate>>
+    struct is_type_filter<any_if_t<Predicate>>
     {
         static constexpr auto value = true;
     };
 
     template<class Predicate>
-    struct is_type_pattern<any_if_not_t<Predicate>>
+    struct is_type_filter<any_if_not_t<Predicate>>
     {
         static constexpr auto value = true;
     };
 
     template<class... Ts>
-    struct is_type_pattern<any_of_t<Ts...>>
+    struct is_type_filter<any_of_t<Ts...>>
     {
         static constexpr auto value = true;
     };
 
     template<class... Ts>
-    struct is_type_pattern<any_but_t<Ts...>>
+    struct is_type_filter<any_but_t<Ts...>>
     {
         static constexpr auto value = true;
     };
 
     template<>
-    struct is_type_pattern<none_t>
+    struct is_type_filter<none_t>
     {
         static constexpr auto value = true;
     };
 
-    template<class Value, class... Patterns>
-    constexpr bool matches_any_pattern(const Value& value, const Patterns&... patterns)
+    template<class Value, class... Filters>
+    constexpr bool matches_any_filter(const Value& value, const Filters&... filters)
     {
-        return (matches_pattern(value, patterns) || ...);
+        return (matches_filter(value, filters) || ...);
     }
 }
 

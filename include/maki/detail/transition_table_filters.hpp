@@ -9,7 +9,7 @@
 
 #include "tlu.hpp"
 #include "integer_constant_sequence.hpp"
-#include "../type_patterns.hpp"
+#include "../type_filters.hpp"
 #include "../null.hpp"
 #include <type_traits>
 
@@ -22,10 +22,10 @@ namespace by_event_detail
     struct operation_holder
     {
         template<int TransitionIndex>
-        static constexpr auto matches = matches_pattern
+        static constexpr auto matches = matches_filter
         (
             Event,
-            tuple_get<TransitionIndex>(TransitionTuple).event_pattern
+            tuple_get<TransitionIndex>(TransitionTuple).event_filter
         );
 
         template<class TransitionPtrConstantList, class TransitionIndexConstant>

@@ -16,7 +16,7 @@
 #include "detail/cref_wrapper.hpp"
 #include "detail/conf_traits.hpp"
 #include "detail/storable_function.hpp"
-#include "detail/storable_conf_pattern.hpp"
+#include "detail/storable_conf_filter.hpp"
 #include "detail/tuple.hpp"
 
 namespace maki
@@ -64,24 +64,24 @@ namespace detail
 
     Used as a template argument of @ref transition_table.
 
-    @tparam SourceStatePattern the active state (or states, plural, if it's a @ref TypePatterns "type pattern") from which the transition can occur
-    @tparam EventPattern the event type (or types, plural, if it's a @ref TypePatterns "type pattern") that can cause the transition to occur
+    @tparam SourceStateFilter the active state (or states, plural, if it's a @ref TypeFilters "type filter") from which the transition can occur
+    @tparam EventFilter the event type (or types, plural, if it's a @ref TypeFilters "type filter") that can cause the transition to occur
     @tparam TargetState the state that becomes active after the transition occurs
     @tparam Action the function invoked when the transition occurs
     @tparam Guard the function that must return `true` for the transition to occur
     */
     template
     <
-        class SourceStateConfPattern,
-        class EventPattern,
+        class SourceStateConfFilter,
+        class EventFilter,
         class TargetStateConf,
         class Action,
         class Guard
     >
     struct transition
     {
-        SourceStateConfPattern source_state_conf_pattern;
-        EventPattern event_pattern;
+        SourceStateConfFilter source_state_conf_filter;
+        EventFilter event_filter;
         TargetStateConf target_state_conf;
         Action action;
         Guard guard;
@@ -89,16 +89,16 @@ namespace detail
 
     template
     <
-        class SourceStateConfPattern,
-        class EventPattern,
+        class SourceStateConfFilter,
+        class EventFilter,
         class TargetStateConf,
         class Action,
         class Guard
     >
     constexpr auto make_transition
     (
-        const SourceStateConfPattern& source_state_conf_pattern,
-        const EventPattern& event_pattern,
+        const SourceStateConfFilter& source_state_conf_filter,
+        const EventFilter& event_filter,
         const TargetStateConf& target_state_conf,
         const Action& action,
         const Guard& guard
@@ -106,15 +106,15 @@ namespace detail
     {
         return transition
         <
-            SourceStateConfPattern,
-            EventPattern,
+            SourceStateConfFilter,
+            EventFilter,
             TargetStateConf,
             storable_function_t<Action>,
             storable_function_t<Guard>
         >
         {
-            source_state_conf_pattern,
-            event_pattern,
+            source_state_conf_filter,
+            event_filter,
             target_state_conf,
             action,
             guard
@@ -157,16 +157,16 @@ public:
 
     template
     <
-        class SourceStateConfPattern,
-        class EventPattern,
+        class SourceStateConfFilter,
+        class EventFilter,
         class TargetStateConf,
         class Action = null_t,
         class Guard = null_t
     >
     constexpr auto operator()
     (
-        const SourceStateConfPattern& source_state_conf_pattern,
-        const EventPattern& event_pattern,
+        const SourceStateConfFilter& source_state_conf_filter,
+        const EventFilter& event_filter,
         const TargetStateConf& target_state_conf,
         const Action& action = null,
         const Guard& guard = null
@@ -179,8 +179,8 @@ public:
                 transitions_,
                 detail::make_transition
                 (
-                    detail::to_storable_conf_pattern(source_state_conf_pattern),
-                    event_pattern,
+                    detail::to_storable_conf_filter(source_state_conf_filter),
+                    event_filter,
                     detail::make_cref_wrapper(target_state_conf),
                     action,
                     guard

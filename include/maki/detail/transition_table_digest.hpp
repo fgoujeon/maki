@@ -7,7 +7,7 @@
 #ifndef MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 #define MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 
-#include "../type_patterns.hpp"
+#include "../type_filters.hpp"
 #include "../transition_table.hpp"
 #include "../events.hpp"
 #include "constant.hpp"
@@ -61,7 +61,7 @@ namespace transition_table_digest_detail
     class initial_digest
     {
     private:
-        static constexpr auto pinitial_state_conf = tuple_get<0>(TransitionTuple).source_state_conf_pattern.get_as_ptr();
+        static constexpr auto pinitial_state_conf = tuple_get<0>(TransitionTuple).source_state_conf_filter.get_as_ptr();
 
     public:
         using state_conf_ptr_constant_list = type_list<constant_t<pinitial_state_conf>>;
@@ -84,7 +84,7 @@ namespace transition_table_digest_detail
 
             static constexpr auto has_null_events =
                 Digest::has_null_events ||
-                is_null(tuple_get<index>(TransitionTuple).event_pattern)
+                is_null(tuple_get<index>(TransitionTuple).event_filter)
             ;
         };
     };

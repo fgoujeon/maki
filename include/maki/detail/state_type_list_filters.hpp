@@ -9,30 +9,30 @@
 
 #include "state_traits.hpp"
 #include "tlu.hpp"
-#include "../type_patterns.hpp"
+#include "../type_filters.hpp"
 #include <type_traits>
 
 namespace maki::detail::state_type_list_filters
 {
 
-namespace by_pattern_detail
+namespace by_filter_detail
 {
-    template<auto PatternPtr>
-    struct for_pattern
+    template<auto FilterPtr>
+    struct for_filter
     {
         template<class StateConfPtrConstant>
         struct matches
         {
-            static constexpr auto value = matches_pattern(make_cref_wrapper(*StateConfPtrConstant::value), *PatternPtr);
+            static constexpr auto value = matches_filter(make_cref_wrapper(*StateConfPtrConstant::value), *FilterPtr);
         };
     };
 }
 
-template<class StateConfPtrConstantList, auto PatternPtr>
-using by_pattern_t = tlu::filter_t
+template<class StateConfPtrConstantList, auto FilterPtr>
+using by_filter_t = tlu::filter_t
 <
     StateConfPtrConstantList,
-    by_pattern_detail::for_pattern<PatternPtr>::template matches
+    by_filter_detail::for_filter<FilterPtr>::template matches
 >;
 
 namespace by_required_on_event_detail

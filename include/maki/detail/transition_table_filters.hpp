@@ -25,11 +25,11 @@ namespace by_event_detail
         using operation = tlu::push_back_if_t
         <
             TransitionPtrConstantList,
-            constant_t<&tuple_static_get_copy_c<TransitionTuple, TransitionIndexConstant::value>>,
+            TransitionIndexConstant,
             matches_pattern
             (
                 Event,
-                tuple_static_get_copy_c<TransitionTuple, TransitionIndexConstant::value>.event_pattern
+                tuple_get<TransitionIndexConstant::value>(TransitionTuple).event_pattern
             )
         >;
     };

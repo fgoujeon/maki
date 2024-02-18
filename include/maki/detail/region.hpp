@@ -213,7 +213,7 @@ private:
     static void process_event_2(Self& self, Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
     {
         //List the transitions whose event type pattern matches Event
-        using candidate_transition_constant_list = transition_table_filters::by_event_t
+        using candidate_transition_index_constant_list = transition_table_filters::by_event_t
         <
             transition_tuple,
             Event
@@ -229,12 +229,12 @@ private:
             >
         ;
 
-        constexpr auto must_try_processing_event_in_transitions = !tlu::empty_v<candidate_transition_constant_list>;
+        constexpr auto must_try_processing_event_in_transitions = !tlu::empty_v<candidate_transition_index_constant_list>;
         constexpr auto must_try_processing_event_in_active_state = !tlu::empty_v<candidate_state_type_list>;
 
         if constexpr(must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
         {
-            if(try_processing_event_in_transitions<candidate_transition_constant_list, Dry>(self, mach, ctx, event))
+            if(try_processing_event_in_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event))
             {
                 maybe_bool_util::set_to_true(processed...);
             }
@@ -249,7 +249,7 @@ private:
         }
         else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
         {
-            try_processing_event_in_transitions<candidate_transition_constant_list, Dry>(self, mach, ctx, event, processed...);
+            try_processing_event_in_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
         }
     }
 
@@ -267,12 +267,12 @@ private:
         }
     };
 
-    template<class TransitionConstantList, bool Dry = false, class Self, class Machine, class Context, class Event, class... ExtraArgs>
+    template<class TransitionIndexConstantList, bool Dry = false, class Self, class Machine, class Context, class Event, class... ExtraArgs>
     static bool try_processing_event_in_transitions(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
     {
         return tlu::for_each_or
         <
-            TransitionConstantList,
+            TransitionIndexConstantList,
             try_processing_event_in_transition<Dry>
         >(self, mach, ctx, event, extra_args...);
     }
@@ -281,10 +281,10 @@ private:
     template<bool Dry>
     struct try_processing_event_in_transition
     {
-        template<class TransitionPtrConstant, class Self, class Machine, class Context, class Event, class... ExtraArgs>
+        template<class TransitionIndexConstant, class Self, class Machine, class Context, class Event, class... ExtraArgs>
         static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
-            static constexpr const auto& trans = *TransitionPtrConstant::value;
+            static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(transition_tuple);
             static constexpr auto source_state_conf_pattern = trans.source_state_conf_pattern;
             static constexpr auto action = trans.action;
             static constexpr auto guard = trans.guard;

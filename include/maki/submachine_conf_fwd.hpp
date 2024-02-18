@@ -27,7 +27,7 @@ namespace detail
         class EntryActionTuple = detail::tuple<>,
         class InternalActionTuple = detail::tuple<>,
         class ExitActionTuple = detail::tuple<>,
-        class TransitionTableTypeList = type_list<>
+        class TransitionTableTuple = detail::tuple<>
     >
     struct submachine_conf_option_set
     {
@@ -38,7 +38,7 @@ namespace detail
         InternalActionTuple internal_actions;
         ExitActionTuple exit_actions;
         std::string_view pretty_name;
-        TransitionTableTypeList transition_tables;
+        TransitionTableTuple transition_tables;
     };
 }
 

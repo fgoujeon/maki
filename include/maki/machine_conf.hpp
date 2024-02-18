@@ -40,7 +40,7 @@ namespace detail
         class PreStateTransitionAction = null_t,
         class PostStateTransitionAction = null_t,
         class FallbackTransitionActionTuple = detail::tuple<>,
-        class TransitionTableTypeList = type_list<>
+        class TransitionTableTuple = detail::tuple<>
     >
     struct machine_conf_option_set
     {
@@ -63,7 +63,7 @@ namespace detail
         bool run_to_completion = true;
         std::size_t small_event_max_align = machine_conf_default_small_event_max_align;
         std::size_t small_event_max_size = machine_conf_default_small_event_max_size;
-        TransitionTableTypeList transition_tables;
+        TransitionTableTuple transition_tables;
     };
 }
 

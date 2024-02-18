@@ -238,22 +238,22 @@ constexpr auto tuple_apply(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
 }
 
 template<const auto& Tuple, class IndexSequence>
-struct tuple_to_constant_list_impl;
+struct tuple_to_element_ptr_constant_list_impl;
 
 template<const auto& Tuple, int... Indexes>
-struct tuple_to_constant_list_impl<Tuple, std::integer_sequence<int, Indexes...>>
+struct tuple_to_element_ptr_constant_list_impl<Tuple, std::integer_sequence<int, Indexes...>>
 {
-    using type = type_list<cref_constant_t<tuple_static_get_copy_c<Tuple, Indexes>>...>;
+    using type = type_list<constant_t<&tuple_static_get_copy_c<Tuple, Indexes>>...>;
 };
 
 template<const auto& Tuple>
-struct tuple_to_constant_list
+struct tuple_to_element_ptr_constant_list
 {
-    using type = typename tuple_to_constant_list_impl<Tuple, std::make_integer_sequence<int, Tuple.size>>::type;
+    using type = typename tuple_to_element_ptr_constant_list_impl<Tuple, std::make_integer_sequence<int, Tuple.size>>::type;
 };
 
 template<const auto& Tuple>
-using tuple_to_constant_list_t = typename tuple_to_constant_list<Tuple>::type;
+using tuple_to_element_ptr_constant_list_t = typename tuple_to_element_ptr_constant_list<Tuple>::type;
 
 } //namespace
 

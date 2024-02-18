@@ -56,39 +56,39 @@ namespace transition_table_digest_detail
         )
     >;
 
-    template<class TransitionConstantList>
+    template<class TransitionPtrConstantList>
     class initial_digest
     {
     private:
-        static constexpr auto pinitial_state_conf = tlu::get_t<TransitionConstantList, 0>::value.source_state_conf_pattern.get_as_ptr();
+        static constexpr auto pinitial_state_conf = tlu::get_t<TransitionPtrConstantList, 0>::value->source_state_conf_pattern.get_as_ptr();
 
     public:
         using state_conf_ptr_constant_list = type_list<constant_t<pinitial_state_conf>>;
         static constexpr auto has_null_events = false;
     };
 
-    template<class Digest, class TransitionConstant>
+    template<class Digest, class TransitionPtrConstant>
     struct add_transition_to_digest
     {
         using state_conf_ptr_constant_list = push_back_unique_if_not_null_constant
         <
             typename Digest::state_conf_ptr_constant_list,
-            TransitionConstant::value.target_state_conf.get_as_ptr()
+            TransitionPtrConstant::value->target_state_conf.get_as_ptr()
         >;
 
         static constexpr auto has_null_events =
             Digest::has_null_events ||
-            is_null(TransitionConstant::value.event_pattern)
+            is_null(TransitionPtrConstant::value->event_pattern)
         ;
     };
 }
 
-template<class TransitionConstantList>
+template<class TransitionPtrConstantList>
 using transition_table_digest = tlu::left_fold_t
 <
-    TransitionConstantList,
+    TransitionPtrConstantList,
     transition_table_digest_detail::add_transition_to_digest,
-    transition_table_digest_detail::initial_digest<TransitionConstantList>
+    transition_table_digest_detail::initial_digest<TransitionPtrConstantList>
 >;
 
 } //namespace

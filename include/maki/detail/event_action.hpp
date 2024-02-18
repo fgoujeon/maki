@@ -61,12 +61,12 @@ namespace event_action_traits
         template<class EventActionConstant>
         struct has_matching_event_filter
         {
-            static constexpr auto value = matches_pattern(type<Event>, EventActionConstant::value.event_filter);
+            static constexpr auto value = matches_pattern(type<Event>, EventActionConstant::value->event_filter);
         };
     };
 }
 
-template<const auto& EventAction, class Machine, class Context, class Event>
+template<auto EventActionPtr, class Machine, class Context, class Event>
 void call_event_action
 (
     [[maybe_unused]] Machine& mach,
@@ -74,33 +74,33 @@ void call_event_action
     [[maybe_unused]] const Event& event
 )
 {
-    if constexpr(EventAction.sig == event_action_signature::v)
+    if constexpr(EventActionPtr->sig == event_action_signature::v)
     {
-        std::invoke(EventAction.action);
+        std::invoke(EventActionPtr->action);
     }
-    else if constexpr(EventAction.sig == event_action_signature::c)
+    else if constexpr(EventActionPtr->sig == event_action_signature::c)
     {
-        std::invoke(EventAction.action, ctx);
+        std::invoke(EventActionPtr->action, ctx);
     }
-    else if constexpr(EventAction.sig == event_action_signature::cm)
+    else if constexpr(EventActionPtr->sig == event_action_signature::cm)
     {
-        std::invoke(EventAction.action, ctx, mach);
+        std::invoke(EventActionPtr->action, ctx, mach);
     }
-    else if constexpr(EventAction.sig == event_action_signature::ce)
+    else if constexpr(EventActionPtr->sig == event_action_signature::ce)
     {
-        std::invoke(EventAction.action, ctx, event);
+        std::invoke(EventActionPtr->action, ctx, event);
     }
-    else if constexpr(EventAction.sig == event_action_signature::m)
+    else if constexpr(EventActionPtr->sig == event_action_signature::m)
     {
-        std::invoke(EventAction.action, mach);
+        std::invoke(EventActionPtr->action, mach);
     }
-    else if constexpr(EventAction.sig == event_action_signature::me)
+    else if constexpr(EventActionPtr->sig == event_action_signature::me)
     {
-        std::invoke(EventAction.action, mach, event);
+        std::invoke(EventActionPtr->action, mach, event);
     }
-    else if constexpr(EventAction.sig == event_action_signature::e)
+    else if constexpr(EventActionPtr->sig == event_action_signature::e)
     {
-        std::invoke(EventAction.action, event);
+        std::invoke(EventActionPtr->action, event);
     }
     else
     {

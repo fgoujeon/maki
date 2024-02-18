@@ -106,13 +106,13 @@ public:
     template<class Machine, class Context, class Event>
     void call_entry_action(Machine& mach, Context& ctx, const Event& event)
     {
-        if constexpr(!tlu::empty_v<entry_action_cref_constant_list>)
+        if constexpr(!tlu::empty_v<entry_action_ptr_constant_list>)
         {
             /*
             If at least one entry action is defined, state is required to define
             entry actions for all possible event types.
             */
-            call_matching_event_action<entry_action_cref_constant_list>
+            call_matching_event_action<entry_action_ptr_constant_list>
             (
                 mach,
                 ctx,
@@ -128,9 +128,9 @@ public:
         Caller is supposed to check an interal action exists for the given event
         type before calling this function.
         */
-        static_assert(!tlu::empty_v<internal_action_cref_constant_list>);
+        static_assert(!tlu::empty_v<internal_action_ptr_constant_list>);
 
-        call_matching_event_action<internal_action_cref_constant_list>
+        call_matching_event_action<internal_action_ptr_constant_list>
         (
             mach,
             ctx,
@@ -143,13 +143,13 @@ public:
     template<class Machine, class Context, class Event>
     void call_exit_action(Machine& mach, Context& ctx, const Event& event)
     {
-        if constexpr(!tlu::empty_v<exit_action_cref_constant_list>)
+        if constexpr(!tlu::empty_v<exit_action_ptr_constant_list>)
         {
             /*
             If at least one exit action is defined, state is required to define
             entry actions for all possible event types.
             */
-            call_matching_event_action<exit_action_cref_constant_list>
+            call_matching_event_action<exit_action_ptr_constant_list>
             (
                 mach,
                 ctx,
@@ -163,7 +163,7 @@ public:
     {
         return tlu::contains_if_v
         <
-            internal_action_cref_constant_list,
+            internal_action_ptr_constant_list,
             event_action_traits::for_event<Event>::template has_matching_event_filter
         >;
     }
@@ -172,13 +172,13 @@ public:
 
 private:
     static constexpr auto entry_actions = opts(Conf).entry_actions;
-    using entry_action_cref_constant_list = tuple_to_constant_list_t<entry_actions>;
+    using entry_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<entry_actions>;
 
     static constexpr auto internal_actions = opts(Conf).internal_actions;
-    using internal_action_cref_constant_list = tuple_to_constant_list_t<internal_actions>;
+    using internal_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<internal_actions>;
 
     static constexpr auto exit_actions = opts(Conf).exit_actions;
-    using exit_action_cref_constant_list = tuple_to_constant_list_t<exit_actions>;
+    using exit_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<exit_actions>;
 };
 
 } //namespace

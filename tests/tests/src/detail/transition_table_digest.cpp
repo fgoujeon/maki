@@ -37,11 +37,11 @@ namespace transition_table_digest_ns
 
     constexpr auto transition_tuple = maki::detail::rows(transition_table);
 
-    using transition_constant_list = maki::detail::tuple_to_constant_list_t<transition_tuple>;
+    using transition_ptr_constant_list = maki::detail::tuple_to_element_ptr_constant_list_t<transition_tuple>;
 
     using digest_t = maki::detail::transition_table_digest
     <
-        transition_constant_list
+        transition_ptr_constant_list
     >;
 
     using state_conf_ptr_constant_list = maki::detail::type_list

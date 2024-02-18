@@ -188,10 +188,10 @@ public:
 private:
     static constexpr auto transition_table = tuple_get<Index>(opts(ParentSm::conf).transition_tables);
     static constexpr auto transition_tuple = detail::rows(transition_table);
-    using transition_constant_list = tuple_to_constant_list_t<transition_tuple>;
+    using transition_ptr_constant_list = tuple_to_element_ptr_constant_list_t<transition_tuple>;
 
     using transition_table_digest_type =
-        detail::transition_table_digest<transition_constant_list>
+        detail::transition_table_digest<transition_ptr_constant_list>
     ;
 
     using state_conf_ptr_constant_list = typename transition_table_digest_type::state_conf_ptr_constant_list;
@@ -216,7 +216,7 @@ private:
         //List the transitions whose event type pattern matches Event
         using candidate_transition_constant_list = transition_table_filters::by_event_t
         <
-            transition_constant_list,
+            transition_ptr_constant_list,
             Event
         >;
 
@@ -282,10 +282,10 @@ private:
     template<bool Dry>
     struct try_processing_event_in_transition
     {
-        template<class TransitionConstant, class Self, class Machine, class Context, class Event, class... ExtraArgs>
+        template<class TransitionPtrConstant, class Self, class Machine, class Context, class Event, class... ExtraArgs>
         static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
-            static constexpr const auto& trans = TransitionConstant::value;
+            static constexpr const auto& trans = *TransitionPtrConstant::value;
             static constexpr auto source_state_conf_pattern = trans.source_state_conf_pattern;
             static constexpr auto action = trans.action;
             static constexpr auto guard = trans.guard;
@@ -480,7 +480,7 @@ private:
             {
                 using candidate_transition_constant_list = transition_table_filters::by_null_event_t
                 <
-                    transition_constant_list
+                    transition_ptr_constant_list
                 >;
 
                 try_processing_event_in_transitions<candidate_transition_constant_list>(*this, mach, ctx, null);

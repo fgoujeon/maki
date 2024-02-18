@@ -520,7 +520,7 @@ private:
                 impl_.call_internal_action(*this, context(), event, processed);
                 if(!processed)
                 {
-                    detail::call_matching_event_action<fallback_transition_action_cref_constant_list>
+                    detail::call_matching_event_action<fallback_transition_action_ptr_constant_list>
                     (
                         *this,
                         context(),
@@ -532,7 +532,7 @@ private:
     }
 
     static constexpr auto fallback_transition_actions = opts(conf).fallback_transition_actions;
-    using fallback_transition_action_cref_constant_list = detail::tuple_to_constant_list_t<fallback_transition_actions>;
+    using fallback_transition_action_ptr_constant_list = detail::tuple_to_element_ptr_constant_list_t<fallback_transition_actions>;
 
     detail::context_holder<context_type, opts(conf).context_sig> ctx_holder_;
     detail::submachine_impl<conf, void, void> impl_;

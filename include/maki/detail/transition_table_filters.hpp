@@ -20,29 +20,29 @@ namespace by_event_detail
     template<const auto& Event>
     struct for_event
     {
-        template<class TransitionConstant>
+        template<class TransitionPtrConstant>
         struct matches_event_pattern
         {
             static constexpr auto value = matches_pattern
             (
                 Event,
-                TransitionConstant::value.event_pattern
+                TransitionPtrConstant::value->event_pattern
             );
         };
     };
 }
 
-template<class TransitionConstantList, class Event>
+template<class TransitionPtrConstantList, class Event>
 using by_event_t = tlu::filter_t
 <
-    TransitionConstantList,
+    TransitionPtrConstantList,
     by_event_detail::for_event<type<Event>>::template matches_event_pattern
 >;
 
-template<class TransitionConstantList>
+template<class TransitionPtrConstantList>
 using by_null_event_t = tlu::filter_t
 <
-    TransitionConstantList,
+    TransitionPtrConstantList,
     by_event_detail::for_event<null>::template matches_event_pattern
 >;
 

@@ -31,13 +31,13 @@ void turn_light_off()
 //The transition table
 //! [transition-table]
 constexpr auto transition_table = maki::transition_table{}
-    //source state, event,                     target state, action
+    //source state, event,                    target state, action
     (off,           maki::type<button_press>, on,           turn_light_on)
     (on,            maki::type<button_press>, off,          turn_light_off)
 ;
 //! [transition-table]
 
-//The configuration of the state machine
+//The configurator of the state machine
 //! [machine-def]
 constexpr auto machine_conf = maki::machine_conf{}
     .transition_tables(transition_table)
@@ -48,6 +48,7 @@ constexpr auto machine_conf = maki::machine_conf{}
 //The state machine
 //! [machine]
 using machine_t = maki::make_machine<machine_conf>;
+
 //! [machine]
 
 int main()

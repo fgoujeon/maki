@@ -23,53 +23,28 @@ namespace maki
 {
 
 /**
-@defgroup TransitionTable Transition Table
-@brief These are the types and functions that must be used to define transition tables.
+@brief Represents a transition table.
 
 A transition table lists all the possible transitions from a state (the source
 state) to another (the target state) in a region of a state machine.
 
-You can define a transition table by using this class template directly:
-```cpp
-constexpr auto transition_table = maki::transition_table
-<
-    maki::transition<off, button_press, on,  turn_light_on, has_enough_power>,
-    maki::transition<on,  button_press, off, turn_light_off>
->{};
-```
+To define a transition table, you have to instantiate an empty
+`maki::transition_table` and call
+`maki::transition_table::operator()()` for each transition, like so:
 
-… but using the @ref transition_table variable template and the
-@ref transition_table::add_c member type template is usually the preferred,
-more concise way to do so:
 ```cpp
 constexpr auto transition_table = maki::transition_table{}
-    .add_c<off, button_press, on,  turn_light_on, has_enough_power>
-    .add_c<on,  button_press, off, turn_light_off>
+    //source state, event,                    target state, action,        guard
+    (off,           maki::type<button_press>, on,           turn_light_on, has_enough_power)
+    (on,            maki::type<button_press>, off,          turn_light_off)
 ;
 ```
-
-Note that the first usage may be more appropriate in the context of a template
-in order to avoid awkward `typename`s and `template`s.
-
-@{
 */
-
 template<class... Transitions>
 class transition_table;
 
 namespace detail
 {
-    /**
-    @brief Represents a possible state transition.
-
-    Used as a template argument of @ref transition_table.
-
-    @tparam SourceStateFilter the active state (or states, plural, if it's a @ref TypeFilters "type filter") from which the transition can occur
-    @tparam EventFilter the event type (or types, plural, if it's a @ref TypeFilters "type filter") that can cause the transition to occur
-    @tparam TargetState the state that becomes active after the transition occurs
-    @tparam Action the function invoked when the transition occurs
-    @tparam Guard the function that must return `true` for the transition to occur
-    */
     template
     <
         class SourceStateConfFilter,
@@ -134,27 +109,46 @@ namespace detail
     }
 }
 
-/**
-@brief Represents a transition table.
-
-@tparam Transitions the transitions, which must be instances of @ref transition
-*/
 template<class... Transitions>
 class transition_table
 {
 public:
+    /**
+    @brief Default constructor
+    */
     constexpr transition_table() = default;
 
+    /**
+    @brief Copy constructor
+    */
     constexpr transition_table(const transition_table&) = default;
 
+    /**
+    @brief Deleted move constructor
+    */
     transition_table(transition_table&&) = delete;
 
     ~transition_table() = default;
 
+    /**
+    @brief Deleted assignment operator
+    */
     transition_table& operator=(const transition_table&) = delete;
 
+    /**
+    @brief Deleted move operator
+    */
     transition_table& operator=(transition_table&&) = delete;
 
+    /**
+    @brief Creates a new `transition_table` with an additional transition.
+
+    @param source_state_conf_filter the configurator of the active state (or states, plural, if it's a @ref TypeFilters "type filter") from which the transition can occur
+    @param event_filter the event type (or types, plural, if it's a @ref TypeFilters "type filter") that can cause the transition to occur
+    @param target_state_conf the configurator of the state that becomes active after the transition occurs
+    @param action the function invoked when the transition occurs
+    @param guard the function that must return `true` for the transition to occur
+    */
     template
     <
         class SourceStateConfFilter,
@@ -190,11 +184,13 @@ public:
     }
 
 private:
+#ifndef MAKI_DETAIL_DOXYGEN
     template<class... Transitions2>
     friend constexpr auto detail::make_transition_table(const detail::tuple<Transitions2...>&);
 
     template<class... Transitions2>
     friend constexpr const auto& detail::rows(const transition_table<Transitions2...>&);
+#endif
 
     template<class TransitionTuple>
     constexpr explicit transition_table(const TransitionTuple& transitions):
@@ -204,10 +200,6 @@ private:
 
     detail::tuple<Transitions...> transitions_;
 };
-
-/**
-@}
-*/
 
 } //namespace
 

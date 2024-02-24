@@ -78,18 +78,16 @@ spinning_high -> spinning_med : minus button press
 
 ## How to define guards within Maki
 
-Within Maki, guards are non-member functions, preferably without side effect, that return a `bool`. Maki accepts the following signatures, in this order of priority:
+Within Maki, guards are callables, preferably without side effect, that return a `bool`. Said callable must be invocable in one of the following ways (from highest to lowest priority):
 
 ~~~{.cpp}
-bool(machine_type& mach, context_type& ctx, const event_type& evt);
-bool(context_type& ctx, const event_type& evt);
-bool(context_type& ctx);
-bool();
+bool b = std::invoke(guard, ctx, mach, event);
+bool b = std::invoke(guard, ctx, event);
+bool b = std::invoke(guard, ctx);
+bool b = std::invoke(guard);
 ~~~
 
-Maki also accepts `constexpr` callables with the same signatures for `operator()()`.
-
-Once you've defined your guard, you just have to pass the function name as the fifth argument of the transition of your choice, like so:
+Once you've defined your guard, you just have to pass it as the fifth argument of the transition of your choice, like so:
 
 ~~~{.cpp}
 constexpr auto transition_table = maki::transition_table{}

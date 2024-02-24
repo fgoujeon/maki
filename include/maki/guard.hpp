@@ -99,6 +99,7 @@ private:
     Operand2 op2_;
 };
 
+#ifndef MAKI_DETAIL_DOXYGEN
 template<class Operand>
 class guard<detail::guard_operator::none, Operand, null_t>
 {
@@ -156,6 +157,7 @@ public:
 private:
     Operand op_;
 };
+#endif
 
 template<class Guard>
 guard(const Guard&) -> guard<detail::guard_operator::none, detail::storable_function_t<Guard>>;

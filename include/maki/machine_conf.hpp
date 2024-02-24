@@ -263,7 +263,8 @@ public:
     }
 
     /**
-    @brief Specifies whether the constructor of @ref machine must call @ref machine::start().
+    @brief Specifies whether the constructor of `maki::machine` must call
+    `maki::machine::start()`.
     */
     [[nodiscard]] constexpr auto auto_start(const bool value) const
     {
@@ -335,7 +336,7 @@ public:
     @brief Specifies whether run-to-completion is enabled.
 
     Disabling run-to-completion makes the state machine much faster, but you
-    have to make sure you <b>never</b> call `machine::process_event()`
+    have to make sure you <b>never</b> call `maki::machine::process_event()`
     recursively.
 
     Disable it at your own risk!
@@ -351,7 +352,7 @@ public:
     /**
     @brief Specifies the pretty name of the state machine.
 
-    See `maki::pretty_name`.
+    See `maki::pretty_name()`.
     */
     [[nodiscard]] constexpr auto pretty_name(const std::string_view value) const
     {

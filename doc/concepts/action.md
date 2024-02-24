@@ -69,8 +69,8 @@ Internal actions is the only kind of action that can be executed without a state
 When you want to execute an action during a state transition however, you have several choices.
 
 * Entry/exit actions being associated to a specific state, they are well suited for:
-** the initialization/deinitialization of the state (e.g. allocation/deallocation of resources, start/stop of timer to implement a timeout, etc.);
-** calling functions that are semantically associated with the state name (e.g. `start_motor()`/`stop_motor()` for a state named `running_motor`).
+    * the initialization/deinitialization of the state (e.g. allocation/deallocation of resources, start/stop of timer to implement a timeout, etc.);
+    * calling functions that are semantically associated with the state name (e.g. `start_motor()`/`stop_motor()` for a state named `running_motor`).
 * State transition actions are well suited for executing functions that have more to do with the specific transition it's associated to than with the source or target state.
 
 ## How to define actions within Maki
@@ -82,16 +82,16 @@ There are two ways to define and associate an action:
 
 ### Within the transition table
 
-The action is the fourth (optional) parameter of `maki::transition`. In this context, Maki expects the name of a non-member function with one of the following signatures (in this order of priority):
+The action is the fourth (optional) parameter of `maki::transition_table::operator()()`. In this context, Maki expects a callable that can be invoked in one of the following ways (from highest to lowest priority):
 
 ~~~{.cpp}
-void(machine_type& mach, context_type& ctx, const event_type& evt);
-void(context_type& ctx, const event_type& evt);
-void(context_type& ctx);
-void();
+std::invoke(action, ctx, mach, event);
+std::invoke(action, ctx, event);
+std::invoke(action, ctx);
+std::invoke(action);
 ~~~
 
-What determines the kind of the action (between a state transition action or an internal action) is the target state (the third parameter) of the `maki::transition` instance:
+What determines the kind of the action (between a state transition action and an internal action) is the target state (the third parameter) given to `maki::transition_table::operator()()`:
 
 * if the target state is `maki::null`, the action is an internal action;
 * if the target state is a valid state, the action is a state transition action.
@@ -104,7 +104,11 @@ Here is an example of two actions, with their definition and their association w
 
 ### Within the associated state
 
-To associate an action to a state, you have to add a callable to the state configuration.
+To associate an action to a state, you have to add a callable to the state configurator through a call to either:
+
+* `maki::state_conf::entry_action_v()` (and its variants) for an entry action;
+* `maki::state_conf::internal_action_v()` (and its variants) for an internal action;
+* `maki::state_conf::exit_action_v()` (and its variants) for an exit action.
 
 Here is an example of a state that defines all three kinds of actions (entry, internal and exit):
 

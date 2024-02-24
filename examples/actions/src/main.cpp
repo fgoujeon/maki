@@ -23,8 +23,10 @@ constexpr auto state0 = maki::state_conf{};
 constexpr auto state1 = maki::state_conf{};
 //! [short-in-state]
 constexpr auto state2 = maki::state_conf{}
-    //Entry action.
-    //Called on state entry for state transitions caused by some_other_event.
+    /*
+    Entry action.
+    Called on state entry for state transitions caused by some_other_event.
+    */
     .entry_action_e
     (
         maki::type<some_other_event>,
@@ -34,30 +36,38 @@ constexpr auto state2 = maki::state_conf{}
         }
     )
 
-    //Entry action.
-    //Called on state entry for state transitions caused by any other type of
-    //event.
-    .entry_action_v(maki::any, []
+    /*
+    Entry action.
+    Called on state entry for state transitions caused by any other type of
+    event.
+    */
+    .entry_action_v([]
     {
         std::cout << "Executing state2 entry action...\n";
     })
 
-    //Internal action.
+    /*
+    Internal action.
+    */
     .internal_action_v(maki::type<some_event>, []
     {
         std::cout << "Executing state2 some_event action\n";
     })
 
-    //Internal action.
+    /*
+    Internal action.
+    */
     .internal_action_e(maki::type<some_other_event>, [](const some_other_event& event)
     {
         std::cout << "Executing state2 some_other_event action (some_other_event{" << event.value << "})...\n";
     })
 
-    //Exit action.
-    //Called on state exit, whatever the event that caused the state
-    //transitions.
-    .exit_action_v(maki::any, []
+    /*
+    Exit action.
+    Called on state exit, whatever the event that caused the state
+    transitions.
+    */
+    .exit_action_v([]
     {
         std::cout << "Executing state2 exit action...\n";
     })
@@ -77,9 +87,9 @@ void some_other_action(context& /*ctx*/, const some_other_event& event)
 
 //Transition table
 constexpr auto transition_table = maki::transition_table{}
-    //source state, event,                          target state, action
+    //source state, event,                         target state, action
     (state0,        maki::type<some_event>,        state1,       some_action /*state transition action*/)
-    (state0,        maki::type<some_other_event>,  maki::null, some_other_action /*internal transition action*/)
+    (state0,        maki::type<some_other_event>,  maki::null,   some_other_action /*internal transition action*/)
     (state0,        maki::type<yet_another_event>, state2)
     (state1,        maki::type<yet_another_event>, state2)
     (state2,        maki::type<yet_another_event>, state0)

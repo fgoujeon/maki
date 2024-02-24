@@ -39,13 +39,13 @@ namespace detail
 
 /**
 @brief The state machine implementation template.
-@tparam ConfHolder the state machine definition, a class that must at least define a
-`static constexpr auto conf` of a @ref machine_conf type, with defined
-machine_conf::transition_tables and machine_conf::context_type options
+@tparam ConfHolder the state machine definition, a class that must at least
+define a `static constexpr auto conf` of a `maki::machine_conf` type, with
+defined `transition_tables` and `context` options
 
 Here is an example of valid state machine definition, where:
-- `transition_table` is a user-provided `constexpr` instance of a @ref
-transition_table type;
+- `transition_table` is a user-provided `constexpr` instance of a
+`maki::transition_table` type;
 - `context` is a user-provided class.
 
 @snippet lamp/src/main.cpp machine-def
@@ -80,20 +80,15 @@ public:
 
     /**
     @brief The constructor.
-    @param ctx_args the arguments to be passed to the context constructor
+    @param ctx_args the arguments to be forwarded to the constructor of the root
+    context
 
-    The constructor first instantiates all the state machine objects (i.e. the
-    state machine context, the state machine definition, the region contexts (if
-    any) and the states). All state machine objects are constructed with one of
-    these statements:
-    @code
-    auto obj = object_type{*this, context()};
-    auto obj = object_type{context()};
-    auto obj = object_type{};
-    @endcode
+    The constructor first instantiates all the contexts defined in the state
+    machine, starting with the root context (i.e. the context specified in the
+    `maki::machine_conf` object).
 
-    Finally, unless the machine_conf::auto_start is `false`, `start()` is
-    called.
+    Finally, unless `maki::machine_conf::auto_start()` is set to `false`,
+    `maki::machine::start()` is called.
     */
     template<class... ContextArgs>
     explicit machine(ContextArgs&&... ctx_args):
@@ -156,8 +151,8 @@ public:
     }
 
     /**
-    @brief Returns whether the region indicated by `RegionPath` is running.
-    @tparam RegionPath an instance of @ref path pointing to the
+    @brief Returns whether the region located at `RegionPath` is running.
+    @tparam RegionPath an instance of `maki::path` pointing to the
     region of interest
     */
     template<const auto& RegionPath>
@@ -167,8 +162,8 @@ public:
     }
 
     /**
-    @brief Returns whether the single region of the state machine in running.
-    This function can only be called if the state machine contains a single
+    @brief Returns whether the region of the state machine in running.
+    This function can only be called if the state machine contains only one
     region.
     */
     [[nodiscard]] bool running() const
@@ -177,11 +172,11 @@ public:
     }
 
     /**
-    @brief Returns whether `State` is active in the region indicated by
-    `RegionPath`.
-    @tparam RegionPath an instance of @ref path pointing to the
+    @brief Returns whether the state created from `StateConf` is active in the
+    region located at `RegionPath`.
+    @tparam RegionPath an instance of `maki::path` pointing to the
     region of interest
-    @tparam State the state type
+    @tparam StateConf the state configurator
     */
     template<const auto& RegionPath, const auto& StateConf>
     [[nodiscard]] bool active_state() const
@@ -190,10 +185,10 @@ public:
     }
 
     /**
-    @brief Returns whether `State` is active in the single region of the state
-    machine. This function can only be called if the state machine contains a
-    single region.
-    @tparam State the state type
+    @brief Returns whether the state created from `StateConf` is active in the
+    region of the state machine. This function can only be called if the state
+    machine contains only one region.
+    @tparam StateConf the state configurator
     */
     template<const auto& StateConf>
     [[nodiscard]] bool active_state() const
@@ -203,14 +198,14 @@ public:
 
     /**
     @brief Starts the state machine
-    @param event the event to be passed to the event hooks, mainly the
-    `on_entry()` function of the initial state(s)
+    @param event the event to be passed to the invoked actions, mainly the
+    entry action of the initial state(s)
 
-    Concretely, if `maki::state_conf::stopped` is the active state, exits
-    `maki::state_conf::stopped` and enters the initial state.
+    Concretely, if `maki::state_confs::stopped` is the active state, exits
+    `maki::state_confs::stopped` and enters the initial state.
 
     Reminder: There's no need to call this function after the construction,
-    unless machine_conf::auto_start is set to `false`.
+    unless `maki::machine_conf::auto_start` is set to `false`.
     */
     template<class Event = events::start>
     void start(const Event& event = {})
@@ -220,10 +215,10 @@ public:
 
     /**
     @brief Stops the state machine
-    @param event the event to be passed to the event hooks, mainly the
-    `on_exit()` function of the active state(s)
+    @param event the event to be passed to the invoked actions, mainly the
+    exit action of the active state(s)
 
-    Concretely, if `maki::state_conf::stopped` is not the active state, exits
+    Concretely, if `maki::state_confs::stopped` is not the active state, exits
     the active state and enters `maki::state_confs::stopped`.
     */
     template<class Event = events::stop>
@@ -257,15 +252,15 @@ public:
         {
             if
             (
-                IS_ACTIVE_STATE(transition_t::source_state_type) &&
-                SAME_TYPE(Event, transition_t::event_type) &&
-                CALL_GUARD(transition_t)
+                IS_ACTIVE_STATE(source_state) &&
+                SAME_TYPE(Event, event_type) &&
+                GUARD() == true
             )
             {
-                CALL_ON_EXIT(transition_t::source_state_type);
-                active_state_id = transition_t::target_state_id;
-                CALL_ACTION(transition_t);
-                CALL_ON_ENTRY(transition_t::target_state_type);
+                CALL_EXIT_ACTION(source_state);
+                SET_ACTIVE_STATE(target_state);
+                CALL_TRANSITION_ACTION();
+                CALL_ENTRY_ACTION(target_state);
 
                 state_transition_happened = true;
                 break;
@@ -275,7 +270,7 @@ public:
         //Process event in active state
         if(!state_transition_happened)
         {
-            CALL_ON_EVENT(active_state);
+            CALL_ACTIVE_STATE_INTERNAL_ACTION();
         }
     }
 
@@ -290,19 +285,19 @@ public:
     }
 
     /**
-    @brief Like process_event(), but doesn't check if an event is being
-    processed.
+    @brief Like `maki::machine::process_event()`, but doesn't check if an event
+    is being processed.
     @param event the event to be processed
 
     <b>USE WITH CAUTION!</b>
 
     You can call this function if you're **absolutely** sure that you're not
-    calling this function while process_event() is being called. Otherwise,
-    <b>run-to-completion will be broken</b>.
+    calling this function while `maki::machine::process_event()` is being
+    called. Otherwise, <b>run-to-completion will be broken</b>.
 
-    Compared to process_event(), process_event_now() is:
-    - faster to build, because the enqueue_event() function template won't be
-    instantiated;
+    Compared to `maki::machine::process_event()`, this function is:
+    - faster to build, because the `maki::machine::enqueue_event()` function
+    template won't be instantiated;
     - faster to run, because an `if` statement is skipped.
     */
     template<class Event>

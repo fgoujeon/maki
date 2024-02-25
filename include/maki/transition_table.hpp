@@ -12,12 +12,11 @@
 #ifndef MAKI_TRANSITION_TABLE_HPP
 #define MAKI_TRANSITION_TABLE_HPP
 
-#include "null.hpp"
-#include "detail/cref_wrapper.hpp"
+#include "detail/state_id.hpp"
 #include "detail/conf_traits.hpp"
 #include "detail/storable_function.hpp"
-#include "detail/storable_conf_filter.hpp"
 #include "detail/tuple.hpp"
+#include "null.hpp"
 
 namespace maki
 {
@@ -173,9 +172,9 @@ public:
                 transitions_,
                 detail::make_transition
                 (
-                    detail::to_storable_conf_filter(source_state_conf_filter),
+                    detail::try_making_state_id(source_state_conf_filter),
                     event_filter,
-                    detail::make_cref_wrapper(target_state_conf),
+                    detail::try_making_state_id(target_state_conf),
                     action,
                     guard
                 )

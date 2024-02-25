@@ -12,7 +12,7 @@
 #ifndef MAKI_TYPE_FILTERS_HPP
 #define MAKI_TYPE_FILTERS_HPP
 
-#include "detail/storable_conf_filter.hpp"
+#include "detail/state_id.hpp"
 #include "detail/constant.hpp"
 #include "type.hpp"
 #include <type_traits>
@@ -99,12 +99,12 @@ constexpr auto any_if_not(const Predicate& pred)
 template<class... Ts>
 constexpr auto any_of(const Ts&... values)
 {
-    return any_of_t<detail::storable_conf_filter_t<Ts>...>
+    return any_of_t<detail::to_state_id_or_identity_t<Ts>...>
     {
-        detail::tuple<detail::storable_conf_filter_t<Ts>...>
+        detail::tuple<detail::to_state_id_or_identity_t<Ts>...>
         {
             detail::distributed_construct,
-            detail::to_storable_conf_filter(values)...
+            detail::try_making_state_id(values)...
         }
     };
 }
@@ -112,12 +112,12 @@ constexpr auto any_of(const Ts&... values)
 template<class... Ts>
 constexpr auto any_but(const Ts&... values)
 {
-    return any_but_t<detail::storable_conf_filter_t<Ts>...>
+    return any_but_t<detail::to_state_id_or_identity_t<Ts>...>
     {
-        detail::tuple<detail::storable_conf_filter_t<Ts>...>
+        detail::tuple<detail::to_state_id_or_identity_t<Ts>...>
         {
             detail::distributed_construct,
-            detail::to_storable_conf_filter(values)...
+            detail::try_making_state_id(values)...
         }
     };
 }
@@ -139,7 +139,14 @@ namespace detail
     template<class Value, class Filter>
     constexpr bool matches_filter(const Value& value, const Filter& filter)
     {
-        return value == filter;
+        if constexpr(std::is_same_v<Value, Filter>)
+        {
+            return value == filter;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     template<class Value>

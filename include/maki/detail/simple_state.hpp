@@ -20,14 +20,16 @@
 namespace maki::detail
 {
 
-template<const auto& Conf, class Context>
+template<auto Id, class Context>
 class simple_state_impl
 {
 public:
-    using option_set_type = std::decay_t<decltype(opts(Conf))>;
+    static constexpr auto id = Id;
+    static constexpr const auto& conf = *Id;
+    using option_set_type = std::decay_t<decltype(opts(conf))>;
     using context_type = typename option_set_type::context_type;
 
-    static constexpr auto context_sig = opts(Conf).context_sig;
+    static constexpr auto context_sig = opts(conf).context_sig;
 
     template<class... Args>
     simple_state_impl(Args&... args):
@@ -81,22 +83,22 @@ public:
         return impl_type::template has_internal_action_for_event<Event>();
     }
 
-    static constexpr const auto& conf = Conf;
-
 private:
-    using impl_type = simple_state_impl<Conf, void>;
+    using impl_type = simple_state_impl<id, void>;
 
     context_holder<context_type, context_sig> ctx_holder_;
     impl_type impl_;
 };
 
-template<const auto& Conf>
-class simple_state_impl<Conf, void>
+template<auto Id>
+class simple_state_impl<Id, void>
 {
 public:
-    using option_set_type = std::decay_t<decltype(opts(Conf))>;
+    static constexpr auto id = Id;
+    static constexpr const auto& conf = *Id;
+    using option_set_type = std::decay_t<decltype(opts(conf))>;
 
-    static constexpr auto context_sig = opts(Conf).context_sig;
+    static constexpr auto context_sig = opts(conf).context_sig;
 
     template<class... Args>
     simple_state_impl(Args&... /*args*/)
@@ -168,16 +170,14 @@ public:
         >;
     }
 
-    static constexpr const auto& conf = Conf;
-
 private:
-    static constexpr auto entry_actions = opts(Conf).entry_actions;
+    static constexpr auto entry_actions = opts(conf).entry_actions;
     using entry_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<entry_actions>;
 
-    static constexpr auto internal_actions = opts(Conf).internal_actions;
+    static constexpr auto internal_actions = opts(conf).internal_actions;
     using internal_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<internal_actions>;
 
-    static constexpr auto exit_actions = opts(Conf).exit_actions;
+    static constexpr auto exit_actions = opts(conf).exit_actions;
     using exit_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<exit_actions>;
 };
 

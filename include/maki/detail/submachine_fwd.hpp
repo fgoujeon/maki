@@ -13,11 +13,11 @@
 namespace maki::detail
 {
 
-template<const auto& Conf, class ParentRegion, class Context>
+template<auto Id, class ParentRegion, class Context>
 class submachine_impl;
 
-template<const auto& Conf, class ParentRegion>
-using submachine = submachine_impl<Conf, ParentRegion, conf_traits::context_t<Conf>>;
+template<auto Id, class ParentRegion>
+using submachine = submachine_impl<Id, ParentRegion, conf_traits::context_t<*Id>>;
 
 } //namespace
 

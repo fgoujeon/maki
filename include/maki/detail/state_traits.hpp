@@ -20,33 +20,33 @@
 namespace maki::detail::state_traits
 {
 
-//state_conf_to_state
+//state_id_to_state
 
-template<const auto& StateConf, class Parent, class Enable = void>
-struct state_conf_to_state
+template<auto StateId, class Parent, class Enable = void>
+struct state_id_to_state
 {
-    using type = simple_state<StateConf>;
+    using type = simple_state<StateId>;
 };
 
-template<const auto& StateConf, class Parent>
-struct state_conf_to_state<StateConf, Parent, std::enable_if_t<conf_traits::is_submachine_conf_v<std::decay_t<decltype(StateConf)>>>>
+template<auto StateId, class Parent>
+struct state_id_to_state<StateId, Parent, std::enable_if_t<conf_traits::is_submachine_conf_v<std::decay_t<decltype(*StateId)>>>>
 {
-    using type = submachine<StateConf, Parent>;
+    using type = submachine<StateId, Parent>;
 };
 
-template<const auto& StateConf, class Parent>
-using state_conf_to_state_t = typename state_conf_to_state<StateConf, Parent>::type;
+template<auto StateId, class Parent>
+using state_id_to_state_t = typename state_id_to_state<StateId, Parent>::type;
 
 
-//has_conf
+//has_id
 
-template<const auto& Conf>
-struct for_conf
+template<auto Id>
+struct for_id
 {
     template<class T>
-    struct has_conf
+    struct has_id
     {
-        static constexpr auto value = same_ref(T::conf, Conf);
+        static constexpr auto value = static_cast<const void*>(T::id) == static_cast<const void*>(Id);
     };
 };
 

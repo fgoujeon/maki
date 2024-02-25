@@ -20,18 +20,18 @@ namespace by_filter_detail
     template<auto FilterPtr>
     struct for_filter
     {
-        template<class StateConfPtrConstant>
+        template<class StateIdConstant>
         struct matches
         {
-            static constexpr auto value = matches_filter(make_cref_wrapper(*StateConfPtrConstant::value), *FilterPtr);
+            static constexpr auto value = matches_filter(StateIdConstant::value, *FilterPtr);
         };
     };
 }
 
-template<class StateConfPtrConstantList, auto FilterPtr>
+template<class StateIdConstantList, auto FilterPtr>
 using by_filter_t = tlu::filter_t
 <
-    StateConfPtrConstantList,
+    StateIdConstantList,
     by_filter_detail::for_filter<FilterPtr>::template matches
 >;
 

@@ -21,16 +21,16 @@ struct path_of;
 template<class T>
 inline constexpr auto path_of_v = path_of<T>::value;
 
-template<const auto& Conf, class ParentRegion, class ContextType>
-struct path_of<submachine_impl<Conf, ParentRegion, ContextType>>
+template<auto Id, class ParentRegion, class ContextType>
+struct path_of<submachine_impl<Id, ParentRegion, ContextType>>
 {
-    static constexpr auto value = path_of_v<ParentRegion> / Conf;
+    static constexpr auto value = path_of_v<ParentRegion> / *Id;
 };
 
-template<const auto& Conf, class ContextType>
-struct path_of<submachine_impl<Conf, void, ContextType>>
+template<auto Id, class ContextType>
+struct path_of<submachine_impl<Id, void, ContextType>>
 {
-    static constexpr auto value = path{Conf};
+    static constexpr auto value = path{*Id};
 };
 
 template<class ParentSm, int Index>

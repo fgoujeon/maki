@@ -16,7 +16,6 @@
 #include "tlu.hpp"
 #include "same_ref.hpp"
 #include "maybe_bool_util.hpp"
-#include "../cref_constant.hpp"
 #include "../submachine_conf.hpp"
 #include "../state_confs.hpp"
 #include <type_traits>
@@ -413,10 +412,10 @@ private:
                 opts(Machine::conf).pre_state_transition_action
                 (
                     ctx,
-                    cref_constant<path>,
-                    cref_constant<*SourceStateConfPtr>,
+                    constant<&path>,
+                    constant<SourceStateConfPtr>,
                     event,
-                    cref_constant<*TargetStateConfPtr>
+                    constant<TargetStateConfPtr>
                 );
             }
 
@@ -467,10 +466,10 @@ private:
                 opts(Machine::conf).post_state_transition_action
                 (
                     ctx,
-                    cref_constant<path>,
-                    cref_constant<*SourceStateConfPtr>,
+                    constant<&path>,
+                    constant<SourceStateConfPtr>,
                     event,
-                    cref_constant<*TargetStateConfPtr>
+                    constant<TargetStateConfPtr>
                 );
             }
 

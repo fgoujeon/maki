@@ -190,10 +190,10 @@ path(const Elem&) -> path<Elem>;
 
 namespace detail
 {
-    template<const auto& Path, int Index>
+    template<auto PathPtr, int Index>
     std::string path_element_to_string()
     {
-        constexpr auto elem = path_raw_at<Index>(Path);
+        constexpr auto elem = path_raw_at<Index>(*PathPtr);
         using elem_type = std::decay_t<decltype(elem)>;
 
         if constexpr(std::is_same_v<elem_type, int>)
@@ -220,24 +220,24 @@ namespace detail
         }
     }
 
-    template<const auto& Path, class IndexSequence>
+    template<auto PathPtr, class IndexSequence>
     struct path_to_string_impl;
 
-    template<const auto& Path, int... Indexes>
-    struct path_to_string_impl<Path, std::integer_sequence<int, Indexes...>>
+    template<auto PathPtr, int... Indexes>
+    struct path_to_string_impl<PathPtr, std::integer_sequence<int, Indexes...>>
     {
         static constexpr auto call()
         {
-            return (path_element_to_string<Path, Indexes>() + ...);
+            return (path_element_to_string<PathPtr, Indexes>() + ...);
         }
     };
 }
 
-template<class... Elems, const path<Elems...>& Path>
-std::string to_string(const cref_constant_t<Path>& /*path*/)
+template<class... Elems, const path<Elems...>* PathPtr>
+std::string to_string(const constant_t<PathPtr>& /*ppath*/)
 {
-    using idx_sequence_t = std::make_integer_sequence<int, Path.size()>;
-    return detail::path_to_string_impl<Path, idx_sequence_t>::call();
+    using idx_sequence_t = std::make_integer_sequence<int, PathPtr->size()>;
+    return detail::path_to_string_impl<PathPtr, idx_sequence_t>::call();
 }
 
 } //namespace

@@ -57,9 +57,9 @@ namespace
                 ctx.out += "Transition in ";
                 ctx.out += to_string(path_constant);
                 ctx.out += ": ";
-                ctx.out += maki::pretty_name<source_state_constant.value>();
+                ctx.out += maki::pretty_name<*source_state_constant.value>();
                 ctx.out += " -> ";
-                ctx.out += maki::pretty_name<target_state_constant.value>();
+                ctx.out += maki::pretty_name<*target_state_constant.value>();
                 ctx.out += "...;";
 
                 ctx.out += std::to_string(event.pressure) + ";";
@@ -74,9 +74,9 @@ namespace
                 ctx.out += "Transition in ";
                 ctx.out += to_string(path_constant);
                 ctx.out += ": ";
-                ctx.out += maki::pretty_name<source_state_constant.value>();
+                ctx.out += maki::pretty_name<*source_state_constant.value>();
                 ctx.out += " -> ";
-                ctx.out += maki::pretty_name<target_state_constant.value>();
+                ctx.out += maki::pretty_name<*target_state_constant.value>();
                 ctx.out += ";";
             }
         )

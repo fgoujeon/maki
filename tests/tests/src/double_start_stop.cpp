@@ -50,9 +50,9 @@ namespace
                 ctx.out += "Transition in ";
                 ctx.out += maki::to_string(path_constant);
                 ctx.out += ": ";
-                ctx.out += maki::pretty_name<source_state_constant.value>();
+                ctx.out += maki::pretty_name<*source_state_constant.value>();
                 ctx.out += " -> ";
-                ctx.out += maki::pretty_name<target_state_constant.value>();
+                ctx.out += maki::pretty_name<*target_state_constant.value>();
                 ctx.out += "...;";
             }
         )
@@ -65,9 +65,9 @@ namespace
                 ctx.out += "Transition in ";
                 ctx.out += maki::to_string(path_constant);
                 ctx.out += ": ";
-                ctx.out += maki::pretty_name<source_state_constant.value>();
+                ctx.out += maki::pretty_name<*source_state_constant.value>();
                 ctx.out += " -> ";
-                ctx.out += maki::pretty_name<target_state_constant.value>();
+                ctx.out += maki::pretty_name<*target_state_constant.value>();
                 ctx.out += ";";
             }
         )

@@ -58,7 +58,7 @@ template<auto Id, class ParentRegion, class ContextType>
 class submachine_impl
 {
 public:
-    static constexpr auto id = Id;
+    static constexpr auto identifier = Id;
     static constexpr const auto& conf = *Id;
     using conf_type = std::decay_t<decltype(conf)>;
     using option_set_type = std::decay_t<decltype(opts(conf))>;
@@ -219,7 +219,7 @@ public:
     }
 
 private:
-    using impl_type = submachine_impl<id, ParentRegion, void>;
+    using impl_type = submachine_impl<identifier, ParentRegion, void>;
 
     context_holder<context_type, opts(conf).context_sig> ctx_holder_;
     impl_type impl_;
@@ -229,7 +229,7 @@ template<auto Id, class ParentRegion>
 class submachine_impl<Id, ParentRegion, void>
 {
 public:
-    static constexpr auto id = Id;
+    static constexpr auto identifier = Id;
     static constexpr const auto& conf = *Id;
     using conf_type = std::decay_t<decltype(conf)>;
     using option_set_type = std::decay_t<decltype(opts(conf))>;

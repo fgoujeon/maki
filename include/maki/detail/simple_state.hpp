@@ -24,7 +24,7 @@ template<auto Id, class Context>
 class simple_state_impl
 {
 public:
-    static constexpr auto id = Id;
+    static constexpr auto identifier = Id;
     static constexpr const auto& conf = *Id;
     using option_set_type = std::decay_t<decltype(opts(conf))>;
     using context_type = typename option_set_type::context_type;
@@ -84,7 +84,7 @@ public:
     }
 
 private:
-    using impl_type = simple_state_impl<id, void>;
+    using impl_type = simple_state_impl<identifier, void>;
 
     context_holder<context_type, context_sig> ctx_holder_;
     impl_type impl_;
@@ -94,7 +94,7 @@ template<auto Id>
 class simple_state_impl<Id, void>
 {
 public:
-    static constexpr auto id = Id;
+    static constexpr auto identifier = Id;
     static constexpr const auto& conf = *Id;
     using option_set_type = std::decay_t<decltype(opts(conf))>;
 

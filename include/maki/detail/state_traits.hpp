@@ -46,7 +46,7 @@ struct for_id
     template<class T>
     struct has_id
     {
-        static constexpr auto value = static_cast<const void*>(T::id) == static_cast<const void*>(Id);
+        static constexpr auto value = static_cast<const void*>(T::identifier) == static_cast<const void*>(Id);
     };
 };
 

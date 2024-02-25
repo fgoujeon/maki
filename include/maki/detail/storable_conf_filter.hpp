@@ -8,7 +8,7 @@
 #define MAKI_DETAIL_STORABLE_CONF_FILTER_HPP
 
 #include "conf_traits.hpp"
-#include "cref_wrapper.hpp"
+#include "ref_wrapper.hpp"
 
 namespace maki::detail
 {
@@ -31,13 +31,13 @@ using storable_conf_filter_t = typename storable_conf_filter<T>::type;
 template<class OptionSet>
 struct storable_conf_filter<state_conf<OptionSet>>
 {
-    using type = cref_wrapper<state_conf<OptionSet>>;
+    using type = ref_wrapper<const state_conf<OptionSet>>;
 };
 
 template<class OptionSet>
 struct storable_conf_filter<submachine_conf<OptionSet>>
 {
-    using type = cref_wrapper<submachine_conf<OptionSet>>;
+    using type = ref_wrapper<const submachine_conf<OptionSet>>;
 };
 
 template<class T>

@@ -13,7 +13,7 @@
 #define MAKI_TRANSITION_TABLE_HPP
 
 #include "null.hpp"
-#include "detail/cref_wrapper.hpp"
+#include "detail/ref_wrapper.hpp"
 #include "detail/conf_traits.hpp"
 #include "detail/storable_function.hpp"
 #include "detail/storable_conf_filter.hpp"

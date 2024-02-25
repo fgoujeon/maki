@@ -4,33 +4,33 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_CREF_WRAPPER_HPP
-#define MAKI_DETAIL_CREF_WRAPPER_HPP
+#ifndef MAKI_DETAIL_REF_WRAPPER_HPP
+#define MAKI_DETAIL_REF_WRAPPER_HPP
 
 namespace maki::detail
 {
 
 /*
-Stores a `const T&`.
+Stores a `T&`.
 */
 template<class T>
-class cref_wrapper
+class ref_wrapper
 {
 public:
-    constexpr cref_wrapper(const T& obj):
+    constexpr ref_wrapper(const T& obj):
         ptr_(&obj)
     {
     }
 
-    constexpr cref_wrapper(const cref_wrapper&) = default;
+    constexpr ref_wrapper(const ref_wrapper&) = default;
 
-    constexpr cref_wrapper(cref_wrapper&&) noexcept = default;
+    constexpr ref_wrapper(ref_wrapper&&) noexcept = default;
 
-    ~cref_wrapper() = default;
+    ~ref_wrapper() = default;
 
-    cref_wrapper& operator=(const cref_wrapper&) = delete;
+    ref_wrapper& operator=(const ref_wrapper&) = delete;
 
-    cref_wrapper& operator=(cref_wrapper&&) = delete;
+    ref_wrapper& operator=(ref_wrapper&&) = delete;
 
     constexpr const T& get() const
     {
@@ -47,13 +47,13 @@ private:
 };
 
 template<class T>
-constexpr bool operator==(const cref_wrapper<T>& lhs, const cref_wrapper<T>& rhs)
+constexpr bool operator==(const ref_wrapper<T>& lhs, const ref_wrapper<T>& rhs)
 {
     return lhs.get_as_ptr() == rhs.get_as_ptr();
 }
 
 template<class T, class U>
-constexpr bool operator==(const cref_wrapper<T>& /*lhs*/, const cref_wrapper<U>& /*rhs*/)
+constexpr bool operator==(const ref_wrapper<T>& /*lhs*/, const ref_wrapper<U>& /*rhs*/)
 {
     return false;
 }
@@ -61,7 +61,7 @@ constexpr bool operator==(const cref_wrapper<T>& /*lhs*/, const cref_wrapper<U>&
 template<class T>
 constexpr auto make_cref_wrapper(const T& obj)
 {
-    return cref_wrapper<T>{obj};
+    return ref_wrapper<const T>{obj};
 }
 
 } //namespace

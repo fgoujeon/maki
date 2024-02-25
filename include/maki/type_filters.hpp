@@ -13,7 +13,7 @@
 #define MAKI_TYPE_FILTERS_HPP
 
 #include "detail/storable_conf_filter.hpp"
-#include "detail/constant.hpp"
+#include "constant.hpp"
 #include "type.hpp"
 #include <type_traits>
 

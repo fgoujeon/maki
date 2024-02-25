@@ -10,7 +10,7 @@
 #include "../type_filters.hpp"
 #include "../transition_table.hpp"
 #include "../events.hpp"
-#include "constant.hpp"
+#include "../constant.hpp"
 #include "same_ref.hpp"
 #include "tlu.hpp"
 #include "tuple.hpp"

@@ -200,6 +200,12 @@ namespace detail
     {
         return false;
     }
+
+    template<class Value, class Filter>
+    constexpr bool matches_filter_ptr(const Value& value, const Filter* pfilter)
+    {
+        return matches_filter(value, *pfilter);
+    }
 }
 
 namespace detail

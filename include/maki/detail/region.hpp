@@ -124,7 +124,7 @@ public:
     {
         if constexpr(is_type_filter_v<std::decay_t<decltype(*StateId)>>)
         {
-            return does_active_state_def_match_filter<StateId>();
+            return does_active_state_id_match_filter<StateId>();
         }
         else
         {
@@ -567,24 +567,24 @@ private:
     }
 
     template<auto FilterPtr>
-    [[nodiscard]] bool does_active_state_def_match_filter() const
+    [[nodiscard]] bool does_active_state_id_match_filter() const
     {
         auto matches = false;
         with_active_state_id
         <
             tlu::push_back_t<state_id_constant_list, constant_t<&state_confs::stopped>>,
-            does_active_state_def_match_filter_2<FilterPtr>
+            does_active_state_id_match_filter_2<FilterPtr>
         >(matches);
         return matches;
     }
 
     template<auto FilterPtr>
-    struct does_active_state_def_match_filter_2
+    struct does_active_state_id_match_filter_2
     {
         template<auto ActiveStateId>
         static void call([[maybe_unused]] bool& matches)
         {
-            if constexpr(matches_filter(ActiveStateId, *FilterPtr))
+            if constexpr(matches_filter_ptr(ActiveStateId, FilterPtr))
             {
                 matches = true;
             }

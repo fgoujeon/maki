@@ -44,35 +44,20 @@ namespace region_detail
     template<class StateList, class State>
     inline constexpr auto find_state_v = find_state<StateList, State>::value;
 
-    template<class StateList, const auto& StateConf>
-    struct find_state_conf
-    {
-        static constexpr auto value = tlu::find_if_v<StateList, state_traits::for_id<&StateConf>::template has_id>;
-    };
-
-    template<class StateList>
-    struct find_state_conf<StateList, state_confs::stopped>
-    {
-        static constexpr auto value = stopped_state_index;
-    };
-
-    template<class StateList, const auto& StateConf>
-    inline constexpr auto find_state_from_conf_v = find_state_conf<StateList, StateConf>::value;
-
     template<class StateList, auto StateId>
-    struct find_state_conf_ptr
+    struct find_state_from_id
     {
         static constexpr auto value = tlu::find_if_v<StateList, state_traits::for_conf_ptr<StateId>::template has_conf_ptr>;
     };
 
     template<class StateList>
-    struct find_state_conf_ptr<StateList, &state_confs::stopped>
+    struct find_state_from_id<StateList, &state_confs::stopped>
     {
         static constexpr auto value = stopped_state_index;
     };
 
     template<class StateList, auto StateId>
-    inline constexpr auto find_state_from_conf_ptr_v = find_state_conf_ptr<StateList, StateId>::value;
+    inline constexpr auto find_state_from_id_v = find_state_from_id<StateList, StateId>::value;
 }
 
 template<class ParentSm, int Index>
@@ -114,7 +99,7 @@ public:
         {
             static constexpr auto psubmach_conf = path_raw_head(RegionPath);
             static constexpr auto region_path_tail = path_tail(RegionPath);
-            const auto& submach = state_from_conf_ptr<psubmach_conf>();
+            const auto& submach = state_from_id<psubmach_conf>();
             return submach.template active_state<region_path_tail, *StateId>();
         }
     }
@@ -337,7 +322,7 @@ private:
     {
         template
         <
-            class SourceStateConfPtrConstant,
+            class SourceStateIdConstant,
             class Self,
             class Machine,
             class Context,
@@ -354,7 +339,7 @@ private:
         )
         {
             //Make sure the transition source state is the active state
-            if(!self.template is_active_state_type<SourceStateConfPtrConstant::value>())
+            if(!self.template is_active_state_type<SourceStateIdConstant::value>())
             {
                 return false;
             }
@@ -372,7 +357,7 @@ private:
             {
                 self.template process_event_in_transition
                 <
-                    SourceStateConfPtrConstant::value,
+                    SourceStateIdConstant::value,
                     TargetStateId,
                     &Action
                 >(mach, ctx, event);
@@ -386,7 +371,7 @@ private:
 
     template
     <
-        auto SourceStateConfPtr,
+        auto SourceStateId,
         auto TargetStateId,
         auto ActionPtr,
         class Machine,
@@ -418,15 +403,15 @@ private:
                 (
                     ctx,
                     cref_constant<path>,
-                    cref_constant<*SourceStateConfPtr>,
+                    cref_constant<*SourceStateId>,
                     event,
                     cref_constant<*TargetStateId>
                 );
             }
 
-            if constexpr(!same_ref(*SourceStateConfPtr, state_confs::stopped))
+            if constexpr(!same_ref(*SourceStateId, state_confs::stopped))
             {
-                auto& stt = state_from_conf<*SourceStateConfPtr>();
+                auto& stt = state_from_id<SourceStateId>();
                 stt.call_exit_action
                 (
                     mach,
@@ -435,10 +420,10 @@ private:
                 );
             }
 
-            active_state_index_ = region_detail::find_state_from_conf_v
+            active_state_index_ = region_detail::find_state_from_id_v
             <
                 state_tuple_type,
-                *TargetStateId
+                TargetStateId
             >;
         }
 
@@ -457,7 +442,7 @@ private:
         {
             if constexpr(!same_ref(*TargetStateId, state_confs::stopped))
             {
-                auto& stt = state_from_conf<*TargetStateId>();
+                auto& stt = state_from_id<TargetStateId>();
                 stt.call_entry_action
                 (
                     mach,
@@ -472,7 +457,7 @@ private:
                 (
                     ctx,
                     cref_constant<path>,
-                    cref_constant<*SourceStateConfPtr>,
+                    cref_constant<*SourceStateId>,
                     event,
                     cref_constant<*TargetStateId>
                 );
@@ -558,10 +543,10 @@ private:
     template<auto StateId>
     [[nodiscard]] bool is_active_state_type() const
     {
-        constexpr auto given_state_index = region_detail::find_state_from_conf_v
+        constexpr auto given_state_index = region_detail::find_state_from_id_v
         <
             state_tuple_type,
-            *StateId
+            StateId
         >;
         return given_state_index == active_state_index_;
     }
@@ -622,22 +607,16 @@ private:
         return static_state<State>(*this);
     }
 
-    template<const auto& StateConf>
-    auto& state_from_conf()
+    template<auto StateId>
+    auto& state_from_id()
     {
-        return static_state_from_conf<StateConf>(*this);
-    }
-
-    template<const auto& StateConf>
-    const auto& state_from_conf() const
-    {
-        return static_state_from_conf<StateConf>(*this);
+        return static_state_from_id<StateId>(*this);
     }
 
     template<auto StateId>
-    const auto& state_from_conf_ptr() const
+    const auto& state_from_id() const
     {
-        return static_state_from_conf_ptr<StateId>(*this);
+        return static_state_from_id<StateId>(*this);
     }
 
     //Note: We use static to factorize const and non-const Region
@@ -651,21 +630,11 @@ private:
     }
 
     //Note: We use static to factorize const and non-const Region
-    template<const auto& StateConf, class Region>
-    static auto& static_state_from_conf(Region& self)
-    {
-        static constexpr auto state_index =
-            region_detail::find_state_from_conf_v<state_tuple_type, StateConf>
-        ;
-        return tuple_get<state_index>(self.states_);
-    }
-
-    //Note: We use static to factorize const and non-const Region
     template<auto StateId, class Region>
-    static auto& static_state_from_conf_ptr(Region& self)
+    static auto& static_state_from_id(Region& self)
     {
         static constexpr auto state_index =
-            region_detail::find_state_from_conf_ptr_v<state_tuple_type, StateId>
+            region_detail::find_state_from_id_v<state_tuple_type, StateId>
         ;
         return tuple_get<state_index>(self.states_);
     }
@@ -676,13 +645,13 @@ private:
     {
         if constexpr(StatePath.size() == 1)
         {
-            return static_state_from_conf_ptr<path_raw_head(StatePath)>(self).context_or(parent_ctx);
+            return static_state_from_id<path_raw_head(StatePath)>(self).context_or(parent_ctx);
         }
         else
         {
             static constexpr auto psubmach_conf = path_raw_head(StatePath);
             static constexpr auto state_path_tail = path_tail(StatePath);
-            return static_state_from_conf_ptr<psubmach_conf>(self).template context_or<state_path_tail>(parent_ctx);
+            return static_state_from_id<psubmach_conf>(self).template context_or<state_path_tail>(parent_ctx);
         }
     }
 

@@ -171,9 +171,9 @@ public:
     (
         context& ctx,
         const maki::cref_constant_t<RegionPath> path_constant,
-        const maki::cref_constant_t<SourceStateConf> source_state_conf{}onstant,
+        const maki::cref_constant_t<SourceStateConf> source_state_conf_constant,
         const Event& event,
-        const maki::cref_constant_t<TargetStateConf> target_state_conf{}onstant
+        const maki::cref_constant_t<TargetStateConf> target_state_conf_constant
     );
     @endcode
 
@@ -241,9 +241,9 @@ public:
     (
         context& ctx,
         const maki::cref_constant_t<RegionPath> path_constant,
-        const maki::cref_constant_t<SourceStateConf> source_state_conf{}onstant,
+        const maki::cref_constant_t<SourceStateConf> source_state_conf_constant,
         const Event& event,
-        const maki::cref_constant_t<TargetStateConf> target_state_conf{}onstant
+        const maki::cref_constant_t<TargetStateConf> target_state_conf_constant
     );
     @endcode
 

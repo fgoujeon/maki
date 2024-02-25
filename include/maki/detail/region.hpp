@@ -47,7 +47,7 @@ namespace region_detail
     template<class StateList, auto StateId>
     struct find_state_from_id
     {
-        static constexpr auto value = tlu::find_if_v<StateList, state_traits::for_conf_ptr<StateId>::template has_conf_ptr>;
+        static constexpr auto value = tlu::find_if_v<StateList, state_traits::for_id<StateId>::template has_id>;
     };
 
     template<class StateList>

@@ -240,12 +240,12 @@ private:
 
     struct stop_2
     {
-        template<auto ActiveStateId, class Machine, class Context, class Event>
+        template<class ActiveStateIdConstant, class Machine, class Context, class Event>
         static void call(region& self, Machine& mach, Context& ctx, const Event& event)
         {
             self.process_event_in_transition
             <
-                ActiveStateId,
+                ActiveStateIdConstant::value,
                 &state_confs::stopped,
                 &null
             >(mach, ctx, event);
@@ -566,10 +566,10 @@ private:
     template<auto FilterPtr>
     struct does_active_state_id_match_filter_2
     {
-        template<auto ActiveStateId>
+        template<class ActiveStateIdConstant>
         static void call([[maybe_unused]] bool& matches)
         {
-            if constexpr(matches_filter_ptr(ActiveStateId, FilterPtr))
+            if constexpr(matches_filter_ptr(ActiveStateIdConstant::value, FilterPtr))
             {
                 matches = true;
             }
@@ -594,7 +594,7 @@ private:
         {
             if(self.is_active_state_type<StateIdConstant::value>())
             {
-                F::template call<StateIdConstant::value>(std::forward<Args>(args)...);
+                F::template call<StateIdConstant>(std::forward<Args>(args)...);
                 return true;
             }
             return false;

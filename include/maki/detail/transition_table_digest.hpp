@@ -46,47 +46,68 @@ For example, the following digest type...:
 
 namespace transition_table_digest_detail
 {
-    template<class TList, auto ConfPtr>
-    using push_back_unique_if_not_null_constant = tlu::push_back_if_t
-    <
-        TList,
-        constant_t<ConfPtr>,
-        (
-            !tlu::contains_v<TList, constant_t<ConfPtr>> &&
-            static_cast<const void*>(ConfPtr) != static_cast<const void*>(&null)
-        )
-    >;
-
     template<const auto& TransitionTuple>
     class initial_digest
     {
     private:
-        static constexpr auto pinitial_state_conf = tuple_get<0>(TransitionTuple).source_state_conf_filter.get_as_ptr();
+        static constexpr auto initial_state_id = tuple_get<0>(TransitionTuple).source_state_conf_filter;
 
     public:
-        using state_conf_ptr_constant_list = type_list<constant_t<pinitial_state_conf>>;
+        using state_id_constant_list = type_list<constant_t<initial_state_id>>;
         static constexpr auto has_null_events = false;
     };
 
     template<const auto& TransitionTuple>
     struct add_transition_to_digest_holder
     {
-        template<class Digest, class IndexConstant>
-        struct add_transition_to_digest
-        {
-            static constexpr auto index = IndexConstant::value;
+        template<class Digest, int Index, bool IsTargetStateNull>
+        struct add_transition_to_digest_impl;
 
-            using state_conf_ptr_constant_list = push_back_unique_if_not_null_constant
+        template<class Digest, int Index>
+        struct add_transition_to_digest_impl<Digest, Index, false>
+        {
+            using state_id_constant_list = tlu::push_back_unique_t
             <
-                typename Digest::state_conf_ptr_constant_list,
-                tuple_get<index>(TransitionTuple).target_state_conf.get_as_ptr()
+                typename Digest::state_id_constant_list,
+                constant_t<tuple_get<Index>(TransitionTuple).target_state_conf>
             >;
 
             static constexpr auto has_null_events =
                 Digest::has_null_events ||
-                is_null(tuple_get<index>(TransitionTuple).event_filter)
+                std::is_same_v
+                <
+                    std::decay_t<decltype(tuple_get<Index>(TransitionTuple).event_filter)>,
+                    null_t
+                >
             ;
         };
+
+        template<class Digest, int Index>
+        struct add_transition_to_digest_impl<Digest, Index, true>
+        {
+            using state_id_constant_list = typename Digest::state_id_constant_list;
+
+            static constexpr auto has_null_events =
+                Digest::has_null_events ||
+                std::is_same_v
+                <
+                    std::decay_t<decltype(tuple_get<Index>(TransitionTuple).event_filter)>,
+                    null_t
+                >
+            ;
+        };
+
+        template<class Digest, class IndexConstant>
+        using add_transition_to_digest = add_transition_to_digest_impl
+        <
+            Digest,
+            IndexConstant::value,
+            std::is_same_v
+            <
+                std::decay_t<decltype(tuple_get<IndexConstant::value>(TransitionTuple).target_state_conf)>,
+                null_t
+            >
+        >;
     };
 }
 

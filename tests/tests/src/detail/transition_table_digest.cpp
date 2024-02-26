@@ -51,6 +51,6 @@ namespace transition_table_digest_ns
 TEST_CASE("detail::transition_table_digest")
 {
     using namespace transition_table_digest_ns;
-    REQUIRE(std::is_same_v<digest_t::state_conf_ptr_constant_list, state_conf_ptr_constant_list>);
+    REQUIRE(std::is_same_v<digest_t::state_id_constant_list, state_conf_ptr_constant_list>);
     REQUIRE(!digest_t::has_null_events);
 }

@@ -54,13 +54,15 @@ struct region_tuple
     >;
 };
 
-template<const auto& Conf, class ParentRegion, class ContextType>
+template<auto Id, class ParentRegion, class ContextType>
 class submachine_impl
 {
 public:
-    using conf_type = std::decay_t<decltype(Conf)>;
-    using option_set_type = std::decay_t<decltype(opts(Conf))>;
-    using transition_table_type_list = decltype(opts(Conf).transition_tables);
+    static constexpr auto identifier = Id;
+    static constexpr const auto& conf = *Id;
+    using conf_type = std::decay_t<decltype(conf)>;
+    using option_set_type = std::decay_t<decltype(opts(conf))>;
+    using transition_table_type_list = decltype(opts(conf).transition_tables);
     using context_type = ContextType;
 
     template
@@ -216,22 +218,22 @@ public:
         return true;
     }
 
-    static constexpr const auto& conf = Conf;
-
 private:
-    using impl_type = submachine_impl<Conf, ParentRegion, void>;
+    using impl_type = submachine_impl<identifier, ParentRegion, void>;
 
-    context_holder<context_type, opts(Conf).context_sig> ctx_holder_;
+    context_holder<context_type, opts(conf).context_sig> ctx_holder_;
     impl_type impl_;
 };
 
-template<const auto& Conf, class ParentRegion>
-class submachine_impl<Conf, ParentRegion, void>
+template<auto Id, class ParentRegion>
+class submachine_impl<Id, ParentRegion, void>
 {
 public:
-    using conf_type = std::decay_t<decltype(Conf)>;
-    using option_set_type = std::decay_t<decltype(opts(Conf))>;
-    using transition_table_type_list = decltype(opts(Conf).transition_tables);
+    static constexpr auto identifier = Id;
+    static constexpr const auto& conf = *Id;
+    using conf_type = std::decay_t<decltype(conf)>;
+    using option_set_type = std::decay_t<decltype(opts(conf))>;
+    using transition_table_type_list = decltype(opts(conf).transition_tables);
 
     template<class Machine, class Context>
     submachine_impl(Machine& mach, Context& ctx):
@@ -354,10 +356,8 @@ public:
         return true;
     }
 
-    static constexpr const auto& conf = Conf;
-
 private:
-    using impl_type = simple_state_impl<Conf, void>;
+    using impl_type = simple_state_impl<Id, void>;
 
     using region_tuple_type = typename region_tuple
     <

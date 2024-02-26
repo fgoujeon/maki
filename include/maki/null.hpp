@@ -10,6 +10,12 @@
 namespace maki
 {
 
+struct null_t_impl
+{
+};
+
+using null_t = const null_t_impl*;
+
 /**
 @brief A null event or target state.
 
@@ -17,37 +23,7 @@ Represents either:
 - a null event (for anonymous transitions);
 - a null target state (for internal transitions in transition table).
 */
-struct null_t{};
-
-inline constexpr auto null = null_t{};
-
-inline constexpr bool operator==(const null_t /*lhs*/, const null_t /*rhs*/)
-{
-    return true;
-}
-
-template<class T>
-inline constexpr bool operator==(const null_t /*lhs*/, const T& /*rhs*/)
-{
-    return false;
-}
-
-template<class T>
-inline constexpr bool operator==(const T& /*lhs*/, const null_t /*rhs*/)
-{
-    return false;
-}
-
-inline constexpr bool is_null(const null_t /*ignored*/)
-{
-    return true;
-}
-
-template<class Other>
-inline constexpr bool is_null(const Other& /*ignored*/)
-{
-    return false;
-}
+inline constexpr auto null = null_t{nullptr};
 
 } //namespace
 

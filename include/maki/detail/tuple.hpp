@@ -23,6 +23,11 @@ inline constexpr auto uniform_construct = uniform_construct_t{};
 struct distributed_construct_t{};
 inline constexpr auto distributed_construct = distributed_construct_t{};
 
+
+/*
+tuple
+*/
+
 template<int Index, class T>
 class tuple_element
 {
@@ -169,6 +174,136 @@ constexpr bool operator==(const tuple<LhsArgs...>& /*lhs*/, const tuple<RhsArgs.
     return false;
 }
 
+
+/*
+cons_tuple
+*/
+
+template<int Index, class... Ts>
+class cons_tuple_node;
+
+template<int Index, class T, class... Ts>
+class cons_tuple_node<Index, T, Ts...>: private cons_tuple_node<Index + 1, Ts...>
+{
+public:
+    using base_type = cons_tuple_node<Index + 1, Ts...>;
+
+    template<class Arg, class... Args>
+    constexpr cons_tuple_node(Arg&& arg, Args&&... args):
+        base_type(std::forward<Args>(args)...),
+        value_(std::forward<Arg>(arg))
+    {
+    }
+
+    constexpr T& get(constant_t<Index> /*tag*/)
+    {
+        return value_;
+    }
+
+    constexpr const T& get(constant_t<Index> /*tag*/) const
+    {
+        return value_;
+    }
+
+    constexpr T& get(type_t<T> /*tag*/)
+    {
+        return value_;
+    }
+
+    constexpr const T& get(type_t<T> /*tag*/) const
+    {
+        return value_;
+    }
+
+    using base_type::base_type;
+    using base_type::get;
+
+private:
+    T value_;
+};
+
+template<int Index, class T>
+class cons_tuple_node<Index, T>
+{
+public:
+    template<class Arg, class... Args>
+    constexpr cons_tuple_node(Arg&& arg, Args&&... args):
+        value_(std::forward<Arg>(arg))
+    {
+    }
+
+    constexpr T& get(constant_t<Index> /*tag*/)
+    {
+        return value_;
+    }
+
+    constexpr const T& get(constant_t<Index> /*tag*/) const
+    {
+        return value_;
+    }
+
+    constexpr T& get(type_t<T> /*tag*/)
+    {
+        return value_;
+    }
+
+    constexpr const T& get(type_t<T> /*tag*/) const
+    {
+        return value_;
+    }
+
+private:
+    T value_;
+};
+
+template<int Index>
+class cons_tuple_node<Index>
+{
+public:
+    template<class... Args>
+    constexpr cons_tuple_node(Args&&... /*args*/)
+    {
+    }
+
+    constexpr void get() const
+    {
+    }
+};
+
+template<class... Ts>
+class cons_tuple: private cons_tuple_node<0, Ts...>
+{
+public:
+    using base_type = cons_tuple_node<0, Ts...>;
+
+    constexpr cons_tuple()
+    {
+    }
+
+    template<class... Args>
+    constexpr cons_tuple(distributed_construct_t /*tag*/, Args&&... args):
+        base_type(std::forward<Args>(args)...)
+    {
+    }
+
+    using base_type::get;
+
+    static constexpr auto size = sizeof...(Ts);
+};
+
+template<class... Args>
+constexpr auto make_cons_tuple(distributed_construct_t /*tag*/, const Args&... args)
+{
+    return cons_tuple<Args...>{distributed_construct, args...};
+}
+
+inline constexpr auto empty_cons_tuple = make_cons_tuple(distributed_construct);
+
+
+/*
+algorithms
+*/
+
 template<int Index, class Tuple>
 constexpr auto& tuple_get(Tuple& tpl)
 {
@@ -184,23 +319,23 @@ constexpr auto& tuple_get(Tuple& tpl)
 template<const auto& Tuple, int Index>
 constexpr auto tuple_static_get_copy_c = tuple_get<Index>(Tuple);
 
-template<class IndexSequence>
+template<class Tuple, class IndexSequence>
 struct tuple_append_impl;
 
-template<int... Indexes>
-struct tuple_append_impl<std::integer_sequence<int, Indexes...>>
+template<template<class...> class TupleTempl, class... Ts, int... Indexes>
+struct tuple_append_impl<TupleTempl<Ts...>, std::integer_sequence<int, Indexes...>>
 {
-    template<class... Ts, class U>
-    static constexpr tuple<Ts..., U> call(const tuple<Ts...>& tpl, const U& elem)
+    template<class U>
+    static constexpr TupleTempl<Ts..., U> call(const TupleTempl<Ts...>& tpl, const U& elem)
     {
-        return tuple<Ts..., U>{distributed_construct, tuple_get<Indexes>(tpl)..., elem};
+        return TupleTempl<Ts..., U>{distributed_construct, tuple_get<Indexes>(tpl)..., elem};
     }
 };
 
-template<class... Ts, class U>
-constexpr tuple<Ts..., U> tuple_append(const tuple<Ts...>& tpl, const U& elem)
+template<class Tuple, class U>
+constexpr auto tuple_append(const Tuple& tpl, const U& elem)
 {
-    using impl_t = tuple_append_impl<std::make_integer_sequence<int, sizeof...(Ts)>>;
+    using impl_t = tuple_append_impl<Tuple, std::make_integer_sequence<int, Tuple::size>>;
     return impl_t::call(tpl, elem);
 }
 

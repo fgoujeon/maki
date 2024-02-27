@@ -24,9 +24,9 @@ namespace detail
     template
     <
         class Context = void,
-        class EntryActionTuple = detail::tuple<>,
-        class InternalActionTuple = detail::tuple<>,
-        class ExitActionTuple = detail::tuple<>
+        class EntryActionTuple = detail::cons_tuple<>,
+        class InternalActionTuple = detail::cons_tuple<>,
+        class ExitActionTuple = detail::cons_tuple<>
     >
     struct state_conf_option_set
     {

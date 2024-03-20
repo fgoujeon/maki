@@ -54,7 +54,7 @@ TEST_CASE("machine_ref_e")
 
     auto machine = machine_t{};
     auto pmachine_ref_e_temp = std::make_unique<machine_ref_e_t>(machine); //test ref of ref
-    auto machine_ref_e = machine_ref_e_t{*pmachine_ref_e_temp};
+    const auto machine_ref_e = machine_ref_e_t{*pmachine_ref_e_temp};
     pmachine_ref_e_temp.reset();
 
     machine.start();

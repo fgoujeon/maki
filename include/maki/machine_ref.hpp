@@ -45,7 +45,7 @@ namespace detail
 
         using machine_ref_event_impl<Events...>::process_event;
 
-        void process_event(const Event& evt)
+        void process_event(const Event& evt) const
         {
             (*pprocess_event_)(get_vpsm(), evt);
         }
@@ -67,7 +67,7 @@ namespace detail
         {
         }
 
-        void process_event()
+        void process_event() const
         {
         }
 
@@ -104,7 +104,7 @@ public:
     ~machine_ref() = default;
 
     template<class Event>
-    void process_event(const Event& evt)
+    void process_event(const Event& evt) const
     {
         static_assert
         (

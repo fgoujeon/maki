@@ -16,6 +16,7 @@
     MAKI_DETAIL_X(v) \
     MAKI_DETAIL_X(c) \
     MAKI_DETAIL_X(cm) \
+    MAKI_DETAIL_X(cme) \
     MAKI_DETAIL_X(ce) \
     MAKI_DETAIL_X(m) \
     MAKI_DETAIL_X(me) \
@@ -85,6 +86,10 @@ void call_event_action
     else if constexpr(EventActionPtr->sig == event_action_signature::cm)
     {
         std::invoke(EventActionPtr->action, ctx, mach);
+    }
+    else if constexpr(EventActionPtr->sig == event_action_signature::cme)
+    {
+        std::invoke(EventActionPtr->action, ctx, mach, event);
     }
     else if constexpr(EventActionPtr->sig == event_action_signature::ce)
     {

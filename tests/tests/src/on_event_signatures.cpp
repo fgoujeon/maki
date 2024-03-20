@@ -47,12 +47,12 @@ namespace
                     ctx.out = "on_event_ce " + event.value;
                 }
             )
-            .internal_action_ce
+            .internal_action_cme
             (
                 maki::type<events::event2>,
-                [](context& ctx, const events::event2& event)
+                [](context& ctx, machine_t& /*mach*/, const events::event2& event)
                 {
-                    ctx.out = "on_event_mce " + event.value;
+                    ctx.out = "on_event_cme " + event.value;
                 }
             )
         ;
@@ -84,5 +84,5 @@ TEST_CASE("on_event_signatures")
 
     ctx.out.clear();
     machine.process_event(events::event2{"2"});
-    REQUIRE(ctx.out == "on_event_mce 2");
+    REQUIRE(ctx.out == "on_event_cme 2");
 }

@@ -318,11 +318,11 @@ public:
     As the suffix of the function suggests, the action must take references to:
 
     - the machine;
-    - the event.
+    - the exception pointer.
 
     Example:
     @code
-    .exception_action_me([](auto& mach, const auto& event)
+    .exception_action_me([](auto& mach, const std::exception_ptr& eptr)
     {
         //...
     })

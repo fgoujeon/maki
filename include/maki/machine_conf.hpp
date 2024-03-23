@@ -14,7 +14,7 @@
 
 #include "machine_conf_fwd.hpp"
 #include "transition_table.hpp"
-#include "type_filters.hpp"
+#include "filters.hpp"
 #include "type.hpp"
 #include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"

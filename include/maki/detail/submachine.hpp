@@ -20,7 +20,7 @@
 #include "../machine_conf.hpp"
 #include "../transition_table.hpp"
 #include "../path.hpp"
-#include "../type_filters.hpp"
+#include "../filters.hpp"
 #include <type_traits>
 
 namespace maki::detail

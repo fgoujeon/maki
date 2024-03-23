@@ -7,7 +7,7 @@
 #ifndef MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 #define MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 
-#include "../type_filters.hpp"
+#include "../filters.hpp"
 #include "../transition_table.hpp"
 #include "../events.hpp"
 #include "constant.hpp"

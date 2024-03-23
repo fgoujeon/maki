@@ -13,7 +13,7 @@
 #define MAKI_STATE_CONF_HPP
 
 #include "state_conf_fwd.hpp"
-#include "type_filters.hpp"
+#include "filters.hpp"
 #include "type.hpp"
 #include "null.hpp"
 #include "detail/context_signature.hpp"

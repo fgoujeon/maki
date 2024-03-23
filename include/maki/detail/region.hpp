@@ -107,7 +107,7 @@ public:
     template<auto StateId>
     [[nodiscard]] bool active_state() const
     {
-        if constexpr(is_type_filter_v<std::decay_t<decltype(*StateId)>>)
+        if constexpr(is_filter_v<std::decay_t<decltype(*StateId)>>)
         {
             return does_active_state_id_match_filter<StateId>();
         }
@@ -274,7 +274,7 @@ private:
             static constexpr auto action = trans.action;
             static constexpr auto guard = trans.guard;
 
-            if constexpr(is_type_filter_v<std::decay_t<decltype(source_state_conf_filter)>>)
+            if constexpr(is_filter_v<std::decay_t<decltype(source_state_conf_filter)>>)
             {
                 //List of state confs that match with the source state filter
                 using matching_state_conf_constant_list = state_type_list_filters::by_filter_t

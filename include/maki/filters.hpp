@@ -6,11 +6,11 @@
 
 /**
 @file
-@brief Defines the type filter struct templates
+@brief Defines the filter types and functions
 */
 
-#ifndef MAKI_TYPE_FILTERS_HPP
-#define MAKI_TYPE_FILTERS_HPP
+#ifndef MAKI_FILTERS_HPP
+#define MAKI_FILTERS_HPP
 
 #include "detail/state_id.hpp"
 #include "detail/constant.hpp"
@@ -21,21 +21,21 @@ namespace maki
 {
 
 /**
-@defgroup TypeFilters Type Filters
-@brief Type filters can be used in some places of the API (such as in transition
+@defgroup Filters Filters
+@brief Filters can be used in some places of the API (such as in transition
 tables) in lieu of single types to concisely express a set of types.
 
 @{
 */
 
 /**
-@brief A type filter that matches with any type.
+@brief A filter that matches with any type.
 */
 struct any_t{};
 
 /**
-@brief A type filter that matches with any type that verifies `Predicate<T>::value == true`.
-@tparam Predicate the predicate against which types are tested
+@brief A filter that matches with any value that verifies `pred(value) == true`.
+@tparam Predicate the predicate against which values are tested
 */
 template<class Predicate>
 struct any_if_t
@@ -44,8 +44,8 @@ struct any_if_t
 };
 
 /**
-@brief A type filter that matches with any type that verifies `Predicate<T>::value == false`.
-@tparam Predicate the predicate against which types are tested
+@brief A filter that matches with any type that verifies `pred(value) == false`.
+@tparam Predicate the predicate against which values are tested
 */
 template<class Predicate>
 struct any_if_not_t
@@ -54,8 +54,8 @@ struct any_if_not_t
 };
 
 /**
-@brief A type filter that matches with the given types.
-@tparam Ts the types the filter matches with
+@brief A filter that matches with the given values.
+@tparam Ts the types of values the filter matches with
 */
 template<class... Ts>
 struct any_of_t
@@ -64,8 +64,8 @@ struct any_of_t
 };
 
 /**
-@brief A type filter that matches with any type but the given ones.
-@tparam Ts the types the filter doesn't match with
+@brief A filter that matches with any values but the given ones.
+@tparam Ts the types of values the filter doesn't match with
 */
 template<class... Ts>
 struct any_but_t
@@ -74,7 +74,7 @@ struct any_but_t
 };
 
 /**
-@brief A type filter that doesn't match with any type.
+@brief A filter that doesn't match with any type.
 */
 struct none_t{};
 
@@ -211,46 +211,46 @@ namespace detail
 namespace detail
 {
     template<class T>
-    struct is_type_filter
+    struct is_filter
     {
         static constexpr auto value = false;
     };
 
     template<class T>
-    constexpr auto is_type_filter_v = is_type_filter<T>::value;
+    constexpr auto is_filter_v = is_filter<T>::value;
 
     template<>
-    struct is_type_filter<any_t>
+    struct is_filter<any_t>
     {
         static constexpr auto value = true;
     };
 
     template<class Predicate>
-    struct is_type_filter<any_if_t<Predicate>>
+    struct is_filter<any_if_t<Predicate>>
     {
         static constexpr auto value = true;
     };
 
     template<class Predicate>
-    struct is_type_filter<any_if_not_t<Predicate>>
+    struct is_filter<any_if_not_t<Predicate>>
     {
         static constexpr auto value = true;
     };
 
     template<class... Ts>
-    struct is_type_filter<any_of_t<Ts...>>
+    struct is_filter<any_of_t<Ts...>>
     {
         static constexpr auto value = true;
     };
 
     template<class... Ts>
-    struct is_type_filter<any_but_t<Ts...>>
+    struct is_filter<any_but_t<Ts...>>
     {
         static constexpr auto value = true;
     };
 
     template<>
-    struct is_type_filter<none_t>
+    struct is_filter<none_t>
     {
         static constexpr auto value = true;
     };

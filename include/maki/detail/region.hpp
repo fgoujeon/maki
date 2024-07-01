@@ -420,11 +420,7 @@ private:
                 );
             }
 
-            active_state_index_ = region_detail::find_state_from_id_v
-            <
-                state_tuple_type,
-                TargetStateId
-            >;
+            pactive_state_conf_ = TargetStateId;
         }
 
         if constexpr(!std::is_same_v<decltype(ActionPtr), const null_t*>)
@@ -532,23 +528,13 @@ private:
     template<class State>
     [[nodiscard]] bool is_active_state_type() const
     {
-        constexpr auto given_state_index = region_detail::find_state_v
-        <
-            state_tuple_type,
-            State
-        >;
-        return given_state_index == active_state_index_;
+        return &State::conf == pactive_state_conf_;
     }
 
     template<auto StateId>
     [[nodiscard]] bool is_active_state_type() const
     {
-        constexpr auto given_state_index = region_detail::find_state_from_id_v
-        <
-            state_tuple_type,
-            StateId
-        >;
-        return given_state_index == active_state_index_;
+        return StateId == pactive_state_conf_;
     }
 
     template<auto FilterPtr>
@@ -656,7 +642,7 @@ private:
     }
 
     state_tuple_type states_;
-    int active_state_index_ = region_detail::stopped_state_index;
+    const void* pactive_state_conf_ = &state_confs::stopped;
 };
 
 } //namespace

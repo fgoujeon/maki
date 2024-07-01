@@ -118,8 +118,8 @@ TEST_CASE("on_unprocessed")
 
     ctx.clear();
     machine.start();
-    REQUIRE(machine.active_state<states::on>());
-    REQUIRE(machine.active_state<on_path, states::emitting_red>());
+    REQUIRE(machine.active_state(states::on));
+    REQUIRE(machine.active_state<on_path>(states::emitting_red));
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
@@ -128,8 +128,8 @@ TEST_CASE("on_unprocessed")
 
     ctx.clear();
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.active_state<states::on>());
-    REQUIRE(machine.active_state<on_path, states::emitting_green>());
+    REQUIRE(machine.active_state(states::on));
+    REQUIRE(machine.active_state<on_path>(states::emitting_green));
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
@@ -138,8 +138,8 @@ TEST_CASE("on_unprocessed")
 
     ctx.clear();
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.active_state<states::on>());
-    REQUIRE(machine.active_state<on_path, states::emitting_blue>());
+    REQUIRE(machine.active_state(states::on));
+    REQUIRE(machine.active_state<on_path>(states::emitting_blue));
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
@@ -148,6 +148,6 @@ TEST_CASE("on_unprocessed")
 
     ctx.clear();
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.active_state<states::off>());
+    REQUIRE(machine.active_state(states::off));
     REQUIRE(ctx.ignored_event.empty());
 }

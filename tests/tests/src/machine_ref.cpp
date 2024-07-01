@@ -59,11 +59,11 @@ TEST_CASE("machine_ref_e")
 
     machine.start();
 
-    REQUIRE(machine.active_state<states::off>());
+    REQUIRE(machine.active_state(states::off));
 
     machine_ref_e.process_event(events::on_button_press{});
-    REQUIRE(machine.active_state<states::on>());
+    REQUIRE(machine.active_state(states::on));
 
     machine_ref_e.process_event(events::off_button_press{});
-    REQUIRE(machine.active_state<states::off>());
+    REQUIRE(machine.active_state(states::off));
 }

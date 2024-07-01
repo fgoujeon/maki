@@ -269,31 +269,31 @@ int main()
         std::cout << "OK\n";
     };
 
-    check(machine.active_state<states::off>());
+    check(machine.active_state(states::off));
     check(ctx.led.get_color() == rgb_led::color::off);
 
     simulate_push(200);
-    check(machine.active_state<states::emitting_white>());
+    check(machine.active_state(states::emitting_white));
     check(ctx.led.get_color() == rgb_led::color::white);
 
     simulate_push(200);
-    check(machine.active_state<states::emitting_red>());
+    check(machine.active_state(states::emitting_red));
     check(ctx.led.get_color() == rgb_led::color::red);
 
     simulate_push(200);
-    check(machine.active_state<states::emitting_green>());
+    check(machine.active_state(states::emitting_green));
     check(ctx.led.get_color() == rgb_led::color::green);
 
     simulate_push(200);
-    check(machine.active_state<states::emitting_blue>());
+    check(machine.active_state(states::emitting_blue));
     check(ctx.led.get_color() == rgb_led::color::blue);
 
     simulate_push(200);
-    check(machine.active_state<states::emitting_white>());
+    check(machine.active_state(states::emitting_white));
     check(ctx.led.get_color() == rgb_led::color::white);
 
     simulate_push(1500);
-    check(machine.active_state<states::off>());
+    check(machine.active_state(states::off));
     check(ctx.led.get_color() == rgb_led::color::off);
 
     std::cout << "Test succeeded\n";

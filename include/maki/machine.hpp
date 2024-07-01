@@ -178,10 +178,10 @@ public:
     region of interest
     @tparam StateConf the state configurator
     */
-    template<const auto& RegionPath, const auto& StateConf>
-    [[nodiscard]] bool active_state() const
+    template<const auto& RegionPath, class StateConf>
+    [[nodiscard]] bool active_state(const StateConf& stt_conf) const
     {
-        return impl_.template active_state<RegionPath>(StateConf);
+        return impl_.template active_state<RegionPath>(stt_conf);
     }
 
     /**
@@ -190,10 +190,10 @@ public:
     machine contains only one region.
     @tparam StateConf the state configurator
     */
-    template<const auto& StateConf>
-    [[nodiscard]] bool active_state() const
+    template<class StateConf>
+    [[nodiscard]] bool active_state(const StateConf& stt_conf) const
     {
-        return impl_.template active_state(StateConf);
+        return impl_.template active_state(stt_conf);
     }
 
     /**

@@ -108,19 +108,19 @@ TEST_CASE("initial_submachine")
     static constexpr auto on_path = maki::path{0} / states::on / 0;
 
     machine.start();
-    REQUIRE(machine.active_state<states::on>());
-    REQUIRE(machine.active_state<on_path, states::emitting_red>());
+    REQUIRE(machine.active_state(states::on));
+    REQUIRE(machine.active_state<on_path>(states::emitting_red));
     REQUIRE(ctx.current_led_color == led_color::red);
 
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.active_state<states::on>());
+    REQUIRE(machine.active_state(states::on));
     REQUIRE(ctx.current_led_color == led_color::green);
 
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.active_state<states::on>());
+    REQUIRE(machine.active_state(states::on));
     REQUIRE(ctx.current_led_color == led_color::blue);
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.active_state<states::off>());
+    REQUIRE(machine.active_state(states::off));
     REQUIRE(ctx.current_led_color == led_color::off);
 }

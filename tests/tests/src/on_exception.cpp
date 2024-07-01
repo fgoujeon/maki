@@ -128,7 +128,7 @@ TEST_CASE("on_exception")
         ctx.out.clear();
 
         machine.process_event(events::button_press{});
-        REQUIRE(machine.active_state<states::on>());
+        REQUIRE(machine.active_state(states::on));
         REQUIRE(ctx.out == "off::on_exit;on::on_entry;default;test;");
     }
 
@@ -140,7 +140,7 @@ TEST_CASE("on_exception")
         ctx.out.clear();
 
         machine.process_event(events::button_press{});
-        REQUIRE(machine.active_state<states::on>());
+        REQUIRE(machine.active_state(states::on));
         REQUIRE(ctx.out == "off::on_exit;on::on_entry;custom;test;");
     }
 }

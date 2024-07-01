@@ -52,17 +52,17 @@ TEST_CASE("event_filter")
 {
     auto machine = machine_t{};
 
-    REQUIRE(machine.active_state<states::off>());
+    REQUIRE(machine.active_state(states::off));
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.active_state<states::on>());
+    REQUIRE(machine.active_state(states::on));
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.active_state<states::off>());
+    REQUIRE(machine.active_state(states::off));
 
     machine.process_event(events::alert_button_press{});
-    REQUIRE(machine.active_state<states::on>());
+    REQUIRE(machine.active_state(states::on));
 
     machine.process_event(events::alert_button_press{});
-    REQUIRE(machine.active_state<states::on>());
+    REQUIRE(machine.active_state(states::on));
 }

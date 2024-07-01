@@ -84,7 +84,7 @@ TEST_CASE("start_stop")
     REQUIRE(ctx.out == "");
 
     machine.start();
-    REQUIRE(machine.active_state<states::s1>());
+    REQUIRE(machine.active_state(states::s1));
     REQUIRE(ctx.out == "s0::on_entry;s0::on_exit;s1::on_entry;");
 
     ctx.out.clear();

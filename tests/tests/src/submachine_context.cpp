@@ -114,22 +114,22 @@ TEST_CASE("submachine_context")
     auto& ctx = machine.context();
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.active_state<machine_on_path, states::on_ns::emitting_red>());
+    REQUIRE(machine.active_state<machine_on_path>(states::on_ns::emitting_red));
 
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.active_state<machine_on_path, states::on_ns::emitting_green>());
+    REQUIRE(machine.active_state<machine_on_path>(states::on_ns::emitting_green));
 
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.active_state<machine_on_path, states::on_ns::emitting_blue>());
+    REQUIRE(machine.active_state<machine_on_path>(states::on_ns::emitting_blue));
 
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.active_state<machine_on_path, states::on_ns::emitting_red>());
+    REQUIRE(machine.active_state<machine_on_path>(states::on_ns::emitting_red));
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.active_state<states::off>());
+    REQUIRE(machine.active_state(states::off));
 
     REQUIRE(ctx.out == "2");
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.active_state<states::on>());
+    REQUIRE(machine.active_state(states::on));
 }

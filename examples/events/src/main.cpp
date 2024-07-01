@@ -106,31 +106,31 @@ int main()
 int main()
 {
     auto machine = machine_t{};
-    if(machine.active_state<idle>())
+    if(machine.active_state(idle))
     {
         std::cout << "1\n";
     }
 
     machine.process_event(user_interface::start_request{});
-    if(machine.active_state<starting>())
+    if(machine.active_state(starting))
     {
         std::cout << "2\n";
     }
 
     machine.process_event(motor::start_event{});
-    if(machine.active_state<running>())
+    if(machine.active_state(running))
     {
         std::cout << "3\n";
     }
 
     machine.process_event(user_interface::stop_request{});
-    if(machine.active_state<stopping>())
+    if(machine.active_state(stopping))
     {
         std::cout << "4\n";
     }
 
     machine.process_event(motor::stop_event{});
-    if(machine.active_state<idle>())
+    if(machine.active_state(idle))
     {
         std::cout << "5\n";
     }

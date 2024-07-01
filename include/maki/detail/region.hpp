@@ -27,18 +27,10 @@ namespace maki::detail
 
 namespace region_detail
 {
-    inline constexpr auto stopped_state_index = -1;
-
     template<class StateList, class State>
     struct find_state
     {
         static constexpr auto value = tlu::find_v<StateList, State>;
-    };
-
-    template<class StateList, class Region>
-    struct find_state<StateList, state_traits::state_id_to_state<&state_confs::stopped, Region>>
-    {
-        static constexpr auto value = stopped_state_index;
     };
 
     template<class StateList, class State>
@@ -48,12 +40,6 @@ namespace region_detail
     struct find_state_from_id
     {
         static constexpr auto value = tlu::find_if_v<StateList, state_traits::for_id<StateId>::template has_id>;
-    };
-
-    template<class StateList>
-    struct find_state_from_id<StateList, &state_confs::stopped>
-    {
-        static constexpr auto value = stopped_state_index;
     };
 
     template<class StateList, auto StateId>
@@ -93,7 +79,7 @@ public:
     {
         if constexpr(RegionPath.empty())
         {
-            return active_state<StateId>();
+            return active_state(*StateId);
         }
         else
         {
@@ -104,23 +90,23 @@ public:
         }
     }
 
-    template<auto StateId>
-    [[nodiscard]] bool active_state() const
+    template<class StateConf>
+    [[nodiscard]] bool active_state(const StateConf& stt_conf) const
     {
-        if constexpr(is_filter_v<std::decay_t<decltype(*StateId)>>)
+        if constexpr(is_filter_v<StateConf>)
         {
-            return does_active_state_id_match_filter<StateId>();
+            return does_active_state_id_match_filter(stt_conf);
         }
         else
         {
-            return is_active_state_type<StateId>();
+            return is_active_state_type(stt_conf);
         }
     }
 
     template<class Machine, class Context, class Event>
     void start(Machine& mach, Context& ctx, const Event& event)
     {
-        if(is_active_state_type<&state_confs::stopped>())
+        if(is_active_state_type(state_confs::stopped))
         {
             process_event_in_transition
             <
@@ -134,7 +120,7 @@ public:
     template<class Machine, class Context, class Event>
     void stop(Machine& mach, Context& ctx, const Event& event)
     {
-        if(!is_active_state_type<&state_confs::stopped>())
+        if(!is_active_state_type(state_confs::stopped))
         {
             with_active_state_id<state_id_constant_list, stop_2>
             (
@@ -339,7 +325,7 @@ private:
         )
         {
             //Make sure the transition source state is the active state
-            if(!self.template is_active_state_type<SourceStateIdConstant::value>())
+            if(!self.template is_active_state_type(*SourceStateIdConstant::value))
             {
                 return false;
             }
@@ -531,31 +517,30 @@ private:
         return &State::conf == pactive_state_conf_;
     }
 
-    template<auto StateId>
-    [[nodiscard]] bool is_active_state_type() const
+    template<class StateConf>
+    [[nodiscard]] bool is_active_state_type(const StateConf& stt_conf) const
     {
-        return StateId == pactive_state_conf_;
+        return &stt_conf == pactive_state_conf_;
     }
 
-    template<auto FilterPtr>
-    [[nodiscard]] bool does_active_state_id_match_filter() const
+    template<class Filter>
+    [[nodiscard]] bool does_active_state_id_match_filter(const Filter& filter) const
     {
         auto matches = false;
         with_active_state_id
         <
             tlu::push_back_t<state_id_constant_list, constant_t<&state_confs::stopped>>,
-            does_active_state_id_match_filter_2<FilterPtr>
-        >(matches);
+            does_active_state_id_match_filter_2
+        >(filter, matches);
         return matches;
     }
 
-    template<auto FilterPtr>
     struct does_active_state_id_match_filter_2
     {
-        template<class ActiveStateIdConstant>
-        static void call([[maybe_unused]] bool& matches)
+        template<class ActiveStateIdConstant, class Filter>
+        static void call(const Filter& filter, [[maybe_unused]] bool& matches)
         {
-            if constexpr(matches_filter_ptr(ActiveStateIdConstant::value, FilterPtr))
+            if(matches_filter_ptr(ActiveStateIdConstant::value, &filter))
             {
                 matches = true;
             }
@@ -578,7 +563,7 @@ private:
         template<class StateIdConstant, class... Args>
         static bool call(const region& self, Args&&... args)
         {
-            if(self.is_active_state_type<StateIdConstant::value>())
+            if(self.is_active_state_type(*StateIdConstant::value))
             {
                 F::template call<StateIdConstant>(std::forward<Args>(args)...);
                 return true;

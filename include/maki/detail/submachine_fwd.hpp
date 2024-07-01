@@ -7,7 +7,7 @@
 #ifndef MAKI_DETAIL_SUBMACHINE_FWD_HPP
 #define MAKI_DETAIL_SUBMACHINE_FWD_HPP
 
-#include "conf_traits.hpp"
+#include "state_id_traits.hpp"
 #include <type_traits>
 
 namespace maki::detail
@@ -17,7 +17,7 @@ template<auto Id, class ParentRegion, class Context>
 class submachine_impl;
 
 template<auto Id, class ParentRegion>
-using submachine = submachine_impl<Id, ParentRegion, conf_traits::context_t<*Id>>;
+using submachine = submachine_impl<Id, ParentRegion, state_id_traits::context_t<Id>>;
 
 } //namespace
 

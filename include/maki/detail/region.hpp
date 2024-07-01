@@ -74,19 +74,19 @@ public:
         return static_context_or<StatePath>(*this, parent_ctx);
     }
 
-    template<const auto& RegionPath, auto StateId>
-    [[nodiscard]] bool active_state() const
+    template<const auto& RegionPath, class StateConf>
+    [[nodiscard]] bool active_state(const StateConf& stt_conf) const
     {
         if constexpr(RegionPath.empty())
         {
-            return active_state(*StateId);
+            return active_state(stt_conf);
         }
         else
         {
             static constexpr auto psubmach_conf = path_raw_head(RegionPath);
             static constexpr auto region_path_tail = path_tail(RegionPath);
             const auto& submach = state_from_id<psubmach_conf>();
-            return submach.template active_state<region_path_tail, *StateId>();
+            return submach.template active_state<region_path_tail>(stt_conf);
         }
     }
 

@@ -181,7 +181,7 @@ public:
     template<const auto& RegionPath, const auto& StateConf>
     [[nodiscard]] bool active_state() const
     {
-        return impl_.template active_state<RegionPath, StateConf>();
+        return impl_.template active_state<RegionPath>(StateConf);
     }
 
     /**
@@ -193,7 +193,7 @@ public:
     template<const auto& StateConf>
     [[nodiscard]] bool active_state() const
     {
-        return impl_.template active_state<StateConf>();
+        return impl_.template active_state(StateConf);
     }
 
     /**

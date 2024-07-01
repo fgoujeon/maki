@@ -126,16 +126,16 @@ public:
         }
     }
 
-    template<const auto& StateRegionPath, const auto& StateConf>
-    [[nodiscard]] bool active_state() const
+    template<const auto& StateRegionPath, class StateConf>
+    [[nodiscard]] bool active_state(const StateConf& stt_conf) const
     {
-        return impl_.template active_state<StateRegionPath, StateConf>();
+        return impl_.template active_state<StateRegionPath>(stt_conf);
     }
 
-    template<const auto& StateConf>
-    [[nodiscard]] bool active_state() const
+    template<class StateConf>
+    [[nodiscard]] bool active_state(const StateConf& stt_conf) const
     {
-        return impl_.template active_state<StateConf>();
+        return impl_.template active_state(stt_conf);
     }
 
     template<const auto& RegionPath>
@@ -257,32 +257,32 @@ public:
         return tuple_get<region_index>(regions_).template context_or<state_path_tail>(parent_ctx);
     }
 
-    template<const auto& StateRegionPath, const auto& StateConf>
-    [[nodiscard]] bool active_state() const
+    template<const auto& StateRegionPath, class StateConf>
+    [[nodiscard]] bool active_state(const StateConf& stt_conf) const
     {
         static constexpr auto region_index = path_raw_head(StateRegionPath);
         static constexpr auto state_region_relative_path = path_tail(StateRegionPath);
-        return tuple_get<region_index>(regions_).template active_state<state_region_relative_path, &StateConf>();
+        return tuple_get<region_index>(regions_).template active_state<state_region_relative_path>(stt_conf);
     }
 
-    template<const auto& StateConf>
-    [[nodiscard]] bool active_state() const
+    template<class StateConf>
+    [[nodiscard]] bool active_state(const StateConf& stt_conf) const
     {
         static_assert(tlu::size_v<transition_table_type_list> == 1);
 
         static constexpr auto state_region_relative_path = path<>{};
-        return tuple_get<0>(regions_).template active_state<state_region_relative_path, &StateConf>();
+        return tuple_get<0>(regions_).template active_state<state_region_relative_path>(stt_conf);
     }
 
     template<const auto& RegionPath>
     [[nodiscard]] bool running() const
     {
-        return !active_state<RegionPath, state_confs::stopped>();
+        return !active_state<RegionPath>(state_confs::stopped);
     }
 
     [[nodiscard]] bool running() const
     {
-        return !active_state<state_confs::stopped>();
+        return !active_state(state_confs::stopped);
     }
 
     template<class Machine, class Context, class Event>

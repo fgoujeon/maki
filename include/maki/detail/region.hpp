@@ -203,7 +203,14 @@ private:
     static constexpr auto pinitial_state_conf = detail::tlu::front_t<state_id_constant_list>::value;
 
     template<bool Dry, class Self, class Machine, class Context, class Event, class... MaybeBool>
-    static void process_event_2(Self& self, Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
+    static void process_event_2
+    (
+        Self& self,
+        Machine& mach,
+        Context& ctx,
+        const Event& event,
+        [[maybe_unused]] MaybeBool&... processed
+    )
     {
         //List the transitions whose event type filter matches Event
         using candidate_transition_index_constant_list = transition_table_filters::by_event_t

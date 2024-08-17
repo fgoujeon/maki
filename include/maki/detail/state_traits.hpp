@@ -14,10 +14,6 @@
 #include "conf_traits.hpp"
 #include "state_id_traits.hpp"
 #include "tlu.hpp"
-#include "same_ref.hpp"
-#include "../null.hpp"
-#include "../filters.hpp"
-#include "../submachine_conf.hpp"
 #include <type_traits>
 
 namespace maki::detail::state_traits

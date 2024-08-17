@@ -14,21 +14,21 @@
 @brief The Maki library
 */
 
-#include "maki/conf_holder.hpp"
-#include "maki/cref_constant.hpp"
-#include "maki/events.hpp"
-#include "maki/filters.hpp"
-#include "maki/guard.hpp"
-#include "maki/machine.hpp"
-#include "maki/machine_conf.hpp"
-#include "maki/machine_fwd.hpp"
-#include "maki/machine_ref.hpp"
-#include "maki/machine_ref_conf.hpp"
-#include "maki/path.hpp"
-#include "maki/pretty_name.hpp"
-#include "maki/state_conf.hpp"
-#include "maki/state_confs.hpp"
-#include "maki/submachine_conf.hpp"
-#include "maki/transition_table.hpp"
-#include "maki/type.hpp"
-#include "maki/version.hpp"
+#include "maki/conf_holder.hpp" //NOLINT misc-include-cleaner
+#include "maki/cref_constant.hpp" //NOLINT misc-include-cleaner
+#include "maki/events.hpp" //NOLINT misc-include-cleaner
+#include "maki/filters.hpp" //NOLINT misc-include-cleaner
+#include "maki/guard.hpp" //NOLINT misc-include-cleaner
+#include "maki/machine.hpp" //NOLINT misc-include-cleaner
+#include "maki/machine_conf.hpp" //NOLINT misc-include-cleaner
+#include "maki/machine_fwd.hpp" //NOLINT misc-include-cleaner
+#include "maki/machine_ref.hpp" //NOLINT misc-include-cleaner
+#include "maki/machine_ref_conf.hpp" //NOLINT misc-include-cleaner
+#include "maki/path.hpp" //NOLINT misc-include-cleaner
+#include "maki/pretty_name.hpp" //NOLINT misc-include-cleaner
+#include "maki/state_conf.hpp" //NOLINT misc-include-cleaner
+#include "maki/state_confs.hpp" //NOLINT misc-include-cleaner
+#include "maki/submachine_conf.hpp" //NOLINT misc-include-cleaner
+#include "maki/transition_table.hpp" //NOLINT misc-include-cleaner
+#include "maki/type.hpp" //NOLINT misc-include-cleaner
+#include "maki/version.hpp" //NOLINT misc-include-cleaner

@@ -31,7 +31,7 @@ m means machine
 namespace maki::detail
 {
 
-enum class context_signature
+enum class context_signature: char
 {
 #define MAKI_DETAIL_X(name) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     name,

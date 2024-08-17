@@ -7,13 +7,11 @@
 #ifndef MAKI_DETAIL_SIMPLE_STATE_NO_CONTEXT_HPP
 #define MAKI_DETAIL_SIMPLE_STATE_NO_CONTEXT_HPP
 
-#include "conf_traits.hpp"
-#include "call_member.hpp"
 #include "maybe_bool_util.hpp"
 #include "event_action.hpp"
+#include "tuple.hpp"
 #include "tlu.hpp"
-#include "../filters.hpp"
-#include "../null.hpp"
+#include <type_traits>
 
 namespace maki::detail
 {

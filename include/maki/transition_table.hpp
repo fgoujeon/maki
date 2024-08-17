@@ -13,7 +13,6 @@
 #define MAKI_TRANSITION_TABLE_HPP
 
 #include "detail/state_id.hpp"
-#include "detail/conf_traits.hpp"
 #include "detail/storable_function.hpp"
 #include "detail/tuple.hpp"
 #include "null.hpp"

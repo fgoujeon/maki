@@ -7,11 +7,11 @@
 #ifndef MAKI_DETAIL_TRANSITION_TABLE_FILTERS_HPP
 #define MAKI_DETAIL_TRANSITION_TABLE_FILTERS_HPP
 
-#include "tlu.hpp"
+#include "tlu/push_back_if.hpp"
+#include "tlu/left_fold.hpp"
+#include "type_list.hpp"
 #include "integer_constant_sequence.hpp"
 #include "../filters.hpp"
-#include "../null.hpp"
-#include <type_traits>
 
 namespace maki::detail::transition_table_filters
 {

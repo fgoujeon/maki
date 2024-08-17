@@ -13,15 +13,13 @@
 #define MAKI_SUBMACHINE_CONF_HPP
 
 #include "submachine_conf_fwd.hpp"
-#include "transition_table.hpp"
-#include "filters.hpp"
 #include "type.hpp"
 #include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"
 #include "detail/tuple.hpp"
-#include "detail/type_list.hpp"
 #include "detail/tlu.hpp"
 #include <string_view>
+#include <type_traits>
 
 namespace maki
 {

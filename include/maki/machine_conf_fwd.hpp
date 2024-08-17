@@ -16,6 +16,7 @@
 #include "detail/tuple.hpp"
 #include "null.hpp"
 #include <string_view>
+#include <cstdlib>
 
 namespace maki
 {

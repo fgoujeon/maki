@@ -7,20 +7,11 @@
 #ifndef MAKI_DETAIL_SUBMACHINE_HPP
 #define MAKI_DETAIL_SUBMACHINE_HPP
 
-#include "call_member.hpp"
 #include "tlu.hpp"
-#include "region.hpp"
-#include "maybe_bool_util.hpp"
-#include "simple_state.hpp"
 #include "submachine_no_context.hpp"
-#include "state_traits.hpp"
-#include "tuple.hpp"
-#include "../machine_fwd.hpp"
+#include "context_holder.hpp"
 #include "../state_conf.hpp"
 #include "../machine_conf.hpp"
-#include "../transition_table.hpp"
-#include "../path.hpp"
-#include "../filters.hpp"
 #include <type_traits>
 
 namespace maki::detail

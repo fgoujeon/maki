@@ -12,8 +12,6 @@
 #ifndef MAKI_MACHINE_REF_CONF_HPP
 #define MAKI_MACHINE_REF_CONF_HPP
 
-#include "type.hpp"
-#include "detail/tlu.hpp"
 #include "detail/type_list.hpp"
 
 namespace maki

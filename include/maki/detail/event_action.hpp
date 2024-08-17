@@ -7,8 +7,7 @@
 #ifndef MAKI_DETAIL_EVENT_ACTION_HPP
 #define MAKI_DETAIL_EVENT_ACTION_HPP
 
-#include "tlu.hpp"
-#include "tuple.hpp"
+#include "tlu/get.hpp"
 #include "../filters.hpp"
 #include <functional>
 
@@ -31,7 +30,7 @@ m means machine
 c means context
 e means event
 */
-enum class event_action_signature
+enum class event_action_signature: char
 {
 #define MAKI_DETAIL_X(name) name, /*NOLINT(cppcoreguidelines-macro-usage)*/
     MAKI_DETAIL_EVENT_ACTION_SIGNATURES

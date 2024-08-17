@@ -10,7 +10,6 @@
 #include "tlu.hpp"
 #include "type_list.hpp"
 #include "constant.hpp"
-#include "../cref_constant.hpp"
 #include "../type.hpp"
 #include <utility>
 
@@ -29,7 +28,7 @@ class tuple_element
 public:
     template<class... Args>
     explicit constexpr tuple_element(Args&&... args):
-        value_{args...}
+        value_{std::forward<Args>(args)...}
     {
     }
 
@@ -73,7 +72,7 @@ public:
 
     template<class... Args>
     explicit constexpr tuple_base(distributed_construct_t /*tag*/, Args&&... args):
-        tuple_element<Indexes, Ts>{args}...
+        tuple_element<Indexes, Ts>{std::forward<Args>(args)}...
     {
     }
 

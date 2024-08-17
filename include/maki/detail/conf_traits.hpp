@@ -7,7 +7,6 @@
 #ifndef MAKI_DETAIL_CONF_TRAITS_HPP
 #define MAKI_DETAIL_CONF_TRAITS_HPP
 
-#include "../null.hpp"
 #include "../state_conf_fwd.hpp"
 #include "../submachine_conf_fwd.hpp"
 #include <type_traits>

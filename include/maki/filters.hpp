@@ -13,7 +13,7 @@
 #define MAKI_FILTERS_HPP
 
 #include "detail/state_id.hpp"
-#include "detail/constant.hpp"
+#include "detail/tuple.hpp"
 #include "type.hpp"
 #include <type_traits>
 

@@ -14,7 +14,8 @@
 
 #include "machine_ref_conf.hpp"
 #include "machine_fwd.hpp"
-#include "detail/tlu.hpp"
+#include "detail/tlu/apply.hpp"
+#include "detail/tlu/contains.hpp"
 
 namespace maki
 {

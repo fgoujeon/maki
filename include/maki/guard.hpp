@@ -12,16 +12,15 @@
 #ifndef MAKI_GUARD_HPP
 #define MAKI_GUARD_HPP
 
-#include "detail/storable_function.hpp"
 #include "detail/call_member.hpp"
-#include <type_traits>
+#include "detail/storable_function.hpp"
 
 namespace maki
 {
 
 namespace detail
 {
-    enum class guard_operator
+    enum class guard_operator: char
     {
         none,
         not_,
@@ -34,7 +33,7 @@ namespace detail
 /**
 @brief A guard wrapper that allows boolean composition
 */
-template<detail::guard_operator Operator, class Operand, class Operand2 = null_t>
+template<detail::guard_operator Operator, class Operand, class Operand2 = void>
 class guard;
 
 namespace detail
@@ -101,7 +100,7 @@ private:
 
 #ifndef MAKI_DETAIL_DOXYGEN
 template<class Operand>
-class guard<detail::guard_operator::none, Operand, null_t>
+class guard<detail::guard_operator::none, Operand, void>
 {
 public:
     constexpr guard(const Operand& operand):
@@ -130,7 +129,7 @@ private:
 };
 
 template<class Operand>
-class guard<detail::guard_operator::not_, Operand, null_t>
+class guard<detail::guard_operator::not_, Operand, void>
 {
 public:
     constexpr guard(const Operand& operand):

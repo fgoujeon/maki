@@ -13,14 +13,22 @@
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
-#include "tlu.hpp"
+#include "tlu/apply.hpp"
+#include "tlu/empty.hpp"
+#include "tlu/find.hpp"
+#include "tlu/find_if.hpp"
+#include "tlu/front.hpp"
+#include "tlu/push_back.hpp"
 #include "same_ref.hpp"
 #include "maybe_bool_util.hpp"
+#include "tuple.hpp"
+#include "constant.hpp"
+#include "../null.hpp"
 #include "../cref_constant.hpp"
 #include "../submachine_conf.hpp"
 #include "../state_confs.hpp"
+#include "../transition_table.hpp"
 #include <type_traits>
-#include <exception>
 
 namespace maki::detail
 {

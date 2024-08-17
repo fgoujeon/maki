@@ -48,7 +48,7 @@ using to_state_id_or_identity_t = typename to_state_id_or_identity<T>::type;
 template<class T>
 constexpr decltype(auto) try_making_state_id(T&& obj)
 {
-    return obj;
+    return std::forward<T>(obj);
 }
 
 template<class OptionSet>

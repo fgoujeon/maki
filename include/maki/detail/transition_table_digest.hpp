@@ -7,16 +7,13 @@
 #ifndef MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 #define MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 
-#include "../filters.hpp"
-#include "../transition_table.hpp"
-#include "../events.hpp"
 #include "constant.hpp"
-#include "same_ref.hpp"
-#include "tlu.hpp"
+#include "tlu/push_back_unique.hpp"
+#include "tlu/left_fold.hpp"
 #include "tuple.hpp"
-#include "state_traits.hpp"
 #include "integer_constant_sequence.hpp"
 #include "type_list.hpp"
+#include "../null.hpp"
 #include <type_traits>
 
 namespace maki::detail

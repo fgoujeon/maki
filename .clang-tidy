@@ -2,7 +2,6 @@
 Checks:          'clang-diagnostic-*,clang-analyzer-*,modernize-*,bugprone-*,cppcoreguidelines-*,performance-*,portability-*,readability-*,misc-*,-modernize-use-trailing-return-type'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
-AnalyzeTemporaryDtors: false
 FormatStyle:     none
 User:            florian
 CheckOptions:

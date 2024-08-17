@@ -7,21 +7,17 @@
 #ifndef MAKI_DETAIL_SUBMACHINE_NO_CONTEXT_HPP
 #define MAKI_DETAIL_SUBMACHINE_NO_CONTEXT_HPP
 
-#include "call_member.hpp"
-#include "tlu.hpp"
-#include "region.hpp"
 #include "maybe_bool_util.hpp"
-#include "simple_state.hpp"
-#include "submachine_fwd.hpp"
-#include "state_traits.hpp"
+#include "region.hpp"
+#include "simple_state_no_context.hpp"
+#include "tlu.hpp"
 #include "tuple.hpp"
-#include "../machine_fwd.hpp"
-#include "../state_conf.hpp"
 #include "../machine_conf.hpp"
-#include "../transition_table.hpp"
 #include "../path.hpp"
-#include "../filters.hpp"
+#include "../state_conf.hpp"
+#include "../state_confs.hpp"
 #include <type_traits>
+#include <utility>
 
 namespace maki::detail
 {

@@ -26,7 +26,7 @@ inline void set_to_true(bool& value)
     value = true;
 }
 
-inline constexpr void set_to_true()
+constexpr void set_to_true()
 {
     //nothing
 }

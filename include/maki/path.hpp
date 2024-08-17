@@ -12,12 +12,12 @@
 #ifndef MAKI_PATH_HPP
 #define MAKI_PATH_HPP
 
-#include "transition_table.hpp"
 #include "pretty_name.hpp"
+#include "cref_constant.hpp"
 #include "detail/tuple.hpp"
-#include "detail/tlu.hpp"
 #include <string>
-#include <sstream>
+#include <type_traits>
+#include <utility>
 
 namespace maki
 {
@@ -54,7 +54,7 @@ namespace detail
         return &elem;
     }
 
-    inline constexpr int to_path_storage(const int elem)
+    constexpr int to_path_storage(const int elem)
     {
         return elem;
     }
@@ -65,7 +65,7 @@ namespace detail
         return *pelem;
     }
 
-    inline constexpr int from_path_storage(const int elem)
+    constexpr int from_path_storage(const int elem)
     {
         return elem;
     }

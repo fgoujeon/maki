@@ -14,22 +14,25 @@
 
 #include "conf_holder.hpp"
 #include "machine_conf.hpp"
-#include "path.hpp"
+#include "events.hpp"
+#include "null.hpp"
+#include "detail/simple_state.hpp" //NOLINT misc-include-cleaner
+#include "detail/submachine.hpp" //NOLINT misc-include-cleaner
+#include "detail/submachine_no_context.hpp"
 #include "detail/context_holder.hpp"
 #include "detail/event_action.hpp"
 #include "detail/noinline.hpp"
-#include "detail/submachine.hpp"
 #include "detail/function_queue.hpp"
-#include "detail/tlu.hpp"
-#include "detail/overload_priority.hpp"
+#include "detail/tuple.hpp"
 #include <type_traits>
+#include <exception>
 
 namespace maki
 {
 
 namespace detail
 {
-    enum class machine_operation
+    enum class machine_operation: char
     {
         start,
         stop,

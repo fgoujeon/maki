@@ -10,6 +10,7 @@
 #include "type_list.hpp"
 #include "constant.hpp"
 #include <utility>
+#include <cstdlib>
 
 namespace maki::detail
 {

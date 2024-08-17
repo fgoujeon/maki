@@ -9,13 +9,7 @@
 
 #include "simple_state_no_context.hpp"
 #include "context_holder.hpp"
-#include "conf_traits.hpp"
-#include "call_member.hpp"
-#include "maybe_bool_util.hpp"
-#include "event_action.hpp"
-#include "tlu.hpp"
-#include "../filters.hpp"
-#include "../null.hpp"
+#include <type_traits>
 
 namespace maki::detail
 {

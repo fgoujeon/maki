@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <memory>
 
-namespace
+namespace non_copyable_context_ns
 {
     struct context
     {
@@ -41,6 +41,8 @@ namespace
 
 TEST_CASE("non_copyable_context")
 {
+    using namespace non_copyable_context_ns;
+
     auto machine = machine_t{};
 
     REQUIRE(machine.active_state<states::off>());

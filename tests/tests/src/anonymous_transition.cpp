@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace anonymous_transition_ns
 {
     struct context{};
 
@@ -43,6 +43,8 @@ namespace
 
 TEST_CASE("anonymous transition")
 {
+    using namespace anonymous_transition_ns;
+
     auto machine = machine_t{};
 
     machine.start();

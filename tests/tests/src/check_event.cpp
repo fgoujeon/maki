@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace check_event_ns
 {
     struct context{};
 
@@ -48,6 +48,8 @@ namespace
 
 TEST_CASE("check_event")
 {
+    using namespace check_event_ns;
+
     auto machine = machine_t{};
     machine.start();
 

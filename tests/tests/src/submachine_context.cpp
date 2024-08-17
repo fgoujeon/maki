@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace submachine_context_ns
 {
     enum class led_color
     {
@@ -36,7 +36,7 @@ namespace
         {
             struct context
             {
-                using parent_context_type = ::context;
+                using parent_context_type = submachine_context_ns::context;
 
                 context(parent_context_type& parent):
                     parent(parent)
@@ -108,6 +108,8 @@ namespace
 
 TEST_CASE("submachine_context")
 {
+    using namespace submachine_context_ns;
+
     static constexpr auto machine_on_path = maki::path{0} / states::on / 0;
 
     auto machine = machine_t{};

@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace on_event_auto_ns
 {
     struct context
     {
@@ -112,6 +112,8 @@ namespace
 
 TEST_CASE("on_event_auto")
 {
+    using namespace on_event_auto_ns;
+
     auto machine = machine_t{};
     auto& ctx = machine.context();
 

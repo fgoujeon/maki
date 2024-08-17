@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace guard_operators_ns
 {
     struct context
     {
@@ -91,6 +91,8 @@ namespace
 
 TEST_CASE("guard operators")
 {
+    using namespace guard_operators_ns;
+
     auto machine = machine_t{};
     auto& ctx = machine.context();
 

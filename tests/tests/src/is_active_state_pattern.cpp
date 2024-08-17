@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace is_active_state_pattern_ns
 {
     struct machine_conf_holder;
     using machine_t = maki::machine<machine_conf_holder>;
@@ -66,6 +66,8 @@ namespace
 
 TEST_CASE("is_active_state_filter")
 {
+    using namespace is_active_state_pattern_ns;
+
     static constexpr auto on_reg_path = maki::path{0} / states::on / 0;
 
     auto machine = machine_t{};

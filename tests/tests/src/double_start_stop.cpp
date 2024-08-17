@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace double_start_stop_ns
 {
     namespace events
     {
@@ -79,6 +79,8 @@ namespace
 
 TEST_CASE("double_start_stop")
 {
+    using namespace double_start_stop_ns;
+
     auto out = std::string{};
     auto machine = machine_t{out};
 

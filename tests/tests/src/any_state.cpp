@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace any_state_ns
 {
     struct context{};
 
@@ -42,6 +42,8 @@ namespace
 
 TEST_CASE("any state")
 {
+    using namespace any_state_ns;
+
     auto machine = machine_t{};
 
     machine.start();

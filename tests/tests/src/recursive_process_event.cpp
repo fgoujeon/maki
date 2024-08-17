@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace recursive_process_event_ns
 {
     struct machine_conf_holder;
     using machine_t = maki::machine<machine_conf_holder>;
@@ -122,8 +122,10 @@ namespace
     };
 }
 
-TEST_CASE("recursive process_event")
+TEST_CASE("recursive_process_event")
 {
+    using namespace recursive_process_event_ns;
+
     auto machine = machine_t{};
     auto& ctx = machine.context();
 

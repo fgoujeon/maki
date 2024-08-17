@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace on_entry_event_exit_ns
 {
     struct context
     {
@@ -96,6 +96,8 @@ namespace
 
 TEST_CASE("entry_action_event_exit")
 {
+    using namespace on_entry_event_exit_ns;
+
     auto machine = machine_t{};
     auto& ctx = machine.context();
 

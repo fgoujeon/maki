@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace state_data_ns
 {
     struct context
     {
@@ -65,6 +65,8 @@ namespace
 
 TEST_CASE("state_data")
 {
+    using namespace state_data_ns;
+
     auto machine = machine_t{};
     static constexpr auto on_path = maki::path{0} / states::on;
     auto& counter = machine.context<on_path>().counter;

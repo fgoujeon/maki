@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace state_data_submachine_ns
 {
     struct context
     {
@@ -72,6 +72,8 @@ namespace
 
 TEST_CASE("state_data_submachine")
 {
+    using namespace state_data_submachine_ns;
+
     auto machine = machine_t{};
     static constexpr auto region_0_path = maki::path{0};
     static constexpr auto on_path = region_0_path / states::on;

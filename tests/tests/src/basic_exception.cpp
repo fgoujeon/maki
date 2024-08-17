@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace basic_exception_ns
 {
     struct context
     {
@@ -91,6 +91,8 @@ namespace
 
 TEST_CASE("basic_exception")
 {
+    using namespace basic_exception_ns;
+
     auto machine = machine_t{};
 
     REQUIRE(machine.active_state<states::off>());

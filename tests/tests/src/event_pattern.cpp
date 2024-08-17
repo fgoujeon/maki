@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace event_pattern_ns
 {
     struct context
     {
@@ -50,6 +50,8 @@ namespace
 
 TEST_CASE("event_filter")
 {
+    using namespace event_pattern_ns;
+
     auto machine = machine_t{};
 
     REQUIRE(machine.active_state<states::off>());

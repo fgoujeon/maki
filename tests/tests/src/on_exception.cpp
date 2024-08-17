@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace on_exception_ns
 {
     struct context
     {
@@ -120,6 +120,8 @@ namespace
 
 TEST_CASE("on_exception")
 {
+    using namespace on_exception_ns;
+
     {
         auto machine = default_sm_t{};
         auto& ctx = machine.context();

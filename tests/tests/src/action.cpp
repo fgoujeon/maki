@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace action_ns
 {
     struct context
     {
@@ -53,6 +53,8 @@ namespace
 
 TEST_CASE("action")
 {
+    using namespace action_ns;
+
     auto machine = machine_t{};
 
     machine.start();

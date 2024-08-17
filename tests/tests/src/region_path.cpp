@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace region_path_ns
 {
     struct context
     {
@@ -56,6 +56,8 @@ namespace
 
 TEST_CASE("path")
 {
+    using namespace region_path_ns;
+
     {
         static constexpr auto path = maki::path{machine_conf} / 0;
         REQUIRE(maki::to_string(maki::cref_constant<path>) == "main_sm/0");

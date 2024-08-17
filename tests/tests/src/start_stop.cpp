@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace start_stop_ns
 {
     struct context
     {
@@ -77,6 +77,8 @@ namespace
 
 TEST_CASE("start_stop")
 {
+    using namespace start_stop_ns;
+
     auto machine = machine_t{};
     auto& ctx = machine.context();
 

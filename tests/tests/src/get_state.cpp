@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace get_state_ns
 {
     enum class led_color
     {
@@ -148,6 +148,8 @@ namespace
 
 TEST_CASE("state")
 {
+    using namespace get_state_ns;
+
     auto machine = machine_t{};
     const auto& const_sm = machine;
 

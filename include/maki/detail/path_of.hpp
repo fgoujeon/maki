@@ -8,6 +8,7 @@
 #define MAKI_DETAIL_PATH_OF_HPP
 
 #include "submachine_fwd.hpp"
+#include "submachine_no_context_fwd.hpp"
 #include "region_fwd.hpp"
 #include "../machine_fwd.hpp"
 #include "../path.hpp"
@@ -21,14 +22,26 @@ struct path_of;
 template<class T>
 inline constexpr auto path_of_v = path_of<T>::value;
 
-template<auto Id, class ParentRegion, class ContextType>
-struct path_of<submachine_impl<Id, ParentRegion, ContextType>>
+template<auto Id, class ParentRegion>
+struct path_of<submachine<Id, ParentRegion>>
 {
     static constexpr auto value = path_of_v<ParentRegion> / *Id;
 };
 
-template<auto Id, class ContextType>
-struct path_of<submachine_impl<Id, void, ContextType>>
+template<auto Id>
+struct path_of<submachine<Id, void>>
+{
+    static constexpr auto value = path{*Id};
+};
+
+template<auto Id, class ParentRegion>
+struct path_of<submachine_no_context<Id, ParentRegion>>
+{
+    static constexpr auto value = path_of_v<ParentRegion> / *Id;
+};
+
+template<auto Id>
+struct path_of<submachine_no_context<Id, void>>
 {
     static constexpr auto value = path{*Id};
 };

@@ -7,9 +7,12 @@
 #ifndef MAKI_DETAIL_STATE_TRAITS_HPP
 #define MAKI_DETAIL_STATE_TRAITS_HPP
 
-#include "conf_traits.hpp"
-#include "submachine_fwd.hpp"
+#include "simple_state_no_context_fwd.hpp"
 #include "simple_state_fwd.hpp"
+#include "submachine_no_context_fwd.hpp"
+#include "submachine_fwd.hpp"
+#include "conf_traits.hpp"
+#include "state_id_traits.hpp"
 #include "tlu.hpp"
 #include "same_ref.hpp"
 #include "../null.hpp"
@@ -22,20 +25,51 @@ namespace maki::detail::state_traits
 
 //state_id_to_state
 
-template<auto StateId, class Parent, class Enable = void>
-struct state_id_to_state
+template<auto StateId, class Parent, bool IsSubmachine, bool HasContext>
+struct state_id_to_state_impl;
+
+template<auto StateId, class Parent>
+struct state_id_to_state_impl<StateId, Parent, false, false>
+{
+    using type = simple_state_no_context<StateId>;
+};
+
+template<auto StateId, class Parent>
+struct state_id_to_state_impl<StateId, Parent, false, true>
 {
     using type = simple_state<StateId>;
 };
 
 template<auto StateId, class Parent>
-struct state_id_to_state<StateId, Parent, std::enable_if_t<conf_traits::is_submachine_conf_v<std::decay_t<decltype(*StateId)>>>>
+struct state_id_to_state_impl<StateId, Parent, true, false>
+{
+    using type = submachine_no_context<StateId, Parent>;
+};
+
+template<auto StateId, class Parent>
+struct state_id_to_state_impl<StateId, Parent, true, true>
 {
     using type = submachine<StateId, Parent>;
 };
 
 template<auto StateId, class Parent>
-using state_id_to_state_t = typename state_id_to_state<StateId, Parent>::type;
+struct state_id_to_state
+{
+    using type = typename state_id_to_state_impl
+    <
+        StateId,
+        Parent,
+        conf_traits::is_submachine_conf_v<std::decay_t<decltype(*StateId)>>,
+        state_id_traits::has_context_v<StateId>
+    >::type;
+};
+
+template<auto StateId, class Parent>
+using state_id_to_state_t = typename state_id_to_state
+<
+    StateId,
+    Parent
+>::type;
 
 
 //has_id

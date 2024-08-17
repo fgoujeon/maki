@@ -8,8 +8,8 @@
 #define MAKI_DETAIL_STATE_ID_TRAITS_HPP
 
 #include "../null.hpp"
-#include "../state_conf.hpp"
-#include "../submachine_conf.hpp"
+#include "../state_conf_fwd.hpp"
+#include "../submachine_conf_fwd.hpp"
 #include <type_traits>
 
 namespace maki::detail::state_id_traits

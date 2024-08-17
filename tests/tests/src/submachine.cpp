@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace submachine_ns
 {
     struct machine_conf_holder;
     using machine_t = maki::machine<machine_conf_holder>;
@@ -124,6 +124,8 @@ namespace
 
 TEST_CASE("submachine")
 {
+    using namespace submachine_ns;
+
     static constexpr auto machine_on_path = maki::path{0} / states::on / 0;
 
     auto machine = machine_t{};

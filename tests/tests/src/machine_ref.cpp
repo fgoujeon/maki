@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <memory>
 
-namespace
+namespace machine_ref_ns
 {
     struct context
     {
@@ -48,6 +48,8 @@ namespace
 
 TEST_CASE("machine_ref_e")
 {
+    using namespace machine_ref_ns;
+
     using machine_ref_e_t =
         maki::machine_ref_e<events::on_button_press, events::off_button_press>
     ;

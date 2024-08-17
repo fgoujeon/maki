@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace submachine_in_type_filter_ns
 {
     struct context
     {
@@ -55,6 +55,8 @@ namespace
 
 TEST_CASE("submachine_in_type_filter")
 {
+    using namespace submachine_in_type_filter_ns;
+
     auto machine = machine_t{};
 
     machine.start();

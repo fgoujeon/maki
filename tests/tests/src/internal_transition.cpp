@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace internal_transition_ns
 {
     struct context
     {
@@ -69,6 +69,8 @@ namespace
 
 TEST_CASE("internal transition")
 {
+    using namespace internal_transition_ns;
+
     auto machine = machine_t{};
     auto& ctx = machine.context();
 

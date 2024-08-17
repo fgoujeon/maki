@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace empty_state_ns
 {
     struct context
     {
@@ -50,6 +50,8 @@ namespace
 
 TEST_CASE("empty_state")
 {
+    using namespace empty_state_ns;
+
     auto machine = machine_t{};
 
     machine.process_event(events::event{});

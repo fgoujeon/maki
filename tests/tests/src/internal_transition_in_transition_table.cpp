@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace internal_transition_in_transition_table_ns
 {
     struct context
     {
@@ -102,6 +102,8 @@ namespace
 
 TEST_CASE("internal_transition_in_transition_table")
 {
+    using namespace internal_transition_in_transition_table_ns;
+
     auto machine = machine_t{};
     auto& ctx = machine.context();
 

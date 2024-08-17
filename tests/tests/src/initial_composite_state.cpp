@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace initial_composite_state_ns
 {
     struct machine_conf_holder;
     using machine_t = maki::machine<machine_conf_holder>;
@@ -102,6 +102,8 @@ namespace
 
 TEST_CASE("initial_submachine")
 {
+    using namespace initial_composite_state_ns;
+
     auto machine = machine_t{};
     auto& ctx = machine.context();
 

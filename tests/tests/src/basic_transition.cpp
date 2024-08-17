@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace basic_transition_ns
 {
     struct context
     {
@@ -42,6 +42,8 @@ namespace
 
 TEST_CASE("basic_transition")
 {
+    using namespace basic_transition_ns;
+
     auto machine = machine_t{};
 
     REQUIRE(!machine.running());

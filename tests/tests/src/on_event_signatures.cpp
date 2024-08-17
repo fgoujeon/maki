@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace on_event_signatures_ns
 {
     struct machine_conf_holder;
 
@@ -75,6 +75,8 @@ namespace
 
 TEST_CASE("on_event_signatures")
 {
+    using namespace on_event_signatures_ns;
+
     auto machine = machine_t{};
     auto& ctx = machine.context();
 

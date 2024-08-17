@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace state_transition_hook_set
 {
     namespace events
     {
@@ -89,6 +89,8 @@ namespace
 
 TEST_CASE("state_transition_hook_set")
 {
+    using namespace state_transition_hook_set;
+
     auto machine = machine_t{};
     auto& ctx = machine.context();
 

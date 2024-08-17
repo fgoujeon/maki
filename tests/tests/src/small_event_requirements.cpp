@@ -7,7 +7,7 @@
 #include "common.hpp"
 #include <maki.hpp>
 
-namespace
+namespace small_event_requirements_ns
 {
     enum class new_operator_type
     {
@@ -101,25 +101,30 @@ namespace
 
 TEST_CASE("small_event_requirements<1, 1>")
 {
+    using namespace small_event_requirements_ns;
     test<1, 1>(new_operator_type::plain, new_operator_type::plain);
 }
 
 TEST_CASE("small_event_requirements<1, small>")
 {
+    using namespace small_event_requirements_ns;
     test<1, alignof(small_event)>(new_operator_type::plain, new_operator_type::plain);
 }
 
 TEST_CASE("small_event_requirements<small, 1>")
 {
+    using namespace small_event_requirements_ns;
     test<sizeof(small_event), 1>(new_operator_type::plain, new_operator_type::plain);
 }
 
 TEST_CASE("small_event_requirements<small, small>")
 {
+    using namespace small_event_requirements_ns;
     test<sizeof(small_event), alignof(small_event)>(new_operator_type::placement, new_operator_type::plain);
 }
 
 TEST_CASE("small_event_requirements<big, big>")
 {
+    using namespace small_event_requirements_ns;
     test<sizeof(big_event), alignof(big_event)>(new_operator_type::placement, new_operator_type::placement);
 }

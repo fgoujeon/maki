@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace context_construction_ns
 {
     struct machine_conf_holder;
     using machine_t = maki::machine<machine_conf_holder>;
@@ -67,6 +67,8 @@ namespace
 
 TEST_CASE("context_construction")
 {
+    using namespace context_construction_ns;
+
     auto machine = machine_t{};
     auto& ctx = machine.context();
 

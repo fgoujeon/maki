@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace state_data_same_type_ns
 {
     struct context
     {
@@ -61,6 +61,8 @@ namespace
 
 TEST_CASE("state_data_same_type")
 {
+    using namespace state_data_same_type_ns;
+
     auto machine = machine_t{};
     static constexpr auto region_0_path = maki::path{0};
     static constexpr auto off_path = region_0_path / states::off;

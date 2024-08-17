@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace state_data_machine_ns
 {
     struct context
     {
@@ -57,6 +57,8 @@ namespace
 
 TEST_CASE("state_data_machine")
 {
+    using namespace state_data_machine_ns;
+
     auto machine = machine_t{};
     int& counter = machine.context().counter;
 

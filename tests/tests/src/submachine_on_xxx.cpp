@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace submachine_on_xxx_ns
 {
     struct machine_conf_holder;
     using machine_t = maki::machine<machine_conf_holder>;
@@ -111,6 +111,8 @@ namespace
 
 TEST_CASE("submachine_on_xxx")
 {
+    using namespace submachine_on_xxx_ns;
+
     auto machine = machine_t{};
     auto& ctx = machine.context();
 

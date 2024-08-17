@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace guard_ns
 {
     struct context
     {
@@ -62,6 +62,8 @@ namespace
 
 TEST_CASE("guard")
 {
+    using namespace guard_ns;
+
     auto machine = machine_t{};
 
     machine.start();

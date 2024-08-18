@@ -10,7 +10,7 @@
 namespace maki::detail
 {
 
-template<class ParentSm, int Index>
+template<const auto& TransitionTable, const auto& Path>
 class region;
 
 } //namespace

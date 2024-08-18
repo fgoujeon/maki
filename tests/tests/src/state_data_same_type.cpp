@@ -64,11 +64,11 @@ TEST_CASE("state_data_same_type")
     using namespace state_data_same_type_ns;
 
     auto machine = machine_t{};
-    static constexpr auto region_0_path = maki::path{0};
-    static constexpr auto off_path = region_0_path / states::off;
-    static constexpr auto on_path = region_0_path / states::on;
-    auto& off_counter = machine.context<off_path>().counter;
-    auto& on_counter = machine.context<on_path>().counter;
+    const auto off_state = machine.state<states::off>();
+    const auto on_state = machine.state<states::on>();
+
+    auto& off_counter = off_state.context().counter;
+    auto& on_counter = on_state.context().counter;
 
     REQUIRE(off_counter == 0);
     REQUIRE(on_counter == 0);

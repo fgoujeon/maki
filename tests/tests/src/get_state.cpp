@@ -151,22 +151,13 @@ TEST_CASE("state")
     using namespace get_state_ns;
 
     auto machine = machine_t{};
-    const auto& const_sm = machine;
+    const auto on_state = machine.state<states::on>();
+    const auto emitting_red_state = on_state.state<states::emitting_red>();
+    const auto emitting_green_state = on_state.state<states::emitting_green>();
+    const auto emitting_blue_state = on_state.state<states::emitting_blue>();
 
-    static constexpr auto on_path = maki::path{0} / states::on;
-    static constexpr auto emitting_red_path = on_path / 0 / states::emitting_red;
-    static constexpr auto emitting_green_path = on_path / 0 / states::emitting_green;
-    static constexpr auto emitting_blue_path = on_path / 0 / states::emitting_blue;
-
-    auto& red_state = machine.context<emitting_red_path>();
-    REQUIRE(red_state.color == led_color::red);
-
-    const auto& green_state = const_sm.context<emitting_green_path>();
-    REQUIRE(green_state.color == led_color::green);
-
-    auto& blue_state = machine.context<emitting_blue_path>();
-    REQUIRE(blue_state.color == led_color::blue);
-
-    auto& on_state = machine.context<on_path>();
-    REQUIRE(on_state.is_on_state);
+    REQUIRE(emitting_red_state.context().color == led_color::red);
+    REQUIRE(emitting_green_state.context().color == led_color::green);
+    REQUIRE(emitting_blue_state.context().color == led_color::blue);
+    REQUIRE(on_state.context().is_on_state);
 }

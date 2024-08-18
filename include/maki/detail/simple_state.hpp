@@ -31,6 +31,12 @@ public:
     {
     }
 
+    simple_state(const simple_state&) = delete;
+    simple_state(simple_state&&) = delete;
+    simple_state& operator=(const simple_state&) = delete;
+    simple_state& operator=(simple_state&&) = delete;
+    ~simple_state() = default;
+
     auto& context()
     {
         return ctx_holder_.get();

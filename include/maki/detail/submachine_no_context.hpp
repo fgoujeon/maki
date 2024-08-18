@@ -95,22 +95,6 @@ public:
     submachine_no_context& operator=(submachine_no_context&&) = delete;
     ~submachine_no_context() = default;
 
-    template<const auto& StatePath, class ParentContext>
-    auto& context_or(ParentContext& parent_ctx)
-    {
-        static constexpr int region_index = path_raw_head(StatePath);
-        static constexpr auto state_path_tail = path_tail(StatePath);
-        return tuple_get<region_index>(regions_).template context_or<state_path_tail>(parent_ctx);
-    }
-
-    template<const auto& StatePath, class ParentContext>
-    const auto& context_or(ParentContext& parent_ctx) const
-    {
-        static constexpr int region_index = path_raw_head(StatePath);
-        static constexpr auto state_path_tail = path_tail(StatePath);
-        return tuple_get<region_index>(regions_).template context_or<state_path_tail>(parent_ctx);
-    }
-
     template<class Machine, class Context, class Event>
     void call_entry_action(Machine& mach, Context& ctx, const Event& event)
     {

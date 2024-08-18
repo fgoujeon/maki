@@ -47,18 +47,6 @@ public:
         return ctx_holder_.get();
     }
 
-    template<class ParentContext>
-    auto& context_or(ParentContext& /*parent_ctx*/)
-    {
-        return context();
-    }
-
-    template<class ParentContext>
-    const auto& context_or(ParentContext& /*parent_ctx*/) const
-    {
-        return context();
-    }
-
     template<class Machine, class ParentContext, class Event>
     void call_entry_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {

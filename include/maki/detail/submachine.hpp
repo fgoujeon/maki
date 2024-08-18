@@ -57,44 +57,6 @@ public:
         return ctx_holder_.get();
     }
 
-    template<class ParentContext>
-    auto& context_or(ParentContext& /*parent_ctx*/)
-    {
-        return context();
-    }
-
-    template<class ParentContext>
-    const auto& context_or(ParentContext& /*parent_ctx*/) const
-    {
-        return context();
-    }
-
-    template<const auto& StatePath, class ParentContext>
-    auto& context_or(ParentContext& /*parent_ctx*/)
-    {
-        if constexpr(StatePath.empty())
-        {
-            return context();
-        }
-        else
-        {
-            return impl_.template context_or<StatePath>(context());
-        }
-    }
-
-    template<const auto& StatePath, class ParentContext>
-    const auto& context_or(ParentContext& /*parent_ctx*/) const
-    {
-        if constexpr(StatePath.empty())
-        {
-            return context();
-        }
-        else
-        {
-            return impl_.template context_or<StatePath>(context());
-        }
-    }
-
     template<const auto& RegionPath>
     [[nodiscard]] bool running() const
     {

@@ -24,6 +24,27 @@ template
 <
     class ParentSm,
     const auto& ParentPath,
+    int Index
+>
+struct region_tuple_elem
+{
+    static constexpr auto transition_table = tuple_get<Index>(opts(ParentSm::conf).transition_tables);
+    static constexpr auto path = ParentPath.add_region_index(Index);
+    using type = region<transition_table, path>;
+};
+
+template
+<
+    class ParentSm,
+    const auto& ParentPath,
+    int Index
+>
+using region_tuple_elem_t = typename region_tuple_elem<ParentSm, ParentPath, Index>::type;
+
+template
+<
+    class ParentSm,
+    const auto& ParentPath,
     class RegionIndexSequence
 >
 struct region_tuple;
@@ -43,7 +64,7 @@ struct region_tuple
 {
     using type = tuple
     <
-        region
+        region_tuple_elem_t
         <
             ParentSm,
             ParentPath,

@@ -67,7 +67,7 @@ namespace region_detail
     inline constexpr auto find_state_from_id_v = find_state_from_id<StateList, StateId>::value;
 }
 
-template<class ParentSm, const auto& ParentPath, int Index>
+template<const auto& TransitionTable, const auto& Path>
 class region
 {
 public:
@@ -173,9 +173,8 @@ public:
     }
 
 private:
-    static constexpr const auto& transition_table = tuple_get<Index>(opts(ParentSm::conf).transition_tables);
+    static constexpr const auto& transition_table = TransitionTable;
     static constexpr auto transition_tuple = detail::rows(transition_table);
-    static constexpr auto path = ParentPath.add_region_index(Index);
 
     using transition_table_digest_type =
         detail::transition_table_digest<transition_tuple>
@@ -186,7 +185,7 @@ private:
     template<class... StateIdConstants>
     using state_id_constant_pack_to_state_tuple_t = tuple
     <
-        state_traits::state_id_to_state_t<StateIdConstants::value, path>...
+        state_traits::state_id_to_state_t<StateIdConstants::value, Path>...
     >;
 
     using state_tuple_type = tlu::apply_t
@@ -410,7 +409,7 @@ private:
                 opts(Machine::conf).pre_state_transition_hook
                 (
                     ctx,
-                    path.pretty_name(),
+                    Path.pretty_name(),
                     cref_constant<*SourceStateId>,
                     event,
                     cref_constant<*TargetStateId>
@@ -464,7 +463,7 @@ private:
                 opts(Machine::conf).post_state_transition_hook
                 (
                     ctx,
-                    path.pretty_name(),
+                    Path.pretty_name(),
                     cref_constant<*SourceStateId>,
                     event,
                     cref_constant<*TargetStateId>

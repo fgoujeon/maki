@@ -40,7 +40,7 @@ struct machine_ref_conf
     machine_ref_conf& operator=(machine_ref_conf&&) = delete;
 
     template<class... Ts>
-    [[nodiscard]] constexpr auto enable_on_event_for() const
+    [[nodiscard]] constexpr auto events() const
     {
         return machine_ref_conf<detail::type_list<Ts...>>{};
     }
@@ -48,7 +48,7 @@ struct machine_ref_conf
 #if MAKI_DETAIL_DOXYGEN
 private:
 #endif
-    EventTypeList has_on_event_for; //NOLINT(misc-non-private-member-variables-in-classes)
+    using event_type_list = EventTypeList;
 };
 
 } //namespace

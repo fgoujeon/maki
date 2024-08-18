@@ -16,6 +16,7 @@
 #include "machine_fwd.hpp"
 #include "detail/tlu/apply.hpp"
 #include "detail/tlu/contains.hpp"
+#include <type_traits>
 
 namespace maki
 {
@@ -111,16 +112,16 @@ public:
         (
             detail::tlu::contains_v
             <
-                decltype(Conf.has_on_event_for),
+                event_type_list,
                 Event
             >,
-            "Given event type must be part of the 'on_event' option type list"
+            "Given event type must be part of the type list given to `events()`"
         );
         impl_.process_event(evt);
     }
 
 private:
-    using event_type_list = decltype(Conf.has_on_event_for);
+    using event_type_list = typename std::decay_t<decltype(Conf)>::event_type_list;
 
     using event_impl_type = detail::tlu::apply_t
     <
@@ -133,7 +134,7 @@ private:
 
 template<class... Events>
 inline constexpr auto machine_ref_e_conf = machine_ref_conf{}
-    .enable_on_event_for<Events...>()
+    .events<Events...>()
 ;
 
 /**

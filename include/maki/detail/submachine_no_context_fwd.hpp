@@ -10,7 +10,7 @@
 namespace maki::detail
 {
 
-template<auto Id, class ParentRegion>
+template<auto Id, const auto& Path>
 class submachine_no_context;
 
 } //namespace

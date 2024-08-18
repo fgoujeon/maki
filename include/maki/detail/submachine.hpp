@@ -17,7 +17,7 @@
 namespace maki::detail
 {
 
-template<auto Id, class ParentRegion>
+template<auto Id, const auto& Path>
 class submachine
 {
 public:
@@ -194,7 +194,7 @@ public:
     }
 
 private:
-    using impl_type = submachine_no_context<identifier, ParentRegion>;
+    using impl_type = submachine_no_context<identifier, Path>;
 
     context_holder<context_type, opts(conf).context_sig> ctx_holder_;
     impl_type impl_;

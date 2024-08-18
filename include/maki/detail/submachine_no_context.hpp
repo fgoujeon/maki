@@ -13,7 +13,6 @@
 #include "tlu.hpp"
 #include "tuple.hpp"
 #include "../machine_conf.hpp"
-#include "../path.hpp"
 #include "../state_conf.hpp"
 #include <type_traits>
 #include <utility>
@@ -24,6 +23,7 @@ namespace maki::detail
 template
 <
     class ParentSm,
+    const auto& ParentPath,
     class RegionIndexSequence
 >
 struct region_tuple;
@@ -31,11 +31,13 @@ struct region_tuple;
 template
 <
     class ParentSm,
+    const auto& ParentPath,
     int... RegionIndexes
 >
 struct region_tuple
 <
     ParentSm,
+    ParentPath,
     std::integer_sequence<int, RegionIndexes...>
 >
 {
@@ -44,12 +46,13 @@ struct region_tuple
         region
         <
             ParentSm,
+            ParentPath,
             RegionIndexes
         >...
     >;
 };
 
-template<auto Id, class ParentRegion>
+template<auto Id, const auto& Path>
 class submachine_no_context
 {
 public:
@@ -190,6 +193,7 @@ private:
     using region_tuple_type = typename region_tuple
     <
         submachine_no_context,
+        Path,
         std::make_integer_sequence<int, tlu::size_v<transition_table_type_list>>
     >::type;
 

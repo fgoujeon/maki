@@ -21,50 +21,52 @@ namespace maki::detail::state_traits
 
 //state_id_to_state
 
-template<auto StateId, class Parent, bool IsSubmachine, bool HasContext>
+template<auto StateId, const auto& ParentPath, bool IsSubmachine, bool HasContext>
 struct state_id_to_state_impl;
 
-template<auto StateId, class Parent>
-struct state_id_to_state_impl<StateId, Parent, false, false>
+template<auto StateId, const auto& ParentPath>
+struct state_id_to_state_impl<StateId, ParentPath, false, false>
 {
     using type = simple_state_no_context<StateId>;
 };
 
-template<auto StateId, class Parent>
-struct state_id_to_state_impl<StateId, Parent, false, true>
+template<auto StateId, const auto& ParentPath>
+struct state_id_to_state_impl<StateId, ParentPath, false, true>
 {
     using type = simple_state<StateId>;
 };
 
-template<auto StateId, class Parent>
-struct state_id_to_state_impl<StateId, Parent, true, false>
+template<auto StateId, const auto& ParentPath>
+struct state_id_to_state_impl<StateId, ParentPath, true, false>
 {
-    using type = submachine_no_context<StateId, Parent>;
+    static constexpr auto path = ParentPath.template add_state<*StateId>();
+    using type = submachine_no_context<StateId, path>;
 };
 
-template<auto StateId, class Parent>
-struct state_id_to_state_impl<StateId, Parent, true, true>
+template<auto StateId, const auto& ParentPath>
+struct state_id_to_state_impl<StateId, ParentPath, true, true>
 {
-    using type = submachine<StateId, Parent>;
+    static constexpr auto path = ParentPath.template add_state<*StateId>();
+    using type = submachine<StateId, path>;
 };
 
-template<auto StateId, class Parent>
+template<auto StateId, const auto& ParentPath>
 struct state_id_to_state
 {
     using type = typename state_id_to_state_impl
     <
         StateId,
-        Parent,
+        ParentPath,
         conf_traits::is_submachine_conf_v<std::decay_t<decltype(*StateId)>>,
         state_id_traits::has_context_v<StateId>
     >::type;
 };
 
-template<auto StateId, class Parent>
+template<auto StateId, const auto& ParentPath>
 using state_id_to_state_t = typename state_id_to_state
 <
     StateId,
-    Parent
+    ParentPath
 >::type;
 
 

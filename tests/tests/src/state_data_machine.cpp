@@ -42,7 +42,7 @@ namespace state_data_machine_ns
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
         .context_a(maki::type<context>)
-        .event_action_ce
+        .pre_processing_hook_ce
         (
             maki::type<events::accumulate_request>,
             [](context& data, const events::accumulate_request& event)

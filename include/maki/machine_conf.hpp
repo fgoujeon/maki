@@ -63,10 +63,10 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = options_.internal_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = options_.exit_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_state_transition_action = options_.post_state_transition_action; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_state_transition_action = options_.pre_state_transition_action; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_action = options_.exception_action; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_fallback_transition_actions = options_.fallback_transition_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_state_transition_hook = options_.post_state_transition_hook; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_state_transition_hook = options_.pre_state_transition_hook; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_hook = options_.exception_hook; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_processing_hooks = options_.post_processing_hooks; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = options_.pretty_name; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = options_.run_to_completion; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_align = options_.small_event_max_align; \
@@ -82,10 +82,10 @@ public:
             std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_exception_action)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_pre_state_transition_action)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_post_state_transition_action)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_fallback_transition_actions)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_exception_hook)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_pre_state_transition_hook)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_post_state_transition_hook)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_post_processing_hooks)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
         > \
     > \
@@ -95,10 +95,10 @@ public:
         MAKI_DETAIL_ARG_entry_actions, \
         MAKI_DETAIL_ARG_internal_actions, \
         MAKI_DETAIL_ARG_exit_actions, \
-        MAKI_DETAIL_ARG_post_state_transition_action, \
-        MAKI_DETAIL_ARG_pre_state_transition_action, \
-        MAKI_DETAIL_ARG_exception_action, \
-        MAKI_DETAIL_ARG_fallback_transition_actions, \
+        MAKI_DETAIL_ARG_post_state_transition_hook, \
+        MAKI_DETAIL_ARG_pre_state_transition_hook, \
+        MAKI_DETAIL_ARG_exception_hook, \
+        MAKI_DETAIL_ARG_post_processing_hooks, \
         MAKI_DETAIL_ARG_pretty_name_view, \
         MAKI_DETAIL_ARG_run_to_completion, \
         MAKI_DETAIL_ARG_small_event_max_align, \
@@ -117,45 +117,45 @@ public:
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Adds an entry action. \
+    @brief Adds a start action. \
     */ \
     template<class EventFilter, class Action> \
-    [[nodiscard]] constexpr auto entry_action_##signature(const EventFilter& event_filter, const Action& action) const \
+    [[nodiscard]] constexpr auto start_action_##signature(const EventFilter& event_filter, const Action& action) const \
     { \
-        return entry_action<detail::event_action_signature::signature>(event_filter, action); \
+        return start_action<detail::event_action_signature::signature>(event_filter, action); \
     }
     MAKI_DETAIL_EVENT_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Adds an action to be called whenever `maki::machine` is about to \
+    @brief Adds a hook to be called whenever `maki::machine` is about to \
     process an event. \
     */ \
     template<class EventFilter, class Action> \
-    [[nodiscard]] constexpr auto event_action_##signature(const EventFilter& event_filter, const Action& action) const \
+    [[nodiscard]] constexpr auto pre_processing_hook_##signature(const EventFilter& event_filter, const Action& action) const \
     { \
-        return event_action<detail::event_action_signature::signature>(event_filter, action); \
+        return pre_processing_hook<detail::event_action_signature::signature>(event_filter, action); \
     }
     MAKI_DETAIL_EVENT_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Adds an exit action. \
+    @brief Adds a stop action. \
     */ \
     template<class EventFilter, class Action> \
-    [[nodiscard]] constexpr auto exit_action_##signature(const EventFilter& event_filter, const Action& action) const \
+    [[nodiscard]] constexpr auto stop_action_##signature(const EventFilter& event_filter, const Action& action) const \
     { \
-        return exit_action<detail::event_action_signature::signature>(event_filter, action); \
+        return stop_action<detail::event_action_signature::signature>(event_filter, action); \
     }
     MAKI_DETAIL_EVENT_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 
     /**
-    @brief Specifies an action to be called after any external state transition.
+    @brief Specifies a hook to be called after any external state transition.
 
-    Action must have the following form:
+    Hook must have the following form:
 
     @code
     template
@@ -165,7 +165,7 @@ public:
         class Event,
         const auto& TargetStateConf
     >
-    void action
+    void hook
     (
         context& ctx,
         const maki::cref_constant_t<RegionPath> path_constant,
@@ -178,7 +178,7 @@ public:
     This hook can be useful for logging state transitions, for example:
 
     @code
-    .pre_state_transition_action_crset
+    .post_state_transition_hook_crset
     (
         []
         (
@@ -200,13 +200,13 @@ public:
     )
     @endcode
     */
-    template<class Action>
-    [[nodiscard]] constexpr auto post_state_transition_action_crset(const Action& action) const
+    template<class Hook>
+    [[nodiscard]] constexpr auto post_state_transition_hook_crset(const Hook& hook) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_post_state_transition_action action
+#define MAKI_DETAIL_ARG_post_state_transition_hook hook
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_post_state_transition_action
+#undef MAKI_DETAIL_ARG_post_state_transition_hook
     }
 
     /**
@@ -222,10 +222,10 @@ public:
     }
 
     /**
-    @brief Specifies an action to be called before any external state
+    @brief Specifies a hook to be called before any external state
     transition.
 
-    Action must have the following form:
+    Hook must have the following form:
 
     @code
     template
@@ -235,7 +235,7 @@ public:
         class Event,
         const auto& TargetStateConf
     >
-    void action
+    void hook
     (
         context& ctx,
         const maki::cref_constant_t<RegionPath> path_constant,
@@ -248,7 +248,7 @@ public:
     This hook can be useful for logging state transitions, for example:
 
     @code
-    .post_state_transition_action_crset
+    .pre_state_transition_hook_crset
     (
         []
         (
@@ -270,13 +270,13 @@ public:
     )
     @endcode
     */
-    template<class Action>
-    [[nodiscard]] constexpr auto pre_state_transition_action_crset(const Action& action) const
+    template<class Hook>
+    [[nodiscard]] constexpr auto pre_state_transition_hook_crset(const Hook& hook) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_pre_state_transition_action action
+#define MAKI_DETAIL_ARG_pre_state_transition_hook hook
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_pre_state_transition_action
+#undef MAKI_DETAIL_ARG_pre_state_transition_hook
     }
 
     /**
@@ -320,7 +320,7 @@ public:
 
     Example:
     @code
-    .exception_action_me([](auto& mach, const std::exception_ptr& eptr)
+    .exception_hook_mx([](auto& mach, const std::exception_ptr& eptr)
     {
         //...
     })
@@ -333,30 +333,40 @@ public:
     @endcode
     */
     template<class Action>
-    [[nodiscard]] constexpr auto exception_action_me(const Action& action) const
+    [[nodiscard]] constexpr auto exception_hook_mx(const Action& action) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_exception_action action
+#define MAKI_DETAIL_ARG_exception_hook action
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_exception_action
+#undef MAKI_DETAIL_ARG_exception_hook
     }
 
     /**
-    @brief Adds an action to be invoked whenever a call to
-    `maki::machine::process_event()` doesn't lead to any state transition or
-    call to any kind of action.
+    @brief Adds a hook to be called whenever `maki::machine` is done processing
+    an event.
 
-    Users typically add an action for every event of interest.
+    Hook must have the following form:
+
+    @code
+    template<class Machine, class Event>
+    void hook(Machine& mach, const Event& event, bool processed);
+    @endcode
+
+    The `processed` parameter indicates whether a state transition or any kind
+    of action invocation (note: a hook isn't an action) occurred during the
+    processing of the event.
+
+    Users typically add a hook for every event of interest.
 
     Example:
     @code
     constexpr auto conf = maki::machine_conf{}
         //...
-        .fallback_transition_action_me<some_event_type>([](auto& mach, const some_event_type& event)
+        .post_processing_hook_mep<some_event_type>([](auto& mach, const some_event_type& event, const bool processed)
         {
             //...
         })
-        .fallback_transition_action_me<some_other_event_type>([](auto& mach, const some_other_event_type& event)
+        .post_processing_hook_mep<some_other_event_type>([](auto& mach, const some_other_event_type& event, const bool processed)
         {
             //...
         })
@@ -364,18 +374,18 @@ public:
     @endcode
     */
     template<class EventFilter, class Action>
-    [[nodiscard]] constexpr auto fallback_transition_action_me(const EventFilter& event_filter, const Action& action) const
+    [[nodiscard]] constexpr auto post_processing_hook_mep(const EventFilter& event_filter, const Action& action) const
     {
-        const auto new_fallback_transition_actions = tuple_append
+        const auto new_post_processing_hooks = tuple_append
         (
-            options_.fallback_transition_actions,
+            options_.post_processing_hooks,
             detail::make_event_action<detail::event_action_signature::me>(event_filter, action)
         );
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_fallback_transition_actions new_fallback_transition_actions
+#define MAKI_DETAIL_ARG_post_processing_hooks new_post_processing_hooks
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_fallback_transition_actions
+#undef MAKI_DETAIL_ARG_post_processing_hooks
     }
 
     /**
@@ -443,7 +453,7 @@ private:
     }
 
     template<detail::event_action_signature Sig, class EventFilter, class Action>
-    [[nodiscard]] constexpr auto entry_action(const EventFilter& event_filter, const Action& action) const
+    [[nodiscard]] constexpr auto start_action(const EventFilter& event_filter, const Action& action) const
     {
         const auto new_entry_actions = tuple_append
         (
@@ -457,13 +467,13 @@ private:
 #undef MAKI_DETAIL_ARG_entry_actions
     }
 
-    template<detail::event_action_signature Sig, class EventFilter, class Action>
-    [[nodiscard]] constexpr auto event_action(const EventFilter& event_filter, const Action& action) const
+    template<detail::event_action_signature Sig, class EventFilter, class Hook>
+    [[nodiscard]] constexpr auto pre_processing_hook(const EventFilter& event_filter, const Hook& hook) const
     {
         const auto new_internal_actions = tuple_append
         (
             options_.internal_actions,
-            detail::make_event_action<Sig>(event_filter, action)
+            detail::make_event_action<Sig>(event_filter, hook)
         );
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
@@ -473,7 +483,7 @@ private:
     }
 
     template<detail::event_action_signature Sig, class EventFilter, class Action>
-    [[nodiscard]] constexpr auto exit_action(const EventFilter& event_filter, const Action& action) const
+    [[nodiscard]] constexpr auto stop_action(const EventFilter& event_filter, const Action& action) const
     {
         const auto new_exit_actions = tuple_append
         (

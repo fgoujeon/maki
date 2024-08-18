@@ -32,29 +32,29 @@ namespace detail
         class EntryActionTuple = detail::tuple<>,
         class EventActionTuple = detail::tuple<>,
         class ExitActionTuple = detail::tuple<>,
-        class ExceptionAction = null_t,
-        class PreStateTransitionAction = null_t,
-        class PostStateTransitionAction = null_t,
-        class FallbackTransitionActionTuple = detail::tuple<>,
+        class ExceptionHook = null_t,
+        class PreStateTransitionHook = null_t,
+        class PostStateTransitionHook = null_t,
+        class PostProcessingHookTuple = detail::tuple<>,
         class TransitionTableTuple = detail::tuple<>
     >
     struct machine_conf_option_set
     {
         using context_type = Context;
-        using exception_action_type = ExceptionAction;
-        using pre_state_transition_action_type = PreStateTransitionAction;
-        using post_state_transition_action_type = PostStateTransitionAction;
-        using fallback_transition_action_tuple_type = FallbackTransitionActionTuple;
+        using exception_hook_type = ExceptionHook;
+        using pre_state_transition_hook_type = PreStateTransitionHook;
+        using post_state_transition_hook_type = PostStateTransitionHook;
+        using post_processing_hook_tuple_type = PostProcessingHookTuple;
 
         bool auto_start = true;
         context_signature context_sig = context_signature::v;
         EntryActionTuple entry_actions;
         EventActionTuple internal_actions;
         ExitActionTuple exit_actions;
-        PostStateTransitionAction post_state_transition_action = null;
-        PreStateTransitionAction pre_state_transition_action = null;
-        ExceptionAction exception_action = null;
-        FallbackTransitionActionTuple fallback_transition_actions;
+        PostStateTransitionHook post_state_transition_hook = null;
+        PreStateTransitionHook pre_state_transition_hook = null;
+        ExceptionHook exception_hook = null;
+        PostProcessingHookTuple post_processing_hooks;
         std::string_view pretty_name;
         bool run_to_completion = true;
         std::size_t small_event_max_align = machine_conf_default_small_event_max_align;

@@ -35,7 +35,7 @@ namespace machine_ref_ns
         .transition_tables(transition_table)
         .context_a(maki::type<context>)
         .run_to_completion(false)
-        .exception_action_me
+        .exception_hook_mx
         (
             [](auto& /*mach*/, const std::exception_ptr& /*eptr*/)
             {

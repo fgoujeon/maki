@@ -89,20 +89,26 @@ namespace on_unprocessed_ns
         static constexpr auto conf = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a(maki::type<context>)
-            .fallback_transition_action_me
+            .post_processing_hook_mep
             (
                 maki::type<events::ignored_by_emitting_blue>,
-                [](auto& mach, const events::ignored_by_emitting_blue& event)
+                [](auto& mach, const events::ignored_by_emitting_blue& event, const bool processed)
                 {
-                    mach.context().ignored_event = "ignored_by_emitting_blue{" + std::to_string(event.value) + "}";
+                    if(!processed)
+                    {
+                        mach.context().ignored_event = "ignored_by_emitting_blue{" + std::to_string(event.value) + "}";
+                    }
                 }
             )
-            .fallback_transition_action_me
+            .post_processing_hook_mep
             (
                 maki::any,
-                [](auto& mach, const auto& /*event*/)
+                [](auto& mach, const auto& /*event*/, const bool processed)
                 {
-                    mach.context().ignored_event = "other";
+                    if(!processed)
+                    {
+                        mach.context().ignored_event = "other";
+                    }
                 }
             )
         ;

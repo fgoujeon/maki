@@ -50,7 +50,7 @@ namespace state_transition_hook_set
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table_0, transition_table_1)
         .context_a(maki::type<context>)
-        .pre_state_transition_action_crset
+        .pre_state_transition_hook_crset
         (
             [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& event, const auto target_state_constant)
             {
@@ -65,7 +65,7 @@ namespace state_transition_hook_set
                 ctx.out += std::to_string(event.pressure) + ";";
             }
         )
-        .post_state_transition_action_crset
+        .post_state_transition_hook_crset
         (
             [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& event, const auto target_state_constant)
             {

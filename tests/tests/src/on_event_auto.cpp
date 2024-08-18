@@ -97,7 +97,7 @@ namespace on_event_auto_ns
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
         .context_a(maki::type<context>)
-        .event_action_ce
+        .pre_processing_hook_ce
         (
             maki::type<events::button_press>,
             [](context& ctx, const events::button_press& event)

@@ -412,9 +412,9 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(!std::is_same_v<typename machine_option_set_type::pre_state_transition_action_type, null_t>)
+            if constexpr(!std::is_same_v<typename machine_option_set_type::pre_state_transition_hook_type, null_t>)
             {
-                opts(Machine::conf).pre_state_transition_action
+                opts(Machine::conf).pre_state_transition_hook
                 (
                     ctx,
                     cref_constant<path>,
@@ -466,9 +466,9 @@ private:
                 );
             }
 
-            if constexpr(!std::is_same_v<typename machine_option_set_type::post_state_transition_action_type, null_t>)
+            if constexpr(!std::is_same_v<typename machine_option_set_type::post_state_transition_hook_type, null_t>)
             {
-                opts(Machine::conf).post_state_transition_action
+                opts(Machine::conf).post_state_transition_hook
                 (
                     ctx,
                     cref_constant<path>,

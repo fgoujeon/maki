@@ -98,7 +98,7 @@ namespace on_exception_ns
     constexpr auto custom_machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
         .context_a(maki::type<context>)
-        .exception_action_me
+        .exception_hook_mx
         (
             [](auto& mach, const std::exception_ptr& eptr)
             {

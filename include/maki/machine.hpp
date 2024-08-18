@@ -485,13 +485,13 @@ private:
 
     void process_exception(const std::exception_ptr& eptr)
     {
-        if constexpr(std::is_same_v<typename option_set_type::exception_action_type, null_t>)
+        if constexpr(std::is_same_v<typename option_set_type::exception_hook_type, null_t>)
         {
             process_event(events::exception{eptr});
         }
         else
         {
-            opts(conf).exception_action(*this, eptr);
+            opts(conf).exception_hook(*this, eptr);
         }
     }
 
@@ -508,7 +508,7 @@ private:
         }
         else
         {
-            if constexpr(std::is_same_v<typename option_set_type::fallback_transition_action_tuple_type, detail::tuple<>>)
+            if constexpr(std::is_same_v<typename option_set_type::post_processing_hook_tuple_type, detail::tuple<>>)
             {
                 impl_.call_internal_action(*this, context(), event);
             }
@@ -516,21 +516,19 @@ private:
             {
                 auto processed = false;
                 impl_.call_internal_action(*this, context(), event, processed);
-                if(!processed)
-                {
-                    detail::call_matching_event_action<fallback_transition_action_ptr_constant_list>
-                    (
-                        *this,
-                        context(),
-                        event
-                    );
-                }
+                detail::call_matching_event_action<post_processing_hook_ptr_constant_list>
+                (
+                    *this,
+                    context(),
+                    event,
+                    processed
+                );
             }
         }
     }
 
-    static constexpr auto fallback_transition_actions = opts(conf).fallback_transition_actions;
-    using fallback_transition_action_ptr_constant_list = detail::tuple_to_element_ptr_constant_list_t<fallback_transition_actions>;
+    static constexpr auto post_processing_hooks = opts(conf).post_processing_hooks;
+    using post_processing_hook_ptr_constant_list = detail::tuple_to_element_ptr_constant_list_t<post_processing_hooks>;
 
     detail::context_holder<context_type, opts(conf).context_sig> ctx_holder_;
     detail::submachine_no_context<&conf, void> impl_;

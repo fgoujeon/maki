@@ -34,7 +34,7 @@ namespace basic_transition_ns
         .context_a(maki::type<context>)
         .auto_start(false)
         .run_to_completion(false)
-        .exception_action_me([](auto& /*mach*/, const std::exception_ptr& /*eptr*/){})
+        .exception_hook_mx([](auto& /*mach*/, const std::exception_ptr& /*eptr*/){})
     ;
 
     using machine_t = maki::make_machine<machine_conf>;

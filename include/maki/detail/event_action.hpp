@@ -66,45 +66,53 @@ namespace event_action_traits
     };
 }
 
-template<auto EventActionPtr, class Machine, class Context, class Event>
+template
+<
+    auto EventActionPtr,
+    class Machine,
+    class Context,
+    class Event,
+    class... ExtraArgs
+>
 void call_event_action
 (
     [[maybe_unused]] Machine& mach,
     [[maybe_unused]] Context& ctx,
-    [[maybe_unused]] const Event& event
+    [[maybe_unused]] const Event& event,
+    [[maybe_unused]] ExtraArgs&&... extra_args
 )
 {
     if constexpr(EventActionPtr->sig == event_action_signature::v)
     {
-        std::invoke(EventActionPtr->action);
+        std::invoke(EventActionPtr->action, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(EventActionPtr->sig == event_action_signature::c)
     {
-        std::invoke(EventActionPtr->action, ctx);
+        std::invoke(EventActionPtr->action, ctx, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(EventActionPtr->sig == event_action_signature::cm)
     {
-        std::invoke(EventActionPtr->action, ctx, mach);
+        std::invoke(EventActionPtr->action, ctx, mach, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(EventActionPtr->sig == event_action_signature::cme)
     {
-        std::invoke(EventActionPtr->action, ctx, mach, event);
+        std::invoke(EventActionPtr->action, ctx, mach, event, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(EventActionPtr->sig == event_action_signature::ce)
     {
-        std::invoke(EventActionPtr->action, ctx, event);
+        std::invoke(EventActionPtr->action, ctx, event, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(EventActionPtr->sig == event_action_signature::m)
     {
-        std::invoke(EventActionPtr->action, mach);
+        std::invoke(EventActionPtr->action, mach, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(EventActionPtr->sig == event_action_signature::me)
     {
-        std::invoke(EventActionPtr->action, mach, event);
+        std::invoke(EventActionPtr->action, mach, event, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(EventActionPtr->sig == event_action_signature::e)
     {
-        std::invoke(EventActionPtr->action, event);
+        std::invoke(EventActionPtr->action, event, std::forward<ExtraArgs>(extra_args)...);
     }
     else
     {
@@ -118,13 +126,15 @@ template
     class ActionConstantList,
     class Machine,
     class Context,
-    class Event
+    class Event,
+    class... ExtraArgs
 >
 void call_matching_event_action
 (
     Machine& mach,
     Context& ctx,
-    const Event& event
+    const Event& event,
+    ExtraArgs&&... extra_args
 )
 {
     constexpr auto matching_action_index = tlu::find_if_v
@@ -137,7 +147,8 @@ void call_matching_event_action
     (
         mach,
         ctx,
-        event
+        event,
+        std::forward<ExtraArgs>(extra_args)...
     );
 }
 

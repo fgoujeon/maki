@@ -55,7 +55,7 @@ namespace orthogonal_regions_ns
                 (states::off1, maki::type<events::button_press>, states::on1)
         )
         .context_a(maki::type<context>)
-        .exception_action_me
+        .exception_hook_mx
         (
             [](auto& mach, const std::exception_ptr& eptr)
             {
@@ -69,14 +69,14 @@ namespace orthogonal_regions_ns
                 }
             }
         )
-        .pre_state_transition_action_crset
+        .pre_state_transition_hook_crset
         (
             [](context& ctx, const auto& path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
             {
                 ctx.out += "before_state_transition[" + to_string(path_constant) + "];";
             }
         )
-        .post_state_transition_action_crset
+        .post_state_transition_hook_crset
         (
             [](context& ctx, const auto& path_constant, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
             {

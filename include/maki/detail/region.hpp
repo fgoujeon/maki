@@ -7,7 +7,6 @@
 #ifndef MAKI_DETAIL_REGION_HPP
 #define MAKI_DETAIL_REGION_HPP
 
-#include "path_of.hpp"
 #include "state_traits.hpp"
 #include "call_member.hpp"
 #include "transition_table_digest.hpp"
@@ -43,8 +42,8 @@ namespace region_detail
         static constexpr auto value = tlu::find_v<StateList, State>;
     };
 
-    template<class StateList, class Region>
-    struct find_state<StateList, state_traits::state_id_to_state<&state_confs::stopped, Region>>
+    template<class StateList, const auto& Path>
+    struct find_state<StateList, state_traits::state_id_to_state<&state_confs::stopped, Path>>
     {
         static constexpr auto value = stopped_state_index;
     };
@@ -68,7 +67,7 @@ namespace region_detail
     inline constexpr auto find_state_from_id_v = find_state_from_id<StateList, StateId>::value;
 }
 
-template<class ParentSm, int Index>
+template<class ParentSm, const auto& ParentPath, int Index>
 class region
 {
 public:
@@ -176,6 +175,7 @@ public:
 private:
     static constexpr const auto& transition_table = tuple_get<Index>(opts(ParentSm::conf).transition_tables);
     static constexpr auto transition_tuple = detail::rows(transition_table);
+    static constexpr auto path = ParentPath.add_region_index(Index);
 
     using transition_table_digest_type =
         detail::transition_table_digest<transition_tuple>
@@ -186,7 +186,7 @@ private:
     template<class... StateIdConstants>
     using state_id_constant_pack_to_state_tuple_t = tuple
     <
-        state_traits::state_id_to_state_t<StateIdConstants::value, region>...
+        state_traits::state_id_to_state_t<StateIdConstants::value, path>...
     >;
 
     using state_tuple_type = tlu::apply_t
@@ -397,8 +397,6 @@ private:
     {
         using machine_option_set_type = typename Machine::option_set_type;
 
-        constexpr const auto& path = path_of_v<region>;
-
         constexpr auto is_internal_transition = std::is_same_v
         <
             std::decay_t<decltype(TargetStateId)>,
@@ -412,7 +410,7 @@ private:
                 opts(Machine::conf).pre_state_transition_hook
                 (
                     ctx,
-                    cref_constant<path>,
+                    path.pretty_name(),
                     cref_constant<*SourceStateId>,
                     event,
                     cref_constant<*TargetStateId>
@@ -466,7 +464,7 @@ private:
                 opts(Machine::conf).post_state_transition_hook
                 (
                     ctx,
-                    cref_constant<path>,
+                    path.pretty_name(),
                     cref_constant<*SourceStateId>,
                     event,
                     cref_constant<*TargetStateId>

@@ -52,10 +52,10 @@ namespace state_transition_hook_set
         .context_a(maki::type<context>)
         .pre_state_transition_hook_crset
         (
-            [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& event, const auto target_state_constant)
+            [](context& ctx, const std::string_view region_path, const auto source_state_constant, const auto& event, const auto target_state_constant)
             {
                 ctx.out += "Transition in ";
-                ctx.out += to_string(path_constant);
+                ctx.out += region_path;
                 ctx.out += ": ";
                 ctx.out += maki::pretty_name<source_state_constant.value>();
                 ctx.out += " -> ";
@@ -67,12 +67,12 @@ namespace state_transition_hook_set
         )
         .post_state_transition_hook_crset
         (
-            [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& event, const auto target_state_constant)
+            [](context& ctx, const std::string_view region_path, const auto source_state_constant, const auto& event, const auto target_state_constant)
             {
                 ctx.out += std::to_string(event.pressure) + ";";
 
                 ctx.out += "Transition in ";
-                ctx.out += to_string(path_constant);
+                ctx.out += region_path;
                 ctx.out += ": ";
                 ctx.out += maki::pretty_name<source_state_constant.value>();
                 ctx.out += " -> ";

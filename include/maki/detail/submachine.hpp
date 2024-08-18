@@ -41,6 +41,12 @@ public:
     {
     }
 
+    submachine(const submachine&) = delete;
+    submachine(submachine&&) = delete;
+    submachine& operator=(const submachine&) = delete;
+    submachine& operator=(submachine&&) = delete;
+    ~submachine() = default;
+
     auto& context()
     {
         return ctx_holder_.get();
@@ -159,13 +165,13 @@ public:
     }
 
     template<int Index>
-    [[nodiscard]] auto region() const
+    [[nodiscard]] const auto& region() const
     {
         return impl_.template region<Index>();
     }
 
     template<const auto& StateConf>
-    [[nodiscard]] auto state() const
+    [[nodiscard]] const auto& state() const
     {
         return impl_.template state<StateConf>();
     }

@@ -110,8 +110,6 @@ TEST_CASE("submachine_context")
 {
     using namespace submachine_context_ns;
 
-    static constexpr auto machine_on_path = maki::path{0} / states::on / 0;
-
     auto machine = machine_t{};
     auto& ctx = machine.context();
     const auto on_state = machine.state<states::on>();

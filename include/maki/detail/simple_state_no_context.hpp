@@ -29,6 +29,12 @@ public:
     {
     }
 
+    simple_state_no_context(const simple_state_no_context&) = delete;
+    simple_state_no_context(simple_state_no_context&&) = delete;
+    simple_state_no_context& operator=(const simple_state_no_context&) = delete;
+    simple_state_no_context& operator=(simple_state_no_context&&) = delete;
+    ~simple_state_no_context() = default;
+
     template<class Machine, class Context, class Event>
     void call_entry_action(Machine& mach, Context& ctx, const Event& event)
     {

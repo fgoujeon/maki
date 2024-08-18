@@ -65,6 +65,12 @@ public:
     {
     }
 
+    submachine_no_context(const submachine_no_context&) = delete;
+    submachine_no_context(submachine_no_context&&) = delete;
+    submachine_no_context& operator=(const submachine_no_context&) = delete;
+    submachine_no_context& operator=(submachine_no_context&&) = delete;
+    ~submachine_no_context() = default;
+
     template<const auto& StatePath, class ParentContext>
     auto& context_or(ParentContext& parent_ctx)
     {

@@ -68,8 +68,8 @@ TEST_CASE("state_data")
     using namespace state_data_ns;
 
     auto machine = machine_t{};
-    static constexpr auto on_path = maki::path{0} / states::on;
-    auto& counter = machine.context<on_path>().counter;
+    const auto on_state = machine.state<states::on>();
+    auto& counter = on_state.context().counter;
 
     machine.process_event(events::button_press{});
     REQUIRE(counter == 0);

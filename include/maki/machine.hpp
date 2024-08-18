@@ -129,32 +129,6 @@ public:
         return ctx_holder_.get();
     }
 
-    template<const auto& MachineOrStatePath>
-    auto& context()
-    {
-        if constexpr(MachineOrStatePath.empty())
-        {
-            return context();
-        }
-        else
-        {
-            return impl_.template context_or<MachineOrStatePath>(context());
-        }
-    }
-
-    template<const auto& MachineOrStatePath>
-    const auto& context() const
-    {
-        if constexpr(MachineOrStatePath.empty())
-        {
-            return context();
-        }
-        else
-        {
-            return impl_.template context_or<MachineOrStatePath>(context());
-        }
-    }
-
     /**
     @brief Returns whether the region of the state machine in running.
     This function can only be called if the state machine contains only one
@@ -344,13 +318,13 @@ public:
     template<int Index>
     [[nodiscard]] auto region() const
     {
-        return region_proxy{impl_.template region<Index>()};
+        return detail::make_region_proxy(impl_.template region<Index>());
     }
 
     template<const auto& StateConf>
     [[nodiscard]] auto state() const
     {
-        return state_proxy{impl_.template state<StateConf>()};
+        return detail::make_state_proxy(impl_.template state<StateConf>());
     }
 
     /**

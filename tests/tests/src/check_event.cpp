@@ -53,13 +53,13 @@ TEST_CASE("check_event")
     auto machine = machine_t{};
     machine.start();
 
-    REQUIRE(machine.active_state<states::off>());
+    REQUIRE(machine.is<states::off>());
     REQUIRE(!machine.check_event(events::button_press{})); // should fail guard
     REQUIRE(machine.check_event(events::button_press{true}));
-    REQUIRE(machine.active_state<states::off>());
+    REQUIRE(machine.is<states::off>());
 
     machine.process_event(events::button_press{true});
-    REQUIRE(machine.active_state<states::on>());
+    REQUIRE(machine.is<states::on>());
     REQUIRE(machine.check_event(events::button_press{}));
-    REQUIRE(machine.active_state<states::on>());
+    REQUIRE(machine.is<states::on>());
 }

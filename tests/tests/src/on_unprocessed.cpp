@@ -121,13 +121,12 @@ TEST_CASE("on_unprocessed")
 
     auto machine = machine_t{};
     auto& ctx = machine.context();
-
-    static constexpr auto on_path = maki::path{0} / states::on / 0;
+    const auto on_state = machine.state<states::on>();
 
     ctx.clear();
     machine.start();
-    REQUIRE(machine.active_state<states::on>());
-    REQUIRE(machine.active_state<on_path, states::emitting_red>());
+    REQUIRE(machine.is<states::on>());
+    REQUIRE(on_state.is<states::emitting_red>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
@@ -136,8 +135,8 @@ TEST_CASE("on_unprocessed")
 
     ctx.clear();
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.active_state<states::on>());
-    REQUIRE(machine.active_state<on_path, states::emitting_green>());
+    REQUIRE(machine.is<states::on>());
+    REQUIRE(on_state.is<states::emitting_green>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
@@ -146,8 +145,8 @@ TEST_CASE("on_unprocessed")
 
     ctx.clear();
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.active_state<states::on>());
-    REQUIRE(machine.active_state<on_path, states::emitting_blue>());
+    REQUIRE(machine.is<states::on>());
+    REQUIRE(on_state.is<states::emitting_blue>());
     REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
@@ -156,6 +155,6 @@ TEST_CASE("on_unprocessed")
 
     ctx.clear();
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.active_state<states::off>());
+    REQUIRE(machine.is<states::off>());
     REQUIRE(ctx.ignored_event.empty());
 }

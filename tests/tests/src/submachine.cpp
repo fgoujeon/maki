@@ -126,35 +126,34 @@ TEST_CASE("submachine")
 {
     using namespace submachine_ns;
 
-    static constexpr auto machine_on_path = maki::path{0} / states::on / 0;
-
     auto machine = machine_t{};
     auto& ctx = machine.context();
+    const auto on_state = machine.state<states::on>();
 
     machine.start();
 
-    REQUIRE(machine.active_state<states::off>());
-    REQUIRE(!machine.running<machine_on_path>());
+    REQUIRE(machine.is<states::off>());
+    REQUIRE(!on_state.running());
     REQUIRE(ctx.current_led_color == led_color::off);
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.active_state<states::on>());
-    REQUIRE(machine.active_state<machine_on_path, states::emitting_red>());
+    REQUIRE(machine.is<states::on>());
+    REQUIRE(on_state.is<states::emitting_red>());
     REQUIRE(ctx.current_led_color == led_color::red);
 
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.active_state<states::on>());
+    REQUIRE(machine.is<states::on>());
     REQUIRE(ctx.current_led_color == led_color::green);
 
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.active_state<states::on>());
+    REQUIRE(machine.is<states::on>());
     REQUIRE(ctx.current_led_color == led_color::blue);
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.active_state<states::off>());
+    REQUIRE(machine.is<states::off>());
     REQUIRE(ctx.current_led_color == led_color::off);
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.active_state<states::on>());
+    REQUIRE(machine.is<states::on>());
     REQUIRE(ctx.current_led_color == led_color::red);
 }

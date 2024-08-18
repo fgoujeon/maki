@@ -87,7 +87,7 @@ TEST_CASE("double_start_stop")
     machine.start();
     machine.start();
 
-    REQUIRE(machine.active_state<states::off>());
+    REQUIRE(machine.is<states::off>());
     REQUIRE
     (
         out ==

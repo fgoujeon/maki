@@ -15,7 +15,6 @@
 #include "../machine_conf.hpp"
 #include "../path.hpp"
 #include "../state_conf.hpp"
-#include "../state_confs.hpp"
 #include <type_traits>
 #include <utility>
 
@@ -82,34 +81,6 @@ public:
         return tuple_get<region_index>(regions_).template context_or<state_path_tail>(parent_ctx);
     }
 
-    template<const auto& StateRegionPath, const auto& StateConf>
-    [[nodiscard]] bool active_state() const
-    {
-        static constexpr auto region_index = path_raw_head(StateRegionPath);
-        static constexpr auto state_region_relative_path = path_tail(StateRegionPath);
-        return tuple_get<region_index>(regions_).template active_state<state_region_relative_path, &StateConf>();
-    }
-
-    template<const auto& StateConf>
-    [[nodiscard]] bool active_state() const
-    {
-        static_assert(tlu::size_v<transition_table_type_list> == 1);
-
-        static constexpr auto state_region_relative_path = path<>{};
-        return tuple_get<0>(regions_).template active_state<state_region_relative_path, &StateConf>();
-    }
-
-    template<const auto& RegionPath>
-    [[nodiscard]] bool running() const
-    {
-        return !active_state<RegionPath, state_confs::stopped>();
-    }
-
-    [[nodiscard]] bool running() const
-    {
-        return !active_state<state_confs::stopped>();
-    }
-
     template<class Machine, class Context, class Event>
     void call_entry_action(Machine& mach, Context& ctx, const Event& event)
     {
@@ -173,6 +144,32 @@ public:
             ctx,
             event
         );
+    }
+
+    template<int Index>
+    [[nodiscard]] const auto& region() const
+    {
+        return tuple_get<Index>(regions_);
+    }
+
+    template<const auto& StateConf>
+    [[nodiscard]] const auto& state() const
+    {
+        static_assert(region_tuple_type::size == 1);
+        return region<0>().template state<StateConf>();
+    }
+
+    template<const auto& StateConf>
+    [[nodiscard]] bool is() const
+    {
+        static_assert(region_tuple_type::size == 1);
+        return region<0>().template is<StateConf>();
+    }
+
+    [[nodiscard]] bool running() const
+    {
+        static_assert(region_tuple_type::size == 1);
+        return region<0>().running();
     }
 
     template<class /*Event*/>

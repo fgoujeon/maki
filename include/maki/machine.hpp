@@ -12,6 +12,8 @@
 #ifndef MAKI_MACHINE_HPP
 #define MAKI_MACHINE_HPP
 
+#include "region_proxy.hpp"
+#include "state_proxy.hpp"
 #include "conf_holder.hpp"
 #include "machine_conf.hpp"
 #include "events.hpp"
@@ -154,17 +156,6 @@ public:
     }
 
     /**
-    @brief Returns whether the region located at `RegionPath` is running.
-    @tparam RegionPath an instance of `maki::path` pointing to the
-    region of interest
-    */
-    template<const auto& RegionPath>
-    [[nodiscard]] bool running() const
-    {
-        return impl_.template running<RegionPath>();
-    }
-
-    /**
     @brief Returns whether the region of the state machine in running.
     This function can only be called if the state machine contains only one
     region.
@@ -172,31 +163,6 @@ public:
     [[nodiscard]] bool running() const
     {
         return impl_.running();
-    }
-
-    /**
-    @brief Returns whether the state created from `StateConf` is active in the
-    region located at `RegionPath`.
-    @tparam RegionPath an instance of `maki::path` pointing to the
-    region of interest
-    @tparam StateConf the state configurator
-    */
-    template<const auto& RegionPath, const auto& StateConf>
-    [[nodiscard]] bool active_state() const
-    {
-        return impl_.template active_state<RegionPath, StateConf>();
-    }
-
-    /**
-    @brief Returns whether the state created from `StateConf` is active in the
-    region of the state machine. This function can only be called if the state
-    machine contains only one region.
-    @tparam StateConf the state configurator
-    */
-    template<const auto& StateConf>
-    [[nodiscard]] bool active_state() const
-    {
-        return impl_.template active_state<StateConf>();
     }
 
     /**
@@ -373,6 +339,30 @@ public:
                 process_exception(std::current_exception());
             }
         }
+    }
+
+    template<int Index>
+    [[nodiscard]] auto region() const
+    {
+        return region_proxy{impl_.template region<Index>()};
+    }
+
+    template<const auto& StateConf>
+    [[nodiscard]] auto state() const
+    {
+        return state_proxy{impl_.template state<StateConf>()};
+    }
+
+    /**
+    @brief Returns whether the state created from `StateConf` is active in the
+    region of the state machine. This function can only be called if the state
+    machine contains a single region.
+    @tparam StateConf the state configurator
+    */
+    template<const auto& StateConf>
+    [[nodiscard]] bool is() const
+    {
+        return impl_.template is<StateConf>();
     }
 
 private:

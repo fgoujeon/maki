@@ -94,19 +94,18 @@ TEST_CASE("orthogonal_regions")
 
     auto machine = machine_t{};
     auto& ctx = machine.context();
-
-    static constexpr auto machine_region_0_path = maki::path{0};
-    static constexpr auto machine_region_1_path = maki::path{1};
+    const auto region0 = machine.region<0>();
+    const auto region1 = machine.region<1>();
 
     machine.start();
-    REQUIRE(machine.active_state<machine_region_0_path, states::off0>());
-    REQUIRE(machine.active_state<machine_region_1_path, states::off1>());
+    REQUIRE(region0.is<states::off0>());
+    REQUIRE(region1.is<states::off1>());
     REQUIRE(ctx.out == "before_state_transition[machine_conf/0];after_state_transition[machine_conf/0];before_state_transition[machine_conf/1];after_state_transition[machine_conf/1];");
 
     ctx.out.clear();
     machine.process_event(events::button_press{});
-    REQUIRE(machine.active_state<machine_region_0_path, states::on0>());
-    REQUIRE(machine.active_state<machine_region_1_path, states::on1>());
+    REQUIRE(region0.is<states::on0>());
+    REQUIRE(region1.is<states::on1>());
     REQUIRE(ctx.out == "before_state_transition[machine_conf/0];after_state_transition[machine_conf/0];before_state_transition[machine_conf/1];after_state_transition[machine_conf/1];");
 
     ctx.out.clear();

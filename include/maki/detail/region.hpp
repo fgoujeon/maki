@@ -83,18 +83,6 @@ public:
     region& operator=(region&&) = delete;
     ~region() = default;
 
-    template<const auto& StatePath, class ParentContext>
-    const auto& context_or(ParentContext& parent_ctx) const
-    {
-        return static_context_or<StatePath>(*this, parent_ctx);
-    }
-
-    template<const auto& StatePath, class ParentContext>
-    auto& context_or(ParentContext& parent_ctx)
-    {
-        return static_context_or<StatePath>(*this, parent_ctx);
-    }
-
     template<const auto& StateConf>
     [[nodiscard]] bool is() const
     {
@@ -644,22 +632,6 @@ private:
             region_detail::find_state_from_id_v<state_tuple_type, StateId>
         ;
         return tuple_get<state_index>(self.states_);
-    }
-
-    //Note: We use static to factorize const and non-const Region
-    template<const auto& StatePath, class Region, class ParentContext>
-    static auto& static_context_or(Region& self, ParentContext& parent_ctx)
-    {
-        if constexpr(StatePath.size() == 1)
-        {
-            return static_state_from_id<path_raw_head(StatePath)>(self).context_or(parent_ctx);
-        }
-        else
-        {
-            static constexpr auto psubmach_conf = path_raw_head(StatePath);
-            static constexpr auto state_path_tail = path_tail(StatePath);
-            return static_state_from_id<psubmach_conf>(self).template context_or<state_path_tail>(parent_ctx);
-        }
     }
 
     state_tuple_type states_;

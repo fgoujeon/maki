@@ -96,39 +96,28 @@ public:
         return static_context_or<StatePath>(*this, parent_ctx);
     }
 
-    template<const auto& RegionPath, auto StateId>
-    [[nodiscard]] bool active_state() const
+    template<const auto& StateConf>
+    [[nodiscard]] bool is() const
     {
-        if constexpr(RegionPath.empty())
+        if constexpr(is_filter_v<std::decay_t<decltype(StateConf)>>)
         {
-            return active_state<StateId>();
+            return does_active_state_id_match_filter<&StateConf>();
         }
         else
         {
-            static constexpr auto psubmach_conf = path_raw_head(RegionPath);
-            static constexpr auto region_path_tail = path_tail(RegionPath);
-            const auto& submach = state_from_id<psubmach_conf>();
-            return submach.template active_state<region_path_tail, *StateId>();
+            return is_active_state_id<&StateConf>();
         }
     }
 
-    template<auto StateId>
-    [[nodiscard]] bool active_state() const
+    [[nodiscard]] bool running() const
     {
-        if constexpr(is_filter_v<std::decay_t<decltype(*StateId)>>)
-        {
-            return does_active_state_id_match_filter<StateId>();
-        }
-        else
-        {
-            return is_active_state_type<StateId>();
-        }
+        return !is_active_state_id<&state_confs::stopped>();
     }
 
     template<class Machine, class Context, class Event>
     void start(Machine& mach, Context& ctx, const Event& event)
     {
-        if(is_active_state_type<&state_confs::stopped>())
+        if(!running())
         {
             process_event_in_transition
             <
@@ -142,7 +131,7 @@ public:
     template<class Machine, class Context, class Event>
     void stop(Machine& mach, Context& ctx, const Event& event)
     {
-        if(!is_active_state_type<&state_confs::stopped>())
+        if(running())
         {
             with_active_state_id<state_id_constant_list, stop_2>
             (
@@ -176,6 +165,12 @@ public:
     void process_event(Machine& mach, Context& ctx, const Event& event, bool& processed) const
     {
         process_event_2<Dry>(*this, mach, ctx, event, processed);
+    }
+
+    template<const auto& StateConf>
+    const auto& state() const
+    {
+        return state_from_id<&StateConf>();
     }
 
 private:
@@ -354,7 +349,7 @@ private:
         )
         {
             //Make sure the transition source state is the active state
-            if(!self.template is_active_state_type<SourceStateIdConstant::value>())
+            if(!self.template is_active_state_id<SourceStateIdConstant::value>())
             {
                 return false;
             }
@@ -556,7 +551,7 @@ private:
     }
 
     template<auto StateId>
-    [[nodiscard]] bool is_active_state_type() const
+    [[nodiscard]] bool is_active_state_id() const
     {
         constexpr auto given_state_index = region_detail::find_state_from_id_v
         <
@@ -607,7 +602,7 @@ private:
         template<class StateIdConstant, class... Args>
         static bool call(const region& self, Args&&... args)
         {
-            if(self.is_active_state_type<StateIdConstant::value>())
+            if(self.is_active_state_id<StateIdConstant::value>())
             {
                 F::template call<StateIdConstant>(std::forward<Args>(args)...);
                 return true;

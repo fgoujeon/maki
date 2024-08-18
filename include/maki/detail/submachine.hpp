@@ -89,27 +89,10 @@ public:
         }
     }
 
-    template<const auto& StateRegionPath, const auto& StateConf>
-    [[nodiscard]] bool active_state() const
-    {
-        return impl_.template active_state<StateRegionPath, StateConf>();
-    }
-
-    template<const auto& StateConf>
-    [[nodiscard]] bool active_state() const
-    {
-        return impl_.template active_state<StateConf>();
-    }
-
     template<const auto& RegionPath>
     [[nodiscard]] bool running() const
     {
         return impl_.template running<RegionPath>();
-    }
-
-    [[nodiscard]] bool running() const
-    {
-        return impl_.running();
     }
 
     template<class Machine, class ParentContext, class Event>
@@ -173,6 +156,29 @@ public:
     )
     {
         impl_.call_exit_action(mach, context(), event);
+    }
+
+    template<int Index>
+    [[nodiscard]] auto region() const
+    {
+        return impl_.template region<Index>();
+    }
+
+    template<const auto& StateConf>
+    [[nodiscard]] auto state() const
+    {
+        return impl_.template state<StateConf>();
+    }
+
+    template<const auto& StateConf>
+    [[nodiscard]] bool is() const
+    {
+        return impl_.template is<StateConf>();
+    }
+
+    [[nodiscard]] bool running() const
+    {
+        return impl_.running();
     }
 
     template<class /*Event*/>

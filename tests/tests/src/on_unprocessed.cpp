@@ -75,7 +75,7 @@ namespace on_unprocessed_ns
             (states::emitting_blue,  maki::type<events::color_button_press>, states::emitting_red)
         ;
 
-        constexpr auto on = maki::composite_state_conf{}
+        constexpr auto on = maki::state_conf{}
             .transition_tables(on_transition_table)
         ;
     }

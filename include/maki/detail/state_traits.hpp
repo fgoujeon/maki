@@ -11,17 +11,15 @@
 #include "simple_state_fwd.hpp"
 #include "composite_state_no_context_fwd.hpp"
 #include "composite_state_fwd.hpp"
-#include "conf_traits.hpp"
 #include "state_id_traits.hpp"
 #include "tlu.hpp"
-#include <type_traits>
 
 namespace maki::detail::state_traits
 {
 
 //state_id_to_state
 
-template<auto StateId, const auto& ParentPath, bool IsSubmachine, bool HasContext>
+template<auto StateId, const auto& ParentPath, bool HasTransitionTables, bool HasContext>
 struct state_id_to_state_impl;
 
 template<auto StateId, const auto& ParentPath>
@@ -57,7 +55,7 @@ struct state_id_to_state
     <
         StateId,
         ParentPath,
-        conf_traits::is_composite_state_conf_v<std::decay_t<decltype(*StateId)>>,
+        opts(*StateId).transition_tables.size != 0,
         state_id_traits::has_context_v<StateId>
     >::type;
 };

@@ -57,7 +57,7 @@ namespace composite_state_context_ns
                 ;
             }
 
-            constexpr auto emitting_red = maki::composite_state_conf{}
+            constexpr auto emitting_red = maki::state_conf{}
                 .transition_tables(emitting_red_ns::transition_table)
                 .entry_action_c
                 (
@@ -79,7 +79,7 @@ namespace composite_state_context_ns
             ;
         }
 
-        constexpr auto on = maki::composite_state_conf{}
+        constexpr auto on = maki::state_conf{}
             .transition_tables(on_ns::transition_table)
             .context_c(maki::type<on_ns::context>)
             .exit_action_c

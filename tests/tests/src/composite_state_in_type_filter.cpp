@@ -30,7 +30,7 @@ namespace composite_state_in_type_filter_ns
             (s0_sub, maki::type<events::button_press>, maki::null)
         ;
 
-        constexpr auto s0 = maki::composite_state_conf{}
+        constexpr auto s0 = maki::state_conf{}
             .transition_tables(s0_transition_table)
         ;
     }

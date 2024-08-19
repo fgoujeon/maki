@@ -25,7 +25,7 @@ namespace pretty_name_ns
         (state, maki::null, maki::null)
     ;
 
-    constexpr auto composite_state = maki::composite_state_conf{}
+    constexpr auto composite_state = maki::state_conf{}
         .transition_tables(composite_state_transition_table)
         .pretty_name("my_composite_state")
     ;

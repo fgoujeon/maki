@@ -22,6 +22,7 @@
 #include "maybe_bool_util.hpp"
 #include "tuple.hpp"
 #include "constant.hpp"
+#include "../path.hpp"
 #include "../null.hpp"
 #include "../cref_constant.hpp"
 #include "../submachine_conf.hpp"
@@ -397,7 +398,7 @@ private:
                 opts(Machine::conf).pre_state_transition_hook
                 (
                     ctx,
-                    Path.pretty_name(),
+                    maki::path{Path},
                     cref_constant<*SourceStateId>,
                     event,
                     cref_constant<*TargetStateId>
@@ -451,7 +452,7 @@ private:
                 opts(Machine::conf).post_state_transition_hook
                 (
                     ctx,
-                    Path.pretty_name(),
+                    maki::path{Path},
                     cref_constant<*SourceStateId>,
                     event,
                     cref_constant<*TargetStateId>

@@ -68,6 +68,7 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_hook = options_.exception_hook; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_processing_hooks = options_.post_processing_hooks; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = options_.pretty_name; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_process_event_now_enabled = options_.process_event_now_enabled; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = options_.run_to_completion; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_align = options_.small_event_max_align; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_size = options_.small_event_max_size; \
@@ -100,6 +101,7 @@ public:
         MAKI_DETAIL_ARG_exception_hook, \
         MAKI_DETAIL_ARG_post_processing_hooks, \
         MAKI_DETAIL_ARG_pretty_name_view, \
+        MAKI_DETAIL_ARG_process_event_now_enabled, \
         MAKI_DETAIL_ARG_run_to_completion, \
         MAKI_DETAIL_ARG_small_event_max_align, \
         MAKI_DETAIL_ARG_small_event_max_size, \
@@ -307,6 +309,18 @@ public:
 #define MAKI_DETAIL_ARG_pretty_name_view value
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_pretty_name_view
+    }
+
+    /**
+    @brief Specifies whether the unsafe function
+    `maki::machine::process_event_now()` can be called.
+    */
+    [[nodiscard]] constexpr auto process_event_now_enabled(const bool value) const
+    {
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_process_event_now_enabled value
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_process_event_now_enabled
     }
 
     /**

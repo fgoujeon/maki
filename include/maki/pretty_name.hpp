@@ -18,7 +18,7 @@ namespace maki
 {
 
 /**
-@brief Gets the pretty name of a @ref machine, submachine or state.
+@brief Gets the pretty name of a @ref machine, composite_state or state.
 */
 template<const auto& Conf>
 decltype(auto) pretty_name()

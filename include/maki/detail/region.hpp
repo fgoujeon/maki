@@ -25,7 +25,7 @@
 #include "../path.hpp"
 #include "../null.hpp"
 #include "../cref_constant.hpp"
-#include "../submachine_conf.hpp"
+#include "../state_conf.hpp"
 #include "../state_confs.hpp"
 #include "../transition_table.hpp"
 #include <type_traits>

@@ -20,8 +20,8 @@
 #include "null.hpp"
 #include "detail/path.hpp"
 #include "detail/simple_state.hpp" //NOLINT misc-include-cleaner
-#include "detail/submachine.hpp" //NOLINT misc-include-cleaner
-#include "detail/submachine_no_context.hpp"
+#include "detail/composite_state.hpp" //NOLINT misc-include-cleaner
+#include "detail/composite_state_no_context.hpp"
 #include "detail/context_holder.hpp"
 #include "detail/event_action.hpp"
 #include "detail/noinline.hpp"
@@ -506,7 +506,7 @@ private:
     using post_processing_hook_ptr_constant_list = detail::tuple_to_element_ptr_constant_list_t<post_processing_hooks>;
 
     detail::context_holder<context_type, opts(conf).context_sig> ctx_holder_;
-    detail::submachine_no_context<&conf, path> impl_;
+    detail::composite_state_no_context<&conf, path> impl_;
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;
 };

@@ -26,7 +26,8 @@ namespace detail
         class Context = void,
         class EntryActionTuple = detail::tuple<>,
         class InternalActionTuple = detail::tuple<>,
-        class ExitActionTuple = detail::tuple<>
+        class ExitActionTuple = detail::tuple<>,
+        class TransitionTableTuple = detail::tuple<>
     >
     struct state_conf_option_set
     {
@@ -37,6 +38,7 @@ namespace detail
         InternalActionTuple internal_actions;
         ExitActionTuple exit_actions;
         std::string_view pretty_name;
+        TransitionTableTuple transition_tables;
     };
 }
 

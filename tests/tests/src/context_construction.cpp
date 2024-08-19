@@ -43,7 +43,7 @@ namespace context_construction_ns
             (states::emitting_blue,  maki::type<events::color_button_press>, states::emitting_red)
         ;
 
-        constexpr auto on = maki::submachine_conf{}
+        constexpr auto on = maki::state_conf{}
             .transition_tables(on_transition_table)
             .context_cm(maki::type<on_context>)
         ;

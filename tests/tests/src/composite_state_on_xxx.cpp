@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace submachine_on_xxx_ns
+namespace composite_state_on_xxx_ns
 {
     struct machine_conf_holder;
     using machine_t = maki::machine<machine_conf_holder>;
@@ -66,7 +66,7 @@ namespace submachine_on_xxx_ns
             (states::on_0, maki::type<events::button_press>, maki::null)
         ;
 
-        constexpr auto on = maki::submachine_conf{}
+        constexpr auto on = maki::state_conf{}
             .transition_tables(on_transition_table)
             .entry_action_ce
             (
@@ -109,9 +109,9 @@ namespace submachine_on_xxx_ns
     };
 }
 
-TEST_CASE("submachine_on_xxx")
+TEST_CASE("composite_state_on_xxx")
 {
-    using namespace submachine_on_xxx_ns;
+    using namespace composite_state_on_xxx_ns;
 
     auto machine = machine_t{};
     auto& ctx = machine.context();

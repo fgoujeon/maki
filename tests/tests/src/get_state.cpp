@@ -119,7 +119,7 @@ namespace get_state_ns
             (states::emitting_blue,  maki::type<events::color_button_press>, states::emitting_red)
         ;
 
-        constexpr auto on = maki::submachine_conf{}
+        constexpr auto on = maki::state_conf{}
             .context_c(maki::type<on_data>)
             .transition_tables(on_transition_table)
             .exit_action_c

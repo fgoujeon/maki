@@ -87,7 +87,7 @@ public:
         return elems_;
     }
 
-    [[nodiscard]] std::string pretty_name() const
+    [[nodiscard]] std::string to_string() const
     {
         auto str = tuple_apply
         (

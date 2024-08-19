@@ -243,10 +243,18 @@ public:
     - faster to build, because the `maki::machine::enqueue_event()` function
     template won't be instantiated;
     - faster to run, because an `if` statement is skipped.
+
+    `maki::machine_conf::process_event_now_enabled()` must be set to `true` for
+    this function to be available.
     */
     template<class Event>
     void process_event_now(const Event& event)
     {
+        static_assert
+        (
+            opts(conf).process_event_now_enabled,
+            "`maki::machine_conf::process_event_now_enabled()` hasn't been set to `true`"
+        );
         execute_operation_now<detail::machine_operation::process_event>(event);
     }
 

@@ -24,7 +24,7 @@ Maki implements the following key features:
   * **associated data**;
 * **run-to-completion**, the guarantee that the processing of an event won't be interrupted, even if we ask to handle other events in the process;
 * **orthogonal regions**;
-* **submachines**.
+* **composite_states**.
 
 Besides its features, Maki:
 
@@ -36,7 +36,7 @@ Besides its features, Maki:
 
 What is *not* implemented (yet):
 
-* elaborate ways to enter and exit a submachine (e.g. forks, history and exit points);
+* elaborate ways to enter and exit a composite_state (e.g. forks, history and exit points);
 * event deferral;
 * optional thread safety with mutexes.
 

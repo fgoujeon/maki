@@ -6,11 +6,11 @@
 
 /**
 @file
-@brief Defines the maki::submachine_conf struct template
+@brief Defines the maki::composite_state_conf struct template
 */
 
-#ifndef MAKI_SUBMACHINE_CONF_FWD_HPP
-#define MAKI_SUBMACHINE_CONF_FWD_HPP
+#ifndef MAKI_COMPOSITE_STATE_CONF_FWD_HPP
+#define MAKI_COMPOSITE_STATE_CONF_FWD_HPP
 
 #include "detail/context_signature.hpp"
 #include "detail/tuple.hpp"
@@ -29,7 +29,7 @@ namespace detail
         class ExitActionTuple = detail::tuple<>,
         class TransitionTableTuple = detail::tuple<>
     >
-    struct submachine_conf_option_set
+    struct composite_state_conf_option_set
     {
         using context_type = Context;
 
@@ -48,9 +48,9 @@ namespace detail
 */
 template<IMPLEMENTATION_DETAIL>
 #else
-template<class OptionSet = detail::submachine_conf_option_set<>>
+template<class OptionSet = detail::composite_state_conf_option_set<>>
 #endif
-class submachine_conf;
+class composite_state_conf;
 
 } //namespace
 

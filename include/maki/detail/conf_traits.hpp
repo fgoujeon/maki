@@ -8,7 +8,7 @@
 #define MAKI_DETAIL_CONF_TRAITS_HPP
 
 #include "../state_conf_fwd.hpp"
-#include "../submachine_conf_fwd.hpp"
+#include "../composite_state_conf_fwd.hpp"
 #include <type_traits>
 
 namespace maki::detail::conf_traits
@@ -44,19 +44,19 @@ constexpr auto is_state_conf_v = is_state_conf<T>::value;
 
 
 template<class T>
-struct is_submachine_conf
+struct is_composite_state_conf
 {
     static constexpr auto value = false;
 };
 
 template<class... Ts>
-struct is_submachine_conf<submachine_conf<Ts...>>
+struct is_composite_state_conf<composite_state_conf<Ts...>>
 {
     static constexpr auto value = true;
 };
 
 template<class T>
-constexpr auto is_submachine_conf_v = is_submachine_conf<T>::value;
+constexpr auto is_composite_state_conf_v = is_composite_state_conf<T>::value;
 
 } //namespace
 

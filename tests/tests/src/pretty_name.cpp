@@ -21,13 +21,13 @@ namespace pretty_name_ns
         .pretty_name("my_state")
     ;
 
-    constexpr auto submachine_transition_table = maki::transition_table{}
+    constexpr auto composite_state_transition_table = maki::transition_table{}
         (state, maki::null, maki::null)
     ;
 
-    constexpr auto submachine = maki::submachine_conf{}
-        .transition_tables(submachine_transition_table)
-        .pretty_name("my_submachine")
+    constexpr auto composite_state = maki::composite_state_conf{}
+        .transition_tables(composite_state_transition_table)
+        .pretty_name("my_composite_state")
     ;
 
     struct context
@@ -81,7 +81,7 @@ TEST_CASE("pretty_name")
 
     REQUIRE
     (
-        maki::pretty_name<pretty_name_ns::submachine>() ==
-        std::string_view{"my_submachine"}
+        maki::pretty_name<pretty_name_ns::composite_state>() ==
+        std::string_view{"my_composite_state"}
     );
 }

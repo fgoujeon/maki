@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace state_data_submachine_ns
+namespace state_data_composite_state_ns
 {
     struct context
     {
@@ -43,7 +43,7 @@ namespace state_data_submachine_ns
             self.counter += n;
         }
 
-        constexpr auto on = maki::submachine_conf{}
+        constexpr auto on = maki::composite_state_conf{}
             .context_v(maki::type<on_data>)
             .transition_tables(on_transition_table)
             .internal_action_ce
@@ -70,9 +70,9 @@ namespace state_data_submachine_ns
     using machine_t = maki::make_machine<machine_conf>;
 }
 
-TEST_CASE("state_data_submachine")
+TEST_CASE("state_data_composite_state")
 {
-    using namespace state_data_submachine_ns;
+    using namespace state_data_composite_state_ns;
 
     auto machine = machine_t{};
     const auto on_state = machine.state<states::on>();

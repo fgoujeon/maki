@@ -33,7 +33,7 @@ namespace state_transition_hook_set
             (states::off0, maki::type<events::button_press>, states::on0)
         ;
 
-        constexpr auto on1 = maki::submachine_conf{}
+        constexpr auto on1 = maki::composite_state_conf{}
             .transition_tables(on1_transition_table)
             .pretty_name("on_1")
         ;

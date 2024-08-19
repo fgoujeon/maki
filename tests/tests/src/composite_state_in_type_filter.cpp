@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace submachine_in_type_filter_ns
+namespace composite_state_in_type_filter_ns
 {
     struct context
     {
@@ -30,7 +30,7 @@ namespace submachine_in_type_filter_ns
             (s0_sub, maki::type<events::button_press>, maki::null)
         ;
 
-        constexpr auto s0 = maki::submachine_conf{}
+        constexpr auto s0 = maki::composite_state_conf{}
             .transition_tables(s0_transition_table)
         ;
     }
@@ -53,9 +53,9 @@ namespace submachine_in_type_filter_ns
     using machine_t = maki::make_machine<machine_conf>;
 }
 
-TEST_CASE("submachine_in_type_filter")
+TEST_CASE("composite_state_in_type_filter")
 {
-    using namespace submachine_in_type_filter_ns;
+    using namespace composite_state_in_type_filter_ns;
 
     auto machine = machine_t{};
 

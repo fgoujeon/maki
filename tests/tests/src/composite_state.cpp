@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace submachine_ns
+namespace composite_state_ns
 {
     struct machine_conf_holder;
     using machine_t = maki::machine<machine_conf_holder>;
@@ -95,7 +95,7 @@ namespace submachine_ns
             (states::emitting_blue,  maki::type<events::color_button_press>, states::emitting_red)
         ;
 
-        constexpr auto on = maki::submachine_conf{}
+        constexpr auto on = maki::composite_state_conf{}
             .transition_tables(on_transition_table)
             .exit_action_c
             (
@@ -122,9 +122,9 @@ namespace submachine_ns
     };
 }
 
-TEST_CASE("submachine")
+TEST_CASE("composite_state")
 {
-    using namespace submachine_ns;
+    using namespace composite_state_ns;
 
     auto machine = machine_t{};
     auto& ctx = machine.context();

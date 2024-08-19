@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_SUBMACHINE_NO_CONTEXT_HPP
-#define MAKI_DETAIL_SUBMACHINE_NO_CONTEXT_HPP
+#ifndef MAKI_DETAIL_COMPOSITE_STATE_NO_CONTEXT_HPP
+#define MAKI_DETAIL_COMPOSITE_STATE_NO_CONTEXT_HPP
 
 #include "maybe_bool_util.hpp"
 #include "region.hpp"
@@ -74,7 +74,7 @@ struct region_tuple
 };
 
 template<auto Id, const auto& Path>
-class submachine_no_context
+class composite_state_no_context
 {
 public:
     static constexpr auto identifier = Id;
@@ -84,16 +84,16 @@ public:
     using transition_table_type_list = decltype(opts(conf).transition_tables);
 
     template<class Machine, class Context>
-    submachine_no_context(Machine& mach, Context& ctx):
+    composite_state_no_context(Machine& mach, Context& ctx):
         regions_(uniform_construct, mach, ctx)
     {
     }
 
-    submachine_no_context(const submachine_no_context&) = delete;
-    submachine_no_context(submachine_no_context&&) = delete;
-    submachine_no_context& operator=(const submachine_no_context&) = delete;
-    submachine_no_context& operator=(submachine_no_context&&) = delete;
-    ~submachine_no_context() = default;
+    composite_state_no_context(const composite_state_no_context&) = delete;
+    composite_state_no_context(composite_state_no_context&&) = delete;
+    composite_state_no_context& operator=(const composite_state_no_context&) = delete;
+    composite_state_no_context& operator=(composite_state_no_context&&) = delete;
+    ~composite_state_no_context() = default;
 
     template<class Machine, class Context, class Event>
     void call_entry_action(Machine& mach, Context& ctx, const Event& event)
@@ -197,7 +197,7 @@ private:
 
     using region_tuple_type = typename region_tuple
     <
-        submachine_no_context,
+        composite_state_no_context,
         Path,
         std::make_integer_sequence<int, tlu::size_v<transition_table_type_list>>
     >::type;

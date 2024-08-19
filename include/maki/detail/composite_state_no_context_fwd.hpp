@@ -4,14 +4,14 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_SUBMACHINE_FWD_HPP
-#define MAKI_DETAIL_SUBMACHINE_FWD_HPP
+#ifndef MAKI_DETAIL_COMPOSITE_STATE_NO_CONTEXT_FWD_HPP
+#define MAKI_DETAIL_COMPOSITE_STATE_NO_CONTEXT_FWD_HPP
 
 namespace maki::detail
 {
 
 template<auto Id, const auto& Path>
-class submachine;
+class composite_state_no_context;
 
 } //namespace
 

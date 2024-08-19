@@ -7,7 +7,7 @@
 #ifndef MAKI_DETAIL_STATE_ID_HPP
 #define MAKI_DETAIL_STATE_ID_HPP
 
-#include "../submachine_conf_fwd.hpp"
+#include "../composite_state_conf_fwd.hpp"
 #include "../state_conf_fwd.hpp"
 #include "../machine_conf_fwd.hpp"
 
@@ -31,9 +31,9 @@ struct to_state_id_or_identity<state_conf<OptionSet>>
 };
 
 template<class OptionSet>
-struct to_state_id_or_identity<submachine_conf<OptionSet>>
+struct to_state_id_or_identity<composite_state_conf<OptionSet>>
 {
-    using type = const submachine_conf<OptionSet>*;
+    using type = const composite_state_conf<OptionSet>*;
 };
 
 template<class OptionSet>
@@ -58,7 +58,7 @@ constexpr auto try_making_state_id(const state_conf<OptionSet>& conf)
 }
 
 template<class OptionSet>
-constexpr auto try_making_state_id(const submachine_conf<OptionSet>& conf)
+constexpr auto try_making_state_id(const composite_state_conf<OptionSet>& conf)
 {
     return &conf;
 }

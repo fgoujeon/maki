@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace submachine_context_ns
+namespace composite_state_context_ns
 {
     enum class led_color
     {
@@ -36,7 +36,7 @@ namespace submachine_context_ns
         {
             struct context
             {
-                using parent_context_type = submachine_context_ns::context;
+                using parent_context_type = composite_state_context_ns::context;
 
                 context(parent_context_type& parent):
                     parent(parent)
@@ -57,7 +57,7 @@ namespace submachine_context_ns
                 ;
             }
 
-            constexpr auto emitting_red = maki::submachine_conf{}
+            constexpr auto emitting_red = maki::composite_state_conf{}
                 .transition_tables(emitting_red_ns::transition_table)
                 .entry_action_c
                 (
@@ -79,7 +79,7 @@ namespace submachine_context_ns
             ;
         }
 
-        constexpr auto on = maki::submachine_conf{}
+        constexpr auto on = maki::composite_state_conf{}
             .transition_tables(on_ns::transition_table)
             .context_c(maki::type<on_ns::context>)
             .exit_action_c
@@ -106,9 +106,9 @@ namespace submachine_context_ns
     using machine_t = maki::make_machine<machine_conf>;
 }
 
-TEST_CASE("submachine_context")
+TEST_CASE("composite_state_context")
 {
-    using namespace submachine_context_ns;
+    using namespace composite_state_context_ns;
 
     auto machine = machine_t{};
     auto& ctx = machine.context();

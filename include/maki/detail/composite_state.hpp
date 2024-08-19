@@ -4,11 +4,11 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_SUBMACHINE_HPP
-#define MAKI_DETAIL_SUBMACHINE_HPP
+#ifndef MAKI_DETAIL_COMPOSITE_STATE_HPP
+#define MAKI_DETAIL_COMPOSITE_STATE_HPP
 
 #include "tlu.hpp"
-#include "submachine_no_context.hpp"
+#include "composite_state_no_context.hpp"
 #include "context_holder.hpp"
 #include "../state_conf.hpp"
 #include "../machine_conf.hpp"
@@ -18,7 +18,7 @@ namespace maki::detail
 {
 
 template<auto Id, const auto& Path>
-class submachine
+class composite_state
 {
 public:
     static constexpr auto identifier = Id;
@@ -35,17 +35,17 @@ public:
         class ConfType = conf_type,
         std::enable_if_t<!is_root_sm_conf_v<ConfType>, bool> = true
     >
-    submachine(Machine& mach, ParentContext& parent_ctx):
+    composite_state(Machine& mach, ParentContext& parent_ctx):
         ctx_holder_(mach, parent_ctx),
         impl_(mach, context())
     {
     }
 
-    submachine(const submachine&) = delete;
-    submachine(submachine&&) = delete;
-    submachine& operator=(const submachine&) = delete;
-    submachine& operator=(submachine&&) = delete;
-    ~submachine() = default;
+    composite_state(const composite_state&) = delete;
+    composite_state(composite_state&&) = delete;
+    composite_state& operator=(const composite_state&) = delete;
+    composite_state& operator=(composite_state&&) = delete;
+    ~composite_state() = default;
 
     auto& context()
     {
@@ -156,7 +156,7 @@ public:
     }
 
 private:
-    using impl_type = submachine_no_context<identifier, Path>;
+    using impl_type = composite_state_no_context<identifier, Path>;
 
     context_holder<context_type, opts(conf).context_sig> ctx_holder_;
     impl_type impl_;

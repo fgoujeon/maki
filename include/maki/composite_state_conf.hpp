@@ -6,13 +6,13 @@
 
 /**
 @file
-@brief Defines the maki::submachine_conf struct template
+@brief Defines the maki::composite_state_conf struct template
 */
 
-#ifndef MAKI_SUBMACHINE_CONF_HPP
-#define MAKI_SUBMACHINE_CONF_HPP
+#ifndef MAKI_COMPOSITE_STATE_CONF_HPP
+#define MAKI_COMPOSITE_STATE_CONF_HPP
 
-#include "submachine_conf_fwd.hpp"
+#include "composite_state_conf_fwd.hpp"
 #include "type.hpp"
 #include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"
@@ -28,7 +28,7 @@ namespace detail
 {
     //Read access to options
     template<class OptionSet>
-    constexpr const auto& opts(const submachine_conf<OptionSet>& conf)
+    constexpr const auto& opts(const composite_state_conf<OptionSet>& conf)
     {
         return conf.options_;
     }
@@ -39,24 +39,24 @@ template<IMPLEMENTATION_DETAIL>
 #else
 template<class OptionSet>
 #endif
-class submachine_conf
+class composite_state_conf
 {
 public:
     using context_type = typename OptionSet::context_type;
 
-    constexpr submachine_conf() = default;
+    constexpr composite_state_conf() = default;
 
-    submachine_conf(const submachine_conf&) = delete;
+    composite_state_conf(const composite_state_conf&) = delete;
 
-    submachine_conf(submachine_conf&&) = delete;
+    composite_state_conf(composite_state_conf&&) = delete;
 
-    ~submachine_conf() = default;
+    ~composite_state_conf() = default;
 
-    submachine_conf& operator=(const submachine_conf&) = delete;
+    composite_state_conf& operator=(const composite_state_conf&) = delete;
 
-    submachine_conf& operator=(submachine_conf&&) = delete;
+    composite_state_conf& operator=(composite_state_conf&&) = delete;
 
-#define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_MAKE_COMPOSITE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type<typename OptionSet::context_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = options_.context_sig; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions; \
@@ -65,10 +65,10 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = options_.pretty_name; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = options_.transition_tables;
 
-#define MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    return submachine_conf \
+#define MAKI_DETAIL_MAKE_COMPOSITE_STATE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    return composite_state_conf \
     < \
-        detail::submachine_conf_option_set \
+        detail::composite_state_conf_option_set \
         < \
             typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
@@ -124,9 +124,9 @@ public:
 
     [[nodiscard]] constexpr auto pretty_name(const std::string_view value) const
     {
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
+        MAKI_DETAIL_MAKE_COMPOSITE_STATE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_pretty_name_view value
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_COMPOSITE_STATE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_pretty_name_view
     }
 
@@ -134,21 +134,21 @@ public:
     [[nodiscard]] constexpr auto transition_tables(const TransitionTables&... tables) const
     {
         const auto tpl = detail::tuple<TransitionTables...>{detail::distributed_construct, tables...};
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
+        MAKI_DETAIL_MAKE_COMPOSITE_STATE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_transition_tables tpl
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_COMPOSITE_STATE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_transition_tables
     }
 
 private:
     template<class OptionSet2>
-    friend class submachine_conf;
+    friend class composite_state_conf;
 
     template<class OptionSet2>
-    friend constexpr const auto& detail::opts(const submachine_conf<OptionSet2>& conf);
+    friend constexpr const auto& detail::opts(const composite_state_conf<OptionSet2>& conf);
 
     template<class... Args>
-    constexpr submachine_conf(Args&&... args):
+    constexpr composite_state_conf(Args&&... args):
         options_{std::forward<Args>(args)...}
     {
     }
@@ -156,10 +156,10 @@ private:
     template<class Context, auto ContextSig>
     [[nodiscard]] constexpr auto context() const
     {
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
+        MAKI_DETAIL_MAKE_COMPOSITE_STATE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_context_type type<Context>
 #define MAKI_DETAIL_ARG_context_sig ContextSig
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_COMPOSITE_STATE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_context_type
 #undef MAKI_DETAIL_ARG_context_sig
     }
@@ -173,9 +173,9 @@ private:
             detail::make_event_action<Sig>(event_filter, action)
         );
 
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
+        MAKI_DETAIL_MAKE_COMPOSITE_STATE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_entry_actions new_entry_actions
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_COMPOSITE_STATE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_entry_actions
     }
 
@@ -188,9 +188,9 @@ private:
             detail::make_event_action<Sig>(event_filter, action)
         );
 
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
+        MAKI_DETAIL_MAKE_COMPOSITE_STATE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_internal_actions new_internal_actions
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_COMPOSITE_STATE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_internal_actions
     }
 
@@ -203,14 +203,14 @@ private:
             detail::make_event_action<Sig>(event_filter, action)
         );
 
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
+        MAKI_DETAIL_MAKE_COMPOSITE_STATE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_exit_actions new_exit_actions
-        MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_COMPOSITE_STATE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_exit_actions
     }
 
-#undef MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_MAKE_SUBMACHINE_CONF_COPY_BEGIN
+#undef MAKI_DETAIL_MAKE_COMPOSITE_STATE_CONF_COPY_END
+#undef MAKI_DETAIL_MAKE_COMPOSITE_STATE_CONF_COPY_BEGIN
 
     OptionSet options_;
 };

@@ -43,12 +43,12 @@ namespace double_start_stop_ns
         .context_a(maki::type<context>)
         .pre_state_transition_hook_crset
         (
-            [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)
+            [](context& ctx, const auto& region_path, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)
             {
                 //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
 
                 ctx.out += "Transition in ";
-                ctx.out += maki::to_string(path_constant);
+                ctx.out += region_path.to_string();
                 ctx.out += ": ";
                 ctx.out += maki::pretty_name<source_state_constant.value>();
                 ctx.out += " -> ";
@@ -58,12 +58,12 @@ namespace double_start_stop_ns
         )
         .post_state_transition_hook_crset
         (
-            [](context& ctx, const auto& path_constant, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)
+            [](context& ctx, const auto& region_path, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)
             {
                 //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
 
                 ctx.out += "Transition in ";
-                ctx.out += maki::to_string(path_constant);
+                ctx.out += region_path.to_string();
                 ctx.out += ": ";
                 ctx.out += maki::pretty_name<source_state_constant.value>();
                 ctx.out += " -> ";
@@ -87,7 +87,7 @@ TEST_CASE("double_start_stop")
     machine.start();
     machine.start();
 
-    REQUIRE(machine.active_state<states::off>());
+    REQUIRE(machine.is<states::off>());
     REQUIRE
     (
         out ==

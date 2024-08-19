@@ -7,7 +7,6 @@
 #ifndef MAKI_DETAIL_REGION_HPP
 #define MAKI_DETAIL_REGION_HPP
 
-#include "path_of.hpp"
 #include "state_traits.hpp"
 #include "call_member.hpp"
 #include "transition_table_digest.hpp"
@@ -23,6 +22,7 @@
 #include "maybe_bool_util.hpp"
 #include "tuple.hpp"
 #include "constant.hpp"
+#include "../path.hpp"
 #include "../null.hpp"
 #include "../cref_constant.hpp"
 #include "../submachine_conf.hpp"
@@ -43,8 +43,8 @@ namespace region_detail
         static constexpr auto value = tlu::find_v<StateList, State>;
     };
 
-    template<class StateList, class Region>
-    struct find_state<StateList, state_traits::state_id_to_state<&state_confs::stopped, Region>>
+    template<class StateList, const auto& Path>
+    struct find_state<StateList, state_traits::state_id_to_state<&state_confs::stopped, Path>>
     {
         static constexpr auto value = stopped_state_index;
     };
@@ -68,7 +68,7 @@ namespace region_detail
     inline constexpr auto find_state_from_id_v = find_state_from_id<StateList, StateId>::value;
 }
 
-template<class ParentSm, int Index>
+template<const auto& TransitionTable, const auto& Path>
 class region
 {
 public:
@@ -84,51 +84,28 @@ public:
     region& operator=(region&&) = delete;
     ~region() = default;
 
-    template<const auto& StatePath, class ParentContext>
-    const auto& context_or(ParentContext& parent_ctx) const
+    template<const auto& StateConf>
+    [[nodiscard]] bool is() const
     {
-        return static_context_or<StatePath>(*this, parent_ctx);
-    }
-
-    template<const auto& StatePath, class ParentContext>
-    auto& context_or(ParentContext& parent_ctx)
-    {
-        return static_context_or<StatePath>(*this, parent_ctx);
-    }
-
-    template<const auto& RegionPath, auto StateId>
-    [[nodiscard]] bool active_state() const
-    {
-        if constexpr(RegionPath.empty())
+        if constexpr(is_filter_v<std::decay_t<decltype(StateConf)>>)
         {
-            return active_state<StateId>();
+            return does_active_state_id_match_filter<&StateConf>();
         }
         else
         {
-            static constexpr auto psubmach_conf = path_raw_head(RegionPath);
-            static constexpr auto region_path_tail = path_tail(RegionPath);
-            const auto& submach = state_from_id<psubmach_conf>();
-            return submach.template active_state<region_path_tail, *StateId>();
+            return is_active_state_id<&StateConf>();
         }
     }
 
-    template<auto StateId>
-    [[nodiscard]] bool active_state() const
+    [[nodiscard]] bool running() const
     {
-        if constexpr(is_filter_v<std::decay_t<decltype(*StateId)>>)
-        {
-            return does_active_state_id_match_filter<StateId>();
-        }
-        else
-        {
-            return is_active_state_type<StateId>();
-        }
+        return !is_active_state_id<&state_confs::stopped>();
     }
 
     template<class Machine, class Context, class Event>
     void start(Machine& mach, Context& ctx, const Event& event)
     {
-        if(is_active_state_type<&state_confs::stopped>())
+        if(!running())
         {
             process_event_in_transition
             <
@@ -142,7 +119,7 @@ public:
     template<class Machine, class Context, class Event>
     void stop(Machine& mach, Context& ctx, const Event& event)
     {
-        if(!is_active_state_type<&state_confs::stopped>())
+        if(running())
         {
             with_active_state_id<state_id_constant_list, stop_2>
             (
@@ -178,8 +155,14 @@ public:
         process_event_2<Dry>(*this, mach, ctx, event, processed);
     }
 
+    template<const auto& StateConf>
+    const auto& state() const
+    {
+        return state_from_id<&StateConf>();
+    }
+
 private:
-    static constexpr const auto& transition_table = tuple_get<Index>(opts(ParentSm::conf).transition_tables);
+    static constexpr const auto& transition_table = TransitionTable;
     static constexpr auto transition_tuple = detail::rows(transition_table);
 
     using transition_table_digest_type =
@@ -191,7 +174,7 @@ private:
     template<class... StateIdConstants>
     using state_id_constant_pack_to_state_tuple_t = tuple
     <
-        state_traits::state_id_to_state_t<StateIdConstants::value, region>...
+        state_traits::state_id_to_state_t<StateIdConstants::value, Path>...
     >;
 
     using state_tuple_type = tlu::apply_t
@@ -354,7 +337,7 @@ private:
         )
         {
             //Make sure the transition source state is the active state
-            if(!self.template is_active_state_type<SourceStateIdConstant::value>())
+            if(!self.template is_active_state_id<SourceStateIdConstant::value>())
             {
                 return false;
             }
@@ -402,8 +385,6 @@ private:
     {
         using machine_option_set_type = typename Machine::option_set_type;
 
-        constexpr const auto& path = path_of_v<region>;
-
         constexpr auto is_internal_transition = std::is_same_v
         <
             std::decay_t<decltype(TargetStateId)>,
@@ -417,7 +398,7 @@ private:
                 opts(Machine::conf).pre_state_transition_hook
                 (
                     ctx,
-                    cref_constant<path>,
+                    maki::path{Path},
                     cref_constant<*SourceStateId>,
                     event,
                     cref_constant<*TargetStateId>
@@ -471,7 +452,7 @@ private:
                 opts(Machine::conf).post_state_transition_hook
                 (
                     ctx,
-                    cref_constant<path>,
+                    maki::path{Path},
                     cref_constant<*SourceStateId>,
                     event,
                     cref_constant<*TargetStateId>
@@ -556,7 +537,7 @@ private:
     }
 
     template<auto StateId>
-    [[nodiscard]] bool is_active_state_type() const
+    [[nodiscard]] bool is_active_state_id() const
     {
         constexpr auto given_state_index = region_detail::find_state_from_id_v
         <
@@ -607,7 +588,7 @@ private:
         template<class StateIdConstant, class... Args>
         static bool call(const region& self, Args&&... args)
         {
-            if(self.is_active_state_type<StateIdConstant::value>())
+            if(self.is_active_state_id<StateIdConstant::value>())
             {
                 F::template call<StateIdConstant>(std::forward<Args>(args)...);
                 return true;
@@ -652,22 +633,6 @@ private:
             region_detail::find_state_from_id_v<state_tuple_type, StateId>
         ;
         return tuple_get<state_index>(self.states_);
-    }
-
-    //Note: We use static to factorize const and non-const Region
-    template<const auto& StatePath, class Region, class ParentContext>
-    static auto& static_context_or(Region& self, ParentContext& parent_ctx)
-    {
-        if constexpr(StatePath.size() == 1)
-        {
-            return static_state_from_id<path_raw_head(StatePath)>(self).context_or(parent_ctx);
-        }
-        else
-        {
-            static constexpr auto psubmach_conf = path_raw_head(StatePath);
-            static constexpr auto state_path_tail = path_tail(StatePath);
-            return static_state_from_id<psubmach_conf>(self).template context_or<state_path_tail>(parent_ctx);
-        }
     }
 
     state_tuple_type states_;

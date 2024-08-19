@@ -13,9 +13,7 @@
 #include "tlu.hpp"
 #include "tuple.hpp"
 #include "../machine_conf.hpp"
-#include "../path.hpp"
 #include "../state_conf.hpp"
-#include "../state_confs.hpp"
 #include <type_traits>
 #include <utility>
 
@@ -25,6 +23,28 @@ namespace maki::detail
 template
 <
     class ParentSm,
+    const auto& ParentPath,
+    int Index
+>
+struct region_tuple_elem
+{
+    static constexpr auto transition_table = tuple_get<Index>(opts(ParentSm::conf).transition_tables);
+    static constexpr auto path = ParentPath.add_region_index(Index);
+    using type = region<transition_table, path>;
+};
+
+template
+<
+    class ParentSm,
+    const auto& ParentPath,
+    int Index
+>
+using region_tuple_elem_t = typename region_tuple_elem<ParentSm, ParentPath, Index>::type;
+
+template
+<
+    class ParentSm,
+    const auto& ParentPath,
     class RegionIndexSequence
 >
 struct region_tuple;
@@ -32,25 +52,28 @@ struct region_tuple;
 template
 <
     class ParentSm,
+    const auto& ParentPath,
     int... RegionIndexes
 >
 struct region_tuple
 <
     ParentSm,
+    ParentPath,
     std::integer_sequence<int, RegionIndexes...>
 >
 {
     using type = tuple
     <
-        region
+        region_tuple_elem_t
         <
             ParentSm,
+            ParentPath,
             RegionIndexes
         >...
     >;
 };
 
-template<auto Id, class ParentRegion>
+template<auto Id, const auto& Path>
 class submachine_no_context
 {
 public:
@@ -66,49 +89,11 @@ public:
     {
     }
 
-    template<const auto& StatePath, class ParentContext>
-    auto& context_or(ParentContext& parent_ctx)
-    {
-        static constexpr int region_index = path_raw_head(StatePath);
-        static constexpr auto state_path_tail = path_tail(StatePath);
-        return tuple_get<region_index>(regions_).template context_or<state_path_tail>(parent_ctx);
-    }
-
-    template<const auto& StatePath, class ParentContext>
-    const auto& context_or(ParentContext& parent_ctx) const
-    {
-        static constexpr int region_index = path_raw_head(StatePath);
-        static constexpr auto state_path_tail = path_tail(StatePath);
-        return tuple_get<region_index>(regions_).template context_or<state_path_tail>(parent_ctx);
-    }
-
-    template<const auto& StateRegionPath, const auto& StateConf>
-    [[nodiscard]] bool active_state() const
-    {
-        static constexpr auto region_index = path_raw_head(StateRegionPath);
-        static constexpr auto state_region_relative_path = path_tail(StateRegionPath);
-        return tuple_get<region_index>(regions_).template active_state<state_region_relative_path, &StateConf>();
-    }
-
-    template<const auto& StateConf>
-    [[nodiscard]] bool active_state() const
-    {
-        static_assert(tlu::size_v<transition_table_type_list> == 1);
-
-        static constexpr auto state_region_relative_path = path<>{};
-        return tuple_get<0>(regions_).template active_state<state_region_relative_path, &StateConf>();
-    }
-
-    template<const auto& RegionPath>
-    [[nodiscard]] bool running() const
-    {
-        return !active_state<RegionPath, state_confs::stopped>();
-    }
-
-    [[nodiscard]] bool running() const
-    {
-        return !active_state<state_confs::stopped>();
-    }
+    submachine_no_context(const submachine_no_context&) = delete;
+    submachine_no_context(submachine_no_context&&) = delete;
+    submachine_no_context& operator=(const submachine_no_context&) = delete;
+    submachine_no_context& operator=(submachine_no_context&&) = delete;
+    ~submachine_no_context() = default;
 
     template<class Machine, class Context, class Event>
     void call_entry_action(Machine& mach, Context& ctx, const Event& event)
@@ -175,6 +160,32 @@ public:
         );
     }
 
+    template<int Index>
+    [[nodiscard]] const auto& region() const
+    {
+        return tuple_get<Index>(regions_);
+    }
+
+    template<const auto& StateConf>
+    [[nodiscard]] const auto& state() const
+    {
+        static_assert(region_tuple_type::size == 1);
+        return region<0>().template state<StateConf>();
+    }
+
+    template<const auto& StateConf>
+    [[nodiscard]] bool is() const
+    {
+        static_assert(region_tuple_type::size == 1);
+        return region<0>().template is<StateConf>();
+    }
+
+    [[nodiscard]] bool running() const
+    {
+        static_assert(region_tuple_type::size == 1);
+        return region<0>().running();
+    }
+
     template<class /*Event*/>
     static constexpr bool has_internal_action_for_event()
     {
@@ -187,6 +198,7 @@ private:
     using region_tuple_type = typename region_tuple
     <
         submachine_no_context,
+        Path,
         std::make_integer_sequence<int, tlu::size_v<transition_table_type_list>>
     >::type;
 

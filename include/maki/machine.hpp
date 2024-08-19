@@ -12,10 +12,13 @@
 #ifndef MAKI_MACHINE_HPP
 #define MAKI_MACHINE_HPP
 
+#include "region_proxy.hpp"
+#include "state_proxy.hpp"
 #include "conf_holder.hpp"
 #include "machine_conf.hpp"
 #include "events.hpp"
 #include "null.hpp"
+#include "detail/path.hpp"
 #include "detail/simple_state.hpp" //NOLINT misc-include-cleaner
 #include "detail/submachine.hpp" //NOLINT misc-include-cleaner
 #include "detail/submachine_no_context.hpp"
@@ -127,43 +130,6 @@ public:
         return ctx_holder_.get();
     }
 
-    template<const auto& MachineOrStatePath>
-    auto& context()
-    {
-        if constexpr(MachineOrStatePath.empty())
-        {
-            return context();
-        }
-        else
-        {
-            return impl_.template context_or<MachineOrStatePath>(context());
-        }
-    }
-
-    template<const auto& MachineOrStatePath>
-    const auto& context() const
-    {
-        if constexpr(MachineOrStatePath.empty())
-        {
-            return context();
-        }
-        else
-        {
-            return impl_.template context_or<MachineOrStatePath>(context());
-        }
-    }
-
-    /**
-    @brief Returns whether the region located at `RegionPath` is running.
-    @tparam RegionPath an instance of `maki::path` pointing to the
-    region of interest
-    */
-    template<const auto& RegionPath>
-    [[nodiscard]] bool running() const
-    {
-        return impl_.template running<RegionPath>();
-    }
-
     /**
     @brief Returns whether the region of the state machine in running.
     This function can only be called if the state machine contains only one
@@ -172,31 +138,6 @@ public:
     [[nodiscard]] bool running() const
     {
         return impl_.running();
-    }
-
-    /**
-    @brief Returns whether the state created from `StateConf` is active in the
-    region located at `RegionPath`.
-    @tparam RegionPath an instance of `maki::path` pointing to the
-    region of interest
-    @tparam StateConf the state configurator
-    */
-    template<const auto& RegionPath, const auto& StateConf>
-    [[nodiscard]] bool active_state() const
-    {
-        return impl_.template active_state<RegionPath, StateConf>();
-    }
-
-    /**
-    @brief Returns whether the state created from `StateConf` is active in the
-    region of the state machine. This function can only be called if the state
-    machine contains only one region.
-    @tparam StateConf the state configurator
-    */
-    template<const auto& StateConf>
-    [[nodiscard]] bool active_state() const
-    {
-        return impl_.template active_state<StateConf>();
     }
 
     /**
@@ -375,6 +316,30 @@ public:
         }
     }
 
+    template<int Index>
+    [[nodiscard]] auto region() const
+    {
+        return detail::make_region_proxy(impl_.template region<Index>());
+    }
+
+    template<const auto& StateConf>
+    [[nodiscard]] auto state() const
+    {
+        return detail::make_state_proxy(impl_.template state<StateConf>());
+    }
+
+    /**
+    @brief Returns whether the state created from `StateConf` is active in the
+    region of the state machine. This function can only be called if the state
+    machine contains a single region.
+    @tparam StateConf the state configurator
+    */
+    template<const auto& StateConf>
+    [[nodiscard]] bool is() const
+    {
+        return impl_.template is<StateConf>();
+    }
+
 private:
     class executing_operation_guard
     {
@@ -528,10 +493,12 @@ private:
     }
 
     static constexpr auto post_processing_hooks = opts(conf).post_processing_hooks;
+    static constexpr auto path = detail::path{}.add_state<conf>();
+
     using post_processing_hook_ptr_constant_list = detail::tuple_to_element_ptr_constant_list_t<post_processing_hooks>;
 
     detail::context_holder<context_type, opts(conf).context_sig> ctx_holder_;
-    detail::submachine_no_context<&conf, void> impl_;
+    detail::submachine_no_context<&conf, path> impl_;
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;
 };

@@ -110,28 +110,27 @@ TEST_CASE("submachine_context")
 {
     using namespace submachine_context_ns;
 
-    static constexpr auto machine_on_path = maki::path{0} / states::on / 0;
-
     auto machine = machine_t{};
     auto& ctx = machine.context();
+    const auto on_state = machine.state<states::on>();
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.active_state<machine_on_path, states::on_ns::emitting_red>());
+    REQUIRE(on_state.is<states::on_ns::emitting_red>());
 
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.active_state<machine_on_path, states::on_ns::emitting_green>());
+    REQUIRE(on_state.is<states::on_ns::emitting_green>());
 
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.active_state<machine_on_path, states::on_ns::emitting_blue>());
+    REQUIRE(on_state.is<states::on_ns::emitting_blue>());
 
     machine.process_event(events::color_button_press{});
-    REQUIRE(machine.active_state<machine_on_path, states::on_ns::emitting_red>());
+    REQUIRE(on_state.is<states::on_ns::emitting_red>());
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.active_state<states::off>());
+    REQUIRE(machine.is<states::off>());
 
     REQUIRE(ctx.out == "2");
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(machine.active_state<states::on>());
+    REQUIRE(machine.is<states::on>());
 }

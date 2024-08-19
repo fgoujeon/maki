@@ -4,14 +4,20 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_SUBMACHINE_NO_CONTEXT_FWD_HPP
-#define MAKI_DETAIL_SUBMACHINE_NO_CONTEXT_FWD_HPP
+#ifndef MAKI_DETAIL_REGION_PROXY_FWD_HPP
+#define MAKI_DETAIL_REGION_PROXY_FWD_HPP
 
-namespace maki::detail
+namespace maki
 {
 
-template<auto Id, const auto& Path>
-class submachine_no_context;
+template<class Region>
+class region_proxy;
+
+namespace detail
+{
+    template<class Region>
+    region_proxy<Region> make_region_proxy(const Region& region);
+}
 
 } //namespace
 

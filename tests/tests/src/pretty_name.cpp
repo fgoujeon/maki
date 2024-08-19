@@ -45,8 +45,6 @@ namespace pretty_name_ns
     ;
 
     using machine_t = maki::make_machine<machine_conf>;
-
-    struct path{};
 }
 
 TEST_CASE("pretty_name")

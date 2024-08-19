@@ -31,6 +31,12 @@ public:
     {
     }
 
+    simple_state(const simple_state&) = delete;
+    simple_state(simple_state&&) = delete;
+    simple_state& operator=(const simple_state&) = delete;
+    simple_state& operator=(simple_state&&) = delete;
+    ~simple_state() = default;
+
     auto& context()
     {
         return ctx_holder_.get();
@@ -39,18 +45,6 @@ public:
     const auto& context() const
     {
         return ctx_holder_.get();
-    }
-
-    template<class ParentContext>
-    auto& context_or(ParentContext& /*parent_ctx*/)
-    {
-        return context();
-    }
-
-    template<class ParentContext>
-    const auto& context_or(ParentContext& /*parent_ctx*/) const
-    {
-        return context();
     }
 
     template<class Machine, class ParentContext, class Event>

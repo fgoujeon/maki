@@ -17,7 +17,7 @@
 namespace maki::detail
 {
 
-template<auto Id, class ParentRegion>
+template<auto Id, const auto& Path>
 class submachine
 {
 public:
@@ -41,6 +41,12 @@ public:
     {
     }
 
+    submachine(const submachine&) = delete;
+    submachine(submachine&&) = delete;
+    submachine& operator=(const submachine&) = delete;
+    submachine& operator=(submachine&&) = delete;
+    ~submachine() = default;
+
     auto& context()
     {
         return ctx_holder_.get();
@@ -51,65 +57,10 @@ public:
         return ctx_holder_.get();
     }
 
-    template<class ParentContext>
-    auto& context_or(ParentContext& /*parent_ctx*/)
-    {
-        return context();
-    }
-
-    template<class ParentContext>
-    const auto& context_or(ParentContext& /*parent_ctx*/) const
-    {
-        return context();
-    }
-
-    template<const auto& StatePath, class ParentContext>
-    auto& context_or(ParentContext& /*parent_ctx*/)
-    {
-        if constexpr(StatePath.empty())
-        {
-            return context();
-        }
-        else
-        {
-            return impl_.template context_or<StatePath>(context());
-        }
-    }
-
-    template<const auto& StatePath, class ParentContext>
-    const auto& context_or(ParentContext& /*parent_ctx*/) const
-    {
-        if constexpr(StatePath.empty())
-        {
-            return context();
-        }
-        else
-        {
-            return impl_.template context_or<StatePath>(context());
-        }
-    }
-
-    template<const auto& StateRegionPath, const auto& StateConf>
-    [[nodiscard]] bool active_state() const
-    {
-        return impl_.template active_state<StateRegionPath, StateConf>();
-    }
-
-    template<const auto& StateConf>
-    [[nodiscard]] bool active_state() const
-    {
-        return impl_.template active_state<StateConf>();
-    }
-
     template<const auto& RegionPath>
     [[nodiscard]] bool running() const
     {
         return impl_.template running<RegionPath>();
-    }
-
-    [[nodiscard]] bool running() const
-    {
-        return impl_.running();
     }
 
     template<class Machine, class ParentContext, class Event>
@@ -175,6 +126,29 @@ public:
         impl_.call_exit_action(mach, context(), event);
     }
 
+    template<int Index>
+    [[nodiscard]] const auto& region() const
+    {
+        return impl_.template region<Index>();
+    }
+
+    template<const auto& StateConf>
+    [[nodiscard]] const auto& state() const
+    {
+        return impl_.template state<StateConf>();
+    }
+
+    template<const auto& StateConf>
+    [[nodiscard]] bool is() const
+    {
+        return impl_.template is<StateConf>();
+    }
+
+    [[nodiscard]] bool running() const
+    {
+        return impl_.running();
+    }
+
     template<class /*Event*/>
     static constexpr bool has_internal_action_for_event()
     {
@@ -182,7 +156,7 @@ public:
     }
 
 private:
-    using impl_type = submachine_no_context<identifier, ParentRegion>;
+    using impl_type = submachine_no_context<identifier, Path>;
 
     context_holder<context_type, opts(conf).context_sig> ctx_holder_;
     impl_type impl_;

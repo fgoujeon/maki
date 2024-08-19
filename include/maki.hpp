@@ -24,7 +24,6 @@
 #include "maki/machine_fwd.hpp" //NOLINT misc-include-cleaner
 #include "maki/machine_ref.hpp" //NOLINT misc-include-cleaner
 #include "maki/machine_ref_conf.hpp" //NOLINT misc-include-cleaner
-#include "maki/path.hpp" //NOLINT misc-include-cleaner
 #include "maki/pretty_name.hpp" //NOLINT misc-include-cleaner
 #include "maki/state_conf.hpp" //NOLINT misc-include-cleaner
 #include "maki/state_confs.hpp" //NOLINT misc-include-cleaner

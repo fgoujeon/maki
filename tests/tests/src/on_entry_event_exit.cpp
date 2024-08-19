@@ -103,37 +103,37 @@ TEST_CASE("entry_action_event_exit")
 
     machine.start();
 
-    REQUIRE(machine.active_state<states::idle>());
+    REQUIRE(machine.is<states::idle>());
     REQUIRE(ctx.hello == "");
     REQUIRE(ctx.dog == "");
     REQUIRE(ctx.goodbye == "");
 
     machine.process_event(events::next_language_request{});
-    REQUIRE(machine.active_state<states::english>());
+    REQUIRE(machine.is<states::english>());
     REQUIRE(ctx.hello == "hello");
     REQUIRE(ctx.dog == "");
     REQUIRE(ctx.goodbye == "");
 
     machine.process_event(events::say_dog{});
-    REQUIRE(machine.active_state<states::english>());
+    REQUIRE(machine.is<states::english>());
     REQUIRE(ctx.hello == "hello");
     REQUIRE(ctx.dog == "dog");
     REQUIRE(ctx.goodbye == "");
 
     machine.process_event(events::next_language_request{});
-    REQUIRE(machine.active_state<states::french>());
+    REQUIRE(machine.is<states::french>());
     REQUIRE(ctx.hello == "bonjour");
     REQUIRE(ctx.dog == "dog");
     REQUIRE(ctx.goodbye == "goodbye");
 
     machine.process_event(events::say_dog{});
-    REQUIRE(machine.active_state<states::french>());
+    REQUIRE(machine.is<states::french>());
     REQUIRE(ctx.hello == "bonjour");
     REQUIRE(ctx.dog == "chien");
     REQUIRE(ctx.goodbye == "goodbye");
 
     machine.process_event(events::next_language_request{});
-    REQUIRE(machine.active_state<states::idle>());
+    REQUIRE(machine.is<states::idle>());
     REQUIRE(ctx.hello == "bonjour");
     REQUIRE(ctx.dog == "chien");
     REQUIRE(ctx.goodbye == "au revoir");

@@ -242,7 +242,7 @@ struct tuple_to_element_ptr_constant_list_impl;
 template<const auto& Tuple, int... Indexes>
 struct tuple_to_element_ptr_constant_list_impl<Tuple, std::integer_sequence<int, Indexes...>>
 {
-    using type = type_list<constant_t<&tuple_static_get_copy_c<Tuple, Indexes>>...>;
+    using type = type_list_t<constant_t<&tuple_static_get_copy_c<Tuple, Indexes>>...>;
 };
 
 template<const auto& Tuple>

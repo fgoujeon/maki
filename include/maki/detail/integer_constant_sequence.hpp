@@ -21,7 +21,7 @@ struct make_integer_constant_sequence_impl;
 template<class T, T... Is>
 struct make_integer_constant_sequence_impl<std::integer_sequence<T, Is...>>
 {
-    using type = type_list<constant_t<Is>...>;
+    using type = type_list_t<constant_t<Is>...>;
 };
 
 template<class T, std::size_t Size>

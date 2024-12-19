@@ -134,7 +134,7 @@ private:
 
 template<class... Events>
 inline constexpr auto machine_ref_e_conf = machine_ref_conf{}
-    .events<Events...>()
+    .events(type_list<Events...>)
 ;
 
 /**

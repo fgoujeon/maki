@@ -29,4 +29,5 @@
 #include "maki/state_confs.hpp" //NOLINT misc-include-cleaner
 #include "maki/transition_table.hpp" //NOLINT misc-include-cleaner
 #include "maki/type.hpp" //NOLINT misc-include-cleaner
+#include "maki/type_list.hpp" //NOLINT misc-include-cleaner
 #include "maki/version.hpp" //NOLINT misc-include-cleaner

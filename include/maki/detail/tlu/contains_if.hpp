@@ -15,8 +15,8 @@ contains_if is a boolean indicating whether the given typelist contains the give
 type.
 
 In this example...:
-    using type_list = std::tuple<char, short, int, long>;
-    constexpr auto contains_if_int = contains_if<type_list, int>;
+    using type_list_t = std::tuple<char, short, int, long>;
+    constexpr auto contains_if_int = contains_if<type_list_t, int>;
 
 ... contains_if_int == true.
 */

@@ -7,8 +7,8 @@
 #ifndef MAKI_DETAIL_INTEGER_CONSTANT_SEQUENCE_HPP
 #define MAKI_DETAIL_INTEGER_CONSTANT_SEQUENCE_HPP
 
-#include "type_list.hpp"
 #include "constant.hpp"
+#include "../type_list.hpp"
 #include <utility>
 #include <cstdlib>
 

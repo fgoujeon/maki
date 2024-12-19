@@ -39,7 +39,7 @@ namespace transition_table_digest_ns
 
     using digest_t = maki::detail::transition_table_digest<transition_tuple>;
 
-    using state_conf_ptr_constant_list = maki::detail::type_list
+    using state_conf_ptr_constant_list = maki::type_list
     <
         maki::detail::constant_t<&state0>,
         maki::detail::constant_t<&state1>,

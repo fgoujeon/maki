@@ -9,8 +9,8 @@
 
 #include "tlu/push_back_if.hpp"
 #include "tlu/left_fold.hpp"
-#include "type_list.hpp"
 #include "integer_constant_sequence.hpp"
+#include "../type_list.hpp"
 #include "../filters.hpp"
 
 namespace maki::detail::transition_table_filters

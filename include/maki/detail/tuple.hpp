@@ -8,8 +8,8 @@
 #define MAKI_DETAIL_TUPLE_HPP
 
 #include "tlu.hpp"
-#include "type_list.hpp"
 #include "constant.hpp"
+#include "../type_list.hpp"
 #include "../type.hpp"
 #include <utility>
 

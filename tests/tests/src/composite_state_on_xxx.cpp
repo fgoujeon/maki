@@ -29,6 +29,8 @@ namespace composite_state_on_xxx_ns
         {
             std::string data;
         };
+
+        struct dummy{};
     }
 
     namespace states
@@ -63,7 +65,7 @@ namespace composite_state_on_xxx_ns
         ;
 
         constexpr auto on_transition_table = maki::transition_table{}
-            (states::on_0, maki::type<events::button_press>, maki::null)
+            (states::on_0, maki::type<events::dummy>, maki::null)
         ;
 
         constexpr auto on = maki::state_conf{}

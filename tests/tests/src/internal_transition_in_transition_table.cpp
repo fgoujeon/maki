@@ -32,14 +32,6 @@ namespace internal_transition_in_transition_table_ns
                     ctx.out += "idle::on_entry;";
                 }
             )
-            .internal_action_c
-            (
-                maki::any,
-                [](context& ctx)
-                {
-                    ctx.out += "idle::on_event;";
-                }
-            )
             .exit_action_c
             (
                 maki::any,
@@ -57,14 +49,6 @@ namespace internal_transition_in_transition_table_ns
                 [](context& ctx)
                 {
                     ctx.out += "running::on_entry;";
-                }
-            )
-            .internal_action_c
-            (
-                maki::any,
-                [](context& ctx)
-                {
-                    ctx.out += "running::on_event;";
                 }
             )
             .exit_action_c

@@ -18,6 +18,7 @@ namespace composite_state_in_type_filter_ns
         struct button_press{};
         struct off_button_press{};
         struct destruction_button_press{};
+        struct dummy{};
     }
 
     namespace states
@@ -27,7 +28,7 @@ namespace composite_state_in_type_filter_ns
         EMPTY_STATE(s1)
 
         constexpr auto s0_transition_table = maki::transition_table{}
-            (s0_sub, maki::type<events::button_press>, maki::null)
+            (s0_sub, maki::type<events::dummy>, maki::null)
         ;
 
         constexpr auto s0 = maki::state_conf{}

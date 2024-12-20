@@ -47,18 +47,7 @@ namespace composite_state_context_ns
                 int red_count = 0;
             };
 
-            namespace emitting_red_ns
-            {
-                constexpr auto emitting_cold_red = maki::state_conf{};
-                EMPTY_STATE(emitting_hot_red)
-
-                constexpr auto transition_table = maki::transition_table{}
-                    (emitting_cold_red, maki::type<events::color_button_press>, emitting_hot_red)
-                ;
-            }
-
             constexpr auto emitting_red = maki::state_conf{}
-                .transition_tables(emitting_red_ns::transition_table)
                 .entry_action_c
                 (
                     maki::any,

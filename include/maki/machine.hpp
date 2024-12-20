@@ -189,32 +189,28 @@ public:
     //Process the event
     FOR_EACH_REGION()
     {
-        bool state_transition_happened = false;
-
-        //Process event in transition table
-        FOR_EACH_TRANSITION_IN_REGION_TRANSITION_TABLE()
-        {
-            if
-            (
-                IS_ACTIVE_STATE(source_state) &&
-                SAME_TYPE(Event, event_type) &&
-                GUARD() == true
-            )
-            {
-                CALL_EXIT_ACTION(source_state);
-                SET_ACTIVE_STATE(target_state);
-                CALL_TRANSITION_ACTION();
-                CALL_ENTRY_ACTION(target_state);
-
-                state_transition_happened = true;
-                break;
-            }
-        }
-
         //Process event in active state
-        if(!state_transition_happened)
+        const bool processed = CALL_ACTIVE_STATE_INTERNAL_ACTION();
+
+        if(!processed)
         {
-            CALL_ACTIVE_STATE_INTERNAL_ACTION();
+            //Process event in transition table
+            FOR_EACH_TRANSITION_IN_REGION_TRANSITION_TABLE()
+            {
+                if
+                (
+                    IS_ACTIVE_STATE(source_state) &&
+                    SAME_TYPE(Event, event_type) &&
+                    GUARD() == true
+                )
+                {
+                    CALL_EXIT_ACTION(source_state);
+                    SET_ACTIVE_STATE(target_state);
+                    CALL_TRANSITION_ACTION();
+                    CALL_ENTRY_ACTION(target_state);
+                    break;
+                }
+            }
         }
     }
 

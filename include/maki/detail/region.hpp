@@ -217,13 +217,20 @@ private:
 
         if constexpr(must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
         {
-            if(try_processing_event_in_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event))
+            /*
+            There is a possibility of conflicting transition in this case.
+            Note that nested transitions take precedence over higher-order
+            transitions.
+            */
+            auto processed_in_active_state = false;
+            try_processing_event_in_active_state<candidate_state_type_list, Dry>(self, mach, ctx, event, processed_in_active_state);
+            if(processed_in_active_state)
             {
                 maybe_bool_util::set_to_true(processed...);
             }
             else
             {
-                try_processing_event_in_active_state<candidate_state_type_list, Dry>(self, mach, ctx, event, processed...);
+                try_processing_event_in_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
             }
         }
         else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
@@ -251,9 +258,9 @@ private:
     };
 
     template<class TransitionIndexConstantList, bool Dry = false, class Self, class Machine, class Context, class Event, class... ExtraArgs>
-    static bool try_processing_event_in_transitions(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
+    static void try_processing_event_in_transitions(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
     {
-        return tlu::for_each_or
+        tlu::for_each_or
         <
             TransitionIndexConstantList,
             try_processing_event_in_transition<Dry>

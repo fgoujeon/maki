@@ -97,17 +97,6 @@ namespace states
         })
 
         /*
-        Internal action invoked whenever a `button::push_event` occurs while
-        the `off` state is active.
-        */
-        .internal_action_e(maki::type<button::push_event>, [](const button::push_event& event)
-        {
-            std::cout << "Received a ";
-            std::cout << event.duration_ms;
-            std::cout << " millisecond push in off state\n";
-        })
-
-        /*
         Exit action invoked whenever the state machine exits the `off` state,
         whatever the type of the event that caused the state transition.
         */

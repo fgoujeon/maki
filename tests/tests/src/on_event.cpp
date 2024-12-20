@@ -29,16 +29,7 @@ namespace on_event_ns
 
     namespace states
     {
-        constexpr auto off = maki::state_conf{}
-            .internal_action_ce
-            (
-                maki::type<events::button_press>,
-                [](context& ctx, const events::button_press& event)
-                {
-                    ctx.out += event.data + "2;";
-                }
-            )
-        ;
+        constexpr auto off = maki::state_conf{};
 
         constexpr auto on = maki::state_conf{}
             .internal_action_c

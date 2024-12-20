@@ -15,8 +15,8 @@ contains is a boolean indicating whether the given typelist contains the given
 type.
 
 In this example...:
-    using type_list = std::tuple<char, short, int, long>;
-    constexpr auto contains_int = contains<type_list, int>;
+    using type_list_t = std::tuple<char, short, int, long>;
+    constexpr auto contains_int = contains<type_list_t, int>;
 
 ... contains_int == true.
 */

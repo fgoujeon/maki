@@ -6,26 +6,26 @@
 
 /**
 @file
-@brief Defines the maki::type_list struct template
+@brief Defines the maki::type_list_t struct template
 */
 
-#ifndef MAKI_DETAIL_TYPE_LIST_HPP
-#define MAKI_DETAIL_TYPE_LIST_HPP
+#ifndef MAKI_TYPE_LIST_HPP
+#define MAKI_TYPE_LIST_HPP
 
-namespace maki::detail
+namespace maki
 {
 
 /**
 @brief A type list holder
 */
 template<class... Ts>
-struct type_list{};
+struct type_list_t{};
 
 /**
-@brief A convenient variable template for @ref type_list
+@brief A convenient variable template for @ref type_list_t
 */
 template<class... Ts>
-inline constexpr auto type_list_c = type_list<Ts...>{};
+inline constexpr auto type_list = type_list_t<Ts...>{};
 
 } //namespace
 

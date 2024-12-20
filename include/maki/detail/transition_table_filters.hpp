@@ -9,8 +9,8 @@
 
 #include "tlu/push_back_if.hpp"
 #include "tlu/left_fold.hpp"
-#include "type_list.hpp"
 #include "integer_constant_sequence.hpp"
+#include "../type_list.hpp"
 #include "../filters.hpp"
 
 namespace maki::detail::transition_table_filters
@@ -43,7 +43,7 @@ using by_event_t = tlu::left_fold_t
 <
     make_integer_constant_sequence<int, TransitionTuple.size>,
     by_event_detail::operation_holder<TransitionTuple, type<Event>>::template operation,
-    type_list<>
+    type_list_t<>
 >;
 
 template<const auto& TransitionTuple>
@@ -51,7 +51,7 @@ using by_null_event_t = tlu::left_fold_t
 <
     make_integer_constant_sequence<int, TransitionTuple.size>,
     by_event_detail::operation_holder<TransitionTuple, null>::template operation,
-    type_list<>
+    type_list_t<>
 >;
 
 } //namespace

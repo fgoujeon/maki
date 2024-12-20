@@ -9,7 +9,7 @@ TLU = Type List Utility
 
 A type list is an instance of a type template of this form:
     template<class... Ts>
-    struct type_list
+    struct type_list_t
     {
     };
 */

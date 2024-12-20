@@ -12,7 +12,7 @@
 #ifndef MAKI_MACHINE_REF_CONF_HPP
 #define MAKI_MACHINE_REF_CONF_HPP
 
-#include "detail/type_list.hpp"
+#include "type_list.hpp"
 
 namespace maki
 {
@@ -23,7 +23,7 @@ namespace maki
 */
 template<IMPLEMENTATION_DETAIL>
 #else
-template<class EventTypeList = detail::type_list<>>
+template<class EventTypeList = type_list_t<>>
 #endif
 struct machine_ref_conf
 {
@@ -39,10 +39,10 @@ struct machine_ref_conf
 
     machine_ref_conf& operator=(machine_ref_conf&&) = delete;
 
-    template<class... Ts>
-    [[nodiscard]] constexpr auto events() const
+    template<class... Events>
+    [[nodiscard]] constexpr auto events(const type_list_t<Events...> /*ignored*/) const
     {
-        return machine_ref_conf<detail::type_list<Ts...>>{};
+        return machine_ref_conf<type_list_t<Events...>>{};
     }
 
 #if MAKI_DETAIL_DOXYGEN

@@ -12,7 +12,7 @@
 #include "tlu/left_fold.hpp"
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
-#include "type_list.hpp"
+#include "../type_list.hpp"
 #include "../null.hpp"
 #include <type_traits>
 
@@ -36,7 +36,7 @@ For example, the following digest type...:
 ... is equivalent to this type:
     struct digest
     {
-        using state_def_type_list = maki::type_list<state0, state1, state2, state3>;
+        using state_def_type_list = maki::type_list_t<state0, state1, state2, state3>;
         static constexpr auto has_null_events = false;
     };
 */
@@ -50,7 +50,7 @@ namespace transition_table_digest_detail
         static constexpr auto initial_state_id = tuple_get<0>(TransitionTuple).source_state_conf_filter;
 
     public:
-        using state_id_constant_list = type_list<constant_t<initial_state_id>>;
+        using state_id_constant_list = type_list_t<constant_t<initial_state_id>>;
         static constexpr auto has_null_events = false;
     };
 

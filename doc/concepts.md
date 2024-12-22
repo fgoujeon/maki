@@ -13,6 +13,7 @@ The concepts are the following:
 * @subpage state
 * @subpage action
 * @subpage guard
+* @subpage context
 * @subpage orthogonal-region
 * @subpage composite-state
 * @subpage run-to-completion

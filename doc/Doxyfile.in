@@ -2356,6 +2356,7 @@ PREDEFINED             = MAKI_DETAIL_DOXYGEN
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
 EXPAND_AS_DEFINED      = MAKI_DETAIL_EVENT_ACTION_SIGNATURES \
+                         MAKI_DETAIL_CONTEXT_SIGNATURES_FOR_MACHINE \
                          MAKI_DETAIL_X
 
 # If the SKIP_FUNCTION_MACROS tag is set to YES then doxygen's preprocessor will

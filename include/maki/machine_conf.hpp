@@ -109,6 +109,9 @@ public:
     };
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    /** \
+    @brief Sets the type of the context \
+    */ \
     template<class Context> \
     [[nodiscard]] constexpr auto context_##signature(const type_t<Context>& /*ignored*/) const \
     { \

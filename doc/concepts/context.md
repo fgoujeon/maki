@@ -34,4 +34,13 @@ The output of this program is the following:
 
 ## State Context
 
-TODO
+States can have contexts of their own as well.
+
+By default, a state is associated with the machine context. We can associate it with another one by calling `maki::state_conf::context_c()`, for example. The `_c` suffix refers to the machine context; we want Maki to construct the state context by passing it the machine context.
+
+@snippet doc-concepts-context-state/src/main.cpp context
+
+In case you're wondering: In the example above, we've been able to set the entry action like we did because in this case, `maki::state_conf::entry_action_c()` asks Maki to execute the action by calling `std::invoke(&my_state_context::on_entry, instance_of_my_state_context)`, which is equivalent to `instance_of_my_state_context.on_entry()`.
+
+> [!important]
+> State contexts have the same lifetime as the instance of `maki::machine`. They're *not* created at state entry and destructed at state exit!

@@ -13,4 +13,5 @@ add_subdirectory(lamp)
 add_subdirectory(rgb-lamp)
 
 add_subdirectory(doc-concepts-context)
+add_subdirectory(doc-concepts-context-state)
 add_subdirectory(doc-concepts-state)

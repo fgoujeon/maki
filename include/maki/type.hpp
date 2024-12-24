@@ -30,7 +30,7 @@ struct type_t
 };
 
 /**
-@related type
+@related type_t
 @brief Returns whether T and U are the same type
 */
 template<class T, class U>
@@ -40,8 +40,7 @@ constexpr bool operator==(const type_t<T> /*lhs*/, const type_t<U> /*rhs*/)
 }
 
 /**
-@related type
-@brief A convenient variable template for @ref type
+@brief A convenient variable template for @ref type_t
 */
 template<class T>
 constexpr auto type = type_t<T>{};

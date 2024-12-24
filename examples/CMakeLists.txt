@@ -14,4 +14,6 @@ add_subdirectory(rgb-lamp)
 
 add_subdirectory(doc-concepts-context)
 add_subdirectory(doc-concepts-context-state)
+add_subdirectory(doc-concepts-run-to-completion)
+add_subdirectory(doc-concepts-run-to-completion-nok)
 add_subdirectory(doc-concepts-state)

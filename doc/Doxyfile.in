@@ -2358,6 +2358,8 @@ PREDEFINED             = MAKI_DETAIL_DOXYGEN
 EXPAND_AS_DEFINED      = MAKI_DETAIL_EVENT_ACTION_SIGNATURES \
                          MAKI_DETAIL_CONTEXT_SIGNATURES_FOR_MACHINE \
                          MAKI_DETAIL_CONTEXT_SIGNATURES_FOR_STATE \
+                         MAKI_DETAIL_STATE_CONF_RETURN_TYPE \
+                         MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE \
                          MAKI_DETAIL_X
 
 # If the SKIP_FUNCTION_MACROS tag is set to YES then doxygen's preprocessor will

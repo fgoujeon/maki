@@ -20,82 +20,63 @@
 namespace maki
 {
 
-/**
-@defgroup Filters Filters
-@brief Filters can be used in some places of the API (such as in transition
-tables) in lieu of single types to concisely express a set of types.
-
-@{
-*/
-
-/**
-@brief A filter that matches with any type.
-*/
 struct any_t{};
 
-/**
-@brief A filter that matches with any value that verifies `pred(value) == true`.
-@tparam Predicate the predicate against which values are tested
-*/
 template<class Predicate>
 struct any_if_t
 {
     Predicate pred;
 };
 
-/**
-@brief A filter that matches with any type that verifies `pred(value) == false`.
-@tparam Predicate the predicate against which values are tested
-*/
 template<class Predicate>
 struct any_if_not_t
 {
     Predicate pred;
 };
 
-/**
-@brief A filter that matches with the given values.
-@tparam Ts the types of values the filter matches with
-*/
 template<class... Ts>
 struct any_of_t
 {
     detail::tuple<Ts...> values;
 };
 
-/**
-@brief A filter that matches with any values but the given ones.
-@tparam Ts the types of values the filter doesn't match with
-*/
 template<class... Ts>
 struct any_but_t
 {
     detail::tuple<Ts...> values;
 };
 
-/**
-@brief A filter that doesn't match with any type.
-*/
 struct none_t{};
 
 /**
-@}
+@brief A filter that matches with any value.
 */
-
 inline constexpr auto any = any_t{};
 
+/**
+@brief A filter that matches with any value that verifies `pred(value) == true`.
+@tparam Predicate the predicate against which values are tested
+*/
 template<class Predicate>
 constexpr auto any_if(const Predicate& pred)
 {
     return any_if_t<Predicate>{pred};
 }
 
+/**
+@brief A filter that matches with any type that verifies `pred(value) == false`.
+@tparam Predicate the predicate against which values are tested
+*/
 template<class Predicate>
 constexpr auto any_if_not(const Predicate& pred)
 {
     return any_if_not_t<Predicate>{pred};
 }
 
+/**
+@brief A filter that matches with the given values.
+@tparam Ts the types of values the filter matches with
+*/
 template<class... Ts>
 constexpr auto any_of(const Ts&... values)
 {
@@ -109,6 +90,10 @@ constexpr auto any_of(const Ts&... values)
     };
 }
 
+/**
+@brief A filter that matches with any values but the given ones.
+@tparam Ts the types of values the filter doesn't match with
+*/
 template<class... Ts>
 constexpr auto any_but(const Ts&... values)
 {
@@ -122,6 +107,9 @@ constexpr auto any_but(const Ts&... values)
     };
 }
 
+/**
+@brief A filter that doesn't match with any value.
+*/
 inline constexpr auto none = none_t{};
 
 

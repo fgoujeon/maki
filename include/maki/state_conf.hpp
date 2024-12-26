@@ -178,6 +178,10 @@ public:
 #undef MAKI_DETAIL_ARG_pretty_name_view
     }
 
+    /**
+    @brief Specifies the list of transition tables. One region per transition
+    table is created.
+    */
     template<class... TransitionTables>
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE transition_tables(const TransitionTables&... tables) const
     {

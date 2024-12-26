@@ -10,11 +10,14 @@
 namespace maki
 {
 
-struct null_t_impl
+namespace detail
 {
-};
+    struct null_t_impl
+    {
+    };
 
-using null_t = const null_t_impl*;
+    using null_t = const null_t_impl*;
+}
 
 /**
 @brief A null event or target state.
@@ -23,7 +26,11 @@ Represents either:
 - a null event (for anonymous transitions);
 - a null target state (for internal transitions in transition table).
 */
-inline constexpr auto null = null_t{nullptr};
+#ifdef MAKI_DETAIL_DOXYGEN
+constexpr auto null = IMPLEMENTATION_DETAIL;
+#else
+inline constexpr auto null = detail::null_t{nullptr};
+#endif
 
 } //namespace
 

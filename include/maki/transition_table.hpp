@@ -152,8 +152,8 @@ public:
         class SourceStateConfFilter,
         class EventFilter,
         class TargetStateConf,
-        class Action = null_t,
-        class Guard = null_t
+        class Action = decltype(null),
+        class Guard = decltype(null)
     >
     constexpr auto operator()
     (

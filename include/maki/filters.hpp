@@ -20,38 +20,45 @@
 namespace maki
 {
 
-struct any_t{};
-
-template<class Predicate>
-struct any_if_t
+namespace detail
 {
-    Predicate pred;
-};
+    struct any_t{};
 
-template<class Predicate>
-struct any_if_not_t
-{
-    Predicate pred;
-};
+    template<class Predicate>
+    struct any_if_t
+    {
+        Predicate pred;
+    };
 
-template<class... Ts>
-struct any_of_t
-{
-    detail::tuple<Ts...> values;
-};
+    template<class Predicate>
+    struct any_if_not_t
+    {
+        Predicate pred;
+    };
 
-template<class... Ts>
-struct any_but_t
-{
-    detail::tuple<Ts...> values;
-};
+    template<class... Ts>
+    struct any_of_t
+    {
+        detail::tuple<Ts...> values;
+    };
 
-struct none_t{};
+    template<class... Ts>
+    struct any_but_t
+    {
+        detail::tuple<Ts...> values;
+    };
+
+    struct none_t{};
+}
 
 /**
 @brief A filter that matches with any value.
 */
-inline constexpr auto any = any_t{};
+#ifdef MAKI_DETAIL_DOXYGEN
+constexpr auto any = IMPLEMENTATION_DETAIL;
+#else
+inline constexpr auto any = detail::any_t{};
+#endif
 
 /**
 @brief A filter that matches with any value that verifies `pred(value) == true`.
@@ -60,7 +67,7 @@ inline constexpr auto any = any_t{};
 template<class Predicate>
 constexpr auto any_if(const Predicate& pred)
 {
-    return any_if_t<Predicate>{pred};
+    return detail::any_if_t<Predicate>{pred};
 }
 
 /**
@@ -70,7 +77,7 @@ constexpr auto any_if(const Predicate& pred)
 template<class Predicate>
 constexpr auto any_if_not(const Predicate& pred)
 {
-    return any_if_not_t<Predicate>{pred};
+    return detail::any_if_not_t<Predicate>{pred};
 }
 
 /**
@@ -80,7 +87,7 @@ constexpr auto any_if_not(const Predicate& pred)
 template<class... Ts>
 constexpr auto any_of(const Ts&... values)
 {
-    return any_of_t<detail::to_state_id_or_identity_t<Ts>...>
+    return detail::any_of_t<detail::to_state_id_or_identity_t<Ts>...>
     {
         detail::tuple<detail::to_state_id_or_identity_t<Ts>...>
         {
@@ -97,7 +104,7 @@ constexpr auto any_of(const Ts&... values)
 template<class... Ts>
 constexpr auto any_but(const Ts&... values)
 {
-    return any_but_t<detail::to_state_id_or_identity_t<Ts>...>
+    return detail::any_but_t<detail::to_state_id_or_identity_t<Ts>...>
     {
         detail::tuple<detail::to_state_id_or_identity_t<Ts>...>
         {
@@ -110,15 +117,17 @@ constexpr auto any_but(const Ts&... values)
 /**
 @brief A filter that doesn't match with any value.
 */
-inline constexpr auto none = none_t{};
-
+#ifdef MAKI_DETAIL_DOXYGEN
+constexpr auto none = IMPLEMENTATION_DETAIL;
+#else
+inline constexpr auto none = detail::none_t{};
+#endif
 
 template<class... Types>
 constexpr auto any_type_of = any_of(type<Types>...);
 
 template<class... Types>
 constexpr auto any_type_but = any_but(type<Types>...);
-
 
 //matches_filter
 namespace detail

@@ -28,11 +28,11 @@ Say the active state is `A` and some external component emits the event `E0`. Th
 
 With run-to-completion, you'd have got this output:
 
-@include doc-concepts-run-to-completion/expected-output.txt
+@include concepts/run-to-completion/ok/expected-output.txt
 
 Without run-to-completion, you get this one:
 
-@include doc-concepts-run-to-completion-nok/expected-output.txt
+@include concepts/run-to-completion/nok/expected-output.txt
 
 Frightening.
 
@@ -56,4 +56,4 @@ Obviously, if you dare disabling it, be **absolutely sure** none of your actions
 
 Being a safety feature, run-to-completion is enabled by default. You can disable it like so:
 
-@snippet doc-concepts-run-to-completion/src/main.cpp machine-conf
+@snippet concepts/run-to-completion/ok/src/main.cpp machine-conf

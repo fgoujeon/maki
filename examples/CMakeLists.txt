@@ -6,16 +6,9 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-add_subdirectory(actions)
-add_subdirectory(events)
-add_subdirectory(fan)
-add_subdirectory(lamp)
-add_subdirectory(rgb-lamp)
-
-add_subdirectory(doc-concepts-context)
-add_subdirectory(doc-concepts-context-state)
-add_subdirectory(doc-concepts-run-to-completion)
-add_subdirectory(doc-concepts-run-to-completion-nok)
-add_subdirectory(doc-concepts-state)
-add_subdirectory(doc-extra-filter-transition-table)
-add_subdirectory(doc-extra-filter-action)
+file(GLOB_RECURSE SUBDIRS LIST_DIRECTORIES true *)
+foreach(SUBDIR ${SUBDIRS})
+    if(EXISTS ${SUBDIR}/CMakeLists.txt)
+        add_subdirectory(${SUBDIR})
+    endif()
+endforeach()

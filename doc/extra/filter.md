@@ -38,7 +38,7 @@ Implementing this state machine presents two difficulties:
 
 The answer to both questions is: use filters. Respectively a source state filter and an event filter:
 
-@snippet doc-extra-filter-transition-table/src/main.cpp transition-table
+@snippet extra/filter/transition-table/src/main.cpp transition-table
 
 ### For State Actions
 
@@ -46,11 +46,11 @@ You're writing firmware for some device with a keyboard, and you're writing the 
 
 For some reason, the button press events are the following:
 
-@snippet doc-extra-filter-action/src/main.cpp events
+@snippet extra/filter/state-action/src/main.cpp events
 
 Obviously, you're not going to write 10 internal actions; you use a filter instead:
 
-@snippet doc-extra-filter-action/src/main.cpp state-conf
+@snippet extra/filter/state-action/src/main.cpp state-conf
 
 ## Available Filters
 

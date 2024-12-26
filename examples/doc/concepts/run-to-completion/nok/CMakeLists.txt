@@ -10,7 +10,7 @@ include(maki)
 
 set(TARGET example-doc-concepts-run-to-completion-nok)
 
-file(GLOB_RECURSE SOURCE_FILES ../doc-concepts-run-to-completion/src/main.cpp)
+file(GLOB_RECURSE SOURCE_FILES ../ok/src/main.cpp)
 add_executable(${TARGET} ${SOURCE_FILES})
 
 maki_target_common_options(${TARGET})

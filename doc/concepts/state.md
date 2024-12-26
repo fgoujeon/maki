@@ -12,8 +12,8 @@ You don't directly create state objects when using Maki. What you do is create s
 
 A state configuration is a `constexpr` variable of type `maki::state_conf` (which is actually a class template with plenty of template parameters you don't have to worry about):
 
-@snippet doc-concepts-state/src/main.cpp state-conf-default
+@snippet concepts/state/src/main.cpp state-conf-default
 
 You can set options through method chaining. [Entry and exit actions](@ref action) are examples of such options:
 
-@snippet doc-concepts-state/src/main.cpp state-conf-with-options
+@snippet concepts/state/src/main.cpp state-conf-with-options

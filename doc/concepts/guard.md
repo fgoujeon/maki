@@ -102,20 +102,20 @@ Let's implement the state machine of our 3-speed fan.
 
 Our event types are the following. Notice that `memory_read` carries the fan speed that is read from the fan internal memory:
 
-@snippet fan/src/main.cpp events-and-datatypes
+@snippet concepts/guard/src/main.cpp events-and-datatypes
 
 Our guards need to check the value of the speed carried by the `memory_read` event. Thus, we must use one of the signatures that take the event. As there's no signature that only takes the event, let's use the second one and just ignore the `context_type` parameter. These are our guards:
 
-@snippet fan/src/main.cpp guards
+@snippet concepts/guard/src/main.cpp guards
 
 Finally, we pass each guard to the transition they're associated with. Once again, our transition table is a direct representation of the state diagram:
 
-@snippet fan/src/main.cpp transition-table
+@snippet concepts/guard/src/main.cpp transition-table
 
 Here is a test program for our state machine:
 
-@snippet fan/src/main.cpp all
+@snippet concepts/guard/src/main.cpp all
 
 The output of this program is the following:
 
-@include fan/expected-output.txt
+@include concepts/guard/expected-output.txt

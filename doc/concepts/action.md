@@ -100,7 +100,7 @@ Note: A transition without target state is called an internal transition. No sta
 
 Here is an example of two actions, with their definition and their association with a transition:
 
-@snippet actions/src/main.cpp short-in-transition
+@snippet concepts/action/src/main.cpp short-in-transition
 
 ### Within the associated state
 
@@ -112,7 +112,7 @@ To associate an action to a state, you have to add a callable to the state confi
 
 Here is an example of a state that defines all three kinds of actions (entry, internal and exit):
 
-@snippet actions/src/main.cpp short-in-state
+@snippet concepts/action/src/main.cpp short-in-state
 
 As you can see, for each action you have to specify:
 
@@ -129,8 +129,8 @@ Order matters! Whenever the state machine must execute an action, it iterates ov
 
 Here is an example program for all the actions we've defined in this chapter:
 
-@snippet actions/src/main.cpp all
+@snippet concepts/action/src/main.cpp all
 
 The output of this program is the following:
 
-@include actions/expected-output.txt
+@include concepts/action/expected-output.txt

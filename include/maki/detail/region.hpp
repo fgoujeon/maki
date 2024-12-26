@@ -195,7 +195,7 @@ private:
         [[maybe_unused]] MaybeBool&... processed
     )
     {
-        //List the transitions whose event type filter matches Event
+        //List the transitions whose event filter matches Event
         using candidate_transition_index_constant_list = transition_table_filters::by_event_t
         <
             transition_tuple,

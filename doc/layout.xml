@@ -6,43 +6,7 @@
     <tab type="mainpage" visible="yes" title=""/>
     <tab type="pages" visible="yes" title="" intro=""/>
     <tab type="topics" visible="yes" title="" intro=""/>
-    <tab type="usergroup" visible="yes" title="API Reference" intro="" url="[none]">
-        <tab type="modules" visible="no" title="" intro="">
-        <tab type="modulelist" visible="yes" title="" intro=""/>
-        <tab type="modulemembers" visible="yes" title="" intro=""/>
-        </tab>
-        <tab type="namespaces" visible="yes" title="">
-        <tab type="namespacelist" visible="no" title="" intro=""/>
-        <tab type="namespacemembers" visible="yes" title="" intro=""/>
-        </tab>
-        <tab type="concepts" visible="no" title="">
-        </tab>
-        <tab type="interfaces" visible="no" title="">
-        <tab type="interfacelist" visible="yes" title="" intro=""/>
-        <tab type="interfaceindex" visible="$ALPHABETICAL_INDEX" title=""/>
-        <tab type="interfacehierarchy" visible="yes" title="" intro=""/>
-        </tab>
-        <tab type="classes" visible="yes" title="">
-        <tab type="classlist" visible="yes" title="" intro=""/>
-        <tab type="classindex" visible="$ALPHABETICAL_INDEX" title=""/>
-        <tab type="hierarchy" visible="yes" title="" intro=""/>
-        <tab type="classmembers" visible="yes" title="" intro=""/>
-        </tab>
-        <tab type="structs" visible="no" title="">
-        <tab type="structlist" visible="yes" title="" intro=""/>
-        <tab type="structindex" visible="$ALPHABETICAL_INDEX" title=""/>
-        </tab>
-        <tab type="exceptions" visible="no" title="">
-        <tab type="exceptionlist" visible="yes" title="" intro=""/>
-        <tab type="exceptionindex" visible="$ALPHABETICAL_INDEX" title=""/>
-        <tab type="exceptionhierarchy" visible="yes" title="" intro=""/>
-        </tab>
-        <tab type="files" visible="no" title="">
-        <tab type="filelist" visible="yes" title="" intro=""/>
-        <tab type="globals" visible="yes" title="" intro=""/>
-        </tab>
-        <tab type="examples" visible="no" title="" intro=""/>
-    </tab>
+    <tab type="user" visible="yes" title="API Reference" intro="" url="@ref maki"/>
   </navindex>
 
   <!-- Layout definition for a class page -->

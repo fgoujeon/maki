@@ -21,11 +21,11 @@ namespace transition_table_digest_ns
     struct event2{};
     struct event3{};
 
-    void action0(){}
-    void action1(){}
+    constexpr auto action0 = maki::action_v([]{});
+    constexpr auto action1 = maki::action_v([]{});
 
-    bool guard0(){return true;}
-    bool guard1(){return true;}
+    constexpr auto guard0 = maki::guard_v([]{return true;});
+    constexpr auto guard1 = maki::guard_v([]{return true;});
 
     constexpr auto transition_table = maki::transition_table{}
         (state0,    maki::type<event0>, state1)

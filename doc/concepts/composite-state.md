@@ -6,6 +6,8 @@ A composite state is a state that runs its own, nested state machine.
 
 Like a state machine, a composite state can be made of several [orthogonal regions](@ref orthogonal-region).
 
+A state that belongs to a composite state is called a **substate**.
+
 ## When to Use a Composite State
 
 The need of a composite state can arise from two distinct situations:

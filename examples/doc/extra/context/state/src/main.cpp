@@ -9,12 +9,12 @@
 #include <memory>
 #include <iostream>
 
+//! [context]
 struct my_machine_context
 {
     int value = 0;
 };
 
-//! [context]
 class my_state_context
 {
 public:

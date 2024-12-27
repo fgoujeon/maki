@@ -54,10 +54,10 @@ Here is an example of valid state machine definition, where:
 `maki::transition_table` type;
 - `context` is a user-provided class.
 
-@snippet lamp/src/main.cpp machine-def
+@snippet concepts/state-machine/src/main.cpp machine-def
 
 The state machine type itself can then be defined like so:
-@snippet lamp/src/main.cpp machine
+@snippet concepts/state-machine/src/main.cpp machine
 */
 template<class ConfHolder>
 class machine
@@ -454,7 +454,7 @@ private:
 
     void process_exception(const std::exception_ptr& eptr)
     {
-        if constexpr(std::is_same_v<typename option_set_type::exception_hook_type, null_t>)
+        if constexpr(std::is_same_v<typename option_set_type::exception_hook_type, detail::null_t>)
         {
             process_event(events::exception{eptr});
         }

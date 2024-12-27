@@ -67,7 +67,7 @@ One of the most important things a library such as Maki provides is a **transiti
 
 When you set up a state machine with Maki, you have to write a transition table. A transition table is a direct representation of a state diagram in your code. Here is the transition table of our lamp, written with Maki:
 
-@snippet lamp/src/main.cpp transition-table
+@snippet concepts/state-machine/src/main.cpp transition-table
 
 This is hopefully self-explanatory, but here is how it is structured:
 
@@ -82,8 +82,8 @@ This gives you a nice overview of what a program does. Moreover, the more comple
 
 Here is a test program that uses the transition table we defined above:
 
-@snippet lamp/src/main.cpp all
+@snippet concepts/state-machine/src/main.cpp all
 
 The output of this program is the following:
 
-@include lamp/expected-output.txt
+@include concepts/state-machine/expected-output.txt

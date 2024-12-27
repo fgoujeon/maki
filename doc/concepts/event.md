@@ -28,11 +28,11 @@ We then implement a monitor for these buttons (the `user_interface` class) as we
 
 Here is `user_interface.hpp`:
 
-@snippet events/src/user_interface.hpp all
+@snippet concepts/event/src/user_interface.hpp all
 
 Here is `motor.hpp`:
 
-@snippet events/src/motor.hpp all
+@snippet concepts/event/src/motor.hpp all
 
 We need a state machine to make sure:
 * we don't forward multiple start requests while the motor is starting;
@@ -51,7 +51,7 @@ stopping --> idle : motor::stop_event
 
 And here is `main.cpp`, which implements the state machine:
 
-@snippet events/src/main.cpp all
+@snippet concepts/event/src/main.cpp all
 
 Don't worry too much about the details for now. Just notice that:
 * all the event types are defined in `user_interface` and `motor`, which don't depend on Maki;

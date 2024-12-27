@@ -36,6 +36,12 @@ namespace detail
 }
 
 #ifdef MAKI_DETAIL_DOXYGEN
+#define MAKI_DETAIL_STATE_CONF_RETURN_TYPE state_conf<IMPLEMENTATION_DETAIL>
+#else
+#define MAKI_DETAIL_STATE_CONF_RETURN_TYPE auto
+#endif
+
+#ifdef MAKI_DETAIL_DOXYGEN
 template<IMPLEMENTATION_DETAIL>
 #else
 template<class OptionSet>
@@ -88,8 +94,11 @@ public:
     };
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    /** \
+    @brief Sets the type of the context \
+    */ \
     template<class Context> \
-    [[nodiscard]] constexpr auto context_##signature(const type_t<Context>& /*ignored*/) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE context_##signature(const type_t<Context>& /*ignored*/) const \
     { \
         return context<Context, detail::context_signature::signature>(); \
     }
@@ -101,7 +110,7 @@ public:
     @brief Add an entry action \
     */ \
     template<class EventFilter, class Action> \
-    [[nodiscard]] constexpr auto entry_action_##signature(const EventFilter& event_filter, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const EventFilter& event_filter, const Action& action) const \
     { \
         return entry_action<detail::event_action_signature::signature>(event_filter, action); \
     }
@@ -113,7 +122,7 @@ public:
     @brief Add an entry action \
     */ \
     template<class Action> \
-    [[nodiscard]] constexpr auto entry_action_##signature(const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const Action& action) const \
     { \
         return entry_action<detail::event_action_signature::signature>(any, action); \
     }
@@ -125,7 +134,7 @@ public:
     @brief Add an internal action \
     */ \
     template<class EventFilter, class Action> \
-    [[nodiscard]] constexpr auto internal_action_##signature(const EventFilter& event_filter, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const EventFilter& event_filter, const Action& action) const \
     { \
         return internal_action<detail::event_action_signature::signature>(event_filter, action); \
     }
@@ -137,7 +146,7 @@ public:
     @brief Add an exit action \
     */ \
     template<class EventFilter, class Action> \
-    [[nodiscard]] constexpr auto exit_action_##signature(const EventFilter& event_filter, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const EventFilter& event_filter, const Action& action) const \
     { \
         return exit_action<detail::event_action_signature::signature>(event_filter, action); \
     }
@@ -149,7 +158,7 @@ public:
     @brief Add an exit action \
     */ \
     template<class Action> \
-    [[nodiscard]] constexpr auto exit_action_##signature(const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const Action& action) const \
     { \
         return exit_action<detail::event_action_signature::signature>(any, action); \
     }
@@ -161,7 +170,7 @@ public:
 
     See `maki::pretty_name()`.
     */
-    [[nodiscard]] constexpr auto pretty_name(const std::string_view value) const
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE pretty_name(const std::string_view value) const
     {
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_pretty_name_view value
@@ -169,8 +178,12 @@ public:
 #undef MAKI_DETAIL_ARG_pretty_name_view
     }
 
+    /**
+    @brief Specifies the list of transition tables. One region per transition
+    table is created.
+    */
     template<class... TransitionTables>
-    [[nodiscard]] constexpr auto transition_tables(const TransitionTables&... tables) const
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE transition_tables(const TransitionTables&... tables) const
     {
         const auto tpl = detail::tuple<TransitionTables...>{detail::distributed_construct, tables...};
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
@@ -253,6 +266,8 @@ private:
 
     OptionSet options_;
 };
+
+#undef MAKI_DETAIL_STATE_CONF_RETURN_TYPE
 
 } //namespace
 

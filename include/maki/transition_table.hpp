@@ -141,8 +141,8 @@ public:
     /**
     @brief Creates a new `transition_table` with an additional transition.
 
-    @param source_state_conf_filter the configurator of the active state (or states, plural, if it's a @ref Filters "filter") from which the transition can occur
-    @param event_filter the event type (or types, plural, if it's a @ref Filters "filter") that can cause the transition to occur
+    @param source_state_conf_filter the configurator of the active state (or states, plural, if it's a @ref filter "filter") from which the transition can occur
+    @param event_filter the event type (or types, plural, if it's a @ref filter "filter") that can cause the transition to occur
     @param target_state_conf the configurator of the state that becomes active after the transition occurs
     @param action the function invoked when the transition occurs
     @param guard the function that must return `true` for the transition to occur
@@ -152,8 +152,8 @@ public:
         class SourceStateConfFilter,
         class EventFilter,
         class TargetStateConf,
-        class Action = null_t,
-        class Guard = null_t
+        class Action = decltype(null),
+        class Guard = decltype(null)
     >
     constexpr auto operator()
     (

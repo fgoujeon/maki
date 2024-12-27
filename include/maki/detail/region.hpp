@@ -352,7 +352,7 @@ private:
             //Check guard
             if constexpr(!std::is_same_v<decltype(Guard), const null_t&>)
             {
-                if(!detail::call_action_or_guard(Guard, mach, ctx, event))
+                if(!detail::call_guard(Guard, ctx, mach, event))
                 {
                     return false;
                 }
@@ -432,8 +432,9 @@ private:
 
         if constexpr(!std::is_same_v<decltype(ActionPtr), const null_t*>)
         {
-            detail::call_action<ActionPtr>
+            detail::call_action
             (
+                *ActionPtr,
                 ctx,
                 mach,
                 event

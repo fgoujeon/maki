@@ -30,21 +30,18 @@ enum class action_signature: char
 #undef MAKI_DETAIL_X
 };
 
-template<class Callable>
+template<action_signature Sig, class Callable>
 struct action
 {
-    action_signature signature;
+    static constexpr action_signature signature = Sig;
     Callable callable;
 };
 
-template<class Callable>
-action(action_signature sig, const Callable&) -> action<Callable>;
-
 #define MAKI_DETAIL_X(name) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     template<class Callable> \
-    constexpr auto action_##name(const Callable& callable) \
+    constexpr action<action_signature::name, Callable> action_##name(const Callable& callable) \
     { \
-        return action{action_signature::name, callable}; \
+        return {callable}; \
     }
 MAKI_DETAIL_EVENT_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X

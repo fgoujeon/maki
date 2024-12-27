@@ -12,207 +12,108 @@
 #ifndef MAKI_GUARD_HPP
 #define MAKI_GUARD_HPP
 
+#include "guard_signature.hpp"
 #include "detail/call_member.hpp"
-#include "detail/storable_function.hpp"
+#include "detail/event_action.hpp"
 
 namespace maki
 {
 
-namespace detail
+template<guard_signature Sig, class Callable>
+struct guard
 {
-    enum class guard_operator: char
-    {
-        none,
-        not_,
-        and_,
-        or_,
-        xor_
-    };
-}
-
-/**
-@brief A guard wrapper that allows boolean composition
-*/
-template<detail::guard_operator Operator, class Operand, class Operand2 = void>
-class guard;
-
-namespace detail
-{
-    template<detail::guard_operator Operator, class Operand>
-    constexpr auto make_guard(const Operand& operand)
-    {
-        return guard<Operator, Operand>{operand};
-    }
-
-    template<detail::guard_operator Operator, class Operand, class Operand2>
-    constexpr auto make_guard(const Operand& operand, const Operand2& operand2)
-    {
-        return guard<Operator, Operand, Operand2>{operand, operand2};
-    }
-}
-
-template<detail::guard_operator Operator, class Operand, class Operand2>
-class guard
-{
-public:
-    constexpr guard(const Operand& operand, const Operand2& operand2):
-        op_(operand),
-        op2_(operand2)
-    {
-    }
-
-    constexpr guard(const guard& rhs) = default;
-
-    guard(guard&& rhs) = delete;
-
-    ~guard() = default;
-
-    constexpr guard& operator=(const guard& rhs) = default;
-
-    guard& operator=(guard&& rhs) = delete;
-
-    template<class Context, class Sm, class Event>
-    bool operator()(Context& ctx, Sm& mach, const Event& event) const
-    {
-        if constexpr(Operator == detail::guard_operator::and_)
-        {
-            return op_(ctx, mach, event) && op2_(ctx, mach, event);
-        }
-        else if constexpr(Operator == detail::guard_operator::or_)
-        {
-            return op_(ctx, mach, event) || op2_(ctx, mach, event);
-        }
-        else if constexpr(Operator == detail::guard_operator::xor_)
-        {
-            return op_(ctx, mach, event) != op2_(ctx, mach, event);
-        }
-        else
-        {
-            constexpr auto is_false = sizeof(Sm) == 0;
-            static_assert(is_false, "Invalid template arguments for guard");
-        }
-    }
-
-private:
-    Operand op_;
-    Operand2 op2_;
+    static constexpr guard_signature signature = Sig;
+    Callable callable;
 };
 
-#ifndef MAKI_DETAIL_DOXYGEN
-template<class Operand>
-class guard<detail::guard_operator::none, Operand, void>
-{
-public:
-    constexpr guard(const Operand& operand):
-        op_(operand)
-    {
+#define MAKI_DETAIL_X(name) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    template<class Callable> \
+    constexpr guard<guard_signature::name, Callable> guard_##name(const Callable& callable) \
+    { \
+        return {callable}; \
     }
-
-    constexpr guard(const guard& rhs) = default;
-
-    guard(guard&& rhs) = delete;
-
-    ~guard() = default;
-
-    constexpr guard& operator=(const guard& rhs) = default;
-
-    guard& operator=(guard&& rhs) = delete;
-
-    template<class Context, class Sm, class Event>
-    bool operator()(Context& ctx, Sm& mach, const Event& event) const
-    {
-        return detail::call_action_or_guard(op_, mach, ctx, event);
-    }
-
-private:
-    Operand op_;
-};
-
-template<class Operand>
-class guard<detail::guard_operator::not_, Operand, void>
-{
-public:
-    constexpr guard(const Operand& operand):
-        op_(operand)
-    {
-    }
-
-    constexpr guard(const guard& rhs) = default;
-
-    guard(guard&& rhs) = delete;
-
-    ~guard() = default;
-
-    constexpr guard& operator=(const guard& rhs) = default;
-
-    guard& operator=(guard&& rhs) = delete;
-
-    template<class Context, class Sm, class Event>
-    bool operator()(Context& ctx, Sm& mach, const Event& event) const
-    {
-        return !op_(ctx, mach, event);
-    }
-
-private:
-    Operand op_;
-};
-#endif
-
-template<class Guard>
-guard(const Guard&) -> guard<detail::guard_operator::none, detail::storable_function_t<Guard>>;
+MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+#undef MAKI_DETAIL_X
 
 template
 <
-    detail::guard_operator LhsOperator, class LhsOperand, class LhsOperand2,
-    detail::guard_operator RhsOperator, class RhsOperand, class RhsOperand2
+    guard_signature LhsSignature, class LhsCallable,
+    guard_signature RhsSignature, class RhsCallable
 >
 constexpr auto operator&&
 (
-    const guard<LhsOperator, LhsOperand, LhsOperand2>& lhs,
-    const guard<RhsOperator, RhsOperand, RhsOperand2>& rhs
+    const guard<LhsSignature, LhsCallable>& lhs,
+    const guard<RhsSignature, RhsCallable>& rhs
 )
 {
-    return detail::make_guard<detail::guard_operator::and_>(lhs, rhs);
+    return guard_cme
+    (
+        [lhs, rhs](auto& ctx, auto& mach, const auto& event)
+        {
+            return
+                detail::call_guard(lhs, ctx, mach, event) &&
+                detail::call_guard(rhs, ctx, mach, event)
+            ;
+        }
+    );
 }
 
 template
 <
-    detail::guard_operator LhsOperator, class LhsOperand, class LhsOperand2,
-    detail::guard_operator RhsOperator, class RhsOperand, class RhsOperand2
+    guard_signature LhsSignature, class LhsCallable,
+    guard_signature RhsSignature, class RhsCallable
 >
 constexpr auto operator||
 (
-    const guard<LhsOperator, LhsOperand, LhsOperand2>& lhs,
-    const guard<RhsOperator, RhsOperand, RhsOperand2>& rhs
+    const guard<LhsSignature, LhsCallable>& lhs,
+    const guard<RhsSignature, RhsCallable>& rhs
 )
 {
-    return detail::make_guard<detail::guard_operator::or_>(lhs, rhs);
+    return guard_cme
+    (
+        [lhs, rhs](auto& ctx, auto& mach, const auto& event)
+        {
+            return
+                detail::call_guard(lhs, ctx, mach, event) ||
+                detail::call_guard(rhs, ctx, mach, event)
+            ;
+        }
+    );
 }
 
 template
 <
-    detail::guard_operator LhsOperator, class LhsOperand, class LhsOperand2,
-    detail::guard_operator RhsOperator, class RhsOperand, class RhsOperand2
+    guard_signature LhsSignature, class LhsCallable,
+    guard_signature RhsSignature, class RhsCallable
 >
 constexpr auto operator!=
 (
-    const guard<LhsOperator, LhsOperand, LhsOperand2>& lhs,
-    const guard<RhsOperator, RhsOperand, RhsOperand2>& rhs
+    const guard<LhsSignature, LhsCallable>& lhs,
+    const guard<RhsSignature, RhsCallable>& rhs
 )
 {
-    return detail::make_guard<detail::guard_operator::xor_>(lhs, rhs);
+    return guard_cme
+    (
+        [lhs, rhs](auto& ctx, auto& mach, const auto& event)
+        {
+            return
+                detail::call_guard(lhs, ctx, mach, event) !=
+                detail::call_guard(rhs, ctx, mach, event)
+            ;
+        }
+    );
 }
 
-template
-<
-    detail::guard_operator RhsOperator, class RhsOperand, class RhsOperand2
->
-constexpr auto operator!
-(
-    const guard<RhsOperator, RhsOperand, RhsOperand2>& rhs
-)
+template<guard_signature Signature, class Callable>
+constexpr auto operator!(const guard<Signature, Callable>& grd)
 {
-    return detail::make_guard<detail::guard_operator::not_>(rhs);
+    return guard_cme
+    (
+        [grd](auto& ctx, auto& mach, const auto& event)
+        {
+            return !detail::call_guard(grd, ctx, mach, event);
+        }
+    );
 }
 
 } //namespace

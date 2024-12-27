@@ -10,6 +10,7 @@
 #include "type_traits.hpp"
 #include "tlu.hpp"
 #include "../action.hpp"
+#include "../guard_signature.hpp"
 #include <functional>
 #include <type_traits>
 
@@ -48,51 +49,101 @@ auto call_action_or_guard
     }
 }
 
-template<auto ActionPtr, class Context, class Machine, class Event>
-void call_action
+template<class Signature, Signature Sig, class Callable, class Context, class Machine, class Event>
+auto invoke_action_or_guard_callable
 (
+    Callable& callable,
     [[maybe_unused]] Context& ctx,
     [[maybe_unused]] Machine& mach,
     [[maybe_unused]] const Event& event
 )
 {
-    if constexpr(ActionPtr->signature == action_signature::v)
+    if constexpr(Sig == Signature::v)
     {
-        std::invoke(ActionPtr->callable);
+        return std::invoke(callable);
     }
-    else if constexpr(ActionPtr->signature == action_signature::c)
+    else if constexpr(Sig == Signature::c)
     {
-        std::invoke(ActionPtr->callable, ctx);
+        return std::invoke(callable, ctx);
     }
-    else if constexpr(ActionPtr->signature == action_signature::cm)
+    else if constexpr(Sig == Signature::cm)
     {
-        std::invoke(ActionPtr->callable, ctx, mach);
+        return std::invoke(callable, ctx, mach);
     }
-    else if constexpr(ActionPtr->signature == action_signature::cme)
+    else if constexpr(Sig == Signature::cme)
     {
-        std::invoke(ActionPtr->callable, ctx, mach, event);
+        return std::invoke(callable, ctx, mach, event);
     }
-    else if constexpr(ActionPtr->signature == action_signature::ce)
+    else if constexpr(Sig == Signature::ce)
     {
-        std::invoke(ActionPtr->callable, ctx, event);
+        return std::invoke(callable, ctx, event);
     }
-    else if constexpr(ActionPtr->signature == action_signature::m)
+    else if constexpr(Sig == Signature::m)
     {
-        std::invoke(ActionPtr->callable, mach);
+        return std::invoke(callable, mach);
     }
-    else if constexpr(ActionPtr->signature == action_signature::me)
+    else if constexpr(Sig == Signature::me)
     {
-        std::invoke(ActionPtr->callable, mach, event);
+        return std::invoke(callable, mach, event);
     }
-    else if constexpr(ActionPtr->signature == action_signature::e)
+    else if constexpr(Sig == Signature::e)
     {
-        std::invoke(ActionPtr->callable, event);
+        return std::invoke(callable, event);
     }
     else
     {
         constexpr auto is_false = sizeof(Machine) == 0;
-        static_assert(is_false, "Unsupported action_signature value");
+        static_assert(is_false, "Unsupported signature");
     }
+}
+
+template
+<
+    action_signature Signature,
+    class Callable,
+    class Context,
+    class Machine,
+    class Event
+>
+void call_action
+(
+    const action<Signature, Callable>& act,
+    Context& ctx,
+    Machine& mach,
+    const Event& event
+)
+{
+    return invoke_action_or_guard_callable<action_signature, Signature>
+    (
+        act.callable,
+        ctx,
+        mach,
+        event
+    );
+}
+
+template
+<
+    class Guard,
+    class Context,
+    class Machine,
+    class Event
+>
+bool call_guard
+(
+    const Guard& grd,
+    Context& ctx,
+    Machine& mach,
+    const Event& event
+)
+{
+    return invoke_action_or_guard_callable<guard_signature, Guard::signature>
+    (
+        grd.callable,
+        ctx,
+        mach,
+        event
+    );
 }
 
 } //namespace

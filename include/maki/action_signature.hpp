@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_GUARD_SIGNATURE_HPP
-#define MAKI_GUARD_SIGNATURE_HPP
+#ifndef MAKI_ACTION_SIGNATURE_HPP
+#define MAKI_ACTION_SIGNATURE_HPP
 
 #include "detail/signature_macros.hpp"
 
@@ -18,10 +18,10 @@ m means machine
 c means context
 e means event
 */
-enum class guard_signature: char
+enum class action_signature: char
 {
 #define MAKI_DETAIL_X(name) name, /*NOLINT(cppcoreguidelines-macro-usage)*/
-    MAKI_DETAIL_GUARD_SIGNATURES
+    MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 };
 

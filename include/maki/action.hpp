@@ -12,23 +12,11 @@
 #ifndef MAKI_ACTION_HPP
 #define MAKI_ACTION_HPP
 
-#include "detail/event_action.hpp"
+#include "action_signature.hpp"
+#include "detail/signature_macros.hpp"
 
 namespace maki
 {
-
-/*
-v means void
-m means machine
-c means context
-e means event
-*/
-enum class action_signature: char
-{
-#define MAKI_DETAIL_X(name) name, /*NOLINT(cppcoreguidelines-macro-usage)*/
-    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
-#undef MAKI_DETAIL_X
-};
 
 template<action_signature Sig, class Callable>
 struct action
@@ -43,7 +31,7 @@ struct action
     { \
         return {callable}; \
     }
-MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 
 } //namespace

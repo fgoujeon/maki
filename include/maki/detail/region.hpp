@@ -8,7 +8,7 @@
 #define MAKI_DETAIL_REGION_HPP
 
 #include "state_traits.hpp"
-#include "call_member.hpp"
+#include "call.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"

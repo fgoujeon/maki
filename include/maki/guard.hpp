@@ -13,8 +13,8 @@
 #define MAKI_GUARD_HPP
 
 #include "guard_signature.hpp"
-#include "detail/call_member.hpp"
-#include "detail/event_action.hpp"
+#include "detail/signature_macros.hpp"
+#include "detail/call.hpp"
 
 namespace maki
 {
@@ -32,7 +32,7 @@ struct guard
     { \
         return {callable}; \
     }
-MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+MAKI_DETAIL_GUARD_SIGNATURES
 #undef MAKI_DETAIL_X
 
 template

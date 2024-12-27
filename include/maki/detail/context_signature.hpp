@@ -7,26 +7,7 @@
 #ifndef MAKI_DETAIL_CONTEXT_SIGNATURE_HPP
 #define MAKI_DETAIL_CONTEXT_SIGNATURE_HPP
 
-/*
-a means list of arguments given to machine constructor
-v means void
-c means context
-m means machine
-*/
-
-#define MAKI_DETAIL_CONTEXT_SIGNATURES_FOR_MACHINE \
-    MAKI_DETAIL_X(a) \
-    MAKI_DETAIL_X(am)
-
-#define MAKI_DETAIL_CONTEXT_SIGNATURES_FOR_STATE \
-    MAKI_DETAIL_X(v) \
-    MAKI_DETAIL_X(c) \
-    MAKI_DETAIL_X(cm) \
-    MAKI_DETAIL_X(m)
-
-#define MAKI_DETAIL_CONTEXT_SIGNATURES \
-    MAKI_DETAIL_CONTEXT_SIGNATURES_FOR_MACHINE \
-    MAKI_DETAIL_CONTEXT_SIGNATURES_FOR_STATE
+#include "signature_macros.hpp"
 
 namespace maki::detail
 {
@@ -35,7 +16,7 @@ enum class context_signature: char
 {
 #define MAKI_DETAIL_X(name) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     name,
-    MAKI_DETAIL_CONTEXT_SIGNATURES
+    MAKI_DETAIL_CONTEXT_CONSTRUCTOR_SIGNATURES
 #undef MAKI_DETAIL_X
 };
 

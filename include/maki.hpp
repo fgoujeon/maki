@@ -14,6 +14,7 @@
 @brief The Maki library
 */
 
+#include "maki/action.hpp" //NOLINT misc-include-cleaner
 #include "maki/conf_holder.hpp" //NOLINT misc-include-cleaner
 #include "maki/cref_constant.hpp" //NOLINT misc-include-cleaner
 #include "maki/events.hpp" //NOLINT misc-include-cleaner

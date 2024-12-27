@@ -76,14 +76,14 @@ constexpr auto state2 = maki::state_conf{}
 
 //! [short-in-transition]
 //Actions
-void some_action()
+constexpr auto some_action = maki::action_v([]
 {
     std::cout << "Executing some action...\n";
-}
-void some_other_action(context& /*ctx*/, const some_other_event& event)
+});
+constexpr auto some_other_action = maki::action_e([](const some_other_event& event)
 {
     std::cout << "Executing some other action (some_other_event{" << event.value << "})...\n";
-}
+});
 
 //Transition table
 constexpr auto transition_table = maki::transition_table{}

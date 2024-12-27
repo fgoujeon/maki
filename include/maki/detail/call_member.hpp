@@ -9,6 +9,7 @@
 
 #include "type_traits.hpp"
 #include "tlu.hpp"
+#include "../action.hpp"
 #include <functional>
 #include <type_traits>
 
@@ -44,6 +45,53 @@ auto call_action_or_guard
     {
         constexpr auto is_false = sizeof(Machine) == 0;
         static_assert(is_false, "No valid signature found for action/guard");
+    }
+}
+
+template<auto ActionPtr, class Context, class Machine, class Event>
+void call_action
+(
+    [[maybe_unused]] Context& ctx,
+    [[maybe_unused]] Machine& mach,
+    [[maybe_unused]] const Event& event
+)
+{
+    if constexpr(ActionPtr->signature == action_signature::v)
+    {
+        std::invoke(ActionPtr->callable);
+    }
+    else if constexpr(ActionPtr->signature == action_signature::c)
+    {
+        std::invoke(ActionPtr->callable, ctx);
+    }
+    else if constexpr(ActionPtr->signature == action_signature::cm)
+    {
+        std::invoke(ActionPtr->callable, ctx, mach);
+    }
+    else if constexpr(ActionPtr->signature == action_signature::cme)
+    {
+        std::invoke(ActionPtr->callable, ctx, mach, event);
+    }
+    else if constexpr(ActionPtr->signature == action_signature::ce)
+    {
+        std::invoke(ActionPtr->callable, ctx, event);
+    }
+    else if constexpr(ActionPtr->signature == action_signature::m)
+    {
+        std::invoke(ActionPtr->callable, mach);
+    }
+    else if constexpr(ActionPtr->signature == action_signature::me)
+    {
+        std::invoke(ActionPtr->callable, mach, event);
+    }
+    else if constexpr(ActionPtr->signature == action_signature::e)
+    {
+        std::invoke(ActionPtr->callable, event);
+    }
+    else
+    {
+        constexpr auto is_false = sizeof(Machine) == 0;
+        static_assert(is_false, "Unsupported action_signature value");
     }
 }
 

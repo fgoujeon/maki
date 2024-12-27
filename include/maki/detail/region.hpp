@@ -432,11 +432,10 @@ private:
 
         if constexpr(!std::is_same_v<decltype(ActionPtr), const null_t*>)
         {
-            detail::call_action_or_guard
+            detail::call_action<ActionPtr>
             (
-                *ActionPtr,
-                mach,
                 ctx,
+                mach,
                 event
             );
         }

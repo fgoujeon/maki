@@ -130,7 +130,8 @@ namespace states
 }
 
 /*
-An action is a callable invoked whenever a specific state transition occurs.
+An action is a constexpr object holding a callable invoked whenever a specific
+state transition occurs.
 */
 namespace actions
 {
@@ -140,17 +141,17 @@ namespace actions
         action(context, event);
         action(context);
     */
-    void turn_light_off(context& ctx)
+    constexpr auto turn_light_off = maki::action_c([](context& ctx)
     {
         ctx.led.set_color(rgb_led::color::off);
-    }
+    });
 
     //We can of course factorize with a template.
     template<auto Color>
-    void turn_light_tpl(context& ctx)
+    constexpr auto turn_light_tpl = maki::action_c([](context& ctx)
     {
         ctx.led.set_color(Color);
-    }
+    });
     constexpr auto turn_light_white = turn_light_tpl<rgb_led::color::white>;
     constexpr auto turn_light_red   = turn_light_tpl<rgb_led::color::red>;
     constexpr auto turn_light_green = turn_light_tpl<rgb_led::color::green>;

@@ -61,14 +61,14 @@ constexpr auto running = maki::state_conf{};
 constexpr auto stopping = maki::state_conf{};
 
 //Actions
-void start_motor(context& ctx)
+constexpr auto start_motor = maki::action_c([](context& ctx)
 {
     ctx.mtr.async_start();
-}
-void stop_motor(context& ctx)
+});
+constexpr auto stop_motor = maki::action_c([](context& ctx)
 {
     ctx.mtr.async_stop();
-}
+});
 
 //Transition table
 constexpr auto transition_table = maki::transition_table{}

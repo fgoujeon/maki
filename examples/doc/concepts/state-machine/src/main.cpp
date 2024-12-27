@@ -18,15 +18,15 @@ struct button_press{};
 constexpr auto off = maki::state_conf{};
 constexpr auto on = maki::state_conf{};
 
-//Actions are callables (more about that later)
-void turn_light_on()
+//Actions are constexpr objects (more about that later)
+constexpr auto turn_light_on = maki::action_v([]
 {
     std::cout << "Light is on\n";
-}
-void turn_light_off()
+});
+constexpr auto turn_light_off = maki::action_v([]
 {
     std::cout << "Light is off\n";
-}
+});
 
 //The transition table
 //! [transition-table]

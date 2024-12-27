@@ -69,10 +69,10 @@ namespace basic_exception_ns
 
     namespace actions
     {
-        void unreachable(context& ctx)
+        constexpr auto unreachable = maki::action_c([](context& ctx)
         {
             ctx.out += "unreachable;";
-        }
+        });
     }
 
     constexpr auto transition_table = maki::transition_table{}

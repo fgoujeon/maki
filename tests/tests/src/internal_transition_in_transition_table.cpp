@@ -64,10 +64,10 @@ namespace internal_transition_in_transition_table_ns
 
     namespace actions
     {
-        void beep(context& ctx)
+        constexpr auto beep = maki::action_c([](context& ctx)
         {
             ctx.out += "beep;";
-        }
+        });
     }
 
     constexpr auto transition_table = maki::transition_table{}

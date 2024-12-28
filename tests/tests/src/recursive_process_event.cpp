@@ -86,25 +86,21 @@ namespace recursive_process_event_ns
 
     namespace actions
     {
-        constexpr auto s0_to_s1 = []
+        constexpr auto s0_to_s1 = maki::action_m([]
         (
-            context& /*ctx*/,
-            maki::machine_ref_e<events::s1_to_s2_request> mach,
-            const auto& /*event*/
+            maki::machine_ref_e<events::s1_to_s2_request> mach
         )
         {
             mach.process_event(events::s1_to_s2_request{});
-        };
+        });
 
-        constexpr auto s1_to_s2 = []
+        constexpr auto s1_to_s2 = maki::action_m([]
         (
-            context& /*ctx*/,
-            maki::machine_ref_e<events::s2_to_s0_request> mach,
-            const auto& /*event*/
+            maki::machine_ref_e<events::s2_to_s0_request> mach
         )
         {
             mach.process_event(events::s2_to_s0_request{});
-        };
+        });
     }
 
     constexpr auto transition_table = maki::transition_table{}

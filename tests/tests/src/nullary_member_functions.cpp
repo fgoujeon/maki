@@ -66,7 +66,7 @@ namespace nullary_member_functions_ns
         ;
     }
 
-    constexpr auto action = [](context& ctx, auto& /*machine*/, const auto& event)
+    constexpr auto action = maki::action_ce([](context& ctx, const auto& event)
     {
         using event_type = std::decay_t<decltype(event)>;
         if constexpr(std::is_same_v<event_type, events::e1>)
@@ -77,9 +77,9 @@ namespace nullary_member_functions_ns
         {
             ctx.out += "execute();";
         }
-    };
+    });
 
-    constexpr auto guard = [](context& ctx, auto& /*machine*/, const auto& event)
+    constexpr auto guard = maki::guard_ce([](context& ctx, const auto& event)
     {
         using event_type = std::decay_t<decltype(event)>;
         if constexpr(std::is_same_v<event_type, events::e1>)
@@ -91,7 +91,7 @@ namespace nullary_member_functions_ns
             ctx.out += "check();";
         }
         return true;
-    };
+    });
 
     constexpr auto transition_table = maki::transition_table{}
         (states::off, maki::type<events::e1>, states::on,  action, guard)

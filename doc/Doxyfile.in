@@ -2355,9 +2355,11 @@ PREDEFINED             = MAKI_DETAIL_DOXYGEN
 # definition found in the source code.
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
-EXPAND_AS_DEFINED      = MAKI_DETAIL_EVENT_ACTION_SIGNATURES \
-                         MAKI_DETAIL_CONTEXT_SIGNATURES_FOR_MACHINE \
-                         MAKI_DETAIL_CONTEXT_SIGNATURES_FOR_STATE \
+EXPAND_AS_DEFINED      = MAKI_DETAIL_ACTION_SIGNATURES \
+                         MAKI_DETAIL_GUARD_SIGNATURES \
+                         MAKI_DETAIL_MACHINE_CONTEXT_CONSTRUCTOR_SIGNATURES \
+                         MAKI_DETAIL_STATE_CONTEXT_CONSTRUCTOR_SIGNATURES \
+                         MAKI_DETAIL_CONTEXT_CONSTRUCTOR_SIGNATURES \
                          MAKI_DETAIL_STATE_CONF_RETURN_TYPE \
                          MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE \
                          MAKI_DETAIL_X

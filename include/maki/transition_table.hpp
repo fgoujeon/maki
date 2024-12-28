@@ -13,7 +13,6 @@
 #define MAKI_TRANSITION_TABLE_HPP
 
 #include "detail/state_id.hpp"
-#include "detail/storable_function.hpp"
 #include "detail/tuple.hpp"
 #include "null.hpp"
 
@@ -82,8 +81,8 @@ namespace detail
             SourceStateConfFilter,
             EventFilter,
             TargetStateConf,
-            storable_function_t<Action>,
-            storable_function_t<Guard>
+            Action,
+            Guard
         >
         {
             source_state_conf_filter,

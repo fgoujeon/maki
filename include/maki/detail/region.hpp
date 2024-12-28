@@ -8,7 +8,7 @@
 #define MAKI_DETAIL_REGION_HPP
 
 #include "state_traits.hpp"
-#include "call_member.hpp"
+#include "call.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
@@ -352,7 +352,7 @@ private:
             //Check guard
             if constexpr(!std::is_same_v<decltype(Guard), const null_t&>)
             {
-                if(!detail::call_action_or_guard(Guard, mach, ctx, event))
+                if(!detail::call_guard(Guard, ctx, mach, event))
                 {
                     return false;
                 }
@@ -432,11 +432,11 @@ private:
 
         if constexpr(!std::is_same_v<decltype(ActionPtr), const null_t*>)
         {
-            detail::call_action_or_guard
+            detail::call_action
             (
                 *ActionPtr,
-                mach,
                 ctx,
+                mach,
                 event
             );
         }

@@ -42,17 +42,17 @@ namespace guard_operators_ns
     {
 
 #define GUARD(NAME) \
-    bool NAME(context& ctx) \
+    inline constexpr auto NAME = maki::guard_c([](context& ctx) \
     { \
         return ctx.NAME; \
-    }
+    });
 
 //Test with another signature
 #define GUARD_2(NAME) \
-    inline constexpr auto NAME = [](context& ctx, auto& /*machine*/, const auto& /*event*/) \
+    inline constexpr auto NAME = maki::guard_cme([](context& ctx, auto& /*machine*/, const auto& /*event*/) \
     { \
         return ctx.NAME; \
-    };
+    });
 
         GUARD(can_access_state0_0)
         GUARD_2(can_access_state0_1)
@@ -64,16 +64,16 @@ namespace guard_operators_ns
 
 #undef GUARD
 
-        constexpr auto can_access_state0 = maki::guard{can_access_state0_0} && maki::guard{can_access_state0_1};
-        constexpr auto can_access_state1 = maki::guard{can_access_state1_0} || maki::guard{can_access_state1_1};
-        constexpr auto can_access_state2 = maki::guard{can_access_state2_0} != maki::guard{can_access_state2_1};
+        constexpr auto can_access_state0 = can_access_state0_0 && can_access_state0_1;
+        constexpr auto can_access_state1 = can_access_state1_0 || can_access_state1_1;
+        constexpr auto can_access_state2 = can_access_state2_0 != can_access_state2_1;
     }
 
     constexpr auto transition_table = maki::transition_table{}
         (states::idle, maki::type<events::start>, states::state0, maki::null, guards::can_access_state0)
         (states::idle, maki::type<events::start>, states::state1, maki::null, guards::can_access_state1)
         (states::idle, maki::type<events::start>, states::state2, maki::null, guards::can_access_state2)
-        (states::idle, maki::type<events::start>, states::state3, maki::null, !maki::guard{guards::cant_access_state3})
+        (states::idle, maki::type<events::start>, states::state3, maki::null, !guards::cant_access_state3)
 
         (states::state0, maki::type<events::stop>, states::idle)
         (states::state1, maki::type<events::stop>, states::idle)

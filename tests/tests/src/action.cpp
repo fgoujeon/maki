@@ -32,15 +32,15 @@ namespace action_ns
 
     namespace actions
     {
-        void beep(context& ctx)
+        constexpr auto beep = maki::action_c([](context& ctx)
         {
             ctx.i = 1;
-        }
+        });
     }
 
     constexpr auto transition_table = maki::transition_table{}
         (states::off, maki::type<events::button_press>, states::on,  actions::beep)
-        (states::on,  maki::type<events::button_press>, states::off, &context::boop)
+        (states::on,  maki::type<events::button_press>, states::off, maki::action_c(&context::boop))
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

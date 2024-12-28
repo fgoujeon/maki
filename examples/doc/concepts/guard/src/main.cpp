@@ -61,18 +61,18 @@ constexpr auto spinning_high = maki::state_conf{}
 
 //Guards
 //! [guards]
-bool is_speed_low(context& /*ctx*/, const memory_read& event)
+constexpr auto is_speed_low = maki::guard_e([](const memory_read& event)
 {
     return event.spd == speed::low;
-}
-bool is_speed_med(context& /*ctx*/, const memory_read& event)
+});
+constexpr auto is_speed_med = maki::guard_e([](const memory_read& event)
 {
     return event.spd == speed::med;
-}
-bool is_speed_high(context& /*ctx*/, const memory_read& event)
+});
+constexpr auto is_speed_high = maki::guard_e([](const memory_read& event)
 {
     return event.spd == speed::high;
-}
+});
 //! [guards]
 
 //Transition table

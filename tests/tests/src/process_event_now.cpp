@@ -87,17 +87,13 @@ namespace process_event_now_ns
     namespace actions
     {
         template<class Event>
-        struct process_event_now_t
+        constexpr auto process_event_now = maki::action_m([](auto& mach)
         {
-            template<class Machine, class Event2>
-            void operator()(context& /*ctx*/, Machine& mach, const Event2& /*event*/) const
-            {
-                mach.process_event_now(Event{});
-            }
-        };
+            mach.process_event_now(Event{});
+        });
 
-        constexpr auto process_s1_to_s2 = process_event_now_t<events::s1_to_s2_request>{};
-        constexpr auto process_s2_to_s0 = process_event_now_t<events::s2_to_s0_request>{};
+        constexpr auto& process_s1_to_s2 = process_event_now<events::s1_to_s2_request>;
+        constexpr auto& process_s2_to_s0 = process_event_now<events::s2_to_s0_request>;
     }
 
     constexpr auto transition_table = maki::transition_table{}

@@ -17,6 +17,7 @@
 #include "type.hpp"
 #include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"
+#include "detail/signature_macros.hpp"
 #include "detail/tuple.hpp"
 #include "detail/tlu.hpp"
 #include <string_view>
@@ -102,7 +103,7 @@ public:
     { \
         return context<Context, detail::context_signature::signature>(); \
     }
-    MAKI_DETAIL_CONTEXT_SIGNATURES_FOR_STATE
+    MAKI_DETAIL_STATE_CONTEXT_CONSTRUCTOR_SIGNATURES
 #undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
@@ -112,9 +113,9 @@ public:
     template<class EventFilter, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const EventFilter& event_filter, const Action& action) const \
     { \
-        return entry_action<detail::event_action_signature::signature>(event_filter, action); \
+        return entry_action<action_signature::signature>(event_filter, action); \
     }
-    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+    MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
@@ -124,9 +125,9 @@ public:
     template<class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const Action& action) const \
     { \
-        return entry_action<detail::event_action_signature::signature>(any, action); \
+        return entry_action<action_signature::signature>(any, action); \
     }
-    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+    MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
@@ -136,9 +137,9 @@ public:
     template<class EventFilter, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const EventFilter& event_filter, const Action& action) const \
     { \
-        return internal_action<detail::event_action_signature::signature>(event_filter, action); \
+        return internal_action<action_signature::signature>(event_filter, action); \
     }
-    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+    MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
@@ -148,9 +149,9 @@ public:
     template<class EventFilter, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const EventFilter& event_filter, const Action& action) const \
     { \
-        return exit_action<detail::event_action_signature::signature>(event_filter, action); \
+        return exit_action<action_signature::signature>(event_filter, action); \
     }
-    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+    MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
@@ -160,9 +161,9 @@ public:
     template<class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const Action& action) const \
     { \
-        return exit_action<detail::event_action_signature::signature>(any, action); \
+        return exit_action<action_signature::signature>(any, action); \
     }
-    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+    MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 
     /**
@@ -216,7 +217,7 @@ private:
 #undef MAKI_DETAIL_ARG_context_sig
     }
 
-    template<detail::event_action_signature Sig, class EventFilter, class Action>
+    template<action_signature Sig, class EventFilter, class Action>
     [[nodiscard]] constexpr auto entry_action(const EventFilter& event_filter, const Action& action) const
     {
         const auto new_entry_actions = tuple_append
@@ -231,7 +232,7 @@ private:
 #undef MAKI_DETAIL_ARG_entry_actions
     }
 
-    template<detail::event_action_signature Sig, class EventFilter, class Action>
+    template<action_signature Sig, class EventFilter, class Action>
     [[nodiscard]] constexpr auto internal_action(const EventFilter& event_filter, const Action& action) const
     {
         const auto new_internal_actions = tuple_append
@@ -246,7 +247,7 @@ private:
 #undef MAKI_DETAIL_ARG_internal_actions
     }
 
-    template<detail::event_action_signature Sig, class EventFilter, class Action>
+    template<action_signature Sig, class EventFilter, class Action>
     [[nodiscard]] constexpr auto exit_action(const EventFilter& event_filter, const Action& action) const
     {
         const auto new_exit_actions = tuple_append

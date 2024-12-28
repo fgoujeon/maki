@@ -56,10 +56,10 @@ namespace small_event_requirements_ns
     constexpr auto state = maki::state_conf{};
 
     template<class Event>
-    inline constexpr auto process_event = [](context& /*ctx*/, auto& machine, const auto& /*event*/)
+    inline constexpr auto process_event = maki::action_m([](auto& machine)
     {
         machine.process_event(Event{});
-    };
+    });
 
     constexpr auto transition_table = maki::transition_table{}
         (state, maki::type<event_processing_request<small_event>>, maki::null, process_event<small_event>)

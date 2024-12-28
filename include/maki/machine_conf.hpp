@@ -16,6 +16,7 @@
 #include "type.hpp"
 #include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"
+#include "detail/signature_macros.hpp"
 #include "detail/tuple.hpp"
 #include <string_view>
 #include <type_traits>
@@ -123,7 +124,7 @@ public:
     { \
         return context<Context, detail::context_signature::signature>(); \
     }
-    MAKI_DETAIL_CONTEXT_SIGNATURES_FOR_MACHINE
+    MAKI_DETAIL_MACHINE_CONTEXT_CONSTRUCTOR_SIGNATURES
 #undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
@@ -133,9 +134,9 @@ public:
     template<class EventFilter, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE start_action_##signature(const EventFilter& event_filter, const Action& action) const \
     { \
-        return start_action<detail::event_action_signature::signature>(event_filter, action); \
+        return start_action<action_signature::signature>(event_filter, action); \
     }
-    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+    MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
@@ -146,9 +147,9 @@ public:
     template<class EventFilter, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_processing_hook_##signature(const EventFilter& event_filter, const Action& action) const \
     { \
-        return pre_processing_hook<detail::event_action_signature::signature>(event_filter, action); \
+        return pre_processing_hook<action_signature::signature>(event_filter, action); \
     }
-    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+    MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
@@ -158,9 +159,9 @@ public:
     template<class EventFilter, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE stop_action_##signature(const EventFilter& event_filter, const Action& action) const \
     { \
-        return stop_action<detail::event_action_signature::signature>(event_filter, action); \
+        return stop_action<action_signature::signature>(event_filter, action); \
     }
-    MAKI_DETAIL_EVENT_ACTION_SIGNATURES
+    MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 
     /**
@@ -402,7 +403,7 @@ public:
         const auto new_post_processing_hooks = tuple_append
         (
             options_.post_processing_hooks,
-            detail::make_event_action<detail::event_action_signature::me>(event_filter, action)
+            detail::make_event_action<action_signature::me>(event_filter, action)
         );
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
@@ -475,7 +476,7 @@ private:
 #undef MAKI_DETAIL_ARG_context_sig
     }
 
-    template<detail::event_action_signature Sig, class EventFilter, class Action>
+    template<action_signature Sig, class EventFilter, class Action>
     [[nodiscard]] constexpr auto start_action(const EventFilter& event_filter, const Action& action) const
     {
         const auto new_entry_actions = tuple_append
@@ -490,7 +491,7 @@ private:
 #undef MAKI_DETAIL_ARG_entry_actions
     }
 
-    template<detail::event_action_signature Sig, class EventFilter, class Hook>
+    template<action_signature Sig, class EventFilter, class Hook>
     [[nodiscard]] constexpr auto pre_processing_hook(const EventFilter& event_filter, const Hook& hook) const
     {
         const auto new_internal_actions = tuple_append
@@ -505,7 +506,7 @@ private:
 #undef MAKI_DETAIL_ARG_internal_actions
     }
 
-    template<detail::event_action_signature Sig, class EventFilter, class Action>
+    template<action_signature Sig, class EventFilter, class Action>
     [[nodiscard]] constexpr auto stop_action(const EventFilter& event_filter, const Action& action) const
     {
         const auto new_exit_actions = tuple_append

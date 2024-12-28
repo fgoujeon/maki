@@ -30,20 +30,20 @@ namespace guard_ns
 
     namespace guards
     {
-        bool has_power(context& ctx)
+        constexpr auto has_power = maki::guard_c([](context& ctx)
         {
             return ctx.has_power;
-        }
+        });
 
-        bool is_pressing_hard(context& /*ctx*/, const events::button_press& event)
+        constexpr auto is_pressing_hard = maki::guard_e([](const events::button_press& event)
         {
             return event.hard;
-        }
+        });
 
-        bool always_false(context& /*ctx*/)
+        constexpr auto always_false = maki::guard_v([]
         {
             return false;
-        }
+        });
     }
 
     constexpr auto transition_table = maki::transition_table{}

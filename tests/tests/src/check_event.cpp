@@ -27,10 +27,10 @@ namespace check_event_ns
 
     namespace guards
     {
-        bool is_pressing_hard(const context& /*ctx*/, const events::button_press& event)
+        constexpr auto is_pressing_hard = maki::guard_e([](const events::button_press& event)
         {
             return event.hard;
-        }
+        });
     }
 
     constexpr auto transition_table = maki::transition_table{}

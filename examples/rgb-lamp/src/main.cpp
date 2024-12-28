@@ -130,27 +130,22 @@ namespace states
 }
 
 /*
-An action is a callable invoked whenever a specific state transition occurs.
+An action is a constexpr object holding a callable invoked whenever a specific
+state transition occurs.
 */
 namespace actions
 {
-    /*
-    One of the following expressions must be valid:
-        action(context, machine, event);
-        action(context, event);
-        action(context);
-    */
-    void turn_light_off(context& ctx)
+    constexpr auto turn_light_off = maki::action_c([](context& ctx)
     {
         ctx.led.set_color(rgb_led::color::off);
-    }
+    });
 
     //We can of course factorize with a template.
     template<auto Color>
-    void turn_light_tpl(context& ctx)
+    constexpr auto turn_light_tpl = maki::action_c([](context& ctx)
     {
         ctx.led.set_color(Color);
-    }
+    });
     constexpr auto turn_light_white = turn_light_tpl<rgb_led::color::white>;
     constexpr auto turn_light_red   = turn_light_tpl<rgb_led::color::red>;
     constexpr auto turn_light_green = turn_light_tpl<rgb_led::color::green>;
@@ -158,23 +153,18 @@ namespace actions
 }
 
 /*
-A guard is a callable invoked to check that a state transition can occur.
+A guard is a constexpr object holding a callable invoked to check whether a
+state transition must occur.
 */
 namespace guards
 {
-    /*
-    One of the following expressions must be valid:
-        guard(context, machine, event);
-        guard(context, event);
-        guard(context);
-    */
-    bool is_long_push(context& /*ctx*/, const button::push_event& event)
+    constexpr auto is_long_push = maki::guard_e([](const button::push_event& event)
     {
         return event.duration_ms > 1000;
-    }
+    });
 
     //We can use maki::guard and boolean operators to compose guards.
-    constexpr auto is_short_push = !maki::guard{is_long_push};
+    constexpr auto is_short_push = !is_long_push;
 }
 
 using namespace states;

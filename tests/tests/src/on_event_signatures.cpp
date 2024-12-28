@@ -10,10 +10,6 @@
 
 namespace on_event_signatures_ns
 {
-    struct machine_conf_holder;
-
-    using machine_t = maki::machine<machine_conf_holder>;
-
     struct context
     {
         std::string out;
@@ -50,7 +46,7 @@ namespace on_event_signatures_ns
             .internal_action_cme
             (
                 maki::type<events::event2>,
-                [](context& ctx, machine_t& /*mach*/, const events::event2& event)
+                [](context& ctx, maki::machine_ref_e<events::unused> /*mach*/, const events::event2& event)
                 {
                     ctx.out = "on_event_cme " + event.value;
                 }
@@ -62,15 +58,12 @@ namespace on_event_signatures_ns
         (states::state0, maki::type<events::unused>, maki::null)
     ;
 
-    struct machine_conf_holder
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context_a(maki::type<context>)
-        ;
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context_a(maki::type<context>)
+    ;
 
-        context& ctx;
-    };
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("on_event_signatures")

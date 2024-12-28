@@ -9,9 +9,6 @@
 
 namespace on_unprocessed_ns
 {
-    struct machine_conf_holder;
-    using machine_t = maki::machine<machine_conf_holder>;
-
     enum class led_color
     {
         off,
@@ -84,35 +81,34 @@ namespace on_unprocessed_ns
         (states::on, maki::type<events::power_button_press>, states::off)
     ;
 
-    struct machine_conf_holder
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context_a(maki::type<context>)
-            .post_processing_hook_mep
-            (
-                maki::type<events::ignored_by_emitting_blue>,
-                [](auto& mach, const events::ignored_by_emitting_blue& event, const bool processed)
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context_a(maki::type<context>)
+        .post_processing_hook_mep
+        (
+            maki::type<events::ignored_by_emitting_blue>,
+            [](auto& mach, const events::ignored_by_emitting_blue& event, const bool processed)
+            {
+                if(!processed)
                 {
-                    if(!processed)
-                    {
-                        mach.context().ignored_event = "ignored_by_emitting_blue{" + std::to_string(event.value) + "}";
-                    }
+                    mach.context().ignored_event = "ignored_by_emitting_blue{" + std::to_string(event.value) + "}";
                 }
-            )
-            .post_processing_hook_mep
-            (
-                maki::any,
-                [](auto& mach, const auto& /*event*/, const bool processed)
+            }
+        )
+        .post_processing_hook_mep
+        (
+            maki::any,
+            [](auto& mach, const auto& /*event*/, const bool processed)
+            {
+                if(!processed)
                 {
-                    if(!processed)
-                    {
-                        mach.context().ignored_event = "other";
-                    }
+                    mach.context().ignored_event = "other";
                 }
-            )
-        ;
-    };
+            }
+        )
+    ;
+
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("on_unprocessed")

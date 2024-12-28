@@ -67,18 +67,15 @@ namespace small_event_requirements_ns
     ;
 
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
-    struct machine_def
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context_a(maki::type<context>)
-            .small_event_max_size(SmallEventMaxSize)
-            .small_event_max_align(SmallEventMaxAlign)
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context_a(maki::type<context>)
+        .small_event_max_size(SmallEventMaxSize)
+        .small_event_max_align(SmallEventMaxAlign)
+    ;
 
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
-    using machine_t = maki::machine<machine_def<SmallEventMaxSize, SmallEventMaxAlign>>;
+    using machine_t = maki::machine<machine_conf<SmallEventMaxSize, SmallEventMaxAlign>>;
 
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
     void test

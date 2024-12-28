@@ -56,7 +56,7 @@ namespace state_data_same_type_ns
         .context_a(maki::type<context>)
     ;
 
-    using machine_t = maki::make_machine<machine_conf>;
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("state_data_same_type")

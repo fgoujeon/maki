@@ -9,9 +9,6 @@
 
 namespace recursive_process_event_ns
 {
-    struct machine_conf_holder;
-    using machine_t = maki::machine<machine_conf_holder>;
-
     struct context
     {
         std::string output;
@@ -109,13 +106,12 @@ namespace recursive_process_event_ns
         (states::s2, maki::type<events::s2_to_s0_request>, states::s0)
     ;
 
-    struct machine_conf_holder
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context_a(maki::type<context>)
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context_a(maki::type<context>)
+    ;
+
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("recursive_process_event")

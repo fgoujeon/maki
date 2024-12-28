@@ -9,9 +9,6 @@
 
 namespace composite_state_ns
 {
-    struct machine_conf_holder;
-    using machine_t = maki::machine<machine_conf_holder>;
-
     enum class led_color
     {
         off,
@@ -38,11 +35,10 @@ namespace composite_state_ns
         struct emitting_red_data
         {
             context& ctx;
-            machine_t& machine;
         };
 
         constexpr auto emitting_red = maki::state_conf{}
-            .context_cm(maki::type<emitting_red_data>)
+            .context_c(maki::type<emitting_red_data>)
             .entry_action_c
             (
                 maki::any,
@@ -56,11 +52,10 @@ namespace composite_state_ns
         struct emitting_green_data
         {
             context& ctx;
-            machine_t& machine;
         };
 
         constexpr auto emitting_green = maki::state_conf{}
-            .context_cm(maki::type<emitting_green_data>)
+            .context_c(maki::type<emitting_green_data>)
             .entry_action_c
             (
                 maki::any,
@@ -74,11 +69,10 @@ namespace composite_state_ns
         struct emitting_blue_data
         {
             context& ctx;
-            machine_t& machine;
         };
 
         constexpr auto emitting_blue = maki::state_conf{}
-            .context_cm(maki::type<emitting_blue_data>)
+            .context_c(maki::type<emitting_blue_data>)
             .entry_action_c
             (
                 maki::any,
@@ -113,13 +107,12 @@ namespace composite_state_ns
         (states::on,  maki::type<events::power_button_press>, states::off)
     ;
 
-    struct machine_conf_holder
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context_a(maki::type<context>)
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context_a(maki::type<context>)
+    ;
+
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("composite_state")

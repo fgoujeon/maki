@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.10)
 
 include(maki)
 
-set(TARGET example-doc-concepts-run-to-completion)
+set(TARGET example-doc-concepts-run-to-completion-ok)
 
 file(GLOB_RECURSE SOURCE_FILES *)
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${SOURCE_FILES})

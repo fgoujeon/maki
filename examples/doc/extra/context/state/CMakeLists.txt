@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.10)
 
 include(maki)
 
-set(TARGET example-doc-concepts-context-state)
+set(TARGET example-doc-extra-context-state)
 
 file(GLOB_RECURSE SOURCE_FILES *)
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${SOURCE_FILES})

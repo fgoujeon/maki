@@ -12,14 +12,14 @@ add_subdirectory(example-checker)
 #Test examples
 set(EXAMPLES_DIR ${CMAKE_SOURCE_DIR}/examples)
 file(
-    GLOB SUBDIRS
+    GLOB_RECURSE SUBDIRS
     LIST_DIRECTORIES true
     RELATIVE ${EXAMPLES_DIR}
     ${EXAMPLES_DIR}/*)
 foreach(SUBDIR ${SUBDIRS})
     if(EXISTS ${EXAMPLES_DIR}/${SUBDIR}/CMakeLists.txt)
         set(EXAMPLE_DIR ${EXAMPLES_DIR}/${SUBDIR})
-        set(EXAMPLE_TARGET example-${SUBDIR})
+        string(REPLACE "/" "-" EXAMPLE_TARGET "example-${SUBDIR}")
         add_test(
             NAME test-${EXAMPLE_TARGET}
             COMMAND example-checker $<TARGET_FILE:${EXAMPLE_TARGET}> ${EXAMPLE_DIR}/expected-output.txt

@@ -12,11 +12,15 @@
 namespace maki
 {
 
-/*
-v means void
-m means machine
-c means context
-e means event
+/**
+@brief The set of arguments taken by a guard callable.
+
+Meaning of every letter:
+
+- `v`: void
+- `m`: machine
+- `c`: context
+- `e`: event
 */
 enum class guard_signature: char
 {

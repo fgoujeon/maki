@@ -82,21 +82,14 @@ There are two ways to define and associate an action:
 
 ### Within the transition table
 
-The action is the fourth (optional) parameter of `maki::transition_table::operator()()`. In this context, Maki expects a callable that can be invoked in one of the following ways (from highest to lowest priority):
-
-~~~{.cpp}
-std::invoke(action, ctx, mach, event);
-std::invoke(action, ctx, event);
-std::invoke(action, ctx);
-std::invoke(action);
-~~~
+The action is the fourth (optional) parameter of `maki::transition_table::operator()()`. In this context, Maki expects an instance of `maki::action` or `maki::null`.
 
 What determines the kind of the action (between a state transition action and an internal action) is the target state (the third parameter) given to `maki::transition_table::operator()()`:
 
 * if the target state is `maki::null`, the action is an internal action;
 * if the target state is a valid state, the action is a state transition action.
 
-Note: A transition without target state is called an internal transition. No state exit or entry happen in this case.
+Note: A transition without target state is called an internal transition. No state exit or entry happens in this case.
 
 Here is an example of two actions, with their definition and their association with a transition:
 

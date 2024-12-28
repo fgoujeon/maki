@@ -19,6 +19,11 @@
 namespace maki
 {
 
+/**
+@brief Represents a guard to be given to `maki::transition_table`.
+Use the builder functions (`maki::guard_v()` and its variants) instead of using
+this type directly.
+*/
 template<guard_signature Sig, class Callable>
 struct guard
 {
@@ -27,6 +32,10 @@ struct guard
 };
 
 #define MAKI_DETAIL_X(name) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    /** \
+    @brief Makes a `maki::guard` with the indicated signature and given  \
+    callable. \
+    */ \
     template<class Callable> \
     constexpr guard<guard_signature::name, Callable> guard_##name(const Callable& callable) \
     { \

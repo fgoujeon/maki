@@ -18,6 +18,11 @@
 namespace maki
 {
 
+/**
+@brief Represents an action to be given to `maki::transition_table`.
+Use the builder functions (`maki::action_v()` and its variants) instead of using
+this type directly.
+*/
 template<action_signature Sig, class Callable>
 struct action
 {
@@ -26,6 +31,10 @@ struct action
 };
 
 #define MAKI_DETAIL_X(name) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    /** \
+    @brief Makes a `maki::action` with the indicated signature and given  \
+    callable. \
+    */ \
     template<class Callable> \
     constexpr action<action_signature::name, Callable> action_##name(const Callable& callable) \
     { \

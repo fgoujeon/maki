@@ -12,11 +12,15 @@
 namespace maki
 {
 
-/*
-v means void
-m means machine
-c means context
-e means event
+/**
+@brief The set of arguments taken by an action callable.
+
+Meaning of every letter:
+
+- `v`: void
+- `m`: machine
+- `c`: context
+- `e`: event
 */
 enum class action_signature: char
 {

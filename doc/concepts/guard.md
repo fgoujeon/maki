@@ -78,16 +78,7 @@ spinning_high -> spinning_med : minus button press
 
 ## How to define guards within Maki
 
-Within Maki, guards are callables, preferably without side effect, that return a `bool`. Said callable must be invocable in one of the following ways (from highest to lowest priority):
-
-~~~{.cpp}
-bool b = std::invoke(guard, ctx, mach, event);
-bool b = std::invoke(guard, ctx, event);
-bool b = std::invoke(guard, ctx);
-bool b = std::invoke(guard);
-~~~
-
-Once you've defined your guard, you just have to pass it as the fifth argument of the transition of your choice, like so:
+The guard is the fifth (optional) parameter of `maki::transition_table::operator()()`. In this context, Maki expects an instance of `maki::guard` or `maki::null`.
 
 ~~~{.cpp}
 constexpr auto transition_table = maki::transition_table{}

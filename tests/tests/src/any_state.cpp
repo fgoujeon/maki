@@ -37,7 +37,7 @@ namespace any_state_ns
         .context_a(maki::type<context>)
     ;
 
-    using machine_t = maki::make_machine<machine_conf>;
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("any state")

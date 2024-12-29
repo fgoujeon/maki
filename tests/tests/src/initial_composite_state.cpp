@@ -9,9 +9,6 @@
 
 namespace initial_composite_state_ns
 {
-    struct machine_conf_holder;
-    using machine_t = maki::machine<machine_conf_holder>;
-
     enum class led_color
     {
         off,
@@ -97,7 +94,7 @@ namespace initial_composite_state_ns
         .context_a(maki::type<context>)
     ;
 
-    struct machine_conf_holder: maki::conf_holder<machine_conf>{};
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("initial_composite_state")

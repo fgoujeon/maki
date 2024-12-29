@@ -14,7 +14,6 @@
 
 #include "region_proxy.hpp"
 #include "state_proxy.hpp"
-#include "conf_holder.hpp"
 #include "machine_conf.hpp"
 #include "events.hpp"
 #include "null.hpp"
@@ -45,9 +44,8 @@ namespace detail
 
 /**
 @brief The state machine implementation template.
-@tparam ConfHolder the state machine definition, a class that must at least
-define a `static constexpr auto conf` of a `maki::machine_conf` type, with
-defined `transition_tables` and `context` options
+@tparam Conf the state machine configuration, with defined `transition_tables`
+and `context` options
 
 Here is an example of valid state machine definition, where:
 - `transition_table` is a user-provided `constexpr` instance of a
@@ -59,14 +57,14 @@ Here is an example of valid state machine definition, where:
 The state machine type itself can then be defined like so:
 @snippet concepts/state-machine/src/main.cpp machine
 */
-template<class ConfHolder>
+template<const auto& Conf>
 class machine
 {
 public:
     /**
     @brief The state machine configuration.
     */
-    static constexpr const auto& conf = ConfHolder::conf;
+    static constexpr const auto& conf = Conf;
 
     /**
     @brief The state machine configuration type.
@@ -506,9 +504,6 @@ private:
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;
 };
-
-template<const auto& Conf>
-using make_machine = machine<conf_holder<Conf>>;
 
 } //namespace
 

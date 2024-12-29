@@ -14,9 +14,6 @@ struct my_other_event{};
 
 struct context{};
 
-struct machine_conf_holder;
-using machine_t = maki::machine<machine_conf_holder>;
-
 //! [resolution]
 using my_machine_ref_t = maki::machine_ref_e<my_event, my_other_event>;
 
@@ -41,13 +38,12 @@ constexpr auto transition_table = maki::transition_table{}
     (my_state, maki::type<my_other_event>, my_other_state)
 ;
 
-struct machine_conf_holder
-{
-    static constexpr auto conf = maki::machine_conf{}
-        .context_a(maki::type<context>)
-        .transition_tables(transition_table)
-    ;
-};
+constexpr auto machine_conf = maki::machine_conf{}
+    .context_a(maki::type<context>)
+    .transition_tables(transition_table)
+;
+
+using machine_t = maki::machine<machine_conf>;
 
 int main()
 {

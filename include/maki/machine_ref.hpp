@@ -30,14 +30,14 @@ namespace detail
     class machine_ref_event_impl<Event, Events...>: machine_ref_event_impl<Events...>
     {
     public:
-        template<class MachineDef>
-        machine_ref_event_impl(machine<MachineDef>& mach):
+        template<const auto& MachineConf>
+        machine_ref_event_impl(machine<MachineConf>& mach):
             machine_ref_event_impl<Events...>{mach},
             pprocess_event_
             {
                 [](void* const vpsm, const Event& evt)
                 {
-                    using machine_t = machine<MachineDef>;
+                    using machine_t = machine<MachineConf>;
                     const auto psm = reinterpret_cast<machine_t*>(vpsm); //NOLINT
                     psm->process_event(evt);
                 }
@@ -63,8 +63,8 @@ namespace detail
     class machine_ref_event_impl<>
     {
     public:
-        template<class MachineDef>
-        machine_ref_event_impl(machine<MachineDef>& mach):
+        template<const auto& MachineConf>
+        machine_ref_event_impl(machine<MachineConf>& mach):
             vpsm_(&mach)
         {
         }
@@ -93,8 +93,8 @@ template<const auto& Conf>
 class machine_ref
 {
 public:
-    template<class MachineConfHolder>
-    machine_ref(machine<MachineConfHolder>& mach):
+    template<const auto& MachineConf>
+    machine_ref(machine<MachineConf>& mach):
         impl_{mach}
     {
     }

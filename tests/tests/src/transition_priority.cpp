@@ -48,7 +48,7 @@ namespace internal_transition_in_transition_table_ns
         .context_a(maki::type<context>)
     ;
 
-    using machine_t = maki::make_machine<machine_conf>;
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("transition_priority")

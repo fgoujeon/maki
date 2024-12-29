@@ -10,9 +10,6 @@
 
 namespace composite_state_on_xxx_ns
 {
-    struct machine_conf_holder;
-    using machine_t = maki::machine<machine_conf_holder>;
-
     struct context
     {
         std::string out;
@@ -102,13 +99,12 @@ namespace composite_state_on_xxx_ns
         (states::on,  maki::type<events::button_press>, states::off)
     ;
 
-    struct machine_conf_holder
-    {
-        static constexpr auto conf = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context_a(maki::type<context>)
-        ;
-    };
+    constexpr auto machine_conf = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context_a(maki::type<context>)
+    ;
+
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("composite_state_on_xxx")

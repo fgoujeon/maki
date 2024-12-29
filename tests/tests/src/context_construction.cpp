@@ -9,26 +9,29 @@
 
 namespace context_construction_ns
 {
-    struct machine_conf_holder;
-    using machine_t = maki::machine<machine_conf_holder>;
+    namespace events
+    {
+        struct power_button_press{};
+        struct color_button_press{};
+    }
+
+    using machine_ref_t = maki::machine_ref_e
+    <
+        events::power_button_press,
+        events::color_button_press
+    >;
 
     struct context
     {
-        machine_t& machine;
+        machine_ref_t machine;
         int i = 42;
     };
 
     struct on_context
     {
         context& parent;
-        machine_t& machine;
+        machine_ref_t machine;
     };
-
-    namespace events
-    {
-        struct power_button_press{};
-        struct color_button_press{};
-    }
 
     namespace states
     {
@@ -59,10 +62,7 @@ namespace context_construction_ns
         .context_am(maki::type<context>)
     ;
 
-    struct machine_conf_holder
-    {
-        static constexpr const auto& conf = machine_conf;
-    };
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("context_construction")
@@ -72,6 +72,5 @@ TEST_CASE("context_construction")
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
-    REQUIRE(&ctx.machine == &machine);
     REQUIRE(ctx.i == 42);
 }

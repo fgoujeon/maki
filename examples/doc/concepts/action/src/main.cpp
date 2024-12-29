@@ -103,7 +103,7 @@ constexpr auto machine_conf = maki::machine_conf{}
 ;
 
 //State machine
-using machine_t = maki::make_machine<machine_conf>;
+using machine_t = maki::machine<machine_conf>;
 
 int main()
 {

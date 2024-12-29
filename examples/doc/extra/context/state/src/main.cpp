@@ -51,7 +51,7 @@ constexpr auto machine_conf = maki::machine_conf{}
     .context_a(maki::type<my_machine_context>)
     .transition_tables(transition_table)
 ;
-using machine_t = maki::make_machine<machine_conf>;
+using machine_t = maki::machine<machine_conf>;
 //! [machine-conf]
 
 int main()

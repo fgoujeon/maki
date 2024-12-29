@@ -13,6 +13,7 @@
 #define MAKI_MACHINE_CONF_HPP
 
 #include "machine_conf_fwd.hpp"
+#include "action_signature.hpp"
 #include "type.hpp"
 #include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"

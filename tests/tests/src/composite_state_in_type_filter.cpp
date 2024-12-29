@@ -51,7 +51,7 @@ namespace composite_state_in_type_filter_ns
         .context_a(maki::type<context>)
     ;
 
-    using machine_t = maki::make_machine<machine_conf>;
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("composite_state_in_type_filter")

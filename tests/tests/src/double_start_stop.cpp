@@ -34,10 +34,6 @@ namespace double_start_stop_ns
         (states::on,  maki::type<events::button_press>, states::off)
     ;
 
-    struct machine_conf_holder;
-
-    using machine_t = maki::machine<machine_conf_holder>;
-
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
         .context_a(maki::type<context>)
@@ -74,7 +70,7 @@ namespace double_start_stop_ns
         .pretty_name("main_sm")
     ;
 
-    struct machine_conf_holder: maki::conf_holder<machine_conf>{};
+    using machine_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("double_start_stop")

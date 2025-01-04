@@ -35,7 +35,7 @@ private:
 };
 
 constexpr auto my_state = maki::state_conf{}
-    .context_c(maki::type<my_state_context>)
+    .context_c<my_state_context>()
     .entry_action_c(&my_state_context::on_entry)
 ;
 //! [context]
@@ -48,7 +48,7 @@ constexpr auto transition_table = maki::transition_table{}
 
 //! [machine-conf]
 constexpr auto machine_conf = maki::machine_conf{}
-    .context_a(maki::type<my_machine_context>)
+    .context_a<my_machine_context>()
     .transition_tables(transition_table)
 ;
 using machine_t = maki::machine<machine_conf>;

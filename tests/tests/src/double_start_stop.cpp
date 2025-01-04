@@ -36,7 +36,7 @@ namespace double_start_stop_ns
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context_a(maki::type<context>)
+        .context_a<context>()
         .pre_state_transition_hook_crset
         (
             [](context& ctx, const auto& region_path, const auto source_state_constant, const auto& /*event*/, const auto target_state_constant)

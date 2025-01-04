@@ -31,7 +31,7 @@ namespace basic_transition_ns
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context_a(maki::type<context>)
+        .context_a<context>()
         .auto_start(false)
         .run_to_completion(false)
         .exception_hook_mx([](auto& /*mach*/, const std::exception_ptr& /*eptr*/){})

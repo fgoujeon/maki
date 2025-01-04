@@ -70,7 +70,7 @@ namespace composite_state_context_ns
 
         constexpr auto on = maki::state_conf{}
             .transition_tables(on_ns::transition_table)
-            .context_c(maki::type<on_ns::context>)
+            .context_c<on_ns::context>()
             .exit_action_c
             (
                 maki::any,
@@ -89,7 +89,7 @@ namespace composite_state_context_ns
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context_a(maki::type<context>)
+        .context_a<context>()
     ;
 
     using machine_t = maki::machine<machine_conf>;

@@ -121,7 +121,7 @@ public:
     @brief Sets the type of the context \
     */ \
     template<class Context> \
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE context_##signature(const type_t<Context>& /*ignored*/) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE context_##signature() const \
     { \
         return context<Context, detail::context_signature::signature>(); \
     }

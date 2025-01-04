@@ -83,7 +83,7 @@ namespace on_unprocessed_ns
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context_a(maki::type<context>)
+        .context_a<context>()
         .post_processing_hook_mep
         (
             maki::type<events::ignored_by_emitting_blue>,

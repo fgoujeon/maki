@@ -54,7 +54,7 @@ namespace orthogonal_regions_ns
             maki::transition_table{}
                 (states::off1, maki::type<events::button_press>, states::on1)
         )
-        .context_a(maki::type<context>)
+        .context_a<context>()
         .exception_hook_mx
         (
             [](auto& mach, const std::exception_ptr& eptr)

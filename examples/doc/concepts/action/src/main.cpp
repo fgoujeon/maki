@@ -99,7 +99,7 @@ constexpr auto transition_table = maki::transition_table{}
 //State machine configuration
 constexpr auto machine_conf = maki::machine_conf{}
     .transition_tables(transition_table)
-    .context_a(maki::type<context>)
+    .context_a<context>()
 ;
 
 //State machine

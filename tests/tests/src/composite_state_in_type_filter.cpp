@@ -48,7 +48,7 @@ namespace composite_state_in_type_filter_ns
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context_a(maki::type<context>)
+        .context_a<context>()
     ;
 
     using machine_t = maki::machine<machine_conf>;

@@ -38,7 +38,7 @@ namespace composite_state_ns
         };
 
         constexpr auto emitting_red = maki::state_conf{}
-            .context_c(maki::type<emitting_red_data>)
+            .context_c<emitting_red_data>()
             .entry_action_c
             (
                 maki::any,
@@ -55,7 +55,7 @@ namespace composite_state_ns
         };
 
         constexpr auto emitting_green = maki::state_conf{}
-            .context_c(maki::type<emitting_green_data>)
+            .context_c<emitting_green_data>()
             .entry_action_c
             (
                 maki::any,
@@ -72,7 +72,7 @@ namespace composite_state_ns
         };
 
         constexpr auto emitting_blue = maki::state_conf{}
-            .context_c(maki::type<emitting_blue_data>)
+            .context_c<emitting_blue_data>()
             .entry_action_c
             (
                 maki::any,
@@ -109,7 +109,7 @@ namespace composite_state_ns
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context_a(maki::type<context>)
+        .context_a<context>()
     ;
 
     using machine_t = maki::machine<machine_conf>;

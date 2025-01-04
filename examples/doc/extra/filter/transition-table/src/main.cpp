@@ -32,7 +32,7 @@ constexpr auto transition_table = maki::transition_table{}
 //! [transition-table]
 
 constexpr auto machine_conf = maki::machine_conf{}
-    .context_a(maki::type<context>)
+    .context_a<context>()
     .transition_tables(transition_table)
 ;
 using machine_t = maki::machine<machine_conf>;

@@ -36,12 +36,12 @@ namespace state_data_same_type_ns
         }
 
         constexpr auto off = maki::state_conf{}
-            .context_v(maki::type<data>)
+            .context_v<data>()
             .internal_action_ce(maki::type<events::accumulate_request>, &accumulate)
         ;
 
         constexpr auto on = maki::state_conf{}
-            .context_v(maki::type<data>)
+            .context_v<data>()
             .internal_action_ce(maki::type<events::accumulate_request>, &accumulate)
         ;
     }
@@ -53,7 +53,7 @@ namespace state_data_same_type_ns
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context_a(maki::type<context>)
+        .context_a<context>()
     ;
 
     using machine_t = maki::machine<machine_conf>;

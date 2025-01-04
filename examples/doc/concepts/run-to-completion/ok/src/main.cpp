@@ -49,14 +49,14 @@ constexpr auto transition_table = maki::transition_table{}
 
 #ifdef ENABLE_RTC
 constexpr auto machine_conf = maki::machine_conf{}
-    .context_a(maki::type<context>)
+    .context_a<context>()
     .transition_tables(transition_table)
     .run_to_completion(true)
 ;
 #else
 //! [machine-conf]
 constexpr auto machine_conf = maki::machine_conf{}
-    .context_a(maki::type<context>)
+    .context_a<context>()
     .transition_tables(transition_table)
     .run_to_completion(false) //<-- Here
 ;

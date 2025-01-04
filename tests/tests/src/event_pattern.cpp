@@ -42,7 +42,7 @@ namespace event_pattern_ns
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(make_sm_transition_table())
-        .context_a(maki::type<context>)
+        .context_a<context>()
     ;
 
     using machine_t = maki::machine<machine_conf>;

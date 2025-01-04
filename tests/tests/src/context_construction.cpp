@@ -48,7 +48,7 @@ namespace context_construction_ns
 
         constexpr auto on = maki::state_conf{}
             .transition_tables(on_transition_table)
-            .context_cm(maki::type<on_context>)
+            .context_cm<on_context>()
         ;
     }
 
@@ -59,7 +59,7 @@ namespace context_construction_ns
 
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
-        .context_am(maki::type<context>)
+        .context_am<context>()
     ;
 
     using machine_t = maki::machine<machine_conf>;

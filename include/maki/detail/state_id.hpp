@@ -14,7 +14,7 @@ namespace maki::detail
 {
 
 /*
-The ID of a state is just the address of its configurator.
+The ID of a state is just the address of its configuration.
 */
 
 template<class T>

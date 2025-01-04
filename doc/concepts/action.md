@@ -97,7 +97,7 @@ Here is an example of two actions, with their definition and their association w
 
 ### Within the associated state
 
-To associate an action to a state, you have to add a callable to the state configurator through a call to either:
+To associate an action to a state, you have to add a callable to the state configuration through a call to either:
 
 * `maki::state_conf::entry_action_v()` (and its variants) for an entry action;
 * `maki::state_conf::internal_action_v()` (and its variants) for an internal action;

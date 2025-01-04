@@ -37,7 +37,7 @@ constexpr auto transition_table = maki::transition_table{}
 ;
 //! [transition-table]
 
-//The configurator of the state machine
+//The configuration of the state machine
 //! [machine-def]
 constexpr auto machine_conf = maki::machine_conf{}
     .transition_tables(transition_table)

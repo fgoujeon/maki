@@ -334,7 +334,7 @@ public:
     @brief Returns whether the state created from `StateConf` is active in the
     region of the state machine. This function can only be called if the state
     machine contains a single region.
-    @tparam StateConf the state configurator
+    @tparam StateConf the state configuration
     */
     template<const auto& StateConf>
     [[nodiscard]] bool is() const

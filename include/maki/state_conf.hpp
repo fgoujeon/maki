@@ -14,7 +14,7 @@
 
 #include "state_conf_fwd.hpp"
 #include "action.hpp"
-#include "filters.hpp"
+#include "filter.hpp"
 #include "type.hpp"
 #include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"

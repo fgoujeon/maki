@@ -8,7 +8,7 @@
 #define MAKI_DETAIL_STATE_TYPE_LIST_FILTERS_HPP
 
 #include "tlu/filter.hpp"
-#include "../filters.hpp"
+#include "../filter.hpp"
 
 namespace maki::detail::state_type_list_filters
 {

@@ -6,11 +6,11 @@
 
 /**
 @file
-@brief Defines the filter types and functions
+@brief Defines the filter type and builder functions
 */
 
-#ifndef MAKI_FILTERS_HPP
-#define MAKI_FILTERS_HPP
+#ifndef MAKI_FILTER_HPP
+#define MAKI_FILTER_HPP
 
 #include "detail/state_id.hpp"
 #include "detail/tuple.hpp"
@@ -120,7 +120,7 @@ filter(const Predicate&) -> filter<Predicate>;
 @brief A filter that matches with any value.
 */
 #ifdef MAKI_DETAIL_DOXYGEN
-constexpr auto any = IMPLEMENTATION_DETAIL;
+constexpr auto any = filter{IMPLEMENTATION_DETAIL};
 #else
 inline constexpr auto any = filter{detail::filter_predicates::any{}};
 #endif
@@ -197,7 +197,7 @@ constexpr auto any_but(const Ts&... values)
 @brief A filter that doesn't match with any value.
 */
 #ifdef MAKI_DETAIL_DOXYGEN
-constexpr auto none = IMPLEMENTATION_DETAIL;
+constexpr auto none = filter{IMPLEMENTATION_DETAIL};
 #else
 inline constexpr auto none = filter{detail::filter_predicates::none{}};
 #endif

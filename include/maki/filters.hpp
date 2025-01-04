@@ -22,34 +22,99 @@ namespace maki
 
 namespace detail
 {
-    struct any_t{};
-
-    template<class Predicate>
-    struct any_if_t
+    template<class Lhs, class Rhs>
+    constexpr bool equals(const Lhs& lhs, const Rhs& rhs)
     {
-        Predicate pred;
-    };
+        if constexpr(std::is_same_v<Lhs, Rhs>)
+        {
+            return lhs == rhs;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
-    template<class Predicate>
-    struct any_if_not_t
+    namespace filter_predicates
     {
-        Predicate pred;
-    };
+        template<class T>
+        struct exactly
+        {
+            template<class Value>
+            constexpr bool operator()(const Value& value) const
+            {
+                return equals(val, value);
+            }
 
-    template<class... Ts>
-    struct any_of_t
-    {
-        detail::tuple<Ts...> values;
-    };
+            T val;
+        };
 
-    template<class... Ts>
-    struct any_but_t
-    {
-        detail::tuple<Ts...> values;
-    };
+        struct any
+        {
+            template<class Value>
+            constexpr bool operator()(const Value& /*value*/) const
+            {
+                return true;
+            }
+        };
 
-    struct none_t{};
+        struct none
+        {
+            template<class Value>
+            constexpr bool operator()(const Value& /*value*/) const
+            {
+                return false;
+            }
+        };
+
+        template<class... Ts>
+        struct any_of
+        {
+            template<class Value>
+            constexpr bool operator()(const Value& value) const
+            {
+                return tuple_apply
+                (
+                    values,
+                    [value](const auto&... values)
+                    {
+                        return (equals(values, value) || ...);
+                    }
+                );
+            }
+
+            detail::tuple<Ts...> values;
+        };
+
+        template<class... Ts>
+        struct any_but
+        {
+            template<class Value>
+            constexpr bool operator()(const Value& value) const
+            {
+                return tuple_apply
+                (
+                    values,
+                    [value](const auto&... values)
+                    {
+                        return (!equals(values, value) && ...);
+                    }
+                );
+            }
+
+            detail::tuple<Ts...> values;
+        };
+    }
 }
+
+template<class Predicate>
+struct filter
+{
+    Predicate predicate;
+};
+
+template<class Predicate>
+filter(const Predicate&) -> filter<Predicate>;
 
 /**
 @brief A filter that matches with any value.
@@ -57,59 +122,73 @@ namespace detail
 #ifdef MAKI_DETAIL_DOXYGEN
 constexpr auto any = IMPLEMENTATION_DETAIL;
 #else
-inline constexpr auto any = detail::any_t{};
+inline constexpr auto any = filter{detail::filter_predicates::any{}};
 #endif
 
 /**
-@brief A filter that matches with any value that verifies `pred(value) == true`.
+@brief Makes a filter that matches with any value that verifies
+`pred(value) == true`.
 @tparam Predicate the predicate against which values are tested
 */
 template<class Predicate>
 constexpr auto any_if(const Predicate& pred)
 {
-    return detail::any_if_t<Predicate>{pred};
+    return filter{pred};
 }
 
 /**
-@brief A filter that matches with any type that verifies `pred(value) == false`.
+@brief Makes a filter that matches with any value that verifies
+`pred(value) == false`.
 @tparam Predicate the predicate against which values are tested
 */
 template<class Predicate>
 constexpr auto any_if_not(const Predicate& pred)
 {
-    return detail::any_if_not_t<Predicate>{pred};
-}
-
-/**
-@brief A filter that matches with the given values.
-@tparam Ts the types of values the filter matches with
-*/
-template<class... Ts>
-constexpr auto any_of(const Ts&... values)
-{
-    return detail::any_of_t<detail::to_state_id_or_identity_t<Ts>...>
+    return filter
     {
-        detail::tuple<detail::to_state_id_or_identity_t<Ts>...>
+        [pred](const auto& value)
         {
-            detail::distributed_construct,
-            detail::try_making_state_id(values)...
+            !pred(value);
         }
     };
 }
 
 /**
-@brief A filter that matches with any values but the given ones.
+@brief Makes a filter that matches with the given values.
+@tparam Ts the types of values the filter matches with
+*/
+template<class... Ts>
+constexpr auto any_of(const Ts&... values)
+{
+    return filter
+    {
+        detail::filter_predicates::any_of<detail::to_state_id_or_identity_t<Ts>...>
+        {
+            detail::tuple<detail::to_state_id_or_identity_t<Ts>...>
+            {
+                detail::distributed_construct,
+                detail::try_making_state_id(values)...
+            }
+        }
+    };
+}
+
+/**
+@brief Makes a filter that matches with any values but the given ones.
 @tparam Ts the types of values the filter doesn't match with
 */
 template<class... Ts>
 constexpr auto any_but(const Ts&... values)
 {
-    return detail::any_but_t<detail::to_state_id_or_identity_t<Ts>...>
+    return filter
     {
-        detail::tuple<detail::to_state_id_or_identity_t<Ts>...>
+        detail::filter_predicates::any_but<detail::to_state_id_or_identity_t<Ts>...>
         {
-            detail::distributed_construct,
-            detail::try_making_state_id(values)...
+            detail::tuple<detail::to_state_id_or_identity_t<Ts>...>
+            {
+                detail::distributed_construct,
+                detail::try_making_state_id(values)...
+            }
         }
     };
 }
@@ -120,7 +199,7 @@ constexpr auto any_but(const Ts&... values)
 #ifdef MAKI_DETAIL_DOXYGEN
 constexpr auto none = IMPLEMENTATION_DETAIL;
 #else
-inline constexpr auto none = detail::none_t{};
+inline constexpr auto none = filter{detail::filter_predicates::none{}};
 #endif
 
 template<class... Types>
@@ -129,134 +208,46 @@ constexpr auto any_type_of = any_of(type<Types>...);
 template<class... Types>
 constexpr auto any_type_but = any_but(type<Types>...);
 
-//matches_filter
 namespace detail
 {
-    //Filter is a regular type
-    template<class Value, class Filter>
-    constexpr bool matches_filter(const Value& value, const Filter& filter)
+    template<class Lhs, class Rhs>
+    constexpr bool matches_filter(const Lhs& lhs, const Rhs& rhs)
     {
-        if constexpr(std::is_same_v<Value, Filter>)
-        {
-            return value == filter;
-        }
-        else
-        {
-            return false;
-        }
+        return equals(lhs, rhs);
     }
 
-    template<class Value>
-    constexpr bool matches_filter(const Value& /*value*/, const any_t /*filter*/)
+    template<class Value, class FilterPredicate>
+    constexpr bool matches_filter(const Value& value, const filter<FilterPredicate>& flt)
     {
-        return true;
+        return flt.predicate(value);
     }
 
-    template<class Value, class Predicate>
-    constexpr bool matches_filter(const Value& value, const any_if_t<Predicate>& filter)
+    template<class Value, class FilterPredicate>
+    constexpr bool matches_filter_ptr(const Value& value, const filter<FilterPredicate>* pflt)
     {
-        return filter.pred(value);
+        return pflt->predicate(value);
     }
-
-    template<class Value, class Predicate>
-    constexpr bool matches_filter(const Value& value, const any_if_not_t<Predicate>& filter)
-    {
-        return !filter.pred(value);
-    }
-
-    template<class Value, class... Ts>
-    constexpr bool matches_filter(const Value& value, const any_of_t<Ts...>& filter)
-    {
-        return tuple_apply
-        (
-            filter.values,
-            [](const Value& value, const Ts&... values)
-            {
-                return (matches_filter(value, values) || ...);
-            },
-            value
-        );
-    }
-
-    template<class Value, class... Ts>
-    constexpr bool matches_filter(const Value& value, const any_but_t<Ts...>& filter)
-    {
-        return tuple_apply
-        (
-            filter.values,
-            [](const Value& value, const Ts&... values)
-            {
-                return (!matches_filter(value, values) && ...);
-            },
-            value
-        );
-    }
-
-    template<class Value>
-    constexpr bool matches_filter(const Value& /*value*/, const none_t /*filter*/)
-    {
-        return false;
-    }
-
-    template<class Value, class Filter>
-    constexpr bool matches_filter_ptr(const Value& value, const Filter* pfilter)
-    {
-        return matches_filter(value, *pfilter);
-    }
-}
-
-namespace detail
-{
-    template<class T>
-    struct is_filter
-    {
-        static constexpr auto value = false;
-    };
-
-    template<class T>
-    constexpr auto is_filter_v = is_filter<T>::value;
-
-    template<>
-    struct is_filter<any_t>
-    {
-        static constexpr auto value = true;
-    };
-
-    template<class Predicate>
-    struct is_filter<any_if_t<Predicate>>
-    {
-        static constexpr auto value = true;
-    };
-
-    template<class Predicate>
-    struct is_filter<any_if_not_t<Predicate>>
-    {
-        static constexpr auto value = true;
-    };
-
-    template<class... Ts>
-    struct is_filter<any_of_t<Ts...>>
-    {
-        static constexpr auto value = true;
-    };
-
-    template<class... Ts>
-    struct is_filter<any_but_t<Ts...>>
-    {
-        static constexpr auto value = true;
-    };
-
-    template<>
-    struct is_filter<none_t>
-    {
-        static constexpr auto value = true;
-    };
 
     template<class Value, class... Filters>
     constexpr bool matches_any_filter(const Value& value, const Filters&... filters)
     {
         return (matches_filter(value, filters) || ...);
     }
+
+    template<class T>
+    struct is_filter
+    {
+        static constexpr auto value = false;
+    };
+
+    template<class Predicate>
+    struct is_filter<filter<Predicate>>
+    {
+        static constexpr auto value = true;
+    };
+
+    template<class T>
+    constexpr auto is_filter_v = is_filter<T>::value;
 }
 
 } //namespace

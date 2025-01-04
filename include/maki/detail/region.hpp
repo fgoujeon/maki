@@ -8,7 +8,6 @@
 #define MAKI_DETAIL_REGION_HPP
 
 #include "state_traits.hpp"
-#include "call.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
@@ -22,6 +21,8 @@
 #include "maybe_bool_util.hpp"
 #include "tuple.hpp"
 #include "constant.hpp"
+#include "../action.hpp"
+#include "../guard.hpp"
 #include "../path.hpp"
 #include "../null.hpp"
 #include "../cref_constant.hpp"

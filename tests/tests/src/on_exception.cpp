@@ -51,9 +51,8 @@ namespace on_exception_ns
                     }
                 }
             )
-            .internal_action_ce
+            .internal_action_ce<maki::events::exception>
             (
-                maki::type<maki::events::exception>,
                 [](context& ctx, const maki::events::exception& event)
                 {
                     try

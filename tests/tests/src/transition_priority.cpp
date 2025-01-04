@@ -24,9 +24,8 @@ namespace internal_transition_in_transition_table_ns
     namespace states
     {
         constexpr auto idle = maki::state_conf{}
-            .internal_action_c
+            .internal_action_c<events::should_trigger_transition_in_state>
             (
-                maki::type<events::should_trigger_transition_in_state>,
                 [](context& ctx)
                 {
                     ctx.out += "idle::internal_action;";

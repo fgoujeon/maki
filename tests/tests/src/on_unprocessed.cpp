@@ -41,25 +41,22 @@ namespace on_unprocessed_ns
     namespace states
     {
         constexpr auto off = maki::state_conf{}
-            .internal_action_v
+            .internal_action_v<events::ignored_by_emitting_blue>
             (
-                maki::type<events::ignored_by_emitting_blue>,
                 []{}
             )
         ;
 
         constexpr auto emitting_red = maki::state_conf{}
-            .internal_action_v
+            .internal_action_v<events::ignored_by_emitting_blue>
             (
-                maki::type<events::ignored_by_emitting_blue>,
                 []{}
             )
         ;
 
         constexpr auto emitting_green = maki::state_conf{}
-            .internal_action_v
+            .internal_action_v<events::ignored_by_emitting_blue>
             (
-                maki::type<events::ignored_by_emitting_blue>,
                 []{}
             )
         ;
@@ -84,9 +81,8 @@ namespace on_unprocessed_ns
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
         .context_a<context>()
-        .post_processing_hook_mep
+        .post_processing_hook_mep<events::ignored_by_emitting_blue>
         (
-            maki::type<events::ignored_by_emitting_blue>,
             [](auto& mach, const events::ignored_by_emitting_blue& event, const bool processed)
             {
                 if(!processed)

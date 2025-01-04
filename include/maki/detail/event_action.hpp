@@ -16,20 +16,20 @@
 namespace maki::detail
 {
 
-template<class EventFilter, class Action, action_signature Sig>
+template<class EventFilterPredicate, class Action, action_signature Sig>
 struct event_action
 {
-    using event_filter_type = EventFilter;
+    using event_filter_type = filter<EventFilterPredicate>;
 
     static constexpr auto sig = Sig;
-    EventFilter event_filter;
+    event_filter_type event_filter;
     Action action;
 };
 
-template<action_signature Sig, class EventFilter, class Action>
-constexpr auto make_event_action(const EventFilter& event_filter, const Action& action)
+template<action_signature Sig, class EventFilterPredicate, class Action>
+constexpr auto make_event_action(const filter<EventFilterPredicate>& event_filter, const Action& action)
 {
-    return event_action<EventFilter, Action, Sig>{event_filter, action};
+    return event_action<EventFilterPredicate, Action, Sig>{event_filter, action};
 }
 
 namespace event_action_traits

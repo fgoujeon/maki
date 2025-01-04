@@ -39,9 +39,8 @@ namespace state_data_ns
 
         constexpr auto on = maki::state_conf{}
             .context_v<on_data>()
-            .internal_action_ce
+            .internal_action_ce<events::accumulate_request>
             (
-                maki::type<events::accumulate_request>,
                 [](on_data& self, const events::accumulate_request& event)
                 {
                     on_accumulate(self, event.n);

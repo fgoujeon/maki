@@ -35,17 +35,15 @@ namespace composite_state_on_xxx_ns
         EMPTY_STATE(off)
 
         constexpr auto on_0 = maki::state_conf{}
-            .entry_action_ce
+            .entry_action_ce<events::button_press>
             (
-                maki::type<events::button_press>,
                 [](context& ctx, const events::button_press& event)
                 {
                     ctx.out += event.data + "2";
                 }
             )
-            .internal_action_ce
+            .internal_action_ce<events::internal>
             (
-                maki::type<events::internal>,
                 [](context& ctx, const events::internal& event)
                 {
                     ctx.out += event.data + "2";
@@ -53,7 +51,6 @@ namespace composite_state_on_xxx_ns
             )
             .exit_action_ce
             (
-                maki::type<events::button_press>,
                 [](context& ctx, const events::button_press& event)
                 {
                     ctx.out += event.data + "1";
@@ -67,25 +64,22 @@ namespace composite_state_on_xxx_ns
 
         constexpr auto on = maki::state_conf{}
             .transition_tables(on_transition_table)
-            .entry_action_ce
+            .entry_action_ce<events::button_press>
             (
-                maki::type<events::button_press>,
                 [](context& ctx, const events::button_press& event)
                 {
                     ctx.out += event.data + "1";
                 }
             )
-            .internal_action_ce
+            .internal_action_ce<events::internal>
             (
-                maki::type<events::internal>,
                 [](context& ctx, const events::internal& event)
                 {
                     ctx.out += event.data + "1";
                 }
             )
-            .exit_action_ce
+            .exit_action_ce<events::button_press>
             (
-                maki::type<events::button_press>,
                 [](context& ctx, const events::button_press& event)
                 {
                     ctx.out += event.data + "2";

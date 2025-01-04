@@ -36,9 +36,8 @@ namespace on_entry_event_exit_ns
                     ctx.hello = "hello";
                 }
             )
-            .internal_action_c
+            .internal_action_c<events::say_dog>
             (
-                maki::type<events::say_dog>,
                 [](context& ctx)
                 {
                     ctx.dog = "dog";
@@ -62,9 +61,8 @@ namespace on_entry_event_exit_ns
                     mach.context().hello = "bonjour";
                 }
             )
-            .internal_action_c
+            .internal_action_c<events::say_dog>
             (
-                maki::type<events::say_dog>,
                 [](context& ctx)
                 {
                     ctx.dog = "chien";

@@ -129,7 +129,7 @@ public:
     }
 
     /**
-    @brief Returns whether the region of the state machine in running.
+    @brief Returns whether the region of the state machine is running.
     This function can only be called if the state machine contains only one
     region.
     */

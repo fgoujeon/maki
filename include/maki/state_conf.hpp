@@ -97,7 +97,7 @@ public:
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Sets the type of the context \
+    @brief Sets the type of the context. \
     */ \
     template<class Context> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE context_##signature() const \
@@ -109,7 +109,7 @@ public:
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Add an entry action \
+    @brief Add an entry action. \
     */ \
     template<class EventFilter, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const EventFilter& event_filter, const Action& action) const \
@@ -121,7 +121,7 @@ public:
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Add an entry action \
+    @brief Add an entry action. \
     */ \
     template<class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const Action& action) const \
@@ -133,7 +133,7 @@ public:
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Add an internal action \
+    @brief Add an internal action. \
     */ \
     template<class EventFilter, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const EventFilter& event_filter, const Action& action) const \
@@ -145,7 +145,7 @@ public:
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Add an exit action \
+    @brief Add an exit action. \
     */ \
     template<class EventFilter, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const EventFilter& event_filter, const Action& action) const \
@@ -157,7 +157,7 @@ public:
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Add an exit action \
+    @brief Add an exit action. \
     */ \
     template<class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const Action& action) const \

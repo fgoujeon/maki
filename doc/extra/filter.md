@@ -34,7 +34,7 @@ sleeping --> powering_off : power button press
 Implementing this state machine presents two difficulties:
 
 * How do we factorize the many transitions to `powering_off`?
-* How do we express the event "any button press (except off)" without enumerating all the events type that are not `power_button_press`?
+* How do we express the event "any button press (except off)" without enumerating all the event types that are not `power_button_press`?
 
 The answer to both questions is: use filters. Respectively a source state filter and an event filter:
 

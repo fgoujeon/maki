@@ -4,7 +4,7 @@
 
 Run-to-completion is the guarantee that the processing of an event can't be interrupted by the processing of another event.
 
-The simplest way to explain what run-to-completion is to show what happens when it isn't guaranteed. Say you have a state machine of this form:
+The simplest way to explain what run-to-completion is is to show what happens when it isn't guaranteed. Say you have a state machine of this form:
 
 @startuml{rtc_diagram.png}
 [*] --> A
@@ -46,7 +46,7 @@ With run-to-completion, both events would have been fully processed sequentially
 
 ## When to use run-to-completion
 
-Always use run-to-completion, unless you can't affort its performance penalty.
+Always use run-to-completion, unless you can't afford its performance penalty.
 
 This feature indeed comes at a cost; to guarantee run-to-completion, a state machine library must use a queue of some sort to store the events its client asks to process while it's busy. This might involve memory allocation.
 

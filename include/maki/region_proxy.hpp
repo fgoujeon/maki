@@ -23,7 +23,14 @@ namespace detail
     }
 }
 
+/**
+@brief Provides read-only access to an internal region object.
+*/
+#ifdef MAKI_DETAIL_DOXYGEN
+template<IMPLEMENTATION_DETAIL>
+#else
 template<class Region>
+#endif
 class region_proxy
 {
 public:

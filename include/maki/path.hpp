@@ -14,7 +14,14 @@
 namespace maki
 {
 
+/**
+@brief Encodes a path to a state or region.
+*/
+#ifdef MAKI_DETAIL_DOXYGEN
+template<IMPLEMENTATION_DETAIL>
+#else
 template<class Impl>
+#endif
 class path
 {
 public:

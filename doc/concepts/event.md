@@ -1,13 +1,5 @@
 # Event {#event}
 
-## Definition
-
-TODO
-
-## When to use an event
-
-TODO
-
 ## How to use events within Maki
 
 Within Maki, an event can be an object of any type. It can carry data that your state machine (more precisely your [actions](@ref action) and [guards](@ref guard), which we'll see later in this manual) will be able to read.
@@ -18,7 +10,7 @@ Very often, you will define event types in modules that don't even depend on Mak
 
 ### Example
 
-Let's see how an Maki-based program typically handles events.
+Let's see how a Maki-based program typically handles events.
 
 We have a device that is made of:
 * a motor that takes a little time to start and stop;

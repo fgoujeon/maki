@@ -23,7 +23,14 @@ namespace detail
     }
 }
 
+/**
+@brief Provides read-only access to an internal state object.
+*/
+#ifdef MAKI_DETAIL_DOXYGEN
+template<IMPLEMENTATION_DETAIL>
+#else
 template<class State>
+#endif
 class state_proxy
 {
 public:

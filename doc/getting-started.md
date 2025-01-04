@@ -7,7 +7,7 @@ To install it into your project, you can either:
 * use the [GitHub repository](https://github.com/fgoujeon/maki) as a git submodule and select a tagged revision on the `main` branch;
 * download the latest [tagged revision](https://github.com/fgoujeon/maki/tags) of the `main` branch and copy the `maki` subdirectory wherever suits you.
 
-If you use CMake, you'd likely want to `add_subdirectory()` the `maki` subdirectory. Its `CMakeLists.txt` script doesn't depend on anything. It defines an `maki` target that you can use like so:
+If you use CMake, you'd likely want to `add_subdirectory()` the `maki` subdirectory. Its `CMakeLists.txt` script doesn't depend on anything. It defines a `maki` target that you can use like so:
 
 ```cmake
 target_link_libraries(MyExecutable PRIVATE maki)

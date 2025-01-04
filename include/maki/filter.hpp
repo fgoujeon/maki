@@ -107,6 +107,12 @@ namespace detail
     }
 }
 
+/**
+@brief Represents a filter of values. See @ref filter.
+Use the variables (`maki::any`, `maki::none`) and builder functions
+(`maki::any_if()`, `maki::any_if_not()`, `maki::any_of()`, `maki::any_but()`)
+instead of manually instantiating this type.
+*/
 template<class Predicate>
 struct filter
 {

@@ -15,12 +15,10 @@
 */
 
 #include "maki/action.hpp" //NOLINT misc-include-cleaner
-#include "maki/action_signature.hpp" //NOLINT misc-include-cleaner
 #include "maki/cref_constant.hpp" //NOLINT misc-include-cleaner
 #include "maki/events.hpp" //NOLINT misc-include-cleaner
 #include "maki/filters.hpp" //NOLINT misc-include-cleaner
 #include "maki/guard.hpp" //NOLINT misc-include-cleaner
-#include "maki/guard_signature.hpp" //NOLINT misc-include-cleaner
 #include "maki/machine.hpp" //NOLINT misc-include-cleaner
 #include "maki/machine_conf.hpp" //NOLINT misc-include-cleaner
 #include "maki/machine_ref.hpp" //NOLINT misc-include-cleaner

@@ -12,12 +12,55 @@
 #ifndef MAKI_GUARD_HPP
 #define MAKI_GUARD_HPP
 
-#include "guard_signature.hpp"
 #include "detail/signature_macros.hpp"
 #include "detail/call.hpp"
 
 namespace maki
 {
+
+/**
+@brief The set of arguments taken by a guard callable.
+
+Meaning of every letter:
+
+- `v`: void
+- `m`: machine
+- `c`: context
+- `e`: event
+*/
+enum class guard_signature: char
+{
+#define MAKI_DETAIL_X(name) name, /*NOLINT(cppcoreguidelines-macro-usage)*/
+    MAKI_DETAIL_GUARD_SIGNATURES
+#undef MAKI_DETAIL_X
+};
+
+namespace detail
+{
+    template
+    <
+        class Guard,
+        class Context,
+        class Machine,
+        class Event
+    >
+    bool call_guard
+    (
+        const Guard& grd,
+        Context& ctx,
+        Machine& mach,
+        const Event& event
+    )
+    {
+        return call_callable<guard_signature, Guard::signature>
+        (
+            grd.callable,
+            ctx,
+            mach,
+            event
+        );
+    }
+}
 
 /**
 @brief Represents a guard to be given to `maki::transition_table`.

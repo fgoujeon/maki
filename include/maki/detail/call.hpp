@@ -8,8 +8,6 @@
 #define MAKI_DETAIL_CALL_MEMBER_HPP
 
 #include "tlu.hpp"
-#include "../action_signature.hpp"
-#include "../guard_signature.hpp"
 #include <functional>
 #include <utility>
 
@@ -72,54 +70,6 @@ auto call_callable
         constexpr auto is_false = sizeof(Machine) == 0;
         static_assert(is_false, "Unsupported signature");
     }
-}
-
-template
-<
-    class Action,
-    class Context,
-    class Machine,
-    class Event
->
-void call_action
-(
-    const Action& act,
-    Context& ctx,
-    Machine& mach,
-    const Event& event
-)
-{
-    return call_callable<action_signature, Action::signature>
-    (
-        act.callable,
-        ctx,
-        mach,
-        event
-    );
-}
-
-template
-<
-    class Guard,
-    class Context,
-    class Machine,
-    class Event
->
-bool call_guard
-(
-    const Guard& grd,
-    Context& ctx,
-    Machine& mach,
-    const Event& event
-)
-{
-    return call_callable<guard_signature, Guard::signature>
-    (
-        grd.callable,
-        ctx,
-        mach,
-        event
-    );
 }
 
 } //namespace

@@ -12,11 +12,28 @@
 #ifndef MAKI_ACTION_HPP
 #define MAKI_ACTION_HPP
 
-#include "action_signature.hpp"
 #include "detail/signature_macros.hpp"
+#include "detail/call.hpp"
 
 namespace maki
 {
+
+/**
+@brief The set of arguments taken by an action callable.
+
+Meaning of every letter:
+
+- `v`: void
+- `m`: machine
+- `c`: context
+- `e`: event
+*/
+enum class action_signature: char
+{
+#define MAKI_DETAIL_X(name) name, /*NOLINT(cppcoreguidelines-macro-usage)*/
+    MAKI_DETAIL_ACTION_SIGNATURES
+#undef MAKI_DETAIL_X
+};
 
 /**
 @brief Represents an action to be given to `maki::transition_table`.
@@ -42,6 +59,33 @@ struct action
     }
 MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
+
+namespace detail
+{
+    template
+    <
+        class Action,
+        class Context,
+        class Machine,
+        class Event
+    >
+    void call_action
+    (
+        const Action& act,
+        Context& ctx,
+        Machine& mach,
+        const Event& event
+    )
+    {
+        return call_callable<action_signature, Action::signature>
+        (
+            act.callable,
+            ctx,
+            mach,
+            event
+        );
+    }
+}
 
 } //namespace
 

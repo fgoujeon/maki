@@ -14,7 +14,7 @@
 
 #include "state_conf_fwd.hpp"
 #include "action.hpp"
-#include "filters.hpp"
+#include "filter.hpp"
 #include "type.hpp"
 #include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"
@@ -111,23 +111,33 @@ public:
     /** \
     @brief Add an entry action. \
     */ \
-    template<class EventFilter, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const EventFilter& event_filter, const Action& action) const \
+    template<class EventFilterPredicate, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const filter<EventFilterPredicate>& event_filter, const Action& action) const \
     { \
         return entry_action<action_signature::signature>(event_filter, action); \
-    }
-    MAKI_DETAIL_ACTION_SIGNATURES
-#undef MAKI_DETAIL_X
-
-#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    } \
+ \
+    /** \
+    @brief Add an entry action. \
+    */ \
+    template<class Event, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const Action& action) const \
+    { \
+        return entry_action_##signature(any_type_of<Event>, action); \
+    } \
+ \
     /** \
     @brief Add an entry action. \
     */ \
     template<class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const Action& action) const \
     { \
-        return entry_action<action_signature::signature>(any, action); \
+        return entry_action_##signature(any, action); \
     }
+    MAKI_DETAIL_ACTION_SIGNATURES
+#undef MAKI_DETAIL_X
+
+#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 
@@ -135,10 +145,19 @@ public:
     /** \
     @brief Add an internal action. \
     */ \
-    template<class EventFilter, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const EventFilter& event_filter, const Action& action) const \
+    template<class EventFilterPredicate, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const filter<EventFilterPredicate>& event_filter, const Action& action) const \
     { \
         return internal_action<action_signature::signature>(event_filter, action); \
+    } \
+ \
+    /** \
+    @brief Add an internal action. \
+    */ \
+    template<class Event, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const Action& action) const \
+    { \
+        return internal_action_##signature(any_type_of<Event>, action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -147,22 +166,28 @@ public:
     /** \
     @brief Add an exit action. \
     */ \
-    template<class EventFilter, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const EventFilter& event_filter, const Action& action) const \
+    template<class EventFilterPredicate, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const filter<EventFilterPredicate>& event_filter, const Action& action) const \
     { \
         return exit_action<action_signature::signature>(event_filter, action); \
-    }
-    MAKI_DETAIL_ACTION_SIGNATURES
-#undef MAKI_DETAIL_X
-
-#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    } \
+ \
+    /** \
+    @brief Add an exit action. \
+    */ \
+    template<class Event, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const Action& action) const \
+    { \
+        return exit_action_##signature(any_type_of<Event>, action); \
+    } \
+ \
     /** \
     @brief Add an exit action. \
     */ \
     template<class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const Action& action) const \
     { \
-        return exit_action<action_signature::signature>(any, action); \
+        return exit_action_##signature(any, action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X

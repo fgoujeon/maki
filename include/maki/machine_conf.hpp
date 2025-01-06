@@ -13,6 +13,7 @@
 #define MAKI_MACHINE_CONF_HPP
 
 #include "machine_conf_fwd.hpp"
+#include "filter.hpp"
 #include "action.hpp"
 #include "type.hpp"
 #include "detail/context_signature.hpp"
@@ -132,10 +133,19 @@ public:
     /** \
     @brief Adds a start action. \
     */ \
-    template<class EventFilter, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE start_action_##signature(const EventFilter& event_filter, const Action& action) const \
+    template<class EventFilterPredicate, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE start_action_##signature(const filter<EventFilterPredicate>& event_filter, const Action& action) const \
     { \
         return start_action<action_signature::signature>(event_filter, action); \
+    } \
+ \
+    /** \
+    @brief Adds a start action. \
+    */ \
+    template<class Event, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE start_action_##signature(const Action& action) const \
+    { \
+        return start_action_##signature(any_type_of<Event>, action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -145,10 +155,20 @@ public:
     @brief Adds a hook to be called whenever `maki::machine` is about to \
     process an event. \
     */ \
-    template<class EventFilter, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_processing_hook_##signature(const EventFilter& event_filter, const Action& action) const \
+    template<class EventFilterPredicate, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_processing_hook_##signature(const filter<EventFilterPredicate>& event_filter, const Action& action) const \
     { \
         return pre_processing_hook<action_signature::signature>(event_filter, action); \
+    } \
+ \
+    /** \
+    @brief Adds a hook to be called whenever `maki::machine` is about to \
+    process an event. \
+    */ \
+    template<class Event, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_processing_hook_##signature(const Action& action) const \
+    { \
+        return pre_processing_hook_##signature(any_type_of<Event>, action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -157,10 +177,19 @@ public:
     /** \
     @brief Adds a stop action. \
     */ \
-    template<class EventFilter, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE stop_action_##signature(const EventFilter& event_filter, const Action& action) const \
+    template<class EventFilterPredicate, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE stop_action_##signature(const filter<EventFilterPredicate>& event_filter, const Action& action) const \
     { \
         return stop_action<action_signature::signature>(event_filter, action); \
+    } \
+ \
+    /** \
+    @brief Adds a stop action. \
+    */ \
+    template<class Event, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE stop_action_##signature(const Action& action) const \
+    { \
+        return stop_action_##signature(any_type_of<Event>, action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -398,8 +427,8 @@ public:
     ;
     @endcode
     */
-    template<class EventFilter, class Action>
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_processing_hook_mep(const EventFilter& event_filter, const Action& action) const
+    template<class EventFilterPredicate, class Action>
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_processing_hook_mep(const filter<EventFilterPredicate>& event_filter, const Action& action) const
     {
         const auto new_post_processing_hooks = tuple_append
         (
@@ -411,6 +440,12 @@ public:
 #define MAKI_DETAIL_ARG_post_processing_hooks new_post_processing_hooks
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_post_processing_hooks
+    }
+
+    template<class Event, class Action>
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_processing_hook_mep(const Action& action) const
+    {
+        return post_processing_hook_mep(any_type_of<Event>, action);
     }
 
     /**

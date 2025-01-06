@@ -32,9 +32,8 @@ namespace orthogonal_regions_ns
         EMPTY_STATE(off1)
         EMPTY_STATE(on0)
         constexpr auto on1 = maki::state_conf{}
-            .internal_action_c
+            .internal_action_c<events::exception_request>
             (
-                maki::type<events::exception_request>,
                 [](context& ctx)
                 {
                     if(ctx.always_zero == 0) //We need this to avoid "unreachable code" warnings

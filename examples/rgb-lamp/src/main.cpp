@@ -81,7 +81,7 @@ namespace states
         Entry action invoked whenever the state machine enters the `off` state
         with a `button::push_event`.
         */
-        .entry_action_e(maki::type<button::push_event>, [](const button::push_event& event)
+        .entry_action_e<button::push_event>([](const button::push_event& event)
         {
             std::cout << "Turned off after a ";
             std::cout << event.duration_ms << " millisecond push\n";
@@ -91,7 +91,7 @@ namespace states
         Entry action invoked whenever the state machine enters the `off` state
         with a state machine start event.
         */
-        .entry_action_v(maki::type<maki::events::start>, []
+        .entry_action_v<maki::events::start>([]
         {
             std::cout << "Started state machine\n";
         })

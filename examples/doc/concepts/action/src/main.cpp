@@ -27,9 +27,8 @@ constexpr auto state2 = maki::state_conf{}
     Entry action.
     Called on state entry for state transitions caused by some_other_event.
     */
-    .entry_action_e
+    .entry_action_e<some_other_event>
     (
-        maki::type<some_other_event>,
         [](const some_other_event& event)
         {
             std::cout << "Executing state2 entry action (some_other_event{" << event.value << "})...\n";
@@ -49,7 +48,7 @@ constexpr auto state2 = maki::state_conf{}
     /*
     Internal action.
     */
-    .internal_action_v(maki::type<some_event>, []
+    .internal_action_v<some_event>([]
     {
         std::cout << "Executing state2 some_event action\n";
     })
@@ -57,7 +56,7 @@ constexpr auto state2 = maki::state_conf{}
     /*
     Internal action.
     */
-    .internal_action_e(maki::type<some_other_event>, [](const some_other_event& event)
+    .internal_action_e<some_other_event>([](const some_other_event& event)
     {
         std::cout << "Executing state2 some_other_event action (some_other_event{" << event.value << "})...\n";
     })

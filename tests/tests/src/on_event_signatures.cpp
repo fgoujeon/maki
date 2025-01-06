@@ -35,17 +35,15 @@ namespace on_event_signatures_ns
     namespace states
     {
         constexpr auto state0 = maki::state_conf{}
-            .internal_action_ce
+            .internal_action_ce<events::event1>
             (
-                maki::type<events::event1>,
                 [](context& ctx, const events::event1& event)
                 {
                     ctx.out = "on_event_ce " + event.value;
                 }
             )
-            .internal_action_cme
+            .internal_action_cme<events::event2>
             (
-                maki::type<events::event2>,
                 [](context& ctx, maki::machine_ref_e<events::unused> /*mach*/, const events::event2& event)
                 {
                     ctx.out = "on_event_cme " + event.value;

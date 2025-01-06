@@ -31,9 +31,8 @@ namespace nullary_member_functions_ns
         EMPTY_STATE(off)
 
         constexpr auto on = maki::state_conf{}
-            .entry_action_c
+            .entry_action_c<events::e1>
             (
-                maki::type<events::e1>,
                 [](context& ctx)
                 {
                     ctx.out += "on_entry(e1);";
@@ -47,9 +46,8 @@ namespace nullary_member_functions_ns
                     ctx.out += "on_entry();";
                 }
             )
-            .exit_action_c
+            .exit_action_c<events::e1>
             (
-                maki::type<events::e1>,
                 [](context& ctx)
                 {
                     ctx.out += "on_exit(e1);";

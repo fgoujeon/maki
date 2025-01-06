@@ -100,7 +100,7 @@ namespace states
         Exit action invoked whenever the state machine exits the `off` state,
         whatever the type of the event that caused the state transition.
         */
-        .exit_action_v(maki::any, []
+        .exit_action_v([]
         {
             std::cout << "Turned on\n";
         })
@@ -115,7 +115,7 @@ namespace states
     };
     constexpr auto emitting_white = maki::state_conf{}
         .context_v<emitting_white_data>()
-        .entry_action_c(maki::any, [](emitting_white_data& data)
+        .entry_action_c([](emitting_white_data& data)
         {
             ++data.counter;
         })
@@ -163,7 +163,7 @@ namespace guards
         return event.duration_ms > 1000;
     });
 
-    //We can use maki::guard and boolean operators to compose guards.
+    //We can use boolean operators to compose guards.
     constexpr auto is_short_push = !is_long_push;
 }
 

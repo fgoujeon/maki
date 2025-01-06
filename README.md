@@ -144,7 +144,7 @@ namespace states
         Entry action invoked whenever the state machine enters the `off` state
         with a `button::push_event`.
         */
-        .entry_action_e(maki::type<button::push_event>, [](const button::push_event& event)
+        .entry_action_e<button::push_event>([](const button::push_event& event)
         {
             std::cout << "Turned off after a ";
             std::cout << event.duration_ms << " millisecond push\n";
@@ -154,7 +154,7 @@ namespace states
         Entry action invoked whenever the state machine enters the `off` state
         with a state machine start event.
         */
-        .entry_action_v(maki::type<maki::events::start>, []
+        .entry_action_v<maki::events::start>([]
         {
             std::cout << "Started state machine\n";
         })
@@ -163,7 +163,7 @@ namespace states
         Exit action invoked whenever the state machine exits the `off` state,
         whatever the type of the event that caused the state transition.
         */
-        .exit_action_v(maki::any, []
+        .exit_action_v([]
         {
             std::cout << "Turned on\n";
         })
@@ -177,8 +177,8 @@ namespace states
         int counter = 0;
     };
     constexpr auto emitting_white = maki::state_conf{}
-        .context_v(maki::type<emitting_white_data>)
-        .entry_action_c(maki::any, [](emitting_white_data& data)
+        .context_v<emitting_white_data>()
+        .entry_action_c([](emitting_white_data& data)
         {
             ++data.counter;
         })
@@ -198,12 +198,6 @@ state transition occurs.
 */
 namespace actions
 {
-    /*
-    One of the following expressions must be valid:
-        action(context, machine, event);
-        action(context, event);
-        action(context);
-    */
     constexpr auto turn_light_off = maki::action_c([](context& ctx)
     {
         ctx.led.set_color(rgb_led::color::off);
@@ -222,23 +216,18 @@ namespace actions
 }
 
 /*
-A guard is a callable invoked to check that a state transition can occur.
+A guard is a constexpr object holding a callable invoked to check whether a
+state transition must occur.
 */
 namespace guards
 {
-    /*
-    One of the following expressions must be valid:
-        guard(context, machine, event);
-        guard(context, event);
-        guard(context);
-    */
-    bool is_long_push(context& /*ctx*/, const button::push_event& event)
+    constexpr auto is_long_push = maki::guard_e([](const button::push_event& event)
     {
         return event.duration_ms > 1000;
-    }
+    });
 
-    //We can use maki::guard and boolean operators to compose guards.
-    constexpr auto is_short_push = !maki::guard{is_long_push};
+    //We can use boolean operators to compose guards.
+    constexpr auto is_short_push = !is_long_push;
 }
 
 using namespace states;
@@ -288,7 +277,7 @@ constexpr auto machine_conf = maki::machine_conf{}
 /*
 We finally have our configured state machine.
 */
-using machine_t = maki::make_machine<machine_conf>;
+using machine_t = maki::machine<machine_conf>;
 
 int main()
 {

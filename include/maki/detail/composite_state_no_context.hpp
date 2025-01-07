@@ -14,7 +14,7 @@
 #include "tuple.hpp"
 #include "../machine_conf.hpp"
 #include "../state_conf.hpp"
-#include "../region_proxy.hpp"
+#include "../region.hpp"
 #include <type_traits>
 #include <utility>
 
@@ -31,7 +31,7 @@ struct region_tuple_elem
 {
     static constexpr auto transition_table = tuple_get<Index>(opts(ParentSm::conf).transition_tables);
     static constexpr auto path = ParentPath.add_region_index(Index);
-    using type = region_proxy<region<transition_table, path>>;
+    using type = maki::region<detail::region<transition_table, path>>;
 };
 
 template

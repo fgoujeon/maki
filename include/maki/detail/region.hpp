@@ -28,6 +28,7 @@
 #include "../cref_constant.hpp"
 #include "../state_conf.hpp"
 #include "../state_confs.hpp"
+#include "../state_proxy.hpp"
 #include "../transition_table.hpp"
 #include <type_traits>
 
@@ -175,7 +176,7 @@ private:
     template<class... StateIdConstants>
     using state_id_constant_pack_to_state_tuple_t = tuple
     <
-        state_traits::state_id_to_state_t<StateIdConstants::value, Path>...
+        state_proxy<state_traits::state_id_to_state_t<StateIdConstants::value, Path>>...
     >;
 
     using state_tuple_type = tlu::apply_t
@@ -416,7 +417,7 @@ private:
             if constexpr(!same_ref(*SourceStateId, state_confs::stopped))
             {
                 auto& stt = state_from_id<SourceStateId>();
-                stt.call_exit_action
+                stt.impl().call_exit_action
                 (
                     mach,
                     ctx,
@@ -447,7 +448,7 @@ private:
             if constexpr(!same_ref(*TargetStateId, state_confs::stopped))
             {
                 auto& stt = state_from_id<TargetStateId>();
-                stt.call_entry_action
+                stt.impl().call_entry_action
                 (
                     mach,
                     ctx,
@@ -520,7 +521,7 @@ private:
 
             if constexpr(!Dry)
             {
-                self.template state<State>().call_internal_action
+                self.template state<State>().impl().call_internal_action
                 (
                     mach,
                     ctx,

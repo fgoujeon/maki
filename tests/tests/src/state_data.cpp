@@ -67,7 +67,7 @@ TEST_CASE("state_data")
     using namespace state_data_ns;
 
     auto machine = machine_t{};
-    const auto on_state = machine.state<states::on>();
+    const auto& on_state = machine.state<states::on>();
     auto& counter = on_state.context().counter;
 
     machine.process_event(events::button_press{});

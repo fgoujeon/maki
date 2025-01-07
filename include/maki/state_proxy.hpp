@@ -7,34 +7,27 @@
 #ifndef MAKI_REGION_STATE_PROXY_HPP
 #define MAKI_REGION_STATE_PROXY_HPP
 
-#include "detail/state_proxy_fwd.hpp"
-#include <functional>
+#include <utility>
 
 namespace maki
 {
 
-namespace detail
-{
-    template<class State>
-    state_proxy<State> make_state_proxy(const State& state)
-    {
-        return state_proxy<State>{state};
-    }
-}
-
 /**
-@brief Provides read-only access to an internal state object.
+@brief Represents a [state](@ref state).
 */
 #ifdef MAKI_DETAIL_DOXYGEN
 template<IMPLEMENTATION_DETAIL>
 #else
-template<class State>
+template<class Impl>
 #endif
 class state_proxy
 {
 public:
-    state_proxy(const State& state):
-        state_(state)
+    using impl_type = Impl;
+
+    template<class... Args>
+    state_proxy(Args&&... args):
+        impl_(std::forward<Args>(args)...)
     {
     }
 
@@ -45,35 +38,47 @@ public:
     ~state_proxy() = default;
 
     template<const auto& StateConf>
-    [[nodiscard]] auto state() const
+    [[nodiscard]] const auto& state() const
     {
-        return detail::make_state_proxy(state_.get().template state<StateConf>());
+        return impl_.template state<StateConf>();
     }
 
     template<int Index>
-    [[nodiscard]] auto region() const
+    [[nodiscard]] const auto& region() const
     {
-        return state_.get().template region<Index>();
+        return impl_.template region<Index>();
     }
 
     template<const auto& StateConf>
     [[nodiscard]] bool is() const
     {
-        return state_.get().template is<StateConf>();
+        return impl_.template is<StateConf>();
     }
 
     [[nodiscard]] bool running() const
     {
-        return state_.get().running();
+        return impl_.running();
     }
 
     [[nodiscard]] const auto& context() const
     {
-        return state_.get().context();
+        return impl_.context();
     }
 
+#ifndef MAKI_DETAIL_DOXYGEN
+    Impl& impl()
+    {
+        return impl_;
+    }
+
+    const Impl& impl() const
+    {
+        return impl_;
+    }
+#endif
+
 private:
-    std::reference_wrapper<const State> state_;
+    Impl impl_;
 };
 
 } //namespace

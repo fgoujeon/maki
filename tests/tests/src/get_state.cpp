@@ -151,10 +151,10 @@ TEST_CASE("state")
     using namespace get_state_ns;
 
     auto machine = machine_t{};
-    const auto on_state = machine.state<states::on>();
-    const auto emitting_red_state = on_state.state<states::emitting_red>();
-    const auto emitting_green_state = on_state.state<states::emitting_green>();
-    const auto emitting_blue_state = on_state.state<states::emitting_blue>();
+    const auto& on_state = machine.state<states::on>();
+    const auto& emitting_red_state = on_state.state<states::emitting_red>();
+    const auto& emitting_green_state = on_state.state<states::emitting_green>();
+    const auto& emitting_blue_state = on_state.state<states::emitting_blue>();
 
     REQUIRE(emitting_red_state.context().color == led_color::red);
     REQUIRE(emitting_green_state.context().color == led_color::green);

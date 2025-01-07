@@ -7,7 +7,6 @@
 #ifndef MAKI_REGION_HPP
 #define MAKI_REGION_HPP
 
-#include "detail/state_proxy_fwd.hpp"
 #include <utility>
 
 namespace maki
@@ -48,9 +47,9 @@ public:
     }
 
     template<const auto& StateConf>
-    [[nodiscard]] auto state() const
+    [[nodiscard]] const auto& state() const
     {
-        return detail::make_state_proxy(impl_.template state<StateConf>());
+        return impl_.template state<StateConf>();
     }
 
 #ifndef MAKI_DETAIL_DOXYGEN

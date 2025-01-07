@@ -121,7 +121,7 @@ TEST_CASE("composite_state")
 
     auto machine = machine_t{};
     auto& ctx = machine.context();
-    const auto on_state = machine.state<states::on>();
+    const auto& on_state = machine.state<states::on>();
 
     machine.start();
 

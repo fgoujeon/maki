@@ -8,7 +8,7 @@ The state that represents what the system is *currently* doing is called the **a
 
 ## How to define states with Maki
 
-You don't directly create state objects when using Maki. What you do is create state *configuration* objects and give Maki references to these objects. Eventually, when you instantiate a state machine, Maki creates internal state objects based on their configuration.
+You don't directly create state objects when using Maki. What you do is create state *configuration* objects and give Maki references to these objects. Eventually, when you instantiate a state machine, Maki creates instances of `maki::state` based on their configuration.
 
 A state configuration is a `constexpr` variable of type `maki::state_conf` (which is actually a class template with plenty of template parameters you don't have to worry about):
 

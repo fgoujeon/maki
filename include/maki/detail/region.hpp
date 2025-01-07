@@ -28,7 +28,7 @@
 #include "../cref_constant.hpp"
 #include "../state_conf.hpp"
 #include "../state_confs.hpp"
-#include "../state_proxy.hpp"
+#include "../state.hpp"
 #include "../transition_table.hpp"
 #include <type_traits>
 
@@ -176,7 +176,7 @@ private:
     template<class... StateIdConstants>
     using state_id_constant_pack_to_state_tuple_t = tuple
     <
-        state_proxy<state_traits::state_id_to_state_t<StateIdConstants::value, Path>>...
+        maki::state<state_traits::state_id_to_state_t<StateIdConstants::value, Path>>...
     >;
 
     using state_tuple_type = tlu::apply_t

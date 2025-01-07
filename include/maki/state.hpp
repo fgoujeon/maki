@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_REGION_STATE_PROXY_HPP
-#define MAKI_REGION_STATE_PROXY_HPP
+#ifndef MAKI_REGION_STATE_HPP
+#define MAKI_REGION_STATE_HPP
 
 #include <utility>
 
@@ -20,25 +20,25 @@ template<IMPLEMENTATION_DETAIL>
 #else
 template<class Impl>
 #endif
-class state_proxy
+class state
 {
 public:
     using impl_type = Impl;
 
     template<class... Args>
-    state_proxy(Args&&... args):
+    state(Args&&... args):
         impl_(std::forward<Args>(args)...)
     {
     }
 
-    state_proxy(const state_proxy&) = default;
-    state_proxy(state_proxy&&) = delete;
-    state_proxy& operator=(const state_proxy&) = default;
-    state_proxy& operator=(state_proxy&&) = delete;
-    ~state_proxy() = default;
+    state(const state&) = default;
+    state(state&&) = delete;
+    state& operator=(const state&) = default;
+    state& operator=(state&&) = delete;
+    ~state() = default;
 
     template<const auto& StateConf>
-    [[nodiscard]] const auto& state() const
+    [[nodiscard]] const auto& substate() const
     {
         return impl_.template state<StateConf>();
     }

@@ -93,8 +93,8 @@ TEST_CASE("state_transition_hook_set")
 
     auto machine = machine_t{};
     auto& ctx = machine.context();
-    const auto region0 = machine.region<0>();
-    const auto region1 = machine.region<1>();
+    const auto& region0 = machine.region<0>();
+    const auto& region1 = machine.region<1>();
     const auto state_on1 = region1.state<states::on1>();
 
     machine.start(events::button_press{0});

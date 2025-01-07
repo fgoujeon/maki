@@ -7,21 +7,11 @@
 #ifndef MAKI_REGION_PROXY_HPP
 #define MAKI_REGION_PROXY_HPP
 
-#include "detail/region_proxy_fwd.hpp"
 #include "detail/state_proxy_fwd.hpp"
-#include <functional>
+#include <utility>
 
 namespace maki
 {
-
-namespace detail
-{
-    template<class Region>
-    region_proxy<Region> make_region_proxy(const Region& region)
-    {
-        return region_proxy<Region>{region};
-    }
-}
 
 /**
 @brief Provides read-only access to an internal region object.
@@ -29,13 +19,14 @@ namespace detail
 #ifdef MAKI_DETAIL_DOXYGEN
 template<IMPLEMENTATION_DETAIL>
 #else
-template<class Region>
+template<class Impl>
 #endif
 class region_proxy
 {
 public:
-    region_proxy(const Region& region):
-        region_(region)
+    template<class... Args>
+    region_proxy(Args&&... args):
+        impl_(std::forward<Args>(args)...)
     {
     }
 
@@ -47,23 +38,35 @@ public:
 
     [[nodiscard]] bool running() const
     {
-        return region_.get().running();
+        return impl_.running();
     }
 
     template<const auto& StateConf>
     [[nodiscard]] bool is() const
     {
-        return region_.get().template is<StateConf>();
+        return impl_.template is<StateConf>();
     }
 
     template<const auto& StateConf>
     [[nodiscard]] auto state() const
     {
-        return detail::make_state_proxy(region_.get().template state<StateConf>());
+        return detail::make_state_proxy(impl_.template state<StateConf>());
     }
 
+#ifndef MAKI_DETAIL_DOXYGEN
+    Impl& impl()
+    {
+        return impl_;
+    }
+
+    const Impl& impl() const
+    {
+        return impl_;
+    }
+#endif
+
 private:
-    std::reference_wrapper<const Region> region_;
+    Impl impl_;
 };
 
 } //namespace

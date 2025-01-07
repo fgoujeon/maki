@@ -8,7 +8,6 @@
 #define MAKI_REGION_STATE_PROXY_HPP
 
 #include "detail/state_proxy_fwd.hpp"
-#include "detail/region_proxy_fwd.hpp"
 #include <functional>
 
 namespace maki
@@ -54,7 +53,7 @@ public:
     template<int Index>
     [[nodiscard]] auto region() const
     {
-        return detail::make_region_proxy(state_.get().template region<Index>());
+        return state_.get().template region<Index>();
     }
 
     template<const auto& StateConf>

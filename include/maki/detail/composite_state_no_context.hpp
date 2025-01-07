@@ -14,6 +14,7 @@
 #include "tuple.hpp"
 #include "../machine_conf.hpp"
 #include "../state_conf.hpp"
+#include "../region_proxy.hpp"
 #include <type_traits>
 #include <utility>
 
@@ -30,7 +31,7 @@ struct region_tuple_elem
 {
     static constexpr auto transition_table = tuple_get<Index>(opts(ParentSm::conf).transition_tables);
     static constexpr auto path = ParentPath.add_region_index(Index);
-    using type = region<transition_table, path>;
+    using type = region_proxy<region<transition_table, path>>;
 };
 
 template
@@ -170,20 +171,20 @@ public:
     [[nodiscard]] const auto& state() const
     {
         static_assert(region_tuple_type::size == 1);
-        return region<0>().template state<StateConf>();
+        return region<0>().impl().template state<StateConf>();
     }
 
     template<const auto& StateConf>
     [[nodiscard]] bool is() const
     {
         static_assert(region_tuple_type::size == 1);
-        return region<0>().template is<StateConf>();
+        return region<0>().impl().template is<StateConf>();
     }
 
     [[nodiscard]] bool running() const
     {
         static_assert(region_tuple_type::size == 1);
-        return region<0>().running();
+        return region<0>().impl().running();
     }
 
     template<class /*Event*/>
@@ -207,7 +208,7 @@ private:
         template<class Region, class Self, class Machine, class Context, class Event>
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
-            tuple_get<Region>(self.regions_).start(mach, ctx, event);
+            tuple_get<Region>(self.regions_).impl().start(mach, ctx, event);
         }
     };
 
@@ -217,7 +218,7 @@ private:
         template<class Region, class Self, class Machine, class Context, class Event, class... MaybeBool>
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
         {
-            tuple_get<Region>(self.regions_).template process_event<Dry>(mach, ctx, event, processed...);
+            tuple_get<Region>(self.regions_).impl().template process_event<Dry>(mach, ctx, event, processed...);
         }
     };
 
@@ -226,7 +227,7 @@ private:
         template<class Region, class Self, class Machine, class Context, class Event>
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
-            tuple_get<Region>(self.regions_).stop(mach, ctx, event);
+            tuple_get<Region>(self.regions_).impl().stop(mach, ctx, event);
         }
     };
 

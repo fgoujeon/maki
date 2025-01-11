@@ -568,19 +568,19 @@ private:
 namespace detail
 {
     template<class T>
-    struct is_root_sm_conf
+    struct is_machine_conf
     {
         static constexpr auto value = false;
     };
 
     template<class... Options>
-    struct is_root_sm_conf<machine_conf<Options...>>
+    struct is_machine_conf<machine_conf<Options...>>
     {
         static constexpr auto value = true;
     };
 
     template<class T>
-    constexpr auto is_root_sm_conf_v = is_root_sm_conf<T>::value;
+    constexpr auto is_machine_conf_v = is_machine_conf<T>::value;
 }
 
 } //namespace

@@ -28,13 +28,7 @@ public:
     using transition_table_type_list = decltype(opts(conf).transition_tables);
     using context_type = typename option_set_type::context_type;
 
-    template
-    <
-        class Machine,
-        class ParentContext,
-        class ConfType = conf_type,
-        std::enable_if_t<!is_root_sm_conf_v<ConfType>, bool> = true
-    >
+    template<class Machine, class ParentContext>
     composite_state(Machine& mach, ParentContext& parent_ctx):
         ctx_holder_(mach, parent_ctx),
         impl_(mach, context())

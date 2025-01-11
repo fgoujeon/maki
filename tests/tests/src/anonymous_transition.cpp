@@ -9,7 +9,10 @@
 
 namespace anonymous_transition_ns
 {
-    struct context{};
+    struct context
+    {
+        std::string out;
+    };
 
     namespace events
     {
@@ -25,9 +28,14 @@ namespace anonymous_transition_ns
         EMPTY_STATE(s4)
     }
 
+    constexpr auto do_something = maki::action_ce([](context& ctx, const events::go_on& /*event*/)
+    {
+        ctx.out = "did something";
+    });
+
     constexpr auto transition_table = maki::transition_table{}
         (states::s0, maki::type<events::go_on>, states::s1)
-        (states::s1, maki::null,                states::s2)
+        (states::s1, maki::null,                states::s2, do_something)
         (states::s2, maki::type<events::go_on>, states::s3)
         (states::s3, maki::null,                states::s4)
         (states::s4, maki::null,                states::s0)
@@ -52,7 +60,9 @@ TEST_CASE("anonymous transition")
 
     machine.process_event(events::go_on{});
     REQUIRE(machine.is<states::s2>());
+    REQUIRE(machine.context().out == "did something");
 
+    machine.context().out.clear();
     machine.process_event(events::go_on{});
     REQUIRE(machine.is<states::s0>());
 }

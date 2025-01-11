@@ -7,51 +7,65 @@
 #ifndef MAKI_DETAIL_TRANSITION_TABLE_FILTERS_HPP
 #define MAKI_DETAIL_TRANSITION_TABLE_FILTERS_HPP
 
-#include "tlu/push_back_if.hpp"
-#include "tlu/left_fold.hpp"
+#include "tlu/filter.hpp"
 #include "integer_constant_sequence.hpp"
-#include "../type_list.hpp"
 #include "../filter.hpp"
+#include "../null.hpp"
 
 namespace maki::detail::transition_table_filters
 {
 
-namespace by_event_detail
+template<const auto& TransitionTuple, class Event>
+struct by_event_predicate_holder
 {
-    template<const auto& TransitionTuple, const auto& Event>
-    struct operation_holder
+    template<class TransitionIndexConstant>
+    struct predicate
     {
-        template<int TransitionIndex>
-        static constexpr auto matches = matches_filter
-        (
-            Event,
-            tuple_get<TransitionIndex>(TransitionTuple).event_filter
-        );
+        static constexpr auto make_value()
+        {
+            const auto& trans = tuple_get<TransitionIndexConstant::value>(TransitionTuple);
+            return matches_filter(type<Event>, trans.event_filter);
+        }
 
-        template<class TransitionPtrConstantList, class TransitionIndexConstant>
-        using operation = tlu::push_back_if_t
-        <
-            TransitionPtrConstantList,
-            TransitionIndexConstant,
-            matches<TransitionIndexConstant::value>
-        >;
+        static constexpr auto value = make_value();
+    };
+};
+
+namespace by_source_state_and_null_event_detail
+{
+    template<class TransitionIndexConstant, class TransitionTuple, class SourceStateId>
+    constexpr auto matches(const TransitionTuple& transitions, const SourceStateId source_state_id)
+    {
+        const auto& trans = tuple_get<TransitionIndexConstant::value>(transitions);
+        return
+            matches_filter(null, trans.event_filter) &&
+            matches_filter(source_state_id, trans.source_state_conf_filter)
+        ;
+    }
+
+    template<auto TransitionTuplePtr, auto SourceStateId>
+    struct predicate_holder
+    {
+        template<class TransitionIndexConstant>
+        struct predicate
+        {
+            static constexpr auto value = matches<TransitionIndexConstant>(*TransitionTuplePtr, SourceStateId);
+        };
     };
 }
 
 template<const auto& TransitionTuple, class Event>
-using by_event_t = tlu::left_fold_t
+using by_event_t = tlu::filter_t
 <
     make_integer_constant_sequence<int, TransitionTuple.size>,
-    by_event_detail::operation_holder<TransitionTuple, type<Event>>::template operation,
-    type_list_t<>
+    by_event_predicate_holder<TransitionTuple, Event>::template predicate
 >;
 
-template<const auto& TransitionTuple>
-using by_null_event_t = tlu::left_fold_t
+template<const auto& TransitionTuple, auto SourceStateId>
+using by_source_state_and_null_event_t = tlu::filter_t
 <
     make_integer_constant_sequence<int, TransitionTuple.size>,
-    by_event_detail::operation_holder<TransitionTuple, null>::template operation,
-    type_list_t<>
+    by_source_state_and_null_event_detail::predicate_holder<&TransitionTuple, SourceStateId>::template predicate
 >;
 
 } //namespace

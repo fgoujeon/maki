@@ -52,6 +52,24 @@ template<class OptionSet = detail::state_conf_option_set<>>
 #endif
 class state_conf;
 
+namespace detail
+{
+    template<class T>
+    struct is_state_conf
+    {
+        static constexpr auto value = false;
+    };
+
+    template<class OptionSet>
+    struct is_state_conf<state_conf<OptionSet>>
+    {
+        static constexpr auto value = true;
+    };
+
+    template<class T>
+    constexpr bool is_state_conf_v = is_state_conf<T>::value;
+}
+
 } //namespace
 
 #endif

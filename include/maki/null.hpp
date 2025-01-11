@@ -7,6 +7,8 @@
 #ifndef MAKI_NULL_HPP
 #define MAKI_NULL_HPP
 
+#include <type_traits>
+
 namespace maki
 {
 
@@ -39,6 +41,12 @@ constexpr auto null = null_t{};
 #else
 inline constexpr auto null = null_t{nullptr};
 #endif
+
+namespace detail
+{
+    template<class T>
+    constexpr bool is_null_v = std::is_same_v<T, null_t>;
+}
 
 } //namespace
 

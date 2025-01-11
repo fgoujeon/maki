@@ -45,6 +45,24 @@ constexpr bool operator==(const type_t<T> /*lhs*/, const type_t<U> /*rhs*/)
 template<class T>
 constexpr auto type = type_t<T>{};
 
+namespace detail
+{
+    template<class T>
+    struct is_type
+    {
+        static constexpr auto value = false;
+    };
+
+    template<class T>
+    struct is_type<type_t<T>>
+    {
+        static constexpr auto value = true;
+    };
+
+    template<class T>
+    constexpr bool is_type_v = is_type<T>::value;
+}
+
 } //namespace
 
 #endif

@@ -183,6 +183,21 @@ namespace detail
     {
         return null_guard;
     }
+
+    template<class T>
+    struct is_guard
+    {
+        static constexpr auto value = false;
+    };
+
+    template<guard_signature Sig, class Callable>
+    struct is_guard<guard<Sig, Callable>>
+    {
+        static constexpr auto value = true;
+    };
+
+    template<class T>
+    constexpr bool is_guard_v = is_guard<T>::value;
 }
 
 } //namespace

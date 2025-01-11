@@ -76,6 +76,21 @@ namespace detail
         return null_action;
     }
 
+    template<class T>
+    struct is_action
+    {
+        static constexpr auto value = false;
+    };
+
+    template<action_signature Sig, class Callable>
+    struct is_action<action<Sig, Callable>>
+    {
+        static constexpr auto value = true;
+    };
+
+    template<class T>
+    constexpr bool is_action_v = is_action<T>::value;
+
     template
     <
         class Action,

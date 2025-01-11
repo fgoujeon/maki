@@ -278,8 +278,8 @@ private:
         {
             static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(transition_tuple);
             static constexpr auto source_state_conf_filter = trans.source_state_conf_filter;
-            static constexpr auto action = trans.action;
-            static constexpr auto guard = trans.guard;
+            static constexpr auto action = trans.act;
+            static constexpr auto guard = trans.grd;
 
             if constexpr(is_filter_v<std::decay_t<decltype(source_state_conf_filter)>>)
             {

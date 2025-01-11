@@ -14,6 +14,7 @@
 
 #include "detail/signature_macros.hpp"
 #include "detail/call.hpp"
+#include "null.hpp"
 
 namespace maki
 {
@@ -166,6 +167,22 @@ constexpr auto operator!(const guard<Signature, Callable>& grd)
             return !detail::call_guard(grd, ctx, mach, event);
         }
     );
+}
+
+namespace detail
+{
+    inline constexpr auto null_guard = guard_v([]{return true;});
+
+    template<guard_signature Sig, class Callable>
+    constexpr const auto& to_guard(const guard<Sig, Callable>& grd)
+    {
+        return grd;
+    }
+
+    constexpr const auto& to_guard(null_t /*ignored*/)
+    {
+        return null_guard;
+    }
 }
 
 } //namespace

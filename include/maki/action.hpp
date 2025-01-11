@@ -14,6 +14,7 @@
 
 #include "detail/signature_macros.hpp"
 #include "detail/call.hpp"
+#include "null.hpp"
 
 namespace maki
 {
@@ -62,6 +63,19 @@ MAKI_DETAIL_ACTION_SIGNATURES
 
 namespace detail
 {
+    inline constexpr auto null_action = action_v([]{});
+
+    template<action_signature Sig, class Callable>
+    constexpr const auto& to_action(const action<Sig, Callable>& act)
+    {
+        return act;
+    }
+
+    constexpr const auto& to_action(null_t /*ignored*/)
+    {
+        return null_action;
+    }
+
     template
     <
         class Action,

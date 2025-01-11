@@ -14,6 +14,8 @@
 
 #include "detail/state_id.hpp"
 #include "detail/tuple.hpp"
+#include "action.hpp"
+#include "guard.hpp"
 #include "null.hpp"
 
 namespace maki
@@ -47,16 +49,18 @@ namespace detail
         class SourceStateConfFilter,
         class EventFilter,
         class TargetStateConf,
-        class Action,
-        class Guard
+        action_signature ActionSignature,
+        class ActionCallable,
+        guard_signature GuardSignature,
+        class GuardCallable
     >
     struct transition
     {
         SourceStateConfFilter source_state_conf_filter;
         EventFilter event_filter;
         TargetStateConf target_state_conf;
-        Action action;
-        Guard guard;
+        action<ActionSignature, ActionCallable> act;
+        guard<GuardSignature, GuardCallable> grd;
     };
 
     template
@@ -64,34 +68,28 @@ namespace detail
         class SourceStateConfFilter,
         class EventFilter,
         class TargetStateConf,
-        class Action,
-        class Guard
+        action_signature ActionSignature,
+        class ActionCallable,
+        guard_signature GuardSignature,
+        class GuardCallable
     >
-    constexpr auto make_transition
+    transition
     (
-        const SourceStateConfFilter& source_state_conf_filter,
-        const EventFilter& event_filter,
-        const TargetStateConf& target_state_conf,
-        const Action& action,
-        const Guard& guard
-    )
-    {
-        return transition
-        <
-            SourceStateConfFilter,
-            EventFilter,
-            TargetStateConf,
-            Action,
-            Guard
-        >
-        {
-            source_state_conf_filter,
-            event_filter,
-            target_state_conf,
-            action,
-            guard
-        };
-    }
+        SourceStateConfFilter,
+        EventFilter,
+        TargetStateConf,
+        action<ActionSignature, ActionCallable>,
+        guard<GuardSignature, GuardCallable>
+    ) -> transition
+    <
+        SourceStateConfFilter,
+        EventFilter,
+        TargetStateConf,
+        ActionSignature,
+        ActionCallable,
+        GuardSignature,
+        GuardCallable
+    >;
 
     template<class... Transitions>
     constexpr auto make_transition_table(const tuple<Transitions...>& transitions)
@@ -151,8 +149,8 @@ public:
         class SourceStateConfFilter,
         class EventFilter,
         class TargetStateConf,
-        class Action = decltype(null),
-        class Guard = decltype(null)
+        class Action = null_t,
+        class Guard = null_t
     >
     constexpr auto operator()
     (
@@ -168,14 +166,14 @@ public:
             tuple_append
             (
                 transitions_,
-                detail::make_transition
-                (
+                detail::transition
+                {
                     detail::try_making_state_id(source_state_conf_filter),
                     event_filter,
                     detail::try_making_state_id(target_state_conf),
-                    action,
-                    guard
-                )
+                    detail::to_action(action),
+                    detail::to_guard(guard)
+                }
             )
         );
     }

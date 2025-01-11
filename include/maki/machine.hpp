@@ -12,8 +12,6 @@
 #ifndef MAKI_MACHINE_HPP
 #define MAKI_MACHINE_HPP
 
-#include "region_proxy.hpp"
-#include "state_proxy.hpp"
 #include "machine_conf.hpp"
 #include "events.hpp"
 #include "null.hpp"
@@ -319,15 +317,15 @@ public:
     }
 
     template<int Index>
-    [[nodiscard]] auto region() const
+    [[nodiscard]] const auto& region() const
     {
-        return detail::make_region_proxy(impl_.template region<Index>());
+        return impl_.template region<Index>();
     }
 
     template<const auto& StateConf>
-    [[nodiscard]] auto state() const
+    [[nodiscard]] const auto& state() const
     {
-        return detail::make_state_proxy(impl_.template state<StateConf>());
+        return impl_.template state<StateConf>();
     }
 
     /**

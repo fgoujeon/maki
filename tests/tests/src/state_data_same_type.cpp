@@ -64,8 +64,8 @@ TEST_CASE("state_data_same_type")
     using namespace state_data_same_type_ns;
 
     auto machine = machine_t{};
-    const auto off_state = machine.state<states::off>();
-    const auto on_state = machine.state<states::on>();
+    const auto& off_state = machine.state<states::off>();
+    const auto& on_state = machine.state<states::on>();
 
     auto& off_counter = off_state.context().counter;
     auto& on_counter = on_state.context().counter;

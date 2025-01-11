@@ -66,7 +66,7 @@ TEST_CASE("is_active_state_filter")
     using namespace is_active_state_pattern_ns;
 
     auto machine = machine_t{};
-    const auto on_state = machine.state<states::on>();
+    const auto& on_state = machine.state<states::on>();
 
     machine.start();
 

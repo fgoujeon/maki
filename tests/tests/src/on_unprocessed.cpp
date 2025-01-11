@@ -113,7 +113,7 @@ TEST_CASE("on_unprocessed")
 
     auto machine = machine_t{};
     auto& ctx = machine.context();
-    const auto on_state = machine.state<states::on>();
+    const auto& on_state = machine.state<states::on>();
 
     ctx.clear();
     machine.start();

@@ -101,7 +101,7 @@ TEST_CASE("composite_state_context")
 
     auto machine = machine_t{};
     auto& ctx = machine.context();
-    const auto on_state = machine.state<states::on>();
+    const auto& on_state = machine.state<states::on>();
 
     machine.process_event(events::power_button_press{});
     REQUIRE(on_state.is<states::on_ns::emitting_red>());

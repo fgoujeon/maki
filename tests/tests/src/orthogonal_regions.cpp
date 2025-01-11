@@ -93,8 +93,8 @@ TEST_CASE("orthogonal_regions")
 
     auto machine = machine_t{};
     auto& ctx = machine.context();
-    const auto region0 = machine.region<0>();
-    const auto region1 = machine.region<1>();
+    const auto& region0 = machine.region<0>();
+    const auto& region1 = machine.region<1>();
 
     machine.start();
     REQUIRE(region0.is<states::off0>());

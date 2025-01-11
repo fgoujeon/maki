@@ -14,6 +14,9 @@
 
 #include "detail/state_id.hpp"
 #include "detail/tuple.hpp"
+#include "action.hpp"
+#include "guard.hpp"
+#include "filter.hpp"
 #include "null.hpp"
 
 namespace maki
@@ -47,16 +50,18 @@ namespace detail
         class SourceStateConfFilter,
         class EventFilter,
         class TargetStateConf,
-        class Action,
-        class Guard
+        action_signature ActionSignature,
+        class ActionCallable,
+        guard_signature GuardSignature,
+        class GuardCallable
     >
     struct transition
     {
         SourceStateConfFilter source_state_conf_filter;
         EventFilter event_filter;
         TargetStateConf target_state_conf;
-        Action action;
-        Guard guard;
+        action<ActionSignature, ActionCallable> act;
+        guard<GuardSignature, GuardCallable> grd;
     };
 
     template
@@ -64,34 +69,28 @@ namespace detail
         class SourceStateConfFilter,
         class EventFilter,
         class TargetStateConf,
-        class Action,
-        class Guard
+        action_signature ActionSignature,
+        class ActionCallable,
+        guard_signature GuardSignature,
+        class GuardCallable
     >
-    constexpr auto make_transition
+    transition
     (
-        const SourceStateConfFilter& source_state_conf_filter,
-        const EventFilter& event_filter,
-        const TargetStateConf& target_state_conf,
-        const Action& action,
-        const Guard& guard
-    )
-    {
-        return transition
-        <
-            SourceStateConfFilter,
-            EventFilter,
-            TargetStateConf,
-            Action,
-            Guard
-        >
-        {
-            source_state_conf_filter,
-            event_filter,
-            target_state_conf,
-            action,
-            guard
-        };
-    }
+        SourceStateConfFilter,
+        EventFilter,
+        TargetStateConf,
+        action<ActionSignature, ActionCallable>,
+        guard<GuardSignature, GuardCallable>
+    ) -> transition
+    <
+        SourceStateConfFilter,
+        EventFilter,
+        TargetStateConf,
+        ActionSignature,
+        ActionCallable,
+        GuardSignature,
+        GuardCallable
+    >;
 
     template<class... Transitions>
     constexpr auto make_transition_table(const tuple<Transitions...>& transitions)
@@ -143,39 +142,69 @@ public:
     @param source_state_conf_filter the configuration of the active state (or states, plural, if it's a @ref filter "filter") from which the transition can occur
     @param event_filter the event type (or types, plural, if it's a @ref filter "filter") that can cause the transition to occur
     @param target_state_conf the configuration of the state that becomes active after the transition occurs
-    @param action the function invoked when the transition occurs
-    @param guard the function that must return `true` for the transition to occur
+    @param action the `maki::action` invoked when the transition occurs, or `maki::null`
+    @param guard the `maki::guard` that must return `true` for the transition to occur, or `maki::null`
     */
     template
     <
         class SourceStateConfFilter,
         class EventFilter,
-        class TargetStateConf,
-        class Action = decltype(null),
-        class Guard = decltype(null)
+        class TargetStateConfOrNull,
+        class ActionOrNull = null_t,
+        class GuardOrNull = null_t
     >
     constexpr auto operator()
     (
         const SourceStateConfFilter& source_state_conf_filter,
         const EventFilter& event_filter,
-        const TargetStateConf& target_state_conf,
-        const Action& action = null,
-        const Guard& guard = null
+        const TargetStateConfOrNull& target_state_conf,
+        const ActionOrNull& action = null,
+        const GuardOrNull& guard = null
     )
     {
+        static_assert
+        (
+            detail::is_state_conf_v<SourceStateConfFilter> || detail::is_filter_v<SourceStateConfFilter>,
+            "1st argument must be an instance of `maki::state_conf` or an instance of `maki::filter`"
+        );
+
+        static_assert
+        (
+            detail::is_type_v<EventFilter> || detail::is_filter_v<EventFilter> || detail::is_null_v<EventFilter>,
+            "2nd argument must be an instance of `maki::type_t`, an instance of `maki::filter`, or `maki::null`"
+        );
+
+        static_assert
+        (
+            detail::is_state_conf_v<TargetStateConfOrNull> || detail::is_null_v<TargetStateConfOrNull>,
+            "3rd argument must be an instance of `maki::state_conf` or `maki::null`."
+        );
+
+        static_assert
+        (
+            detail::is_action_v<ActionOrNull> || detail::is_null_v<ActionOrNull>,
+            "4th argument must be an instance of `maki::action` or `maki::null`."
+        );
+
+        static_assert
+        (
+            detail::is_guard_v<GuardOrNull> || detail::is_null_v<GuardOrNull>,
+            "5th argument must be an instance of `maki::guard` or `maki::null`."
+        );
+
         return detail::make_transition_table
         (
             tuple_append
             (
                 transitions_,
-                detail::make_transition
-                (
+                detail::transition
+                {
                     detail::try_making_state_id(source_state_conf_filter),
                     event_filter,
                     detail::try_making_state_id(target_state_conf),
-                    action,
-                    guard
-                )
+                    detail::to_action(action),
+                    detail::to_guard(guard)
+                }
             )
         );
     }

@@ -204,7 +204,7 @@ private:
             Event
         >;
 
-        //List the state types that require us to call their on_event()
+        //List the state types that require us to call their internal actions
         using candidate_state_type_list =
             state_type_list_filters::by_required_on_event_t
             <
@@ -471,12 +471,16 @@ private:
             //Anonymous transition
             if constexpr(transition_table_digest_type::has_null_events)
             {
-                using candidate_transition_constant_list = transition_table_filters::by_null_event_t
+                using candidate_transition_index_constant_list = transition_table_filters::by_source_state_and_null_event_t
                 <
-                    transition_tuple
+                    transition_tuple,
+                    TargetStateId
                 >;
 
-                try_processing_event_in_transitions<candidate_transition_constant_list>(*this, mach, ctx, null);
+                if constexpr(!tlu::empty_v<candidate_transition_index_constant_list>)
+                {
+                    try_processing_event_in_transitions<candidate_transition_index_constant_list>(*this, mach, ctx, event);
+                }
             }
         }
     }

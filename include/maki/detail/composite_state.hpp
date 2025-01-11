@@ -63,7 +63,7 @@ public:
         impl_.call_entry_action(mach, context(), event);
     }
 
-    template<bool Dry = false, class Machine, class ParentContext, class Event>
+    template<bool Dry, class Machine, class ParentContext, class Event>
     void call_internal_action
     (
         Machine& mach,
@@ -71,10 +71,10 @@ public:
         const Event& event
     )
     {
-        impl_.call_internal_action(mach, context(), event);
+        impl_.template call_internal_action<Dry>(mach, context(), event);
     }
 
-    template<bool Dry = false, class Machine, class ParentContext, class Event>
+    template<bool Dry, class Machine, class ParentContext, class Event>
     void call_internal_action
     (
         Machine& mach,
@@ -83,10 +83,10 @@ public:
         bool& processed
     )
     {
-        impl_.call_internal_action(mach, context(), event, processed);
+        impl_.template call_internal_action<Dry>(mach, context(), event, processed);
     }
 
-    template<bool Dry = false, class Machine, class ParentContext, class Event>
+    template<bool Dry, class Machine, class ParentContext, class Event>
     void call_internal_action
     (
         Machine& mach,
@@ -94,10 +94,10 @@ public:
         const Event& event
     ) const
     {
-        impl_.call_internal_action(mach, context(), event);
+        impl_.template call_internal_action<Dry>(mach, context(), event);
     }
 
-    template<bool Dry = false, class Machine, class ParentContext, class Event>
+    template<bool Dry, class Machine, class ParentContext, class Event>
     void call_internal_action
     (
         Machine& mach,
@@ -106,7 +106,7 @@ public:
         bool& processed
     ) const
     {
-        impl_.call_internal_action(mach, context(), event, processed);
+        impl_.template call_internal_action<Dry>(mach, context(), event, processed);
     }
 
     template<class Machine, class ParentContext, class Event>

@@ -53,7 +53,7 @@ public:
         }
     }
 
-    template<class Machine, class Context, class Event, class... MaybeBool>
+    template<bool Dry, class Machine, class Context, class Event, class... MaybeBool>
     void call_internal_action(Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
     {
         /*
@@ -62,12 +62,15 @@ public:
         */
         static_assert(!tlu::empty_v<internal_action_ptr_constant_list>);
 
-        call_matching_event_action<internal_action_ptr_constant_list>
-        (
-            mach,
-            ctx,
-            event
-        );
+        if constexpr(!Dry)
+        {
+            call_matching_event_action<internal_action_ptr_constant_list>
+            (
+                mach,
+                ctx,
+                event
+            );
+        }
 
         maybe_bool_util::set_to_true(processed...);
     }

@@ -103,7 +103,7 @@ public:
         tlu::for_each<region_tuple_type, region_start>(*this, mach, ctx, event);
     }
 
-    template<bool Dry = false, class Machine, class Context, class Event>
+    template<bool Dry, class Machine, class Context, class Event>
     void call_internal_action
     (
         Machine& mach,
@@ -114,7 +114,7 @@ public:
         call_internal_action_2<Dry>(*this, mach, ctx, event);
     }
 
-    template<bool Dry = false, class Machine, class Context, class Event>
+    template<bool Dry, class Machine, class Context, class Event>
     void call_internal_action
     (
         Machine& mach,
@@ -126,7 +126,7 @@ public:
         call_internal_action_2<Dry>(*this, mach, ctx, event, processed);
     }
 
-    template<bool Dry = false, class Machine, class Context, class Event>
+    template<bool Dry, class Machine, class Context, class Event>
     void call_internal_action
     (
         Machine& mach,
@@ -137,7 +137,7 @@ public:
         call_internal_action_2<Dry>(*this, mach, ctx, event);
     }
 
-    template<bool Dry = false, class Machine, class Context, class Event>
+    template<bool Dry, class Machine, class Context, class Event>
     void call_internal_action
     (
         Machine& mach,
@@ -243,17 +243,14 @@ private:
     {
         if constexpr(impl_type::template has_internal_action_for_event<Event>())
         {
-            if constexpr(!Dry)
-            {
-                self.impl_.call_internal_action
-                (
-                    mach,
-                    ctx,
-                    event
-                );
+            self.impl_.template call_internal_action<Dry>
+            (
+                mach,
+                ctx,
+                event
+            );
 
-                tlu::for_each<region_tuple_type, region_process_event<Dry>>(self, mach, ctx, event);
-            }
+            tlu::for_each<region_tuple_type, region_process_event<Dry>>(self, mach, ctx, event);
 
             maybe_bool_util::set_to_true(processed...);
         }

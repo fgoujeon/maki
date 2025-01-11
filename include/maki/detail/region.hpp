@@ -523,16 +523,13 @@ private:
                 return false;
             }
 
-            if constexpr(!Dry)
-            {
-                self.template state<State>().impl().call_internal_action
-                (
-                    mach,
-                    ctx,
-                    event,
-                    extra_args...
-                );
-            }
+            self.template state<State>().impl().template call_internal_action<Dry>
+            (
+                mach,
+                ctx,
+                event,
+                extra_args...
+            );
 
             return true;
         }
@@ -612,6 +609,12 @@ private:
 
     template<class State>
     auto& state()
+    {
+        return static_state<State>(*this);
+    }
+
+    template<class State>
+    const auto& state() const
     {
         return static_state<State>(*this);
     }

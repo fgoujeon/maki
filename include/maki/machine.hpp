@@ -475,12 +475,12 @@ private:
         {
             if constexpr(std::is_same_v<typename option_set_type::post_processing_hook_tuple_type, detail::tuple<>>)
             {
-                impl_.call_internal_action(*this, context(), event);
+                impl_.template call_internal_action<false>(*this, context(), event);
             }
             else
             {
                 auto processed = false;
-                impl_.call_internal_action(*this, context(), event, processed);
+                impl_.template call_internal_action<false>(*this, context(), event, processed);
                 detail::call_matching_event_action<post_processing_hook_ptr_constant_list>
                 (
                     *this,

@@ -106,7 +106,7 @@ namespace detail
         const Event& event
     )
     {
-        return call_callable<action_signature, Action::signature>
+        call_callable<action_signature, Action::signature>
         (
             act.callable,
             ctx,

@@ -281,7 +281,7 @@ private:
             static constexpr auto action = trans.act;
             static constexpr auto guard = trans.grd;
 
-            if constexpr(is_filter_v<std::decay_t<decltype(source_state_conf_filter)>>)
+            if constexpr(is_state_set_v<std::decay_t<decltype(source_state_conf_filter)>>)
             {
                 //List of state confs that match with the source state filter
                 using matching_state_conf_constant_list = state_type_list_filters::by_filter_t

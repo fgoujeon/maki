@@ -23,11 +23,11 @@ struct kill_all_humans_button_press{};
 
 //! [transition-table]
 constexpr auto transition_table = maki::transition_table{}
-    //source state,               event,                                  target state
-    (initializing,                maki::type<end_of_init>,                running)
-    (running,                     maki::type<sleep_button_press>,         sleeping)
-    (sleeping,                    maki::any_type_but<power_button_press>, running)
-    (maki::any_but(powering_off), maki::type<power_button_press>,         powering_off)
+    //source state,                     event,                                  target state
+    (initializing,                      maki::type<end_of_init>,                running)
+    (running,                           maki::type<sleep_button_press>,         sleeping)
+    (sleeping,                          maki::any_type_but<power_button_press>, running)
+    (maki::any_state_but(powering_off), maki::type<power_button_press>,         powering_off)
 ;
 //! [transition-table]
 
@@ -39,7 +39,7 @@ using machine_t = maki::machine<machine_conf>;
 
 void assert_true(const bool b)
 {
-    if (!b)
+    if(!b)
     {
         throw std::runtime_error{"Error"};
     }

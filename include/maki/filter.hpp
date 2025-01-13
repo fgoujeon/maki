@@ -14,97 +14,69 @@
 
 #include "detail/state_id.hpp"
 #include "detail/tuple.hpp"
+#include "detail/equals.hpp"
 #include "type.hpp"
-#include <type_traits>
 
 namespace maki
 {
 
-namespace detail
+namespace detail::filter_predicates
 {
-    template<class Lhs, class Rhs>
-    constexpr bool equals(const Lhs& lhs, const Rhs& rhs)
+    struct any
     {
-        if constexpr(std::is_same_v<Lhs, Rhs>)
+        template<class Value>
+        constexpr bool operator()(const Value& /*value*/) const
         {
-            return lhs == rhs;
+            return true;
         }
-        else
+    };
+
+    struct none
+    {
+        template<class Value>
+        constexpr bool operator()(const Value& /*value*/) const
         {
             return false;
         }
-    }
+    };
 
-    namespace filter_predicates
+    template<class... Ts>
+    struct any_of
     {
-        template<class T>
-        struct exactly
+        template<class Value>
+        constexpr bool operator()(const Value& value) const
         {
-            template<class Value>
-            constexpr bool operator()(const Value& value) const
-            {
-                return equals(val, value);
-            }
+            return tuple_apply
+            (
+                values,
+                [value](const auto&... values)
+                {
+                    return (equals(values, value) || ...);
+                }
+            );
+        }
 
-            T val;
-        };
+        detail::tuple<Ts...> values;
+    };
 
-        struct any
+    template<class... Ts>
+    struct any_but
+    {
+        template<class Value>
+        constexpr bool operator()(const Value& value) const
         {
-            template<class Value>
-            constexpr bool operator()(const Value& /*value*/) const
-            {
-                return true;
-            }
-        };
+            return tuple_apply
+            (
+                values,
+                [value](const auto&... values)
+                {
+                    return (!equals(values, value) && ...);
+                }
+            );
+        }
 
-        struct none
-        {
-            template<class Value>
-            constexpr bool operator()(const Value& /*value*/) const
-            {
-                return false;
-            }
-        };
-
-        template<class... Ts>
-        struct any_of
-        {
-            template<class Value>
-            constexpr bool operator()(const Value& value) const
-            {
-                return tuple_apply
-                (
-                    values,
-                    [value](const auto&... values)
-                    {
-                        return (equals(values, value) || ...);
-                    }
-                );
-            }
-
-            detail::tuple<Ts...> values;
-        };
-
-        template<class... Ts>
-        struct any_but
-        {
-            template<class Value>
-            constexpr bool operator()(const Value& value) const
-            {
-                return tuple_apply
-                (
-                    values,
-                    [value](const auto&... values)
-                    {
-                        return (!equals(values, value) && ...);
-                    }
-                );
-            }
-
-            detail::tuple<Ts...> values;
-        };
-    }
+        detail::tuple<Ts...> values;
+    };
 }
 
 /**

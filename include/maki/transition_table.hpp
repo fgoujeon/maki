@@ -12,12 +12,13 @@
 #ifndef MAKI_TRANSITION_TABLE_HPP
 #define MAKI_TRANSITION_TABLE_HPP
 
-#include "detail/state_id.hpp"
-#include "detail/tuple.hpp"
 #include "action.hpp"
 #include "guard.hpp"
 #include "filter.hpp"
+#include "state_set.hpp"
 #include "null.hpp"
+#include "detail/state_id.hpp"
+#include "detail/tuple.hpp"
 
 namespace maki
 {
@@ -164,8 +165,8 @@ public:
     {
         static_assert
         (
-            detail::is_state_conf_v<SourceStateConfFilter> || detail::is_filter_v<SourceStateConfFilter>,
-            "1st argument must be an instance of `maki::state_conf` or an instance of `maki::filter`"
+            detail::is_state_conf_v<SourceStateConfFilter> || detail::is_state_set_v<SourceStateConfFilter>,
+            "1st argument must be an instance of `maki::state_conf` or an instance of `maki::state_set`"
         );
 
         static_assert

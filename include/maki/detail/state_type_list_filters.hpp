@@ -8,7 +8,6 @@
 #define MAKI_DETAIL_STATE_TYPE_LIST_FILTERS_HPP
 
 #include "tlu/filter.hpp"
-#include "../filter.hpp"
 
 namespace maki::detail::state_type_list_filters
 {
@@ -21,7 +20,7 @@ namespace by_filter_detail
         template<class StateIdConstant>
         struct matches
         {
-            static constexpr auto value = matches_filter(StateIdConstant::value, *FilterPtr);
+            static constexpr auto value = FilterPtr->predicate(StateIdConstant::value);
         };
     };
 }

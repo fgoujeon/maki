@@ -29,7 +29,7 @@ namespace any_state_ns
         (states::idle,    maki::type<events::start_button_press>, states::running)
         (states::running, maki::type<events::stop_button_press>,  states::idle)
         (states::failed,  maki::type<events::stop_button_press>,  states::idle)
-        (maki::any,       maki::type<events::error>,              states::failed)
+        (maki::any_state, maki::type<events::error>,              states::failed)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

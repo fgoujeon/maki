@@ -89,7 +89,7 @@ public:
     template<const auto& StateConf>
     [[nodiscard]] bool is() const
     {
-        if constexpr(is_filter_v<std::decay_t<decltype(StateConf)>>)
+        if constexpr(is_state_set_v<std::decay_t<decltype(StateConf)>>)
         {
             return does_active_state_id_match_filter<&StateConf>();
         }
@@ -575,7 +575,7 @@ private:
         template<class ActiveStateIdConstant>
         static void call([[maybe_unused]] bool& matches)
         {
-            if constexpr(matches_filter_ptr(ActiveStateIdConstant::value, FilterPtr))
+            if constexpr(FilterPtr->predicate(ActiveStateIdConstant::value))
             {
                 matches = true;
             }

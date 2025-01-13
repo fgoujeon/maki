@@ -14,7 +14,7 @@
 
 #include "action.hpp"
 #include "guard.hpp"
-#include "filter.hpp"
+#include "event_set.hpp"
 #include "state_set.hpp"
 #include "null.hpp"
 #include "detail/state_id.hpp"
@@ -171,8 +171,8 @@ public:
 
         static_assert
         (
-            detail::is_type_v<EventFilter> || detail::is_filter_v<EventFilter> || detail::is_null_v<EventFilter>,
-            "2nd argument must be an instance of `maki::type_t`, an instance of `maki::filter`, or `maki::null`"
+            detail::is_type_v<EventFilter> || detail::is_event_set_v<EventFilter> || detail::is_null_v<EventFilter>,
+            "2nd argument must be an instance of `maki::type_t`, an instance of `maki::event_set`, or `maki::null`"
         );
 
         static_assert

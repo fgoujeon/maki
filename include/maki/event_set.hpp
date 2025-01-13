@@ -4,15 +4,9 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-/**
-@file
-@brief Defines the filter type and builder functions
-*/
+#ifndef MAKI_EVENT_SET_HPP
+#define MAKI_EVENT_SET_HPP
 
-#ifndef MAKI_FILTER_HPP
-#define MAKI_FILTER_HPP
-
-#include "detail/state_id.hpp"
 #include "detail/tuple.hpp"
 #include "detail/equals.hpp"
 #include "type.hpp"
@@ -20,7 +14,7 @@
 namespace maki
 {
 
-namespace detail::filter_predicates
+namespace detail::event_set_predicates
 {
     struct any
     {
@@ -80,49 +74,50 @@ namespace detail::filter_predicates
 }
 
 /**
-@brief Represents a filter of values. See @ref filter.
-Use the variables (`maki::any`, `maki::none`) and builder functions
-(`maki::any_if()`, `maki::any_if_not()`, `maki::any_of()`, `maki::any_but()`)
-instead of manually instantiating this type.
+@brief Represents a set of event types. See @ref filter.
+Use the predefined variables (`maki::any_event`, `maki::any_event_of`,
+`maki::any_event_but`, `maki::no_event`) and builder functions
+(`maki::any_event_if()`, `maki::any_event_if_not()`) instead of manually
+instantiating this type.
 */
 template<class Predicate>
-struct filter
+struct event_set
 {
     Predicate predicate;
 };
 
 template<class Predicate>
-filter(const Predicate&) -> filter<Predicate>;
+event_set(const Predicate&) -> event_set<Predicate>;
 
 /**
-@brief A filter that matches with any value.
+@brief A set that contains all event types.
 */
 #ifdef MAKI_DETAIL_DOXYGEN
-constexpr auto any = filter{IMPLEMENTATION_DETAIL};
+constexpr auto any_event = event_set{IMPLEMENTATION_DETAIL};
 #else
-inline constexpr auto any = filter{detail::filter_predicates::any{}};
+inline constexpr auto any_event = event_set{detail::event_set_predicates::any{}};
 #endif
 
 /**
-@brief Makes a filter that matches with any value that verifies
-`pred(value) == true`.
-@tparam Predicate the predicate against which values are tested
+@brief Makes a set that contains the event types that verifies
+`pred(event_type) == true`.
+@tparam Predicate the predicate against which event_types are tested
 */
 template<class Predicate>
-constexpr auto any_if(const Predicate& pred)
+constexpr auto any_event_if(const Predicate& pred)
 {
-    return filter{pred};
+    return event_set{pred};
 }
 
 /**
-@brief Makes a filter that matches with any value that verifies
-`pred(value) == false`.
-@tparam Predicate the predicate against which values are tested
+@brief Makes a set that contains the event types that verifies
+`pred(event_type) == false`.
+@tparam Predicate the predicate against which event_types are tested
 */
 template<class Predicate>
-constexpr auto any_if_not(const Predicate& pred)
+constexpr auto any_event_if_not(const Predicate& pred)
 {
-    return filter
+    return event_set
     {
         [pred](const auto& value)
         {
@@ -132,59 +127,47 @@ constexpr auto any_if_not(const Predicate& pred)
 }
 
 /**
-@brief Makes a filter that matches with the given values.
-@tparam Ts the types of values the filter matches with
+@brief A set that contains the given event types.
+@tparam Events the event types
 */
-template<class... Ts>
-constexpr auto any_of(const Ts&... values)
+template<class... Events>
+constexpr auto any_event_of = event_set
 {
-    return filter
+    detail::event_set_predicates::any_of<type_t<Events>...>
     {
-        detail::filter_predicates::any_of<detail::to_state_id_or_identity_t<Ts>...>
+        detail::tuple<type_t<Events>...>
         {
-            detail::tuple<detail::to_state_id_or_identity_t<Ts>...>
-            {
-                detail::distributed_construct,
-                detail::try_making_state_id(values)...
-            }
+            detail::distributed_construct,
+            type<Events>...
         }
-    };
-}
+    }
+};
 
 /**
-@brief Makes a filter that matches with any values but the given ones.
-@tparam Ts the types of values the filter doesn't match with
+@brief A set that contains all the event types that are not in the given list.
+@tparam Events the list of excluded event types
 */
-template<class... Ts>
-constexpr auto any_but(const Ts&... values)
+template<class... Events>
+constexpr auto any_event_but = event_set
 {
-    return filter
+    detail::event_set_predicates::any_but<type_t<Events>...>
     {
-        detail::filter_predicates::any_but<detail::to_state_id_or_identity_t<Ts>...>
+        detail::tuple<type_t<Events>...>
         {
-            detail::tuple<detail::to_state_id_or_identity_t<Ts>...>
-            {
-                detail::distributed_construct,
-                detail::try_making_state_id(values)...
-            }
+            detail::distributed_construct,
+            type<Events>...
         }
-    };
-}
+    }
+};
 
 /**
-@brief A filter that doesn't match with any value.
+@brief An empty event type set.
 */
 #ifdef MAKI_DETAIL_DOXYGEN
-constexpr auto none = filter{IMPLEMENTATION_DETAIL};
+constexpr auto no_event = event_set{IMPLEMENTATION_DETAIL};
 #else
-inline constexpr auto none = filter{detail::filter_predicates::none{}};
+inline constexpr auto no_event = event_set{detail::event_set_predicates::none{}};
 #endif
-
-template<class... Types>
-constexpr auto any_type_of = any_of(type<Types>...);
-
-template<class... Types>
-constexpr auto any_type_but = any_but(type<Types>...);
 
 namespace detail
 {
@@ -195,13 +178,13 @@ namespace detail
     }
 
     template<class Value, class FilterPredicate>
-    constexpr bool matches_filter(const Value& value, const filter<FilterPredicate>& flt)
+    constexpr bool matches_filter(const Value& value, const event_set<FilterPredicate>& flt)
     {
         return flt.predicate(value);
     }
 
     template<class Value, class FilterPredicate>
-    constexpr bool matches_filter_ptr(const Value& value, const filter<FilterPredicate>* pflt)
+    constexpr bool matches_filter_ptr(const Value& value, const event_set<FilterPredicate>* pflt)
     {
         return pflt->predicate(value);
     }
@@ -213,19 +196,19 @@ namespace detail
     }
 
     template<class T>
-    struct is_filter
+    struct is_event_set
     {
         static constexpr auto value = false;
     };
 
     template<class Predicate>
-    struct is_filter<filter<Predicate>>
+    struct is_event_set<event_set<Predicate>>
     {
         static constexpr auto value = true;
     };
 
     template<class T>
-    constexpr auto is_filter_v = is_filter<T>::value;
+    constexpr auto is_event_set_v = is_event_set<T>::value;
 }
 
 } //namespace

@@ -30,7 +30,7 @@ namespace on_entry_event_exit_ns
         constexpr auto english = maki::state_conf{}
             .entry_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.hello = "hello";
@@ -45,7 +45,7 @@ namespace on_entry_event_exit_ns
             )
             .exit_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.goodbye = "goodbye";

@@ -33,7 +33,7 @@ namespace initial_composite_state_ns
         constexpr auto off = maki::state_conf{}
             .entry_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.current_led_color = led_color::off;
@@ -44,7 +44,7 @@ namespace initial_composite_state_ns
         constexpr auto emitting_red = maki::state_conf{}
             .entry_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.current_led_color = led_color::red;
@@ -55,7 +55,7 @@ namespace initial_composite_state_ns
         constexpr auto emitting_green = maki::state_conf{}
             .entry_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.current_led_color = led_color::green;
@@ -66,7 +66,7 @@ namespace initial_composite_state_ns
         constexpr auto emitting_blue = maki::state_conf{}
             .entry_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.current_led_color = led_color::blue;

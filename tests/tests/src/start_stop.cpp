@@ -20,7 +20,7 @@ namespace start_stop_ns
         constexpr auto s0 = maki::state_conf{}
             .entry_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.out += "s0::on_entry;";
@@ -28,7 +28,7 @@ namespace start_stop_ns
             )
             .exit_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.out += "s0::on_exit;";
@@ -39,7 +39,7 @@ namespace start_stop_ns
         constexpr auto s1 = maki::state_conf{}
             .entry_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.out += "s1::on_entry;";
@@ -47,7 +47,7 @@ namespace start_stop_ns
             )
             .exit_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.out += "s1::on_exit;";

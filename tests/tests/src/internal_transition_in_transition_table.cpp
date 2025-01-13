@@ -26,7 +26,7 @@ namespace internal_transition_in_transition_table_ns
         constexpr auto idle = maki::state_conf{}
             .entry_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.out += "idle::on_entry;";
@@ -34,7 +34,7 @@ namespace internal_transition_in_transition_table_ns
             )
             .exit_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.out += "idle::on_exit;";
@@ -45,7 +45,7 @@ namespace internal_transition_in_transition_table_ns
         constexpr auto running = maki::state_conf{}
             .entry_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.out += "running::on_entry;";
@@ -53,7 +53,7 @@ namespace internal_transition_in_transition_table_ns
             )
             .exit_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.out += "running::on_exit;";

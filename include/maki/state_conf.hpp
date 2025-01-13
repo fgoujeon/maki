@@ -14,7 +14,7 @@
 
 #include "state_conf_fwd.hpp"
 #include "action.hpp"
-#include "filter.hpp"
+#include "event_set.hpp"
 #include "type.hpp"
 #include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"
@@ -112,7 +112,7 @@ public:
     @brief Add an entry action. \
     */ \
     template<class EventFilterPredicate, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const filter<EventFilterPredicate>& event_filter, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const event_set<EventFilterPredicate>& event_filter, const Action& action) const \
     { \
         return entry_action<action_signature::signature>(event_filter, action); \
     } \
@@ -123,7 +123,7 @@ public:
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const Action& action) const \
     { \
-        return entry_action_##signature(any_type_of<Event>, action); \
+        return entry_action_##signature(any_event_of<Event>, action); \
     } \
  \
     /** \
@@ -132,7 +132,7 @@ public:
     template<class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const Action& action) const \
     { \
-        return entry_action_##signature(any, action); \
+        return entry_action_##signature(any_event, action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -146,7 +146,7 @@ public:
     @brief Add an internal action. \
     */ \
     template<class EventFilterPredicate, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const filter<EventFilterPredicate>& event_filter, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const event_set<EventFilterPredicate>& event_filter, const Action& action) const \
     { \
         return internal_action<action_signature::signature>(event_filter, action); \
     } \
@@ -157,7 +157,7 @@ public:
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const Action& action) const \
     { \
-        return internal_action_##signature(any_type_of<Event>, action); \
+        return internal_action_##signature(any_event_of<Event>, action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -167,7 +167,7 @@ public:
     @brief Add an exit action. \
     */ \
     template<class EventFilterPredicate, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const filter<EventFilterPredicate>& event_filter, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const event_set<EventFilterPredicate>& event_filter, const Action& action) const \
     { \
         return exit_action<action_signature::signature>(event_filter, action); \
     } \
@@ -178,7 +178,7 @@ public:
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const Action& action) const \
     { \
-        return exit_action_##signature(any_type_of<Event>, action); \
+        return exit_action_##signature(any_event_of<Event>, action); \
     } \
  \
     /** \
@@ -187,7 +187,7 @@ public:
     template<class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const Action& action) const \
     { \
-        return exit_action_##signature(any, action); \
+        return exit_action_##signature(any_event, action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X

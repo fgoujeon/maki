@@ -9,7 +9,7 @@
 
 #include "call.hpp"
 #include "tlu/get.hpp"
-#include "../filter.hpp"
+#include "../event_set.hpp"
 #include "../action.hpp"
 #include <utility>
 
@@ -19,7 +19,7 @@ namespace maki::detail
 template<class EventFilterPredicate, class Action, action_signature Sig>
 struct event_action
 {
-    using event_filter_type = filter<EventFilterPredicate>;
+    using event_filter_type = event_set<EventFilterPredicate>;
 
     static constexpr auto sig = Sig;
     event_filter_type event_filter;
@@ -27,7 +27,7 @@ struct event_action
 };
 
 template<action_signature Sig, class EventFilterPredicate, class Action>
-constexpr auto make_event_action(const filter<EventFilterPredicate>& event_filter, const Action& action)
+constexpr auto make_event_action(const event_set<EventFilterPredicate>& event_filter, const Action& action)
 {
     return event_action<EventFilterPredicate, Action, Sig>{event_filter, action};
 }

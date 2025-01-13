@@ -26,7 +26,7 @@ namespace process_event_now_ns
         constexpr auto s0 = maki::state_conf{}
             .entry_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.output += "s0::on_entry;";
@@ -34,7 +34,7 @@ namespace process_event_now_ns
             )
             .exit_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.output += "s0::on_exit;";
@@ -45,7 +45,7 @@ namespace process_event_now_ns
         constexpr auto s1 = maki::state_conf{}
             .entry_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.output += "s1::on_entry;";
@@ -53,7 +53,7 @@ namespace process_event_now_ns
             )
             .exit_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.output += "s1::on_exit;";
@@ -64,7 +64,7 @@ namespace process_event_now_ns
         constexpr auto s2 = maki::state_conf{}
             .entry_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.output += "s2::on_entry;";
@@ -72,7 +72,7 @@ namespace process_event_now_ns
             )
             .exit_action_c
             (
-                maki::any,
+                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.output += "s2::on_exit;";

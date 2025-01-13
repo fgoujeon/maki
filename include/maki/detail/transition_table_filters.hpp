@@ -9,7 +9,7 @@
 
 #include "tlu/filter.hpp"
 #include "integer_constant_sequence.hpp"
-#include "../filter.hpp"
+#include "../event_set.hpp"
 #include "../null.hpp"
 
 namespace maki::detail::transition_table_filters

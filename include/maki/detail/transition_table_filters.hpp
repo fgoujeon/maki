@@ -24,7 +24,7 @@ struct by_event_predicate_holder
         static constexpr auto make_value()
         {
             const auto& trans = tuple_get<TransitionIndexConstant::value>(TransitionTuple);
-            return matches_filter(type<Event>, trans.event_filter);
+            return matches_filter(event<Event>, trans.event_filter);
         }
 
         static constexpr auto value = make_value();

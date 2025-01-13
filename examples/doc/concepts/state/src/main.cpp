@@ -22,9 +22,9 @@ constexpr auto my_state_with_options = maki::state_conf{}
 //! [state-conf-with-options]
 
 constexpr auto transition_table = maki::transition_table{}
-    //source state,         event,                  target state
-    (my_state,              maki::type<some_event>, my_state_with_options)
-    (my_state_with_options, maki::type<some_event>, my_state)
+    //source state,         event,                   target state
+    (my_state,              maki::event<some_event>, my_state_with_options)
+    (my_state_with_options, maki::event<some_event>, my_state)
 ;
 
 constexpr auto machine_conf = maki::machine_conf{}

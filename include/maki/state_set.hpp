@@ -50,7 +50,7 @@ namespace detail::state_set_predicates
             );
         }
 
-        detail::tuple<Ts...> values;
+        tuple<Ts...> values;
     };
 
     template<class... Ts>
@@ -69,7 +69,7 @@ namespace detail::state_set_predicates
             );
         }
 
-        detail::tuple<Ts...> values;
+        tuple<Ts...> values;
     };
 }
 

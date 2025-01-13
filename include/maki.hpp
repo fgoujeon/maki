@@ -16,6 +16,7 @@
 
 #include "maki/action.hpp" //NOLINT misc-include-cleaner
 #include "maki/cref_constant.hpp" //NOLINT misc-include-cleaner
+#include "maki/event.hpp" //NOLINT misc-include-cleaner
 #include "maki/event_set.hpp" //NOLINT misc-include-cleaner
 #include "maki/events.hpp" //NOLINT misc-include-cleaner
 #include "maki/guard.hpp" //NOLINT misc-include-cleaner
@@ -28,6 +29,5 @@
 #include "maki/state_confs.hpp" //NOLINT misc-include-cleaner
 #include "maki/state_set.hpp" //NOLINT misc-include-cleaner
 #include "maki/transition_table.hpp" //NOLINT misc-include-cleaner
-#include "maki/type.hpp" //NOLINT misc-include-cleaner
 #include "maki/type_list.hpp" //NOLINT misc-include-cleaner
 #include "maki/version.hpp" //NOLINT misc-include-cleaner

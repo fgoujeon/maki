@@ -165,10 +165,10 @@ public:
 
 private:
     static constexpr const auto& transition_table = TransitionTable;
-    static constexpr auto transition_tuple = detail::rows(transition_table);
+    static constexpr auto transition_tuple = maki::detail::rows(transition_table);
 
     using transition_table_digest_type =
-        detail::transition_table_digest<transition_tuple>
+        transition_table_digest<transition_tuple>
     ;
 
     using state_id_constant_list = typename transition_table_digest_type::state_id_constant_list;
@@ -185,7 +185,7 @@ private:
         state_id_constant_pack_to_state_tuple_t
     >;
 
-    static constexpr auto pinitial_state_conf = detail::tlu::front_t<state_id_constant_list>::value;
+    static constexpr auto pinitial_state_conf = tlu::front_t<state_id_constant_list>::value;
 
     template<bool Dry, class Self, class Machine, class Context, class Event, class... MaybeBool>
     static void process_event_2

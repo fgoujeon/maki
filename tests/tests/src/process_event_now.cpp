@@ -94,9 +94,9 @@ namespace process_event_now_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::s0, maki::type<events::s0_to_s1_request>, states::s1, actions::process_s1_to_s2)
-        (states::s1, maki::type<events::s1_to_s2_request>, states::s2, actions::process_s2_to_s0)
-        (states::s2, maki::type<events::s2_to_s0_request>, states::s0)
+        (states::s0, maki::event<events::s0_to_s1_request>, states::s1, actions::process_s1_to_s2)
+        (states::s1, maki::event<events::s1_to_s2_request>, states::s2, actions::process_s2_to_s0)
+        (states::s2, maki::event<events::s2_to_s0_request>, states::s0)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

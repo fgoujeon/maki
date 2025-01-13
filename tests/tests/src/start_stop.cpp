@@ -62,8 +62,8 @@ namespace start_stop_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::s0, maki::null,                       states::s1)
-        (states::s1, maki::type<events::button_press>, states::s0)
+        (states::s0, maki::null,                        states::s1)
+        (states::s1, maki::event<events::button_press>, states::s0)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

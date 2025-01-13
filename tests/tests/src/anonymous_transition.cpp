@@ -34,11 +34,11 @@ namespace anonymous_transition_ns
     });
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::s0, maki::type<events::go_on>, states::s1)
-        (states::s1, maki::null,                states::s2, do_something)
-        (states::s2, maki::type<events::go_on>, states::s3)
-        (states::s3, maki::null,                states::s4)
-        (states::s4, maki::null,                states::s0)
+        (states::s0, maki::event<events::go_on>, states::s1)
+        (states::s1, maki::null,                 states::s2, do_something)
+        (states::s2, maki::event<events::go_on>, states::s3)
+        (states::s3, maki::null,                 states::s4)
+        (states::s4, maki::null,                 states::s0)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

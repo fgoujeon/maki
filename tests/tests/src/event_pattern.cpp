@@ -36,7 +36,7 @@ namespace event_pattern_ns
 
         return maki::transition_table{}
             (states::off, any_button_press,                        states::on)
-            (states::on,  maki::type<events::power_button_press>, states::off)
+            (states::on,  maki::event<events::power_button_press>, states::off)
         ;
     }
 

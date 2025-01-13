@@ -29,14 +29,14 @@ namespace detail
     template
     <
         class Context = void,
-        class EntryActionTuple = detail::tuple<>,
-        class EventActionTuple = detail::tuple<>,
-        class ExitActionTuple = detail::tuple<>,
+        class EntryActionTuple = tuple<>,
+        class EventActionTuple = tuple<>,
+        class ExitActionTuple = tuple<>,
         class ExceptionHook = null_t,
         class PreStateTransitionHook = null_t,
         class PostStateTransitionHook = null_t,
-        class PostProcessingHookTuple = detail::tuple<>,
-        class TransitionTableTuple = detail::tuple<>
+        class PostProcessingHookTuple = tuple<>,
+        class TransitionTableTuple = tuple<>
     >
     struct machine_conf_option_set
     {

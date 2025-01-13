@@ -15,7 +15,7 @@
 #include "state_conf_fwd.hpp"
 #include "action.hpp"
 #include "event_set.hpp"
-#include "type.hpp"
+#include "detail/type.hpp"
 #include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"
 #include "detail/signature_macros.hpp"
@@ -66,7 +66,7 @@ public:
     state_conf& operator=(state_conf&&) = delete;
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = type<typename OptionSet::context_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = detail::type<typename OptionSet::context_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = options_.context_sig; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = options_.internal_actions; \
@@ -236,7 +236,7 @@ private:
     [[nodiscard]] constexpr auto context() const
     {
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_context_type type<Context>
+#define MAKI_DETAIL_ARG_context_type detail::type<Context>
 #define MAKI_DETAIL_ARG_context_sig ContextSig
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_context_type

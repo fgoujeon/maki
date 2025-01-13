@@ -171,8 +171,8 @@ public:
 
         static_assert
         (
-            detail::is_type_v<EventFilter> || detail::is_event_set_v<EventFilter> || detail::is_null_v<EventFilter>,
-            "2nd argument must be an instance of `maki::type_t`, an instance of `maki::event_set`, or `maki::null`"
+            detail::is_event_v<EventFilter> || detail::is_event_set_v<EventFilter> || detail::is_null_v<EventFilter>,
+            "2nd argument must be an instance of `maki::event_t`, an instance of `maki::event_set`, or `maki::null`"
         );
 
         static_assert

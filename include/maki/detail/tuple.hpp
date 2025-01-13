@@ -10,7 +10,7 @@
 #include "tlu.hpp"
 #include "constant.hpp"
 #include "../type_list.hpp"
-#include "../type.hpp"
+#include "type.hpp"
 #include <utility>
 
 namespace maki::detail

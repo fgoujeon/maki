@@ -37,7 +37,7 @@ namespace empty_state_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::state0, maki::type<events::event>, states::state1)
+        (states::state0, maki::event<events::event>, states::state1)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

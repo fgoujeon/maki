@@ -170,7 +170,7 @@ namespace guards
 using namespace states;
 using namespace actions;
 using namespace guards;
-inline constexpr auto button_push = maki::type<button::push_event>;
+inline constexpr auto button_push = maki::event<button::push_event>;
 
 /*
 This is the transition table. This is where we define the actions that the state

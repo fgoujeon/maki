@@ -9,7 +9,7 @@
 
 #include "detail/tuple.hpp"
 #include "detail/equals.hpp"
-#include "type.hpp"
+#include "event.hpp"
 
 namespace maki
 {
@@ -50,7 +50,7 @@ namespace detail::event_set_predicates
             );
         }
 
-        detail::tuple<Ts...> values;
+        tuple<Ts...> values;
     };
 
     template<class... Ts>
@@ -69,7 +69,7 @@ namespace detail::event_set_predicates
             );
         }
 
-        detail::tuple<Ts...> values;
+        tuple<Ts...> values;
     };
 }
 
@@ -133,12 +133,12 @@ constexpr auto any_event_if_not(const Predicate& pred)
 template<class... Events>
 constexpr auto any_event_of = event_set
 {
-    detail::event_set_predicates::any_of<type_t<Events>...>
+    detail::event_set_predicates::any_of<event_t<Events>...>
     {
-        detail::tuple<type_t<Events>...>
+        detail::tuple<event_t<Events>...>
         {
             detail::distributed_construct,
-            type<Events>...
+            event<Events>...
         }
     }
 };
@@ -150,12 +150,12 @@ constexpr auto any_event_of = event_set
 template<class... Events>
 constexpr auto any_event_but = event_set
 {
-    detail::event_set_predicates::any_but<type_t<Events>...>
+    detail::event_set_predicates::any_but<event_t<Events>...>
     {
-        detail::tuple<type_t<Events>...>
+        detail::tuple<event_t<Events>...>
         {
             detail::distributed_construct,
-            type<Events>...
+            event<Events>...
         }
     }
 };

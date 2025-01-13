@@ -38,9 +38,9 @@ namespace is_active_state_pattern_ns
         constexpr auto emitting_red_or_green = maki::any_state_of(emitting_red, emitting_green);
 
         constexpr auto on_transition_table = maki::transition_table{}
-            (states::emitting_red,   maki::type<events::color_button_press>, states::emitting_green)
-            (states::emitting_green, maki::type<events::color_button_press>, states::emitting_blue)
-            (states::emitting_blue,  maki::type<events::color_button_press>, states::emitting_red)
+            (states::emitting_red,   maki::event<events::color_button_press>, states::emitting_green)
+            (states::emitting_green, maki::event<events::color_button_press>, states::emitting_blue)
+            (states::emitting_blue,  maki::event<events::color_button_press>, states::emitting_red)
         ;
 
         constexpr auto on = maki::state_conf{}
@@ -49,8 +49,8 @@ namespace is_active_state_pattern_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::type<events::power_button_press>, states::on)
-        (states::on,  maki::type<events::power_button_press>, states::off)
+        (states::off, maki::event<events::power_button_press>, states::on)
+        (states::on,  maki::event<events::power_button_press>, states::off)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

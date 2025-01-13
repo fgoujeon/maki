@@ -30,7 +30,7 @@ struct c_button_press: alpha_button_press{};
 constexpr struct
 {
     template<class Event>
-    constexpr bool operator()(maki::type_t<Event> /*type*/) const
+    constexpr bool operator()(maki::event_t<Event> /*type*/) const
     {
         return std::is_base_of_v<digit_button_press, Event>;
     }

@@ -40,7 +40,7 @@ namespace event_action_traits
         template<class EventActionConstant>
         struct has_matching_event_filter
         {
-            static constexpr auto value = matches_filter(type<Event>, EventActionConstant::value->event_filter);
+            static constexpr auto value = matches_filter(event<Event>, EventActionConstant::value->event_filter);
         };
     };
 }

@@ -7,71 +7,13 @@
 #ifndef MAKI_EVENT_SET_HPP
 #define MAKI_EVENT_SET_HPP
 
+#include "detail/set_predicates.hpp"
 #include "detail/tuple.hpp"
 #include "detail/equals.hpp"
 #include "event.hpp"
 
 namespace maki
 {
-
-namespace detail::event_set_predicates
-{
-    struct any
-    {
-        template<class Value>
-        constexpr bool operator()(const Value& /*value*/) const
-        {
-            return true;
-        }
-    };
-
-    struct none
-    {
-        template<class Value>
-        constexpr bool operator()(const Value& /*value*/) const
-        {
-            return false;
-        }
-    };
-
-    template<class... Ts>
-    struct any_of
-    {
-        template<class Value>
-        constexpr bool operator()(const Value& value) const
-        {
-            return tuple_apply
-            (
-                values,
-                [value](const auto&... values)
-                {
-                    return (equals(values, value) || ...);
-                }
-            );
-        }
-
-        tuple<Ts...> values;
-    };
-
-    template<class... Ts>
-    struct any_but
-    {
-        template<class Value>
-        constexpr bool operator()(const Value& value) const
-        {
-            return tuple_apply
-            (
-                values,
-                [value](const auto&... values)
-                {
-                    return (!equals(values, value) && ...);
-                }
-            );
-        }
-
-        tuple<Ts...> values;
-    };
-}
 
 /**
 @brief Represents a set of event types. See @ref filter.
@@ -95,7 +37,7 @@ event_set(const Predicate&) -> event_set<Predicate>;
 #ifdef MAKI_DETAIL_DOXYGEN
 constexpr auto any_event = event_set{IMPLEMENTATION_DETAIL};
 #else
-inline constexpr auto any_event = event_set{detail::event_set_predicates::any{}};
+inline constexpr auto any_event = event_set{detail::set_predicates::any{}};
 #endif
 
 /**
@@ -133,7 +75,7 @@ constexpr auto any_event_if_not(const Predicate& pred)
 template<class... Events>
 constexpr auto any_event_of = event_set
 {
-    detail::event_set_predicates::any_of<event_t<Events>...>
+    detail::set_predicates::any_of<event_t<Events>...>
     {
         detail::tuple<event_t<Events>...>
         {
@@ -150,7 +92,7 @@ constexpr auto any_event_of = event_set
 template<class... Events>
 constexpr auto any_event_but = event_set
 {
-    detail::event_set_predicates::any_but<event_t<Events>...>
+    detail::set_predicates::any_but<event_t<Events>...>
     {
         detail::tuple<event_t<Events>...>
         {
@@ -166,7 +108,7 @@ constexpr auto any_event_but = event_set
 #ifdef MAKI_DETAIL_DOXYGEN
 constexpr auto no_event = event_set{IMPLEMENTATION_DETAIL};
 #else
-inline constexpr auto no_event = event_set{detail::event_set_predicates::none{}};
+inline constexpr auto no_event = event_set{detail::set_predicates::none{}};
 #endif
 
 namespace detail

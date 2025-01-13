@@ -8,70 +8,11 @@
 #define MAKI_STATE_SET_HPP
 
 #include "state_conf_fwd.hpp"
+#include "detail/set_predicates.hpp"
 #include "detail/tuple.hpp"
-#include "detail/equals.hpp"
 
 namespace maki
 {
-
-namespace detail::state_set_predicates
-{
-    struct any
-    {
-        template<class Value>
-        constexpr bool operator()(const Value& /*value*/) const
-        {
-            return true;
-        }
-    };
-
-    struct none
-    {
-        template<class Value>
-        constexpr bool operator()(const Value& /*value*/) const
-        {
-            return false;
-        }
-    };
-
-    template<class... Ts>
-    struct any_of
-    {
-        template<class Value>
-        constexpr bool operator()(const Value& value) const
-        {
-            return tuple_apply
-            (
-                values,
-                [value](const auto&... values)
-                {
-                    return (equals(values, value) || ...);
-                }
-            );
-        }
-
-        tuple<Ts...> values;
-    };
-
-    template<class... Ts>
-    struct any_but
-    {
-        template<class Value>
-        constexpr bool operator()(const Value& value) const
-        {
-            return tuple_apply
-            (
-                values,
-                [value](const auto&... values)
-                {
-                    return (!equals(values, value) && ...);
-                }
-            );
-        }
-
-        tuple<Ts...> values;
-    };
-}
 
 /**
 @brief Represents a set of states. See @ref filter.
@@ -95,7 +36,7 @@ state_set(const Predicate&) -> state_set<Predicate>;
 #ifdef MAKI_DETAIL_DOXYGEN
 constexpr auto any_state = state_set{IMPLEMENTATION_DETAIL};
 #else
-inline constexpr auto any_state = state_set{detail::state_set_predicates::any{}};
+inline constexpr auto any_state = state_set{detail::set_predicates::any{}};
 #endif
 
 /**
@@ -136,7 +77,7 @@ constexpr auto any_state_of(const state_conf<StateConfImpls>&... state_confs)
 {
     return state_set
     {
-        detail::state_set_predicates::any_of<const state_conf<StateConfImpls>*...>
+        detail::set_predicates::any_of<const state_conf<StateConfImpls>*...>
         {
             detail::tuple<const state_conf<StateConfImpls>*...>
             {
@@ -157,7 +98,7 @@ constexpr auto any_state_but(const state_conf<StateConfImpls>&... state_confs)
 {
     return state_set
     {
-        detail::state_set_predicates::any_but<const state_conf<StateConfImpls>*...>
+        detail::set_predicates::any_but<const state_conf<StateConfImpls>*...>
         {
             detail::tuple<const state_conf<StateConfImpls>*...>
             {
@@ -174,7 +115,7 @@ constexpr auto any_state_but(const state_conf<StateConfImpls>&... state_confs)
 #ifdef MAKI_DETAIL_DOXYGEN
 constexpr auto no_state = state_set{IMPLEMENTATION_DETAIL};
 #else
-inline constexpr auto no_state = state_set{detail::state_set_predicates::none{}};
+inline constexpr auto no_state = state_set{detail::set_predicates::none{}};
 #endif
 
 namespace detail

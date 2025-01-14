@@ -39,7 +39,7 @@ constexpr struct
 constexpr auto my_state = maki::state_conf{}
     .internal_action_v
     (
-        maki::any_event_if(is_digit_button_press),
+        maki::event_set{is_digit_button_press},
         []
         {
             std::cout << "Beep\n";

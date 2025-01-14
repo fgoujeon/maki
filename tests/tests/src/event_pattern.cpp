@@ -28,11 +28,10 @@ namespace event_pattern_ns
     [[maybe_unused]]
     constexpr auto make_sm_transition_table()
     {
-        constexpr auto any_button_press = maki::any_event_of
-        <
-            events::power_button_press,
-            events::alert_button_press
-        >;
+        constexpr auto any_button_press =
+            maki::event<events::power_button_press> ||
+            maki::event<events::alert_button_press>
+        ;
 
         return maki::transition_table{}
             (states::off, any_button_press,                        states::on)

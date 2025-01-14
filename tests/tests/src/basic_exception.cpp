@@ -25,7 +25,6 @@ namespace basic_exception_ns
         constexpr auto off = maki::state_conf{}
             .entry_action_c
             (
-                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.out += "off::on_entry;";
@@ -33,7 +32,6 @@ namespace basic_exception_ns
             )
             .exit_action_c
             (
-                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.out += "off::on_exit;";
@@ -50,7 +48,6 @@ namespace basic_exception_ns
         constexpr auto on = maki::state_conf{}
             .entry_action_c
             (
-                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.out += "on::on_entry;";
@@ -58,7 +55,6 @@ namespace basic_exception_ns
             )
             .exit_action_c
             (
-                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.out += "on::on_exit;";

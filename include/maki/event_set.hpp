@@ -7,8 +7,9 @@
 #ifndef MAKI_EVENT_SET_HPP
 #define MAKI_EVENT_SET_HPP
 
+#include "any.hpp"
+#include "none.hpp"
 #include "detail/set_predicates.hpp"
-#include "detail/tuple.hpp"
 #include "detail/equals.hpp"
 #include "event.hpp"
 
@@ -17,124 +18,135 @@ namespace maki
 
 /**
 @brief Represents a set of event types. See @ref filter.
-Use the predefined variables (`maki::any_event`, `maki::any_event_of`,
-`maki::any_event_but`, `maki::no_event`) and builder functions
-(`maki::any_event_if()`, `maki::any_event_if_not()`) instead of manually
+Use the predefined variables (`maki::any`, `maki::any_of`,
+`maki::any_but`, `maki::no_event`) and builder functions
+(`maki::any_if()`, `maki::any_if_not()`) instead of manually
 instantiating this type.
 */
 template<class Predicate>
-struct event_set
+class event_set
 {
-    Predicate predicate;
+public:
+    constexpr explicit event_set(const Predicate& pred):
+        predicate_(pred)
+    {
+    }
+
+    template<class Event>
+    constexpr event_set(event_t<Event> /*ignored*/):
+        predicate_(detail::set_predicates::exactly{event<Event>})
+    {
+    }
+
+    constexpr event_set(any_t /*ignored*/):
+        predicate_(detail::set_predicates::any{})
+    {
+    }
+
+    constexpr event_set(none_t /*ignored*/):
+        predicate_(detail::set_predicates::none{})
+    {
+    }
+
+    template<class Event>
+    [[nodiscard]]
+    constexpr bool contains(event_t<Event> /*ignored*/ = {}) const
+    {
+        return predicate_(event<Event>);
+    }
+
+private:
+    Predicate predicate_;
 };
 
 template<class Predicate>
 event_set(const Predicate&) -> event_set<Predicate>;
 
-/**
-@brief A set that contains all event types.
-*/
-#ifdef MAKI_DETAIL_DOXYGEN
-constexpr auto any_event = event_set{IMPLEMENTATION_DETAIL};
-#else
-inline constexpr auto any_event = event_set{detail::set_predicates::any{}};
-#endif
+template<class Event>
+event_set(event_t<Event>) -> event_set<detail::set_predicates::exactly<event_t<Event>>>;
 
-/**
-@brief Makes a set that contains the event types that verifies
-`pred(event_type) == true`.
-@tparam Predicate the predicate against which event_types are tested
-*/
-template<class Predicate>
-constexpr auto any_event_if(const Predicate& pred)
-{
-    return event_set{pred};
-}
+event_set(any_t) -> event_set<detail::set_predicates::any>;
 
-/**
-@brief Makes a set that contains the event types that verifies
-`pred(event_type) == false`.
-@tparam Predicate the predicate against which event_types are tested
-*/
+event_set(none_t) -> event_set<detail::set_predicates::none>;
+
 template<class Predicate>
-constexpr auto any_event_if_not(const Predicate& pred)
+constexpr auto operator!(const event_set<Predicate>& evt_set)
 {
     return event_set
     {
-        [pred](const auto& value)
+        [evt_set](const auto evt)
         {
-            !pred(value);
+            return !evt_set.contains(evt);
         }
     };
 }
 
-/**
-@brief A set that contains the given event types.
-@tparam Events the event types
-*/
-template<class... Events>
-constexpr auto any_event_of = event_set
+template<class Event>
+constexpr auto operator!(const event_t<Event>& evt)
 {
-    detail::set_predicates::any_of<event_t<Events>...>
-    {
-        detail::tuple<event_t<Events>...>
-        {
-            detail::distributed_construct,
-            event<Events>...
-        }
-    }
-};
+    return !event_set{evt};
+}
 
-/**
-@brief A set that contains all the event types that are not in the given list.
-@tparam Events the list of excluded event types
-*/
-template<class... Events>
-constexpr auto any_event_but = event_set
+template<class LhsImpl, class RhsImpl>
+constexpr auto operator||(const event_set<LhsImpl>& lhs, const event_set<RhsImpl>& rhs)
 {
-    detail::set_predicates::any_but<event_t<Events>...>
+    return event_set
     {
-        detail::tuple<event_t<Events>...>
+        [lhs, rhs](const auto evt)
         {
-            detail::distributed_construct,
-            event<Events>...
+            return lhs.contains(evt) || rhs.contains(evt);
         }
-    }
-};
+    };
+}
 
-/**
-@brief An empty event type set.
-*/
-#ifdef MAKI_DETAIL_DOXYGEN
-constexpr auto no_event = event_set{IMPLEMENTATION_DETAIL};
-#else
-inline constexpr auto no_event = event_set{detail::set_predicates::none{}};
-#endif
+template<class LhsEvent, class RhsEvent>
+constexpr auto operator||(const event_set<LhsEvent>& lhs, const event_t<RhsEvent>& rhs)
+{
+    return lhs || event_set{rhs};
+}
+
+template<class LhsEvent, class RhsEvent>
+constexpr auto operator||(const event_t<LhsEvent>& lhs, const event_set<RhsEvent>& rhs)
+{
+    return event_set{lhs} || rhs;
+}
+
+template<class LhsStateConfImpl, class RhsStateConfImpl>
+constexpr auto operator||(const event_t<LhsStateConfImpl>& lhs, const event_t<RhsStateConfImpl>& rhs)
+{
+    return event_set{lhs} || event_set{rhs};
+}
+
+template<class LhsImpl, class RhsImpl>
+constexpr auto operator&&(const event_set<LhsImpl>& lhs, const event_set<RhsImpl>& rhs)
+{
+    return event_set
+    {
+        [lhs, rhs](const auto evt)
+        {
+            return lhs.contains(evt) && rhs.contains(evt);
+        }
+    };
+}
 
 namespace detail
 {
     template<class Lhs, class Rhs>
-    constexpr bool matches_filter(const Lhs& lhs, const Rhs& rhs)
+    constexpr bool contained_in(const Lhs& lhs, const Rhs& rhs)
     {
         return equals(lhs, rhs);
     }
 
-    template<class Value, class FilterPredicate>
-    constexpr bool matches_filter(const Value& value, const event_set<FilterPredicate>& flt)
+    template<class Event, class FilterPredicate>
+    constexpr bool contained_in(const event_t<Event>& /*evt*/, const event_set<FilterPredicate>& flt)
     {
-        return flt.predicate(value);
+        return flt.template contains<Event>();
     }
 
-    template<class Value, class FilterPredicate>
-    constexpr bool matches_filter_ptr(const Value& value, const event_set<FilterPredicate>* pflt)
+    template<class Event, class... Filters>
+    constexpr bool contained_in(const event_t<Event>& evt, const Filters&... filters)
     {
-        return pflt->predicate(value);
-    }
-
-    template<class Value, class... Filters>
-    constexpr bool matches_any_filter(const Value& value, const Filters&... filters)
-    {
-        return (matches_filter(value, filters) || ...);
+        return (contained_in(evt, filters) || ...);
     }
 
     template<class T>

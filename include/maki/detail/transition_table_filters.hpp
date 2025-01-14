@@ -24,7 +24,7 @@ struct by_event_predicate_holder
         static constexpr auto make_value()
         {
             const auto& trans = tuple_get<TransitionIndexConstant::value>(TransitionTuple);
-            return matches_filter(event<Event>, trans.event_filter);
+            return contained_in(event<Event>, trans.event_filter);
         }
 
         static constexpr auto value = make_value();
@@ -38,8 +38,8 @@ namespace by_source_state_and_null_event_detail
     {
         const auto& trans = tuple_get<TransitionIndexConstant::value>(transitions);
         return
-            matches_filter(null, trans.event_filter) &&
-            matches_filter(source_state_id, trans.source_state_conf_filter)
+            contained_in(null, trans.event_filter) &&
+            contained_in(source_state_id, trans.source_state_conf_filter)
         ;
     }
 

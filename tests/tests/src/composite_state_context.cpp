@@ -50,7 +50,6 @@ namespace composite_state_context_ns
             constexpr auto emitting_red = maki::state_conf{}
                 .entry_action_c
                 (
-                    maki::any_event,
                     [](context& ctx)
                     {
                         ++ctx.red_count;
@@ -73,7 +72,6 @@ namespace composite_state_context_ns
             .context_c<on_ns::context>()
             .exit_action_c
             (
-                maki::any_event,
                 [](on_ns::context& ctx)
                 {
                     ctx.parent.out = std::to_string(ctx.red_count);

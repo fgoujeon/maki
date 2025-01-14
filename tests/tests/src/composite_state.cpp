@@ -41,7 +41,6 @@ namespace composite_state_ns
             .context_c<emitting_red_data>()
             .entry_action_c
             (
-                maki::any_event,
                 [](emitting_red_data& ctx)
                 {
                     ctx.ctx.current_led_color = led_color::red;
@@ -58,7 +57,6 @@ namespace composite_state_ns
             .context_c<emitting_green_data>()
             .entry_action_c
             (
-                maki::any_event,
                 [](emitting_green_data& ctx)
                 {
                     ctx.ctx.current_led_color = led_color::green;
@@ -75,7 +73,6 @@ namespace composite_state_ns
             .context_c<emitting_blue_data>()
             .entry_action_c
             (
-                maki::any_event,
                 [](emitting_blue_data& ctx)
                 {
                     ctx.ctx.current_led_color = led_color::blue;
@@ -93,7 +90,6 @@ namespace composite_state_ns
             .transition_tables(on_transition_table)
             .exit_action_c
             (
-                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.current_led_color = led_color::off;

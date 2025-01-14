@@ -145,7 +145,7 @@ public:
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE start_action_##signature(const Action& action) const \
     { \
-        return start_action_##signature(any_event_of<Event>, action); \
+        return start_action_##signature(event<Event>, action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -168,7 +168,7 @@ public:
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_processing_hook_##signature(const Action& action) const \
     { \
-        return pre_processing_hook_##signature(any_event_of<Event>, action); \
+        return pre_processing_hook_##signature(event_set{event<Event>}, action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -189,7 +189,7 @@ public:
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE stop_action_##signature(const Action& action) const \
     { \
-        return stop_action_##signature(any_event_of<Event>, action); \
+        return stop_action_##signature(event<Event>, action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -445,7 +445,7 @@ public:
     template<class Event, class Action>
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_processing_hook_mep(const Action& action) const
     {
-        return post_processing_hook_mep(any_event_of<Event>, action);
+        return post_processing_hook_mep(event_set{event<Event>}, action);
     }
 
     /**

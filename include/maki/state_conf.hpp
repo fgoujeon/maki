@@ -12,6 +12,7 @@
 #ifndef MAKI_STATE_CONF_HPP
 #define MAKI_STATE_CONF_HPP
 
+#include "any.hpp"
 #include "state_conf_fwd.hpp"
 #include "action.hpp"
 #include "event_set.hpp"
@@ -123,7 +124,7 @@ public:
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const Action& action) const \
     { \
-        return entry_action_##signature(any_event_of<Event>, action); \
+        return entry_action_##signature(event_set{event<Event>}, action); \
     } \
  \
     /** \
@@ -132,7 +133,7 @@ public:
     template<class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const Action& action) const \
     { \
-        return entry_action_##signature(any_event, action); \
+        return entry_action_##signature(event_set{any}, action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -157,7 +158,7 @@ public:
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const Action& action) const \
     { \
-        return internal_action_##signature(any_event_of<Event>, action); \
+        return internal_action_##signature(event_set{event<Event>}, action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -178,7 +179,7 @@ public:
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const Action& action) const \
     { \
-        return exit_action_##signature(any_event_of<Event>, action); \
+        return exit_action_##signature(event_set{event<Event>}, action); \
     } \
  \
     /** \
@@ -187,7 +188,7 @@ public:
     template<class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const Action& action) const \
     { \
-        return exit_action_##signature(any_event, action); \
+        return exit_action_##signature(event_set{any}, action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X

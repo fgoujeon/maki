@@ -40,7 +40,6 @@ namespace nullary_member_functions_ns
             )
             .entry_action_c
             (
-                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.out += "on_entry();";
@@ -55,7 +54,6 @@ namespace nullary_member_functions_ns
             )
             .exit_action_c
             (
-                maki::any_event,
                 [](context& ctx)
                 {
                     ctx.out += "on_exit();";

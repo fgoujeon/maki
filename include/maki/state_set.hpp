@@ -57,6 +57,7 @@ public:
     constexpr state_set& operator=(state_set&& other) = default;
 
     template<class StateConfImpl>
+    [[nodiscard]]
     constexpr bool contains(const state_conf<StateConfImpl>& stt_conf) const
     {
         return predicate_(&stt_conf);

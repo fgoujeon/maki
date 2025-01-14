@@ -28,7 +28,7 @@ class state_set;
 namespace detail
 {
     template<class Predicate>
-    constexpr auto make_state_set(const Predicate& pred)
+    constexpr auto make_state_set_from_predicate(const Predicate& pred)
     {
         return state_set<Predicate>{pred};
     }
@@ -65,7 +65,7 @@ public:
 
 private:
     template<class Predicate2>
-    friend constexpr auto detail::make_state_set(const Predicate2&);
+    friend constexpr auto detail::make_state_set_from_predicate(const Predicate2&);
 
     constexpr state_set(const Predicate& pred):
         predicate_(pred)
@@ -84,14 +84,14 @@ namespace detail
     template<class StateConfImpl>
     constexpr auto make_state_set_from_state_conf(const state_conf<StateConfImpl>& stt_conf)
     {
-        return make_state_set(set_predicates::exactly{&stt_conf});
+        return make_state_set_from_predicate(set_predicates::exactly{&stt_conf});
     }
 }
 
 template<class Impl>
 constexpr auto operator!(const state_set<Impl>& stt_set)
 {
-    return detail::make_state_set
+    return detail::make_state_set_from_predicate
     (
         [stt_set](const auto pstate_conf)
         {
@@ -109,7 +109,7 @@ constexpr auto operator!(const state_conf<StateConfImpl>& stt_conf)
 template<class LhsImpl, class RhsImpl>
 constexpr auto operator||(const state_set<LhsImpl>& lhs, const state_set<RhsImpl>& rhs)
 {
-    return detail::make_state_set
+    return detail::make_state_set_from_predicate
     (
         [lhs, rhs](const auto pstate_conf)
         {
@@ -142,7 +142,7 @@ constexpr auto operator||(const state_conf<LhsStateConfImpl>& lhs, const state_c
 template<class LhsImpl, class RhsImpl>
 constexpr auto operator&&(const state_set<LhsImpl>& lhs, const state_set<RhsImpl>& rhs)
 {
-    return detail::make_state_set
+    return detail::make_state_set_from_predicate
     (
         [lhs, rhs](const auto pstate_conf)
         {
@@ -153,6 +153,18 @@ constexpr auto operator&&(const state_set<LhsImpl>& lhs, const state_set<RhsImpl
 
 namespace detail
 {
+    template<class StateConfImpl, class StateConfImpl2>
+    constexpr bool contained_in(const state_conf<StateConfImpl>& lhs, const state_conf<StateConfImpl2>* rhs)
+    {
+        return equals(&lhs, rhs);
+    }
+
+    template<class StateConfImpl, class... Predicates>
+    constexpr bool contained_in(const state_conf<StateConfImpl>& stt_conf, const state_set<Predicates>&... state_sets)
+    {
+        return (state_sets.contains(stt_conf) || ...);
+    }
+
     template<class T>
     struct is_state_set
     {

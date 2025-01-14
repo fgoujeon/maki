@@ -9,6 +9,7 @@
 
 #include "any.hpp"
 #include "none.hpp"
+#include "null.hpp"
 #include "detail/set_predicates.hpp"
 #include "detail/equals.hpp"
 #include "event.hpp"
@@ -131,22 +132,22 @@ constexpr auto operator&&(const event_set<LhsImpl>& lhs, const event_set<RhsImpl
 
 namespace detail
 {
-    template<class Lhs, class Rhs>
-    constexpr bool contained_in(const Lhs& lhs, const Rhs& rhs)
+    template<class Event, class Event2>
+    constexpr bool contained_in(const event_t<Event>& lhs, const event_t<Event2>& rhs)
     {
         return equals(lhs, rhs);
     }
 
-    template<class Event, class FilterPredicate>
-    constexpr bool contained_in(const event_t<Event>& /*evt*/, const event_set<FilterPredicate>& flt)
+    template<class Event>
+    constexpr bool contained_in(const event_t<Event>& /*lhs*/, null_t /*rhs*/)
     {
-        return flt.template contains<Event>();
+        return false;
     }
 
-    template<class Event, class... Filters>
-    constexpr bool contained_in(const event_t<Event>& evt, const Filters&... filters)
+    template<class Event, class... Predicates>
+    constexpr bool contained_in(const event_t<Event>& evt, const event_set<Predicates>&... evt_sets)
     {
-        return (contained_in(evt, filters) || ...);
+        return (evt_sets.contains(evt) || ...);
     }
 
     template<class T>

@@ -8,8 +8,6 @@
 #define MAKI_STATE_SET_HPP
 
 #include "state_conf_fwd.hpp"
-#include "none.hpp"
-#include "any.hpp"
 #include "detail/set_predicates.hpp"
 
 namespace maki
@@ -38,16 +36,6 @@ template<class Predicate>
 class state_set
 {
 public:
-    constexpr explicit state_set(const any_t& /*any*/):
-        predicate_(detail::set_predicates::any{})
-    {
-    }
-
-    constexpr explicit state_set(const none_t& /*any*/):
-        predicate_(detail::set_predicates::none{})
-    {
-    }
-
     constexpr state_set(const state_set& other) = default;
     constexpr state_set(state_set&& other) = default;
 
@@ -75,9 +63,9 @@ private:
     Predicate predicate_;
 };
 
-state_set(any_t) -> state_set<detail::set_predicates::any>;
+inline constexpr auto any_state = detail::make_state_set_from_predicate(detail::set_predicates::any{});
 
-state_set(none_t) -> state_set<detail::set_predicates::none>;
+inline constexpr auto no_state = detail::make_state_set_from_predicate(detail::set_predicates::none{});
 
 namespace detail
 {

@@ -93,7 +93,7 @@ namespace on_unprocessed_ns
         )
         .post_processing_hook_mep
         (
-            maki::event_set{maki::any},
+            maki::any_event,
             [](auto& mach, const auto& /*event*/, const bool processed)
             {
                 if(!processed)

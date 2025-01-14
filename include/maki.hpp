@@ -15,7 +15,6 @@
 */
 
 #include "maki/action.hpp" //NOLINT misc-include-cleaner
-#include "maki/any.hpp" //NOLINT misc-include-cleaner
 #include "maki/cref_constant.hpp" //NOLINT misc-include-cleaner
 #include "maki/event.hpp" //NOLINT misc-include-cleaner
 #include "maki/event_set.hpp" //NOLINT misc-include-cleaner
@@ -25,7 +24,6 @@
 #include "maki/machine_conf.hpp" //NOLINT misc-include-cleaner
 #include "maki/machine_ref.hpp" //NOLINT misc-include-cleaner
 #include "maki/machine_ref_conf.hpp" //NOLINT misc-include-cleaner
-#include "maki/none.hpp" //NOLINT misc-include-cleaner
 #include "maki/pretty_name.hpp" //NOLINT misc-include-cleaner
 #include "maki/state_conf.hpp" //NOLINT misc-include-cleaner
 #include "maki/state_confs.hpp" //NOLINT misc-include-cleaner

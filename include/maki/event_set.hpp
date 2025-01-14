@@ -7,8 +7,6 @@
 #ifndef MAKI_EVENT_SET_HPP
 #define MAKI_EVENT_SET_HPP
 
-#include "any.hpp"
-#include "none.hpp"
 #include "null.hpp"
 #include "detail/set_predicates.hpp"
 #include "detail/equals.hpp"
@@ -39,16 +37,6 @@ public:
     {
     }
 
-    constexpr event_set(any_t /*ignored*/):
-        predicate_(detail::set_predicates::any{})
-    {
-    }
-
-    constexpr event_set(none_t /*ignored*/):
-        predicate_(detail::set_predicates::none{})
-    {
-    }
-
     template<class Event>
     [[nodiscard]]
     constexpr bool contains(event_t<Event> /*ignored*/ = {}) const
@@ -66,9 +54,9 @@ event_set(const Predicate&) -> event_set<Predicate>;
 template<class Event>
 event_set(event_t<Event>) -> event_set<detail::set_predicates::exactly<event_t<Event>>>;
 
-event_set(any_t) -> event_set<detail::set_predicates::any>;
+inline constexpr auto any_event = event_set{detail::set_predicates::any{}};
 
-event_set(none_t) -> event_set<detail::set_predicates::none>;
+inline constexpr auto no_event = event_set{detail::set_predicates::none{}};
 
 template<class Predicate>
 constexpr auto operator!(const event_set<Predicate>& evt_set)

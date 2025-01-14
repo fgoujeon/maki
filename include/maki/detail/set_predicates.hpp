@@ -13,6 +13,36 @@
 namespace maki::detail::set_predicates
 {
 
+template<class T>
+struct exactly
+{
+    template<class Value>
+    constexpr bool operator()(const Value& other) const
+    {
+        return equals(value, other);
+    }
+
+    T value;
+};
+
+template<class T>
+exactly(const T& value) -> exactly<T>;
+
+template<class T>
+struct not_
+{
+    template<class Value>
+    constexpr bool operator()(const Value& other) const
+    {
+        return !equals(value, other);
+    }
+
+    T value;
+};
+
+template<class T>
+not_(const T& value) -> not_<T>;
+
 struct any
 {
     template<class Value>

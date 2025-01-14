@@ -20,7 +20,7 @@ namespace by_filter_detail
         template<class StateIdConstant>
         struct matches
         {
-            static constexpr auto value = FilterPtr->predicate(StateIdConstant::value);
+            static constexpr auto value = FilterPtr->contains(*StateIdConstant::value);
         };
     };
 }

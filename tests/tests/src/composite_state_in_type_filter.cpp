@@ -36,8 +36,8 @@ namespace composite_state_in_type_filter_ns
         ;
     }
 
-    constexpr auto any_but_s0_s1 = maki::any_state_but(states::s0, states::s1);
-    constexpr auto any_of_s0_s1 = maki::any_state_of(states::s0, states::s1);
+    constexpr auto any_but_s0_s1 = !(states::s0 || states::s1);
+    constexpr auto any_of_s0_s1 = states::s0 || states::s1;
 
     constexpr auto transition_table = maki::transition_table{}
         (states::off,   maki::event<events::button_press>,             states::s0)

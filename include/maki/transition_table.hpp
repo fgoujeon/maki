@@ -12,6 +12,9 @@
 #ifndef MAKI_TRANSITION_TABLE_HPP
 #define MAKI_TRANSITION_TABLE_HPP
 
+#include "state_conf_fwd.hpp"
+#include "any.hpp"
+#include "none.hpp"
 #include "action.hpp"
 #include "guard.hpp"
 #include "event_set.hpp"
@@ -104,6 +107,28 @@ namespace detail
     {
         return table.transitions_;
     }
+
+    template<class StateConfImpl>
+    constexpr auto to_tt_source_state(const state_conf<StateConfImpl>& stt_conf)
+    {
+        return &stt_conf;
+    }
+
+    template<class StateSetImpl>
+    constexpr const auto& to_tt_source_state(const state_set<StateSetImpl>& stt_set)
+    {
+        return stt_set;
+    }
+
+    constexpr auto to_tt_source_state(const any_t& /*any*/)
+    {
+        return state_set{any};
+    }
+
+    constexpr auto to_tt_source_state(const none_t& /*none*/)
+    {
+        return state_set{none};
+    }
 }
 
 template<class... Transitions>
@@ -163,10 +188,16 @@ public:
         const GuardOrNull& guard = null
     )
     {
+        constexpr auto valid_1st_arg =
+            detail::is_state_conf_v<SourceStateConfFilter> ||
+            detail::is_state_set_v<SourceStateConfFilter> ||
+            detail::is_any_v<SourceStateConfFilter> ||
+            detail::is_none_v<SourceStateConfFilter>
+        ;
         static_assert
         (
-            detail::is_state_conf_v<SourceStateConfFilter> || detail::is_state_set_v<SourceStateConfFilter>,
-            "1st argument must be an instance of `maki::state_conf` or an instance of `maki::state_set`"
+            valid_1st_arg,
+            "1st argument must be an instance of `maki::state_conf` or an object convertible to `maki::state_set`"
         );
 
         static_assert
@@ -200,7 +231,7 @@ public:
                 transitions_,
                 detail::transition
                 {
-                    detail::try_making_state_id(source_state_conf_filter),
+                    detail::to_tt_source_state(source_state_conf_filter),
                     event_filter,
                     detail::try_making_state_id(target_state_conf),
                     detail::to_action(action),

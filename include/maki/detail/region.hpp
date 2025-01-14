@@ -575,7 +575,7 @@ private:
         template<class ActiveStateIdConstant>
         static void call([[maybe_unused]] bool& matches)
         {
-            if constexpr(FilterPtr->predicate(ActiveStateIdConstant::value))
+            if constexpr(FilterPtr->contains(*ActiveStateIdConstant::value))
             {
                 matches = true;
             }

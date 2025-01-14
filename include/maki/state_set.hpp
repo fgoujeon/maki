@@ -8,8 +8,9 @@
 #define MAKI_STATE_SET_HPP
 
 #include "state_conf_fwd.hpp"
+#include "none.hpp"
+#include "any.hpp"
 #include "detail/set_predicates.hpp"
-#include "detail/tuple.hpp"
 
 namespace maki
 {
@@ -22,101 +23,132 @@ functions (`maki::any_state_if()`, `maki::any_state_if_not()`,
 instantiating this type.
 */
 template<class Predicate>
-struct state_set
+class state_set;
+
+namespace detail
 {
-    Predicate predicate;
+    template<class Predicate>
+    constexpr auto make_state_set(const Predicate& pred)
+    {
+        return state_set<Predicate>{pred};
+    }
+}
+
+template<class Predicate>
+class state_set
+{
+public:
+    constexpr explicit state_set(const any_t& /*any*/):
+        predicate_(detail::set_predicates::any{})
+    {
+    }
+
+    constexpr explicit state_set(const none_t& /*any*/):
+        predicate_(detail::set_predicates::none{})
+    {
+    }
+
+    constexpr state_set(const state_set& other) = default;
+    constexpr state_set(state_set&& other) = default;
+
+    ~state_set() = default;
+
+    constexpr state_set& operator=(const state_set& other) = default;
+    constexpr state_set& operator=(state_set&& other) = default;
+
+    template<class StateConfImpl>
+    constexpr bool contains(const state_conf<StateConfImpl>& stt_conf) const
+    {
+        return predicate_(&stt_conf);
+    }
+
+private:
+    template<class Predicate2>
+    friend constexpr auto detail::make_state_set(const Predicate2&);
+
+    constexpr state_set(const Predicate& pred):
+        predicate_(pred)
+    {
+    }
+
+    Predicate predicate_;
 };
 
-template<class Predicate>
-state_set(const Predicate&) -> state_set<Predicate>;
+state_set(any_t) -> state_set<detail::set_predicates::any>;
 
-/**
-@brief A set that contains all states.
-*/
-#ifdef MAKI_DETAIL_DOXYGEN
-constexpr auto any_state = state_set{IMPLEMENTATION_DETAIL};
-#else
-inline constexpr auto any_state = state_set{detail::set_predicates::any{}};
-#endif
+state_set(none_t) -> state_set<detail::set_predicates::none>;
 
-/**
-@brief Makes a set that contains any state that verifies
-`pred(state_conf) == true`.
-@tparam Predicate the predicate against which state configurations are tested
-*/
-template<class Predicate>
-constexpr auto any_state_if(const Predicate& pred)
+namespace detail
 {
-    return state_set{pred};
-}
-
-/**
-@brief Makes a set that contains any state that verifies
-`pred(state_conf) == false`.
-@tparam Predicate the predicate against which state configurations are tested
-*/
-template<class Predicate>
-constexpr auto any_state_if_not(const Predicate& pred)
-{
-    return state_set
+    template<class StateConfImpl>
+    constexpr auto make_state_set_from_state_conf(const state_conf<StateConfImpl>& stt_conf)
     {
-        [pred](const auto& stt_conf)
-        {
-            !pred(stt_conf);
-        }
-    };
+        return make_state_set(set_predicates::exactly{&stt_conf});
+    }
 }
 
-/**
-@brief Makes a set that contains all the states created from the given
-configurations.
-@tparam Ts the types of values the filter matches with
-*/
-template<class... StateConfImpls>
-constexpr auto any_state_of(const state_conf<StateConfImpls>&... state_confs)
+template<class Impl>
+constexpr auto operator!(const state_set<Impl>& stt_set)
 {
-    return state_set
-    {
-        detail::set_predicates::any_of<const state_conf<StateConfImpls>*...>
+    return detail::make_state_set
+    (
+        [stt_set](const auto pstate_conf)
         {
-            detail::tuple<const state_conf<StateConfImpls>*...>
-            {
-                detail::distributed_construct,
-                &state_confs...
-            }
+            return !stt_set.contains(*pstate_conf);
         }
-    };
+    );
 }
 
-/**
-@brief Makes a set that contains all the states not created from the given
-configurations.
-@tparam Ts the types of values the filter matches with
-*/
-template<class... StateConfImpls>
-constexpr auto any_state_but(const state_conf<StateConfImpls>&... state_confs)
+template<class StateConfImpl>
+constexpr auto operator!(const state_conf<StateConfImpl>& stt_conf)
 {
-    return state_set
-    {
-        detail::set_predicates::any_but<const state_conf<StateConfImpls>*...>
-        {
-            detail::tuple<const state_conf<StateConfImpls>*...>
-            {
-                detail::distributed_construct,
-                &state_confs...
-            }
-        }
-    };
+    return !detail::make_state_set_from_state_conf(stt_conf);
 }
 
-/**
-@brief An empty state set.
-*/
-#ifdef MAKI_DETAIL_DOXYGEN
-constexpr auto no_state = state_set{IMPLEMENTATION_DETAIL};
-#else
-inline constexpr auto no_state = state_set{detail::set_predicates::none{}};
-#endif
+template<class LhsImpl, class RhsImpl>
+constexpr auto operator||(const state_set<LhsImpl>& lhs, const state_set<RhsImpl>& rhs)
+{
+    return detail::make_state_set
+    (
+        [lhs, rhs](const auto pstate_conf)
+        {
+            return lhs.contains(*pstate_conf) || rhs.contains(*pstate_conf);
+        }
+    );
+}
+
+template<class LhsImpl, class RhsImpl>
+constexpr auto operator||(const state_set<LhsImpl>& lhs, const state_conf<RhsImpl>& rhs)
+{
+    return lhs || detail::make_state_set_from_state_conf(rhs);
+}
+
+template<class LhsImpl, class RhsImpl>
+constexpr auto operator||(const state_conf<LhsImpl>& lhs, const state_set<RhsImpl>& rhs)
+{
+    return detail::make_state_set_from_state_conf(lhs) || rhs;
+}
+
+template<class LhsStateConfImpl, class RhsStateConfImpl>
+constexpr auto operator||(const state_conf<LhsStateConfImpl>& lhs, const state_conf<RhsStateConfImpl>& rhs)
+{
+    return
+        detail::make_state_set_from_state_conf(lhs) ||
+        detail::make_state_set_from_state_conf(rhs)
+    ;
+}
+
+template<class LhsImpl, class RhsImpl>
+constexpr auto operator&&(const state_set<LhsImpl>& lhs, const state_set<RhsImpl>& rhs)
+{
+    return detail::make_state_set
+    (
+        [lhs, rhs](const auto pstate_conf)
+        {
+            return lhs.contains(*pstate_conf) && rhs.contains(*pstate_conf);
+        }
+    );
+}
 
 namespace detail
 {

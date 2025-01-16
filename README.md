@@ -17,7 +17,8 @@ Maki implements the following key features:
   * **guards**;
   * **internal transitions**, aka transitions to `maki::null` state;
   * **completion transitions**, aka anonymous transitions, aka transitions through `maki::null` event;
-  * **filters** (`maki::any`, `maki::any_of`, `maki::any_but`, `maki::any_if` and `maki::any_if_not`) for source states and events;
+  * **event type sets**;
+  * **state sets**;
 * **states**, featuring:
   * **entry/exit actions**;
   * **internal transition actions**;

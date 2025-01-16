@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace composite_state_in_type_filter_ns
+namespace composite_state_in_state_set_ns
 {
     struct context
     {
@@ -54,9 +54,9 @@ namespace composite_state_in_type_filter_ns
     using machine_t = maki::machine<machine_conf>;
 }
 
-TEST_CASE("composite_state_in_type_filter")
+TEST_CASE("composite_state_in_state_set")
 {
-    using namespace composite_state_in_type_filter_ns;
+    using namespace composite_state_in_state_set_ns;
 
     auto machine = machine_t{};
 

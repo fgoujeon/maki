@@ -47,7 +47,7 @@ namespace transition_table_digest_detail
     class initial_digest
     {
     private:
-        static constexpr auto initial_state_id = tuple_get<0>(TransitionTuple).source_state_conf_filter;
+        static constexpr auto initial_state_id = tuple_get<0>(TransitionTuple).source_state_conf;
 
     public:
         using state_id_constant_list = type_list_t<constant_t<initial_state_id>>;
@@ -73,7 +73,7 @@ namespace transition_table_digest_detail
                 Digest::has_null_events ||
                 std::is_same_v
                 <
-                    std::decay_t<decltype(tuple_get<Index>(TransitionTuple).event_filter)>,
+                    std::decay_t<decltype(tuple_get<Index>(TransitionTuple).evt_set)>,
                     null_t
                 >
             ;
@@ -88,7 +88,7 @@ namespace transition_table_digest_detail
                 Digest::has_null_events ||
                 std::is_same_v
                 <
-                    std::decay_t<decltype(tuple_get<Index>(TransitionTuple).event_filter)>,
+                    std::decay_t<decltype(tuple_get<Index>(TransitionTuple).evt_set)>,
                     null_t
                 >
             ;

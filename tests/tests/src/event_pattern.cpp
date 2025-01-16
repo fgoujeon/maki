@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace event_pattern_ns
+namespace event_set_ns
 {
     struct context
     {
@@ -47,9 +47,9 @@ namespace event_pattern_ns
     using machine_t = maki::machine<machine_conf>;
 }
 
-TEST_CASE("event_filter")
+TEST_CASE("event_set")
 {
-    using namespace event_pattern_ns;
+    using namespace event_set_ns;
 
     auto machine = machine_t{};
 

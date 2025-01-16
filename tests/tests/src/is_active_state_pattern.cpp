@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace is_active_state_pattern_ns
+namespace is_active_state_set_ns
 {
     enum class led_color
     {
@@ -61,9 +61,9 @@ namespace is_active_state_pattern_ns
     using machine_t = maki::machine<machine_conf>;
 }
 
-TEST_CASE("is_active_state_filter")
+TEST_CASE("is_active_state_set")
 {
-    using namespace is_active_state_pattern_ns;
+    using namespace is_active_state_set_ns;
 
     auto machine = machine_t{};
     const auto& on_state = machine.state<states::on>();

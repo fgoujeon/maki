@@ -91,7 +91,7 @@ public:
     {
         if constexpr(is_state_set_v<std::decay_t<decltype(StateConf)>>)
         {
-            return does_active_state_id_match_filter<&StateConf>();
+            return is_active_state_id_in_set<&StateConf>();
         }
         else
         {
@@ -197,7 +197,7 @@ private:
         [[maybe_unused]] MaybeBool&... processed
     )
     {
-        //List the transitions whose event filter matches Event
+        //List the transitions whose event set contains `Event`
         using candidate_transition_index_constant_list = transition_table_filters::by_event_t
         <
             transition_tuple,
@@ -277,17 +277,17 @@ private:
         static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
             static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(transition_tuple);
-            static constexpr auto source_state_conf_filter = trans.source_state_conf_filter;
+            static constexpr auto source_state_conf = trans.source_state_conf;
             static constexpr auto action = trans.act;
             static constexpr auto guard = trans.grd;
 
-            if constexpr(is_state_set_v<std::decay_t<decltype(source_state_conf_filter)>>)
+            if constexpr(is_state_set_v<std::decay_t<decltype(source_state_conf)>>)
             {
-                //List of state confs that match with the source state filter
-                using matching_state_conf_constant_list = state_type_list_filters::by_filter_t
+                //List of state confs that belong to the source state set
+                using matching_state_conf_constant_list = state_type_list_filters::by_state_set_t
                 <
                     state_id_constant_list,
-                    &source_state_conf_filter
+                    &source_state_conf
                 >;
 
                 static_assert(!tlu::empty_v<matching_state_conf_constant_list>);
@@ -312,7 +312,7 @@ private:
                     trans.target_state_conf,
                     action,
                     guard
-                >::template call<constant_t<trans.source_state_conf_filter>>
+                >::template call<constant_t<trans.source_state_conf>>
                 (
                     self,
                     mach,
@@ -557,25 +557,25 @@ private:
         return given_state_index == active_state_index_;
     }
 
-    template<auto FilterPtr>
-    [[nodiscard]] bool does_active_state_id_match_filter() const
+    template<auto StateSetPtr>
+    [[nodiscard]] bool is_active_state_id_in_set() const
     {
         auto matches = false;
         with_active_state_id
         <
             tlu::push_back_t<state_id_constant_list, constant_t<&state_confs::stopped>>,
-            does_active_state_id_match_filter_2<FilterPtr>
+            is_active_state_id_in_set_2<StateSetPtr>
         >(matches);
         return matches;
     }
 
-    template<auto FilterPtr>
-    struct does_active_state_id_match_filter_2
+    template<auto StateSetPtr>
+    struct is_active_state_id_in_set_2
     {
         template<class ActiveStateIdConstant>
         static void call([[maybe_unused]] bool& matches)
         {
-            if constexpr(FilterPtr->contains(*ActiveStateIdConstant::value))
+            if constexpr(StateSetPtr->contains(*ActiveStateIdConstant::value))
             {
                 matches = true;
             }

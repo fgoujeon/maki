@@ -111,10 +111,10 @@ public:
     /** \
     @brief Add an entry action. \
     */ \
-    template<class EventFilterPredicate, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const event_set<EventFilterPredicate>& event_filter, const Action& action) const \
+    template<class EventSetPredicate, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const event_set<EventSetPredicate>& evt_set, const Action& action) const \
     { \
-        return entry_action<action_signature::signature>(event_filter, action); \
+        return entry_action<action_signature::signature>(evt_set, action); \
     } \
  \
     /** \
@@ -145,10 +145,10 @@ public:
     /** \
     @brief Add an internal action. \
     */ \
-    template<class EventFilterPredicate, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const event_set<EventFilterPredicate>& event_filter, const Action& action) const \
+    template<class EventSetPredicate, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const event_set<EventSetPredicate>& evt_set, const Action& action) const \
     { \
-        return internal_action<action_signature::signature>(event_filter, action); \
+        return internal_action<action_signature::signature>(evt_set, action); \
     } \
  \
     /** \
@@ -166,10 +166,10 @@ public:
     /** \
     @brief Add an exit action. \
     */ \
-    template<class EventFilterPredicate, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const event_set<EventFilterPredicate>& event_filter, const Action& action) const \
+    template<class EventSetPredicate, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const event_set<EventSetPredicate>& evt_set, const Action& action) const \
     { \
-        return exit_action<action_signature::signature>(event_filter, action); \
+        return exit_action<action_signature::signature>(evt_set, action); \
     } \
  \
     /** \
@@ -243,13 +243,13 @@ private:
 #undef MAKI_DETAIL_ARG_context_sig
     }
 
-    template<action_signature Sig, class EventFilter, class Action>
-    [[nodiscard]] constexpr auto entry_action(const EventFilter& event_filter, const Action& action) const
+    template<action_signature Sig, class EventSetPredicate, class Action>
+    [[nodiscard]] constexpr auto entry_action(const event_set<EventSetPredicate>& evt_set, const Action& action) const
     {
         const auto new_entry_actions = tuple_append
         (
             options_.entry_actions,
-            detail::make_event_action<Sig>(event_filter, action)
+            detail::make_event_action<Sig>(evt_set, action)
         );
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
@@ -258,13 +258,13 @@ private:
 #undef MAKI_DETAIL_ARG_entry_actions
     }
 
-    template<action_signature Sig, class EventFilter, class Action>
-    [[nodiscard]] constexpr auto internal_action(const EventFilter& event_filter, const Action& action) const
+    template<action_signature Sig, class EventSetPredicate, class Action>
+    [[nodiscard]] constexpr auto internal_action(const event_set<EventSetPredicate>& evt_set, const Action& action) const
     {
         const auto new_internal_actions = tuple_append
         (
             options_.internal_actions,
-            detail::make_event_action<Sig>(event_filter, action)
+            detail::make_event_action<Sig>(evt_set, action)
         );
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
@@ -273,13 +273,13 @@ private:
 #undef MAKI_DETAIL_ARG_internal_actions
     }
 
-    template<action_signature Sig, class EventFilter, class Action>
-    [[nodiscard]] constexpr auto exit_action(const EventFilter& event_filter, const Action& action) const
+    template<action_signature Sig, class EventSetPredicate, class Action>
+    [[nodiscard]] constexpr auto exit_action(const event_set<EventSetPredicate>& evt_set, const Action& action) const
     {
         const auto new_exit_actions = tuple_append
         (
             options_.exit_actions,
-            detail::make_event_action<Sig>(event_filter, action)
+            detail::make_event_action<Sig>(evt_set, action)
         );
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN

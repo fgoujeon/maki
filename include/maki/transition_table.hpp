@@ -49,8 +49,8 @@ namespace detail
 {
     template
     <
-        class SourceStateConfFilter,
-        class EventFilter,
+        class SourceStateConf,
+        class EventSet,
         class TargetStateConf,
         action_signature ActionSignature,
         class ActionCallable,
@@ -59,8 +59,8 @@ namespace detail
     >
     struct transition
     {
-        SourceStateConfFilter source_state_conf_filter;
-        EventFilter event_filter;
+        SourceStateConf source_state_conf;
+        EventSet evt_set;
         TargetStateConf target_state_conf;
         action<ActionSignature, ActionCallable> act;
         guard<GuardSignature, GuardCallable> grd;
@@ -68,8 +68,8 @@ namespace detail
 
     template
     <
-        class SourceStateConfFilter,
-        class EventFilter,
+        class SourceStateConf,
+        class EventSet,
         class TargetStateConf,
         action_signature ActionSignature,
         class ActionCallable,
@@ -78,15 +78,15 @@ namespace detail
     >
     transition
     (
-        SourceStateConfFilter,
-        EventFilter,
+        SourceStateConf,
+        EventSet,
         TargetStateConf,
         action<ActionSignature, ActionCallable>,
         guard<GuardSignature, GuardCallable>
     ) -> transition
     <
-        SourceStateConfFilter,
-        EventFilter,
+        SourceStateConf,
+        EventSet,
         TargetStateConf,
         ActionSignature,
         ActionCallable,
@@ -141,24 +141,24 @@ public:
     /**
     @brief Creates a new `transition_table` with an additional transition.
 
-    @param source_state_conf_filter the configuration of the active state (or states, plural, if it's a @ref filter "filter") from which the transition can occur
-    @param event_filter the event type (or types, plural, if it's a @ref filter "filter") that can cause the transition to occur
+    @param source_state_conf the configuration of the active state (or states, plural, if it's a @ref state-set "state set") from which the transition can occur
+    @param evt_set the event type (or types, plural, if it's an @ref event-set "event type set") that can cause the transition to occur
     @param target_state_conf the configuration of the state that becomes active after the transition occurs
     @param action the `maki::action` invoked when the transition occurs, or `maki::null`
     @param guard the `maki::guard` that must return `true` for the transition to occur, or `maki::null`
     */
     template
     <
-        class SourceStateConfFilter,
-        class EventFilter,
+        class SourceStateConf,
+        class EventSet,
         class TargetStateConfOrNull,
         class ActionOrNull = null_t,
         class GuardOrNull = null_t
     >
     constexpr auto operator()
     (
-        const SourceStateConfFilter& source_state_conf_filter,
-        const EventFilter& event_filter,
+        const SourceStateConf& source_state_conf,
+        const EventSet& evt_set,
         const TargetStateConfOrNull& target_state_conf,
         const ActionOrNull& action = null,
         const GuardOrNull& guard = null
@@ -166,13 +166,13 @@ public:
     {
         static_assert
         (
-            detail::is_state_conf_v<SourceStateConfFilter> || detail::is_state_set_v<SourceStateConfFilter>,
+            detail::is_state_conf_v<SourceStateConf> || detail::is_state_set_v<SourceStateConf>,
             "1st argument must be an instance of `maki::state_conf` or an instance of `maki::state_set`"
         );
 
         static_assert
         (
-            detail::is_event_v<EventFilter> || detail::is_event_set_v<EventFilter> || detail::is_null_v<EventFilter>,
+            detail::is_event_v<EventSet> || detail::is_event_set_v<EventSet> || detail::is_null_v<EventSet>,
             "2nd argument must be an instance of `maki::event_t`, an instance of `maki::event_set`, or `maki::null`"
         );
 
@@ -201,8 +201,8 @@ public:
                 transitions_,
                 detail::transition
                 {
-                    detail::try_making_state_id(source_state_conf_filter),
-                    event_filter,
+                    detail::try_making_state_id(source_state_conf),
+                    evt_set,
                     detail::try_making_state_id(target_state_conf),
                     detail::to_action(action),
                     detail::to_guard(guard)

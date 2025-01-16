@@ -16,7 +16,7 @@ namespace maki
 {
 
 /**
-@brief Represents a set of event types. See @ref filter.
+@brief Represents a set of event types. See @ref event-set.
 Use the predefined variables (`maki::any`, `maki::any_of`,
 `maki::any_but`, `maki::no_event`) and builder functions
 (`maki::any_if()`, `maki::any_if_not()`) instead of manually

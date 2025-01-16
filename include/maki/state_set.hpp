@@ -14,7 +14,7 @@ namespace maki
 {
 
 /**
-@brief Represents a set of states. See @ref filter.
+@brief Represents a set of states. See @ref state-set.
 Use the predefined variables (`maki::any_state`, `maki::no_state`) and builder
 functions (`maki::any_state_if()`, `maki::any_state_if_not()`,
 `maki::any_state_of()`, `maki::any_state_but()`) instead of manually

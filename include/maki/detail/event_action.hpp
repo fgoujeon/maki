@@ -16,20 +16,20 @@
 namespace maki::detail
 {
 
-template<class EventFilterPredicate, class Action, action_signature Sig>
+template<class EventSetPredicate, class Action, action_signature Sig>
 struct event_action
 {
-    using event_filter_type = event_set<EventFilterPredicate>;
+    using event_set_type = event_set<EventSetPredicate>;
 
     static constexpr auto sig = Sig;
-    event_filter_type event_filter;
+    event_set_type evt_set;
     Action action;
 };
 
-template<action_signature Sig, class EventFilterPredicate, class Action>
-constexpr auto make_event_action(const event_set<EventFilterPredicate>& event_filter, const Action& action)
+template<action_signature Sig, class EventSetPredicate, class Action>
+constexpr auto make_event_action(const event_set<EventSetPredicate>& evt_set, const Action& action)
 {
-    return event_action<EventFilterPredicate, Action, Sig>{event_filter, action};
+    return event_action<EventSetPredicate, Action, Sig>{evt_set, action};
 }
 
 namespace event_action_traits
@@ -38,9 +38,9 @@ namespace event_action_traits
     struct for_event
     {
         template<class EventActionConstant>
-        struct has_matching_event_filter
+        struct has_containing_event_set
         {
-            static constexpr auto value = EventActionConstant::value->event_filter.template contains<Event>();
+            static constexpr auto value = EventActionConstant::value->evt_set.template contains<Event>();
         };
     };
 }
@@ -90,7 +90,7 @@ void call_matching_event_action
     constexpr auto matching_action_index = tlu::find_if_v
     <
         ActionConstantList,
-        event_action_traits::for_event<Event>::template has_matching_event_filter
+        event_action_traits::for_event<Event>::template has_containing_event_set
     >;
 
     call_event_action<tlu::get_t<ActionConstantList, matching_action_index>::value>

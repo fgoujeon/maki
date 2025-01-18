@@ -12,7 +12,7 @@
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
-#include "same_ref.hpp"
+#include "equals.hpp"
 #include "simple_state_no_context.hpp"
 #include "maybe_bool_util.hpp"
 #include "tuple.hpp"
@@ -415,7 +415,7 @@ private:
                 );
             }
 
-            if constexpr(!same_ref(*SourceStateId, state_confs::stopped))
+            if constexpr(!ptr_equals(SourceStateId, &state_confs::stopped))
             {
                 auto& stt = state_from_id<SourceStateId>();
                 stt.impl().call_exit_action
@@ -446,7 +446,7 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(!same_ref(*TargetStateId, state_confs::stopped))
+            if constexpr(!ptr_equals(TargetStateId, &state_confs::stopped))
             {
                 auto& stt = state_from_id<TargetStateId>();
                 stt.impl().call_entry_action
@@ -646,7 +646,7 @@ private:
     template<auto StateId, class Region>
     static auto& static_state_from_id(Region& self)
     {
-        if constexpr(equals(StateId, &state_confs::stopped))
+        if constexpr(ptr_equals(StateId, &state_confs::stopped))
         {
             return states::stopped;
         }

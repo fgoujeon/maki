@@ -12,9 +12,9 @@
 #ifndef MAKI_STATE_CONF_HPP
 #define MAKI_STATE_CONF_HPP
 
-#include "state_conf_fwd.hpp"
 #include "action.hpp"
 #include "event_set.hpp"
+#include "detail/state_conf_fwd.hpp"
 #include "detail/type.hpp"
 #include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"
@@ -43,6 +43,9 @@ namespace detail
 #define MAKI_DETAIL_STATE_CONF_RETURN_TYPE auto
 #endif
 
+/**
+@brief State configuration
+*/
 #ifdef MAKI_DETAIL_DOXYGEN
 template<IMPLEMENTATION_DETAIL>
 #else

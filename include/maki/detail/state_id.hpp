@@ -7,8 +7,8 @@
 #ifndef MAKI_DETAIL_STATE_ID_HPP
 #define MAKI_DETAIL_STATE_ID_HPP
 
-#include "../state_conf_fwd.hpp"
-#include "../machine_conf_fwd.hpp"
+#include "state_conf_fwd.hpp"
+#include "machine_conf_fwd.hpp"
 
 namespace maki::detail
 {

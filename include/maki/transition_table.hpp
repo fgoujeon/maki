@@ -12,12 +12,12 @@
 #ifndef MAKI_TRANSITION_TABLE_HPP
 #define MAKI_TRANSITION_TABLE_HPP
 
-#include "state_conf_fwd.hpp"
 #include "action.hpp"
 #include "guard.hpp"
 #include "event_set.hpp"
 #include "state_set.hpp"
 #include "null.hpp"
+#include "detail/state_conf_fwd.hpp"
 #include "detail/state_id.hpp"
 #include "detail/tuple.hpp"
 

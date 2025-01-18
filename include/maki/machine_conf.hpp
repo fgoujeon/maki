@@ -12,9 +12,9 @@
 #ifndef MAKI_MACHINE_CONF_HPP
 #define MAKI_MACHINE_CONF_HPP
 
-#include "machine_conf_fwd.hpp"
 #include "event_set.hpp"
 #include "action.hpp"
+#include "detail/machine_conf_fwd.hpp"
 #include "detail/type.hpp"
 #include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"
@@ -43,6 +43,9 @@ namespace detail
 #define MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE auto
 #endif
 
+/**
+@brief `maki::machine` configuration
+*/
 #ifdef MAKI_DETAIL_DOXYGEN
 template<IMPLEMENTATION_DETAIL>
 #else

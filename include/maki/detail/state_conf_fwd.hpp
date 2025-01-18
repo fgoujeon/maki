@@ -12,8 +12,8 @@
 #ifndef MAKI_STATE_CONF_FWD_HPP
 #define MAKI_STATE_CONF_FWD_HPP
 
-#include "detail/context_signature.hpp"
-#include "detail/tuple.hpp"
+#include "context_signature.hpp"
+#include "tuple.hpp"
 #include <string_view>
 
 namespace maki
@@ -43,9 +43,6 @@ namespace detail
 }
 
 #ifdef MAKI_DETAIL_DOXYGEN
-/**
-@brief State configuration
-*/
 template<IMPLEMENTATION_DETAIL>
 #else
 template<class OptionSet = detail::state_conf_option_set<>>

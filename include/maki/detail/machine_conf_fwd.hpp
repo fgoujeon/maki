@@ -12,9 +12,9 @@
 #ifndef MAKI_MACHINE_CONF_FWD_HPP
 #define MAKI_MACHINE_CONF_FWD_HPP
 
-#include "detail/context_signature.hpp"
-#include "detail/tuple.hpp"
-#include "null.hpp"
+#include "context_signature.hpp"
+#include "tuple.hpp"
+#include "../null.hpp"
 #include <string_view>
 #include <cstdlib>
 
@@ -65,9 +65,6 @@ namespace detail
 }
 
 #ifdef MAKI_DETAIL_DOXYGEN
-/**
-@brief @ref machine configuration
-*/
 template<IMPLEMENTATION_DETAIL>
 #else
 template<class OptionSet = detail::machine_conf_option_set<>>

@@ -7,7 +7,7 @@
 #ifndef MAKI_STATE_SET_HPP
 #define MAKI_STATE_SET_HPP
 
-#include "state_conf_fwd.hpp"
+#include "detail/state_conf_fwd.hpp"
 #include "detail/set_predicates.hpp"
 
 namespace maki

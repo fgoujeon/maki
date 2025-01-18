@@ -8,6 +8,7 @@
 #define MAKI_DETAIL_REGION_HPP
 
 #include "state_traits.hpp"
+#include "states.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
@@ -647,7 +648,7 @@ private:
     {
         if constexpr(equals(StateId, &state_confs::stopped))
         {
-            return stopped_state();
+            return states::stopped;
         }
         else
         {
@@ -656,13 +657,6 @@ private:
             ;
             return tuple_get<state_index>(self.states_);
         }
-    }
-
-    static const auto& stopped_state()
-    {
-        static const auto stt_impl = simple_state_no_context<&state_confs::stopped>{};
-        static const auto stt = make_state_from_impl(stt_impl);
-        return stt;
     }
 
     state_tuple_type states_;

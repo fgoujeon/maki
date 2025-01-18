@@ -25,7 +25,7 @@ public:
     using option_set_type = std::decay_t<decltype(opts(conf))>;
 
     template<class... Args>
-    simple_state_no_context(Args&... /*args*/)
+    constexpr simple_state_no_context(Args&... /*args*/)
     {
     }
 

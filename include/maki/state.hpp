@@ -18,20 +18,6 @@ namespace maki
 @brief Represents a [state](@ref state).
 */
 template<class Impl>
-class state;
-
-namespace detail
-{
-    struct state_from_impl_tag{};
-
-    template<class Impl>
-    constexpr auto make_state_from_impl(Impl& impl)
-    {
-        return state{state_from_impl_tag{}, impl};
-    }
-}
-
-template<class Impl>
 class state
 {
 public:
@@ -39,7 +25,7 @@ public:
 
 #ifndef MAKI_DETAIL_DOXYGEN
     template<class... Args>
-    state(Args&&... args):
+    constexpr state(Args&&... args):
         impl_(std::forward<Args>(args)...)
     {
     }
@@ -97,14 +83,6 @@ public:
 #endif
 
 private:
-    template<class Impl2>
-    friend constexpr auto detail::make_state_from_impl(Impl2&);
-
-    state(detail::state_from_impl_tag /*tag*/, Impl& impl):
-        impl_(impl)
-    {
-    }
-
     Impl impl_;
 };
 

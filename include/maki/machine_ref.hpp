@@ -13,7 +13,7 @@
 #define MAKI_MACHINE_REF_HPP
 
 #include "machine_ref_conf.hpp"
-#include "machine_fwd.hpp"
+#include "machine.hpp"
 #include "detail/tlu/apply.hpp"
 #include "detail/tlu/contains.hpp"
 #include <type_traits>

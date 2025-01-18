@@ -16,6 +16,7 @@
 #include "maybe_bool_util.hpp"
 #include "tuple.hpp"
 #include "constant.hpp"
+#include "state_confs.hpp"
 #include "tlu/apply.hpp"
 #include "tlu/empty.hpp"
 #include "tlu/find.hpp"
@@ -27,7 +28,6 @@
 #include "../path.hpp"
 #include "../null.hpp"
 #include "../state_conf.hpp"
-#include "../state_confs.hpp"
 #include "../state.hpp"
 #include "../transition_table.hpp"
 #include <type_traits>

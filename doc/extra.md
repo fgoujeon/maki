@@ -7,3 +7,4 @@ These features are the following:
 * @subpage circular-dependency
 * @subpage event-set
 * @subpage state-set
+* @subpage thread-safety

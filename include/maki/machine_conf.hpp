@@ -475,6 +475,17 @@ public:
     }
 
     /**
+    @brief Currently doesn't do anything. Once thread safety is implemented,
+    will specify whether thread safety is enabled.
+
+    Being a safety option, it will be enabled by default.
+    */
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE thread_safe(const bool /*enabled*/) const
+    {
+        return *this;
+    }
+
+    /**
     @brief Specifies the list of transition tables. One region per transition
     table is created.
     */

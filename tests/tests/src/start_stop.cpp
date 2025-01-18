@@ -20,7 +20,6 @@ namespace start_stop_ns
         constexpr auto s0 = maki::state_conf{}
             .entry_action_c
             (
-                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "s0::on_entry;";
@@ -28,7 +27,6 @@ namespace start_stop_ns
             )
             .exit_action_c
             (
-                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "s0::on_exit;";
@@ -39,7 +37,6 @@ namespace start_stop_ns
         constexpr auto s1 = maki::state_conf{}
             .entry_action_c
             (
-                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "s1::on_entry;";
@@ -47,7 +44,6 @@ namespace start_stop_ns
             )
             .exit_action_c
             (
-                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "s1::on_exit;";
@@ -62,8 +58,8 @@ namespace start_stop_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::s0, maki::null,                       states::s1)
-        (states::s1, maki::type<events::button_press>, states::s0)
+        (states::s0, maki::null,                        states::s1)
+        (states::s1, maki::event<events::button_press>, states::s0)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

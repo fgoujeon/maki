@@ -99,7 +99,7 @@ public:
         return tlu::contains_if_v
         <
             internal_action_ptr_constant_list,
-            event_action_traits::for_event<Event>::template has_matching_event_filter
+            event_action_traits::for_event<Event>::template has_containing_event_set
         >;
     }
 

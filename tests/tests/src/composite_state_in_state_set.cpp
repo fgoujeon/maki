@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace composite_state_in_type_filter_ns
+namespace composite_state_in_state_set_ns
 {
     struct context
     {
@@ -28,7 +28,7 @@ namespace composite_state_in_type_filter_ns
         EMPTY_STATE(s1)
 
         constexpr auto s0_transition_table = maki::transition_table{}
-            (s0_sub, maki::type<events::dummy>, maki::null)
+            (s0_sub, maki::event<events::dummy>, maki::null)
         ;
 
         constexpr auto s0 = maki::state_conf{}
@@ -36,14 +36,14 @@ namespace composite_state_in_type_filter_ns
         ;
     }
 
-    constexpr auto any_but_s0_s1 = maki::any_but(states::s0, states::s1);
-    constexpr auto any_of_s0_s1 = maki::any_of(states::s0, states::s1);
+    constexpr auto any_but_s0_s1 = !(states::s0 || states::s1);
+    constexpr auto any_of_s0_s1 = states::s0 || states::s1;
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off,   maki::type<events::button_press>,             states::s0)
-        (states::s0,    maki::type<events::button_press>,             states::s1)
-        (any_but_s0_s1, maki::type<events::off_button_press>,         states::off)
-        (any_of_s0_s1,  maki::type<events::destruction_button_press>, states::off)
+        (states::off,   maki::event<events::button_press>,             states::s0)
+        (states::s0,    maki::event<events::button_press>,             states::s1)
+        (any_but_s0_s1, maki::event<events::off_button_press>,         states::off)
+        (any_of_s0_s1,  maki::event<events::destruction_button_press>, states::off)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}
@@ -54,9 +54,9 @@ namespace composite_state_in_type_filter_ns
     using machine_t = maki::machine<machine_conf>;
 }
 
-TEST_CASE("composite_state_in_type_filter")
+TEST_CASE("composite_state_in_state_set")
 {
-    using namespace composite_state_in_type_filter_ns;
+    using namespace composite_state_in_state_set_ns;
 
     auto machine = machine_t{};
 

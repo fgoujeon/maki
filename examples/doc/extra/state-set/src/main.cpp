@@ -11,23 +11,34 @@
 
 struct context{};
 
+//! [state-set]
 constexpr auto initializing = maki::state_conf{};
 constexpr auto running = maki::state_conf{};
 constexpr auto sleeping = maki::state_conf{};
-constexpr auto powering_off = maki::state_conf{};
+
+constexpr auto powering_off = maki::state_conf{}
+    .entry_action_v([]
+    {
+        std::cout << "Powering off...\n";
+    })
+;
+
+//A state set
+constexpr auto not_powering_off = !powering_off;
+//! [state-set]
 
 struct end_of_init{};
 struct sleep_button_press{};
+struct wake_up_button_press{};
 struct power_button_press{};
-struct kill_all_humans_button_press{};
 
 //! [transition-table]
 constexpr auto transition_table = maki::transition_table{}
-    //source state,               event,                                  target state
-    (initializing,                maki::type<end_of_init>,                running)
-    (running,                     maki::type<sleep_button_press>,         sleeping)
-    (sleeping,                    maki::any_type_but<power_button_press>, running)
-    (maki::any_but(powering_off), maki::type<power_button_press>,         powering_off)
+    //source state, event,                             target state
+    (initializing,  maki::event<end_of_init>,          running)
+    (running,       maki::event<sleep_button_press>,   sleeping)
+    (sleeping,      maki::event<wake_up_button_press>, running)
+    (!powering_off, maki::event<power_button_press>,   powering_off) // <-- Here
 ;
 //! [transition-table]
 
@@ -39,7 +50,7 @@ using machine_t = maki::machine<machine_conf>;
 
 void assert_true(const bool b)
 {
-    if (!b)
+    if(!b)
     {
         throw std::runtime_error{"Error"};
     }
@@ -48,6 +59,10 @@ void assert_true(const bool b)
 int main()
 {
     auto machine = machine_t{};
+
+    //Silence "unused variable" warning
+    constexpr auto not_powering_off_2 = !powering_off;
+    assert_true(&not_powering_off != &not_powering_off_2);
 
     try
     {
@@ -59,11 +74,8 @@ int main()
         machine.process_event(sleep_button_press{});
         assert_true(machine.is<sleeping>());
 
-        machine.process_event(kill_all_humans_button_press{});
-        assert_true(machine.is<running>());
-
-        machine.process_event(sleep_button_press{});
-        assert_true(machine.is<sleeping>());
+        machine.process_event(power_button_press{});
+        assert_true(machine.is<powering_off>());
 
         machine.process_event(power_button_press{});
         assert_true(machine.is<powering_off>());

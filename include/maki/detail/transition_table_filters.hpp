@@ -9,7 +9,7 @@
 
 #include "tlu/filter.hpp"
 #include "integer_constant_sequence.hpp"
-#include "../filter.hpp"
+#include "../event_set.hpp"
 #include "../null.hpp"
 
 namespace maki::detail::transition_table_filters
@@ -24,7 +24,7 @@ struct by_event_predicate_holder
         static constexpr auto make_value()
         {
             const auto& trans = tuple_get<TransitionIndexConstant::value>(TransitionTuple);
-            return matches_filter(type<Event>, trans.event_filter);
+            return contained_in(event<Event>, trans.evt_set);
         }
 
         static constexpr auto value = make_value();
@@ -38,8 +38,8 @@ namespace by_source_state_and_null_event_detail
     {
         const auto& trans = tuple_get<TransitionIndexConstant::value>(transitions);
         return
-            matches_filter(null, trans.event_filter) &&
-            matches_filter(source_state_id, trans.source_state_conf_filter)
+            equals(trans.evt_set, null) &&
+            contained_in(*source_state_id, trans.source_state_conf)
         ;
     }
 

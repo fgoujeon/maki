@@ -50,7 +50,6 @@ namespace composite_state_context_ns
             constexpr auto emitting_red = maki::state_conf{}
                 .entry_action_c
                 (
-                    maki::any,
                     [](context& ctx)
                     {
                         ++ctx.red_count;
@@ -62,9 +61,9 @@ namespace composite_state_context_ns
             EMPTY_STATE(emitting_blue)
 
             constexpr auto transition_table = maki::transition_table{}
-                (emitting_red,   maki::type<events::color_button_press>, emitting_green)
-                (emitting_green, maki::type<events::color_button_press>, emitting_blue)
-                (emitting_blue,  maki::type<events::color_button_press>, emitting_red)
+                (emitting_red,   maki::event<events::color_button_press>, emitting_green)
+                (emitting_green, maki::event<events::color_button_press>, emitting_blue)
+                (emitting_blue,  maki::event<events::color_button_press>, emitting_red)
             ;
         }
 
@@ -73,7 +72,6 @@ namespace composite_state_context_ns
             .context_c<on_ns::context>()
             .exit_action_c
             (
-                maki::any,
                 [](on_ns::context& ctx)
                 {
                     ctx.parent.out = std::to_string(ctx.red_count);
@@ -83,8 +81,8 @@ namespace composite_state_context_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::type<events::power_button_press>, states::on)
-        (states::on,  maki::type<events::power_button_press>, states::off)
+        (states::off, maki::event<events::power_button_press>, states::on)
+        (states::on,  maki::event<events::power_button_press>, states::off)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

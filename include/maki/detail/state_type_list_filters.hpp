@@ -8,29 +8,28 @@
 #define MAKI_DETAIL_STATE_TYPE_LIST_FILTERS_HPP
 
 #include "tlu/filter.hpp"
-#include "../filter.hpp"
 
 namespace maki::detail::state_type_list_filters
 {
 
-namespace by_filter_detail
+namespace by_state_set_detail
 {
-    template<auto FilterPtr>
-    struct for_filter
+    template<auto StateSetPtr>
+    struct for_state_set
     {
         template<class StateIdConstant>
         struct matches
         {
-            static constexpr auto value = matches_filter(StateIdConstant::value, *FilterPtr);
+            static constexpr auto value = contains(*StateSetPtr, *StateIdConstant::value);
         };
     };
 }
 
-template<class StateIdConstantList, auto FilterPtr>
-using by_filter_t = tlu::filter_t
+template<class StateIdConstantList, auto StateSetPtr>
+using by_state_set_t = tlu::filter_t
 <
     StateIdConstantList,
-    by_filter_detail::for_filter<FilterPtr>::template matches
+    by_state_set_detail::for_state_set<StateSetPtr>::template matches
 >;
 
 namespace by_required_on_event_detail

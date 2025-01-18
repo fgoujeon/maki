@@ -30,7 +30,6 @@ namespace on_entry_event_exit_ns
         constexpr auto english = maki::state_conf{}
             .entry_action_c
             (
-                maki::any,
                 [](context& ctx)
                 {
                     ctx.hello = "hello";
@@ -45,7 +44,6 @@ namespace on_entry_event_exit_ns
             )
             .exit_action_c
             (
-                maki::any,
                 [](context& ctx)
                 {
                     ctx.goodbye = "goodbye";
@@ -79,9 +77,9 @@ namespace on_entry_event_exit_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::idle,    maki::type<events::next_language_request>, states::english)
-        (states::english, maki::type<events::next_language_request>, states::french)
-        (states::french,  maki::type<events::next_language_request>, states::idle)
+        (states::idle,    maki::event<events::next_language_request>, states::english)
+        (states::english, maki::event<events::next_language_request>, states::french)
+        (states::french,  maki::event<events::next_language_request>, states::idle)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

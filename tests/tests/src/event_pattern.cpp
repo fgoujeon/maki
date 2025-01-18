@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace event_pattern_ns
+namespace event_set_ns
 {
     struct context
     {
@@ -28,15 +28,14 @@ namespace event_pattern_ns
     [[maybe_unused]]
     constexpr auto make_sm_transition_table()
     {
-        constexpr auto any_button_press = maki::any_type_of
-        <
-            events::power_button_press,
-            events::alert_button_press
-        >;
+        constexpr auto any_button_press =
+            maki::event<events::power_button_press> ||
+            maki::event<events::alert_button_press>
+        ;
 
         return maki::transition_table{}
             (states::off, any_button_press,                        states::on)
-            (states::on,  maki::type<events::power_button_press>, states::off)
+            (states::on,  maki::event<events::power_button_press>, states::off)
         ;
     }
 
@@ -48,9 +47,9 @@ namespace event_pattern_ns
     using machine_t = maki::machine<machine_conf>;
 }
 
-TEST_CASE("event_filter")
+TEST_CASE("event_set")
 {
-    using namespace event_pattern_ns;
+    using namespace event_set_ns;
 
     auto machine = machine_t{};
 

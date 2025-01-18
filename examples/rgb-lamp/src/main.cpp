@@ -170,7 +170,7 @@ namespace guards
 using namespace states;
 using namespace actions;
 using namespace guards;
-inline constexpr auto button_push = maki::type<button::push_event>;
+inline constexpr auto button_push = maki::event<button::push_event>;
 
 /*
 This is the transition table. This is where we define the actions that the state
@@ -192,13 +192,13 @@ The initial active state of the state machine is the first state encountered in
 the transition table (`off`, is our case).
 */
 constexpr auto transition_table = maki::transition_table{}
-    //source_state,      event,       target_state,   action,           guard
-    (off,                button_push, emitting_white, turn_light_white)
-    (emitting_white,     button_push, emitting_red,   turn_light_red,   is_short_push)
-    (emitting_red,       button_push, emitting_green, turn_light_green, is_short_push)
-    (emitting_green,     button_push, emitting_blue,  turn_light_blue,  is_short_push)
-    (emitting_blue,      button_push, emitting_white, turn_light_white, is_short_push)
-    (maki::any_but(off), button_push, off,            turn_light_off,   is_long_push)
+    //source_state,  event,       target_state,   action,           guard
+    (off,            button_push, emitting_white, turn_light_white)
+    (emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push)
+    (emitting_red,   button_push, emitting_green, turn_light_green, is_short_push)
+    (emitting_green, button_push, emitting_blue,  turn_light_blue,  is_short_push)
+    (emitting_blue,  button_push, emitting_white, turn_light_white, is_short_push)
+    (!off,           button_push, off,            turn_light_off,   is_long_push)
 ;
 
 /*

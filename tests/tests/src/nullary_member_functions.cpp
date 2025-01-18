@@ -40,7 +40,6 @@ namespace nullary_member_functions_ns
             )
             .entry_action_c
             (
-                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "on_entry();";
@@ -55,7 +54,6 @@ namespace nullary_member_functions_ns
             )
             .exit_action_c
             (
-                maki::any,
                 [](context& ctx)
                 {
                     ctx.out += "on_exit();";
@@ -92,10 +90,10 @@ namespace nullary_member_functions_ns
     });
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::type<events::e1>, states::on,  action, guard)
-        (states::off, maki::type<events::e2>, states::on,  action, guard)
-        (states::on,  maki::type<events::e1>, states::off, action, guard)
-        (states::on,  maki::type<events::e2>, states::off, action, guard)
+        (states::off, maki::event<events::e1>, states::on,  action, guard)
+        (states::off, maki::event<events::e2>, states::on,  action, guard)
+        (states::on,  maki::event<events::e1>, states::off, action, guard)
+        (states::on,  maki::event<events::e2>, states::off, action, guard)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

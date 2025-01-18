@@ -64,9 +64,9 @@ namespace on_unprocessed_ns
         constexpr auto emitting_blue = maki::state_conf{};
 
         constexpr auto on_transition_table = maki::transition_table{}
-            (states::emitting_red,   maki::type<events::color_button_press>, states::emitting_green)
-            (states::emitting_green, maki::type<events::color_button_press>, states::emitting_blue)
-            (states::emitting_blue,  maki::type<events::color_button_press>, states::emitting_red)
+            (states::emitting_red,   maki::event<events::color_button_press>, states::emitting_green)
+            (states::emitting_green, maki::event<events::color_button_press>, states::emitting_blue)
+            (states::emitting_blue,  maki::event<events::color_button_press>, states::emitting_red)
         ;
 
         constexpr auto on = maki::state_conf{}
@@ -75,7 +75,7 @@ namespace on_unprocessed_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::on, maki::type<events::power_button_press>, states::off)
+        (states::on, maki::event<events::power_button_press>, states::off)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}
@@ -93,7 +93,7 @@ namespace on_unprocessed_ns
         )
         .post_processing_hook_mep
         (
-            maki::any,
+            maki::any_event,
             [](auto& mach, const auto& /*event*/, const bool processed)
             {
                 if(!processed)

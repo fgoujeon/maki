@@ -199,48 +199,11 @@ public:
 
     Hook must have the following form:
 
-    @code
-    template
-    <
-        const auto& RegionPath,
-        const auto& SourceStateConf,
-        class Event,
-        const auto& TargetStateConf
-    >
-    void hook
-    (
-        context& ctx,
-        const maki::cref_constant_t<RegionPath> path_constant,
-        const maki::cref_constant_t<SourceStateConf> source_state_conf_constant,
-        const Event& event,
-        const maki::cref_constant_t<TargetStateConf> target_state_conf_constant
-    );
-    @endcode
+    @snippet misc/state-transition-hook/src/main.cpp signature
 
     This hook can be useful for logging state transitions, for example:
 
-    @code
-    .post_state_transition_hook_crset
-    (
-        []
-        (
-            context& ctx,
-            const auto path_constant,
-            const auto source_state_constant,
-            const auto& event,
-            const auto target_state_constant
-        )
-        {
-            std::cout
-                << "Beginning of transition in "
-                << path_constant.value.to_string()
-                << ": "
-                << maki::pretty_name<source_state_constant.value>()
-                << " -> "
-                << maki::pretty_name<target_state_constant.value>();
-        }
-    )
-    @endcode
+    @snippet misc/state-transition-hook/src/main.cpp post
     */
     template<class Hook>
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_state_transition_hook_crset(const Hook& hook) const
@@ -269,48 +232,11 @@ public:
 
     Hook must have the following form:
 
-    @code
-    template
-    <
-        const auto& RegionPath,
-        const auto& SourceStateConf,
-        class Event,
-        const auto& TargetStateConf
-    >
-    void hook
-    (
-        context& ctx,
-        const maki::cref_constant_t<RegionPath> path_constant,
-        const maki::cref_constant_t<SourceStateConf> source_state_conf_constant,
-        const Event& event,
-        const maki::cref_constant_t<TargetStateConf> target_state_conf_constant
-    );
-    @endcode
+    @snippet misc/state-transition-hook/src/main.cpp signature
 
     This hook can be useful for logging state transitions, for example:
 
-    @code
-    .pre_state_transition_hook_crset
-    (
-        []
-        (
-            context& ctx,
-            const auto path_constant,
-            const auto source_state_constant,
-            const auto& event,
-            const auto target_state_constant
-        )
-        {
-            std::cout
-                << "End of transition in "
-                << path_constant.value.to_string()
-                << ": "
-                << maki::pretty_name<source_state_constant.value>()
-                << " -> "
-                << maki::pretty_name<target_state_constant.value>();
-        }
-    )
-    @endcode
+    @snippet misc/state-transition-hook/src/main.cpp pre
     */
     template<class Hook>
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_state_transition_hook_crset(const Hook& hook) const

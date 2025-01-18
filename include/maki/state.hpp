@@ -7,6 +7,8 @@
 #ifndef MAKI_REGION_STATE_HPP
 #define MAKI_REGION_STATE_HPP
 
+#include "detail/pretty_name.hpp"
+#include <string_view>
 #include <utility>
 
 namespace maki
@@ -15,25 +17,23 @@ namespace maki
 /**
 @brief Represents a [state](@ref state).
 */
-#ifdef MAKI_DETAIL_DOXYGEN
-template<IMPLEMENTATION_DETAIL>
-#else
 template<class Impl>
-#endif
 class state
 {
 public:
     using impl_type = Impl;
 
+#ifndef MAKI_DETAIL_DOXYGEN
     template<class... Args>
-    state(Args&&... args):
+    constexpr state(Args&&... args):
         impl_(std::forward<Args>(args)...)
     {
     }
+#endif
 
-    state(const state&) = default;
+    state(const state&) = delete;
     state(state&&) = delete;
-    state& operator=(const state&) = default;
+    state& operator=(const state&) = delete;
     state& operator=(state&&) = delete;
     ~state() = default;
 
@@ -63,6 +63,11 @@ public:
     [[nodiscard]] const auto& context() const
     {
         return impl_.context();
+    }
+
+    [[nodiscard]] static std::string_view pretty_name()
+    {
+        return detail::pretty_name<Impl::conf>();
     }
 
 #ifndef MAKI_DETAIL_DOXYGEN

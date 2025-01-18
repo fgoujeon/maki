@@ -19,6 +19,20 @@ struct constant_t
 template<auto Value>
 constexpr auto constant = constant_t<Value>{};
 
+/**
+@brief Utility template that wraps a `constexpr` reference-to-const into a type.
+
+Maki uses this template to pass such references as type template arguments.
+*/
+template<const auto& Value>
+struct cref_constant_t
+{
+    static constexpr const auto& value = Value;
+};
+
+template<const auto& Value>
+constexpr auto cref_constant = cref_constant_t<Value>{};
+
 } //namespace
 
 #endif

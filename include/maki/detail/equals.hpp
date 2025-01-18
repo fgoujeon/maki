@@ -7,22 +7,25 @@
 #ifndef MAKI_DETAIL_EQUALS_HPP
 #define MAKI_DETAIL_EQUALS_HPP
 
-#include <type_traits>
-
 namespace maki::detail
 {
 
 template<class Lhs, class Rhs>
-constexpr bool equals(const Lhs& lhs, const Rhs& rhs)
+constexpr bool equals(const Lhs& /*lhs*/, const Rhs& /*rhs*/)
 {
-    if constexpr(std::is_same_v<Lhs, Rhs>)
-    {
-        return lhs == rhs;
-    }
-    else
-    {
-        return false;
-    }
+    return false;
+}
+
+template<class T>
+constexpr bool equals(const T& lhs, const T& rhs)
+{
+    return lhs == rhs;
+}
+
+template<class Lhs, class Rhs>
+constexpr bool ptr_equals(const Lhs* plhs, const Rhs* prhs)
+{
+    return static_cast<const void*>(plhs) == prhs;
 }
 
 } //namespace

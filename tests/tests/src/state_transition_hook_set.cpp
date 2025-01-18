@@ -52,14 +52,14 @@ namespace state_transition_hook_set
         .context_a<context>()
         .pre_state_transition_hook_crset
         (
-            [](context& ctx, const auto& region_path, const auto source_state_constant, const auto& event, const auto target_state_constant)
+            [](context& ctx, const auto& region_path, const auto& source_state, const auto& event, const auto& target_state)
             {
                 ctx.out += "Transition in ";
                 ctx.out += region_path.to_string();
                 ctx.out += ": ";
-                ctx.out += maki::pretty_name<source_state_constant.value>();
+                ctx.out += source_state.pretty_name();
                 ctx.out += " -> ";
-                ctx.out += maki::pretty_name<target_state_constant.value>();
+                ctx.out += target_state.pretty_name();
                 ctx.out += "...;";
 
                 ctx.out += std::to_string(event.pressure) + ";";
@@ -67,16 +67,16 @@ namespace state_transition_hook_set
         )
         .post_state_transition_hook_crset
         (
-            [](context& ctx, const auto& region_path, const auto source_state_constant, const auto& event, const auto target_state_constant)
+            [](context& ctx, const auto& region_path, const auto& source_state, const auto& event, const auto& target_state)
             {
                 ctx.out += std::to_string(event.pressure) + ";";
 
                 ctx.out += "Transition in ";
                 ctx.out += region_path.to_string();
                 ctx.out += ": ";
-                ctx.out += maki::pretty_name<source_state_constant.value>();
+                ctx.out += source_state.pretty_name();
                 ctx.out += " -> ";
-                ctx.out += maki::pretty_name<target_state_constant.value>();
+                ctx.out += target_state.pretty_name();
                 ctx.out += ";";
             }
         )

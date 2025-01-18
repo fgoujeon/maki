@@ -70,14 +70,14 @@ namespace orthogonal_regions_ns
         )
         .pre_state_transition_hook_crset
         (
-            [](context& ctx, const auto& region_path, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
+            [](context& ctx, const auto& region_path, const auto& /*source_state*/, const auto& /*event*/, const auto& /*target_state*/)
             {
                 ctx.out += "before_state_transition[" + region_path.to_string() + "];";
             }
         )
         .post_state_transition_hook_crset
         (
-            [](context& ctx, const auto& region_path, const auto /*source_state_constant*/, const auto& /*event*/, const auto /*target_state_constant*/)
+            [](context& ctx, const auto& region_path, const auto& /*source_state*/, const auto& /*event*/, const auto& /*target_state*/)
             {
                 ctx.out += "after_state_transition[" + region_path.to_string() + "];";
             }

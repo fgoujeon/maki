@@ -8,26 +8,27 @@
 #define MAKI_DETAIL_REGION_HPP
 
 #include "state_traits.hpp"
+#include "states.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
+#include "equals.hpp"
+#include "simple_state_no_context.hpp"
+#include "maybe_bool_util.hpp"
+#include "tuple.hpp"
+#include "constant.hpp"
+#include "state_confs.hpp"
 #include "tlu/apply.hpp"
 #include "tlu/empty.hpp"
 #include "tlu/find.hpp"
 #include "tlu/find_if.hpp"
 #include "tlu/front.hpp"
 #include "tlu/push_back.hpp"
-#include "same_ref.hpp"
-#include "maybe_bool_util.hpp"
-#include "tuple.hpp"
-#include "constant.hpp"
 #include "../action.hpp"
 #include "../guard.hpp"
 #include "../path.hpp"
 #include "../null.hpp"
-#include "../constant.hpp"
 #include "../state_conf.hpp"
-#include "../state_confs.hpp"
 #include "../state.hpp"
 #include "../transition_table.hpp"
 #include <type_traits>
@@ -408,13 +409,13 @@ private:
                 (
                     ctx,
                     maki::path{Path},
-                    cref_constant<*SourceStateId>,
+                    state_from_id<SourceStateId>(),
                     event,
-                    cref_constant<*TargetStateId>
+                    state_from_id<TargetStateId>()
                 );
             }
 
-            if constexpr(!same_ref(*SourceStateId, state_confs::stopped))
+            if constexpr(!ptr_equals(SourceStateId, &state_confs::stopped))
             {
                 auto& stt = state_from_id<SourceStateId>();
                 stt.impl().call_exit_action
@@ -445,7 +446,7 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(!same_ref(*TargetStateId, state_confs::stopped))
+            if constexpr(!ptr_equals(TargetStateId, &state_confs::stopped))
             {
                 auto& stt = state_from_id<TargetStateId>();
                 stt.impl().call_entry_action
@@ -462,9 +463,9 @@ private:
                 (
                     ctx,
                     maki::path{Path},
-                    cref_constant<*SourceStateId>,
+                    state_from_id<SourceStateId>(),
                     event,
-                    cref_constant<*TargetStateId>
+                    state_from_id<TargetStateId>()
                 );
             }
 
@@ -645,10 +646,17 @@ private:
     template<auto StateId, class Region>
     static auto& static_state_from_id(Region& self)
     {
-        static constexpr auto state_index =
-            region_detail::find_state_from_id_v<state_tuple_type, StateId>
-        ;
-        return tuple_get<state_index>(self.states_);
+        if constexpr(ptr_equals(StateId, &state_confs::stopped))
+        {
+            return states::stopped;
+        }
+        else
+        {
+            static constexpr auto state_index =
+                region_detail::find_state_from_id_v<state_tuple_type, StateId>
+            ;
+            return tuple_get<state_index>(self.states_);
+        }
     }
 
     state_tuple_type states_;

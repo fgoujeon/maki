@@ -25,14 +25,14 @@ public:
     using option_set_type = std::decay_t<decltype(opts(conf))>;
 
     template<class... Args>
-    simple_state_no_context(Args&... /*args*/)
+    constexpr simple_state_no_context(Args&... /*args*/)
     {
     }
 
-    simple_state_no_context(const simple_state_no_context&) = delete;
-    simple_state_no_context(simple_state_no_context&&) = delete;
-    simple_state_no_context& operator=(const simple_state_no_context&) = delete;
-    simple_state_no_context& operator=(simple_state_no_context&&) = delete;
+    simple_state_no_context(const simple_state_no_context&) = default;
+    simple_state_no_context(simple_state_no_context&&) = default;
+    simple_state_no_context& operator=(const simple_state_no_context&) = default;
+    simple_state_no_context& operator=(simple_state_no_context&&) = default;
     ~simple_state_no_context() = default;
 
     template<class Machine, class Context, class Event>

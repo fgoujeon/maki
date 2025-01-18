@@ -141,8 +141,8 @@ public:
     @param event the event to be passed to the invoked actions, mainly the
     entry action of the initial state(s)
 
-    Concretely, if `maki::state_confs::stopped` is the active state, exits
-    `maki::state_confs::stopped` and enters the initial state.
+    Concretely, if the machine is not already running, exits
+    the internal `stopped` state and enters the initial state.
 
     Reminder: There's no need to call this function after the construction,
     unless `maki::machine_conf::auto_start` is set to `false`.
@@ -158,8 +158,8 @@ public:
     @param event the event to be passed to the invoked actions, mainly the
     exit action of the active state(s)
 
-    Concretely, if `maki::state_confs::stopped` is not the active state, exits
-    the active state and enters `maki::state_confs::stopped`.
+    Concretely, if the machine is running, exits the active state and enters
+    the internal `stopped` state.
     */
     template<class Event = events::stop>
     void stop(const Event& event = {})

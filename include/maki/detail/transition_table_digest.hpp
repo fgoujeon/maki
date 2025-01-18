@@ -12,7 +12,7 @@
 #include "tlu/left_fold.hpp"
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
-#include "../type_list.hpp"
+#include "type_list.hpp"
 #include "../null.hpp"
 #include <type_traits>
 

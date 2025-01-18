@@ -17,26 +17,32 @@ namespace maki
 
 /**
 @brief Represents a set of event types. See @ref event-set.
-Use the predefined variables (`maki::any`, `maki::any_of`,
-`maki::any_but`, `maki::no_event`) and builder functions
-(`maki::any_if()`, `maki::any_if_not()`) instead of manually
-instantiating this type.
 */
 template<class Predicate>
 class event_set
 {
 public:
+    /**
+    @brief Constructs a set from a callable that takes a `maki::event_t` and
+    returns a `bool`.
+    */
     constexpr explicit event_set(const Predicate& pred):
         predicate_(pred)
     {
     }
 
+    /**
+    @brief Constructs a set that only contains `Event`.
+    */
     template<class Event>
     constexpr event_set(event_t<Event> /*ignored*/):
         predicate_(detail::set_predicates::exactly{event<Event>})
     {
     }
 
+    /**
+    @brief Checks whether the set contains `Event`.
+    */
     template<class Event>
     [[nodiscard]]
     constexpr bool contains(event_t<Event> /*ignored*/ = {}) const
@@ -52,12 +58,41 @@ template<class Predicate>
 event_set(const Predicate&) -> event_set<Predicate>;
 
 template<class Event>
-event_set(event_t<Event>) -> event_set<detail::set_predicates::exactly<event_t<Event>>>;
+event_set(event_t<Event>) -> event_set
+<
+#ifdef MAKI_DETAIL_DOXYGEN
+    IMPLEMENTATION_DETAIL
+#else
+    detail::set_predicates::exactly<event_t<Event>>
+#endif
+>;
 
-inline constexpr auto any_event = event_set{detail::set_predicates::any{}};
+/**
+@brief An infinite `maki::event_set` that contains all the event types.
+*/
+inline constexpr auto any_event =
+#ifdef MAKI_DETAIL_DOXYGEN
+    IMPLEMENTATION_DETAIL
+#else
+    event_set{detail::set_predicates::any{}}
+#endif
+;
 
-inline constexpr auto no_event = event_set{detail::set_predicates::none{}};
+/**
+@brief An empty `maki::event_set`.
+*/
+inline constexpr auto no_event =
+#ifdef MAKI_DETAIL_DOXYGEN
+    IMPLEMENTATION_DETAIL
+#else
+    event_set{detail::set_predicates::none{}}
+#endif
+;
 
+/**
+@brief Creates a `maki::event_set` that contains all the event types that are
+not contained in `evt_set`.
+*/
 template<class Predicate>
 constexpr auto operator!(const event_set<Predicate>& evt_set)
 {
@@ -70,14 +105,26 @@ constexpr auto operator!(const event_set<Predicate>& evt_set)
     };
 }
 
+/**
+@brief Creates a `maki::event_set` that contains all the event types but
+`Event`.
+*/
 template<class Event>
 constexpr auto operator!(const event_t<Event>& evt)
 {
     return !event_set{evt};
 }
 
-template<class LhsImpl, class RhsImpl>
-constexpr auto operator||(const event_set<LhsImpl>& lhs, const event_set<RhsImpl>& rhs)
+/**
+@brief Creates a `maki::event_set` that is the result of the union of `lhs` and
+`rhs`.
+*/
+template<class LhsPredicate, class RhsPredicate>
+constexpr auto operator||
+(
+    const event_set<LhsPredicate>& lhs,
+    const event_set<RhsPredicate>& rhs
+)
 {
     return event_set
     {
@@ -88,26 +135,57 @@ constexpr auto operator||(const event_set<LhsImpl>& lhs, const event_set<RhsImpl
     };
 }
 
-template<class LhsEvent, class RhsEvent>
-constexpr auto operator||(const event_set<LhsEvent>& lhs, const event_t<RhsEvent>& rhs)
+/**
+@brief Creates a `maki::event_set` that contains the content of `evt_set`, plus
+`Event`.
+*/
+template<class EventSetPredicate, class Event>
+constexpr auto operator||
+(
+    const event_set<EventSetPredicate>& evt_set,
+    const event_t<Event>& evt
+)
 {
-    return lhs || event_set{rhs};
+    return evt_set || event_set{evt};
 }
 
-template<class LhsEvent, class RhsEvent>
-constexpr auto operator||(const event_t<LhsEvent>& lhs, const event_set<RhsEvent>& rhs)
+/**
+@brief Creates a `maki::event_set` that contains the content of `evt_set`, plus
+`Event`.
+*/
+template<class Event, class EventSetPredicate>
+constexpr auto operator||
+(
+    const event_t<Event>& evt,
+    const event_set<EventSetPredicate>& evt_set
+)
 {
-    return event_set{lhs} || rhs;
+    return event_set{evt} || evt_set;
 }
 
-template<class LhsStateConfImpl, class RhsStateConfImpl>
-constexpr auto operator||(const event_t<LhsStateConfImpl>& lhs, const event_t<RhsStateConfImpl>& rhs)
+/**
+@brief Creates a `maki::event_set` that contains `LhsEvent` and `RhsEvent`.
+*/
+template<class LhsEvent, class RhsEvent>
+constexpr auto operator||
+(
+    const event_t<LhsEvent>& lhs,
+    const event_t<RhsEvent>& rhs
+)
 {
     return event_set{lhs} || event_set{rhs};
 }
 
-template<class LhsImpl, class RhsImpl>
-constexpr auto operator&&(const event_set<LhsImpl>& lhs, const event_set<RhsImpl>& rhs)
+/**
+@brief Creates a `maki::event_set` that is the result of the intersection of
+`lhs` and `rhs`.
+*/
+template<class LhsPredicate, class RhsPredicate>
+constexpr auto operator&&
+(
+    const event_set<LhsPredicate>& lhs,
+    const event_set<RhsPredicate>& rhs
+)
 {
     return event_set
     {

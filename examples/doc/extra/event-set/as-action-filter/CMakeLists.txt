@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.10)
 
 include(maki)
 
-set(TARGET example-doc-extra-filter-state-action)
+set(TARGET example-doc-extra-event-set-as-action-filter)
 
 file(GLOB_RECURSE SOURCE_FILES *)
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${SOURCE_FILES})

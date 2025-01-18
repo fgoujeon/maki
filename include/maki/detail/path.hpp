@@ -8,7 +8,7 @@
 #define MAKI_DETAIL_PATH_HPP
 
 #include "tuple.hpp"
-#include "../cref_constant.hpp"
+#include "../constant.hpp"
 #include "../pretty_name.hpp"
 #include <string_view>
 #include <string>

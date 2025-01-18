@@ -9,12 +9,12 @@
 @brief Defines the maki::pretty_name function template
 */
 
-#ifndef MAKI_PRETTY_NAME_HPP
-#define MAKI_PRETTY_NAME_HPP
+#ifndef MAKI_DETAIL_PRETTY_NAME_HPP
+#define MAKI_DETAIL_PRETTY_NAME_HPP
 
-#include "detail/type_name.hpp"
+#include "type_name.hpp"
 
-namespace maki
+namespace maki::detail
 {
 
 /**

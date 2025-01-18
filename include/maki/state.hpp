@@ -7,6 +7,7 @@
 #ifndef MAKI_REGION_STATE_HPP
 #define MAKI_REGION_STATE_HPP
 
+#include "detail/pretty_name.hpp"
 #include <string_view>
 #include <utility>
 
@@ -78,7 +79,7 @@ public:
 
     [[nodiscard]] static std::string_view pretty_name()
     {
-        return maki::pretty_name<Impl::conf>();
+        return detail::pretty_name<Impl::conf>();
     }
 
 #ifndef MAKI_DETAIL_DOXYGEN

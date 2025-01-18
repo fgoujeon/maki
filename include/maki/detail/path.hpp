@@ -9,7 +9,7 @@
 
 #include "tuple.hpp"
 #include "constant.hpp"
-#include "../pretty_name.hpp"
+#include "pretty_name.hpp"
 #include <string_view>
 #include <string>
 
@@ -25,7 +25,7 @@ public:
         (
             []
             {
-                return maki::pretty_name<ConfConstant::value>();
+                return detail::pretty_name<ConfConstant::value>();
             }
         )
     {

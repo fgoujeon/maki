@@ -37,15 +37,17 @@ class state
 public:
     using impl_type = Impl;
 
+#ifndef MAKI_DETAIL_DOXYGEN
     template<class... Args>
     state(Args&&... args):
         impl_(std::forward<Args>(args)...)
     {
     }
+#endif
 
-    state(const state&) = default;
+    state(const state&) = delete;
     state(state&&) = delete;
-    state& operator=(const state&) = default;
+    state& operator=(const state&) = delete;
     state& operator=(state&&) = delete;
     ~state() = default;
 

@@ -23,15 +23,17 @@ template<class Impl>
 class region
 {
 public:
+#ifndef MAKI_DETAIL_DOXYGEN
     template<class... Args>
     region(Args&&... args):
         impl_(std::forward<Args>(args)...)
     {
     }
+#endif
 
-    region(const region&) = default;
+    region(const region&) = delete;
     region(region&&) = delete;
-    region& operator=(const region&) = default;
+    region& operator=(const region&) = delete;
     region& operator=(region&&) = delete;
     ~region() = default;
 

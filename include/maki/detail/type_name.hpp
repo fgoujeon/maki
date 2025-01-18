@@ -7,7 +7,7 @@
 #ifndef MAKI_DETAIL_TYPE_NAME_HPP
 #define MAKI_DETAIL_TYPE_NAME_HPP
 
-#include "../constant.hpp"
+#include "constant.hpp"
 #include <string_view>
 
 namespace maki::detail

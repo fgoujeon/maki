@@ -7,6 +7,7 @@
 #ifndef MAKI_REGION_STATE_HPP
 #define MAKI_REGION_STATE_HPP
 
+#include <string_view>
 #include <utility>
 
 namespace maki
@@ -15,11 +16,21 @@ namespace maki
 /**
 @brief Represents a [state](@ref state).
 */
-#ifdef MAKI_DETAIL_DOXYGEN
-template<IMPLEMENTATION_DETAIL>
-#else
 template<class Impl>
-#endif
+class state;
+
+namespace detail
+{
+    struct state_from_impl_tag{};
+
+    template<class Impl>
+    constexpr auto make_state_from_impl(Impl& impl)
+    {
+        return state{state_from_impl_tag{}, impl};
+    }
+}
+
+template<class Impl>
 class state
 {
 public:
@@ -65,6 +76,11 @@ public:
         return impl_.context();
     }
 
+    [[nodiscard]] static std::string_view pretty_name()
+    {
+        return maki::pretty_name<Impl::conf>();
+    }
+
 #ifndef MAKI_DETAIL_DOXYGEN
     Impl& impl()
     {
@@ -78,6 +94,14 @@ public:
 #endif
 
 private:
+    template<class Impl2>
+    friend constexpr auto detail::make_state_from_impl(Impl2&);
+
+    state(detail::state_from_impl_tag /*tag*/, Impl& impl):
+        impl_(impl)
+    {
+    }
+
     Impl impl_;
 };
 

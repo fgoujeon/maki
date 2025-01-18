@@ -408,9 +408,9 @@ private:
                 (
                     ctx,
                     maki::path{Path},
-                    cref_constant<*SourceStateId>,
+                    state_from_id<SourceStateId>(),
                     event,
-                    cref_constant<*TargetStateId>
+                    state_from_id<TargetStateId>()
                 );
             }
 
@@ -462,9 +462,9 @@ private:
                 (
                     ctx,
                     maki::path{Path},
-                    cref_constant<*SourceStateId>,
+                    state_from_id<SourceStateId>(),
                     event,
-                    cref_constant<*TargetStateId>
+                    state_from_id<TargetStateId>()
                 );
             }
 
@@ -645,10 +645,24 @@ private:
     template<auto StateId, class Region>
     static auto& static_state_from_id(Region& self)
     {
-        static constexpr auto state_index =
-            region_detail::find_state_from_id_v<state_tuple_type, StateId>
-        ;
-        return tuple_get<state_index>(self.states_);
+        if constexpr(equals(StateId, &state_confs::stopped))
+        {
+            return stopped_state();
+        }
+        else
+        {
+            static constexpr auto state_index =
+                region_detail::find_state_from_id_v<state_tuple_type, StateId>
+            ;
+            return tuple_get<state_index>(self.states_);
+        }
+    }
+
+    static const auto& stopped_state()
+    {
+        static const auto stt_impl = simple_state_no_context<&state_confs::stopped>{};
+        static const auto stt = make_state_from_impl(stt_impl);
+        return stt;
     }
 
     state_tuple_type states_;

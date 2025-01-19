@@ -15,7 +15,6 @@
 #include "context_signature.hpp"
 #include "tuple.hpp"
 #include "../null.hpp"
-#include <string_view>
 #include <cstdlib>
 
 namespace maki
@@ -55,7 +54,6 @@ namespace detail
         PreStateTransitionHook pre_state_transition_hook = null;
         ExceptionHook exception_hook = null;
         PostProcessingHookTuple post_processing_hooks;
-        std::string_view pretty_name;
         bool process_event_now_enabled = false;
         bool run_to_completion = true;
         std::size_t small_event_max_align = machine_conf_default_small_event_max_align;

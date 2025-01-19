@@ -20,7 +20,6 @@
 #include "detail/event_action.hpp"
 #include "detail/signature_macros.hpp"
 #include "detail/tuple.hpp"
-#include <string_view>
 #include <type_traits>
 #include <cstdlib>
 
@@ -79,7 +78,6 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_state_transition_hook = options_.pre_state_transition_hook; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_hook = options_.exception_hook; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_processing_hooks = options_.post_processing_hooks; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = options_.pretty_name; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_process_event_now_enabled = options_.process_event_now_enabled; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = options_.run_to_completion; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_align = options_.small_event_max_align; \
@@ -112,7 +110,6 @@ public:
         MAKI_DETAIL_ARG_pre_state_transition_hook, \
         MAKI_DETAIL_ARG_exception_hook, \
         MAKI_DETAIL_ARG_post_processing_hooks, \
-        MAKI_DETAIL_ARG_pretty_name_view, \
         MAKI_DETAIL_ARG_process_event_now_enabled, \
         MAKI_DETAIL_ARG_run_to_completion, \
         MAKI_DETAIL_ARG_small_event_max_align, \
@@ -265,19 +262,6 @@ public:
 #define MAKI_DETAIL_ARG_run_to_completion value
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_run_to_completion
-    }
-
-    /**
-    @brief Specifies the pretty name of the state machine.
-
-    See `maki::pretty_name()`.
-    */
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pretty_name(const std::string_view value) const
-    {
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_pretty_name_view value
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_pretty_name_view
     }
 
     /**

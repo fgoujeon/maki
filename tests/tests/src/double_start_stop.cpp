@@ -43,7 +43,7 @@ namespace double_start_stop_ns
             {
                 //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
 
-                ctx.out += "Transition in ";
+                ctx.out += "Transition in main_sm/";
                 ctx.out += region_path.to_string();
                 ctx.out += ": ";
                 ctx.out += source_state.pretty_name();
@@ -58,7 +58,7 @@ namespace double_start_stop_ns
             {
                 //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
 
-                ctx.out += "Transition in ";
+                ctx.out += "Transition in main_sm/";
                 ctx.out += region_path.to_string();
                 ctx.out += ": ";
                 ctx.out += source_state.pretty_name();
@@ -67,7 +67,6 @@ namespace double_start_stop_ns
                 ctx.out += ";";
             }
         )
-        .pretty_name("main_sm")
     ;
 
     using machine_t = maki::machine<machine_conf>;

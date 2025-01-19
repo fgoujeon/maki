@@ -41,7 +41,6 @@ namespace pretty_name_ns
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
         .context_a<context>()
-        .pretty_name("my_sm")
     ;
 
     using machine_t = maki::machine<machine_conf>;
@@ -65,12 +64,6 @@ TEST_CASE("pretty_name")
     (
         maki::detail::decayed_type_name<pretty_name_ns::templ<pretty_name_ns::templ_inner<int>, pretty_name_ns::templ_inner<char>>>() ==
         std::string_view{"templ"}
-    );
-
-    REQUIRE
-    (
-        maki::detail::pretty_name<pretty_name_ns::machine_conf>() ==
-        std::string_view{"my_sm"}
     );
 
     REQUIRE

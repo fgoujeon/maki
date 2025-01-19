@@ -21,19 +21,32 @@ namespace maki
 
 /**
 @brief The set of arguments taken by a guard callable.
-
-Meaning of every letter:
-
-- `v`: void
-- `m`: machine
-- `c`: context
-- `e`: event
 */
 enum class guard_signature: char
 {
-#define MAKI_DETAIL_X(name) name, /*NOLINT(cppcoreguidelines-macro-usage)*/
-    MAKI_DETAIL_GUARD_SIGNATURES
-#undef MAKI_DETAIL_X
+    ///`bool guard()`
+    v,
+
+    ///`bool guard(context&)`
+    c,
+
+    ///`bool guard(context&, machine&)`
+    cm,
+
+    ///`bool guard(context&, machine&, const event&)`
+    cme,
+
+    ///`bool guard(context&, const event&)`
+    ce,
+
+    ///`bool guard(machine&)`
+    m,
+
+    ///`bool guard(machine&, const event&)`
+    me,
+
+    ///`bool guard(const event&)`
+    e,
 };
 
 namespace detail

@@ -21,19 +21,32 @@ namespace maki
 
 /**
 @brief The set of arguments taken by an action callable.
-
-Meaning of every letter:
-
-- `v`: void
-- `m`: machine
-- `c`: context
-- `e`: event
 */
 enum class action_signature: char
 {
-#define MAKI_DETAIL_X(name) name, /*NOLINT(cppcoreguidelines-macro-usage)*/
-    MAKI_DETAIL_ACTION_SIGNATURES
-#undef MAKI_DETAIL_X
+    ///`void action()`
+    v,
+
+    ///`void action(context&)`
+    c,
+
+    ///`void action(context&, machine&)`
+    cm,
+
+    ///`void action(context&, machine&, const event&)`
+    cme,
+
+    ///`void action(context&, const event&)`
+    ce,
+
+    ///`void action(machine&)`
+    m,
+
+    ///`void action(machine&, const event&)`
+    me,
+
+    ///`void action(const event&)`
+    e,
 };
 
 /**

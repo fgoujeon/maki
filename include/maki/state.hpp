@@ -65,6 +65,14 @@ public:
         return impl_.context();
     }
 
+    /**
+    @brief The pretty name of the state.
+
+    Returns either:
+    - the value given to `maki::state_conf::pretty_name()`, if any;
+    - the name of the `maki::state_conf` variable, without scope nor template
+    argument list
+    */
     [[nodiscard]] static std::string_view pretty_name()
     {
         return detail::pretty_name<Impl::conf>();

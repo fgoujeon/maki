@@ -196,9 +196,7 @@ public:
 #undef MAKI_DETAIL_X
 
     /**
-    @brief Specifies the pretty name of the state.
-
-    See `maki::pretty_name()`.
+    @brief Forces the value returned by `maki::state::pretty_name()`.
     */
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE pretty_name(const std::string_view value) const
     {

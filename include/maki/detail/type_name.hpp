@@ -73,7 +73,7 @@ namespace type_name_detail
     {
         using type = cref_constant_t<Value>;
         const auto raw_name = type_name_detail::type_name<type>();
-        const auto raw_name_prefix = std::string_view{"maki::cref_constant_t<"};
+        const auto raw_name_prefix = std::string_view{"maki::detail::cref_constant_t<"};
         const auto raw_name_suffix = std::string_view{">"};
         return raw_name.substr
         (

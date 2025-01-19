@@ -11,9 +11,7 @@ struct context
 {
 };
 
-constexpr auto my_state = maki::state_conf{}
-    .pretty_name("my_state")
-;
+constexpr auto my_state = maki::state_conf{};
 
 constexpr auto transition_table = maki::transition_table{}
     (my_state, maki::null, maki::null)

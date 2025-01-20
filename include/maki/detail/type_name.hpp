@@ -73,7 +73,7 @@ namespace type_name_detail
     {
         using type = cref_constant_t<Value>;
         const auto raw_name = type_name_detail::type_name<type>();
-        const auto raw_name_prefix = std::string_view{"maki::cref_constant_t<"};
+        const auto raw_name_prefix = std::string_view{"maki::detail::cref_constant_t<"};
         const auto raw_name_suffix = std::string_view{">"};
         return raw_name.substr
         (
@@ -82,8 +82,22 @@ namespace type_name_detail
         );
     }
 
-    //Extract "e" from e.g. a::b<c,d>::e<f::g>
-    inline std::string_view decay_type_name(const std::string_view tname)
+    /*
+    Extract "e" out of e.g. "a::b<c,d>::e<f::g>".
+
+    Note that some compilers prepend type names with keywords such as "const" or
+    "struct". These keywords are always followed by a space.
+
+    End index is either:
+    - the position of the char that precedes the last top-level '<', if the last
+      char of `tname` is a '>';
+    - the position of the last char.
+
+    Start index is searched from the char preceding the end index. It is either:
+    - the position of the char that follows the last ':' or ' ', if any;
+    - 0.
+    */
+    inline std::string_view decay_name(const std::string_view tname)
     {
         auto current_index = static_cast<int>(tname.size() - 1);
 
@@ -118,7 +132,9 @@ namespace type_name_detail
         {
             for(; current_index >= 1; --current_index)
             {
-                if(tname[static_cast<sv_size_t>(current_index - 1)] == ':')
+                const auto char_before = tname[static_cast<sv_size_t>(current_index - 1)];
+
+                if(char_before == ':' || char_before == ' ')
                 {
                     return static_cast<sv_size_t>(current_index);
                 }
@@ -144,7 +160,7 @@ std::string_view type_name()
 template<class T>
 std::string_view decayed_type_name()
 {
-    static const auto name = type_name_detail::decay_type_name
+    static const auto name = type_name_detail::decay_name
     (
         type_name_detail::type_name<T>()
     );
@@ -161,7 +177,7 @@ std::string_view constant_name()
 template<const auto& Value>
 std::string_view decayed_constant_name()
 {
-    static const auto name = type_name_detail::decay_type_name
+    static const auto name = type_name_detail::decay_name
     (
         type_name_detail::constant_name<Value>()
     );

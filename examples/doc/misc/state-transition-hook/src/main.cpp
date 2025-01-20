@@ -11,9 +11,7 @@ struct context
 {
 };
 
-constexpr auto my_state = maki::state_conf{}
-    .pretty_name("my_state")
-;
+constexpr auto my_state = maki::state_conf{};
 
 constexpr auto transition_table = maki::transition_table{}
     (my_state, maki::null, maki::null)
@@ -64,7 +62,7 @@ constexpr auto machine_conf = maki::machine_conf{}
         [](context& /*ctx*/, const auto& region_path, const auto& source_state, const auto& /*event*/, const auto& target_state)
         {
             std::cout
-                << "Beginning of transition in "
+                << "Beginning of transition in FSM/"
                 << region_path.to_string()
                 << ": "
                 << source_state.pretty_name()
@@ -80,7 +78,7 @@ constexpr auto machine_conf = maki::machine_conf{}
         [](context& /*ctx*/, const auto& region_path, const auto& source_state, const auto& /*event*/, const auto& target_state)
         {
             std::cout
-                << "End of transition in "
+                << "End of transition in FSM/"
                 << region_path.to_string()
                 << ": "
                 << source_state.pretty_name()
@@ -90,7 +88,6 @@ constexpr auto machine_conf = maki::machine_conf{}
         }
     )
 //! [post]
-    .pretty_name("FSM")
 ;
 
 using machine_t = maki::machine<machine_conf>;

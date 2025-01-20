@@ -493,7 +493,7 @@ private:
     }
 
     static constexpr auto post_processing_hooks = opts(conf).post_processing_hooks;
-    static constexpr auto path = detail::path{}.add_state<conf>();
+    static constexpr auto path = detail::path{};
 
     using post_processing_hook_ptr_constant_list = detail::tuple_to_element_ptr_constant_list_t<post_processing_hooks>;
 

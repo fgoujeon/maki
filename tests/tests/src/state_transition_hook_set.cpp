@@ -54,7 +54,7 @@ namespace state_transition_hook_set
         (
             [](context& ctx, const auto& region_path, const auto& source_state, const auto& event, const auto& target_state)
             {
-                ctx.out += "Transition in ";
+                ctx.out += "Transition in main_sm/";
                 ctx.out += region_path.to_string();
                 ctx.out += ": ";
                 ctx.out += source_state.pretty_name();
@@ -71,7 +71,7 @@ namespace state_transition_hook_set
             {
                 ctx.out += std::to_string(event.pressure) + ";";
 
-                ctx.out += "Transition in ";
+                ctx.out += "Transition in main_sm/";
                 ctx.out += region_path.to_string();
                 ctx.out += ": ";
                 ctx.out += source_state.pretty_name();
@@ -81,7 +81,6 @@ namespace state_transition_hook_set
             }
         )
         .auto_start(false)
-        .pretty_name("main_sm")
     ;
 
     using machine_t = maki::machine<machine_conf>;

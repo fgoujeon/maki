@@ -7,50 +7,10 @@
 #ifndef MAKI_DETAIL_TLU_FILTER_HPP
 #define MAKI_DETAIL_TLU_FILTER_HPP
 
+#include "push_front_if.hpp"
+
 namespace maki::detail::tlu
 {
-
-namespace filter_detail
-{
-    template
-    <
-        class TList,
-        class UList
-    >
-    struct concat;
-
-    template
-    <
-        template<class...> class TList,
-        class... Ts,
-        class... Us
-    >
-    struct concat<TList<Ts...>, TList<Us...>>
-    {
-        using type = TList<Ts..., Us...>;
-    };
-
-    template
-    <
-        template<class...> class TList,
-        class T,
-        bool B
-    >
-    struct make_type_list_from_type_if
-    {
-        using type = TList<T>;
-    };
-
-    template
-    <
-        template<class...> class TList,
-        class T
-    >
-    struct make_type_list_from_type_if<TList, T, false>
-    {
-        using type = TList<>;
-    };
-}
 
 template
 <
@@ -68,11 +28,12 @@ template
 >
 struct filter<TList<T, Ts...>, Predicate>
 {
-    using type = typename filter_detail::concat
+    using type = push_front_if_t
     <
-        typename filter_detail::make_type_list_from_type_if<TList, T, Predicate<T>::value>::type,
-        typename filter<TList<Ts...>, Predicate>::type
-    >::type;
+        typename filter<TList<Ts...>, Predicate>::type,
+        T,
+        Predicate<T>::value
+    >;
 };
 
 template

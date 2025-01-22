@@ -33,6 +33,12 @@
 #include "../transition_table.hpp"
 #include <type_traits>
 
+namespace maki
+{
+    template<class Impl>
+    class region;
+}
+
 namespace maki::detail
 {
 
@@ -76,7 +82,8 @@ class region
 {
 public:
     template<class Machine, class Context>
-    region(Machine& mach, Context& ctx):
+    region(const maki::region<region>* pitf, Machine& mach, Context& ctx):
+        pitf_(pitf),
         states_(uniform_construct, mach, ctx)
     {
     }
@@ -162,6 +169,12 @@ public:
     const auto& state() const
     {
         return state_from_id<&StateConf>();
+    }
+
+    static const auto& path()
+    {
+        static const auto value = maki::path{Path};
+        return value;
     }
 
 private:
@@ -408,7 +421,7 @@ private:
                 opts(Machine::conf).pre_state_transition_hook
                 (
                     ctx,
-                    maki::path{Path},
+                    *pitf_,
                     state_from_id<SourceStateId>(),
                     event,
                     state_from_id<TargetStateId>()
@@ -462,7 +475,7 @@ private:
                 opts(Machine::conf).post_state_transition_hook
                 (
                     ctx,
-                    maki::path{Path},
+                    *pitf_,
                     state_from_id<SourceStateId>(),
                     event,
                     state_from_id<TargetStateId>()
@@ -659,6 +672,7 @@ private:
         }
     }
 
+    const maki::region<region>* pitf_;
     state_tuple_type states_;
     int active_state_index_ = region_detail::stopped_state_index;
 };

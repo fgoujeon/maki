@@ -60,6 +60,12 @@ namespace transition_table_digest_detail
         template<class Digest, int Index>
         struct add_transition_to_digest_impl
         {
+            static_assert
+            (
+                !equals(tuple_get<Index>(TransitionTuple).source_state_conf, &stopped),
+                "`maki::stopped` can't be a source type"
+            );
+
             /*
             We must add target state to list of states unless:
             - it's not already in the list;

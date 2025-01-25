@@ -8,7 +8,7 @@
 #define MAKI_DETAIL_STATES_HPP
 
 #include "simple_state_no_context.hpp"
-#include "../state_confs.hpp"
+#include "../stopped.hpp"
 #include "../state.hpp"
 
 namespace maki::detail::states

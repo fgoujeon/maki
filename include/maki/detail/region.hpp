@@ -26,7 +26,7 @@
 #include "../guard.hpp"
 #include "../path.hpp"
 #include "../null.hpp"
-#include "../state_confs.hpp"
+#include "../stopped.hpp"
 #include "../state_conf.hpp"
 #include "../state.hpp"
 #include "../transition_table.hpp"

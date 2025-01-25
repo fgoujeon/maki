@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_STATE_CONFS_HPP
-#define MAKI_STATE_CONFS_HPP
+#ifndef MAKI_STOPPED_HPP
+#define MAKI_STOPPED_HPP
 
 #include "state_conf.hpp"
 

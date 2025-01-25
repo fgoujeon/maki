@@ -14,6 +14,8 @@ namespace maki
 
 /**
 @brief Represents an [orthogonal region](@ref orthogonal-region)
+
+Objects of this type can only be created by Maki itself.
 */
 #ifdef MAKI_DETAIL_DOXYGEN
 template<IMPLEMENTATION_DETAIL>
@@ -37,24 +39,41 @@ public:
     region& operator=(region&&) = delete;
     ~region() = default;
 
+    /**
+    @brief Returns whether the region is running.
+    */
     [[nodiscard]] bool running() const
     {
         return impl_.running();
     }
 
+    /**
+    @brief Returns whether the state created from `StateConf` is active.
+    */
     template<const auto& StateConf>
     [[nodiscard]] bool is() const
     {
         return impl_.template is<StateConf>();
     }
 
+    /**
+    @brief Returns the `maki::state` object created from `StateConf` (of type
+    `maki::state_conf`).
+    */
     template<const auto& StateConf>
     [[nodiscard]] const auto& state() const
     {
         return impl_.template state<StateConf>();
     }
 
+    /**
+    @brief Returns the path to the region.
+    */
+#ifdef MAKI_DETAIL_DOXYGEN
+    static constexpr maki::path<IMPLEMENTATION_DETAIL> path()
+#else
     static constexpr auto path()
+#endif
     {
         return Impl::path();
     }

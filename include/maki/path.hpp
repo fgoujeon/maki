@@ -16,6 +16,8 @@ namespace maki
 
 /**
 @brief Encodes a path to a state or region.
+
+Objects of this type can only be created by Maki itself.
 */
 #ifdef MAKI_DETAIL_DOXYGEN
 template<IMPLEMENTATION_DETAIL>
@@ -25,14 +27,24 @@ template<class Impl>
 class path
 {
 public:
+    /**
+    @brief Returns a textual representation of the path.
+
+    For example the string `"0/my_state/1"` represents the path to the second
+    region (index `1`) of a composite state whose
+    @ref maki::state::pretty_name "pretty name" is `"my_state"` and that is part
+    of the first region (index `0`) of a state machine.
+    */
     [[nodiscard]] std::string to_string() const
     {
         return impl_.get().to_string();
     }
 
 private:
+#ifndef MAKI_DETAIL_DOXYGEN
     template<const auto& TransitionTable, const auto& Path>
     friend class detail::region;
+#endif
 
     constexpr path(const Impl& impl):
         impl_(impl)

@@ -19,7 +19,7 @@ namespace maki
 
 #if MAKI_DETAIL_DOXYGEN
 /**
-@brief The configuration for @ref machine_ref
+@brief The configuration for `maki::machine_ref`
 */
 template<IMPLEMENTATION_DETAIL>
 #else

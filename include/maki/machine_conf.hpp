@@ -131,7 +131,7 @@ public:
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Adds a start action. \
+    @brief Adds a start action to be called for any event type in `evt_set`. \
     */ \
     template<class EventSetPredicate, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE start_action_##signature(const event_set<EventSetPredicate>& evt_set, const Action& action) const \
@@ -140,12 +140,21 @@ public:
     } \
  \
     /** \
-    @brief Adds a start action. \
+    @brief Adds a start action to be called for the event type `Event`. \
     */ \
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE start_action_##signature(const Action& action) const \
     { \
         return start_action_##signature(event<Event>, action); \
+    } \
+ \
+    /** \
+    @brief Adds a start action to be called whatever the event type. \
+    */ \
+    template<class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE start_action_##signature(const Action& action) const \
+    { \
+        return start_action_##signature(any_event, action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -175,7 +184,7 @@ public:
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Adds a stop action. \
+    @brief Adds a stop action to be called for any event type in `evt_set`. \
     */ \
     template<class EventSetPredicate, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE stop_action_##signature(const event_set<EventSetPredicate>& evt_set, const Action& action) const \
@@ -184,12 +193,21 @@ public:
     } \
  \
     /** \
-    @brief Adds a stop action. \
+    @brief Adds a stop action to be called for the event type `Event`. \
     */ \
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE stop_action_##signature(const Action& action) const \
     { \
         return stop_action_##signature(event<Event>, action); \
+    } \
+ \
+    /** \
+    @brief Adds a start action to be called whatever the event type. \
+    */ \
+    template<class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE stop_action_##signature(const Action& action) const \
+    { \
+        return stop_action_##signature(any_event, action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X

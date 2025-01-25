@@ -51,6 +51,7 @@ enum class action_signature: char
 
 /**
 @brief Represents an action to be given to `maki::transition_table`.
+
 Use the builder functions (`maki::action_v()` and its variants) instead of using
 this type directly.
 */
@@ -63,6 +64,7 @@ struct action
 
 #define MAKI_DETAIL_X(name) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
+    @relates action
     @brief Makes a `maki::action` with the indicated signature and given  \
     callable. \
     */ \

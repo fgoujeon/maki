@@ -90,6 +90,7 @@ struct guard
 
 #define MAKI_DETAIL_X(name) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
+    @relates guard
     @brief Makes a `maki::guard` with the indicated signature and given  \
     callable. \
     */ \
@@ -101,6 +102,11 @@ struct guard
 MAKI_DETAIL_GUARD_SIGNATURES
 #undef MAKI_DETAIL_X
 
+/**
+@relates guard
+@brief Makes a `maki::guard` that returns `true` if `lhs` and `rhs` return
+`true`.
+*/
 template
 <
     guard_signature LhsSignature, class LhsCallable,
@@ -124,6 +130,11 @@ constexpr auto operator&&
     );
 }
 
+/**
+@relates guard
+@brief Makes a `maki::guard` that returns `true` if `lhs` or `rhs` returns
+`true`.
+*/
 template
 <
     guard_signature LhsSignature, class LhsCallable,
@@ -147,6 +158,11 @@ constexpr auto operator||
     );
 }
 
+/**
+@relates guard
+@brief Makes a `maki::guard` that returns `true` if exactly one of `lhs` or
+`rhs` returns `true`.
+*/
 template
 <
     guard_signature LhsSignature, class LhsCallable,
@@ -170,6 +186,10 @@ constexpr auto operator!=
     );
 }
 
+/**
+@relates guard
+@brief Makes a `maki::guard` that returns `true` if `grd` returns `false`.
+*/
 template<guard_signature Signature, class Callable>
 constexpr auto operator!(const guard<Signature, Callable>& grd)
 {

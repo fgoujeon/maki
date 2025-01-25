@@ -20,6 +20,9 @@ namespace detail
 }
 
 #ifdef MAKI_DETAIL_DOXYGEN
+/**
+@brief The type of `maki::null`
+*/
 using null_t = IMPLEMENTATION_DETAIL;
 #else
 /*
@@ -30,6 +33,7 @@ using null_t = const detail::null_t_impl*;
 #endif
 
 /**
+@relates null_t
 @brief A null event or target state.
 
 Represents either:

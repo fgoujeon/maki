@@ -12,12 +12,12 @@
 #ifndef MAKI_VERSION_HPP
 #define MAKI_VERSION_HPP
 
-namespace maki
+namespace maki::version
 {
 
-constexpr auto version_major = 0;
-constexpr auto version_minor = 4;
-constexpr auto version_patch = 5;
+constexpr auto major = 0;
+constexpr auto minor = 4;
+constexpr auto patch = 5;
 
 } //namespace
 

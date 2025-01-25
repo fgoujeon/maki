@@ -6,7 +6,23 @@
     <tab type="mainpage" visible="yes" title=""/>
     <tab type="pages" visible="yes" title="" intro=""/>
     <tab type="topics" visible="yes" title="" intro=""/>
-    <tab type="user" visible="yes" title="API Reference" intro="" url="@ref maki"/>
+    <tab type="usergroup" title="API Reference" url="@ref maki">
+      <tab title="action" type="user" url="@ref maki::action"/>
+      <tab title="event_set" type="user" url="@ref maki::event_set"/>
+      <tab title="event_t" type="user" url="@ref maki::event_t"/>
+      <tab title="events" type="user" url="@ref maki::events"/>
+      <tab title="guard" type="user" url="@ref maki::guard"/>
+      <tab title="machine" type="user" url="@ref maki::machine"/>
+      <tab title="machine_conf" type="user" url="@ref maki::machine_conf"/>
+      <tab title="machine_ref" type="user" url="@ref maki::machine_ref"/>
+      <tab title="machine_ref_conf" type="user" url="@ref maki::machine_ref_conf"/>
+      <tab title="path" type="user" url="@ref maki::path"/>
+      <tab title="region" type="user" url="@ref maki::region"/>
+      <tab title="state" type="user" url="@ref maki::state"/>
+      <tab title="state_conf" type="user" url="@ref maki::state_conf"/>
+      <tab title="state_set" type="user" url="@ref maki::state_set"/>
+      <tab title="transition_table" type="user" url="@ref maki::transition_table"/>
+    </tab>
   </navindex>
 
   <!-- Layout definition for a class page -->

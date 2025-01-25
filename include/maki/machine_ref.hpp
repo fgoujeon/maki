@@ -138,6 +138,7 @@ inline constexpr auto machine_ref_e_conf = machine_ref_conf{}
 ;
 
 /**
+@relates machine_ref
 @brief A convenient alias for @ref machine_ref that only takes a list of event
 types
 */

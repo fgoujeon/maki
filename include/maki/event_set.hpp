@@ -16,7 +16,7 @@ namespace maki
 {
 
 /**
-@brief Represents a set of event types. See @ref event-set.
+@brief Represents an @ref event-set "event type set".
 */
 template<class Predicate>
 class event_set
@@ -54,9 +54,17 @@ private:
     Predicate predicate_;
 };
 
+/**
+@relates event_set
+@brief Class template argument deduction guide for `maki::event_set`.
+*/
 template<class Predicate>
 event_set(const Predicate&) -> event_set<Predicate>;
 
+/**
+@relates event_set
+@brief Class template argument deduction guide for `maki::event_set`.
+*/
 template<class Event>
 event_set(event_t<Event>) -> event_set
 <
@@ -68,6 +76,7 @@ event_set(event_t<Event>) -> event_set
 >;
 
 /**
+@relates event_set
 @brief An infinite `maki::event_set` that contains all the event types.
 */
 inline constexpr auto any_event =
@@ -79,6 +88,7 @@ inline constexpr auto any_event =
 ;
 
 /**
+@relates event_set
 @brief An empty `maki::event_set`.
 */
 inline constexpr auto no_event =
@@ -90,6 +100,7 @@ inline constexpr auto no_event =
 ;
 
 /**
+@relates event_set
 @brief Creates a `maki::event_set` that contains all the event types that are
 not contained in `evt_set`.
 */
@@ -106,6 +117,7 @@ constexpr auto operator!(const event_set<Predicate>& evt_set)
 }
 
 /**
+@relates event_set
 @brief Creates a `maki::event_set` that contains all the event types but
 `Event`.
 */
@@ -116,6 +128,7 @@ constexpr auto operator!(const event_t<Event>& evt)
 }
 
 /**
+@relates event_set
 @brief Creates a `maki::event_set` that is the result of the union of `lhs` and
 `rhs`.
 */
@@ -136,6 +149,7 @@ constexpr auto operator||
 }
 
 /**
+@relates event_set
 @brief Creates a `maki::event_set` that contains the content of `evt_set`, plus
 `Event`.
 */
@@ -150,6 +164,7 @@ constexpr auto operator||
 }
 
 /**
+@relates event_set
 @brief Creates a `maki::event_set` that contains the content of `evt_set`, plus
 `Event`.
 */
@@ -164,6 +179,7 @@ constexpr auto operator||
 }
 
 /**
+@relates event_set
 @brief Creates a `maki::event_set` that contains `LhsEvent` and `RhsEvent`.
 */
 template<class LhsEvent, class RhsEvent>
@@ -177,6 +193,7 @@ constexpr auto operator||
 }
 
 /**
+@relates event_set
 @brief Creates a `maki::event_set` that is the result of the intersection of
 `lhs` and `rhs`.
 */

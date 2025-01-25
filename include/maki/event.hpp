@@ -13,19 +13,20 @@ namespace maki
 {
 
 /**
-@brief Represents an event type
+@brief Holds an event type.
 */
 template<class T>
 struct event_t
 {
     /**
-    @brief An alias for the given type
+    @brief An alias for the given type.
     */
     using type = T;
 };
 
 /**
-@brief Returns whether T and U are the same type
+@relates event_t
+@brief Returns whether `T` and `U` are the same type.
 */
 template<class T, class U>
 constexpr bool operator==(const event_t<T> /*lhs*/, const event_t<U> /*rhs*/)
@@ -34,7 +35,8 @@ constexpr bool operator==(const event_t<T> /*lhs*/, const event_t<U> /*rhs*/)
 }
 
 /**
-@brief A convenient variable template for `maki::event_t`
+@relates event_t
+@brief A convenient variable template for `maki::event_t`.
 */
 template<class T>
 constexpr auto event = event_t<T>{};

@@ -71,6 +71,7 @@ private:
 };
 
 /**
+@relates state_set
 @brief An infinite `maki::state_set` that contains all the states.
 */
 inline constexpr auto any_state =
@@ -82,6 +83,7 @@ inline constexpr auto any_state =
 ;
 
 /**
+@relates state_set
 @brief An empty `maki::state_set`.
 */
 inline constexpr auto no_state =
@@ -102,6 +104,7 @@ namespace detail
 }
 
 /**
+@relates state_set
 @brief Creates a `maki::state_set` that contains all the states that are not
 contained in `stt_set`.
 */
@@ -118,6 +121,7 @@ constexpr auto operator!(const state_set<Impl>& stt_set)
 }
 
 /**
+@relates state_set
 @brief Creates a `maki::state_set` that contains all the states but the ones
 created from `stt_conf`.
 */
@@ -128,6 +132,7 @@ constexpr auto operator!(const state_conf<StateConfImpl>& stt_conf)
 }
 
 /**
+@relates state_set
 @brief Creates a `maki::state_set` that is the result of the union of `lhs` and
 `rhs`.
 */
@@ -148,6 +153,7 @@ constexpr auto operator||
 }
 
 /**
+@relates state_set
 @brief Creates a `maki::state_set` that contains the states of `stt_set`, plus
 the ones created from `stt_conf`.
 */
@@ -162,6 +168,7 @@ constexpr auto operator||
 }
 
 /**
+@relates state_set
 @brief Creates a `maki::state_set` that contains the states of `stt_set`, plus
 the ones created from `stt_conf`.
 */
@@ -176,6 +183,7 @@ constexpr auto operator||
 }
 
 /**
+@relates state_set
 @brief Creates a `maki::state_set` that contains the states created from `lhs`
 and `rhs`.
 */
@@ -193,6 +201,7 @@ constexpr auto operator||
 }
 
 /**
+@relates state_set
 @brief Creates a `maki::state_set` that is the result of the intersection of
 `lhs` and `rhs`.
 */

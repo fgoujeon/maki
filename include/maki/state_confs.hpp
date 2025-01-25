@@ -13,8 +13,8 @@ namespace maki
 {
 
 /**
-@brief Represents the state of any region before @ref machine::start() is called and
-after @ref machine::stop() is called.
+@brief Represents the state of any region before `machine::start()` is called
+and after `machine::stop()` is called.
 */
 constexpr auto stopped = state_conf{};
 

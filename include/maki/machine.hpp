@@ -64,15 +64,18 @@ public:
     */
     static constexpr const auto& conf = Conf;
 
-    /**
-    @brief The state machine configuration type.
-    */
+#ifndef MAKI_DETAIL_DOXYGEN
     using option_set_type = std::decay_t<decltype(opts(conf))>;
+#endif
 
+#ifdef MAKI_DETAIL_DOXYGEN
     /**
-    @brief The state machine context type.
+    @brief The context type given to `maki::machine_conf::context_a()` or its variants.
     */
+    using context_type = IMPLEMENTATION_DETAIL;
+#else
     using context_type = typename option_set_type::context_type;
+#endif
 
     static_assert
     (
@@ -316,12 +319,19 @@ public:
         }
     }
 
+    /**
+    @brief Returns the `maki::region` object at index `Index`.
+    */
     template<int Index>
     [[nodiscard]] const auto& region() const
     {
         return impl_.template region<Index>();
     }
 
+    /**
+    @brief Returns the `maki::state` object created from `StateConf` (of type
+    `maki::state_conf`). Only valid if machine is only made of one region.
+    */
     template<const auto& StateConf>
     [[nodiscard]] const auto& state() const
     {
@@ -330,9 +340,8 @@ public:
 
     /**
     @brief Returns whether the state created from `StateConf` is active in the
-    region of the state machine. This function can only be called if the state
-    machine contains a single region.
-    @tparam StateConf the state configuration
+    region of the state machine. Only valid if machine is only made of one
+    region.
     */
     template<const auto& StateConf>
     [[nodiscard]] bool is() const

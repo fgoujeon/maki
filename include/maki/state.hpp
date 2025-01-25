@@ -16,6 +16,8 @@ namespace maki
 
 /**
 @brief Represents a [state](@ref state).
+
+Objects of this type can only be created by Maki itself.
 */
 template<class Impl>
 class state
@@ -37,29 +39,49 @@ public:
     state& operator=(state&&) = delete;
     ~state() = default;
 
+    /**
+    @brief Returns the `maki::state` object created from `StateConf` (of type
+    `maki::state_conf`). Only valid if state is composite and only made of one
+    region.
+    */
     template<const auto& StateConf>
     [[nodiscard]] const auto& substate() const
     {
         return impl_.template state<StateConf>();
     }
 
+    /**
+    @brief Returns the `maki::region` object at index `Index`. Only valid if
+    state is composite.
+    */
     template<int Index>
     [[nodiscard]] const auto& region() const
     {
         return impl_.template region<Index>();
     }
 
+    /**
+    @brief Returns whether the state created from `StateConf` is active. Only
+    valid if state is composite and only made of one region.
+    */
     template<const auto& StateConf>
     [[nodiscard]] bool is() const
     {
         return impl_.template is<StateConf>();
     }
 
+    /**
+    @brief Returns whether the region of the state is running. Only valid if
+    state is composite and only made of one region.
+    */
     [[nodiscard]] bool running() const
     {
         return impl_.running();
     }
 
+    /**
+    @brief Returns the context instantiated at construction.
+    */
     [[nodiscard]] const auto& context() const
     {
         return impl_.context();
@@ -71,7 +93,7 @@ public:
     Returns either:
     - the value given to `maki::state_conf::pretty_name()`, if any;
     - the name of the `maki::state_conf` variable, without scope nor template
-    argument list
+    argument list.
     */
     [[nodiscard]] static std::string_view pretty_name()
     {

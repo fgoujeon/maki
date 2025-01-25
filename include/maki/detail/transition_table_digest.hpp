@@ -73,7 +73,7 @@ namespace transition_table_digest_detail
                     constant_t<tuple_get<Index>(TransitionTuple).target_state_conf>
                 > &&
                 !equals(tuple_get<Index>(TransitionTuple).target_state_conf, null) &&
-                !equals(tuple_get<Index>(TransitionTuple).target_state_conf, &stopped)
+                !ptr_equals(tuple_get<Index>(TransitionTuple).target_state_conf, &state_confs::stopped)
             ;
 
             using state_id_constant_list = tlu::push_back_if_t

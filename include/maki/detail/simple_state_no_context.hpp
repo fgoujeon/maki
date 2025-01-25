@@ -36,7 +36,7 @@ public:
     ~simple_state_no_context() = default;
 
     template<class Machine, class Context, class Event>
-    void call_entry_action(Machine& mach, Context& ctx, const Event& event)
+    void call_entry_action(Machine& mach, Context& ctx, const Event& event) const
     {
         if constexpr(!tlu::empty_v<entry_action_ptr_constant_list>)
         {
@@ -76,7 +76,7 @@ public:
     }
 
     template<class Machine, class Context, class Event>
-    void call_exit_action(Machine& mach, Context& ctx, const Event& event)
+    void call_exit_action(Machine& mach, Context& ctx, const Event& event) const
     {
         if constexpr(!tlu::empty_v<exit_action_ptr_constant_list>)
         {

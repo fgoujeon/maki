@@ -51,8 +51,8 @@ namespace region_detail
         static constexpr auto value = tlu::find_v<StateList, State>;
     };
 
-    template<class StateList, const auto& Path>
-    struct find_state<StateList, state_traits::state_id_to_state<&maki::stopped, Path>>
+    template<class StateList>
+    struct find_state<StateList, std::decay_t<decltype(states::stopped)>>
     {
         static constexpr auto value = stopped_state_index;
     };

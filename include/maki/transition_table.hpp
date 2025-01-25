@@ -18,7 +18,6 @@
 #include "state_set.hpp"
 #include "null.hpp"
 #include "detail/state_conf_fwd.hpp"
-#include "detail/state_id.hpp"
 #include "detail/tuple.hpp"
 
 namespace maki
@@ -104,6 +103,26 @@ namespace detail
     constexpr const auto& rows(const transition_table<Transitions...>& table)
     {
         return table.transitions_;
+    }
+
+    template<class T>
+    constexpr decltype(auto) store_state_conf(T&& obj)
+    {
+        return std::forward<T>(obj);
+    }
+
+    //Store a pointer in this case
+    template<class OptionSet>
+    constexpr auto store_state_conf(const state_conf<OptionSet>& conf)
+    {
+        return &conf;
+    }
+
+    //Store a pointer in this case
+    template<class OptionSet>
+    constexpr auto store_state_conf(const machine_conf<OptionSet>& conf)
+    {
+        return &conf;
     }
 }
 
@@ -211,9 +230,9 @@ public:
                 transitions_,
                 detail::transition
                 {
-                    detail::try_making_state_id(source_state_conf),
+                    detail::store_state_conf(source_state_conf),
                     evt_set,
-                    detail::try_making_state_id(target_state_conf),
+                    detail::store_state_conf(target_state_conf),
                     detail::to_action(action),
                     detail::to_guard(guard)
                 }

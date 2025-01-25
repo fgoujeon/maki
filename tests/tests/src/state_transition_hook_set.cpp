@@ -52,10 +52,10 @@ namespace state_transition_hook_set
         .context_a<context>()
         .pre_state_transition_hook_crset
         (
-            [](context& ctx, const auto& region_path, const auto& source_state, const auto& event, const auto& target_state)
+            [](context& ctx, const auto& region, const auto& source_state, const auto& event, const auto& target_state)
             {
                 ctx.out += "Transition in main_sm/";
-                ctx.out += region_path.to_string();
+                ctx.out += region.path().to_string();
                 ctx.out += ": ";
                 ctx.out += source_state.pretty_name();
                 ctx.out += " -> ";
@@ -67,12 +67,12 @@ namespace state_transition_hook_set
         )
         .post_state_transition_hook_crset
         (
-            [](context& ctx, const auto& region_path, const auto& source_state, const auto& event, const auto& target_state)
+            [](context& ctx, const auto& region, const auto& source_state, const auto& event, const auto& target_state)
             {
                 ctx.out += std::to_string(event.pressure) + ";";
 
                 ctx.out += "Transition in main_sm/";
-                ctx.out += region_path.to_string();
+                ctx.out += region.path().to_string();
                 ctx.out += ": ";
                 ctx.out += source_state.pretty_name();
                 ctx.out += " -> ";

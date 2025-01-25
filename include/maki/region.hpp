@@ -26,7 +26,7 @@ public:
 #ifndef MAKI_DETAIL_DOXYGEN
     template<class... Args>
     region(Args&&... args):
-        impl_(std::forward<Args>(args)...)
+        impl_(this, std::forward<Args>(args)...)
     {
     }
 #endif
@@ -52,6 +52,11 @@ public:
     [[nodiscard]] const auto& state() const
     {
         return impl_.template state<StateConf>();
+    }
+
+    static constexpr auto path()
+    {
+        return Impl::path();
     }
 
 #ifndef MAKI_DETAIL_DOXYGEN

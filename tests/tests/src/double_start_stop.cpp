@@ -39,12 +39,12 @@ namespace double_start_stop_ns
         .context_a<context>()
         .pre_state_transition_hook_crset
         (
-            [](context& ctx, const auto& region_path, const auto& source_state, const auto& /*event*/, const auto& target_state)
+            [](context& ctx, const auto& region, const auto& source_state, const auto& /*event*/, const auto& target_state)
             {
                 //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
 
                 ctx.out += "Transition in main_sm/";
-                ctx.out += region_path.to_string();
+                ctx.out += region.path().to_string();
                 ctx.out += ": ";
                 ctx.out += source_state.pretty_name();
                 ctx.out += " -> ";
@@ -54,12 +54,12 @@ namespace double_start_stop_ns
         )
         .post_state_transition_hook_crset
         (
-            [](context& ctx, const auto& region_path, const auto& source_state, const auto& /*event*/, const auto& target_state)
+            [](context& ctx, const auto& region, const auto& source_state, const auto& /*event*/, const auto& target_state)
             {
                 //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
 
                 ctx.out += "Transition in main_sm/";
-                ctx.out += region_path.to_string();
+                ctx.out += region.path().to_string();
                 ctx.out += ": ";
                 ctx.out += source_state.pretty_name();
                 ctx.out += " -> ";

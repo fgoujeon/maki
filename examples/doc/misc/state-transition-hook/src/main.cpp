@@ -20,7 +20,7 @@ constexpr auto transition_table = maki::transition_table{}
 //! [signature]
 template
 <
-    class PathImpl,
+    class RegionImpl,
     class SourceStateImpl,
     class Event,
     class TargetStateImpl
@@ -28,7 +28,7 @@ template
 void hook
 (
     context& ctx,
-    const maki::path<PathImpl>& region_path,
+    const maki::region<RegionImpl>& region,
     const maki::state<SourceStateImpl>& source_state,
     const Event& event,
     const maki::state<TargetStateImpl>& target_state
@@ -37,7 +37,7 @@ void hook
 
 template
 <
-    class PathImpl,
+    class RegionImpl,
     class SourceStateImpl,
     class Event,
     class TargetStateImpl
@@ -45,7 +45,7 @@ template
 void hook
 (
     context& /*ctx*/,
-    const maki::path<PathImpl>& /*region_path*/,
+    const maki::region<RegionImpl>& /*region*/,
     const maki::state<SourceStateImpl>& /*source_state*/,
     const Event& /*event*/,
     const maki::state<TargetStateImpl>& /*target_state*/
@@ -59,11 +59,11 @@ constexpr auto machine_conf = maki::machine_conf{}
 //! [pre]
     .pre_state_transition_hook_crset
     (
-        [](context& /*ctx*/, const auto& region_path, const auto& source_state, const auto& /*event*/, const auto& target_state)
+        [](context& /*ctx*/, const auto& region, const auto& source_state, const auto& /*event*/, const auto& target_state)
         {
             std::cout
                 << "Beginning of transition in FSM/"
-                << region_path.to_string()
+                << region.path().to_string()
                 << ": "
                 << source_state.pretty_name()
                 << " -> "
@@ -75,11 +75,11 @@ constexpr auto machine_conf = maki::machine_conf{}
 //! [post]
     .post_state_transition_hook_crset
     (
-        [](context& /*ctx*/, const auto& region_path, const auto& source_state, const auto& /*event*/, const auto& target_state)
+        [](context& /*ctx*/, const auto& region, const auto& source_state, const auto& /*event*/, const auto& target_state)
         {
             std::cout
                 << "End of transition in FSM/"
-                << region_path.to_string()
+                << region.path().to_string()
                 << ": "
                 << source_state.pretty_name()
                 << " -> "
@@ -98,16 +98,16 @@ constexpr auto machine_conf_2 = maki::machine_conf{}
     .context_a<context>()
     .pre_state_transition_hook_crset
     (
-        [](context& ctx, const auto& region_path, const auto& source_state, const auto& event, const auto& target_state)
+        [](context& ctx, const auto& region, const auto& source_state, const auto& event, const auto& target_state)
         {
-            hook(ctx, region_path, source_state, event, target_state);
+            hook(ctx, region, source_state, event, target_state);
         }
     )
     .post_state_transition_hook_crset
     (
-        [](context& ctx, const auto& region_path, const auto& source_state, const auto& event, const auto& target_state)
+        [](context& ctx, const auto& region, const auto& source_state, const auto& event, const auto& target_state)
         {
-            hook(ctx, region_path, source_state, event, target_state);
+            hook(ctx, region, source_state, event, target_state);
         }
     )
 ;

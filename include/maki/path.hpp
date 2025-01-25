@@ -34,7 +34,7 @@ private:
     template<const auto& TransitionTable, const auto& Path>
     friend class detail::region;
 
-    path(const Impl& impl):
+    constexpr path(const Impl& impl):
         impl_(impl)
     {
     }

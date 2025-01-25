@@ -164,6 +164,16 @@ public:
         const GuardOrNull& guard = null
     )
     {
+        //If first transition
+        if constexpr(sizeof...(Transitions) == 0)
+        {
+            static_assert
+            (
+                detail::is_state_conf_v<SourceStateConf>,
+                "Source state of first transition can't be a `maki::state_set`"
+            );
+        }
+
         static_assert
         (
             detail::is_state_conf_v<SourceStateConf> || detail::is_state_set_v<SourceStateConf>,

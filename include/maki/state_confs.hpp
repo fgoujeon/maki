@@ -4,20 +4,12 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-/**
-@file
-@brief Defines the maki::detail::state_confs namespace and its types
-*/
+#ifndef MAKI_STATE_CONFS_HPP
+#define MAKI_STATE_CONFS_HPP
 
-#ifndef MAKI_DETAIL_STATE_CONFS_HPP
-#define MAKI_DETAIL_STATE_CONFS_HPP
+#include "state_conf.hpp"
 
-#include "../state_conf.hpp"
-
-/**
-@brief Some predefined state confs used by Maki itself
-*/
-namespace maki::detail::state_confs
+namespace maki
 {
 
 /**

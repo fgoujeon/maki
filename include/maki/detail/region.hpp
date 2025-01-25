@@ -17,7 +17,6 @@
 #include "maybe_bool_util.hpp"
 #include "tuple.hpp"
 #include "constant.hpp"
-#include "state_confs.hpp"
 #include "tlu/apply.hpp"
 #include "tlu/empty.hpp"
 #include "tlu/find.hpp"
@@ -28,6 +27,7 @@
 #include "../guard.hpp"
 #include "../path.hpp"
 #include "../null.hpp"
+#include "../state_confs.hpp"
 #include "../state_conf.hpp"
 #include "../state.hpp"
 #include "../transition_table.hpp"
@@ -53,7 +53,7 @@ namespace region_detail
     };
 
     template<class StateList, const auto& Path>
-    struct find_state<StateList, state_traits::state_id_to_state<&state_confs::stopped, Path>>
+    struct find_state<StateList, state_traits::state_id_to_state<&maki::stopped, Path>>
     {
         static constexpr auto value = stopped_state_index;
     };
@@ -68,7 +68,7 @@ namespace region_detail
     };
 
     template<class StateList>
-    struct find_state_from_id<StateList, &state_confs::stopped>
+    struct find_state_from_id<StateList, &maki::stopped>
     {
         static constexpr auto value = stopped_state_index;
     };
@@ -109,7 +109,7 @@ public:
 
     [[nodiscard]] bool running() const
     {
-        return !is_active_state_id<&state_confs::stopped>();
+        return !is_active_state_id<&maki::stopped>();
     }
 
     template<class Machine, class Context, class Event>
@@ -119,7 +119,7 @@ public:
         {
             process_event_in_transition
             <
-                &state_confs::stopped,
+                &maki::stopped,
                 pinitial_state_conf,
                 &null
             >(mach, ctx, event);
@@ -267,7 +267,7 @@ private:
             self.process_event_in_transition
             <
                 ActiveStateIdConstant::value,
-                &state_confs::stopped,
+                &maki::stopped,
                 &null
             >(mach, ctx, event);
         }
@@ -428,7 +428,7 @@ private:
                 );
             }
 
-            if constexpr(!ptr_equals(SourceStateId, &state_confs::stopped))
+            if constexpr(!ptr_equals(SourceStateId, &maki::stopped))
             {
                 auto& stt = state_from_id<SourceStateId>();
                 stt.impl().call_exit_action
@@ -459,7 +459,7 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(!ptr_equals(TargetStateId, &state_confs::stopped))
+            if constexpr(!ptr_equals(TargetStateId, &maki::stopped))
             {
                 auto& stt = state_from_id<TargetStateId>();
                 stt.impl().call_entry_action
@@ -577,7 +577,7 @@ private:
         auto matches = false;
         with_active_state_id
         <
-            tlu::push_back_t<state_id_constant_list, constant_t<&state_confs::stopped>>,
+            tlu::push_back_t<state_id_constant_list, constant_t<&maki::stopped>>,
             is_active_state_id_in_set_2<StateSetPtr>
         >(matches);
         return matches;
@@ -659,7 +659,7 @@ private:
     template<auto StateId, class Region>
     static auto& static_state_from_id(Region& self)
     {
-        if constexpr(ptr_equals(StateId, &state_confs::stopped))
+        if constexpr(ptr_equals(StateId, &maki::stopped))
         {
             return states::stopped;
         }

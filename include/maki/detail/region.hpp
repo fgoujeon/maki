@@ -20,7 +20,6 @@
 #include "tlu/apply.hpp"
 #include "tlu/empty.hpp"
 #include "tlu/find.hpp"
-#include "tlu/find_if.hpp"
 #include "tlu/front.hpp"
 #include "tlu/push_back.hpp"
 #include "../action.hpp"
@@ -61,20 +60,20 @@ namespace region_detail
     template<class StateList, class State>
     inline constexpr auto find_state_v = find_state<StateList, State>::value;
 
-    template<class StateList, auto StateId>
-    struct find_state_from_id
+    template<class StateIdConstantList, auto StateId>
+    struct state_id_to_index
     {
-        static constexpr auto value = tlu::find_if_v<StateList, state_traits::for_id<StateId>::template has_id>;
+        static constexpr auto value = tlu::find_v<StateIdConstantList, constant_t<StateId>>;
     };
 
-    template<class StateList>
-    struct find_state_from_id<StateList, &maki::stopped>
+    template<class StateIdConstantList>
+    struct state_id_to_index<StateIdConstantList, &maki::stopped>
     {
         static constexpr auto value = stopped_state_index;
     };
 
-    template<class StateList, auto StateId>
-    inline constexpr auto find_state_from_id_v = find_state_from_id<StateList, StateId>::value;
+    template<class StateIdConstantList, auto StateId>
+    inline constexpr auto state_id_to_index_v = state_id_to_index<StateIdConstantList, StateId>::value;
 }
 
 template<const auto& TransitionTable, const auto& Path>
@@ -439,9 +438,9 @@ private:
                 );
             }
 
-            active_state_index_ = region_detail::find_state_from_id_v
+            active_state_index_ = region_detail::state_id_to_index_v
             <
-                state_tuple_type,
+                state_id_constant_list,
                 TargetStateId
             >;
         }
@@ -563,9 +562,9 @@ private:
     template<auto StateId>
     [[nodiscard]] bool is_active_state_id() const
     {
-        constexpr auto given_state_index = region_detail::find_state_from_id_v
+        constexpr auto given_state_index = region_detail::state_id_to_index_v
         <
-            state_tuple_type,
+            state_id_constant_list,
             StateId
         >;
         return given_state_index == active_state_index_;
@@ -666,7 +665,11 @@ private:
         else
         {
             static constexpr auto state_index =
-                region_detail::find_state_from_id_v<state_tuple_type, StateId>
+                region_detail::state_id_to_index_v
+                <
+                    state_id_constant_list,
+                    StateId
+                >
             ;
             return tuple_get<state_index>(self.states_);
         }

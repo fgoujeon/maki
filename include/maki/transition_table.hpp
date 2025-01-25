@@ -17,6 +17,7 @@
 #include "event_set.hpp"
 #include "state_set.hpp"
 #include "null.hpp"
+#include "detail/machine_conf_fwd.hpp"
 #include "detail/state_conf_fwd.hpp"
 #include "detail/tuple.hpp"
 

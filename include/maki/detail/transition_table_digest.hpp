@@ -13,6 +13,7 @@
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
 #include "type_list.hpp"
+#include "../state_confs.hpp"
 #include "../null.hpp"
 #include <type_traits>
 

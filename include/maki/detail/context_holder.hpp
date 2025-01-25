@@ -7,7 +7,7 @@
 #ifndef MAKI_DETAIL_CONTEXT_HOLDER_HPP
 #define MAKI_DETAIL_CONTEXT_HOLDER_HPP
 
-#include "context_signature.hpp"
+#include "../context.hpp"
 #include <type_traits>
 #include <utility>
 
@@ -23,7 +23,7 @@ public:
         class Machine,
         class... Args,
         auto ContextSig = ContextSignature,
-        std::enable_if_t<ContextSig == context_signature::a, bool> = true
+        std::enable_if_t<ContextSig == machine_context_signature::a, bool> = true
     >
     context_holder(Machine& /*mach*/, Args&&... args):
         ctx_{std::forward<Args>(args)...}
@@ -35,7 +35,7 @@ public:
         class Machine,
         class... Args,
         auto ContextSig = ContextSignature,
-        std::enable_if_t<ContextSig == context_signature::am, bool> = true
+        std::enable_if_t<ContextSig == machine_context_signature::am, bool> = true
     >
     context_holder(Machine& mach, Args&&... args):
         ctx_{std::forward<Args>(args)..., mach}
@@ -47,7 +47,7 @@ public:
         class Machine,
         class ParentContext,
         auto ContextSig = ContextSignature,
-        std::enable_if_t<ContextSig == context_signature::c, bool> = true
+        std::enable_if_t<ContextSig == state_context_signature::c, bool> = true
     >
     context_holder(Machine& /*mach*/, ParentContext& parent_ctx):
         ctx_{parent_ctx}
@@ -59,7 +59,7 @@ public:
         class Machine,
         class ParentContext,
         auto ContextSig = ContextSignature,
-        std::enable_if_t<ContextSig == context_signature::cm, bool> = true
+        std::enable_if_t<ContextSig == state_context_signature::cm, bool> = true
     >
     context_holder(Machine& mach, ParentContext& parent_ctx):
         ctx_{parent_ctx, mach}
@@ -71,7 +71,7 @@ public:
         class Machine,
         class ParentContext,
         auto ContextSig = ContextSignature,
-        std::enable_if_t<ContextSig == context_signature::m, bool> = true
+        std::enable_if_t<ContextSig == state_context_signature::m, bool> = true
     >
     context_holder(Machine& mach, ParentContext& /*parent_ctx*/):
         ctx_{mach}
@@ -83,7 +83,7 @@ public:
         class Machine,
         class ParentContext,
         auto ContextSig = ContextSignature,
-        std::enable_if_t<ContextSig == context_signature::v, bool> = true
+        std::enable_if_t<ContextSig == state_context_signature::v, bool> = true
     >
     context_holder(Machine& /*mach*/, ParentContext& /*parent_ctx*/)
     {

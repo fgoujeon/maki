@@ -36,7 +36,7 @@ For example, the following digest type...:
 ... is equivalent to this type:
     struct digest
     {
-        using state_def_type_list = maki::type_list_t<state0, state1, state2, state3>;
+        using state_def_type_list = maki::detail::type_list_t<state0, state1, state2, state3>;
         static constexpr auto has_null_events = false;
     };
 */

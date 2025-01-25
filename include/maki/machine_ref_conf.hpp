@@ -39,6 +39,10 @@ struct machine_ref_conf
 
     machine_ref_conf& operator=(machine_ref_conf&&) = delete;
 
+    /**
+    @brief Sets the event types that can be passed to
+    `maki::machine_ref::process_event()`.
+    */
     template<class... Events>
     [[nodiscard]] constexpr auto events() const
     {

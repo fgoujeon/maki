@@ -8,7 +8,11 @@
 #include <maki.hpp>
 #include <iostream>
 
-//The context (more about that later)
+/*
+An object of this type is created by the state machine and made accessible to
+all the components (actions, guards, states) of the state machine.
+More about that later.
+*/
 struct context{};
 
 //Events are types (more about that later)
@@ -48,7 +52,6 @@ constexpr auto machine_conf = maki::machine_conf{}
 //The state machine
 //! [machine]
 using machine_t = maki::machine<machine_conf>;
-
 //! [machine]
 
 int main()

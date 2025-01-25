@@ -36,9 +36,9 @@ To define a transition table, you have to instantiate an empty
 
 ```cpp
 constexpr auto transition_table = maki::transition_table{}
-    //source state, event,                    target state, action,        guard
-    (off,           maki::type<button_press>, on,           turn_light_on, has_enough_power)
-    (on,            maki::type<button_press>, off,          turn_light_off)
+    //source state, event,                     target state, action,        guard
+    (off,           maki::event<button_press>, on,           turn_light_on, has_enough_power)
+    (on,            maki::event<button_press>, off,          turn_light_off)
 ;
 ```
 */

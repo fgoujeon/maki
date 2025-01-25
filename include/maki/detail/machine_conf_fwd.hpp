@@ -12,8 +12,8 @@
 #ifndef MAKI_MACHINE_CONF_FWD_HPP
 #define MAKI_MACHINE_CONF_FWD_HPP
 
-#include "context_signature.hpp"
 #include "tuple.hpp"
+#include "../context.hpp"
 #include "../null.hpp"
 #include <cstdlib>
 
@@ -46,7 +46,7 @@ namespace detail
         using post_processing_hook_tuple_type = PostProcessingHookTuple;
 
         bool auto_start = true;
-        context_signature context_sig = context_signature::v;
+        machine_context_signature context_sig = machine_context_signature::a;
         EntryActionTuple entry_actions;
         EventActionTuple internal_actions;
         ExitActionTuple exit_actions;

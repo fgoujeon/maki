@@ -14,7 +14,7 @@ namespace maki
 {
 
 /**
-@brief Represents a set of states. See @ref state-set.
+@brief Represents a @ref state-set "state set".
 */
 template<class Predicate>
 class state_set;
@@ -52,6 +52,7 @@ public:
     constexpr state_set& operator=(state_set&& other) = default;
 
 private:
+#ifndef MAKI_DETAIL_DOXYGEN
     template<class Predicate2>
     friend constexpr auto detail::make_state_set_from_predicate(const Predicate2&);
 
@@ -61,6 +62,7 @@ private:
         const state_set<StateSetPredicate>&,
         const state_conf<StateConfImpl>&
     );
+#endif
 
     constexpr state_set(const Predicate& pred):
         predicate_(pred)

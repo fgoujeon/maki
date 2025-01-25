@@ -13,10 +13,10 @@
 #define MAKI_STATE_CONF_HPP
 
 #include "action.hpp"
+#include "context.hpp"
 #include "event_set.hpp"
 #include "detail/state_conf_fwd.hpp"
 #include "detail/type.hpp"
-#include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"
 #include "detail/signature_macros.hpp"
 #include "detail/tuple.hpp"
@@ -100,19 +100,20 @@ public:
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Sets the type of the context. \
+    @brief Sets the type of the context (see @ref maki::state_context_signature "signatures"). \
     */ \
     template<class Context> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE context_##signature() const \
     { \
-        return context<Context, detail::context_signature::signature>(); \
+        return context<Context, state_context_signature::signature>(); \
     }
     MAKI_DETAIL_STATE_CONTEXT_CONSTRUCTOR_SIGNATURES
 #undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Adds an entry action to be called for any event type in `evt_set`. \
+    @brief Adds an entry action (see @ref maki::action_signature "signatures") \
+    to be called for any event type in `evt_set`. \
     */ \
     template<class EventSetPredicate, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const event_set<EventSetPredicate>& evt_set, const Action& action) const \
@@ -121,7 +122,8 @@ public:
     } \
  \
     /** \
-    @brief Adds an entry action to be called for the event type `Event`. \
+    @brief Adds an entry action (see @ref maki::action_signature "signatures") \
+    to be called for the event type `Event`. \
     */ \
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const Action& action) const \
@@ -130,7 +132,8 @@ public:
     } \
  \
     /** \
-    @brief Adds an entry action to be called whatever the event type. \
+    @brief Adds an entry action (see @ref maki::action_signature "signatures") \
+    to be called whatever the event type. \
     */ \
     template<class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const Action& action) const \
@@ -146,7 +149,8 @@ public:
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Adds an internal action to be called for any event type in `evt_set`. \
+    @brief Adds an internal action (see @ref maki::action_signature "signatures") \
+    to be called for any event type in `evt_set`. \
     */ \
     template<class EventSetPredicate, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const event_set<EventSetPredicate>& evt_set, const Action& action) const \
@@ -155,7 +159,8 @@ public:
     } \
  \
     /** \
-    @brief Adds an internal action to be called for the event type `Event`. \
+    @brief Adds an internal action (see @ref maki::action_signature "signatures") \
+    to be called for the event type `Event`. \
     */ \
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const Action& action) const \
@@ -167,7 +172,8 @@ public:
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Adds an exit action to be called for any event type in `evt_set`. \
+    @brief Adds an exit action (see @ref maki::action_signature "signatures") \
+    to be called for any event type in `evt_set`. \
     */ \
     template<class EventSetPredicate, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const event_set<EventSetPredicate>& evt_set, const Action& action) const \
@@ -176,7 +182,8 @@ public:
     } \
  \
     /** \
-    @brief Adds an exit action to be called for the event type `Event`. \
+    @brief Adds an exit action (see @ref maki::action_signature "signatures") \
+    to be called for the event type `Event`. \
     */ \
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const Action& action) const \
@@ -185,7 +192,8 @@ public:
     } \
  \
     /** \
-    @brief Adds an exit action to be called whatever the event type. \
+    @brief Adds an exit action (see @ref maki::action_signature "signatures") \
+    to be called whatever the event type. \
     */ \
     template<class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const Action& action) const \
@@ -221,11 +229,13 @@ public:
     }
 
 private:
+#ifndef MAKI_DETAIL_DOXYGEN
     template<class OptionSet2>
     friend class state_conf;
 
     template<class OptionSet2>
     friend constexpr const auto& detail::opts(const state_conf<OptionSet2>& conf);
+#endif
 
     template<class... Args>
     constexpr state_conf(Args&&... args):

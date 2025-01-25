@@ -13,10 +13,10 @@
 #define MAKI_MACHINE_CONF_HPP
 
 #include "event_set.hpp"
+#include "context.hpp"
 #include "action.hpp"
 #include "detail/machine_conf_fwd.hpp"
 #include "detail/type.hpp"
-#include "detail/context_signature.hpp"
 #include "detail/event_action.hpp"
 #include "detail/signature_macros.hpp"
 #include "detail/tuple.hpp"
@@ -119,19 +119,20 @@ public:
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Sets the type of the context. \
+    @brief Sets the type of the context (see @ref maki::machine_context_signature "signatures"). \
     */ \
     template<class Context> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE context_##signature() const \
     { \
-        return context<Context, detail::context_signature::signature>(); \
+        return context<Context, machine_context_signature::signature>(); \
     }
     MAKI_DETAIL_MACHINE_CONTEXT_CONSTRUCTOR_SIGNATURES
 #undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Adds a start action to be called for any event type in `evt_set`. \
+    @brief Adds a start action (see @ref maki::action_signature "signatures") \
+    to be called for any event type in `evt_set`. \
     */ \
     template<class EventSetPredicate, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE start_action_##signature(const event_set<EventSetPredicate>& evt_set, const Action& action) const \
@@ -140,7 +141,8 @@ public:
     } \
  \
     /** \
-    @brief Adds a start action to be called for the event type `Event`. \
+    @brief Adds a start action (see @ref maki::action_signature "signatures") \
+    to be called for the event type `Event`. \
     */ \
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE start_action_##signature(const Action& action) const \
@@ -149,7 +151,8 @@ public:
     } \
  \
     /** \
-    @brief Adds a start action to be called whatever the event type. \
+    @brief Adds a start action (see @ref maki::action_signature "signatures") \
+    to be called whatever the event type. \
     */ \
     template<class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE start_action_##signature(const Action& action) const \
@@ -161,8 +164,9 @@ public:
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Adds a hook to be called whenever `maki::machine` is about to \
-    process an event. \
+    @brief Adds a hook (see @ref maki::action_signature "signatures") to be \
+    called whenever `maki::machine` is about to process an event whose type is \
+    part of `evt_set`. \
     */ \
     template<class EventSetPredicate, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_processing_hook_##signature(const event_set<EventSetPredicate>& evt_set, const Action& action) const \
@@ -171,8 +175,9 @@ public:
     } \
  \
     /** \
-    @brief Adds a hook to be called whenever `maki::machine` is about to \
-    process an event. \
+    @brief Adds a hook (see @ref maki::action_signature "signatures") to be \
+    called whenever `maki::machine` is about to process an event of type \
+    `Event`. \
     */ \
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_processing_hook_##signature(const Action& action) const \
@@ -184,7 +189,8 @@ public:
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Adds a stop action to be called for any event type in `evt_set`. \
+    @brief Adds a stop action (see @ref maki::action_signature "signatures") \
+    to be called for any event type in `evt_set`. \
     */ \
     template<class EventSetPredicate, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE stop_action_##signature(const event_set<EventSetPredicate>& evt_set, const Action& action) const \
@@ -193,7 +199,8 @@ public:
     } \
  \
     /** \
-    @brief Adds a stop action to be called for the event type `Event`. \
+    @brief Adds a stop action (see @ref maki::action_signature "signatures") \
+    to be called for the event type `Event`. \
     */ \
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE stop_action_##signature(const Action& action) const \
@@ -202,7 +209,8 @@ public:
     } \
  \
     /** \
-    @brief Adds a start action to be called whatever the event type. \
+    @brief Adds a stop action (see @ref maki::action_signature "signatures") \
+    to be called whatever the event type. \
     */ \
     template<class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE stop_action_##signature(const Action& action) const \
@@ -328,7 +336,7 @@ public:
 
     /**
     @brief Adds a hook to be called whenever `maki::machine` is done processing
-    an event.
+    an event whose type is part of `evt_set`.
 
     Hook must have the following form:
 
@@ -373,6 +381,38 @@ public:
 #undef MAKI_DETAIL_ARG_post_processing_hooks
     }
 
+    /**
+    @brief Adds a hook to be called whenever `maki::machine` is done processing
+    an event of type `Event`.
+
+    Hook must have the following form:
+
+    @code
+    template<class Machine, class Event>
+    void hook(Machine& mach, const Event& event, bool processed);
+    @endcode
+
+    The `processed` parameter indicates whether a state transition or any kind
+    of action invocation (note: a hook isn't an action) occurred during the
+    processing of the event.
+
+    Users typically add a hook for every event of interest.
+
+    Example:
+    @code
+    constexpr auto conf = maki::machine_conf{}
+        //...
+        .post_processing_hook_mep<some_event_type>([](auto& mach, const some_event_type& event, const bool processed)
+        {
+            //...
+        })
+        .post_processing_hook_mep<some_other_event_type>([](auto& mach, const some_other_event_type& event, const bool processed)
+        {
+            //...
+        })
+    ;
+    @endcode
+    */
     template<class Event, class Action>
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_processing_hook_mep(const Action& action) const
     {
@@ -431,11 +471,13 @@ public:
     }
 
 private:
+#ifndef MAKI_DETAIL_DOXYGEN
     template<class OptionSet2>
     friend class machine_conf;
 
     template<class OptionSet2>
     friend constexpr const auto& detail::opts(const machine_conf<OptionSet2>& conf);
+#endif
 
     template<class... Args>
     constexpr machine_conf(Args&&... args):

@@ -15,6 +15,7 @@
 */
 
 #include "maki/action.hpp" //NOLINT misc-include-cleaner
+#include "maki/context.hpp" //NOLINT misc-include-cleaner
 #include "maki/event.hpp" //NOLINT misc-include-cleaner
 #include "maki/event_set.hpp" //NOLINT misc-include-cleaner
 #include "maki/events.hpp" //NOLINT misc-include-cleaner

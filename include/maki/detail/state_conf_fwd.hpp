@@ -12,7 +12,7 @@
 #ifndef MAKI_STATE_CONF_FWD_HPP
 #define MAKI_STATE_CONF_FWD_HPP
 
-#include "context_signature.hpp"
+#include "../context.hpp"
 #include "tuple.hpp"
 #include <string_view>
 
@@ -33,7 +33,7 @@ namespace detail
     {
         using context_type = Context;
 
-        context_signature context_sig = context_signature::v;
+        state_context_signature context_sig = state_context_signature::v;
         EntryActionTuple entry_actions;
         InternalActionTuple internal_actions;
         ExitActionTuple exit_actions;

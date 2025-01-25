@@ -82,7 +82,7 @@ The guard is the fifth (optional) parameter of `maki::transition_table::operator
 
 ~~~{.cpp}
 constexpr auto transition_table = maki::transition_table{}
-    (source_state_type, maki::type<event_type>, target_state_type, action, guard)
+    (source_state_type, maki::event<event_type>, target_state_type, action, guard)
     //...
 ;
 ~~~

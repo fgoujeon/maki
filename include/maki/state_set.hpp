@@ -76,7 +76,7 @@ private:
 @relates state_set
 @brief An infinite `maki::state_set` that contains all the states.
 */
-inline constexpr auto any_state =
+inline constexpr auto all_states =
 #ifdef MAKI_DETAIL_DOXYGEN
     IMPLEMENTATION_DETAIL
 #else

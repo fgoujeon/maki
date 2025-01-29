@@ -79,7 +79,7 @@ event_set(event_t<Event>) -> event_set
 @relates event_set
 @brief An infinite `maki::event_set` that contains all the event types.
 */
-inline constexpr auto any_event =
+inline constexpr auto all_events =
 #ifdef MAKI_DETAIL_DOXYGEN
     IMPLEMENTATION_DETAIL
 #else

@@ -21,7 +21,7 @@ namespace transition_from_stopped_any_state_ns
 
     constexpr auto transition_table = maki::transition_table{}
         (states::idle,    maki::null,              maki::null)
-        (maki::any_state, maki::event<some_event>, states::running)
+        (maki::all_states, maki::event<some_event>, states::running)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}
@@ -41,7 +41,7 @@ TEST_CASE("transition_from_stopped_any_state")
     REQUIRE(!machine.running());
 
     /*
-    We don't want to execute the transition from `any_state` to `running` in
+    We don't want to execute the transition from `all_states` to `running` in
     this case.
     */
     machine.process_event(some_event{});

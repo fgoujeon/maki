@@ -32,7 +32,7 @@ namespace transition_table_digest_ns
         (state1,          maki::event<event1>, state2, maki::null, guard0)
         (state2,          maki::event<event2>, state3, action0)
         (state3,          maki::event<event3>, state0, action1,    guard1)
-        (maki::any_state, maki::event<event3>, state0)
+        (maki::all_states, maki::event<event3>, state0)
     ;
 
     constexpr auto transition_tuple = maki::detail::rows(transition_table);

@@ -8,9 +8,10 @@
 #define MAKI_EVENT_SET_HPP
 
 #include "null.hpp"
-#include "detail/set_predicates.hpp"
-#include "detail/equals.hpp"
 #include "event.hpp"
+#include "detail/set.hpp"
+#include "detail/equals.hpp"
+#include "detail/tlu/contains.hpp"
 
 namespace maki
 {
@@ -18,25 +19,34 @@ namespace maki
 /**
 @brief Represents an @ref event-set "event type set".
 */
-template<class Predicate>
+template<class Impl>
+class event_set;
+
+namespace detail
+{
+    template<class Impl>
+    constexpr auto make_event_set_from_impl(const Impl& impl)
+    {
+        return event_set<Impl>{impl};
+    }
+
+    template<class Impl>
+    constexpr const auto& impl(const event_set<Impl>& evt_set)
+    {
+        return evt_set.impl_;
+    }
+}
+
+template<class Impl>
 class event_set
 {
 public:
     /**
-    @brief Constructs a set from a callable that takes a `maki::event_t` and
-    returns a `bool`.
-    */
-    constexpr explicit event_set(const Predicate& pred):
-        predicate_(pred)
-    {
-    }
-
-    /**
     @brief Constructs a set that only contains `Event`.
     */
     template<class Event>
-    constexpr event_set(event_t<Event> /*ignored*/):
-        predicate_(detail::set_predicates::exactly{event<Event>})
+    constexpr explicit event_set(const event_t<Event> evt):
+        impl_{detail::make_set_including(evt)}
     {
     }
 
@@ -47,19 +57,25 @@ public:
     [[nodiscard]]
     constexpr bool contains(event_t<Event> /*ignored*/ = {}) const
     {
-        return predicate_(event<Event>);
+        return detail::contains(impl_, event<Event>);
     }
 
 private:
-    Predicate predicate_;
-};
+#ifndef MAKI_DETAIL_DOXYGEN
+    template<class Impl2>
+    friend constexpr auto detail::make_event_set_from_impl(const Impl2&);
 
-/**
-@relates event_set
-@brief Class template argument deduction guide for `maki::event_set`.
-*/
-template<class Predicate>
-event_set(const Predicate&) -> event_set<Predicate>;
+    template<class Impl2>
+    friend constexpr const auto& detail::impl(const event_set<Impl2>&);
+#endif
+
+    constexpr explicit event_set(const Impl& impl):
+        impl_(impl)
+    {
+    }
+
+    Impl impl_;
+};
 
 /**
 @relates event_set
@@ -71,7 +87,7 @@ event_set(event_t<Event>) -> event_set
 #ifdef MAKI_DETAIL_DOXYGEN
     IMPLEMENTATION_DETAIL
 #else
-    detail::set_predicates::exactly<event_t<Event>>
+    detail::tuple_based_set<event_t<Event>>
 #endif
 >;
 
@@ -83,7 +99,10 @@ inline constexpr auto all_events =
 #ifdef MAKI_DETAIL_DOXYGEN
     IMPLEMENTATION_DETAIL
 #else
-    event_set{detail::set_predicates::any{}}
+    detail::make_event_set_from_impl
+    (
+        detail::predicate_based_set{detail::set_predicates::any{}}
+    );
 #endif
 ;
 
@@ -95,7 +114,10 @@ inline constexpr auto no_event =
 #ifdef MAKI_DETAIL_DOXYGEN
     IMPLEMENTATION_DETAIL
 #else
-    event_set{detail::set_predicates::none{}}
+    detail::make_event_set_from_impl
+    (
+        detail::predicate_based_set{detail::set_predicates::none{}}
+    );
 #endif
 ;
 
@@ -107,13 +129,10 @@ not contained in `evt_set`.
 template<class Predicate>
 constexpr auto operator!(const event_set<Predicate>& evt_set)
 {
-    return event_set
-    {
-        [evt_set](const auto evt)
-        {
-            return !evt_set.contains(evt);
-        }
-    };
+    return detail::make_event_set_from_impl
+    (
+        detail::inverse_set(detail::impl(evt_set))
+    );
 }
 
 /**
@@ -122,9 +141,12 @@ constexpr auto operator!(const event_set<Predicate>& evt_set)
 `Event`.
 */
 template<class Event>
-constexpr auto operator!(const event_t<Event>& evt)
+constexpr auto operator!(event_t<Event> evt)
 {
-    return !event_set{evt};
+    return detail::make_event_set_from_impl
+    (
+        detail::make_set_excluding(evt)
+    );
 }
 
 /**
@@ -132,20 +154,17 @@ constexpr auto operator!(const event_t<Event>& evt)
 @brief Creates a `maki::event_set` that is the result of the union of `lhs` and
 `rhs`.
 */
-template<class LhsPredicate, class RhsPredicate>
+template<class LhsImpl, class RhsImpl>
 constexpr auto operator||
 (
-    const event_set<LhsPredicate>& lhs,
-    const event_set<RhsPredicate>& rhs
+    const event_set<LhsImpl>& lhs,
+    const event_set<RhsImpl>& rhs
 )
 {
-    return event_set
-    {
-        [lhs, rhs](const auto evt)
-        {
-            return lhs.contains(evt) || rhs.contains(evt);
-        }
-    };
+    return detail::make_event_set_from_impl
+    (
+        detail::make_set_union(detail::impl(lhs), detail::impl(rhs))
+    );
 }
 
 /**
@@ -157,10 +176,13 @@ template<class EventSetPredicate, class Event>
 constexpr auto operator||
 (
     const event_set<EventSetPredicate>& evt_set,
-    const event_t<Event>& evt
+    const event_t<Event> evt
 )
 {
-    return evt_set || event_set{evt};
+    return detail::make_event_set_from_impl
+    (
+        detail::make_set_union(detail::impl(evt_set), evt)
+    );
 }
 
 /**
@@ -175,7 +197,7 @@ constexpr auto operator||
     const event_set<EventSetPredicate>& evt_set
 )
 {
-    return event_set{evt} || evt_set;
+    return evt_set || evt;
 }
 
 /**
@@ -189,7 +211,10 @@ constexpr auto operator||
     const event_t<RhsEvent>& rhs
 )
 {
-    return event_set{lhs} || event_set{rhs};
+    return detail::make_event_set_from_impl
+    (
+        detail::make_set_including(lhs, rhs)
+    );
 }
 
 /**
@@ -197,20 +222,17 @@ constexpr auto operator||
 @brief Creates a `maki::event_set` that is the result of the intersection of
 `lhs` and `rhs`.
 */
-template<class LhsPredicate, class RhsPredicate>
+template<class LhsImpl, class RhsImpl>
 constexpr auto operator&&
 (
-    const event_set<LhsPredicate>& lhs,
-    const event_set<RhsPredicate>& rhs
+    const event_set<LhsImpl>& lhs,
+    const event_set<RhsImpl>& rhs
 )
 {
-    return event_set
-    {
-        [lhs, rhs](const auto evt)
-        {
-            return lhs.contains(evt) && rhs.contains(evt);
-        }
-    };
+    return detail::make_event_set_from_impl
+    (
+        detail::make_set_intersection(detail::impl(lhs) && detail::impl(rhs))
+    );
 }
 
 namespace detail

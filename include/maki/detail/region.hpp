@@ -588,7 +588,7 @@ private:
         template<class ActiveStateIdConstant>
         static void call([[maybe_unused]] bool& matches)
         {
-            if constexpr(contains(*StateSetPtr, *ActiveStateIdConstant::value))
+            if constexpr(contains(impl(*StateSetPtr), ActiveStateIdConstant::value))
             {
                 matches = true;
             }

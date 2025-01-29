@@ -8,7 +8,7 @@
 #define MAKI_STATE_SET_HPP
 
 #include "detail/state_conf_fwd.hpp"
-#include "detail/set_predicates.hpp"
+#include "detail/set.hpp"
 
 namespace maki
 {
@@ -21,25 +21,20 @@ class state_set;
 
 namespace detail
 {
-    template<class Predicate>
-    constexpr auto make_state_set_from_predicate(const Predicate& pred)
+    template<class Impl>
+    constexpr auto make_state_set_from_impl(const Impl& impl)
     {
-        return state_set<Predicate>{pred};
+        return state_set<Impl>{impl};
     }
 
-    template<class StateSetPredicate, class StateConfImpl>
-    [[nodiscard]]
-    constexpr bool contains
-    (
-        const state_set<StateSetPredicate>& stt_set,
-        const state_conf<StateConfImpl>& stt_conf
-    )
+    template<class Impl>
+    constexpr const auto& impl(const state_set<Impl>& stt_set)
     {
-        return stt_set.predicate_(&stt_conf);
+        return stt_set.impl_;
     }
 }
 
-template<class Predicate>
+template<class Impl>
 class state_set
 {
 public:
@@ -53,23 +48,19 @@ public:
 
 private:
 #ifndef MAKI_DETAIL_DOXYGEN
-    template<class Predicate2>
-    friend constexpr auto detail::make_state_set_from_predicate(const Predicate2&);
+    template<class Impl2>
+    friend constexpr auto detail::make_state_set_from_impl(const Impl2&);
 
-    template<class StateSetPredicate, class StateConfImpl>
-    friend constexpr bool detail::contains
-    (
-        const state_set<StateSetPredicate>&,
-        const state_conf<StateConfImpl>&
-    );
+    template<class Impl2>
+    friend constexpr const auto& detail::impl(const state_set<Impl2>&);
 #endif
 
-    constexpr state_set(const Predicate& pred):
-        predicate_(pred)
+    explicit constexpr state_set(const Impl& impl):
+        impl_(impl)
     {
     }
 
-    Predicate predicate_;
+    Impl impl_;
 };
 
 /**
@@ -80,7 +71,10 @@ inline constexpr auto all_states =
 #ifdef MAKI_DETAIL_DOXYGEN
     IMPLEMENTATION_DETAIL
 #else
-    detail::make_state_set_from_predicate(detail::set_predicates::any{})
+    detail::make_state_set_from_impl
+    (
+        detail::predicate_based_set{detail::set_predicates::any{}}
+    );
 #endif
 ;
 
@@ -92,18 +86,12 @@ inline constexpr auto no_state =
 #ifdef MAKI_DETAIL_DOXYGEN
     IMPLEMENTATION_DETAIL
 #else
-    detail::make_state_set_from_predicate(detail::set_predicates::none{})
+    detail::make_state_set_from_impl
+    (
+        detail::predicate_based_set{detail::set_predicates::none{}}
+    );
 #endif
 ;
-
-namespace detail
-{
-    template<class StateConfImpl>
-    constexpr auto make_state_set_from_state_conf(const state_conf<StateConfImpl>& stt_conf)
-    {
-        return make_state_set_from_predicate(set_predicates::exactly{&stt_conf});
-    }
-}
 
 /**
 @relates state_set
@@ -113,12 +101,9 @@ contained in `stt_set`.
 template<class Impl>
 constexpr auto operator!(const state_set<Impl>& stt_set)
 {
-    return detail::make_state_set_from_predicate
+    return detail::make_state_set_from_impl
     (
-        [stt_set](const auto pstate_conf)
-        {
-            return !detail::contains(stt_set, *pstate_conf);
-        }
+        detail::inverse_set(detail::impl(stt_set))
     );
 }
 
@@ -130,7 +115,10 @@ created from `stt_conf`.
 template<class StateConfImpl>
 constexpr auto operator!(const state_conf<StateConfImpl>& stt_conf)
 {
-    return !detail::make_state_set_from_state_conf(stt_conf);
+    return detail::make_state_set_from_impl
+    (
+        detail::make_set_excluding(&stt_conf)
+    );
 }
 
 /**
@@ -138,19 +126,16 @@ constexpr auto operator!(const state_conf<StateConfImpl>& stt_conf)
 @brief Creates a `maki::state_set` that is the result of the union of `lhs` and
 `rhs`.
 */
-template<class LhsPredicate, class RhsPredicate>
+template<class LhsImpl, class RhsImpl>
 constexpr auto operator||
 (
-    const state_set<LhsPredicate>& lhs,
-    const state_set<RhsPredicate>& rhs
+    const state_set<LhsImpl>& lhs,
+    const state_set<RhsImpl>& rhs
 )
 {
-    return detail::make_state_set_from_predicate
+    return detail::make_state_set_from_impl
     (
-        [lhs, rhs](const auto pstate_conf)
-        {
-            return detail::contains(lhs, *pstate_conf) || detail::contains(rhs, *pstate_conf);
-        }
+        detail::make_set_union(detail::impl(lhs), detail::impl(rhs))
     );
 }
 
@@ -159,14 +144,17 @@ constexpr auto operator||
 @brief Creates a `maki::state_set` that contains the states of `stt_set`, plus
 the ones created from `stt_conf`.
 */
-template<class StateSetPredicate, class StateConfImpl>
+template<class StateSetImpl, class StateConfImpl>
 constexpr auto operator||
 (
-    const state_set<StateSetPredicate>& stt_set,
+    const state_set<StateSetImpl>& stt_set,
     const state_conf<StateConfImpl>& stt_conf
 )
 {
-    return stt_set || detail::make_state_set_from_state_conf(stt_conf);
+    return detail::make_state_set_from_impl
+    (
+        detail::make_set_union(detail::impl(stt_set), &stt_conf)
+    );
 }
 
 /**
@@ -174,14 +162,14 @@ constexpr auto operator||
 @brief Creates a `maki::state_set` that contains the states of `stt_set`, plus
 the ones created from `stt_conf`.
 */
-template<class StateConfImpl, class StateSetPredicate>
+template<class StateConfImpl, class StateSetImpl>
 constexpr auto operator||
 (
     const state_conf<StateConfImpl>& stt_conf,
-    const state_set<StateSetPredicate>& stt_set
+    const state_set<StateSetImpl>& stt_set
 )
 {
-    return detail::make_state_set_from_state_conf(stt_conf) || stt_set;
+    return stt_set || stt_conf;
 }
 
 /**
@@ -196,10 +184,10 @@ constexpr auto operator||
     const state_conf<RhsStateConfImpl>& rhs
 )
 {
-    return
-        detail::make_state_set_from_state_conf(lhs) ||
-        detail::make_state_set_from_state_conf(rhs)
-    ;
+    return detail::make_state_set_from_impl
+    (
+        detail::make_set_including(&lhs, &rhs)
+    );
 }
 
 /**
@@ -207,19 +195,16 @@ constexpr auto operator||
 @brief Creates a `maki::state_set` that is the result of the intersection of
 `lhs` and `rhs`.
 */
-template<class LhsPredicate, class RhsPredicate>
+template<class LhsImpl, class RhsImpl>
 constexpr auto operator&&
 (
-    const state_set<LhsPredicate>& lhs,
-    const state_set<RhsPredicate>& rhs
+    const state_set<LhsImpl>& lhs,
+    const state_set<RhsImpl>& rhs
 )
 {
-    return detail::make_state_set_from_predicate
+    return detail::make_state_set_from_impl
     (
-        [lhs, rhs](const auto pstate_conf)
-        {
-            return detail::contains(lhs, *pstate_conf) && detail::contains(rhs, *pstate_conf);
-        }
+        detail::make_set_intersection(detail::impl(lhs) && detail::impl(rhs))
     );
 }
 
@@ -234,7 +219,7 @@ namespace detail
     template<class StateConfImpl, class... Predicates>
     constexpr bool contained_in(const state_conf<StateConfImpl>& stt_conf, const state_set<Predicates>&... state_sets)
     {
-        return (detail::contains(state_sets, stt_conf) || ...);
+        return (contains(impl(state_sets), &stt_conf) || ...);
     }
 
     template<class T>

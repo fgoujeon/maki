@@ -11,7 +11,6 @@
 #include "event.hpp"
 #include "detail/set.hpp"
 #include "detail/equals.hpp"
-#include "detail/tlu/contains.hpp"
 
 namespace maki
 {
@@ -91,35 +90,31 @@ event_set(event_t<Event>) -> event_set
 #endif
 >;
 
+#ifdef MAKI_DETAIL_DOXYGEN
 /**
 @relates event_set
 @brief An infinite `maki::event_set` that contains all the event types.
 */
-inline constexpr auto all_events =
-#ifdef MAKI_DETAIL_DOXYGEN
-    IMPLEMENTATION_DETAIL
+inline constexpr auto all_events = IMPLEMENTATION_DETAIL;
 #else
-    detail::make_event_set_from_impl
-    (
-        detail::predicate_based_set{detail::set_predicates::any{}}
-    );
+inline constexpr auto all_events = detail::make_event_set_from_impl
+(
+    detail::make_set_including_all()
+);
 #endif
-;
 
+#ifdef MAKI_DETAIL_DOXYGEN
 /**
 @relates event_set
 @brief An empty `maki::event_set`.
 */
-inline constexpr auto no_event =
-#ifdef MAKI_DETAIL_DOXYGEN
-    IMPLEMENTATION_DETAIL
+inline constexpr auto no_event = IMPLEMENTATION_DETAIL;
 #else
-    detail::make_event_set_from_impl
-    (
-        detail::predicate_based_set{detail::set_predicates::none{}}
-    );
+inline constexpr auto no_event = detail::make_event_set_from_impl
+(
+    detail::make_set_excluding_all()
+);
 #endif
-;
 
 /**
 @relates event_set

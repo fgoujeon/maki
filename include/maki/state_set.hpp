@@ -63,35 +63,31 @@ private:
     Impl impl_;
 };
 
+#ifdef MAKI_DETAIL_DOXYGEN
 /**
 @relates state_set
 @brief An infinite `maki::state_set` that contains all the states.
 */
-inline constexpr auto all_states =
-#ifdef MAKI_DETAIL_DOXYGEN
-    IMPLEMENTATION_DETAIL
+inline constexpr auto all_states = IMPLEMENTATION_DETAIL;
 #else
-    detail::make_state_set_from_impl
-    (
-        detail::predicate_based_set{detail::set_predicates::any{}}
-    );
+inline constexpr auto all_states = detail::make_state_set_from_impl
+(
+    detail::make_set_including_all()
+);
 #endif
-;
 
+#ifdef MAKI_DETAIL_DOXYGEN
 /**
 @relates state_set
 @brief An empty `maki::state_set`.
 */
-inline constexpr auto no_state =
-#ifdef MAKI_DETAIL_DOXYGEN
-    IMPLEMENTATION_DETAIL
+inline constexpr auto no_state = IMPLEMENTATION_DETAIL;
 #else
-    detail::make_state_set_from_impl
-    (
-        detail::predicate_based_set{detail::set_predicates::none{}}
-    );
+inline constexpr auto no_state = detail::make_state_set_from_impl
+(
+    detail::make_set_excluding_all()
+);
 #endif
-;
 
 /**
 @relates state_set

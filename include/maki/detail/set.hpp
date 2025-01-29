@@ -13,98 +13,91 @@
 namespace maki::detail
 {
 
-namespace set_predicates
+/*
+Implementation types for `maki::event_set` and `maki::state_set`.
+*/
+
+/*
+predicate_based_set
+
+Most generic way to express a set.
+*/
+
+template<class Predicate>
+struct predicate_based_set
 {
-    template<class T>
-    struct exactly
+    Predicate predicate;
+};
+
+template<class Predicate>
+predicate_based_set(const Predicate&) -> predicate_based_set<Predicate>;
+
+constexpr auto make_set_including_all()
+{
+    return detail::predicate_based_set
     {
-        template<class Value>
-        constexpr bool operator()(const Value& other) const
-        {
-            return equals(value, other);
-        }
-
-        T value;
-    };
-
-    template<class T>
-    exactly(const T& value) -> exactly<T>;
-
-    template<class T>
-    struct not_
-    {
-        template<class Value>
-        constexpr bool operator()(const Value& other) const
-        {
-            return !equals(value, other);
-        }
-
-        T value;
-    };
-
-    template<class T>
-    not_(const T& value) -> not_<T>;
-
-    struct any
-    {
-        template<class Value>
-        constexpr bool operator()(const Value& /*value*/) const
+        [](const auto& /*elem*/)
         {
             return true;
         }
     };
+}
 
-    struct none
+constexpr auto make_set_excluding_all()
+{
+    return detail::predicate_based_set
     {
-        template<class Value>
-        constexpr bool operator()(const Value& /*value*/) const
+        [](const auto& /*elem*/)
         {
             return false;
         }
     };
+}
 
-    template<class... Ts>
-    struct any_of
+template<class Elem>
+constexpr auto make_set_excluding(const Elem& elem)
+{
+    return detail::predicate_based_set
     {
-        template<class Value>
-        constexpr bool operator()(const Value& value) const
+        [elem](const auto& elem2)
         {
-            return tuple_apply
-            (
-                values,
-                [value](const auto&... values)
-                {
-                    return (equals(values, value) || ...);
-                }
-            );
+            return !detail::equals(elem, elem2);
         }
-
-        tuple<Ts...> values;
     };
+}
 
-    template<class... Ts>
-    struct any_but
+template<class Predicate, class Elem>
+constexpr bool contains
+(
+    const predicate_based_set<Predicate>& set,
+    const Elem& elem
+)
+{
+    return set.predicate(elem);
+}
+
+template<class Predicate, class Elem>
+constexpr auto make_set_union
+(
+    const predicate_based_set<Predicate>& set,
+    const Elem& elem
+)
+{
+    return predicate_based_set
     {
-        template<class Value>
-        constexpr bool operator()(const Value& value) const
+        [set, elem](const auto& elem2)
         {
-            return tuple_apply
-            (
-                values,
-                [value](const auto&... values)
-                {
-                    return (!equals(values, value) && ...);
-                }
-            );
+            return contains(set, elem2) || equals(elem, elem2);
         }
-
-        tuple<Ts...> values;
     };
 }
 
 
 /*
 tuple_based_set
+
+Way less complex to build than `predicate_based_set` for finite list of
+elements, because making unions doesn't create deep trees of nested predicates.
 */
 
 template<class... Elems>
@@ -151,59 +144,9 @@ constexpr auto make_set_union
 
 
 /*
-predicate_based_set
-*/
+Common
 
-template<class Predicate>
-struct predicate_based_set
-{
-    Predicate predicate;
-};
-
-template<class Predicate>
-predicate_based_set(const Predicate&) -> predicate_based_set<Predicate>;
-
-template<class T>
-constexpr auto make_set_excluding(const T& elem)
-{
-    return detail::predicate_based_set
-    {
-        [elem](const auto& elem2)
-        {
-            return !detail::equals(elem, elem2);
-        }
-    };
-}
-
-template<class Predicate, class Elem>
-constexpr bool contains
-(
-    const predicate_based_set<Predicate>& set,
-    const Elem& elem
-)
-{
-    return set.predicate(elem);
-}
-
-template<class Predicate, class Elem>
-constexpr auto make_set_union
-(
-    const predicate_based_set<Predicate>& set,
-    const Elem& elem
-)
-{
-    return predicate_based_set
-    {
-        [set, elem](const auto& elem2)
-        {
-            return contains(set, elem2) || equals(elem, elem2);
-        }
-    };
-}
-
-
-/*
-common
+Fall back to `predicate_based_set` when composing sets of different types.
 */
 
 template<class Lhs, class Rhs>

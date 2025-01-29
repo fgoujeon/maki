@@ -44,8 +44,7 @@ public:
     @brief Constructs a set that only contains `Event`.
     */
     template<class Event>
-    constexpr explicit event_set(const event_t<Event> evt):
-        impl_{detail::make_set_including(evt)}
+    constexpr explicit event_set(event_t<Event> /*evt*/)
     {
     }
 
@@ -56,7 +55,7 @@ public:
     [[nodiscard]]
     constexpr bool contains(event_t<Event> /*ignored*/ = {}) const
     {
-        return detail::contains(impl_, event<Event>);
+        return detail::contains(impl_, detail::type<Event>);
     }
 
 private:
@@ -86,7 +85,7 @@ event_set(event_t<Event>) -> event_set
 #ifdef MAKI_DETAIL_DOXYGEN
     IMPLEMENTATION_DETAIL
 #else
-    detail::tuple_based_set<event_t<Event>>
+    decltype(detail::make_set_including_types<Event>())
 #endif
 >;
 
@@ -136,11 +135,11 @@ constexpr auto operator!(const event_set<Predicate>& evt_set)
 `Event`.
 */
 template<class Event>
-constexpr auto operator!(event_t<Event> evt)
+constexpr auto operator!(event_t<Event> /*evt*/)
 {
     return detail::make_event_set_from_impl
     (
-        detail::make_set_excluding(evt)
+        detail::make_set_excluding(detail::type<Event>)
     );
 }
 
@@ -171,12 +170,12 @@ template<class EventSetPredicate, class Event>
 constexpr auto operator||
 (
     const event_set<EventSetPredicate>& evt_set,
-    const event_t<Event> evt
+    event_t<Event> /*evt*/
 )
 {
     return detail::make_event_set_from_impl
     (
-        detail::make_set_union(detail::impl(evt_set), evt)
+        detail::make_set_union(detail::impl(evt_set), detail::type<Event>)
     );
 }
 
@@ -188,7 +187,7 @@ constexpr auto operator||
 template<class Event, class EventSetPredicate>
 constexpr auto operator||
 (
-    const event_t<Event>& evt,
+    const event_t<Event> evt,
     const event_set<EventSetPredicate>& evt_set
 )
 {
@@ -202,13 +201,13 @@ constexpr auto operator||
 template<class LhsEvent, class RhsEvent>
 constexpr auto operator||
 (
-    const event_t<LhsEvent>& lhs,
-    const event_t<RhsEvent>& rhs
+    event_t<LhsEvent> /*lhs*/,
+    event_t<RhsEvent> /*rhs*/
 )
 {
     return detail::make_event_set_from_impl
     (
-        detail::make_set_including(lhs, rhs)
+        detail::make_set_including_types<LhsEvent, RhsEvent>()
     );
 }
 
@@ -233,19 +232,19 @@ constexpr auto operator&&
 namespace detail
 {
     template<class Event, class Event2>
-    constexpr bool contained_in(const event_t<Event>& lhs, const event_t<Event2>& rhs)
+    constexpr bool contained_in(const event_t<Event> lhs, const event_t<Event2> rhs)
     {
         return equals(lhs, rhs);
     }
 
     template<class Event>
-    constexpr bool contained_in(const event_t<Event>& /*lhs*/, null_t /*rhs*/)
+    constexpr bool contained_in(event_t<Event> /*lhs*/, null_t /*rhs*/)
     {
         return false;
     }
 
     template<class Event, class... Predicates>
-    constexpr bool contained_in(const event_t<Event>& evt, const event_set<Predicates>&... evt_sets)
+    constexpr bool contained_in(const event_t<Event> evt, const event_set<Predicates>&... evt_sets)
     {
         return (evt_sets.contains(evt) || ...);
     }

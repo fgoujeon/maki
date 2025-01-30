@@ -71,15 +71,6 @@ public:
     }
 
     /**
-    @brief Returns whether the region of the state is running. Only valid if
-    state is composite and only made of one region.
-    */
-    [[nodiscard]] bool running() const
-    {
-        return impl_.running();
-    }
-
-    /**
     @brief Returns the context instantiated at construction.
     */
     [[nodiscard]] const auto& context() const

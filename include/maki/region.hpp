@@ -40,14 +40,6 @@ public:
     ~region() = default;
 
     /**
-    @brief Returns whether the region is running.
-    */
-    [[nodiscard]] bool running() const
-    {
-        return impl_.running();
-    }
-
-    /**
     @brief Returns whether the state created from `StateConf` is active.
     */
     template<const auto& StateConf>

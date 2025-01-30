@@ -71,7 +71,6 @@ TEST_CASE("is_active_state_set")
     machine.start();
 
     REQUIRE(machine.is<states::off>());
-    REQUIRE(!on_state.running());
 
     machine.process_event(events::power_button_press{});
     REQUIRE(!machine.is<states::emitting_red_or_green>());
@@ -92,7 +91,6 @@ TEST_CASE("is_active_state_set")
     machine.process_event(events::power_button_press{});
     REQUIRE(machine.is<states::off>());
     REQUIRE(!machine.is<states::emitting_red_or_green>());
-    REQUIRE(!on_state.running());
     REQUIRE(!on_state.is<states::emitting_red_or_green>());
     REQUIRE(on_state.is<states::not_emitting_red>());
 

@@ -122,7 +122,6 @@ TEST_CASE("composite_state")
     machine.start();
 
     REQUIRE(machine.is<states::off>());
-    REQUIRE(!on_state.running());
     REQUIRE(ctx.current_led_color == led_color::off);
 
     machine.process_event(events::power_button_press{});

@@ -8,7 +8,6 @@
 #define MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 
 #include "constant.hpp"
-#include "tlu/push_back_unique.hpp"
 #include "tlu/left_fold.hpp"
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
@@ -61,12 +60,6 @@ namespace transition_table_digest_detail
         template<class Digest, int Index>
         struct add_transition_to_digest_impl
         {
-            static_assert
-            (
-                !equals(tuple_get<Index>(TransitionTuple).source_state_conf, &stopped),
-                "`maki::stopped` can't be a source type"
-            );
-
             /*
             We must add target state to list of states unless:
             - it's not already in the list;
@@ -80,7 +73,7 @@ namespace transition_table_digest_detail
                     constant_t<tuple_get<Index>(TransitionTuple).target_state_conf>
                 > &&
                 !equals(tuple_get<Index>(TransitionTuple).target_state_conf, null) &&
-                !equals(tuple_get<Index>(TransitionTuple).target_state_conf, &stopped)
+                !equals(tuple_get<Index>(TransitionTuple).target_state_conf, stopped)
             ;
 
             using state_id_constant_list = tlu::push_back_if_t

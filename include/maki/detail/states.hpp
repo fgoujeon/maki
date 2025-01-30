@@ -8,13 +8,17 @@
 #define MAKI_DETAIL_STATES_HPP
 
 #include "simple_state_no_context.hpp"
-#include "../stopped.hpp"
 #include "../state.hpp"
+#include "../state_conf.hpp"
 
 namespace maki::detail::states
 {
 
-inline constexpr auto stopped = state<simple_state_no_context<&maki::stopped>>{};
+inline constexpr auto stopped_conf = state_conf{}
+    .pretty_name("stopped")
+;
+
+inline constexpr auto stopped = state<simple_state_no_context<&stopped_conf>>{};
 
 } //namespace
 

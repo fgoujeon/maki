@@ -13,7 +13,6 @@
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
 #include "equals.hpp"
-#include "simple_state_no_context.hpp"
 #include "maybe_bool_util.hpp"
 #include "tuple.hpp"
 #include "constant.hpp"
@@ -67,7 +66,13 @@ namespace region_detail
     };
 
     template<class StateIdConstantList>
-    struct state_id_to_index<StateIdConstantList, &maki::stopped>
+    struct state_id_to_index<StateIdConstantList, &states::stopped_conf>
+    {
+        static constexpr auto value = stopped_state_index;
+    };
+
+    template<class StateIdConstantList>
+    struct state_id_to_index<StateIdConstantList, maki::stopped>
     {
         static constexpr auto value = stopped_state_index;
     };
@@ -108,7 +113,7 @@ public:
 
     [[nodiscard]] bool running() const
     {
-        return !is_active_state_id<&maki::stopped>();
+        return !is_active_state_id<&states::stopped_conf>();
     }
 
     template<class Machine, class Context, class Event>
@@ -118,7 +123,7 @@ public:
         {
             process_event_in_transition
             <
-                &maki::stopped,
+                stopped,
                 pinitial_state_conf,
                 &null
             >(mach, ctx, event);
@@ -266,7 +271,7 @@ private:
             self.process_event_in_transition
             <
                 ActiveStateIdConstant::value,
-                &maki::stopped,
+                &states::stopped_conf,
                 &null
             >(mach, ctx, event);
         }
@@ -413,6 +418,10 @@ private:
             null_t
         >;
 
+        constexpr auto transition_to_stopped =
+            ptr_equals(SourceStateId, &states::stopped_conf)
+        ;
+
         if constexpr(!is_internal_transition)
         {
             if constexpr(!std::is_same_v<typename machine_option_set_type::pre_state_transition_hook_type, null_t>)
@@ -427,16 +436,12 @@ private:
                 );
             }
 
-            if constexpr(!ptr_equals(SourceStateId, &maki::stopped))
-            {
-                auto& stt = state_from_id<SourceStateId>();
-                stt.impl().call_exit_action
-                (
-                    mach,
-                    ctx,
-                    event
-                );
-            }
+            state_from_id<SourceStateId>().impl().call_exit_action
+            (
+                mach,
+                ctx,
+                event
+            );
 
             active_state_index_ = region_detail::state_id_to_index_v
             <
@@ -458,16 +463,12 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(!ptr_equals(TargetStateId, &maki::stopped))
-            {
-                auto& stt = state_from_id<TargetStateId>();
-                stt.impl().call_entry_action
-                (
-                    mach,
-                    ctx,
-                    event
-                );
-            }
+            state_from_id<TargetStateId>().impl().call_entry_action
+            (
+                mach,
+                ctx,
+                event
+            );
 
             if constexpr(!std::is_same_v<typename machine_option_set_type::post_state_transition_hook_type, null_t>)
             {
@@ -482,7 +483,7 @@ private:
             }
 
             //Anonymous transition
-            if constexpr(transition_table_digest_type::has_null_events)
+            if constexpr(transition_table_digest_type::has_null_events && !transition_to_stopped)
             {
                 using candidate_transition_index_constant_list = transition_table_filters::by_source_state_and_null_event_t
                 <
@@ -576,7 +577,7 @@ private:
         auto matches = false;
         with_active_state_id
         <
-            tlu::push_back_t<state_id_constant_list, constant_t<&maki::stopped>>,
+            tlu::push_back_t<state_id_constant_list, constant_t<&states::stopped_conf>>,
             is_active_state_id_in_set_2<StateSetPtr>
         >(matches);
         return matches;
@@ -658,7 +659,11 @@ private:
     template<auto StateId, class Region>
     static auto& static_state_from_id(Region& self)
     {
-        if constexpr(ptr_equals(StateId, &maki::stopped))
+        if constexpr
+        (
+            ptr_equals(StateId, maki::stopped) ||
+            ptr_equals(StateId, &states::stopped_conf)
+        )
         {
             return states::stopped;
         }

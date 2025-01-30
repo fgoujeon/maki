@@ -7,16 +7,46 @@
 #ifndef MAKI_STOPPED_HPP
 #define MAKI_STOPPED_HPP
 
-#include "state_conf.hpp"
+#include <type_traits>
 
 namespace maki
 {
 
+namespace detail
+{
+    struct stopped_t_impl
+    {
+    };
+}
+
+#ifdef MAKI_DETAIL_DOXYGEN
 /**
-@brief Represents the state of any region before `machine::start()` is called
-and after `machine::stop()` is called.
+@brief The type of `maki::stopped`
 */
-constexpr auto stopped = state_conf{};
+using stopped_t = IMPLEMENTATION_DETAIL;
+#else
+/*
+We need an integral type so that we can directly pass `stopped` as a template
+argument.
+*/
+using stopped_t = const detail::stopped_t_impl*;
+#endif
+
+/**
+@relates stopped_t
+@brief TODO
+*/
+#ifdef MAKI_DETAIL_DOXYGEN
+constexpr auto stopped = stopped_t{};
+#else
+inline constexpr auto stopped = stopped_t{nullptr};
+#endif
+
+namespace detail
+{
+    template<class T>
+    constexpr bool is_stopped_v = std::is_same_v<T, stopped_t>;
+}
 
 } //namespace
 

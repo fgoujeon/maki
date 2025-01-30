@@ -43,5 +43,4 @@ TEST_CASE("transition_to_stopped")
 
     machine.process_event(some_event{});
     REQUIRE(!machine.running());
-    REQUIRE(machine.is<maki::stopped>());
 }

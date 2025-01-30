@@ -16,6 +16,7 @@
 #include "guard.hpp"
 #include "event_set.hpp"
 #include "state_set.hpp"
+#include "stopped.hpp"
 #include "null.hpp"
 #include "detail/machine_conf_fwd.hpp"
 #include "detail/state_conf_fwd.hpp"
@@ -208,8 +209,8 @@ public:
 
         static_assert
         (
-            detail::is_state_conf_v<TargetStateConfOrNull> || detail::is_null_v<TargetStateConfOrNull>,
-            "3rd argument must be an instance of `maki::state_conf` or `maki::null`."
+            detail::is_state_conf_v<TargetStateConfOrNull> || detail::is_null_v<TargetStateConfOrNull> || detail::is_stopped_v<TargetStateConfOrNull>,
+            "3rd argument must be an instance of `maki::state_conf`, `maki::null` or `maki::stopped`."
         );
 
         static_assert

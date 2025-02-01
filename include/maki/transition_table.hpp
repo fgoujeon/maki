@@ -224,6 +224,22 @@ public:
             "5th argument must be an instance of `maki::guard` or `maki::null`."
         );
 
+        //If anonymous transition
+        if constexpr(detail::is_null_v<EventSet>)
+        {
+            static_assert
+            (
+                detail::is_state_conf_v<SourceStateConf>,
+                "1st argument of an anonymous transition must be an instance of `maki::state_conf`"
+            );
+
+            static_assert
+            (
+                decltype(opts(source_state_conf).transition_tables)::size == 0,
+                "Source state of an anonymous transition must be a non-composite state"
+            );
+        }
+
         return detail::make_transition_table
         (
             tuple_append

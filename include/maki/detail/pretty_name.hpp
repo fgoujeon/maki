@@ -18,12 +18,12 @@ namespace maki::detail
 {
 
 /**
-@brief Gets the pretty name of a `maki::machine_conf` or `maki::state_conf`.
+@brief Gets the pretty name of `maki::state_conf`.
 */
 template<const auto& Conf>
 decltype(auto) pretty_name()
 {
-    if constexpr(opts(Conf).pretty_name.empty())
+    if constexpr(opts(Conf).pretty_name.data() == nullptr)
     {
         return detail::decayed_constant_name<Conf>();
     }

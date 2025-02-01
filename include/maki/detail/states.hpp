@@ -8,13 +8,27 @@
 #define MAKI_DETAIL_STATES_HPP
 
 #include "simple_state_no_context.hpp"
-#include "../stopped.hpp"
 #include "../state.hpp"
+#include "../state_conf.hpp"
 
-namespace maki::detail::states
+namespace maki::detail
 {
 
-inline constexpr auto stopped = state<simple_state_no_context<&maki::stopped>>{};
+namespace state_confs
+{
+    /**
+    @brief Represents the state of any region before `machine::start()` is
+    called and after `machine::stop()` is called.
+    */
+    inline constexpr auto stopped = state_conf{}
+        .pretty_name("")
+    ;
+}
+
+namespace states
+{
+    inline constexpr auto stopped = state<simple_state_no_context<&state_confs::stopped>>{};
+}
 
 } //namespace
 

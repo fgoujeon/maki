@@ -13,7 +13,6 @@
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
 #include "type_list.hpp"
-#include "../stopped.hpp"
 #include "../null.hpp"
 #include <type_traits>
 
@@ -61,17 +60,10 @@ namespace transition_table_digest_detail
         template<class Digest, int Index>
         struct add_transition_to_digest_impl
         {
-            static_assert
-            (
-                !equals(tuple_get<Index>(TransitionTuple).source_state_conf, &stopped),
-                "`maki::stopped` can't be a source type"
-            );
-
             /*
             We must add target state to list of states unless:
             - it's not already in the list;
-            - it's null;
-            - it's stopped.
+            - it's null.
             */
             static constexpr auto must_add_target_state =
                 !tlu::contains_v
@@ -79,8 +71,7 @@ namespace transition_table_digest_detail
                     typename Digest::state_id_constant_list,
                     constant_t<tuple_get<Index>(TransitionTuple).target_state_conf>
                 > &&
-                !equals(tuple_get<Index>(TransitionTuple).target_state_conf, null) &&
-                !equals(tuple_get<Index>(TransitionTuple).target_state_conf, &stopped)
+                !equals(tuple_get<Index>(TransitionTuple).target_state_conf, null)
             ;
 
             using state_id_constant_list = tlu::push_back_if_t

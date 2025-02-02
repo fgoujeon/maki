@@ -8,6 +8,7 @@
 #define MAKI_STATE_SET_HPP
 
 #include "detail/state_conf_fwd.hpp"
+#include "detail/impl.hpp"
 #include "detail/set.hpp"
 
 namespace maki
@@ -26,12 +27,6 @@ namespace detail
     {
         return state_set<Impl>{impl};
     }
-
-    template<class Impl>
-    constexpr const auto& impl(const state_set<Impl>& stt_set)
-    {
-        return stt_set.impl_;
-    }
 }
 
 template<class Impl>
@@ -47,20 +42,17 @@ public:
     constexpr state_set& operator=(state_set&& other) = default;
 
 private:
-#ifndef MAKI_DETAIL_DOXYGEN
-    template<class Impl2>
-    friend constexpr auto detail::make_state_set_from_impl(const Impl2&);
+    using impl_type = Impl;
 
     template<class Impl2>
-    friend constexpr const auto& detail::impl(const state_set<Impl2>&);
-#endif
+    friend constexpr auto detail::make_state_set_from_impl(const Impl2&);
 
     explicit constexpr state_set(const Impl& impl):
         impl_(impl)
     {
     }
 
-    Impl impl_;
+    MAKI_DETAIL_FRIENDLY_IMPL
 };
 
 #ifdef MAKI_DETAIL_DOXYGEN
@@ -99,7 +91,7 @@ constexpr auto operator!(const state_set<Impl>& stt_set)
 {
     return detail::make_state_set_from_impl
     (
-        detail::inverse_set(detail::impl(stt_set))
+        detail::inverse_set(detail::impl_of(stt_set))
     );
 }
 
@@ -131,7 +123,7 @@ constexpr auto operator||
 {
     return detail::make_state_set_from_impl
     (
-        detail::make_set_union(detail::impl(lhs), detail::impl(rhs))
+        detail::make_set_union(detail::impl_of(lhs), detail::impl_of(rhs))
     );
 }
 
@@ -149,7 +141,7 @@ constexpr auto operator||
 {
     return detail::make_state_set_from_impl
     (
-        detail::make_set_union(detail::impl(stt_set), &stt_conf)
+        detail::make_set_union(detail::impl_of(stt_set), &stt_conf)
     );
 }
 
@@ -200,7 +192,7 @@ constexpr auto operator&&
 {
     return detail::make_state_set_from_impl
     (
-        detail::make_set_intersection(detail::impl(lhs) && detail::impl(rhs))
+        detail::make_set_intersection(detail::impl_of(lhs) && detail::impl_of(rhs))
     );
 }
 
@@ -215,7 +207,7 @@ namespace detail
     template<class StateConfImpl, class... Predicates>
     constexpr bool contained_in(const state_conf<StateConfImpl>& stt_conf, const state_set<Predicates>&... state_sets)
     {
-        return (contains(impl(state_sets), &stt_conf) || ...);
+        return (contains(impl_of(state_sets), &stt_conf) || ...);
     }
 
     template<class T>

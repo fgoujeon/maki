@@ -7,6 +7,7 @@
 #ifndef MAKI_REGION_HPP
 #define MAKI_REGION_HPP
 
+#include "detail/impl.hpp"
 #include <utility>
 
 namespace maki
@@ -17,11 +18,7 @@ namespace maki
 
 Objects of this type can only be created by Maki itself.
 */
-#ifdef MAKI_DETAIL_DOXYGEN
-template<IMPLEMENTATION_DETAIL>
-#else
 template<class Impl>
-#endif
 class region
 {
 public:
@@ -70,20 +67,10 @@ public:
         return Impl::path();
     }
 
-#ifndef MAKI_DETAIL_DOXYGEN
-    Impl& impl()
-    {
-        return impl_;
-    }
-
-    const Impl& impl() const
-    {
-        return impl_;
-    }
-#endif
-
 private:
-    Impl impl_;
+    using impl_type = Impl;
+
+    MAKI_DETAIL_FRIENDLY_IMPL
 };
 
 } //namespace

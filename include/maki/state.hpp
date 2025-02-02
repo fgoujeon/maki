@@ -8,6 +8,7 @@
 #define MAKI_REGION_STATE_HPP
 
 #include "detail/pretty_name.hpp"
+#include "detail/impl.hpp"
 #include <string_view>
 #include <utility>
 
@@ -23,8 +24,6 @@ template<class Impl>
 class state
 {
 public:
-    using impl_type = Impl;
-
 #ifndef MAKI_DETAIL_DOXYGEN
     template<class... Args>
     constexpr state(Args&&... args):
@@ -91,20 +90,10 @@ public:
         return detail::pretty_name<Impl::conf>();
     }
 
-#ifndef MAKI_DETAIL_DOXYGEN
-    Impl& impl()
-    {
-        return impl_;
-    }
-
-    const Impl& impl() const
-    {
-        return impl_;
-    }
-#endif
-
 private:
-    Impl impl_;
+    using impl_type = Impl;
+
+    MAKI_DETAIL_FRIENDLY_IMPL
 };
 
 } //namespace

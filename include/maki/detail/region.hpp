@@ -13,7 +13,6 @@
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
 #include "equals.hpp"
-#include "simple_state_no_context.hpp"
 #include "maybe_bool_util.hpp"
 #include "tuple.hpp"
 #include "constant.hpp"
@@ -416,7 +415,7 @@ private:
         {
             if constexpr(!std::is_same_v<typename machine_option_set_type::pre_state_transition_hook_type, null_t>)
             {
-                opts(Machine::conf).pre_state_transition_hook
+                impl_of(Machine::conf).pre_state_transition_hook
                 (
                     ctx,
                     *pitf_,
@@ -429,7 +428,7 @@ private:
             if constexpr(!ptr_equals(SourceStateId, &state_confs::stopped))
             {
                 auto& stt = state_from_id<SourceStateId>();
-                stt.impl().call_exit_action
+                impl_of(stt).call_exit_action
                 (
                     mach,
                     ctx,
@@ -460,7 +459,7 @@ private:
             if constexpr(!ptr_equals(TargetStateId, &state_confs::stopped))
             {
                 auto& stt = state_from_id<TargetStateId>();
-                stt.impl().call_entry_action
+                impl_of(stt).call_entry_action
                 (
                     mach,
                     ctx,
@@ -470,7 +469,7 @@ private:
 
             if constexpr(!std::is_same_v<typename machine_option_set_type::post_state_transition_hook_type, null_t>)
             {
-                opts(Machine::conf).post_state_transition_hook
+                impl_of(Machine::conf).post_state_transition_hook
                 (
                     ctx,
                     *pitf_,
@@ -535,7 +534,7 @@ private:
                 return false;
             }
 
-            self.template state<State>().impl().template call_internal_action<Dry>
+            impl_of(self.template state<State>()).template call_internal_action<Dry>
             (
                 mach,
                 ctx,
@@ -587,7 +586,7 @@ private:
         template<class ActiveStateIdConstant>
         static void call([[maybe_unused]] bool& matches)
         {
-            if constexpr(contains(impl(*StateSetPtr), ActiveStateIdConstant::value))
+            if constexpr(contains(impl_of(*StateSetPtr), ActiveStateIdConstant::value))
             {
                 matches = true;
             }

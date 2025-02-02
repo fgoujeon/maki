@@ -10,6 +10,7 @@
 #include "null.hpp"
 #include "event.hpp"
 #include "detail/set.hpp"
+#include "detail/impl.hpp"
 #include "detail/equals.hpp"
 
 namespace maki
@@ -27,12 +28,6 @@ namespace detail
     constexpr auto make_event_set_from_impl(const Impl& impl)
     {
         return event_set<Impl>{impl};
-    }
-
-    template<class Impl>
-    constexpr const auto& impl(const event_set<Impl>& evt_set)
-    {
-        return evt_set.impl_;
     }
 }
 
@@ -59,20 +54,17 @@ public:
     }
 
 private:
-#ifndef MAKI_DETAIL_DOXYGEN
-    template<class Impl2>
-    friend constexpr auto detail::make_event_set_from_impl(const Impl2&);
+    using impl_type = Impl;
 
     template<class Impl2>
-    friend constexpr const auto& detail::impl(const event_set<Impl2>&);
-#endif
+    friend constexpr auto detail::make_event_set_from_impl(const Impl2&);
 
     constexpr explicit event_set(const Impl& impl):
         impl_(impl)
     {
     }
 
-    Impl impl_;
+    MAKI_DETAIL_FRIENDLY_IMPL
 };
 
 /**
@@ -125,7 +117,7 @@ constexpr auto operator!(const event_set<Predicate>& evt_set)
 {
     return detail::make_event_set_from_impl
     (
-        detail::inverse_set(detail::impl(evt_set))
+        detail::inverse_set(detail::impl_of(evt_set))
     );
 }
 
@@ -157,7 +149,7 @@ constexpr auto operator||
 {
     return detail::make_event_set_from_impl
     (
-        detail::make_set_union(detail::impl(lhs), detail::impl(rhs))
+        detail::make_set_union(detail::impl_of(lhs), detail::impl_of(rhs))
     );
 }
 
@@ -175,7 +167,7 @@ constexpr auto operator||
 {
     return detail::make_event_set_from_impl
     (
-        detail::make_set_union(detail::impl(evt_set), detail::type<Event>)
+        detail::make_set_union(detail::impl_of(evt_set), detail::type<Event>)
     );
 }
 
@@ -225,7 +217,7 @@ constexpr auto operator&&
 {
     return detail::make_event_set_from_impl
     (
-        detail::make_set_intersection(detail::impl(lhs) && detail::impl(rhs))
+        detail::make_set_intersection(detail::impl_of(lhs) && detail::impl_of(rhs))
     );
 }
 

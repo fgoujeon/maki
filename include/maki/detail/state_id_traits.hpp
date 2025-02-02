@@ -15,7 +15,7 @@ namespace maki::detail::state_id_traits
 template<auto Id>
 struct context
 {
-    using type = typename std::decay_t<decltype(opts(*Id))>::context_type;
+    using type = typename std::decay_t<decltype(impl_of(*Id))>::context_type;
 };
 
 template<auto Id>

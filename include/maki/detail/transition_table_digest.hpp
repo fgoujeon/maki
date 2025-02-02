@@ -8,7 +8,7 @@
 #define MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 
 #include "constant.hpp"
-#include "tlu/push_back_unique.hpp"
+#include "tlu/push_back_if.hpp"
 #include "tlu/left_fold.hpp"
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"

@@ -7,6 +7,7 @@
 #ifndef MAKI_DETAIL_STATE_TYPE_LIST_FILTERS_HPP
 #define MAKI_DETAIL_STATE_TYPE_LIST_FILTERS_HPP
 
+#include "impl.hpp"
 #include "tlu/filter.hpp"
 
 namespace maki::detail::state_type_list_filters
@@ -20,7 +21,7 @@ namespace by_state_set_detail
         template<class StateIdConstant>
         struct matches
         {
-            static constexpr auto value = contains(impl(*StateSetPtr), StateIdConstant::value);
+            static constexpr auto value = contains(impl_of(*StateSetPtr), StateIdConstant::value);
         };
     };
 }
@@ -40,7 +41,7 @@ namespace by_required_on_event_detail
         template<class State>
         struct requires_on_event
         {
-            static constexpr auto value = State::impl_type::template has_internal_action_for_event<Event>();
+            static constexpr auto value = impl_of_t<State>::template has_internal_action_for_event<Event>();
         };
     };
 }

@@ -19,11 +19,7 @@ namespace maki
 
 Objects of this type can only be created by Maki itself.
 */
-#ifdef MAKI_DETAIL_DOXYGEN
-template<IMPLEMENTATION_DETAIL>
-#else
 template<class Impl>
-#endif
 class path
 {
 public:
@@ -41,10 +37,8 @@ public:
     }
 
 private:
-#ifndef MAKI_DETAIL_DOXYGEN
     template<const auto& TransitionTable, const auto& Path>
     friend class detail::region;
-#endif
 
     constexpr path(const Impl& impl):
         impl_(impl)

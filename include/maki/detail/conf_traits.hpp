@@ -15,7 +15,7 @@ namespace maki::detail::conf_traits
 template<const auto& Conf>
 struct context
 {
-    using type = typename std::decay_t<decltype(opts(Conf))>::context_type;
+    using type = typename std::decay_t<decltype(impl_of(Conf))>::context_type;
 };
 
 template<const auto& Conf>

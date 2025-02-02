@@ -27,16 +27,6 @@
 namespace maki
 {
 
-namespace detail
-{
-    //Read access to options
-    template<class OptionSet>
-    constexpr const auto& opts(const state_conf<OptionSet>& conf)
-    {
-        return conf.options_;
-    }
-}
-
 #ifdef MAKI_DETAIL_DOXYGEN
 #define MAKI_DETAIL_STATE_CONF_RETURN_TYPE state_conf<IMPLEMENTATION_DETAIL>
 #else
@@ -46,15 +36,11 @@ namespace detail
 /**
 @brief State configuration
 */
-#ifdef MAKI_DETAIL_DOXYGEN
-template<IMPLEMENTATION_DETAIL>
-#else
-template<class OptionSet>
-#endif
+template<class Impl>
 class state_conf
 {
 public:
-    using context_type = typename OptionSet::context_type;
+    using context_type = typename Impl::context_type;
 
     constexpr state_conf() = default;
 
@@ -69,13 +55,13 @@ public:
     state_conf& operator=(state_conf&&) = delete;
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = detail::type<typename OptionSet::context_type>; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = options_.context_sig; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = options_.internal_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = options_.exit_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = options_.pretty_name; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = options_.transition_tables;
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = detail::type<typename Impl::context_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = impl_.context_sig; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = impl_.entry_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = impl_.internal_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = impl_.exit_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = impl_.pretty_name; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = impl_.transition_tables;
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return state_conf \
@@ -229,17 +215,14 @@ public:
     }
 
 private:
-#ifndef MAKI_DETAIL_DOXYGEN
-    template<class OptionSet2>
-    friend class state_conf;
+    using impl_type = Impl;
 
-    template<class OptionSet2>
-    friend constexpr const auto& detail::opts(const state_conf<OptionSet2>& conf);
-#endif
+    template<class Impl2>
+    friend class state_conf;
 
     template<class... Args>
     constexpr state_conf(Args&&... args):
-        options_{std::forward<Args>(args)...}
+        impl_{std::forward<Args>(args)...}
     {
     }
 
@@ -259,7 +242,7 @@ private:
     {
         const auto new_entry_actions = tuple_append
         (
-            options_.entry_actions,
+            impl_.entry_actions,
             detail::make_event_action<Sig>(evt_set, action)
         );
 
@@ -274,7 +257,7 @@ private:
     {
         const auto new_internal_actions = tuple_append
         (
-            options_.internal_actions,
+            impl_.internal_actions,
             detail::make_event_action<Sig>(evt_set, action)
         );
 
@@ -289,7 +272,7 @@ private:
     {
         const auto new_exit_actions = tuple_append
         (
-            options_.exit_actions,
+            impl_.exit_actions,
             detail::make_event_action<Sig>(evt_set, action)
         );
 
@@ -302,7 +285,7 @@ private:
 #undef MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
 #undef MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
 
-    OptionSet options_;
+    MAKI_DETAIL_FRIENDLY_IMPL
 };
 
 #undef MAKI_DETAIL_STATE_CONF_RETURN_TYPE

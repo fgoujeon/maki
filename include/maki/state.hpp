@@ -17,6 +17,7 @@ namespace maki
 
 /**
 @brief Represents a [state](@ref state).
+@tparam Impl implementation detail
 
 Objects of this type can only be created by Maki itself.
 */

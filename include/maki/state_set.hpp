@@ -16,8 +16,9 @@ namespace maki
 
 /**
 @brief Represents a @ref state-set "state set".
+@tparam Impl implementation detail
 */
-template<class Predicate>
+template<class Impl>
 class state_set;
 
 namespace detail

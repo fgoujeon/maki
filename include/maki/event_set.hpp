@@ -18,6 +18,7 @@ namespace maki
 
 /**
 @brief Represents an @ref event-set "event type set".
+@tparam Impl implementation detail
 */
 template<class Impl>
 class event_set;

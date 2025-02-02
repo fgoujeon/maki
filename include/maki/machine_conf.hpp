@@ -34,6 +34,7 @@ namespace maki
 
 /**
 @brief `maki::machine` configuration
+@tparam Impl implementation detail
 */
 template<class Impl>
 class machine_conf

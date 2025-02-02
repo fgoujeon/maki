@@ -21,18 +21,18 @@ namespace maki::events
 {
 
 /**
-@brief Default event given to `machine::start()`.
+@brief Default event given to `maki::machine::start()`.
 */
 struct start{};
 
 /**
-@brief Default event given to `machine::stop()`.
+@brief Default event given to `maki::machine::stop()`.
 */
 struct stop{};
 
 /**
-@brief Event sent by the default exception handler of @ref machine whenever it
-catches an exception.
+@brief Event sent by the default exception handler of `maki::machine` whenever
+it catches an exception.
 */
 struct exception
 {

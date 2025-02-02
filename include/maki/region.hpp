@@ -15,6 +15,7 @@ namespace maki
 
 /**
 @brief Represents an [orthogonal region](@ref orthogonal-region)
+@tparam Impl implementation detail
 
 Objects of this type can only be created by Maki itself.
 */

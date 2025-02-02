@@ -16,6 +16,7 @@ namespace maki
 
 /**
 @brief Encodes a path to a state or region.
+@tparam Impl implementation detail
 
 Objects of this type can only be created by Maki itself.
 */

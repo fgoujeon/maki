@@ -20,6 +20,7 @@
 #include "detail/event_action.hpp"
 #include "detail/signature_macros.hpp"
 #include "detail/tuple.hpp"
+#include "detail/impl.hpp"
 #include "detail/tlu.hpp"
 #include <string_view>
 #include <type_traits>

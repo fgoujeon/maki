@@ -19,6 +19,7 @@
 #include "detail/type.hpp"
 #include "detail/event_action.hpp"
 #include "detail/signature_macros.hpp"
+#include "detail/impl.hpp"
 #include "detail/tuple.hpp"
 #include <type_traits>
 #include <cstdlib>

@@ -16,11 +16,11 @@
 namespace maki::detail
 {
 
-class path_element_conf
+class path_element_state
 {
 public:
     template<class ConfConstant>
-    constexpr path_element_conf(const ConfConstant /*conf_cst*/):
+    constexpr path_element_state(const ConfConstant /*conf_cst*/):
         pretty_name_fn_
         (
             []
@@ -79,7 +79,7 @@ public:
     template<const auto& Conf>
     constexpr auto add_state() const
     {
-        return path<Elems..., path_element_conf>{*this, path_element_conf{cref_constant<Conf>}};
+        return path<Elems..., path_element_state>{*this, path_element_state{cref_constant<Conf>}};
     }
 
     constexpr const auto& elems() const

@@ -7,9 +7,8 @@
 #ifndef MAKI_PATH_HPP
 #define MAKI_PATH_HPP
 
-#include "detail/region_fwd.hpp" //NOLINT misc-include-cleaner
+#include "detail/impl.hpp"
 #include <string>
-#include <functional>
 
 namespace maki
 {
@@ -24,6 +23,13 @@ template<class Impl>
 class path
 {
 public:
+#ifndef MAKI_DETAIL_DOXYGEN
+    constexpr path(const Impl& impl):
+        impl_(impl)
+    {
+    }
+#endif
+
     /**
     @brief Returns a textual representation of the path.
 
@@ -34,19 +40,13 @@ public:
     */
     [[nodiscard]] std::string to_string() const
     {
-        return impl_.get().to_string();
+        return impl_.to_string();
     }
 
 private:
-    template<const auto& TransitionTable, const auto& Path>
-    friend class detail::region;
+    using impl_type = Impl;
 
-    constexpr path(const Impl& impl):
-        impl_(impl)
-    {
-    }
-
-    std::reference_wrapper<const Impl> impl_;
+    MAKI_DETAIL_FRIENDLY_IMPL
 };
 
 } //namespace

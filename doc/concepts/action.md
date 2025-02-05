@@ -9,21 +9,21 @@ There are several kinds of actions:
 * entry actions;
 * exit actions.
 
-### State transition action
+### External transition action
 
-A state transition action, as its name suggests, is associated to a state transition. Such an action is executed whenever the associated state transition occurs.
+An external transition action, as its name suggests, is associated to an external transition. Such an action is executed whenever the associated external transition occurs.
 
 In the following diagram, `action` is executed whenever the state machine transitions from `state0` to `state1` (because `event` occurs):
 
-@startuml{state_transition_action.png} "A state transition action"
+@startuml{external_transition_action.png} "A state transition action"
 [*] --> state0
 hide empty description
 state0 -> state1 : event / action
 @enduml
 
-### Internal action
+### Internal transition action
 
-An internal action is associated to a state and an event. Such an action is executed whenever the associated event occurs while the associated state is active.
+An internal transition action (or internal action for short) is associated to a state and an event. Such an action is executed whenever the associated event occurs while the associated state is active.
 
 In the following diagram, `action` is executed whenever `event` occurs while `state0` is active.
 

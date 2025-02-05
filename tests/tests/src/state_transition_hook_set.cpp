@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace state_transition_hook_set
+namespace external_transition_hook_set
 {
     namespace events
     {
@@ -50,7 +50,7 @@ namespace state_transition_hook_set
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table_0, transition_table_1)
         .context_a<context>()
-        .pre_state_transition_hook_crset
+        .pre_external_transition_hook_crset
         (
             [](context& ctx, const auto& region, const auto& source_state, const auto& event, const auto& target_state)
             {
@@ -65,7 +65,7 @@ namespace state_transition_hook_set
                 ctx.out += std::to_string(event.pressure) + ";";
             }
         )
-        .post_state_transition_hook_crset
+        .post_external_transition_hook_crset
         (
             [](context& ctx, const auto& region, const auto& source_state, const auto& event, const auto& target_state)
             {
@@ -86,9 +86,9 @@ namespace state_transition_hook_set
     using machine_t = maki::machine<machine_conf>;
 }
 
-TEST_CASE("state_transition_hook_set")
+TEST_CASE("external_transition_hook_set")
 {
-    using namespace state_transition_hook_set;
+    using namespace external_transition_hook_set;
 
     auto machine = machine_t{};
     auto& ctx = machine.context();

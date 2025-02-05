@@ -37,7 +37,7 @@ namespace double_start_stop_ns
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
         .context_a<context>()
-        .pre_state_transition_hook_crset
+        .pre_external_transition_hook_crset
         (
             [](context& ctx, const auto& region, const auto& source_state, const auto& /*event*/, const auto& target_state)
             {
@@ -52,7 +52,7 @@ namespace double_start_stop_ns
                 ctx.out += "...;";
             }
         )
-        .post_state_transition_hook_crset
+        .post_external_transition_hook_crset
         (
             [](context& ctx, const auto& region, const auto& source_state, const auto& /*event*/, const auto& target_state)
             {

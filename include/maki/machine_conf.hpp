@@ -62,8 +62,8 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = impl_.entry_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = impl_.internal_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = impl_.exit_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_state_transition_hook = impl_.post_state_transition_hook; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_state_transition_hook = impl_.pre_state_transition_hook; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_external_transition_hook = impl_.post_external_transition_hook; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_external_transition_hook = impl_.pre_external_transition_hook; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_hook = impl_.exception_hook; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_processing_hooks = impl_.post_processing_hooks; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_process_event_now_enabled = impl_.process_event_now_enabled; \
@@ -82,8 +82,8 @@ public:
             std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_exception_hook)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_pre_state_transition_hook)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_post_state_transition_hook)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_pre_external_transition_hook)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_post_external_transition_hook)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_post_processing_hooks)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
         > \
@@ -94,8 +94,8 @@ public:
         MAKI_DETAIL_ARG_entry_actions, \
         MAKI_DETAIL_ARG_internal_actions, \
         MAKI_DETAIL_ARG_exit_actions, \
-        MAKI_DETAIL_ARG_post_state_transition_hook, \
-        MAKI_DETAIL_ARG_pre_state_transition_hook, \
+        MAKI_DETAIL_ARG_post_external_transition_hook, \
+        MAKI_DETAIL_ARG_pre_external_transition_hook, \
         MAKI_DETAIL_ARG_exception_hook, \
         MAKI_DETAIL_ARG_post_processing_hooks, \
         MAKI_DETAIL_ARG_process_event_now_enabled, \
@@ -209,23 +209,23 @@ public:
 #undef MAKI_DETAIL_X
 
     /**
-    @brief Specifies a hook to be called after any external state transition.
+    @brief Specifies a hook to be called after any external transition.
 
     Hook must have the following form:
 
-    @snippet misc/state-transition-hook/src/main.cpp signature
+    @snippet misc/external-transition-hook/src/main.cpp signature
 
-    This hook can be useful for logging state transitions, for example:
+    This hook can be useful for logging external transitions, for example:
 
-    @snippet misc/state-transition-hook/src/main.cpp post
+    @snippet misc/external-transition-hook/src/main.cpp post
     */
     template<class Hook>
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_state_transition_hook_crset(const Hook& hook) const
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_external_transition_hook_crset(const Hook& hook) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_post_state_transition_hook hook
+#define MAKI_DETAIL_ARG_post_external_transition_hook hook
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_post_state_transition_hook
+#undef MAKI_DETAIL_ARG_post_external_transition_hook
     }
 
     /**
@@ -241,24 +241,23 @@ public:
     }
 
     /**
-    @brief Specifies a hook to be called before any external state
-    transition.
+    @brief Specifies a hook to be called before any external transition.
 
     Hook must have the following form:
 
-    @snippet misc/state-transition-hook/src/main.cpp signature
+    @snippet misc/external-transition-hook/src/main.cpp signature
 
-    This hook can be useful for logging state transitions, for example:
+    This hook can be useful for logging external transitions, for example:
 
-    @snippet misc/state-transition-hook/src/main.cpp pre
+    @snippet misc/external-transition-hook/src/main.cpp pre
     */
     template<class Hook>
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_state_transition_hook_crset(const Hook& hook) const
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_external_transition_hook_crset(const Hook& hook) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_pre_state_transition_hook hook
+#define MAKI_DETAIL_ARG_pre_external_transition_hook hook
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_pre_state_transition_hook
+#undef MAKI_DETAIL_ARG_pre_external_transition_hook
     }
 
     /**

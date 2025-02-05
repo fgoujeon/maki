@@ -413,9 +413,9 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(!std::is_same_v<typename machine_option_set_type::pre_state_transition_hook_type, null_t>)
+            if constexpr(!std::is_same_v<typename machine_option_set_type::pre_external_transition_hook_type, null_t>)
             {
-                impl_of(Machine::conf).pre_state_transition_hook
+                impl_of(Machine::conf).pre_external_transition_hook
                 (
                     ctx,
                     *pitf_,
@@ -467,9 +467,9 @@ private:
                 );
             }
 
-            if constexpr(!std::is_same_v<typename machine_option_set_type::post_state_transition_hook_type, null_t>)
+            if constexpr(!std::is_same_v<typename machine_option_set_type::post_external_transition_hook_type, null_t>)
             {
-                impl_of(Machine::conf).post_state_transition_hook
+                impl_of(Machine::conf).post_external_transition_hook
                 (
                     ctx,
                     *pitf_,

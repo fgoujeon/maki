@@ -32,8 +32,8 @@ namespace detail
         class EventActionTuple = tuple<>,
         class ExitActionTuple = tuple<>,
         class ExceptionHook = null_t,
-        class PreStateTransitionHook = null_t,
-        class PostStateTransitionHook = null_t,
+        class PreExternalTransitionHook = null_t,
+        class PostExternalTransitionHook = null_t,
         class PostProcessingHookTuple = tuple<>,
         class TransitionTableTuple = tuple<>
     >
@@ -41,8 +41,8 @@ namespace detail
     {
         using context_type = Context;
         using exception_hook_type = ExceptionHook;
-        using pre_state_transition_hook_type = PreStateTransitionHook;
-        using post_state_transition_hook_type = PostStateTransitionHook;
+        using pre_external_transition_hook_type = PreExternalTransitionHook;
+        using post_external_transition_hook_type = PostExternalTransitionHook;
         using post_processing_hook_tuple_type = PostProcessingHookTuple;
 
         bool auto_start = true;
@@ -50,8 +50,8 @@ namespace detail
         EntryActionTuple entry_actions;
         EventActionTuple internal_actions;
         ExitActionTuple exit_actions;
-        PostStateTransitionHook post_state_transition_hook = null;
-        PreStateTransitionHook pre_state_transition_hook = null;
+        PostExternalTransitionHook post_external_transition_hook = null;
+        PreExternalTransitionHook pre_external_transition_hook = null;
         ExceptionHook exception_hook = null;
         PostProcessingHookTuple post_processing_hooks;
         bool process_event_now_enabled = false;

@@ -68,18 +68,18 @@ namespace orthogonal_regions_ns
                 }
             }
         )
-        .pre_state_transition_hook_crset
+        .pre_external_transition_hook_crset
         (
             [](context& ctx, const auto& region, const auto& /*source_state*/, const auto& /*event*/, const auto& /*target_state*/)
             {
-                ctx.out += "before_state_transition[" + region.path().to_string() + "];";
+                ctx.out += "before_transition[" + region.path().to_string() + "];";
             }
         )
-        .post_state_transition_hook_crset
+        .post_external_transition_hook_crset
         (
             [](context& ctx, const auto& region, const auto& /*source_state*/, const auto& /*event*/, const auto& /*target_state*/)
             {
-                ctx.out += "after_state_transition[" + region.path().to_string() + "];";
+                ctx.out += "after_transition[" + region.path().to_string() + "];";
             }
         )
     ;
@@ -99,13 +99,13 @@ TEST_CASE("orthogonal_regions")
     machine.start();
     REQUIRE(region0.is<states::off0>());
     REQUIRE(region1.is<states::off1>());
-    REQUIRE(ctx.out == "before_state_transition[0];after_state_transition[0];before_state_transition[1];after_state_transition[1];");
+    REQUIRE(ctx.out == "before_transition[0];after_transition[0];before_transition[1];after_transition[1];");
 
     ctx.out.clear();
     machine.process_event(events::button_press{});
     REQUIRE(region0.is<states::on0>());
     REQUIRE(region1.is<states::on1>());
-    REQUIRE(ctx.out == "before_state_transition[0];after_state_transition[0];before_state_transition[1];after_state_transition[1];");
+    REQUIRE(ctx.out == "before_transition[0];after_transition[0];before_transition[1];after_transition[1];");
 
     ctx.out.clear();
     machine.process_event(events::exception_request{});

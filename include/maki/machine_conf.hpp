@@ -60,7 +60,7 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = detail::type<typename Impl::context_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = impl_.context_sig; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = impl_.entry_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = impl_.internal_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_processing_hooks = impl_.pre_processing_hooks; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = impl_.exit_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_external_transition_hook = impl_.post_external_transition_hook; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_external_transition_hook = impl_.pre_external_transition_hook; \
@@ -79,7 +79,7 @@ public:
         < \
             typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_pre_processing_hooks)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_exception_hook)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_pre_external_transition_hook)>, \
@@ -92,7 +92,7 @@ public:
         MAKI_DETAIL_ARG_auto_start, \
         MAKI_DETAIL_ARG_context_sig, \
         MAKI_DETAIL_ARG_entry_actions, \
-        MAKI_DETAIL_ARG_internal_actions, \
+        MAKI_DETAIL_ARG_pre_processing_hooks, \
         MAKI_DETAIL_ARG_exit_actions, \
         MAKI_DETAIL_ARG_post_external_transition_hook, \
         MAKI_DETAIL_ARG_pre_external_transition_hook, \
@@ -498,16 +498,16 @@ private:
     template<action_signature Sig, class EventSetPredicate, class Hook>
     [[nodiscard]] constexpr auto pre_processing_hook(const event_set<EventSetPredicate>& evt_set, const Hook& hook) const
     {
-        const auto new_internal_actions = tuple_append
+        const auto new_pre_processing_hooks = tuple_append
         (
-            impl_.internal_actions,
+            impl_.pre_processing_hooks,
             detail::make_event_action<Sig>(evt_set, hook)
         );
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_internal_actions new_internal_actions
+#define MAKI_DETAIL_ARG_pre_processing_hooks new_pre_processing_hooks
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_internal_actions
+#undef MAKI_DETAIL_ARG_pre_processing_hooks
     }
 
     template<action_signature Sig, class EventSetPredicate, class Action>

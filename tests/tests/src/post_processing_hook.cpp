@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace on_unprocessed_ns
+namespace post_processing_hook_ns
 {
     enum class led_color
     {
@@ -31,6 +31,8 @@ namespace on_unprocessed_ns
     {
         struct power_button_press{};
         struct color_button_press{};
+
+        struct ignored_by_all{};
 
         struct ignored_by_emitting_blue
         {
@@ -101,25 +103,35 @@ namespace on_unprocessed_ns
                     mach.context().ignored_event = "other";
                 }
             }
-        )
+        ).
+        auto_start(false)
     ;
 
     using machine_t = maki::machine<machine_conf>;
 }
 
-TEST_CASE("on_unprocessed")
+TEST_CASE("post_processing_hook")
 {
-    using namespace on_unprocessed_ns;
+    using namespace post_processing_hook_ns;
 
     auto machine = machine_t{};
     auto& ctx = machine.context();
     const auto& on_state = machine.state<states::on>();
+
+    //Nothing should happen before `start()` is called.
+    ctx.clear();
+    machine.process_event(events::ignored_by_all{});
+    REQUIRE(ctx.ignored_event.empty());
 
     ctx.clear();
     machine.start();
     REQUIRE(machine.is<states::on>());
     REQUIRE(on_state.is<states::emitting_red>());
     REQUIRE(ctx.ignored_event.empty());
+
+    ctx.clear();
+    machine.process_event(events::ignored_by_all{});
+    REQUIRE(ctx.ignored_event == "other");
 
     ctx.clear();
     machine.process_event(events::ignored_by_emitting_blue{});

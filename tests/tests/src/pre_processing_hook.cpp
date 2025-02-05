@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace on_event_ns
+namespace pre_processing_hook_ns
 {
     struct context
     {
@@ -64,17 +64,24 @@ namespace on_event_ns
                 ctx.out += event.data + "1;";
             }
         )
+        .auto_start(false)
     ;
 
     using machine_t = maki::machine<machine_conf>;
 }
 
-TEST_CASE("on_event")
+TEST_CASE("pre_processing_hook")
 {
-    using namespace on_event_ns;
+    using namespace pre_processing_hook_ns;
 
     auto machine = machine_t{};
     auto& ctx = machine.context();
+
+    //Nothing should happen before `start()` is called.
+    ctx.out.clear();
+    machine.process_event(events::button_press{"a"});
+    REQUIRE(!machine.running());
+    REQUIRE(ctx.out == "");
 
     machine.start();
 

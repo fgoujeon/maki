@@ -24,6 +24,7 @@
 #include "detail/noinline.hpp"
 #include "detail/function_queue.hpp"
 #include "detail/tuple.hpp"
+#include "detail/tlu/contains_if.hpp"
 #include <type_traits>
 #include <exception>
 
@@ -482,28 +483,70 @@ private:
         }
         else
         {
-            if constexpr(std::is_same_v<typename option_set_type::post_processing_hook_tuple_type, detail::tuple<>>)
+            constexpr auto has_matching_pre_processing_hook = detail::tlu::contains_if_v
+            <
+                pre_processing_hook_ptr_constant_list,
+                detail::event_action_traits::for_event<Event>::template has_containing_event_set
+            >;
+
+            constexpr auto has_matching_post_processing_hook = detail::tlu::contains_if_v
+            <
+                post_processing_hook_ptr_constant_list,
+                detail::event_action_traits::for_event<Event>::template has_containing_event_set
+            >;
+
+            //If running, execute pre-processing hook for `Event`, if any.
+            if constexpr(has_matching_pre_processing_hook)
             {
-                impl_.template call_internal_action<false>(*this, context(), event);
+                if(running())
+                {
+                    detail::call_matching_event_action<pre_processing_hook_ptr_constant_list>
+                    (
+                        *this,
+                        context(),
+                        event
+                    );
+                }
+            }
+
+            /*
+            If running:
+            - process the event;
+            - execute the post-processing hook for `Event`, if any.
+            */
+            if constexpr(has_matching_post_processing_hook)
+            {
+                if(running())
+                {
+                    auto processed = false;
+                    impl_.template call_internal_action<false>(*this, context(), event, processed);
+                    detail::call_matching_event_action<post_processing_hook_ptr_constant_list>
+                    (
+                        *this,
+                        context(),
+                        event,
+                        processed
+                    );
+                }
             }
             else
             {
-                auto processed = false;
-                impl_.template call_internal_action<false>(*this, context(), event, processed);
-                detail::call_matching_event_action<post_processing_hook_ptr_constant_list>
-                (
-                    *this,
-                    context(),
-                    event,
-                    processed
-                );
+                /*
+                Note: We don't need to check if we're running here, as
+                processing the event won't have any effect anyway if the machine
+                is stopped.
+                */
+
+                impl_.template call_internal_action<false>(*this, context(), event);
             }
         }
     }
 
+    static constexpr auto pre_processing_hooks = impl_of(conf).pre_processing_hooks;
     static constexpr auto post_processing_hooks = impl_of(conf).post_processing_hooks;
     static constexpr auto path = detail::path{};
 
+    using pre_processing_hook_ptr_constant_list = detail::tuple_to_element_ptr_constant_list_t<pre_processing_hooks>;
     using post_processing_hook_ptr_constant_list = detail::tuple_to_element_ptr_constant_list_t<post_processing_hooks>;
 
     detail::context_holder<context_type, impl_of(conf).context_sig> ctx_holder_;

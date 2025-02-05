@@ -19,22 +19,13 @@
 #include "detail/type.hpp"
 #include "detail/event_action.hpp"
 #include "detail/signature_macros.hpp"
+#include "detail/impl.hpp"
 #include "detail/tuple.hpp"
 #include <type_traits>
 #include <cstdlib>
 
 namespace maki
 {
-
-namespace detail
-{
-    //Read access to options
-    template<class OptionSet>
-    constexpr const auto& opts(const machine_conf<OptionSet>& conf)
-    {
-        return conf.options_;
-    }
-}
 
 #ifdef MAKI_DETAIL_DOXYGEN
 #define MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE machine_conf<IMPLEMENTATION_DETAIL>
@@ -44,16 +35,13 @@ namespace detail
 
 /**
 @brief `maki::machine` configuration
+@tparam Impl implementation detail
 */
-#ifdef MAKI_DETAIL_DOXYGEN
-template<IMPLEMENTATION_DETAIL>
-#else
-template<class OptionSet>
-#endif
+template<class Impl>
 class machine_conf
 {
 public:
-    using context_type = typename OptionSet::context_type;
+    using context_type = typename Impl::context_type;
 
     constexpr machine_conf() = default;
 
@@ -68,21 +56,21 @@ public:
     machine_conf& operator=(machine_conf&&) = delete;
 
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = options_.auto_start; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = detail::type<typename OptionSet::context_type>; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = options_.context_sig; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = options_.entry_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = options_.internal_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = options_.exit_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_state_transition_hook = options_.post_state_transition_hook; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_state_transition_hook = options_.pre_state_transition_hook; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_hook = options_.exception_hook; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_processing_hooks = options_.post_processing_hooks; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_process_event_now_enabled = options_.process_event_now_enabled; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = options_.run_to_completion; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_align = options_.small_event_max_align; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_size = options_.small_event_max_size; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = options_.transition_tables;
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = impl_.auto_start; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = detail::type<typename Impl::context_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = impl_.context_sig; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = impl_.entry_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = impl_.internal_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = impl_.exit_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_state_transition_hook = impl_.post_state_transition_hook; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_state_transition_hook = impl_.pre_state_transition_hook; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_hook = impl_.exception_hook; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_processing_hooks = impl_.post_processing_hooks; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_process_event_now_enabled = impl_.process_event_now_enabled; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = impl_.run_to_completion; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_align = impl_.small_event_max_align; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_size = impl_.small_event_max_size; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = impl_.transition_tables;
 
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return machine_conf \
@@ -371,7 +359,7 @@ public:
     {
         const auto new_post_processing_hooks = tuple_append
         (
-            options_.post_processing_hooks,
+            impl_.post_processing_hooks,
             detail::make_event_action<action_signature::me>(evt_set, action)
         );
 
@@ -471,17 +459,14 @@ public:
     }
 
 private:
-#ifndef MAKI_DETAIL_DOXYGEN
-    template<class OptionSet2>
-    friend class machine_conf;
+    using impl_type = Impl;
 
-    template<class OptionSet2>
-    friend constexpr const auto& detail::opts(const machine_conf<OptionSet2>& conf);
-#endif
+    template<class Impl2>
+    friend class machine_conf;
 
     template<class... Args>
     constexpr machine_conf(Args&&... args):
-        options_{std::forward<Args>(args)...}
+        impl_{std::forward<Args>(args)...}
     {
     }
 
@@ -501,7 +486,7 @@ private:
     {
         const auto new_entry_actions = tuple_append
         (
-            options_.entry_actions,
+            impl_.entry_actions,
             detail::make_event_action<Sig>(evt_set, action)
         );
 
@@ -516,7 +501,7 @@ private:
     {
         const auto new_internal_actions = tuple_append
         (
-            options_.internal_actions,
+            impl_.internal_actions,
             detail::make_event_action<Sig>(evt_set, hook)
         );
 
@@ -531,7 +516,7 @@ private:
     {
         const auto new_exit_actions = tuple_append
         (
-            options_.exit_actions,
+            impl_.exit_actions,
             detail::make_event_action<Sig>(evt_set, action)
         );
 
@@ -544,7 +529,7 @@ private:
 #undef MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 
-    OptionSet options_;
+    MAKI_DETAIL_FRIENDLY_IMPL
 };
 
 #undef MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE

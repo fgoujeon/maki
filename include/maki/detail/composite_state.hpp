@@ -11,7 +11,6 @@
 #include "composite_state_no_context.hpp"
 #include "context_holder.hpp"
 #include "../state_conf.hpp"
-#include "../machine_conf.hpp"
 #include <type_traits>
 
 namespace maki::detail
@@ -24,8 +23,8 @@ public:
     static constexpr auto identifier = Id;
     static constexpr const auto& conf = *Id;
     using conf_type = std::decay_t<decltype(conf)>;
-    using option_set_type = std::decay_t<decltype(opts(conf))>;
-    using transition_table_type_list = decltype(opts(conf).transition_tables);
+    using option_set_type = std::decay_t<decltype(impl_of(conf))>;
+    using transition_table_type_list = decltype(impl_of(conf).transition_tables);
     using context_type = typename option_set_type::context_type;
 
     template<class Machine, class ParentContext>
@@ -152,7 +151,7 @@ public:
 private:
     using impl_type = composite_state_no_context<identifier, Path>;
 
-    context_holder<context_type, opts(conf).context_sig> ctx_holder_;
+    context_holder<context_type, impl_of(conf).context_sig> ctx_holder_;
     impl_type impl_;
 };
 

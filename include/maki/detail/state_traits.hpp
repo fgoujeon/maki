@@ -55,7 +55,7 @@ struct state_id_to_state
     <
         StateId,
         ParentPath,
-        opts(*StateId).transition_tables.size != 0,
+        impl_of(*StateId).transition_tables.size != 0,
         state_id_traits::has_context_v<StateId>
     >::type;
 };

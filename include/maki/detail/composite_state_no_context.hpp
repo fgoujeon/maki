@@ -12,7 +12,6 @@
 #include "simple_state_no_context.hpp"
 #include "tlu.hpp"
 #include "tuple.hpp"
-#include "../machine_conf.hpp"
 #include "../state_conf.hpp"
 #include "../region.hpp"
 #include <type_traits>
@@ -29,7 +28,7 @@ template
 >
 struct region_tuple_elem
 {
-    static constexpr auto transition_table = tuple_get<Index>(opts(ParentSm::conf).transition_tables);
+    static constexpr auto transition_table = tuple_get<Index>(impl_of(ParentSm::conf).transition_tables);
     static constexpr auto path = ParentPath.add_region_index(Index);
     using type = maki::region<detail::region<transition_table, path>>;
 };
@@ -81,8 +80,8 @@ public:
     static constexpr auto identifier = Id;
     static constexpr const auto& conf = *Id;
     using conf_type = std::decay_t<decltype(conf)>;
-    using option_set_type = std::decay_t<decltype(opts(conf))>;
-    using transition_table_type_list = decltype(opts(conf).transition_tables);
+    using option_set_type = std::decay_t<decltype(impl_of(conf))>;
+    using transition_table_type_list = decltype(impl_of(conf).transition_tables);
 
     template<class Machine, class Context>
     composite_state_no_context(Machine& mach, Context& ctx):
@@ -171,20 +170,20 @@ public:
     [[nodiscard]] const auto& state() const
     {
         static_assert(region_tuple_type::size == 1);
-        return region<0>().impl().template state<StateConf>();
+        return impl_of(region<0>()).template state<StateConf>();
     }
 
     template<const auto& StateConf>
     [[nodiscard]] bool is() const
     {
         static_assert(region_tuple_type::size == 1);
-        return region<0>().impl().template is<StateConf>();
+        return impl_of(region<0>()).template is<StateConf>();
     }
 
     [[nodiscard]] bool running() const
     {
         static_assert(region_tuple_type::size == 1);
-        return region<0>().impl().running();
+        return impl_of(region<0>()).running();
     }
 
     template<class /*Event*/>
@@ -208,7 +207,7 @@ private:
         template<class Region, class Self, class Machine, class Context, class Event>
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
-            tuple_get<Region>(self.regions_).impl().start(mach, ctx, event);
+            impl_of(tuple_get<Region>(self.regions_)).start(mach, ctx, event);
         }
     };
 
@@ -218,7 +217,7 @@ private:
         template<class Region, class Self, class Machine, class Context, class Event, class... MaybeBool>
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
         {
-            tuple_get<Region>(self.regions_).impl().template process_event<Dry>(mach, ctx, event, processed...);
+            impl_of(tuple_get<Region>(self.regions_)).template process_event<Dry>(mach, ctx, event, processed...);
         }
     };
 
@@ -227,7 +226,7 @@ private:
         template<class Region, class Self, class Machine, class Context, class Event>
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
-            tuple_get<Region>(self.regions_).impl().stop(mach, ctx, event);
+            impl_of(tuple_get<Region>(self.regions_)).stop(mach, ctx, event);
         }
     };
 

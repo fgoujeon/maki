@@ -235,7 +235,7 @@ public:
 
             static_assert
             (
-                decltype(opts(source_state_conf).transition_tables)::size == 0,
+                decltype(impl_of(source_state_conf).transition_tables)::size == 0,
                 "Source state of an anonymous transition must be a non-composite state"
             );
         }

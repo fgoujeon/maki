@@ -10,6 +10,7 @@
 #include "maybe_bool_util.hpp"
 #include "region.hpp"
 #include "simple_state_no_context.hpp"
+#include "integer_constant_sequence.hpp"
 #include "tlu.hpp"
 #include "tuple.hpp"
 #include "../state_conf.hpp"
@@ -182,7 +183,11 @@ public:
 
     [[nodiscard]] bool running() const
     {
-        return impl_of(region<0>()).running();
+        return tlu::apply_t
+        <
+            region_index_constant_sequence,
+            any_region_running
+        >::call(*this);
     }
 
     template<class /*Event*/>
@@ -194,12 +199,34 @@ public:
 private:
     using impl_type = simple_state_no_context<Id>;
 
+    using region_index_sequence_type = std::make_integer_sequence
+    <
+        int,
+        tlu::size_v<transition_table_type_list>
+    >;
+
+    using region_index_constant_sequence = make_integer_constant_sequence
+    <
+        int,
+        tlu::size_v<transition_table_type_list>
+    >;
+
     using region_tuple_type = typename region_tuple
     <
         composite_state_no_context,
         Path,
-        std::make_integer_sequence<int, tlu::size_v<transition_table_type_list>>
+        region_index_sequence_type
     >::type;
+
+    template<class... RegionIndexConstants>
+    struct any_region_running
+    {
+        template<class Self>
+        static bool call(const Self& self)
+        {
+            return (impl_of(tuple_get<RegionIndexConstants::value>(self.regions_)).running() || ...);
+        }
+    };
 
     struct region_start
     {

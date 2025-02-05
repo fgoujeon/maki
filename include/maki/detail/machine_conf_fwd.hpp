@@ -61,7 +61,7 @@ namespace detail
         std::size_t small_event_max_size = machine_conf_default_small_event_max_size;
         TransitionTableTuple transition_tables;
 
-        static tuple<> internal_actions;
+        static constexpr auto internal_actions = tuple<>{};
     };
 }
 

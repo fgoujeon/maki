@@ -182,7 +182,6 @@ public:
 
     [[nodiscard]] bool running() const
     {
-        static_assert(region_tuple_type::size == 1);
         return impl_of(region<0>()).running();
     }
 

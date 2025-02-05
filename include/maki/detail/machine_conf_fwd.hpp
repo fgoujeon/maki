@@ -29,7 +29,7 @@ namespace detail
     <
         class Context = void,
         class EntryActionTuple = tuple<>,
-        class EventActionTuple = tuple<>,
+        class PreProcessingHookTuple = tuple<>,
         class ExitActionTuple = tuple<>,
         class ExceptionHook = null_t,
         class PreExternalTransitionHook = null_t,
@@ -43,12 +43,13 @@ namespace detail
         using exception_hook_type = ExceptionHook;
         using pre_external_transition_hook_type = PreExternalTransitionHook;
         using post_external_transition_hook_type = PostExternalTransitionHook;
+        using pre_processing_hook_tuple_type = PreProcessingHookTuple;
         using post_processing_hook_tuple_type = PostProcessingHookTuple;
 
         bool auto_start = true;
         machine_context_signature context_sig = machine_context_signature::a;
         EntryActionTuple entry_actions;
-        EventActionTuple internal_actions;
+        PreProcessingHookTuple pre_processing_hooks;
         ExitActionTuple exit_actions;
         PostExternalTransitionHook post_external_transition_hook = null;
         PreExternalTransitionHook pre_external_transition_hook = null;
@@ -59,6 +60,8 @@ namespace detail
         std::size_t small_event_max_align = machine_conf_default_small_event_max_align;
         std::size_t small_event_max_size = machine_conf_default_small_event_max_size;
         TransitionTableTuple transition_tables;
+
+        static tuple<> internal_actions;
     };
 }
 

@@ -24,6 +24,7 @@
 #include "detail/noinline.hpp"
 #include "detail/function_queue.hpp"
 #include "detail/tuple.hpp"
+#include "detail/tlu/contains_if.hpp"
 #include <type_traits>
 #include <exception>
 
@@ -482,6 +483,25 @@ private:
         }
         else
         {
+            //Execute pre-processing hook for `Event`, if any, and if running.
+            constexpr auto has_matching_pre_processing_hook = detail::tlu::contains_if_v
+            <
+                pre_processing_hook_ptr_constant_list,
+                detail::event_action_traits::for_event<Event>::template has_containing_event_set
+            >;
+            if constexpr(has_matching_pre_processing_hook)
+            {
+                if(running())
+                {
+                    detail::call_matching_event_action<pre_processing_hook_ptr_constant_list>
+                    (
+                        *this,
+                        context(),
+                        event
+                    );
+                }
+            }
+
             if constexpr(std::is_same_v<typename option_set_type::post_processing_hook_tuple_type, detail::tuple<>>)
             {
                 impl_.template call_internal_action<false>(*this, context(), event);
@@ -501,9 +521,11 @@ private:
         }
     }
 
+    static constexpr auto pre_processing_hooks = impl_of(conf).pre_processing_hooks;
     static constexpr auto post_processing_hooks = impl_of(conf).post_processing_hooks;
     static constexpr auto path = detail::path{};
 
+    using pre_processing_hook_ptr_constant_list = detail::tuple_to_element_ptr_constant_list_t<pre_processing_hooks>;
     using post_processing_hook_ptr_constant_list = detail::tuple_to_element_ptr_constant_list_t<post_processing_hooks>;
 
     detail::context_holder<context_type, impl_of(conf).context_sig> ctx_holder_;

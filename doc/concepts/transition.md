@@ -14,7 +14,7 @@ There are several kinds of transitions. The kind of a transition is defined by a
     * a **state completion** (see @subpage completion-transition);
 * the locality, which is either:
     * **external**, when the source state is exited (you're already familiar with this case);
-    * **local**, when the source state is not exited (see see @subpage local-transition).
+    * **local**, when the source state is not exited (see @subpage local-transition).
 
 Before going further, make sure you read the pages linked above.
 

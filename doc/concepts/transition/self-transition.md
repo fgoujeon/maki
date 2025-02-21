@@ -2,7 +2,7 @@
 
 ## Definition
 
-ST self-transition is a transition whose source and target is the same state.
+A self-transition is a transition whose source and target is the same state.
 
 ### Simple State
 

@@ -4,7 +4,7 @@
 
 A composite state is a state that runs its own, nested state machine.
 
-Like a state machine, a composite state can be made of several [orthogonal regions](@ref orthogonal-region).
+Like a state machine, a composite state can be made of several [orthogonal regions](@ref region).
 
 A state that belongs to a composite state is called a **substate**.
 
@@ -21,6 +21,6 @@ Another example: a set of states could be grouped into a composite state `runnin
 
 ## How to Define and Use a Composite State with Maki
 
-You make Maki create a composite state just like you make it create a simple state: by defining a `maki::state_conf`. A state becomes composite as soon as you give it a set of transition tables, which you do by calling `maki::state_conf::transition_tables()`. Each transition table leads to the creation of an [orthogonal region](@ref orthogonal-region).
+You make Maki create a composite state just like you make it create a simple state: by defining a `maki::state_conf`. A state becomes composite as soon as you give it a set of transition tables, which you do by calling `maki::state_conf::transition_tables()`. Each transition table leads to the creation of a [region](@ref region).
 
 Whenever a state machine enters a composite state, its active substates are the first state of each transition table.

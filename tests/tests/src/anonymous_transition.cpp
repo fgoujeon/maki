@@ -28,7 +28,7 @@ namespace anonymous_transition_ns
         EMPTY_STATE(s4)
     }
 
-    constexpr auto do_something = maki::action_ce([](context& ctx, const events::go_on& /*event*/)
+    constexpr auto do_something = maki::action_ce([](context& ctx, maki::null_t /*event*/)
     {
         ctx.out = "did something";
     });

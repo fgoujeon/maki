@@ -15,17 +15,17 @@ Maki implements the following key features:
 * **transition tables**, featuring:
   * **actions**;
   * **guards**;
-  * **internal transitions**, aka transitions to `maki::null` state;
-  * **completion transitions**, aka anonymous transitions, aka transitions through `maki::null` event;
+  * **internal transitions**;
+  * **completion transitions**, aka anonymous transitions;
   * **event type sets**;
   * **state sets**;
 * **states**, featuring:
   * **entry/exit actions**;
   * **internal transition actions**;
   * **associated data**;
-* **run-to-completion**, the guarantee that the processing of an event won't be interrupted, even if we ask to handle other events in the process;
+* **run-to-completion**;
 * **orthogonal regions**;
-* **composite_states**.
+* **composite states**.
 
 Besides its features, Maki:
 
@@ -37,7 +37,7 @@ Besides its features, Maki:
 
 What is *not* implemented (yet):
 
-* elaborate ways to enter and exit a composite_state (e.g. forks, history and exit points);
+* elaborate ways to enter and exit a composite state (e.g. forks, history and exit points);
 * event deferral;
 * optional thread safety with mutexes.
 

@@ -8,30 +8,30 @@ A completion transition occurs whenever the source state is said to be *complete
 
 A simple state is considered complete right after its entry action is executed.
 
-In the example below, right after a transition to `A` completes, the state machine transitions from `A` to `B`.
+In the example below, right after a transition to `S` completes, the state machine transitions from `S` to `T`.
 
 @startuml{completion_transition_from_simple_state.png}
-[*] --> A
-A -> B
+[*] --> S
+S -> T
 hide empty description
 @enduml
 
 ### From a Composite State
 
-A composite state is considered complete once all its regions entered their final state.
+A composite state is considered complete right after all its regions enter their final state.
 
-In the example below, whenever every region of `A` enters its final state, the state machine transitions from `A` to `B`.
+In the example below, whenever every region of `S` enters its final state, the state machine transitions from `S` to `T`.
 
 @startuml{completion_transition_from_composite_state.png}
-[*] --> A
-A -> B
+[*] --> S
+S -> T
 
-state A {
-    [*] --> A0
-    A0 -> [*] : some_event
+state S {
+    [*] --> X0
+    X0 -> [*] : some_event
     --
-    [*] --> A1
-    A1 -> [*] : some_other_event
+    [*] --> X1
+    X1 -> [*] : some_other_event
 }
 
 hide empty description

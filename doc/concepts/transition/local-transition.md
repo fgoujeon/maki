@@ -60,7 +60,7 @@ hide empty description
 
 In this example, whenever `ST` is active and the event `E` occurs, the state machine:
 
-1. exits the active substate of `S`, whatever it is;
+1. exits the active substate of `ST`, whatever it is;
 2. executes `exit_action`;
 3. executes the action `A`;
 4. executes `entry_action`;

@@ -20,21 +20,21 @@ hide empty description
 
 In the case of a composite state, besides the execution of possible exit and entry actions, a self-transition also causes external transitions to the initial state for all the regions.
 
-In the example below, whenever `ST` is active and the event `E` happens, the state machine executes, in the region of `ST`, an external transition from the active substate (whatever it is) to `AA`.
+In the example below, whenever `ST` is active and the event `E` happens, the state machine executes, in the region of `ST`, an external transition from the active substate (whatever it is) to `X`.
 
 @startuml{regular_self_transition_with_composite_state.png}
 [*] --> ST
 ST -> ST : E
 
 state ST {
-    [*] --> AA
-    AA -> AB : some_event
+    [*] --> X
+    X -> Y : some_event
 }
 
 hide empty description
 @enduml
 
-## How to Define Such a Transition with Maki
+## How to Define a Self-Transition with Maki
 
 An external self-transition is a transition going from `ST` to `ST`:
 

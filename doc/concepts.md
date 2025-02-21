@@ -16,3 +16,4 @@ The concepts are the following:
 * @subpage run-to-completion
 * @subpage orthogonal-region
 * @subpage composite-state
+* @subpage transition

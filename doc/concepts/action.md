@@ -4,33 +4,20 @@
 
 There are several kinds of actions:
 
-* state transition actions;
-* internal actions;
+* transition actions;
 * entry actions;
 * exit actions.
 
-### External transition action
+### Transition action
 
-An external transition action, as its name suggests, is associated to an external transition. Such an action is executed whenever the associated external transition occurs.
+A transition action, as its name suggests, is associated to a transition. Such an action is executed whenever the associated transition occurs.
 
 In the following diagram, `action` is executed whenever the state machine transitions from `state0` to `state1` (because `event` occurs):
 
-@startuml{external_transition_action.png} "A state transition action"
+@startuml{transition_action.png} "A state transition action"
 [*] --> state0
 hide empty description
 state0 -> state1 : event / action
-@enduml
-
-### Internal transition action
-
-An internal transition action (or internal action for short) is associated to a state and an event. Such an action is executed whenever the associated event occurs while the associated state is active.
-
-In the following diagram, `action` is executed whenever `event` occurs while `state0` is active.
-
-@startuml{internal_action.png} "An internal action"
-hide empty description
-[*] --> state0
-state0 : event / action
 @enduml
 
 ### Entry action
@@ -64,21 +51,19 @@ state0 --> state2
 
 ## When to use which kind of action
 
-Internal actions is the only kind of action that can be executed without a state transition. A set of internal actions expresses "when this state is active, here are the actions that must be executed for these types of event".
+Entry/exit actions, being associated to a specific state, are well suited for:
 
-When you want to execute an action during a state transition however, you have several choices.
+* the initialization/deinitialization of the state (e.g. allocation/deallocation of resources, start/stop of timer to implement a timeout, etc.);
+* calling functions that are semantically associated with the state name (e.g. `start_motor()`/`stop_motor()` for a state named `running_motor`).
 
-* Entry/exit actions being associated to a specific state, they are well suited for:
-    * the initialization/deinitialization of the state (e.g. allocation/deallocation of resources, start/stop of timer to implement a timeout, etc.);
-    * calling functions that are semantically associated with the state name (e.g. `start_motor()`/`stop_motor()` for a state named `running_motor`).
-* State transition actions are well suited for executing functions that have more to do with the specific transition it's associated to than with the source or target state.
+Transition actions are well suited for executing functions that have more to do with the specific transition it's associated to than with the source or target state.
 
 ## How to define actions within Maki
 
 There are two ways to define and associate an action:
 
-* within the transition table (possible for state transition actions and internal actions);
-* within the associated state (possible for internal actions, entry actions and exit actions).
+* within the transition table, possible for transition actions;
+* within the associated state, possible for internal actions (see @ref local-transition), entry actions and exit actions.
 
 ### Within the transition table
 
@@ -100,7 +85,7 @@ Here is an example of two actions, with their definition and their association w
 To associate an action to a state, you have to add a callable to the state configuration through a call to either:
 
 * `maki::state_conf::entry_action_v()` (and its variants) for an entry action;
-* `maki::state_conf::internal_action_v()` (and its variants) for an internal action;
+* `maki::state_conf::internal_action_v()` (and its variants) for an internal action (see @ref local-transition);
 * `maki::state_conf::exit_action_v()` (and its variants) for an exit action.
 
 Here is an example of a state that defines all three kinds of actions (entry, internal and exit):

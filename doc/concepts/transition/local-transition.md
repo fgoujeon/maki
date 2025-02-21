@@ -96,7 +96,7 @@ Within Maki, all transitions are external by default. You can express local tran
 
 @ref state-set "State sets" extend the concept of local transitions to substates; a transition whose source state is `maki::all_states` is the equivalent of such a transition:
 
-@snippet concepts/transition/src/main.cpp regular-local-transition-from-parent
+@snippet concepts/transition/src/main.cpp local-transition-to-substate
 
 ### Case #2: Internal Transition
 

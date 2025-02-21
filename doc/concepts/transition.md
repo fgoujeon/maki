@@ -22,11 +22,11 @@ The table below summarizes all the combinations of the three traits:
 
 <table>
     <tr>
-        <th>Position of target</th>
+        <th>Position of Target</th>
         <th>Locality</th>
         <th>Trigger</th>
-        <th>Notation</th>
-        <th>Comment</th>
+        <th>Standard Notation</th>
+        <th>Maki Notation</th>
     </tr>
 
     <tr>
@@ -40,7 +40,9 @@ The table below summarizes all the combinations of the three traits:
             hide empty description
             @enduml
         </td>
-        <td></td>
+        <td>
+            @snippet concepts/transition/src/main.cpp external-transition
+        </td>
     </tr>
 
     <tr>
@@ -54,23 +56,23 @@ The table below summarizes all the combinations of the three traits:
             hide empty description
             @enduml
         </td>
-        <td></td>
+        <td>
+            @snippet concepts/transition/src/main.cpp completion-transition
+        </td>
     </tr>
 
     <tr>
         <td>Sibling</td>
         <td>Local</td>
         <td>Event</td>
-        <td></td>
-        <td>Irrelevant; transitions to siblings are inevitably external.</td>
+        <td colspan="2">Irrelevant; transitions to siblings are inevitably external.</td>
     </tr>
 
     <tr>
         <td>Sibling</td>
         <td>Local</td>
         <td>State completion</td>
-        <td></td>
-        <td>Irrelevant; transitions to siblings are inevitably external.</td>
+        <td colspan="2">Irrelevant; transitions to siblings are inevitably external.</td>
     </tr>
 
     <tr>
@@ -79,12 +81,14 @@ The table below summarizes all the combinations of the three traits:
         <td>Event</td>
         <td>
             @startuml{mini_external_self_transition.png}
-            state S
-            S -> S : E
+            state ST
+            ST -> ST : E
             hide empty description
             @enduml
         </td>
-        <td></td>
+        <td>
+            @snippet concepts/transition/src/main.cpp external-self-transition
+        </td>
     </tr>
 
     <tr>
@@ -93,13 +97,15 @@ The table below summarizes all the combinations of the three traits:
         <td>State completion</td>
         <td>
             @startuml{mini_transition_completion_external_self.png}
-            state S {
+            state ST {
             }
-            S -> S
+            ST -> ST
             hide empty description
             @enduml
         </td>
-        <td>For composite states only; would cause infinite loop for simple states.</td>
+        <td>
+            @snippet concepts/transition/src/main.cpp external-completion-self-transition
+        </td>
     </tr>
 
     <tr>
@@ -108,20 +114,25 @@ The table below summarizes all the combinations of the three traits:
         <td>Event</td>
         <td>
             @startuml{mini_internal_transition.png}
-            state S
-            S : E / A
+            state ST
+            ST : E / A
             hide empty description
             @enduml
         </td>
-        <td>This particular case is called an internal transition.</td>
+        <td>
+            @snippet concepts/transition/src/main.cpp internal-transition
+
+            or
+
+            @snippet concepts/transition/src/main.cpp internal-transition-in-state-conf
+        </td>
     </tr>
 
     <tr>
         <td>Self</td>
         <td>Local</td>
         <td>State completion</td>
-        <td></td>
-        <td>Irrelevant</td>
+        <td colspan="2">Irrelevant.</td>
     </tr>
 
     <tr>
@@ -129,7 +140,7 @@ The table below summarizes all the combinations of the three traits:
         <td>External</td>
         <td>Event</td>
         <td>![](mini_transition_sub_external_event.png)</td>
-        <td></td>
+        <td>Not implemented.</td>
     </tr>
 
     <tr>
@@ -137,7 +148,7 @@ The table below summarizes all the combinations of the three traits:
         <td>External</td>
         <td>State completion</td>
         <td>![](mini_transition_sub_external_completion.png)</td>
-        <td></td>
+        <td>Not implemented.</td>
     </tr>
 
     <tr>
@@ -145,7 +156,9 @@ The table below summarizes all the combinations of the three traits:
         <td>Local</td>
         <td>Event</td>
         <td>![](mini_transition_sub_local_event.png)</td>
-        <td></td>
+        <td>
+            @snippet concepts/transition/src/main.cpp local-transition-to-substate
+        </td>
     </tr>
 
     <tr>
@@ -153,7 +166,7 @@ The table below summarizes all the combinations of the three traits:
         <td>Local</td>
         <td>State completion</td>
         <td>![](mini_transition_sub_local_completion.png)</td>
-        <td></td>
+        <td>Not implemented.</td>
     </tr>
 
     <tr>
@@ -161,7 +174,7 @@ The table below summarizes all the combinations of the three traits:
         <td>External</td>
         <td>Event</td>
         <td>![](mini_transition_super_external_event.png)</td>
-        <td></td>
+        <td>Not implemented.</td>
     </tr>
 
     <tr>
@@ -169,22 +182,20 @@ The table below summarizes all the combinations of the three traits:
         <td>External</td>
         <td>State completion</td>
         <td>![](mini_transition_super_external_completion.png)</td>
-        <td></td>
+        <td>Not implemented.</td>
     </tr>
 
     <tr>
         <td>Superstate</td>
         <td>Local</td>
         <td>Event</td>
-        <td></td>
-        <td>Irrelevant; transitions to superstates are inevitably external.</td>
+        <td colspan="2">Irrelevant; transitions to superstates are inevitably external.</td>
     </tr>
 
     <tr>
         <td>Superstate</td>
         <td>Local</td>
         <td>State completion</td>
-        <td></td>
-        <td>Irrelevant; transitions to superstates are inevitably external.</td>
+        <td colspan="2">Irrelevant; transitions to superstates are inevitably external.</td>
     </tr>
 </table>

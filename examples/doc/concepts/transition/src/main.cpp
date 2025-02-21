@@ -26,21 +26,29 @@ constexpr auto S = maki::state_conf{};
 constexpr auto T = maki::state_conf{};
 
 constexpr auto transition_table = maki::transition_table{}
+//! [external-transition]
+(S, maki::event<E>, T)
+//! [external-transition]
+
 //! [completion-transition]
-    (S, maki::null, T)
+(S, maki::null, T)
 //! [completion-transition]
 
 //! [external-self-transition]
-    (ST, maki::event<E>, ST)
+(ST, maki::event<E>, ST)
 //! [external-self-transition]
 
+//! [external-completion-self-transition]
+(ST, maki::null, ST)
+//! [external-completion-self-transition]
+
 //! [internal-transition]
-    (ST, maki::event<E>, maki::null, A)
+(ST, maki::event<E>, maki::null, A)
 //! [internal-transition]
 
-//! [regular-local-transition-from-parent]
-    (maki::all_states, maki::event<E>, T)
-//! [regular-local-transition-from-parent]
+//! [local-transition-to-substate]
+(maki::all_states, maki::event<E>, T)
+//! [local-transition-to-substate]
 ;
 
 constexpr auto machine_conf = maki::machine_conf{}

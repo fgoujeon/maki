@@ -178,7 +178,7 @@ private:
     template<class... StateIdConstants>
     using state_id_constant_pack_to_state_tuple_t = tuple
     <
-        maki::state<state_traits::state_id_to_type_t<StateIdConstants::value, Path>>...
+        state_traits::state_id_to_type_t<StateIdConstants::value, Path>...
     >;
 
     using state_tuple_type = tlu::apply_t

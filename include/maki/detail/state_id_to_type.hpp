@@ -12,6 +12,7 @@
 #include "composite_state_no_context_fwd.hpp"
 #include "composite_state_fwd.hpp"
 #include "state_id_traits.hpp"
+#include "../state.hpp"
 
 namespace maki::detail::state_traits
 {
@@ -22,27 +23,27 @@ struct state_id_to_type_impl;
 template<auto StateId, const auto& ParentPath>
 struct state_id_to_type_impl<StateId, ParentPath, false, false>
 {
-    using type = simple_state_no_context<StateId>;
+    using type = maki::state<simple_state_no_context<StateId>>;
 };
 
 template<auto StateId, const auto& ParentPath>
 struct state_id_to_type_impl<StateId, ParentPath, false, true>
 {
-    using type = simple_state<StateId>;
+    using type = maki::state<simple_state<StateId>>;
 };
 
 template<auto StateId, const auto& ParentPath>
 struct state_id_to_type_impl<StateId, ParentPath, true, false>
 {
     static constexpr auto path = ParentPath.template add_state<*StateId>();
-    using type = composite_state_no_context<StateId, path>;
+    using type = maki::state<composite_state_no_context<StateId, path>>;
 };
 
 template<auto StateId, const auto& ParentPath>
 struct state_id_to_type_impl<StateId, ParentPath, true, true>
 {
     static constexpr auto path = ParentPath.template add_state<*StateId>();
-    using type = composite_state<StateId, path>;
+    using type = maki::state<composite_state<StateId, path>>;
 };
 
 template<auto StateId, const auto& ParentPath>

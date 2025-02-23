@@ -43,27 +43,6 @@ namespace region_detail
 {
     inline constexpr auto final_state_index = -1;
 
-    template<class StateList, class State>
-    struct find_state
-    {
-        static constexpr auto value = tlu::find_v<StateList, State>;
-    };
-
-    template<class StateList>
-    struct find_state<StateList, std::decay_t<decltype(states::initial)>>
-    {
-        static constexpr auto value = final_state_index;
-    };
-
-    template<class StateList>
-    struct find_state<StateList, std::decay_t<decltype(states::final)>>
-    {
-        static constexpr auto value = final_state_index;
-    };
-
-    template<class StateList, class State>
-    inline constexpr auto find_state_v = find_state<StateList, State>::value;
-
     template<class StateIdConstantList, auto StateId>
     struct state_id_to_index
     {
@@ -561,12 +540,7 @@ private:
     template<class State>
     [[nodiscard]] bool is_active_state_type() const
     {
-        constexpr auto given_state_index = region_detail::find_state_v
-        <
-            state_tuple_type,
-            State
-        >;
-        return given_state_index == active_state_index_;
+        return is_active_state_id<impl_of_t<State>::identifier>();
     }
 
     template<auto StateId>
@@ -658,10 +632,7 @@ private:
     template<class State, class Region>
     static auto& static_state(Region& self)
     {
-        static constexpr auto state_index =
-            region_detail::find_state_v<state_tuple_type, State>
-        ;
-        return tuple_get<state_index>(self.states_);
+        return static_state_from_id<impl_of_t<State>::identifier, Region>(self);
     }
 
     //Note: We use static to factorize const and non-const Region

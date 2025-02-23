@@ -26,5 +26,6 @@
 #include "maki/machine_ref_conf.hpp" //NOLINT misc-include-cleaner
 #include "maki/state_conf.hpp" //NOLINT misc-include-cleaner
 #include "maki/state_set.hpp" //NOLINT misc-include-cleaner
+#include "maki/states.hpp" //NOLINT misc-include-cleaner
 #include "maki/transition_table.hpp" //NOLINT misc-include-cleaner
 #include "maki/version.hpp" //NOLINT misc-include-cleaner

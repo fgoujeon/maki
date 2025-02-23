@@ -4,18 +4,18 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_SIMPLE_STATE_HPP
-#define MAKI_DETAIL_SIMPLE_STATE_HPP
+#ifndef MAKI_DETAIL_STATE_IMPLS_SIMPLE_HPP
+#define MAKI_DETAIL_STATE_IMPLS_SIMPLE_HPP
 
-#include "simple_state_no_context.hpp"
-#include "context_holder.hpp"
+#include "simple_no_context.hpp"
+#include "../context_holder.hpp"
 #include <type_traits>
 
-namespace maki::detail
+namespace maki::detail::state_impls
 {
 
 template<auto Id>
-class simple_state
+class simple
 {
 public:
     static constexpr auto identifier = Id;
@@ -26,16 +26,16 @@ public:
     static constexpr auto context_sig = impl_of(conf).context_sig;
 
     template<class... Args>
-    simple_state(Args&... args):
+    simple(Args&... args):
         ctx_holder_(args...)
     {
     }
 
-    simple_state(const simple_state&) = delete;
-    simple_state(simple_state&&) = delete;
-    simple_state& operator=(const simple_state&) = delete;
-    simple_state& operator=(simple_state&&) = delete;
-    ~simple_state() = default;
+    simple(const simple&) = delete;
+    simple(simple&&) = delete;
+    simple& operator=(const simple&) = delete;
+    simple& operator=(simple&&) = delete;
+    ~simple() = default;
 
     auto& context()
     {
@@ -72,7 +72,7 @@ public:
     }
 
 private:
-    using impl_type = simple_state_no_context<identifier>;
+    using impl_type = simple_no_context<identifier>;
 
     context_holder<context_type, context_sig> ctx_holder_;
     impl_type impl_;

@@ -4,20 +4,20 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_SIMPLE_STATE_NO_CONTEXT_HPP
-#define MAKI_DETAIL_SIMPLE_STATE_NO_CONTEXT_HPP
+#ifndef MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP
+#define MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP
 
-#include "maybe_bool_util.hpp"
-#include "event_action.hpp"
-#include "tuple.hpp"
-#include "tlu.hpp"
+#include "../event_action.hpp"
+#include "../tuple.hpp"
+#include "../maybe_bool_util.hpp"
+#include "../tlu.hpp"
 #include <type_traits>
 
-namespace maki::detail
+namespace maki::detail::state_impls
 {
 
 template<auto Id>
-class simple_state_no_context
+class simple_no_context
 {
 public:
     static constexpr auto identifier = Id;
@@ -25,15 +25,15 @@ public:
     using option_set_type = std::decay_t<decltype(impl_of(conf))>;
 
     template<class... Args>
-    constexpr simple_state_no_context(Args&... /*args*/)
+    constexpr simple_no_context(Args&... /*args*/)
     {
     }
 
-    simple_state_no_context(const simple_state_no_context&) = default;
-    simple_state_no_context(simple_state_no_context&&) = default;
-    simple_state_no_context& operator=(const simple_state_no_context&) = default;
-    simple_state_no_context& operator=(simple_state_no_context&&) = default;
-    ~simple_state_no_context() = default;
+    simple_no_context(const simple_no_context&) = default;
+    simple_no_context(simple_no_context&&) = default;
+    simple_no_context& operator=(const simple_no_context&) = default;
+    simple_no_context& operator=(simple_no_context&&) = default;
+    ~simple_no_context() = default;
 
     template<class Machine, class Context, class Event>
     void call_entry_action(Machine& mach, Context& ctx, const Event& event)

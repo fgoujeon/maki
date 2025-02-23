@@ -4,14 +4,14 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_SIMPLE_STATE_NO_CONTEXT_FWD_HPP
-#define MAKI_DETAIL_SIMPLE_STATE_NO_CONTEXT_FWD_HPP
+#ifndef MAKI_DETAIL_STATE_IMPLS_COMPOSITE_FWD_HPP
+#define MAKI_DETAIL_STATE_IMPLS_COMPOSITE_FWD_HPP
 
-namespace maki::detail
+namespace maki::detail::state_impls
 {
 
-template<auto Id>
-class simple_state_no_context;
+template<auto Id, const auto& Path>
+class composite;
 
 } //namespace
 

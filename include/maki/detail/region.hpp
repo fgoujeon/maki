@@ -7,8 +7,7 @@
 #ifndef MAKI_DETAIL_REGION_HPP
 #define MAKI_DETAIL_REGION_HPP
 
-#include "state_traits.hpp"
-#include "states.hpp"
+#include "state_id_to_type.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
@@ -21,6 +20,7 @@
 #include "tlu/find.hpp"
 #include "tlu/front.hpp"
 #include "tlu/push_back.hpp"
+#include "../states.hpp"
 #include "../action.hpp"
 #include "../guard.hpp"
 #include "../path.hpp"
@@ -41,22 +41,7 @@ namespace maki::detail
 
 namespace region_detail
 {
-    inline constexpr auto stopped_state_index = -1;
-
-    template<class StateList, class State>
-    struct find_state
-    {
-        static constexpr auto value = tlu::find_v<StateList, State>;
-    };
-
-    template<class StateList>
-    struct find_state<StateList, std::decay_t<decltype(states::stopped)>>
-    {
-        static constexpr auto value = stopped_state_index;
-    };
-
-    template<class StateList, class State>
-    inline constexpr auto find_state_v = find_state<StateList, State>::value;
+    inline constexpr auto final_state_index = -1;
 
     template<class StateIdConstantList, auto StateId>
     struct state_id_to_index
@@ -65,9 +50,15 @@ namespace region_detail
     };
 
     template<class StateIdConstantList>
-    struct state_id_to_index<StateIdConstantList, &state_confs::stopped>
+    struct state_id_to_index<StateIdConstantList, &state_confs::initial>
     {
-        static constexpr auto value = stopped_state_index;
+        static constexpr auto value = final_state_index;
+    };
+
+    template<class StateIdConstantList>
+    struct state_id_to_index<StateIdConstantList, &state_confs::final>
+    {
+        static constexpr auto value = final_state_index;
     };
 
     template<class StateIdConstantList, auto StateId>
@@ -106,7 +97,7 @@ public:
 
     [[nodiscard]] bool running() const
     {
-        return !is_active_state_id<&state_confs::stopped>();
+        return !is_active_state_id<&state_confs::final>();
     }
 
     template<class Machine, class Context, class Event>
@@ -116,7 +107,7 @@ public:
         {
             process_event_in_transition
             <
-                &state_confs::stopped,
+                &state_confs::initial,
                 pinitial_state_conf,
                 &null
             >(mach, ctx, event);
@@ -165,7 +156,7 @@ public:
     template<const auto& StateConf>
     const auto& state() const
     {
-        return state_from_id<&StateConf>();
+        return state_id_to_obj<&StateConf>();
     }
 
     static const auto& path()
@@ -187,7 +178,7 @@ private:
     template<class... StateIdConstants>
     using state_id_constant_pack_to_state_tuple_t = tuple
     <
-        maki::state<state_traits::state_id_to_state_t<StateIdConstants::value, Path>>...
+        state_traits::state_id_to_type_t<StateIdConstants::value, Path>...
     >;
 
     using state_tuple_type = tlu::apply_t
@@ -264,7 +255,7 @@ private:
             self.process_event_in_transition
             <
                 ActiveStateIdConstant::value,
-                &state_confs::stopped,
+                &state_confs::final,
                 &null
             >(mach, ctx, event);
         }
@@ -419,15 +410,15 @@ private:
                 (
                     ctx,
                     *pitf_,
-                    state_from_id<SourceStateId>(),
+                    state_id_to_obj<SourceStateId>(),
                     event,
-                    state_from_id<TargetStateId>()
+                    state_id_to_obj<TargetStateId>()
                 );
             }
 
-            if constexpr(!ptr_equals(SourceStateId, &state_confs::stopped))
+            if constexpr(!ptr_equals(SourceStateId, &state_confs::initial))
             {
-                auto& stt = state_from_id<SourceStateId>();
+                auto& stt = state_id_to_obj<SourceStateId>();
                 impl_of(stt).call_exit_action
                 (
                     mach,
@@ -456,9 +447,9 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(!ptr_equals(TargetStateId, &state_confs::stopped))
+            if constexpr(!ptr_equals(TargetStateId, &state_confs::final))
             {
-                auto& stt = state_from_id<TargetStateId>();
+                auto& stt = state_id_to_obj<TargetStateId>();
                 impl_of(stt).call_entry_action
                 (
                     mach,
@@ -473,9 +464,9 @@ private:
                 (
                     ctx,
                     *pitf_,
-                    state_from_id<SourceStateId>(),
+                    state_id_to_obj<SourceStateId>(),
                     event,
-                    state_from_id<TargetStateId>()
+                    state_id_to_obj<TargetStateId>()
                 );
             }
 
@@ -534,7 +525,7 @@ private:
                 return false;
             }
 
-            impl_of(self.template state<State>()).template call_internal_action<Dry>
+            impl_of(self.template state_type_to_obj<State>()).template call_internal_action<Dry>
             (
                 mach,
                 ctx,
@@ -549,12 +540,7 @@ private:
     template<class State>
     [[nodiscard]] bool is_active_state_type() const
     {
-        constexpr auto given_state_index = region_detail::find_state_v
-        <
-            state_tuple_type,
-            State
-        >;
-        return given_state_index == active_state_index_;
+        return is_active_state_id<impl_of_t<State>::identifier>();
     }
 
     template<auto StateId>
@@ -574,7 +560,7 @@ private:
         auto matches = false;
         with_active_state_id
         <
-            tlu::push_back_t<state_id_constant_list, constant_t<&state_confs::stopped>>,
+            tlu::push_back_t<state_id_constant_list, constant_t<&state_confs::final>>,
             is_active_state_id_in_set_2<StateSetPtr>
         >(matches);
         return matches;
@@ -619,46 +605,47 @@ private:
     };
 
     template<class State>
-    auto& state()
+    auto& state_type_to_obj()
     {
-        return static_state<State>(*this);
+        return static_state_type_to_obj<State>(*this);
     }
 
     template<class State>
-    const auto& state() const
+    const auto& state_type_to_obj() const
     {
-        return static_state<State>(*this);
+        return static_state_type_to_obj<State>(*this);
     }
 
     template<auto StateId>
-    auto& state_from_id()
+    auto& state_id_to_obj()
     {
-        return static_state_from_id<StateId>(*this);
+        return static_state_id_to_obj<StateId>(*this);
     }
 
     template<auto StateId>
-    const auto& state_from_id() const
+    const auto& state_id_to_obj() const
     {
-        return static_state_from_id<StateId>(*this);
+        return static_state_id_to_obj<StateId>(*this);
     }
 
     //Note: We use static to factorize const and non-const Region
     template<class State, class Region>
-    static auto& static_state(Region& self)
+    static auto& static_state_type_to_obj(Region& self)
     {
-        static constexpr auto state_index =
-            region_detail::find_state_v<state_tuple_type, State>
-        ;
-        return tuple_get<state_index>(self.states_);
+        return static_state_id_to_obj<impl_of_t<State>::identifier>(self);
     }
 
     //Note: We use static to factorize const and non-const Region
     template<auto StateId, class Region>
-    static auto& static_state_from_id(Region& self)
+    static auto& static_state_id_to_obj(Region& self)
     {
-        if constexpr(ptr_equals(StateId, &state_confs::stopped))
+        if constexpr(ptr_equals(StateId, &state_confs::initial))
         {
-            return states::stopped;
+            return states::initial;
+        }
+        else if constexpr(ptr_equals(StateId, &state_confs::final))
+        {
+            return states::final;
         }
         else
         {
@@ -675,7 +662,7 @@ private:
 
     const maki::region<region>* pitf_;
     state_tuple_type states_;
-    int active_state_index_ = region_detail::stopped_state_index;
+    int active_state_index_ = region_detail::final_state_index;
 };
 
 } //namespace

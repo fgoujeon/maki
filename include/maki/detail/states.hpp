@@ -16,18 +16,14 @@ namespace maki::detail
 
 namespace state_confs
 {
-    /**
-    @brief Represents the state of any region before `machine::start()` is
-    called and after `machine::stop()` is called.
-    */
-    inline constexpr auto stopped = state_conf{}
-        .pretty_name("")
-    ;
+    inline constexpr auto initial = state_conf{};
+    inline constexpr auto final = state_conf{};
 }
 
 namespace states
 {
-    inline constexpr auto stopped = state<simple_state_no_context<&state_confs::stopped>>{};
+    inline constexpr auto initial = state<simple_state_no_context<&state_confs::initial>>{};
+    inline constexpr auto final = state<simple_state_no_context<&state_confs::final>>{};
 }
 
 } //namespace

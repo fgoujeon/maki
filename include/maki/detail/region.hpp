@@ -41,7 +41,7 @@ namespace maki::detail
 
 namespace region_detail
 {
-    inline constexpr auto stopped_state_index = -1;
+    inline constexpr auto final_state_index = -1;
 
     template<class StateList, class State>
     struct find_state
@@ -50,9 +50,15 @@ namespace region_detail
     };
 
     template<class StateList>
-    struct find_state<StateList, std::decay_t<decltype(states::stopped)>>
+    struct find_state<StateList, std::decay_t<decltype(states::initial)>>
     {
-        static constexpr auto value = stopped_state_index;
+        static constexpr auto value = final_state_index;
+    };
+
+    template<class StateList>
+    struct find_state<StateList, std::decay_t<decltype(states::final)>>
+    {
+        static constexpr auto value = final_state_index;
     };
 
     template<class StateList, class State>
@@ -65,9 +71,15 @@ namespace region_detail
     };
 
     template<class StateIdConstantList>
-    struct state_id_to_index<StateIdConstantList, &state_confs::stopped>
+    struct state_id_to_index<StateIdConstantList, &state_confs::initial>
     {
-        static constexpr auto value = stopped_state_index;
+        static constexpr auto value = final_state_index;
+    };
+
+    template<class StateIdConstantList>
+    struct state_id_to_index<StateIdConstantList, &state_confs::final>
+    {
+        static constexpr auto value = final_state_index;
     };
 
     template<class StateIdConstantList, auto StateId>
@@ -106,7 +118,7 @@ public:
 
     [[nodiscard]] bool running() const
     {
-        return !is_active_state_id<&state_confs::stopped>();
+        return !is_active_state_id<&state_confs::final>();
     }
 
     template<class Machine, class Context, class Event>
@@ -116,7 +128,7 @@ public:
         {
             process_event_in_transition
             <
-                &state_confs::stopped,
+                &state_confs::initial,
                 pinitial_state_conf,
                 &null
             >(mach, ctx, event);
@@ -264,7 +276,7 @@ private:
             self.process_event_in_transition
             <
                 ActiveStateIdConstant::value,
-                &state_confs::stopped,
+                &state_confs::final,
                 &null
             >(mach, ctx, event);
         }
@@ -425,7 +437,7 @@ private:
                 );
             }
 
-            if constexpr(!ptr_equals(SourceStateId, &state_confs::stopped))
+            if constexpr(!ptr_equals(SourceStateId, &state_confs::initial))
             {
                 auto& stt = state_from_id<SourceStateId>();
                 impl_of(stt).call_exit_action
@@ -456,7 +468,7 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(!ptr_equals(TargetStateId, &state_confs::stopped))
+            if constexpr(!ptr_equals(TargetStateId, &state_confs::final))
             {
                 auto& stt = state_from_id<TargetStateId>();
                 impl_of(stt).call_entry_action
@@ -574,7 +586,7 @@ private:
         auto matches = false;
         with_active_state_id
         <
-            tlu::push_back_t<state_id_constant_list, constant_t<&state_confs::stopped>>,
+            tlu::push_back_t<state_id_constant_list, constant_t<&state_confs::final>>,
             is_active_state_id_in_set_2<StateSetPtr>
         >(matches);
         return matches;
@@ -656,9 +668,13 @@ private:
     template<auto StateId, class Region>
     static auto& static_state_from_id(Region& self)
     {
-        if constexpr(ptr_equals(StateId, &state_confs::stopped))
+        if constexpr(ptr_equals(StateId, &state_confs::initial))
         {
-            return states::stopped;
+            return states::initial;
+        }
+        else if constexpr(ptr_equals(StateId, &state_confs::final))
+        {
+            return states::final;
         }
         else
         {
@@ -675,7 +691,7 @@ private:
 
     const maki::region<region>* pitf_;
     state_tuple_type states_;
-    int active_state_index_ = region_detail::stopped_state_index;
+    int active_state_index_ = region_detail::final_state_index;
 };
 
 } //namespace

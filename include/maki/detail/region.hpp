@@ -7,7 +7,7 @@
 #ifndef MAKI_DETAIL_REGION_HPP
 #define MAKI_DETAIL_REGION_HPP
 
-#include "state_traits.hpp"
+#include "state_id_to_type.hpp"
 #include "states.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
@@ -156,7 +156,7 @@ public:
     template<const auto& StateConf>
     const auto& state() const
     {
-        return state_from_id<&StateConf>();
+        return state_id_to_obj<&StateConf>();
     }
 
     static const auto& path()
@@ -178,7 +178,7 @@ private:
     template<class... StateIdConstants>
     using state_id_constant_pack_to_state_tuple_t = tuple
     <
-        maki::state<state_traits::state_id_to_state_t<StateIdConstants::value, Path>>...
+        maki::state<state_traits::state_id_to_type_t<StateIdConstants::value, Path>>...
     >;
 
     using state_tuple_type = tlu::apply_t
@@ -410,15 +410,15 @@ private:
                 (
                     ctx,
                     *pitf_,
-                    state_from_id<SourceStateId>(),
+                    state_id_to_obj<SourceStateId>(),
                     event,
-                    state_from_id<TargetStateId>()
+                    state_id_to_obj<TargetStateId>()
                 );
             }
 
             if constexpr(!ptr_equals(SourceStateId, &state_confs::initial))
             {
-                auto& stt = state_from_id<SourceStateId>();
+                auto& stt = state_id_to_obj<SourceStateId>();
                 impl_of(stt).call_exit_action
                 (
                     mach,
@@ -449,7 +449,7 @@ private:
         {
             if constexpr(!ptr_equals(TargetStateId, &state_confs::final))
             {
-                auto& stt = state_from_id<TargetStateId>();
+                auto& stt = state_id_to_obj<TargetStateId>();
                 impl_of(stt).call_entry_action
                 (
                     mach,
@@ -464,9 +464,9 @@ private:
                 (
                     ctx,
                     *pitf_,
-                    state_from_id<SourceStateId>(),
+                    state_id_to_obj<SourceStateId>(),
                     event,
-                    state_from_id<TargetStateId>()
+                    state_id_to_obj<TargetStateId>()
                 );
             }
 
@@ -525,7 +525,7 @@ private:
                 return false;
             }
 
-            impl_of(self.template state<State>()).template call_internal_action<Dry>
+            impl_of(self.template state_type_to_obj<State>()).template call_internal_action<Dry>
             (
                 mach,
                 ctx,
@@ -605,39 +605,39 @@ private:
     };
 
     template<class State>
-    auto& state()
+    auto& state_type_to_obj()
     {
-        return static_state<State>(*this);
+        return static_state_type_to_obj<State>(*this);
     }
 
     template<class State>
-    const auto& state() const
+    const auto& state_type_to_obj() const
     {
-        return static_state<State>(*this);
+        return static_state_type_to_obj<State>(*this);
     }
 
     template<auto StateId>
-    auto& state_from_id()
+    auto& state_id_to_obj()
     {
-        return static_state_from_id<StateId>(*this);
+        return static_state_id_to_obj<StateId>(*this);
     }
 
     template<auto StateId>
-    const auto& state_from_id() const
+    const auto& state_id_to_obj() const
     {
-        return static_state_from_id<StateId>(*this);
+        return static_state_id_to_obj<StateId>(*this);
     }
 
     //Note: We use static to factorize const and non-const Region
     template<class State, class Region>
-    static auto& static_state(Region& self)
+    static auto& static_state_type_to_obj(Region& self)
     {
-        return static_state_from_id<impl_of_t<State>::identifier, Region>(self);
+        return static_state_id_to_obj<impl_of_t<State>::identifier>(self);
     }
 
     //Note: We use static to factorize const and non-const Region
     template<auto StateId, class Region>
-    static auto& static_state_from_id(Region& self)
+    static auto& static_state_id_to_obj(Region& self)
     {
         if constexpr(ptr_equals(StateId, &state_confs::initial))
         {

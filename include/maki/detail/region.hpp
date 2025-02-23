@@ -8,7 +8,6 @@
 #define MAKI_DETAIL_REGION_HPP
 
 #include "state_id_to_type.hpp"
-#include "states.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
@@ -21,6 +20,7 @@
 #include "tlu/find.hpp"
 #include "tlu/front.hpp"
 #include "tlu/push_back.hpp"
+#include "../states.hpp"
 #include "../action.hpp"
 #include "../guard.hpp"
 #include "../path.hpp"

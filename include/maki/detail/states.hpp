@@ -7,7 +7,7 @@
 #ifndef MAKI_DETAIL_STATES_HPP
 #define MAKI_DETAIL_STATES_HPP
 
-#include "simple_state_no_context.hpp"
+#include "state_impls/simple_no_context.hpp"
 #include "../state.hpp"
 #include "../state_conf.hpp"
 
@@ -22,8 +22,8 @@ namespace state_confs
 
 namespace states
 {
-    inline constexpr auto initial = state<simple_state_no_context<&state_confs::initial>>{};
-    inline constexpr auto final = state<simple_state_no_context<&state_confs::final>>{};
+    inline constexpr auto initial = state<state_impls::simple_no_context<&state_confs::initial>>{};
+    inline constexpr auto final = state<state_impls::simple_no_context<&state_confs::final>>{};
 }
 
 } //namespace

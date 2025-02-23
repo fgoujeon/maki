@@ -4,21 +4,21 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_COMPOSITE_STATE_NO_CONTEXT_HPP
-#define MAKI_DETAIL_COMPOSITE_STATE_NO_CONTEXT_HPP
+#ifndef MAKI_DETAIL_STATE_IMPLS_COMPOSITE_NO_CONTEXT_HPP
+#define MAKI_DETAIL_STATE_IMPLS_COMPOSITE_NO_CONTEXT_HPP
 
-#include "maybe_bool_util.hpp"
-#include "region.hpp"
-#include "simple_state_no_context.hpp"
-#include "integer_constant_sequence.hpp"
-#include "tlu.hpp"
-#include "tuple.hpp"
-#include "../state_conf.hpp"
+#include "simple_no_context.hpp"
+#include "../maybe_bool_util.hpp"
 #include "../region.hpp"
+#include "../integer_constant_sequence.hpp"
+#include "../tlu.hpp"
+#include "../tuple.hpp"
+#include "../../state_conf.hpp"
+#include "../../region.hpp"
 #include <type_traits>
 #include <utility>
 
-namespace maki::detail
+namespace maki::detail::state_impls
 {
 
 template
@@ -75,7 +75,7 @@ struct region_tuple
 };
 
 template<auto Id, const auto& Path>
-class composite_state_no_context
+class composite_no_context
 {
 public:
     static constexpr auto identifier = Id;
@@ -85,16 +85,16 @@ public:
     using transition_table_type_list = decltype(impl_of(conf).transition_tables);
 
     template<class Machine, class Context>
-    composite_state_no_context(Machine& mach, Context& ctx):
+    composite_no_context(Machine& mach, Context& ctx):
         regions_(uniform_construct, mach, ctx)
     {
     }
 
-    composite_state_no_context(const composite_state_no_context&) = delete;
-    composite_state_no_context(composite_state_no_context&&) = delete;
-    composite_state_no_context& operator=(const composite_state_no_context&) = delete;
-    composite_state_no_context& operator=(composite_state_no_context&&) = delete;
-    ~composite_state_no_context() = default;
+    composite_no_context(const composite_no_context&) = delete;
+    composite_no_context(composite_no_context&&) = delete;
+    composite_no_context& operator=(const composite_no_context&) = delete;
+    composite_no_context& operator=(composite_no_context&&) = delete;
+    ~composite_no_context() = default;
 
     template<class Machine, class Context, class Event>
     void call_entry_action(Machine& mach, Context& ctx, const Event& event)
@@ -197,7 +197,7 @@ public:
     }
 
 private:
-    using impl_type = simple_state_no_context<Id>;
+    using impl_type = simple_no_context<Id>;
 
     using region_index_sequence_type = std::make_integer_sequence
     <
@@ -213,7 +213,7 @@ private:
 
     using region_tuple_type = typename region_tuple
     <
-        composite_state_no_context,
+        composite_no_context,
         Path,
         region_index_sequence_type
     >::type;

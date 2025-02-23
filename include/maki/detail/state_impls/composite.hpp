@@ -4,20 +4,20 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_COMPOSITE_STATE_HPP
-#define MAKI_DETAIL_COMPOSITE_STATE_HPP
+#ifndef MAKI_DETAIL_STATE_IMPLS_COMPOSITE_HPP
+#define MAKI_DETAIL_STATE_IMPLS_COMPOSITE_HPP
 
-#include "tlu.hpp"
-#include "composite_state_no_context.hpp"
-#include "context_holder.hpp"
-#include "../state_conf.hpp"
+#include "composite_no_context.hpp"
+#include "../context_holder.hpp"
+#include "../tlu.hpp"
+#include "../../state_conf.hpp"
 #include <type_traits>
 
-namespace maki::detail
+namespace maki::detail::state_impls
 {
 
 template<auto Id, const auto& Path>
-class composite_state
+class composite
 {
 public:
     static constexpr auto identifier = Id;
@@ -28,17 +28,17 @@ public:
     using context_type = typename option_set_type::context_type;
 
     template<class Machine, class ParentContext>
-    composite_state(Machine& mach, ParentContext& parent_ctx):
+    composite(Machine& mach, ParentContext& parent_ctx):
         ctx_holder_(mach, parent_ctx),
         impl_(mach, context())
     {
     }
 
-    composite_state(const composite_state&) = delete;
-    composite_state(composite_state&&) = delete;
-    composite_state& operator=(const composite_state&) = delete;
-    composite_state& operator=(composite_state&&) = delete;
-    ~composite_state() = default;
+    composite(const composite&) = delete;
+    composite(composite&&) = delete;
+    composite& operator=(const composite&) = delete;
+    composite& operator=(composite&&) = delete;
+    ~composite() = default;
 
     auto& context()
     {
@@ -149,7 +149,7 @@ public:
     }
 
 private:
-    using impl_type = composite_state_no_context<identifier, Path>;
+    using impl_type = composite_no_context<identifier, Path>;
 
     context_holder<context_type, impl_of(conf).context_sig> ctx_holder_;
     impl_type impl_;

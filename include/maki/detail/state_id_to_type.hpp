@@ -7,10 +7,10 @@
 #ifndef MAKI_DETAIL_STATE_ID_TO_TYPE_HPP
 #define MAKI_DETAIL_STATE_ID_TO_TYPE_HPP
 
-#include "simple_state_no_context_fwd.hpp"
-#include "simple_state_fwd.hpp"
-#include "composite_state_no_context_fwd.hpp"
-#include "composite_state_fwd.hpp"
+#include "state_impls/simple_no_context_fwd.hpp"
+#include "state_impls/simple_fwd.hpp"
+#include "state_impls/composite_no_context_fwd.hpp"
+#include "state_impls/composite_fwd.hpp"
 #include "state_id_traits.hpp"
 #include "../state.hpp"
 
@@ -23,27 +23,27 @@ struct state_id_to_type_impl;
 template<auto StateId, const auto& ParentPath>
 struct state_id_to_type_impl<StateId, ParentPath, false, false>
 {
-    using type = maki::state<simple_state_no_context<StateId>>;
+    using type = maki::state<state_impls::simple_no_context<StateId>>;
 };
 
 template<auto StateId, const auto& ParentPath>
 struct state_id_to_type_impl<StateId, ParentPath, false, true>
 {
-    using type = maki::state<simple_state<StateId>>;
+    using type = maki::state<state_impls::simple<StateId>>;
 };
 
 template<auto StateId, const auto& ParentPath>
 struct state_id_to_type_impl<StateId, ParentPath, true, false>
 {
     static constexpr auto path = ParentPath.template add_state<*StateId>();
-    using type = maki::state<composite_state_no_context<StateId, path>>;
+    using type = maki::state<state_impls::composite_no_context<StateId, path>>;
 };
 
 template<auto StateId, const auto& ParentPath>
 struct state_id_to_type_impl<StateId, ParentPath, true, true>
 {
     static constexpr auto path = ParentPath.template add_state<*StateId>();
-    using type = maki::state<composite_state<StateId, path>>;
+    using type = maki::state<state_impls::composite<StateId, path>>;
 };
 
 template<auto StateId, const auto& ParentPath>

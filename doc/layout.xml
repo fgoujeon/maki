@@ -21,6 +21,7 @@
       <tab title="state" type="user" url="@ref maki::state"/>
       <tab title="state_conf" type="user" url="@ref maki::state_conf"/>
       <tab title="state_set" type="user" url="@ref maki::state_set"/>
+      <tab title="states" type="user" url="@ref maki::states"/>
       <tab title="transition_table" type="user" url="@ref maki::transition_table"/>
     </tab>
   </navindex>

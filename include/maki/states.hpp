@@ -20,10 +20,28 @@ namespace detail::state_confs
     inline constexpr auto final = state_conf{};
 }
 
+/**
+@brief Predefined state and pseudostate objects.
+*/
 namespace states
 {
+#if MAKI_DETAIL_DOXYGEN
+    /**
+    @brief Dummy state object given to transition hooks for transitions from initial pseudostate.
+    */
+    constexpr auto initial = state<IMPLEMENTATION_DETAIL>{};
+#else
     inline constexpr auto initial = state<detail::state_impls::simple_no_context<&detail::state_confs::initial>>{};
+#endif
+
+#if MAKI_DETAIL_DOXYGEN
+    /**
+    @brief Dummy state object given to transition hooks for transitions to final state.
+    */
+    constexpr auto final = state<IMPLEMENTATION_DETAIL>{};
+#else
     inline constexpr auto final = state<detail::state_impls::simple_no_context<&detail::state_confs::final>>{};
+#endif
 }
 
 } //namespace

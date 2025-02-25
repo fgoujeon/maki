@@ -87,8 +87,8 @@ TEST_CASE("double_start_stop")
     REQUIRE
     (
         out ==
-        "Transition in main_sm/0: initial -> off...;"
-        "Transition in main_sm/0: initial -> off;"
+        "Transition in main_sm/0: init -> off...;"
+        "Transition in main_sm/0: init -> off;"
     );
 
     out.clear();

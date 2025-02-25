@@ -49,9 +49,9 @@ namespace orthogonal_regions_ns
         .transition_tables
         (
             maki::transition_table{}
-                (states::off0, maki::event<events::button_press>, states::on0),
+                (states::off0, states::on0, maki::event<events::button_press>),
             maki::transition_table{}
-                (states::off1, maki::event<events::button_press>, states::on1)
+                (states::off1, states::on1, maki::event<events::button_press>)
         )
         .context_a<context>()
         .exception_hook_mx

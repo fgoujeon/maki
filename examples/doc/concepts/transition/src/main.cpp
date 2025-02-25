@@ -27,27 +27,27 @@ constexpr auto T = maki::state_conf{};
 
 constexpr auto transition_table = maki::transition_table{}
 //! [external-transition]
-(S, maki::event<E>, T)
+(S, T, maki::event<E>)
 //! [external-transition]
 
 //! [completion-transition]
-(S, maki::null, T)
+(S, T, maki::null)
 //! [completion-transition]
 
 //! [external-self-transition]
-(ST, maki::event<E>, ST)
+(ST, ST, maki::event<E>)
 //! [external-self-transition]
 
 //! [external-completion-self-transition]
-(ST, maki::null, ST)
+(ST, ST, maki::null)
 //! [external-completion-self-transition]
 
 //! [internal-transition]
-(ST, maki::event<E>, maki::null, A)
+(ST, maki::null, maki::event<E>, A)
 //! [internal-transition]
 
 //! [local-transition-to-substate]
-(maki::all_states, maki::event<E>, T)
+(maki::all_states, T, maki::event<E>)
 //! [local-transition-to-substate]
 ;
 

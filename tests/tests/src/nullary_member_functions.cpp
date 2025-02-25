@@ -90,10 +90,10 @@ namespace nullary_member_functions_ns
     });
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::event<events::e1>, states::on,  action, guard)
-        (states::off, maki::event<events::e2>, states::on,  action, guard)
-        (states::on,  maki::event<events::e1>, states::off, action, guard)
-        (states::on,  maki::event<events::e2>, states::off, action, guard)
+        (states::off, states::on, maki::event<events::e1>,  action, guard)
+        (states::off, states::on, maki::event<events::e2>,  action, guard)
+        (states::on,  states::off, maki::event<events::e1>, action, guard)
+        (states::on,  states::off, maki::event<events::e2>, action, guard)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

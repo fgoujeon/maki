@@ -57,12 +57,12 @@ This behavior can be expressed with the following transition table:
 ```c++
 constexpr auto transition_table = maki::transition_table{}
     //source_state,  event,       target_state,   action,           guard
-    (off,            button_push, emitting_white, turn_light_white)
-    (emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push)
-    (emitting_red,   button_push, emitting_green, turn_light_green, is_short_push)
-    (emitting_green, button_push, emitting_blue,  turn_light_blue,  is_short_push)
-    (emitting_blue,  button_push, emitting_white, turn_light_white, is_short_push)
-    (!off,           button_push, off,            turn_light_off,   is_long_push)
+    (off,            emitting_white, button_push, turn_light_white)
+    (emitting_white, emitting_red, button_push,   turn_light_red,   is_short_push)
+    (emitting_red,   emitting_green, button_push, turn_light_green, is_short_push)
+    (emitting_green, emitting_blue, button_push,  turn_light_blue,  is_short_push)
+    (emitting_blue,  emitting_white, button_push, turn_light_white, is_short_push)
+    (!off,           off, button_push,            turn_light_off,   is_long_push)
 ;
 ```
 
@@ -257,12 +257,12 @@ the transition table (`off`, is our case).
 */
 constexpr auto transition_table = maki::transition_table{}
     //source_state,  event,       target_state,   action,           guard
-    (off,            button_push, emitting_white, turn_light_white)
-    (emitting_white, button_push, emitting_red,   turn_light_red,   is_short_push)
-    (emitting_red,   button_push, emitting_green, turn_light_green, is_short_push)
-    (emitting_green, button_push, emitting_blue,  turn_light_blue,  is_short_push)
-    (emitting_blue,  button_push, emitting_white, turn_light_white, is_short_push)
-    (!off,           button_push, off,            turn_light_off,   is_long_push)
+    (off,            emitting_white, button_push, turn_light_white)
+    (emitting_white, emitting_red, button_push,   turn_light_red,   is_short_push)
+    (emitting_red,   emitting_green, button_push, turn_light_green, is_short_push)
+    (emitting_green, emitting_blue, button_push,  turn_light_blue,  is_short_push)
+    (emitting_blue,  emitting_white, button_push, turn_light_white, is_short_push)
+    (!off,           off, button_push,            turn_light_off,   is_long_push)
 ;
 
 /*

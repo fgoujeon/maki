@@ -30,7 +30,7 @@ namespace external_transition_hook_set
         EMPTY_STATE(on0)
 
         constexpr auto on1_transition_table = maki::transition_table{}
-            (states::off0, maki::event<events::button_press>, states::on0)
+            (states::off0, states::on0, maki::event<events::button_press>)
         ;
 
         constexpr auto on1 = maki::state_conf{}
@@ -40,11 +40,11 @@ namespace external_transition_hook_set
     }
 
     constexpr auto transition_table_0 = maki::transition_table{}
-        (states::off0, maki::event<events::button_press>, states::on0)
+        (states::off0, states::on0, maki::event<events::button_press>)
     ;
 
     constexpr auto transition_table_1 = maki::transition_table{}
-        (states::off1, maki::event<events::button_press>, states::on1)
+        (states::off1, states::on1, maki::event<events::button_press>)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

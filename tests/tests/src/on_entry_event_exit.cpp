@@ -77,9 +77,9 @@ namespace on_entry_event_exit_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::idle,    maki::event<events::next_language_request>, states::english)
-        (states::english, maki::event<events::next_language_request>, states::french)
-        (states::french,  maki::event<events::next_language_request>, states::idle)
+        (states::idle,    states::english, maki::event<events::next_language_request>)
+        (states::english, states::french, maki::event<events::next_language_request>)
+        (states::french,  states::idle, maki::event<events::next_language_request>)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

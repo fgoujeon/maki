@@ -27,7 +27,7 @@ constexpr auto busy = maki::state_conf{}
 // [event-set]
 
 constexpr auto transition_table = maki::transition_table{}
-    (busy, maki::no_event, maki::null)
+    (busy, maki::null, maki::no_event)
 ;
 
 constexpr auto machine_conf = maki::machine_conf{}

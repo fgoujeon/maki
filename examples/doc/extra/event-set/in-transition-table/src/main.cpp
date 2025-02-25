@@ -31,11 +31,11 @@ constexpr auto running = maki::state_conf{};
 //Transition table
 //! [transition-table]
 constexpr auto transition_table = maki::transition_table{}
-    //source state, event,                         target state
-    (off,           maki::event<on_button_press>,  running)
-    (running,       maki::event<inactivity>,       sleeping)
-    (sleeping,      power_button_press,            running) // <-- Here
-    (running,       maki::event<off_button_press>, off)
+    //source,  target,   event
+    (off,      running,  maki::event<on_button_press>)
+    (running,  sleeping, maki::event<inactivity>)
+    (sleeping, running,  power_button_press) // <-- Here
+    (running,  off,      maki::event<off_button_press>)
 ;
 //! [transition-table]
 

@@ -103,15 +103,13 @@ public:
     template<class Machine, class Context, class Event>
     void start(Machine& mach, Context& ctx, const Event& event)
     {
-        if(!running())
-        {
-            process_event_in_transition
-            <
-                &state_confs::initial,
-                pinitial_state_conf,
-                &null
-            >(mach, ctx, event);
-        }
+        try_processing_event_in_transition<false>::template call<constant_t<0>>
+        (
+            *this,
+            mach,
+            ctx,
+            event
+        );
     }
 
     template<class Machine, class Context, class Event>

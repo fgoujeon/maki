@@ -12,6 +12,8 @@
 #include "state_impls/composite_no_context_fwd.hpp"
 #include "state_impls/composite_fwd.hpp"
 #include "state_id_traits.hpp"
+#include "equals.hpp"
+#include "../init.hpp"
 #include "../state.hpp"
 
 namespace maki::detail::state_traits

@@ -43,6 +43,7 @@ constexpr auto my_state = maki::state_conf{}
 // Just a dummy transition table, because we need one.
 constexpr auto transition_table = maki::transition_table{}
     //source state, event,      target state
+    (maki::init,    my_state)
     (my_state,      maki::null, maki::null)
 ;
 

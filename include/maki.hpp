@@ -20,6 +20,7 @@
 #include "maki/event_set.hpp" //NOLINT misc-include-cleaner
 #include "maki/events.hpp" //NOLINT misc-include-cleaner
 #include "maki/guard.hpp" //NOLINT misc-include-cleaner
+#include "maki/init.hpp" //NOLINT misc-include-cleaner
 #include "maki/machine.hpp" //NOLINT misc-include-cleaner
 #include "maki/machine_conf.hpp" //NOLINT misc-include-cleaner
 #include "maki/machine_ref.hpp" //NOLINT misc-include-cleaner

@@ -111,6 +111,7 @@ namespace get_state_ns
         ;
 
         constexpr auto on_transition_table = maki::transition_table{}
+            (maki::init,             states::emitting_red)
             (states::emitting_red,   states::emitting_green, maki::event<events::color_button_press>)
             (states::emitting_green, states::emitting_blue, maki::event<events::color_button_press>)
             (states::emitting_blue,  states::emitting_red, maki::event<events::color_button_press>)
@@ -130,7 +131,8 @@ namespace get_state_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, states::on, maki::event<events::power_button_press>)
+        (maki::init,  states::off)
+        (states::off, states::on,  maki::event<events::power_button_press>)
         (states::on,  states::off, maki::event<events::power_button_press>)
     ;
 

@@ -25,8 +25,9 @@ constexpr auto my_state = maki::state_conf{};
 constexpr auto my_other_state = maki::state_conf{};
 
 constexpr auto transition_table = maki::transition_table{}
-    (my_state, maki::null,     maki::event<some_event>, my_action)
-    (my_state, my_other_state, maki::event<some_other_event>)
+    (maki::init, my_state)
+    (my_state,   maki::null,     maki::event<some_event>, my_action)
+    (my_state,   my_other_state, maki::event<some_other_event>)
 ;
 
 constexpr auto machine_conf = maki::machine_conf{}

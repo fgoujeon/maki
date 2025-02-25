@@ -16,6 +16,7 @@
 #include "guard.hpp"
 #include "event_set.hpp"
 #include "state_set.hpp"
+#include "states.hpp"
 #include "null.hpp"
 #include "detail/machine_conf_fwd.hpp"
 #include "detail/state_conf_fwd.hpp"
@@ -113,15 +114,14 @@ namespace detail
     }
 
     //Store a pointer in this case
-    template<class OptionSet>
-    constexpr auto store_state_conf(const state_conf<OptionSet>& conf)
+    constexpr auto store_state_conf(init_t /*init*/)
     {
-        return &conf;
+        return &detail::state_confs::initial;
     }
 
     //Store a pointer in this case
     template<class OptionSet>
-    constexpr auto store_state_conf(const machine_conf<OptionSet>& conf)
+    constexpr auto store_state_conf(const state_conf<OptionSet>& conf)
     {
         return &conf;
     }
@@ -171,7 +171,7 @@ public:
     <
         class SourceStateConf,
         class TargetStateConfOrNull,
-        class EventSet,
+        class EventSet = null_t,
         class ActionOrNull = null_t,
         class GuardOrNull = null_t
     >
@@ -179,7 +179,7 @@ public:
     (
         const SourceStateConf& source_state_conf,
         const TargetStateConfOrNull& target_state_conf,
-        const EventSet& evt_set,
+        const EventSet& evt_set = null,
         const ActionOrNull& action = null,
         const GuardOrNull& guard = null
     )
@@ -189,16 +189,18 @@ public:
         {
             static_assert
             (
-                detail::is_state_conf_v<SourceStateConf>,
-                "Source state of first transition can't be a `maki::state_set`"
+                detail::is_init_v<SourceStateConf>,
+                "The source state of the first transition must be `maki::init`. (Note: Composite state regions without initial state are not implemented yet.)"
             );
         }
-
-        static_assert
-        (
-            detail::is_state_conf_v<SourceStateConf> || detail::is_state_set_v<SourceStateConf>,
-            "1st argument must be an instance of `maki::state_conf` or an instance of `maki::state_set`"
-        );
+        else
+        {
+            static_assert
+            (
+                detail::is_state_conf_v<SourceStateConf> || detail::is_state_set_v<SourceStateConf>,
+                "1st argument must be an instance of `maki::state_conf` or an instance of `maki::state_set`"
+            );
+        }
 
         static_assert
         (
@@ -229,15 +231,18 @@ public:
         {
             static_assert
             (
-                detail::is_state_conf_v<SourceStateConf>,
-                "1st argument of an anonymous transition must be an instance of `maki::state_conf`"
+                detail::is_init_v<SourceStateConf> || detail::is_state_conf_v<SourceStateConf>,
+                "1st argument of a completion transition must be `maki::init` or an instance of `maki::state_conf`"
             );
 
-            static_assert
-            (
-                decltype(impl_of(source_state_conf).transition_tables)::size == 0,
-                "Source state of an anonymous transition must be a non-composite state"
-            );
+            if constexpr(detail::is_state_conf_v<SourceStateConf>)
+            {
+                static_assert
+                (
+                    decltype(impl_of(source_state_conf).transition_tables)::size == 0,
+                    "Source state of a completion transition must be a non-composite state"
+                );
+            }
         }
 
         return detail::make_transition_table

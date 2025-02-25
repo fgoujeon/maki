@@ -66,9 +66,10 @@ namespace post_processing_hook_ns
         constexpr auto emitting_blue = maki::state_conf{};
 
         constexpr auto on_transition_table = maki::transition_table{}
+            (maki::init,             states::emitting_red)
             (states::emitting_red,   states::emitting_green, maki::event<events::color_button_press>)
-            (states::emitting_green, states::emitting_blue, maki::event<events::color_button_press>)
-            (states::emitting_blue,  states::emitting_red, maki::event<events::color_button_press>)
+            (states::emitting_green, states::emitting_blue,  maki::event<events::color_button_press>)
+            (states::emitting_blue,  states::emitting_red,   maki::event<events::color_button_press>)
         ;
 
         constexpr auto on = maki::state_conf{}
@@ -77,6 +78,7 @@ namespace post_processing_hook_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
+        (maki::init, states::on)
         (states::on, states::off, maki::event<events::power_button_press>)
     ;
 

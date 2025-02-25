@@ -471,7 +471,6 @@ private:
             }
 
             //Completion transition
-            if constexpr(transition_table_digest_type::has_null_events)
             {
                 using candidate_transition_index_constant_list = transition_table_filters::by_source_state_and_null_event_t
                 <

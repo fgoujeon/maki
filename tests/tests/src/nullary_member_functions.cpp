@@ -90,6 +90,7 @@ namespace nullary_member_functions_ns
     });
 
     constexpr auto transition_table = maki::transition_table{}
+        (maki::init,  states::off)
         (states::off, states::on, maki::event<events::e1>,  action, guard)
         (states::off, states::on, maki::event<events::e2>,  action, guard)
         (states::on,  states::off, maki::event<events::e1>, action, guard)

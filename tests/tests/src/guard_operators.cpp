@@ -70,6 +70,8 @@ namespace guard_operators_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
+        (maki::init,  states::idle)
+
         (states::idle, states::state0, maki::event<events::start>, maki::null, guards::can_access_state0)
         (states::idle, states::state1, maki::event<events::start>, maki::null, guards::can_access_state1)
         (states::idle, states::state2, maki::event<events::start>, maki::null, guards::can_access_state2)

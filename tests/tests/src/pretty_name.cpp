@@ -38,6 +38,7 @@ namespace pretty_name_ns
     constexpr auto default_state = maki::state_conf{};
 
     constexpr auto composite_state_transition_table = maki::transition_table{}
+        (maki::init,  state)
         (state, maki::null, maki::null)
     ;
 
@@ -51,6 +52,7 @@ namespace pretty_name_ns
     };
 
     constexpr auto transition_table = maki::transition_table{}
+        (maki::init,  state)
         (state, maki::null, maki::null)
     ;
 

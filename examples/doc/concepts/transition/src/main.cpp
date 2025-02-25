@@ -26,6 +26,8 @@ constexpr auto S = maki::state_conf{};
 constexpr auto T = maki::state_conf{};
 
 constexpr auto transition_table = maki::transition_table{}
+    (maki::init, S)
+
 //! [external-transition]
 (S, T, maki::event<E>)
 //! [external-transition]

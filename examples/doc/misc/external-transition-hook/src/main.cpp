@@ -14,7 +14,8 @@ struct context
 constexpr auto my_state = maki::state_conf{};
 
 constexpr auto transition_table = maki::transition_table{}
-    (my_state, maki::null, maki::null)
+    (maki::init, my_state)
+    (my_state,   maki::null, maki::null)
 ;
 
 //! [signature]

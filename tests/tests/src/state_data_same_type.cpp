@@ -47,6 +47,7 @@ namespace state_data_same_type_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
+        (maki::init,  states::off)
         (states::off, states::on, maki::event<events::button_press>)
         (states::on,  states::off, maki::event<events::button_press>)
     ;

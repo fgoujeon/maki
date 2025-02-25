@@ -39,6 +39,7 @@ namespace action_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
+        (maki::init,  states::off)
         (states::off, states::on,  maki::event<events::button_press>, actions::beep)
         (states::on,  states::off, maki::event<events::button_press>, maki::action_c(&context::boop))
     ;

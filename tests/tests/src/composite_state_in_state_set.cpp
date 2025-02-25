@@ -28,7 +28,8 @@ namespace composite_state_in_state_set_ns
         EMPTY_STATE(s1)
 
         constexpr auto s0_transition_table = maki::transition_table{}
-            (s0_sub, maki::null, maki::event<events::dummy>)
+            (maki::init, s0_sub)
+            (s0_sub,     maki::null, maki::event<events::dummy>)
         ;
 
         constexpr auto s0 = maki::state_conf{}
@@ -40,8 +41,9 @@ namespace composite_state_in_state_set_ns
     constexpr auto any_of_s0_s1 = states::s0 || states::s1;
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off,   states::s0, maki::event<events::button_press>)
-        (states::s0,    states::s1, maki::event<events::button_press>)
+        (maki::init,    states::off)
+        (states::off,   states::s0,  maki::event<events::button_press>)
+        (states::s0,    states::s1,  maki::event<events::button_press>)
         (any_but_s0_s1, states::off, maki::event<events::off_button_press>)
         (any_of_s0_s1,  states::off, maki::event<events::destruction_button_press>)
     ;

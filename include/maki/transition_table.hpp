@@ -184,13 +184,13 @@ public:
         const GuardOrNull& guard = null
     )
     {
-        //If first transition
+        //Check source
         if constexpr(sizeof...(Transitions) == 0)
         {
             static_assert
             (
                 detail::is_init_v<SourceStateConf>,
-                "The source state of the first transition must be `maki::init`. (Note: Composite state regions without initial state are not implemented yet.)"
+                "Source (1st argument) of first transition must be `maki::init`. (Note: Composite state regions without initial pseudostate are not implemented yet.)"
             );
         }
         else
@@ -198,33 +198,70 @@ public:
             static_assert
             (
                 detail::is_state_conf_v<SourceStateConf> || detail::is_state_set_v<SourceStateConf>,
-                "1st argument must be an instance of `maki::state_conf` or an instance of `maki::state_set`"
+                "Source (1st argument) must be an instance of `maki::state_conf` or an instance of `maki::state_set`"
             );
         }
 
-        static_assert
-        (
-            detail::is_state_conf_v<TargetStateConfOrNull> || detail::is_null_v<TargetStateConfOrNull>,
-            "2nd argument must be an instance of `maki::state_conf` or `maki::null`."
-        );
+        //Check target
+        if constexpr(detail::is_init_v<SourceStateConf>)
+        {
+            static_assert
+            (
+                detail::is_state_conf_v<TargetStateConfOrNull>,
+                "Target (2nd argument) of transition from initial pseudostate must be an instance of `maki::state_conf`."
+            );
+        }
+        else
+        {
+            static_assert
+            (
+                detail::is_state_conf_v<TargetStateConfOrNull> || detail::is_null_v<TargetStateConfOrNull>,
+                "Target (2nd argument) must be an instance of `maki::state_conf` or `maki::null`."
+            );
+        }
 
-        static_assert
-        (
-            detail::is_event_v<EventSet> || detail::is_event_set_v<EventSet> || detail::is_null_v<EventSet>,
-            "3rd argument must be an instance of `maki::event_t`, an instance of `maki::event_set`, or `maki::null`"
-        );
+        //Check event
+        if constexpr(detail::is_init_v<SourceStateConf>)
+        {
+            static_assert
+            (
+                detail::is_null_v<EventSet>,
+                "Event (3rd argument) of transition from initial pseudostate must be `maki::null`"
+            );
+        }
+        else
+        {
+            static_assert
+            (
+                detail::is_event_v<EventSet> || detail::is_event_set_v<EventSet> || detail::is_null_v<EventSet>,
+                "Event (3rd argument) must be an instance of `maki::event_t`, an instance of `maki::event_set`, or `maki::null`"
+            );
+        }
 
+        //Check action
         static_assert
         (
             detail::is_action_v<ActionOrNull> || detail::is_null_v<ActionOrNull>,
             "4th argument must be an instance of `maki::action` or `maki::null`."
         );
 
-        static_assert
-        (
-            detail::is_guard_v<GuardOrNull> || detail::is_null_v<GuardOrNull>,
-            "5th argument must be an instance of `maki::guard` or `maki::null`."
-        );
+        //Check guard
+        if constexpr(detail::is_init_v<SourceStateConf>)
+        {
+            static_assert
+            (
+                detail::is_null_v<GuardOrNull>,
+                "Guard (5th argument) of transition from initial pseudostate must be `maki::null`."
+            );
+        }
+        else
+        {
+            static_assert
+            (
+                detail::is_guard_v<GuardOrNull> || detail::is_null_v<GuardOrNull>,
+                "Guard (5th argument) must be an instance of `maki::guard` or `maki::null`."
+            );
+        }
 
         //If anonymous transition
         if constexpr(detail::is_null_v<EventSet>)

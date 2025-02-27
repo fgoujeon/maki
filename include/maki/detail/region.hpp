@@ -103,13 +103,20 @@ public:
     template<class Machine, class Context, class Event>
     void start(Machine& mach, Context& ctx, const Event& event)
     {
-        try_processing_event_in_transition<false>::template call<constant_t<0>>
-        (
-            *this,
-            mach,
-            ctx,
-            event
-        );
+        if(!running())
+        {
+            process_event_in_transition
+            <
+                &state_confs::null,
+                pinitial_state_conf,
+                &null
+            >
+            (
+                mach,
+                ctx,
+                event
+            );
+        }
     }
 
     template<class Machine, class Context, class Event>
@@ -167,6 +174,9 @@ private:
     static constexpr const auto& transition_table = TransitionTable;
     static constexpr auto transition_tuple = maki::detail::rows(transition_table);
 
+    // Remove transition from initial pseudostate
+    static constexpr auto transition_tuple_tail = tuple_tail(transition_tuple);
+
     using transition_table_digest_type =
         transition_table_digest<transition_tuple>
     ;
@@ -200,7 +210,7 @@ private:
         //List the transitions whose event set contains `Event`
         using candidate_transition_index_constant_list = transition_table_filters::by_event_t
         <
-            transition_tuple,
+            transition_tuple_tail,
             Event
         >;
 
@@ -253,7 +263,7 @@ private:
             self.process_event_in_transition
             <
                 ActiveStateIdConstant::value,
-                &state_confs::final,
+                &state_confs::null,
                 &null
             >(mach, ctx, event);
         }
@@ -276,7 +286,7 @@ private:
         template<class TransitionIndexConstant, class Self, class Machine, class Context, class Event, class... ExtraArgs>
         static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
-            static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(transition_tuple);
+            static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(transition_tuple_tail);
             static constexpr auto source_state_conf = trans.source_state_conf;
             static constexpr auto action = trans.act;
             static constexpr auto guard = trans.grd;
@@ -394,6 +404,8 @@ private:
     {
         using machine_option_set_type = typename Machine::option_set_type;
 
+        auto& source_state = state_id_to_obj<SourceStateId>();
+
         constexpr auto is_internal_transition = std::is_same_v
         <
             std::decay_t<decltype(TargetStateId)>,
@@ -402,28 +414,26 @@ private:
 
         if constexpr(!is_internal_transition)
         {
+            auto& target_state = state_id_to_obj<TargetStateId>();
+
             if constexpr(!std::is_same_v<typename machine_option_set_type::pre_external_transition_hook_type, null_t>)
             {
                 impl_of(Machine::conf).pre_external_transition_hook
                 (
                     ctx,
                     *pitf_,
-                    state_id_to_obj<SourceStateId>(),
+                    source_state,
                     event,
-                    state_id_to_obj<TargetStateId>()
+                    target_state
                 );
             }
 
-            if constexpr(!ptr_equals(SourceStateId, &state_confs::null))
-            {
-                auto& stt = state_id_to_obj<SourceStateId>();
-                impl_of(stt).call_exit_action
-                (
-                    mach,
-                    ctx,
-                    event
-                );
-            }
+            impl_of(source_state).call_exit_action
+            (
+                mach,
+                ctx,
+                event
+            );
 
             active_state_index_ = region_detail::state_id_to_index_v
             <
@@ -445,16 +455,14 @@ private:
 
         if constexpr(!is_internal_transition)
         {
-            if constexpr(!ptr_equals(TargetStateId, &state_confs::final))
-            {
-                auto& stt = state_id_to_obj<TargetStateId>();
-                impl_of(stt).call_entry_action
-                (
-                    mach,
-                    ctx,
-                    event
-                );
-            }
+            auto& target_state = state_id_to_obj<TargetStateId>();
+
+            impl_of(target_state).call_entry_action
+            (
+                mach,
+                ctx,
+                event
+            );
 
             if constexpr(!std::is_same_v<typename machine_option_set_type::post_external_transition_hook_type, null_t>)
             {
@@ -462,17 +470,18 @@ private:
                 (
                     ctx,
                     *pitf_,
-                    state_id_to_obj<SourceStateId>(),
+                    source_state,
                     event,
-                    state_id_to_obj<TargetStateId>()
+                    target_state
                 );
             }
 
             //Completion transition
+            if constexpr(!ptr_equals(TargetStateId, &state_confs::null))
             {
                 using candidate_transition_index_constant_list = transition_table_filters::by_source_state_and_null_event_t
                 <
-                    transition_tuple,
+                    transition_tuple_tail,
                     TargetStateId
                 >;
 
@@ -637,6 +646,10 @@ private:
     static auto& static_state_id_to_obj(Region& self)
     {
         if constexpr(ptr_equals(StateId, &state_confs::null))
+        {
+            return states::null;
+        }
+        else if constexpr(ptr_equals(StateId, &null))
         {
             return states::null;
         }

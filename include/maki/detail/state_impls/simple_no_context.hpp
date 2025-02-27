@@ -36,7 +36,7 @@ public:
     ~simple_no_context() = default;
 
     template<class Machine, class Context, class Event>
-    void call_entry_action(Machine& mach, Context& ctx, const Event& event)
+    static void call_entry_action(Machine& mach, Context& ctx, const Event& event)
     {
         if constexpr(!tlu::empty_v<entry_action_ptr_constant_list>)
         {
@@ -54,7 +54,7 @@ public:
     }
 
     template<bool Dry, class Machine, class Context, class Event, class... MaybeBool>
-    void call_internal_action(Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
+    static void call_internal_action(Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
     {
         /*
         Caller is supposed to check an interal action exists for the given event
@@ -76,7 +76,7 @@ public:
     }
 
     template<class Machine, class Context, class Event>
-    void call_exit_action(Machine& mach, Context& ctx, const Event& event)
+    static void call_exit_action(Machine& mach, Context& ctx, const Event& event)
     {
         if constexpr(!tlu::empty_v<exit_action_ptr_constant_list>)
         {

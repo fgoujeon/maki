@@ -34,11 +34,12 @@ struct power_button_press{};
 
 //! [transition-table]
 constexpr auto transition_table = maki::transition_table{}
-    //source state, event,                             target state
-    (initializing,  maki::event<end_of_init>,          running)
-    (running,       maki::event<sleep_button_press>,   sleeping)
-    (sleeping,      maki::event<wake_up_button_press>, running)
-    (!powering_off, maki::event<power_button_press>,   powering_off) // <-- Here
+    //source,       target,       event
+    (maki::init,    initializing)
+    (initializing,  running,      maki::event<end_of_init>)
+    (running,       sleeping,     maki::event<sleep_button_press>)
+    (sleeping,      running,      maki::event<wake_up_button_press>)
+    (!powering_off, powering_off, maki::event<power_button_press>) // <-- Here
 ;
 //! [transition-table]
 

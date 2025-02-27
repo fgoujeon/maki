@@ -43,8 +43,9 @@ constexpr auto state_b = maki::state_conf{}
 constexpr auto state_c = maki::state_conf{};
 
 constexpr auto transition_table = maki::transition_table{}
-    (state_a, maki::event<event_0>, state_b)
-    (state_b, maki::event<event_1>, state_c)
+    (maki::init, state_a)
+    (state_a,    state_b, maki::event<event_0>)
+    (state_b,    state_c, maki::event<event_1>)
 ;
 
 #ifdef ENABLE_RTC

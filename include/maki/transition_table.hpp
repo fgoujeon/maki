@@ -16,6 +16,7 @@
 #include "guard.hpp"
 #include "event_set.hpp"
 #include "state_set.hpp"
+#include "states.hpp"
 #include "null.hpp"
 #include "detail/machine_conf_fwd.hpp"
 #include "detail/state_conf_fwd.hpp"
@@ -36,9 +37,9 @@ To define a transition table, you have to instantiate an empty
 
 ```cpp
 constexpr auto transition_table = maki::transition_table{}
-    //source state, event,                     target state, action,        guard
-    (off,           maki::event<button_press>, on,           turn_light_on, has_enough_power)
-    (on,            maki::event<button_press>, off,          turn_light_off)
+    //source, target, event,                     action,        guard
+    (off,     on,     maki::event<button_press>, turn_light_on, has_enough_power)
+    (on,      off,    maki::event<button_press>, turn_light_off)
 ;
 ```
 */
@@ -50,8 +51,8 @@ namespace detail
     template
     <
         class SourceStateConf,
-        class EventSet,
         class TargetStateConf,
+        class EventSet,
         action_signature ActionSignature,
         class ActionCallable,
         guard_signature GuardSignature,
@@ -60,8 +61,8 @@ namespace detail
     struct transition
     {
         SourceStateConf source_state_conf;
-        EventSet evt_set;
         TargetStateConf target_state_conf;
+        EventSet evt_set;
         action<ActionSignature, ActionCallable> act;
         guard<GuardSignature, GuardCallable> grd;
     };
@@ -69,8 +70,8 @@ namespace detail
     template
     <
         class SourceStateConf,
-        class EventSet,
         class TargetStateConf,
+        class EventSet,
         action_signature ActionSignature,
         class ActionCallable,
         guard_signature GuardSignature,
@@ -79,15 +80,15 @@ namespace detail
     transition
     (
         SourceStateConf,
-        EventSet,
         TargetStateConf,
+        EventSet,
         action<ActionSignature, ActionCallable>,
         guard<GuardSignature, GuardCallable>
     ) -> transition
     <
         SourceStateConf,
-        EventSet,
         TargetStateConf,
+        EventSet,
         ActionSignature,
         ActionCallable,
         GuardSignature,
@@ -113,15 +114,14 @@ namespace detail
     }
 
     //Store a pointer in this case
-    template<class OptionSet>
-    constexpr auto store_state_conf(const state_conf<OptionSet>& conf)
+    constexpr auto store_state_conf(init_t /*init*/)
     {
-        return &conf;
+        return &detail::state_confs::init;
     }
 
     //Store a pointer in this case
     template<class OptionSet>
-    constexpr auto store_state_conf(const machine_conf<OptionSet>& conf)
+    constexpr auto store_state_conf(const state_conf<OptionSet>& conf)
     {
         return &conf;
     }
@@ -162,82 +162,124 @@ public:
     @brief Creates a new `transition_table` with an additional transition.
 
     @param source_state_conf the configuration of the active state (or states, plural, if it's a @ref state-set "state set") from which the transition can occur
-    @param evt_set the event type (or types, plural, if it's an @ref event-set "event type set") that can cause the transition to occur
     @param target_state_conf the configuration of the state that becomes active after the transition occurs
+    @param evt_set the event type (or types, plural, if it's an @ref event-set "event type set") that can cause the transition to occur
     @param action the `maki::action` invoked when the transition occurs, or `maki::null`
     @param guard the `maki::guard` that must return `true` for the transition to occur, or `maki::null`
     */
     template
     <
         class SourceStateConf,
-        class EventSet,
         class TargetStateConfOrNull,
+        class EventSet = null_t,
         class ActionOrNull = null_t,
         class GuardOrNull = null_t
     >
     constexpr auto operator()
     (
         const SourceStateConf& source_state_conf,
-        const EventSet& evt_set,
         const TargetStateConfOrNull& target_state_conf,
+        const EventSet& evt_set = null,
         const ActionOrNull& action = null,
         const GuardOrNull& guard = null
     )
     {
-        //If first transition
+        //Check source
         if constexpr(sizeof...(Transitions) == 0)
         {
             static_assert
             (
-                detail::is_state_conf_v<SourceStateConf>,
-                "Source state of first transition can't be a `maki::state_set`"
+                detail::is_init_v<SourceStateConf>,
+                "Source (1st argument) of first transition must be `maki::init`. (Note: Composite state regions without initial pseudostate are not implemented yet.)"
+            );
+        }
+        else
+        {
+            static_assert
+            (
+                detail::is_state_conf_v<SourceStateConf> || detail::is_state_set_v<SourceStateConf>,
+                "Source (1st argument) must be an instance of `maki::state_conf` or an instance of `maki::state_set`"
             );
         }
 
-        static_assert
-        (
-            detail::is_state_conf_v<SourceStateConf> || detail::is_state_set_v<SourceStateConf>,
-            "1st argument must be an instance of `maki::state_conf` or an instance of `maki::state_set`"
-        );
+        //Check target
+        if constexpr(detail::is_init_v<SourceStateConf>)
+        {
+            static_assert
+            (
+                detail::is_state_conf_v<TargetStateConfOrNull>,
+                "Target (2nd argument) of transition from initial pseudostate must be an instance of `maki::state_conf`."
+            );
+        }
+        else
+        {
+            static_assert
+            (
+                detail::is_state_conf_v<TargetStateConfOrNull> || detail::is_null_v<TargetStateConfOrNull>,
+                "Target (2nd argument) must be an instance of `maki::state_conf` or `maki::null`."
+            );
+        }
 
-        static_assert
-        (
-            detail::is_event_v<EventSet> || detail::is_event_set_v<EventSet> || detail::is_null_v<EventSet>,
-            "2nd argument must be an instance of `maki::event_t`, an instance of `maki::event_set`, or `maki::null`"
-        );
+        //Check event
+        if constexpr(detail::is_init_v<SourceStateConf>)
+        {
+            static_assert
+            (
+                detail::is_null_v<EventSet>,
+                "Event (3rd argument) of transition from initial pseudostate must be `maki::null`"
+            );
+        }
+        else
+        {
+            static_assert
+            (
+                detail::is_event_v<EventSet> || detail::is_event_set_v<EventSet> || detail::is_null_v<EventSet>,
+                "Event (3rd argument) must be an instance of `maki::event_t`, an instance of `maki::event_set`, or `maki::null`"
+            );
+        }
 
-        static_assert
-        (
-            detail::is_state_conf_v<TargetStateConfOrNull> || detail::is_null_v<TargetStateConfOrNull>,
-            "3rd argument must be an instance of `maki::state_conf` or `maki::null`."
-        );
-
+        //Check action
         static_assert
         (
             detail::is_action_v<ActionOrNull> || detail::is_null_v<ActionOrNull>,
             "4th argument must be an instance of `maki::action` or `maki::null`."
         );
 
-        static_assert
-        (
-            detail::is_guard_v<GuardOrNull> || detail::is_null_v<GuardOrNull>,
-            "5th argument must be an instance of `maki::guard` or `maki::null`."
-        );
+        //Check guard
+        if constexpr(detail::is_init_v<SourceStateConf>)
+        {
+            static_assert
+            (
+                detail::is_null_v<GuardOrNull>,
+                "Guard (5th argument) of transition from initial pseudostate must be `maki::null`."
+            );
+        }
+        else
+        {
+            static_assert
+            (
+                detail::is_guard_v<GuardOrNull> || detail::is_null_v<GuardOrNull>,
+                "Guard (5th argument) must be an instance of `maki::guard` or `maki::null`."
+            );
+        }
 
         //If anonymous transition
         if constexpr(detail::is_null_v<EventSet>)
         {
             static_assert
             (
-                detail::is_state_conf_v<SourceStateConf>,
-                "1st argument of an anonymous transition must be an instance of `maki::state_conf`"
+                detail::is_init_v<SourceStateConf> || detail::is_state_conf_v<SourceStateConf>,
+                "1st argument of a completion transition must be `maki::init` or an instance of `maki::state_conf`"
             );
 
-            static_assert
-            (
-                decltype(impl_of(source_state_conf).transition_tables)::size == 0,
-                "Source state of an anonymous transition must be a non-composite state"
-            );
+            if constexpr(detail::is_state_conf_v<SourceStateConf>)
+            {
+                static_assert
+                (
+                    decltype(impl_of(source_state_conf).transition_tables)::size == 0,
+                    "Source state of a completion transition must be a non-composite state"
+                );
+            }
         }
 
         return detail::make_transition_table
@@ -248,8 +290,8 @@ public:
                 detail::transition
                 {
                     detail::store_state_conf(source_state_conf),
-                    evt_set,
                     detail::store_state_conf(target_state_conf),
+                    evt_set,
                     detail::to_action(action),
                     detail::to_guard(guard)
                 }

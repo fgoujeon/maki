@@ -30,7 +30,8 @@ namespace external_transition_hook_set
         EMPTY_STATE(on0)
 
         constexpr auto on1_transition_table = maki::transition_table{}
-            (states::off0, maki::event<events::button_press>, states::on0)
+            (maki::init,  states::off0)
+            (states::off0, states::on0, maki::event<events::button_press>)
         ;
 
         constexpr auto on1 = maki::state_conf{}
@@ -40,11 +41,13 @@ namespace external_transition_hook_set
     }
 
     constexpr auto transition_table_0 = maki::transition_table{}
-        (states::off0, maki::event<events::button_press>, states::on0)
+        (maki::init,  states::off0)
+        (states::off0, states::on0, maki::event<events::button_press>)
     ;
 
     constexpr auto transition_table_1 = maki::transition_table{}
-        (states::off1, maki::event<events::button_press>, states::on1)
+        (maki::init,  states::off1)
+        (states::off1, states::on1, maki::event<events::button_press>)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}
@@ -102,10 +105,10 @@ TEST_CASE("external_transition_hook_set")
     REQUIRE
     (
         ctx.out ==
-        "Transition in main_sm/0: initial -> off0...;0;"
-        "0;Transition in main_sm/0: initial -> off0;"
-        "Transition in main_sm/1: initial -> off1...;0;"
-        "0;Transition in main_sm/1: initial -> off1;"
+        "Transition in main_sm/0: init -> off0...;0;"
+        "0;Transition in main_sm/0: init -> off0;"
+        "Transition in main_sm/1: init -> off1...;0;"
+        "0;Transition in main_sm/1: init -> off1;"
     );
 
     ctx.out.clear();
@@ -119,8 +122,8 @@ TEST_CASE("external_transition_hook_set")
         "Transition in main_sm/0: off0 -> on0...;1;"
         "1;Transition in main_sm/0: off0 -> on0;"
         "Transition in main_sm/1: off1 -> on_1...;1;"
-        "Transition in main_sm/1/on_1/0: initial -> off0...;1;"
-        "1;Transition in main_sm/1/on_1/0: initial -> off0;"
+        "Transition in main_sm/1/on_1/0: init -> off0...;1;"
+        "1;Transition in main_sm/1/on_1/0: init -> off0;"
         "1;Transition in main_sm/1: off1 -> on_1;"
     );
 

@@ -50,7 +50,7 @@ namespace region_detail
     };
 
     template<class StateIdConstantList>
-    struct state_id_to_index<StateIdConstantList, &state_confs::initial>
+    struct state_id_to_index<StateIdConstantList, &state_confs::init>
     {
         static constexpr auto value = final_state_index;
     };
@@ -103,15 +103,13 @@ public:
     template<class Machine, class Context, class Event>
     void start(Machine& mach, Context& ctx, const Event& event)
     {
-        if(!running())
-        {
-            process_event_in_transition
-            <
-                &state_confs::initial,
-                pinitial_state_conf,
-                &null
-            >(mach, ctx, event);
-        }
+        try_processing_event_in_transition<false>::template call<constant_t<0>>
+        (
+            *this,
+            mach,
+            ctx,
+            event
+        );
     }
 
     template<class Machine, class Context, class Event>
@@ -416,7 +414,7 @@ private:
                 );
             }
 
-            if constexpr(!ptr_equals(SourceStateId, &state_confs::initial))
+            if constexpr(!ptr_equals(SourceStateId, &state_confs::init))
             {
                 auto& stt = state_id_to_obj<SourceStateId>();
                 impl_of(stt).call_exit_action
@@ -471,7 +469,6 @@ private:
             }
 
             //Completion transition
-            if constexpr(transition_table_digest_type::has_null_events)
             {
                 using candidate_transition_index_constant_list = transition_table_filters::by_source_state_and_null_event_t
                 <
@@ -639,9 +636,9 @@ private:
     template<auto StateId, class Region>
     static auto& static_state_id_to_obj(Region& self)
     {
-        if constexpr(ptr_equals(StateId, &state_confs::initial))
+        if constexpr(ptr_equals(StateId, &state_confs::init))
         {
-            return states::initial;
+            return states::init;
         }
         else if constexpr(ptr_equals(StateId, &state_confs::final))
         {

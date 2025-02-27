@@ -24,12 +24,12 @@ Creates a set of tuples containing all the action types, guard types and state
 types of a given transition_table.
 
 For example, the following digest type...:
-    using transition_table = maki::transition_table
-    <
-        maki::transition<state0, event0, state1>,
-        maki::transition<state1, event1, state2, null,   guard0>,
-        maki::transition<state2, event2, state3, action0>,
-        maki::transition<state3, event3, state0, action1,  guard1>
+    using transition_table = maki::transition_table{}
+        (maki::init, state0)
+        (state0,     state1, event0)
+        (state1,     state2, event1, null,    guard0)
+        (state2,     state3, event2, action0)
+        (state3,     state0, event3, action1, guard1)
     >;
     using digest = maki::detail::transition_table_digest<transition_table>;
 
@@ -37,21 +37,15 @@ For example, the following digest type...:
     struct digest
     {
         using state_def_type_list = maki::detail::type_list_t<state0, state1, state2, state3>;
-        static constexpr auto has_null_events = false;
     };
 */
 
 namespace transition_table_digest_detail
 {
     template<const auto& TransitionTuple>
-    class initial_digest
+    struct initial_digest
     {
-    private:
-        static constexpr auto initial_state_id = tuple_get<0>(TransitionTuple).source_state_conf;
-
-    public:
-        using state_id_constant_list = type_list_t<constant_t<initial_state_id>>;
-        static constexpr auto has_null_events = false;
+        using state_id_constant_list = type_list_t<>;
     };
 
     template<const auto& TransitionTuple>
@@ -80,15 +74,6 @@ namespace transition_table_digest_detail
                 constant_t<tuple_get<Index>(TransitionTuple).target_state_conf>,
                 must_add_target_state
             >;
-
-            static constexpr auto has_null_events =
-                Digest::has_null_events ||
-                std::is_same_v
-                <
-                    std::decay_t<decltype(tuple_get<Index>(TransitionTuple).evt_set)>,
-                    null_t
-                >
-            ;
         };
 
         template<class Digest, class IndexConstant>

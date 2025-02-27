@@ -52,7 +52,8 @@ namespace check_event_ns
             }
 
             constexpr auto transition_table = maki::transition_table{}
-                (states::subon, maki::event<events::other_button_press>, maki::null, actions::side_effect)
+                (maki::init,    states::subon)
+                (states::subon, maki::null, maki::event<events::other_button_press>, actions::side_effect)
             ;
         }
 
@@ -64,8 +65,9 @@ namespace check_event_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::event<events::button_press>, states::on,  actions::side_effect, guards::is_pressing_hard)
-        (states::on,  maki::event<events::button_press>, states::off, actions::side_effect)
+        (maki::init,  states::off)
+        (states::off, states::on, maki::event<events::button_press>,  actions::side_effect, guards::is_pressing_hard)
+        (states::on,  states::off, maki::event<events::button_press>, actions::side_effect)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

@@ -59,7 +59,8 @@ namespace composite_state_on_xxx_ns
         ;
 
         constexpr auto on_transition_table = maki::transition_table{}
-            (states::on_0, maki::event<events::dummy>, maki::null)
+            (maki::init,   states::on_0)
+            (states::on_0, maki::null, maki::event<events::dummy>)
         ;
 
         constexpr auto on = maki::state_conf{}
@@ -89,8 +90,9 @@ namespace composite_state_on_xxx_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (states::off, maki::event<events::button_press>, states::on)
-        (states::on,  maki::event<events::button_press>, states::off)
+        (maki::init,  states::off)
+        (states::off, states::on,  maki::event<events::button_press>)
+        (states::on,  states::off, maki::event<events::button_press>)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

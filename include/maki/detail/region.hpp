@@ -50,7 +50,7 @@ namespace region_detail
     };
 
     template<class StateIdConstantList>
-    struct state_id_to_index<StateIdConstantList, &state_confs::init>
+    struct state_id_to_index<StateIdConstantList, &state_confs::null>
     {
         static constexpr auto value = final_state_index;
     };
@@ -414,7 +414,7 @@ private:
                 );
             }
 
-            if constexpr(!ptr_equals(SourceStateId, &state_confs::init))
+            if constexpr(!ptr_equals(SourceStateId, &state_confs::null))
             {
                 auto& stt = state_id_to_obj<SourceStateId>();
                 impl_of(stt).call_exit_action
@@ -636,9 +636,9 @@ private:
     template<auto StateId, class Region>
     static auto& static_state_id_to_obj(Region& self)
     {
-        if constexpr(ptr_equals(StateId, &state_confs::init))
+        if constexpr(ptr_equals(StateId, &state_confs::null))
         {
-            return states::init;
+            return states::null;
         }
         else if constexpr(ptr_equals(StateId, &state_confs::final))
         {

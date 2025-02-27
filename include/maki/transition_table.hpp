@@ -116,7 +116,7 @@ namespace detail
     //Store a pointer in this case
     constexpr auto store_state_conf(init_t /*init*/)
     {
-        return &detail::state_confs::init;
+        return &detail::state_confs::null;
     }
 
     //Store a pointer in this case

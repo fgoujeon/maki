@@ -104,7 +104,7 @@ public:
     template<class Machine, class Context, class Event>
     void enter(Machine& mach, Context& ctx, const Event& event)
     {
-        process_event_in_transition
+        execute_transition
         <
             &state_confs::null,
             pinitial_state_conf,
@@ -220,10 +220,10 @@ private:
             >
         ;
 
-        constexpr auto must_try_processing_event_in_transitions = !tlu::empty_v<candidate_transition_index_constant_list>;
+        constexpr auto must_try_executing_transitions = !tlu::empty_v<candidate_transition_index_constant_list>;
         constexpr auto must_try_processing_event_in_active_state = !tlu::empty_v<candidate_state_type_list>;
 
-        if constexpr(must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
+        if constexpr(must_try_executing_transitions && must_try_processing_event_in_active_state)
         {
             /*
             There is a possibility of conflicting transition in this case.
@@ -231,23 +231,23 @@ private:
             transitions.
             */
             auto processed_in_active_state = false;
-            try_processing_event_in_active_state<candidate_state_type_list, Dry>(self, mach, ctx, event, processed_in_active_state);
+            call_active_state_internal_action<candidate_state_type_list, Dry>(self, mach, ctx, event, processed_in_active_state);
             if(processed_in_active_state)
             {
                 maybe_bool_util::set_to_true(processed...);
             }
             else
             {
-                try_processing_event_in_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
+                try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
             }
         }
-        else if constexpr(!must_try_processing_event_in_transitions && must_try_processing_event_in_active_state)
+        else if constexpr(!must_try_executing_transitions && must_try_processing_event_in_active_state)
         {
-            try_processing_event_in_active_state<candidate_state_type_list, Dry>(self, mach, ctx, event, processed...);
+            call_active_state_internal_action<candidate_state_type_list, Dry>(self, mach, ctx, event, processed...);
         }
-        else if constexpr(must_try_processing_event_in_transitions && !must_try_processing_event_in_active_state)
+        else if constexpr(must_try_executing_transitions && !must_try_processing_event_in_active_state)
         {
-            try_processing_event_in_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
+            try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
         }
     }
 
@@ -256,7 +256,7 @@ private:
         template<class ActiveStateIdConstant, class Machine, class Context, class Event>
         static void call(region& self, Machine& mach, Context& ctx, const Event& event)
         {
-            self.process_event_in_transition
+            self.execute_transition
             <
                 ActiveStateIdConstant::value,
                 &state_confs::null,
@@ -265,19 +265,23 @@ private:
         }
     };
 
+    /*
+    Try executing one of the transitions at indices
+    `TransitionIndexConstantList`.
+    */
     template<class TransitionIndexConstantList, bool Dry = false, class Self, class Machine, class Context, class Event, class... ExtraArgs>
-    static void try_processing_event_in_transitions(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
+    static void try_executing_transitions(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
     {
         tlu::for_each_or
         <
             TransitionIndexConstantList,
-            try_processing_event_in_transition<Dry>
+            try_executing_transition<Dry>
         >(self, mach, ctx, event, extra_args...);
     }
 
-    //Check active state and guard
+    // Try executing the transition at index `TransitionIndexConstant`.
     template<bool Dry>
-    struct try_processing_event_in_transition
+    struct try_executing_transition
     {
         template<class TransitionIndexConstant, class Self, class Machine, class Context, class Event, class... ExtraArgs>
         static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
@@ -301,7 +305,7 @@ private:
                 return tlu::for_each_or
                 <
                     matching_state_conf_constant_list,
-                    try_processing_event_in_transition_2
+                    try_executing_transition_2
                     <
                         Dry,
                         trans.target_state_conf,
@@ -312,7 +316,7 @@ private:
             }
             else
             {
-                return try_processing_event_in_transition_2
+                return try_executing_transition_2
                 <
                     Dry,
                     trans.target_state_conf,
@@ -331,7 +335,7 @@ private:
     };
 
     template<bool Dry, auto TargetStateId, const auto& Action, const auto& Guard>
-    struct try_processing_event_in_transition_2
+    struct try_executing_transition_2
     {
         template
         <
@@ -368,7 +372,7 @@ private:
 
             if constexpr(!Dry)
             {
-                self.template process_event_in_transition
+                self.template execute_transition
                 <
                     SourceStateIdConstant::value,
                     TargetStateId,
@@ -391,7 +395,7 @@ private:
         class Context,
         class Event
     >
-    void process_event_in_transition
+    void execute_transition
     (
         Machine& mach,
         Context& ctx,
@@ -483,17 +487,15 @@ private:
 
                 if constexpr(!tlu::empty_v<candidate_transition_index_constant_list>)
                 {
-                    try_processing_event_in_transitions<candidate_transition_index_constant_list>(*this, mach, ctx, null);
+                    try_executing_transitions<candidate_transition_index_constant_list>(*this, mach, ctx, null);
                 }
             }
         }
     }
 
-    /*
-    Call active_state.on_event(event)
-    */
+    // Find the active state and call its internal action for `event`.
     template<class StateTypeList, bool Dry, class Self, class Machine, class Context, class Event, class... ExtraArgs>
-    static void try_processing_event_in_active_state
+    static void call_active_state_internal_action
     (
         Self& self,
         Machine& mach,
@@ -505,12 +507,12 @@ private:
         tlu::for_each_or
         <
             StateTypeList,
-            try_processing_event_in_active_state_2<Dry>
+            call_active_state_internal_action_2<Dry>
         >(self, mach, ctx, event, extra_args...);
     }
 
     template<bool Dry>
-    struct try_processing_event_in_active_state_2
+    struct call_active_state_internal_action_2
     {
         template<class State, class Self, class Machine, class Context, class Event, class... ExtraArgs>
         static bool call

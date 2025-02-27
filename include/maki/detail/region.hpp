@@ -105,11 +105,14 @@ public:
     template<class Machine, class Context, class Event>
     void enter(Machine& mach, Context& ctx, const Event& event)
     {
+        static constexpr auto initial_state_id = tlu::front_t<state_id_constant_list>::value;
+        static constexpr auto action = tuple_get<0>(transition_tuple).act;
+
         execute_transition
         <
             &state_confs::null,
-            pinitial_state_conf,
-            &null
+            initial_state_id,
+            &action
         >
         (
             mach,
@@ -171,9 +174,6 @@ private:
     static constexpr const auto& transition_table = TransitionTable;
     static constexpr auto transition_tuple = maki::detail::rows(transition_table);
 
-    // Remove transition from initial pseudostate
-    static constexpr auto transition_tuple_tail = tuple_tail(transition_tuple);
-
     using transition_table_digest_type =
         transition_table_digest<transition_tuple>
     ;
@@ -192,8 +192,6 @@ private:
         state_id_constant_pack_to_state_tuple_t
     >;
 
-    static constexpr auto pinitial_state_conf = tlu::front_t<state_id_constant_list>::value;
-
     template<bool Dry, class Self, class Machine, class Context, class Event, class... MaybeBool>
     static void process_event_2
     (
@@ -207,7 +205,7 @@ private:
         //List the transitions whose event set contains `Event`
         using candidate_transition_index_constant_list = transition_table_filters::by_event_t
         <
-            transition_tuple_tail,
+            transition_tuple,
             Event
         >;
 
@@ -261,7 +259,7 @@ private:
             <
                 ActiveStateIdConstant::value,
                 &state_confs::null,
-                &null
+                &null_action
             >(mach, ctx, event);
         }
     };
@@ -287,7 +285,7 @@ private:
         template<class TransitionIndexConstant, class Self, class Machine, class Context, class Event, class... ExtraArgs>
         static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
-            static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(transition_tuple_tail);
+            static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(transition_tuple);
             static constexpr auto source_state_conf = trans.source_state_conf;
             static constexpr auto action = trans.act;
             static constexpr auto guard = trans.grd;
@@ -443,16 +441,13 @@ private:
             >;
         }
 
-        if constexpr(!std::is_same_v<decltype(ActionPtr), const null_t*>)
-        {
-            detail::call_action
-            (
-                *ActionPtr,
-                ctx,
-                mach,
-                event
-            );
-        }
+        detail::call_action
+        (
+            *ActionPtr,
+            ctx,
+            mach,
+            event
+        );
 
         if constexpr(!is_internal_transition)
         {
@@ -482,7 +477,7 @@ private:
             {
                 using candidate_transition_index_constant_list = transition_table_filters::by_source_state_and_null_event_t
                 <
-                    transition_tuple_tail,
+                    transition_tuple,
                     TargetStateId
                 >;
 

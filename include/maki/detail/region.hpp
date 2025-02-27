@@ -100,38 +100,34 @@ public:
         return !is_active_state_id<&state_confs::final>();
     }
 
+    // Enter the initial state
     template<class Machine, class Context, class Event>
-    void start(Machine& mach, Context& ctx, const Event& event)
+    void enter(Machine& mach, Context& ctx, const Event& event)
     {
-        if(!running())
-        {
-            process_event_in_transition
-            <
-                &state_confs::null,
-                pinitial_state_conf,
-                &null
-            >
-            (
-                mach,
-                ctx,
-                event
-            );
-        }
+        process_event_in_transition
+        <
+            &state_confs::null,
+            pinitial_state_conf,
+            &null
+        >
+        (
+            mach,
+            ctx,
+            event
+        );
     }
 
+    // Exit the active state
     template<class Machine, class Context, class Event>
-    void stop(Machine& mach, Context& ctx, const Event& event)
+    void exit(Machine& mach, Context& ctx, const Event& event)
     {
-        if(running())
-        {
-            with_active_state_id<state_id_constant_list, stop_2>
-            (
-                *this,
-                mach,
-                ctx,
-                event
-            );
-        }
+        with_active_state_id<state_id_constant_list, stop_2>
+        (
+            *this,
+            mach,
+            ctx,
+            event
+        );
     }
 
     template<bool Dry, class Machine, class Context, class Event>

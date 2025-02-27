@@ -154,7 +154,10 @@ public:
     template<class Event = events::start>
     void start(const Event& event = {})
     {
-        execute_operation<detail::machine_operation::start>(event);
+        if(!running())
+        {
+            execute_operation<detail::machine_operation::start>(event);
+        }
     }
 
     /**
@@ -168,7 +171,10 @@ public:
     template<class Event = events::stop>
     void stop(const Event& event = {})
     {
-        execute_operation<detail::machine_operation::stop>(event);
+        if(running())
+        {
+            execute_operation<detail::machine_operation::stop>(event);
+        }
     }
 
     /**

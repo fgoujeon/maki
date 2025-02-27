@@ -17,9 +17,9 @@
 #include "event_set.hpp"
 #include "state_set.hpp"
 #include "states.hpp"
+#include "init.hpp"
 #include "null.hpp"
 #include "detail/impl.hpp"
-#include "detail/machine_conf_fwd.hpp"
 #include "detail/state_conf_fwd.hpp"
 #include "detail/tuple.hpp"
 

@@ -15,6 +15,7 @@
 #include "maybe_bool_util.hpp"
 #include "tuple.hpp"
 #include "constant.hpp"
+#include "impl.hpp"
 #include "tlu/apply.hpp"
 #include "tlu/empty.hpp"
 #include "tlu/find.hpp"
@@ -644,10 +645,6 @@ private:
     static auto& static_state_id_to_obj(Region& self)
     {
         if constexpr(ptr_equals(StateId, &state_confs::null))
-        {
-            return states::null;
-        }
-        else if constexpr(ptr_equals(StateId, &null))
         {
             return states::null;
         }

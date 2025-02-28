@@ -40,7 +40,21 @@ In this new example, whenever `S` is active and the event `E` occurs, the state 
 
 that is, the same steps as with an external transition, except the 2nd and 3rd ones, because `S` is neither exited nor reentered.
 
-A local transition to a substate can be seen as an external transition from *any state of the region* to a target state of the same region. Other regions, if any, are not affected.
+A local transition to a substate can be seen as an external transition from *any state of the region* to a target state of the same region. As it happens, the notation below is also valid:
+
+@startuml{transition_locality_substate_local_star.png}
+[*] --> S
+state S {
+    [*] --> X
+    state "*" as any
+    any -> T : E
+}
+S : entry / entry_action
+S : exit / exit_action
+hide empty description
+@enduml
+
+Other regions, if any, are not affected.
 
 ### Case #2: Self-Transition
 

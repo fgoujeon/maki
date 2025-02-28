@@ -281,7 +281,7 @@ public:
             );
         }
 
-        //If anonymous transition
+        //If completion transition
         if constexpr(detail::is_null_v<EventSet>)
         {
             static_assert

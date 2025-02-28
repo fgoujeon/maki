@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace anonymous_transition_ns
+namespace completion_transition_ns
 {
     struct context
     {
@@ -50,9 +50,9 @@ namespace anonymous_transition_ns
     using machine_t = maki::machine<machine_conf>;
 }
 
-TEST_CASE("anonymous transition")
+TEST_CASE("completion transition")
 {
-    using namespace anonymous_transition_ns;
+    using namespace completion_transition_ns;
 
     auto machine = machine_t{};
 

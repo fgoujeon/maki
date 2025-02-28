@@ -17,14 +17,26 @@
 #include "event_set.hpp"
 #include "state_set.hpp"
 #include "states.hpp"
+#include "init.hpp"
 #include "null.hpp"
-#include "detail/machine_conf_fwd.hpp"
+#include "detail/impl.hpp"
 #include "detail/state_conf_fwd.hpp"
 #include "detail/tuple.hpp"
 
 namespace maki
 {
 
+namespace detail
+{
+    template<class... Transitions>
+    struct transition_table_impl
+    {
+        static constexpr auto size = sizeof...(Transitions);
+        tuple<Transitions...> transitions;
+    };
+}
+
+#ifdef MAKI_DETAIL_DOXYGEN
 /**
 @brief Represents a transition table.
 
@@ -37,14 +49,19 @@ To define a transition table, you have to instantiate an empty
 
 ```cpp
 constexpr auto transition_table = maki::transition_table{}
-    //source, target, event,                     action,        guard
-    (off,     on,     maki::event<button_press>, turn_light_on, has_enough_power)
-    (on,      off,    maki::event<button_press>, turn_light_off)
+    //source,    target, event,                     action,        guard
+    (maki::init, off)
+    (off,        on,     maki::event<button_press>, turn_light_on, has_enough_power)
+    (on,         off,    maki::event<button_press>, turn_light_off)
 ;
 ```
 */
-template<class... Transitions>
+template<class Impl = IMPLEMENTATION_DETAIL>
 class transition_table;
+#else
+template<class Impl = detail::transition_table_impl<>>
+class transition_table;
+#endif
 
 namespace detail
 {
@@ -98,13 +115,14 @@ namespace detail
     template<class... Transitions>
     constexpr auto make_transition_table(const tuple<Transitions...>& transitions)
     {
-        return transition_table<Transitions...>{transitions};
+        using impl_t = transition_table_impl<Transitions...>;
+        return transition_table<impl_t>{impl_t{transitions}};
     }
 
-    template<class... Transitions>
-    constexpr const auto& rows(const transition_table<Transitions...>& table)
+    template<class Impl>
+    constexpr const auto& rows(const transition_table<Impl>& table)
     {
-        return table.transitions_;
+        return impl_of(table).transitions;
     }
 
     template<class T>
@@ -116,7 +134,7 @@ namespace detail
     //Store a pointer in this case
     constexpr auto store_state_conf(init_t /*init*/)
     {
-        return &detail::state_confs::init;
+        return &detail::state_confs::null;
     }
 
     //Store a pointer in this case
@@ -127,7 +145,7 @@ namespace detail
     }
 }
 
-template<class... Transitions>
+template<class Impl>
 class transition_table
 {
 public:
@@ -185,7 +203,7 @@ public:
     )
     {
         //Check source
-        if constexpr(sizeof...(Transitions) == 0)
+        if constexpr(Impl::size == 0)
         {
             static_assert
             (
@@ -286,7 +304,7 @@ public:
         (
             tuple_append
             (
-                transitions_,
+                impl_.transitions,
                 detail::transition
                 {
                     detail::store_state_conf(source_state_conf),
@@ -300,21 +318,19 @@ public:
     }
 
 private:
-#ifndef MAKI_DETAIL_DOXYGEN
-    template<class... Transitions2>
-    friend constexpr auto detail::make_transition_table(const detail::tuple<Transitions2...>&);
+    using impl_type = Impl;
 
-    template<class... Transitions2>
-    friend constexpr const auto& detail::rows(const transition_table<Transitions2...>&);
+#ifndef MAKI_DETAIL_DOXYGEN
+    template<class... Transitions>
+    friend constexpr auto detail::make_transition_table(const detail::tuple<Transitions...>&);
 #endif
 
-    template<class TransitionTuple>
-    constexpr explicit transition_table(const TransitionTuple& transitions):
-        transitions_{transitions}
+    constexpr explicit transition_table(const Impl& impl):
+        impl_{impl}
     {
     }
 
-    detail::tuple<Transitions...> transitions_;
+    MAKI_DETAIL_FRIENDLY_IMPL
 };
 
 } //namespace

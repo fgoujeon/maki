@@ -16,7 +16,9 @@ namespace maki
 
 namespace detail::state_confs
 {
-    inline constexpr auto init = state_conf{};
+    inline constexpr auto null = state_conf{}
+        .pretty_name("");
+
     inline constexpr auto final = state_conf{};
 }
 
@@ -27,16 +29,27 @@ namespace states
 {
 #if MAKI_DETAIL_DOXYGEN
     /**
-    @brief Dummy state object given to transition hooks for transitions from initial pseudostate.
+    @brief Dummy state object given to transition hooks.
+
+    It represents either:
+
+    - the source state for transitions from the initial pseudostate;
+    - the target state for transitions that exits the superstate.
+
+    Its pretty name is an empty string.
+
+    Not to be confused with `maki::null`.
     */
-    constexpr auto init = state<IMPLEMENTATION_DETAIL>{};
+    constexpr auto null = state<IMPLEMENTATION_DETAIL>{};
 #else
-    inline constexpr auto init = state<detail::state_impls::simple_no_context<&detail::state_confs::init>>{};
+    inline constexpr auto null = state<detail::state_impls::simple_no_context<&detail::state_confs::null>>{};
 #endif
 
 #if MAKI_DETAIL_DOXYGEN
     /**
-    @brief Dummy state object given to transition hooks for transitions to final state.
+    @brief Dummy final state object given to transition hooks. It represents the final state.
+
+    Not to be confused with `maki::final`.
     */
     constexpr auto final = state<IMPLEMENTATION_DETAIL>{};
 #else

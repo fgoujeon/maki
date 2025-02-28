@@ -254,6 +254,19 @@ struct tuple_to_element_ptr_constant_list
 template<const auto& Tuple>
 using tuple_to_element_ptr_constant_list_t = typename tuple_to_element_ptr_constant_list<Tuple>::type;
 
+template<class Tuple>
+constexpr auto tuple_tail(Tuple& tpl)
+{
+    return tuple_apply
+    (
+        tpl,
+        [](const auto&... elems)
+        {
+            return make_tuple(distributed_construct, elems...);
+        }
+    );
+}
+
 } //namespace
 
 #endif

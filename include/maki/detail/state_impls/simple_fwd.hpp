@@ -11,7 +11,7 @@ namespace maki::detail::state_impls
 {
 
 template<auto Id>
-class simple_state;
+class simple;
 
 } //namespace
 

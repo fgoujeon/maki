@@ -37,8 +37,10 @@ using null_t = const detail::null_t_impl*;
 @brief A null event or target state.
 
 Represents either:
-- a null event (for anonymous transitions);
+- a null event (for completion transitions);
 - a null target state (for internal transitions in transition table).
+
+Not to be confused with `maki::states::null`.
 */
 #ifdef MAKI_DETAIL_DOXYGEN
 constexpr auto null = null_t{};

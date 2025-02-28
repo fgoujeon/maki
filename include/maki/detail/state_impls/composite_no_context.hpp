@@ -11,8 +11,8 @@
 #include "../maybe_bool_util.hpp"
 #include "../region.hpp"
 #include "../integer_constant_sequence.hpp"
-#include "../tlu.hpp"
 #include "../tuple.hpp"
+#include "../tlu/apply.hpp"
 #include "../../state_conf.hpp"
 #include "../../region.hpp"
 #include <type_traits>
@@ -100,7 +100,7 @@ public:
     void call_entry_action(Machine& mach, Context& ctx, const Event& event)
     {
         impl_.call_entry_action(mach, ctx, event);
-        tlu::for_each<region_tuple_type, region_start>(*this, mach, ctx, event);
+        tlu::for_each<region_tuple_type, region_enter>(*this, mach, ctx, event);
     }
 
     template<bool Dry, class Machine, class Context, class Event>
@@ -152,7 +152,7 @@ public:
     template<class Machine, class Context, class Event>
     void call_exit_action(Machine& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each<region_tuple_type, region_stop>(*this, mach, ctx, event);
+        tlu::for_each<region_tuple_type, region_exit>(*this, mach, ctx, event);
         impl_.call_exit_action
         (
             mach,
@@ -228,12 +228,12 @@ private:
         }
     };
 
-    struct region_start
+    struct region_enter
     {
         template<class Region, class Self, class Machine, class Context, class Event>
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
-            impl_of(tuple_get<Region>(self.regions_)).start(mach, ctx, event);
+            impl_of(tuple_get<Region>(self.regions_)).enter(mach, ctx, event);
         }
     };
 
@@ -247,12 +247,12 @@ private:
         }
     };
 
-    struct region_stop
+    struct region_exit
     {
         template<class Region, class Self, class Machine, class Context, class Event>
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
-            impl_of(tuple_get<Region>(self.regions_)).stop(mach, ctx, event);
+            impl_of(tuple_get<Region>(self.regions_)).exit(mach, ctx, event);
         }
     };
 

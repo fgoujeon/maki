@@ -57,6 +57,7 @@ This behavior can be expressed with the following transition table:
 ```c++
 constexpr auto transition_table = maki::transition_table{}
     //source,        target,         event,       action,           guard
+    (maki::init,     off)
     (off,            emitting_white, button_push, turn_light_white)
     (emitting_white, emitting_red,   button_push, turn_light_red,   is_short_push)
     (emitting_red,   emitting_green, button_push, turn_light_green, is_short_push)
@@ -257,6 +258,7 @@ the transition table (`off`, is our case).
 */
 constexpr auto transition_table = maki::transition_table{}
     //source,        target,         event,       action,           guard
+    (maki::init,     off)
     (off,            emitting_white, button_push, turn_light_white)
     (emitting_white, emitting_red,   button_push, turn_light_red,   is_short_push)
     (emitting_red,   emitting_green, button_push, turn_light_green, is_short_push)

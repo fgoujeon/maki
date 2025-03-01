@@ -99,14 +99,14 @@ constexpr auto operator!(const state_set<Impl>& stt_set)
 /**
 @relates state_set
 @brief Creates a `maki::state_set` that contains all the states but the ones
-created from `stt_conf`.
+created by `stt_builder`.
 */
 template<class StateBuilderImpl>
-constexpr auto operator!(const state_builder<StateBuilderImpl>& stt_conf)
+constexpr auto operator!(const state_builder<StateBuilderImpl>& stt_builder)
 {
     return detail::make_state_set_from_impl
     (
-        detail::make_set_excluding(&stt_conf)
+        detail::make_set_excluding(&stt_builder)
     );
 }
 
@@ -131,34 +131,34 @@ constexpr auto operator||
 /**
 @relates state_set
 @brief Creates a `maki::state_set` that contains the states of `stt_set`, plus
-the ones created from `stt_conf`.
+the ones created by `stt_builder`.
 */
 template<class StateSetImpl, class StateBuilderImpl>
 constexpr auto operator||
 (
     const state_set<StateSetImpl>& stt_set,
-    const state_builder<StateBuilderImpl>& stt_conf
+    const state_builder<StateBuilderImpl>& stt_builder
 )
 {
     return detail::make_state_set_from_impl
     (
-        detail::make_set_union(detail::impl_of(stt_set), &stt_conf)
+        detail::make_set_union(detail::impl_of(stt_set), &stt_builder)
     );
 }
 
 /**
 @relates state_set
 @brief Creates a `maki::state_set` that contains the states of `stt_set`, plus
-the ones created from `stt_conf`.
+the ones created by `stt_builder`.
 */
 template<class StateBuilderImpl, class StateSetImpl>
 constexpr auto operator||
 (
-    const state_builder<StateBuilderImpl>& stt_conf,
+    const state_builder<StateBuilderImpl>& stt_builder,
     const state_set<StateSetImpl>& stt_set
 )
 {
-    return stt_set || stt_conf;
+    return stt_set || stt_builder;
 }
 
 /**
@@ -206,9 +206,9 @@ namespace detail
     }
 
     template<class StateBuilderImpl, class... Predicates>
-    constexpr bool contained_in(const state_builder<StateBuilderImpl>& stt_conf, const state_set<Predicates>&... state_sets)
+    constexpr bool contained_in(const state_builder<StateBuilderImpl>& stt_builder, const state_set<Predicates>&... state_sets)
     {
-        return (contains(impl_of(state_sets), &stt_conf) || ...);
+        return (contains(impl_of(state_sets), &stt_builder) || ...);
     }
 
     template<class T>

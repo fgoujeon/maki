@@ -17,19 +17,25 @@ namespace composite_state_completion_ns
     namespace events
     {
         struct button_press{};
+        struct other_button_press{};
     }
 
     namespace states
     {
         EMPTY_STATE(waiting)
 
-        constexpr auto running_transition_table = maki::transition_table{}
+        constexpr auto running_transition_table_0 = maki::transition_table{}
             (maki::init, waiting)
             (waiting,    maki::final, maki::event<events::button_press>)
         ;
 
+        constexpr auto running_transition_table_1 = maki::transition_table{}
+            (maki::init, waiting)
+            (waiting,    maki::final, maki::event<events::other_button_press>)
+        ;
+
         constexpr auto running = maki::state_builder{}
-            .transition_tables(running_transition_table)
+            .transition_tables(running_transition_table_0, running_transition_table_1)
         ;
     }
 
@@ -62,6 +68,14 @@ TEST_CASE("composite_state_completion_ns")
     auto& ctx = machine.context();
 
     CHECK(machine.is<states::running>());
+    CHECK(machine.state<states::running>().region<0>().is<states::waiting>());
+    CHECK(machine.state<states::running>().region<1>().is<states::waiting>());
+    CHECK(ctx.i == 0);
+
+    machine.process_event(events::other_button_press{});
+    CHECK(machine.is<states::running>());
+    CHECK(machine.state<states::running>().region<0>().is<states::waiting>());
+    CHECK(!machine.state<states::running>().region<1>().is<states::waiting>());
     CHECK(ctx.i == 0);
 
     machine.process_event(events::button_press{});

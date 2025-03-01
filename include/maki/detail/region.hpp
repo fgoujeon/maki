@@ -51,12 +51,6 @@ namespace region_detail
     };
 
     template<class StateIdConstantList>
-    struct state_id_to_index<StateIdConstantList, &state_builders::null>
-    {
-        static constexpr auto value = final_state_index;
-    };
-
-    template<class StateIdConstantList>
     struct state_id_to_index<StateIdConstantList, &state_builders::final>
     {
         static constexpr auto value = final_state_index;
@@ -96,9 +90,9 @@ public:
         }
     }
 
-    [[nodiscard]] bool running() const
+    [[nodiscard]] bool completed() const
     {
-        return !is_active_state_id<&state_builders::final>();
+        return is_active_state_id<&state_builders::final>();
     }
 
     // Enter the initial state
@@ -122,16 +116,19 @@ public:
     }
 
     // Exit the active state
-    template<class Machine, class Context, class Event>
+    template<auto TargetStateId, class Machine, class Context, class Event>
     void exit(Machine& mach, Context& ctx, const Event& event)
     {
-        with_active_state_id<state_id_constant_list, stop_2>
-        (
-            *this,
-            mach,
-            ctx,
-            event
-        );
+        if(!completed())
+        {
+            with_active_state_id<state_id_constant_list, exit_2<TargetStateId>>
+            (
+                *this,
+                mach,
+                ctx,
+                event
+            );
+        }
     }
 
     template<bool Dry, class Machine, class Context, class Event>
@@ -250,7 +247,8 @@ private:
         }
     }
 
-    struct stop_2
+    template<auto TargetStateId>
+    struct exit_2
     {
         template<class ActiveStateIdConstant, class Machine, class Context, class Event>
         static void call(region& self, Machine& mach, Context& ctx, const Event& event)
@@ -258,7 +256,7 @@ private:
             self.execute_transition
             <
                 ActiveStateIdConstant::value,
-                &state_builders::null,
+                TargetStateId,
                 &null_action
             >(mach, ctx, event);
         }
@@ -434,11 +432,14 @@ private:
                 event
             );
 
-            active_state_index_ = region_detail::state_id_to_index_v
-            <
-                state_id_constant_list,
-                TargetStateId
-            >;
+            if constexpr(!ptr_equals(TargetStateId, &state_builders::null))
+            {
+                active_state_index_ = region_detail::state_id_to_index_v
+                <
+                    state_id_constant_list,
+                    TargetStateId
+                >;
+            }
         }
 
         detail::call_action
@@ -483,7 +484,10 @@ private:
 
                 if constexpr(!tlu::empty_v<candidate_transition_index_constant_list>)
                 {
-                    try_executing_transitions<candidate_transition_index_constant_list>(*this, mach, ctx, null);
+                    if(impl_of(target_state).completed())
+                    {
+                        try_executing_transitions<candidate_transition_index_constant_list>(*this, mach, ctx, null);
+                    }
                 }
             }
         }
@@ -525,13 +529,34 @@ private:
                 return false;
             }
 
-            impl_of(self.template state_type_to_obj<State>()).template call_internal_action<Dry>
+            auto& active_state = self.template state_type_to_obj<State>();
+
+            impl_of(active_state).template call_internal_action<Dry>
             (
                 mach,
                 ctx,
                 event,
                 extra_args...
             );
+
+            //Completion transition
+            {
+                constexpr auto target_state_id = impl_of_t<State>::identifier;
+
+                using candidate_transition_index_constant_list = transition_table_filters::by_source_state_and_null_event_t
+                <
+                    transition_tuple,
+                    target_state_id
+                >;
+
+                if constexpr(!tlu::empty_v<candidate_transition_index_constant_list>)
+                {
+                    if(impl_of(active_state).completed())
+                    {
+                        try_executing_transitions<candidate_transition_index_constant_list>(self, mach, ctx, null);
+                    }
+                }
+            }
 
             return true;
         }

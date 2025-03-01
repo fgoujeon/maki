@@ -50,12 +50,6 @@ public:
         return ctx_holder_.get();
     }
 
-    template<const auto& RegionPath>
-    [[nodiscard]] bool running() const
-    {
-        return impl_.template running<RegionPath>();
-    }
-
     template<class Machine, class ParentContext, class Event>
     void call_entry_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
@@ -137,9 +131,9 @@ public:
         return impl_.template is<StateBuilder>();
     }
 
-    [[nodiscard]] bool running() const
+    [[nodiscard]] bool completed() const
     {
-        return impl_.running();
+        return impl_.completed();
     }
 
     template<class /*Event*/>

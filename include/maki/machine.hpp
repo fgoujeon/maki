@@ -137,7 +137,7 @@ public:
     */
     [[nodiscard]] bool running() const
     {
-        return impl_.running();
+        return !impl_.completed();
     }
 
     /**
@@ -485,7 +485,7 @@ private:
         }
         else if constexpr(Operation == detail::machine_operation::stop)
         {
-            impl_.call_exit_action(*this, context(), event);
+            impl_.exit_to_finals(*this, context(), event);
         }
         else
         {

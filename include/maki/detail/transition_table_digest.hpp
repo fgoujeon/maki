@@ -8,12 +8,14 @@
 #define MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 
 #include "constant.hpp"
-#include "tlu/push_back_if.hpp"
-#include "tlu/left_fold.hpp"
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
 #include "type_list.hpp"
+#include "../states.hpp"
+#include "../final.hpp"
 #include "../null.hpp"
+#include "tlu/push_back_if.hpp"
+#include "tlu/left_fold.hpp"
 
 namespace maki::detail
 {
@@ -56,6 +58,7 @@ namespace transition_table_digest_detail
             /*
             We must add target state to list of states unless:
             - it's not already in the list;
+            - it's final;
             - it's null.
             */
             static constexpr auto must_add_target_state =
@@ -64,6 +67,7 @@ namespace transition_table_digest_detail
                     typename Digest::state_id_constant_list,
                     constant_t<tuple_get<Index>(TransitionTuple).target_state_builder>
                 > &&
+                !equals(tuple_get<Index>(TransitionTuple).target_state_builder, state_builders::final) &&
                 !equals(tuple_get<Index>(TransitionTuple).target_state_builder, null)
             ;
 

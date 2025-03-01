@@ -152,7 +152,32 @@ public:
     template<class Machine, class Context, class Event>
     void call_exit_action(Machine& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each<region_tuple_type, region_exit>(*this, mach, ctx, event);
+        tlu::for_each<region_tuple_type, region_exit<&state_builders::null>>
+        (
+            *this,
+            mach,
+            ctx,
+            event
+        );
+        impl_.call_exit_action
+        (
+            mach,
+            ctx,
+            event
+        );
+    }
+
+    // For each region, transition from active state to final state.
+    template<class Machine, class Context, class Event>
+    void exit_to_finals(Machine& mach, Context& ctx, const Event& event)
+    {
+        tlu::for_each<region_tuple_type, region_exit<&state_builders::final>>
+        (
+            *this,
+            mach,
+            ctx,
+            event
+        );
         impl_.call_exit_action
         (
             mach,
@@ -181,12 +206,12 @@ public:
         return impl_of(region<0>()).template is<StateBuilder>();
     }
 
-    [[nodiscard]] bool running() const
+    [[nodiscard]] bool completed() const
     {
         return tlu::apply_t
         <
             region_index_constant_sequence,
-            any_region_running
+            all_regions_completed
         >::call(*this);
     }
 
@@ -219,12 +244,12 @@ private:
     >::type;
 
     template<class... RegionIndexConstants>
-    struct any_region_running
+    struct all_regions_completed
     {
         template<class Self>
         static bool call(const Self& self)
         {
-            return (impl_of(tuple_get<RegionIndexConstants::value>(self.regions_)).running() || ...);
+            return (impl_of(tuple_get<RegionIndexConstants::value>(self.regions_)).completed() && ...);
         }
     };
 
@@ -247,12 +272,13 @@ private:
         }
     };
 
+    template<auto TargetStateId>
     struct region_exit
     {
         template<class Region, class Self, class Machine, class Context, class Event>
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
-            impl_of(tuple_get<Region>(self.regions_)).exit(mach, ctx, event);
+            impl_of(tuple_get<Region>(self.regions_)).template exit<TargetStateId>(mach, ctx, event);
         }
     };
 

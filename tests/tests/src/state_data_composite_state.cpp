@@ -44,7 +44,7 @@ namespace state_data_composite_state_ns
             self.counter += n;
         }
 
-        constexpr auto on = maki::state_conf{}
+        constexpr auto on = maki::state_builder{}
             .context_v<on_data>()
             .transition_tables(on_transition_table)
             .internal_action_ce<events::accumulate_request>

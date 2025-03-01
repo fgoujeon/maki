@@ -26,7 +26,7 @@
 #include "../guard.hpp"
 #include "../path.hpp"
 #include "../null.hpp"
-#include "../state_conf.hpp"
+#include "../state_builder.hpp"
 #include "../state.hpp"
 #include "../transition_table.hpp"
 #include <type_traits>
@@ -51,13 +51,13 @@ namespace region_detail
     };
 
     template<class StateIdConstantList>
-    struct state_id_to_index<StateIdConstantList, &state_confs::null>
+    struct state_id_to_index<StateIdConstantList, &state_builders::null>
     {
         static constexpr auto value = final_state_index;
     };
 
     template<class StateIdConstantList>
-    struct state_id_to_index<StateIdConstantList, &state_confs::final>
+    struct state_id_to_index<StateIdConstantList, &state_builders::final>
     {
         static constexpr auto value = final_state_index;
     };
@@ -83,22 +83,22 @@ public:
     region& operator=(region&&) = delete;
     ~region() = default;
 
-    template<const auto& StateConf>
+    template<const auto& StateBuilder>
     [[nodiscard]] bool is() const
     {
-        if constexpr(is_state_set_v<std::decay_t<decltype(StateConf)>>)
+        if constexpr(is_state_set_v<std::decay_t<decltype(StateBuilder)>>)
         {
-            return is_active_state_id_in_set<&StateConf>();
+            return is_active_state_id_in_set<&StateBuilder>();
         }
         else
         {
-            return is_active_state_id<&StateConf>();
+            return is_active_state_id<&StateBuilder>();
         }
     }
 
     [[nodiscard]] bool running() const
     {
-        return !is_active_state_id<&state_confs::final>();
+        return !is_active_state_id<&state_builders::final>();
     }
 
     // Enter the initial state
@@ -110,7 +110,7 @@ public:
 
         execute_transition
         <
-            &state_confs::null,
+            &state_builders::null,
             initial_state_id,
             &action
         >
@@ -158,10 +158,10 @@ public:
         process_event_2<Dry>(*this, mach, ctx, event, processed);
     }
 
-    template<const auto& StateConf>
+    template<const auto& StateBuilder>
     const auto& state() const
     {
-        return state_id_to_obj<&StateConf>();
+        return state_id_to_obj<&StateBuilder>();
     }
 
     static const auto& path()
@@ -258,7 +258,7 @@ private:
             self.execute_transition
             <
                 ActiveStateIdConstant::value,
-                &state_confs::null,
+                &state_builders::null,
                 &null_action
             >(mach, ctx, event);
         }
@@ -286,28 +286,28 @@ private:
         static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
             static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(transition_tuple);
-            static constexpr auto source_state_conf = trans.source_state_conf;
+            static constexpr auto source_state_builder = trans.source_state_builder;
             static constexpr auto action = trans.act;
             static constexpr auto guard = trans.grd;
 
-            if constexpr(is_state_set_v<std::decay_t<decltype(source_state_conf)>>)
+            if constexpr(is_state_set_v<std::decay_t<decltype(source_state_builder)>>)
             {
-                //List of state confs that belong to the source state set
-                using matching_state_conf_constant_list = state_type_list_filters::by_state_set_t
+                //List of state builders that belong to the source state set
+                using matching_state_builder_constant_list = state_type_list_filters::by_state_set_t
                 <
                     state_id_constant_list,
-                    &source_state_conf
+                    &source_state_builder
                 >;
 
-                static_assert(!tlu::empty_v<matching_state_conf_constant_list>);
+                static_assert(!tlu::empty_v<matching_state_builder_constant_list>);
 
                 return tlu::for_each_or
                 <
-                    matching_state_conf_constant_list,
+                    matching_state_builder_constant_list,
                     try_executing_transition_2
                     <
                         Dry,
-                        trans.target_state_conf,
+                        trans.target_state_builder,
                         action,
                         guard
                     >
@@ -318,10 +318,10 @@ private:
                 return try_executing_transition_2
                 <
                     Dry,
-                    trans.target_state_conf,
+                    trans.target_state_builder,
                     action,
                     guard
-                >::template call<constant_t<trans.source_state_conf>>
+                >::template call<constant_t<trans.source_state_builder>>
                 (
                     self,
                     mach,
@@ -473,7 +473,7 @@ private:
             }
 
             //Completion transition
-            if constexpr(!ptr_equals(TargetStateId, &state_confs::null))
+            if constexpr(!ptr_equals(TargetStateId, &state_builders::null))
             {
                 using candidate_transition_index_constant_list = transition_table_filters::by_source_state_and_null_event_t
                 <
@@ -560,7 +560,7 @@ private:
         auto matches = false;
         with_active_state_id
         <
-            tlu::push_back_t<state_id_constant_list, constant_t<&state_confs::final>>,
+            tlu::push_back_t<state_id_constant_list, constant_t<&state_builders::final>>,
             is_active_state_id_in_set_2<StateSetPtr>
         >(matches);
         return matches;
@@ -639,11 +639,11 @@ private:
     template<auto StateId, class Region>
     static auto& static_state_id_to_obj(Region& self)
     {
-        if constexpr(ptr_equals(StateId, &state_confs::null))
+        if constexpr(ptr_equals(StateId, &state_builders::null))
         {
             return states::null;
         }
-        else if constexpr(ptr_equals(StateId, &state_confs::final))
+        else if constexpr(ptr_equals(StateId, &state_builders::final))
         {
             return states::final;
         }

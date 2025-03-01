@@ -13,17 +13,17 @@ struct E{};
 
 constexpr auto A = maki::action_v([]{});
 
-//! [internal-transition-in-state-conf]
-constexpr auto ST = maki::state_conf{}
+//! [internal-transition-in-state-builder]
+constexpr auto ST = maki::state_builder{}
     .internal_action_v<E>([]
     {
         //...
     })
 ;
-//! [internal-transition-in-state-conf]
+//! [internal-transition-in-state-builder]
 
-constexpr auto S = maki::state_conf{};
-constexpr auto T = maki::state_conf{};
+constexpr auto S = maki::state_builder{};
+constexpr auto T = maki::state_builder{};
 
 constexpr auto transition_table = maki::transition_table{}
     (maki::init, S)

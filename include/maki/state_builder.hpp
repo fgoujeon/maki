@@ -6,16 +6,16 @@
 
 /**
 @file
-@brief Defines the maki::state_conf struct template
+@brief Defines the maki::state_builder struct template
 */
 
-#ifndef MAKI_STATE_CONF_HPP
-#define MAKI_STATE_CONF_HPP
+#ifndef MAKI_STATE_BUILDER_HPP
+#define MAKI_STATE_BUILDER_HPP
 
 #include "action.hpp"
 #include "context.hpp"
 #include "event_set.hpp"
-#include "detail/state_conf_fwd.hpp"
+#include "detail/state_builder_fwd.hpp"
 #include "detail/type.hpp"
 #include "detail/event_action.hpp"
 #include "detail/signature_macros.hpp"
@@ -29,31 +29,31 @@ namespace maki
 {
 
 #ifdef MAKI_DETAIL_DOXYGEN
-#define MAKI_DETAIL_STATE_CONF_RETURN_TYPE state_conf<IMPLEMENTATION_DETAIL>
+#define MAKI_DETAIL_STATE_CONF_RETURN_TYPE state_builder<IMPLEMENTATION_DETAIL>
 #else
 #define MAKI_DETAIL_STATE_CONF_RETURN_TYPE auto
 #endif
 
 /**
-@brief State configuration
+@brief State builder
 */
 template<class Impl>
-class state_conf
+class state_builder
 {
 public:
     using context_type = typename Impl::context_type;
 
-    constexpr state_conf() = default;
+    constexpr state_builder() = default;
 
-    state_conf(const state_conf&) = delete;
+    state_builder(const state_builder&) = delete;
 
-    state_conf(state_conf&&) = delete;
+    state_builder(state_builder&&) = delete;
 
-    ~state_conf() = default;
+    ~state_builder() = default;
 
-    state_conf& operator=(const state_conf&) = delete;
+    state_builder& operator=(const state_builder&) = delete;
 
-    state_conf& operator=(state_conf&&) = delete;
+    state_builder& operator=(state_builder&&) = delete;
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = detail::type<typename Impl::context_type>; \
@@ -65,9 +65,9 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = impl_.transition_tables;
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    return state_conf \
+    return state_builder \
     < \
-        detail::state_conf_option_set \
+        detail::state_builder_option_set \
         < \
             typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
@@ -219,10 +219,10 @@ private:
     using impl_type = Impl;
 
     template<class Impl2>
-    friend class state_conf;
+    friend class state_builder;
 
     template<class... Args>
-    constexpr state_conf(Args&&... args):
+    constexpr state_builder(Args&&... args):
         impl_{std::forward<Args>(args)...}
     {
     }

@@ -34,7 +34,7 @@ namespace external_transition_hook_set
             (states::off0, states::on0, maki::event<events::button_press>)
         ;
 
-        constexpr auto on1 = maki::state_conf{}
+        constexpr auto on1 = maki::state_builder{}
             .transition_tables(on1_transition_table)
             .pretty_name("on_1")
         ;

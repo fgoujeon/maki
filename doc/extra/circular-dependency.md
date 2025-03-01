@@ -6,18 +6,18 @@ The various objects of a program that uses Maki depend on each other like so:
 
 object machine
 object machine_context
-object state_conf
+object state_builder
 object state_context
 object action
 object guard
 
 machine ..> machine_context
 machine ..> state_context
-machine ..> state_conf
+machine ..> state_builder
 machine ..> action
 machine ..> guard
 
-state_conf ..> state_context
+state_builder ..> state_context
 
 @enduml
 

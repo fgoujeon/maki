@@ -30,7 +30,7 @@ namespace nullary_member_functions_ns
     {
         EMPTY_STATE(off)
 
-        constexpr auto on = maki::state_conf{}
+        constexpr auto on = maki::state_builder{}
             .entry_action_c<events::e1>
             (
                 [](context& ctx)

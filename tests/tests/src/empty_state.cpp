@@ -31,7 +31,7 @@ namespace empty_state_ns
             }
         };
 
-        constexpr auto state1 = maki::state_conf{}
+        constexpr auto state1 = maki::state_builder{}
             .context_c<state1_data>()
         ;
     }

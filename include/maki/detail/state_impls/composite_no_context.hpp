@@ -13,7 +13,7 @@
 #include "../integer_constant_sequence.hpp"
 #include "../tuple.hpp"
 #include "../tlu/apply.hpp"
-#include "../../state_conf.hpp"
+#include "../../state_builder.hpp"
 #include "../../region.hpp"
 #include <type_traits>
 #include <utility>
@@ -29,7 +29,7 @@ template
 >
 struct region_tuple_elem
 {
-    static constexpr auto transition_table = tuple_get<Index>(impl_of(ParentSm::conf).transition_tables);
+    static constexpr auto transition_table = tuple_get<Index>(impl_of(ParentSm::builder).transition_tables);
     static constexpr auto path = ParentPath.add_region_index(Index);
     using type = maki::region<detail::region<transition_table, path>>;
 };
@@ -79,10 +79,10 @@ class composite_no_context
 {
 public:
     static constexpr auto identifier = Id;
-    static constexpr const auto& conf = *Id;
-    using conf_type = std::decay_t<decltype(conf)>;
-    using option_set_type = std::decay_t<decltype(impl_of(conf))>;
-    using transition_table_type_list = decltype(impl_of(conf).transition_tables);
+    static constexpr const auto& builder = *Id;
+    using builder_type = std::decay_t<decltype(builder)>;
+    using option_set_type = std::decay_t<decltype(impl_of(builder))>;
+    using transition_table_type_list = decltype(impl_of(builder).transition_tables);
 
     template<class Machine, class Context>
     composite_no_context(Machine& mach, Context& ctx):
@@ -167,18 +167,18 @@ public:
         return tuple_get<Index>(regions_);
     }
 
-    template<const auto& StateConf>
+    template<const auto& StateBuilder>
     [[nodiscard]] const auto& state() const
     {
         static_assert(region_tuple_type::size == 1);
-        return impl_of(region<0>()).template state<StateConf>();
+        return impl_of(region<0>()).template state<StateBuilder>();
     }
 
-    template<const auto& StateConf>
+    template<const auto& StateBuilder>
     [[nodiscard]] bool is() const
     {
         static_assert(region_tuple_type::size == 1);
-        return impl_of(region<0>()).template is<StateConf>();
+        return impl_of(region<0>()).template is<StateBuilder>();
     }
 
     [[nodiscard]] bool running() const

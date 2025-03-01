@@ -19,10 +19,10 @@ struct some_other_event
 struct yet_another_event{};
 
 //States
-constexpr auto state0 = maki::state_conf{};
-constexpr auto state1 = maki::state_conf{};
+constexpr auto state0 = maki::state_builder{};
+constexpr auto state1 = maki::state_builder{};
 //! [short-in-state]
-constexpr auto state2 = maki::state_conf{}
+constexpr auto state2 = maki::state_builder{}
     /*
     Entry action.
     Called on state entry for state transitions caused by some_other_event.

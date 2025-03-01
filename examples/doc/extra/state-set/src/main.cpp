@@ -12,11 +12,11 @@
 struct context{};
 
 //! [state-set]
-constexpr auto initializing = maki::state_conf{};
-constexpr auto running = maki::state_conf{};
-constexpr auto sleeping = maki::state_conf{};
+constexpr auto initializing = maki::state_builder{};
+constexpr auto running = maki::state_builder{};
+constexpr auto sleeping = maki::state_builder{};
 
-constexpr auto powering_off = maki::state_conf{}
+constexpr auto powering_off = maki::state_builder{}
     .entry_action_v([]
     {
         std::cout << "Powering off...\n";

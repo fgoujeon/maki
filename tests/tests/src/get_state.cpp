@@ -55,7 +55,7 @@ namespace get_state_ns
             led_color color = led_color::red;
         };
 
-        constexpr auto emitting_red = maki::state_conf{}
+        constexpr auto emitting_red = maki::state_builder{}
             .context_c<emitting_red_data>()
             .entry_action_c
             (
@@ -77,7 +77,7 @@ namespace get_state_ns
             led_color color = led_color::green;
         };
 
-        constexpr auto emitting_green = maki::state_conf{}
+        constexpr auto emitting_green = maki::state_builder{}
             .context_c<emitting_green_data>()
             .entry_action_c
             (
@@ -99,7 +99,7 @@ namespace get_state_ns
             led_color color = led_color::blue;
         };
 
-        constexpr auto emitting_blue = maki::state_conf{}
+        constexpr auto emitting_blue = maki::state_builder{}
             .context_c<emitting_blue_data>()
             .entry_action_c
             (
@@ -117,7 +117,7 @@ namespace get_state_ns
             (states::emitting_blue,  states::emitting_red, maki::event<events::color_button_press>)
         ;
 
-        constexpr auto on = maki::state_conf{}
+        constexpr auto on = maki::state_builder{}
             .context_c<on_data>()
             .transition_tables(on_transition_table)
             .exit_action_c

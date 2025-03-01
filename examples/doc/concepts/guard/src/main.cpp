@@ -30,8 +30,8 @@ struct plus_button_press{};
 //! [events-and-datatypes]
 
 //States
-constexpr auto reading_memory = maki::state_conf{};
-constexpr auto spinning_low = maki::state_conf{}
+constexpr auto reading_memory = maki::state_builder{};
+constexpr auto spinning_low = maki::state_builder{}
     .entry_action_v([]
     {
         std::cout << "Speed is low\n";
@@ -40,7 +40,7 @@ constexpr auto spinning_low = maki::state_conf{}
         //[Implementation detail...]
     })
 ;
-constexpr auto spinning_med = maki::state_conf{}
+constexpr auto spinning_med = maki::state_builder{}
     .entry_action_v([]
     {
         std::cout << "Speed is med\n";
@@ -49,7 +49,7 @@ constexpr auto spinning_med = maki::state_conf{}
         //[Implementation detail...]
     })
 ;
-constexpr auto spinning_high = maki::state_conf{}
+constexpr auto spinning_high = maki::state_builder{}
     .entry_action_v([]
     {
         std::cout << "Speed is high\n";

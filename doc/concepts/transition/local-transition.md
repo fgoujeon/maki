@@ -118,6 +118,6 @@ In the transition table, you can pass `maki::null` in lieu of a target state to 
 
 @snippet concepts/transition/src/main.cpp internal-transition
 
-You can also implicitly create a guardless internal transition (which would be prepended to the transition table of the parent region) by adding an internal action to the configuration of the state:
+You can also implicitly create a guardless internal transition (which would be prepended to the transition table of the parent region) by adding an internal action to the builder of the state:
 
-@snippet concepts/transition/src/main.cpp internal-transition-in-state-conf
+@snippet concepts/transition/src/main.cpp internal-transition-in-state-builder

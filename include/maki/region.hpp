@@ -38,22 +38,22 @@ public:
     ~region() = default;
 
     /**
-    @brief Returns whether the state created from `StateConf` is active.
+    @brief Returns whether the state created by `StateBuilder` is active.
     */
-    template<const auto& StateConf>
+    template<const auto& StateBuilder>
     [[nodiscard]] bool is() const
     {
-        return impl_.template is<StateConf>();
+        return impl_.template is<StateBuilder>();
     }
 
     /**
-    @brief Returns the `maki::state` object created from `StateConf` (of type
-    `maki::state_conf`).
+    @brief Returns the `maki::state` object created by `StateBuilder` (of type
+    `maki::state_builder`).
     */
-    template<const auto& StateConf>
+    template<const auto& StateBuilder>
     [[nodiscard]] const auto& state() const
     {
-        return impl_.template state<StateConf>();
+        return impl_.template state<StateBuilder>();
     }
 
     /**

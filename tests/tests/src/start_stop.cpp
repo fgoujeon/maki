@@ -17,7 +17,7 @@ namespace start_stop_ns
 
     namespace states
     {
-        constexpr auto s0 = maki::state_conf{}
+        constexpr auto s0 = maki::state_builder{}
             .entry_action_c
             (
                 [](context& ctx)
@@ -34,7 +34,7 @@ namespace start_stop_ns
             )
         ;
 
-        constexpr auto s1 = maki::state_conf{}
+        constexpr auto s1 = maki::state_builder{}
             .entry_action_c
             (
                 [](context& ctx)

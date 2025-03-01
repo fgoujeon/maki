@@ -24,9 +24,9 @@ constexpr auto power_button_press =
 struct context{};
 
 //States
-constexpr auto off = maki::state_conf{};
-constexpr auto sleeping = maki::state_conf{};
-constexpr auto running = maki::state_conf{};
+constexpr auto off = maki::state_builder{};
+constexpr auto sleeping = maki::state_builder{};
+constexpr auto running = maki::state_builder{};
 
 //Transition table
 //! [transition-table]

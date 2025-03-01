@@ -82,11 +82,11 @@ Here is an example of two actions, with their definition and their association w
 
 ### Within the associated state
 
-To associate an action to a state, you have to add a callable to the state configuration through a call to either:
+To associate an action to a state, you have to add a callable to the state builder through a call to either:
 
-* `maki::state_conf::entry_action_v()` (and its variants) for an entry action;
-* `maki::state_conf::internal_action_v()` (and its variants) for an internal action (see @ref local-transition);
-* `maki::state_conf::exit_action_v()` (and its variants) for an exit action.
+* `maki::state_builder::entry_action_v()` (and its variants) for an entry action;
+* `maki::state_builder::internal_action_v()` (and its variants) for an internal action (see @ref local-transition);
+* `maki::state_builder::exit_action_v()` (and its variants) for an exit action.
 
 Here is an example of a state that defines all three kinds of actions (entry, internal and exit):
 
@@ -98,7 +98,7 @@ As you can see, for each action you have to specify:
     * `_e` for an action that only takes a reference to the event that triggers the action;
     * `_ce` for an action that takes a reference to the context, as well as a reference to the event;
     * `_v` for an action that doesn't take any argument;
-    * and so on (see `maki::state_conf` for all suffixes)...;
+    * and so on (see `maki::state_builder` for all suffixes)...;
 * the event type for which the action is invoked, specified by the given template argument.
 
 Order matters! Whenever the state machine must execute an action, it iterates over the provided action list until it finds a match (i.e. an action of the adequate kind, specifying the adequate event type).

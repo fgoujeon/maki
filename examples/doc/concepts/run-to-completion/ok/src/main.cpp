@@ -31,16 +31,16 @@ void say_goodbye()
     std::cout << "\nGoodbye.";
 }
 
-constexpr auto state_a = maki::state_conf{}
+constexpr auto state_a = maki::state_builder{}
     .exit_action_v(&say_hello)
 ;
 
-constexpr auto state_b = maki::state_conf{}
+constexpr auto state_b = maki::state_builder{}
     .entry_action_m(&emit_event_1_and_say_world)
     .exit_action_v(&say_goodbye)
 ;
 
-constexpr auto state_c = maki::state_conf{};
+constexpr auto state_c = maki::state_builder{};
 
 constexpr auto transition_table = maki::transition_table{}
     (maki::init, state_a)

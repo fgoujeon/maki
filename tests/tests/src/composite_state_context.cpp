@@ -47,7 +47,7 @@ namespace composite_state_context_ns
                 int red_count = 0;
             };
 
-            constexpr auto emitting_red = maki::state_conf{}
+            constexpr auto emitting_red = maki::state_builder{}
                 .entry_action_c
                 (
                     [](context& ctx)
@@ -68,7 +68,7 @@ namespace composite_state_context_ns
             ;
         }
 
-        constexpr auto on = maki::state_conf{}
+        constexpr auto on = maki::state_builder{}
             .transition_tables(on_ns::transition_table)
             .context_c<on_ns::context>()
             .exit_action_c

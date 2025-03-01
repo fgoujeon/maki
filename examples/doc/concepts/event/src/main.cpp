@@ -55,10 +55,10 @@ struct context
 };
 
 //States
-constexpr auto idle = maki::state_conf{};
-constexpr auto starting = maki::state_conf{};
-constexpr auto running = maki::state_conf{};
-constexpr auto stopping = maki::state_conf{};
+constexpr auto idle = maki::state_builder{};
+constexpr auto starting = maki::state_builder{};
+constexpr auto running = maki::state_builder{};
+constexpr auto stopping = maki::state_builder{};
 
 //Actions
 constexpr auto start_motor = maki::action_c([](context& ctx)

@@ -21,8 +21,8 @@ class simple_no_context
 {
 public:
     static constexpr auto identifier = Id;
-    static constexpr const auto& conf = *Id;
-    using option_set_type = std::decay_t<decltype(impl_of(conf))>;
+    static constexpr const auto& builder = *Id;
+    using option_set_type = std::decay_t<decltype(impl_of(builder))>;
 
     template<class... Args>
     constexpr simple_no_context(Args&... /*args*/)
@@ -104,13 +104,13 @@ public:
     }
 
 private:
-    static constexpr auto entry_actions = impl_of(conf).entry_actions;
+    static constexpr auto entry_actions = impl_of(builder).entry_actions;
     using entry_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<entry_actions>;
 
-    static constexpr auto internal_actions = impl_of(conf).internal_actions;
+    static constexpr auto internal_actions = impl_of(builder).internal_actions;
     using internal_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<internal_actions>;
 
-    static constexpr auto exit_actions = impl_of(conf).exit_actions;
+    static constexpr auto exit_actions = impl_of(builder).exit_actions;
     using exit_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<exit_actions>;
 };
 

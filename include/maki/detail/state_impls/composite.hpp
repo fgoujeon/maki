@@ -10,7 +10,7 @@
 #include "composite_no_context.hpp"
 #include "../context_holder.hpp"
 #include "../tlu.hpp"
-#include "../../state_conf.hpp"
+#include "../../state_builder.hpp"
 #include <type_traits>
 
 namespace maki::detail::state_impls
@@ -21,10 +21,10 @@ class composite
 {
 public:
     static constexpr auto identifier = Id;
-    static constexpr const auto& conf = *Id;
-    using conf_type = std::decay_t<decltype(conf)>;
-    using option_set_type = std::decay_t<decltype(impl_of(conf))>;
-    using transition_table_type_list = decltype(impl_of(conf).transition_tables);
+    static constexpr const auto& builder = *Id;
+    using builder_type = std::decay_t<decltype(builder)>;
+    using option_set_type = std::decay_t<decltype(impl_of(builder))>;
+    using transition_table_type_list = decltype(impl_of(builder).transition_tables);
     using context_type = typename option_set_type::context_type;
 
     template<class Machine, class ParentContext>
@@ -125,16 +125,16 @@ public:
         return impl_.template region<Index>();
     }
 
-    template<const auto& StateConf>
+    template<const auto& StateBuilder>
     [[nodiscard]] const auto& state() const
     {
-        return impl_.template state<StateConf>();
+        return impl_.template state<StateBuilder>();
     }
 
-    template<const auto& StateConf>
+    template<const auto& StateBuilder>
     [[nodiscard]] bool is() const
     {
-        return impl_.template is<StateConf>();
+        return impl_.template is<StateBuilder>();
     }
 
     [[nodiscard]] bool running() const
@@ -151,7 +151,7 @@ public:
 private:
     using impl_type = composite_no_context<identifier, Path>;
 
-    context_holder<context_type, impl_of(conf).context_sig> ctx_holder_;
+    context_holder<context_type, impl_of(builder).context_sig> ctx_holder_;
     impl_type impl_;
 };
 

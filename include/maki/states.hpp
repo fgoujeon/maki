@@ -9,17 +9,17 @@
 
 #include "detail/state_impls/simple_no_context.hpp"
 #include "state.hpp"
-#include "state_conf.hpp"
+#include "state_builder.hpp"
 
 namespace maki
 {
 
-namespace detail::state_confs
+namespace detail::state_builders
 {
-    inline constexpr auto null = state_conf{}
+    inline constexpr auto null = state_builder{}
         .pretty_name("");
 
-    inline constexpr auto final = state_conf{};
+    inline constexpr auto final = state_builder{};
 }
 
 /**
@@ -42,7 +42,7 @@ namespace states
     */
     constexpr auto null = state<IMPLEMENTATION_DETAIL>{};
 #else
-    inline constexpr auto null = state<detail::state_impls::simple_no_context<&detail::state_confs::null>>{};
+    inline constexpr auto null = state<detail::state_impls::simple_no_context<&detail::state_builders::null>>{};
 #endif
 
 #if MAKI_DETAIL_DOXYGEN
@@ -53,7 +53,7 @@ namespace states
     */
     constexpr auto final = state<IMPLEMENTATION_DETAIL>{};
 #else
-    inline constexpr auto final = state<detail::state_impls::simple_no_context<&detail::state_confs::final>>{};
+    inline constexpr auto final = state<detail::state_impls::simple_no_context<&detail::state_builders::final>>{};
 #endif
 }
 

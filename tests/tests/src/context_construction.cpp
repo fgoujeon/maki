@@ -47,7 +47,7 @@ namespace context_construction_ns
             (states::emitting_blue,  states::emitting_red, maki::event<events::color_button_press>)
         ;
 
-        constexpr auto on = maki::state_conf{}
+        constexpr auto on = maki::state_builder{}
             .transition_tables(on_transition_table)
             .context_cm<on_context>()
         ;

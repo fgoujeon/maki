@@ -34,7 +34,7 @@ namespace composite_state_on_xxx_ns
     {
         EMPTY_STATE(off)
 
-        constexpr auto on_0 = maki::state_conf{}
+        constexpr auto on_0 = maki::state_builder{}
             .entry_action_ce<events::button_press>
             (
                 [](context& ctx, const events::button_press& event)
@@ -63,7 +63,7 @@ namespace composite_state_on_xxx_ns
             (states::on_0, maki::null, maki::event<events::dummy>)
         ;
 
-        constexpr auto on = maki::state_conf{}
+        constexpr auto on = maki::state_builder{}
             .transition_tables(on_transition_table)
             .entry_action_ce<events::button_press>
             (

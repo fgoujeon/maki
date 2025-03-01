@@ -19,13 +19,13 @@ namespace maki::detail
 class path_element_state
 {
 public:
-    template<class ConfConstant>
-    constexpr path_element_state(const ConfConstant /*conf_cst*/):
+    template<class BuilderConstant>
+    constexpr path_element_state(const BuilderConstant /*builder_cst*/):
         pretty_name_fn_
         (
             []
             {
-                return detail::pretty_name<ConfConstant::value>();
+                return detail::pretty_name<BuilderConstant::value>();
             }
         )
     {
@@ -76,10 +76,10 @@ public:
         return path<Elems..., path_element_index>{*this, path_element_index{region_index}};
     }
 
-    template<const auto& Conf>
+    template<const auto& Builder>
     constexpr auto add_state() const
     {
-        return path<Elems..., path_element_state>{*this, path_element_state{cref_constant<Conf>}};
+        return path<Elems..., path_element_state>{*this, path_element_state{cref_constant<Builder>}};
     }
 
     constexpr const auto& elems() const

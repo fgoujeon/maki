@@ -20,7 +20,7 @@
 #include "init.hpp"
 #include "null.hpp"
 #include "detail/impl.hpp"
-#include "detail/state_conf_fwd.hpp"
+#include "detail/state_builder_fwd.hpp"
 #include "detail/tuple.hpp"
 
 namespace maki
@@ -67,8 +67,8 @@ namespace detail
 {
     template
     <
-        class SourceStateConf,
-        class TargetStateConf,
+        class SourceStateBuilder,
+        class TargetStateBuilder,
         class EventSet,
         action_signature ActionSignature,
         class ActionCallable,
@@ -77,8 +77,8 @@ namespace detail
     >
     struct transition
     {
-        SourceStateConf source_state_conf;
-        TargetStateConf target_state_conf;
+        SourceStateBuilder source_state_builder;
+        TargetStateBuilder target_state_builder;
         EventSet evt_set;
         action<ActionSignature, ActionCallable> act;
         guard<GuardSignature, GuardCallable> grd;
@@ -86,8 +86,8 @@ namespace detail
 
     template
     <
-        class SourceStateConf,
-        class TargetStateConf,
+        class SourceStateBuilder,
+        class TargetStateBuilder,
         class EventSet,
         action_signature ActionSignature,
         class ActionCallable,
@@ -96,15 +96,15 @@ namespace detail
     >
     transition
     (
-        SourceStateConf,
-        TargetStateConf,
+        SourceStateBuilder,
+        TargetStateBuilder,
         EventSet,
         action<ActionSignature, ActionCallable>,
         guard<GuardSignature, GuardCallable>
     ) -> transition
     <
-        SourceStateConf,
-        TargetStateConf,
+        SourceStateBuilder,
+        TargetStateBuilder,
         EventSet,
         ActionSignature,
         ActionCallable,
@@ -126,22 +126,22 @@ namespace detail
     }
 
     template<class T>
-    constexpr decltype(auto) store_state_conf(T&& obj)
+    constexpr decltype(auto) store_state_builder(T&& obj)
     {
         return std::forward<T>(obj);
     }
 
     //Store a pointer in this case
-    constexpr auto store_state_conf(init_t /*init*/)
+    constexpr auto store_state_builder(init_t /*init*/)
     {
-        return &detail::state_confs::null;
+        return &detail::state_builders::null;
     }
 
     //Store a pointer in this case
     template<class OptionSet>
-    constexpr auto store_state_conf(const state_conf<OptionSet>& conf)
+    constexpr auto store_state_builder(const state_builder<OptionSet>& builder)
     {
-        return &conf;
+        return &builder;
     }
 }
 
@@ -179,24 +179,24 @@ public:
     /**
     @brief Creates a new `transition_table` with an additional transition.
 
-    @param source_state_conf the configuration of the active state (or states, plural, if it's a @ref state-set "state set") from which the transition can occur
-    @param target_state_conf the configuration of the state that becomes active after the transition occurs
+    @param source_state_builder the builder of the active state (or states, plural, if it's a @ref state-set "state set") from which the transition can occur
+    @param target_state_builder the builder of the state that becomes active after the transition occurs
     @param evt_set the event type (or types, plural, if it's an @ref event-set "event type set") that can cause the transition to occur
     @param action the `maki::action` invoked when the transition occurs, or `maki::null`
     @param guard the `maki::guard` that must return `true` for the transition to occur, or `maki::null`
     */
     template
     <
-        class SourceStateConf,
-        class TargetStateConfOrNull,
+        class SourceStateBuilder,
+        class TargetStateBuilderOrNull,
         class EventSet = null_t,
         class ActionOrNull = null_t,
         class GuardOrNull = null_t
     >
     constexpr auto operator()
     (
-        const SourceStateConf& source_state_conf,
-        const TargetStateConfOrNull& target_state_conf,
+        const SourceStateBuilder& source_state_builder,
+        const TargetStateBuilderOrNull& target_state_builder,
         const EventSet& evt_set = null,
         const ActionOrNull& action = null,
         const GuardOrNull& guard = null
@@ -207,7 +207,7 @@ public:
         {
             static_assert
             (
-                detail::is_init_v<SourceStateConf>,
+                detail::is_init_v<SourceStateBuilder>,
                 "Source (1st argument) of first transition must be `maki::init`. (Note: Composite state regions without initial pseudostate are not implemented yet.)"
             );
         }
@@ -215,31 +215,31 @@ public:
         {
             static_assert
             (
-                detail::is_state_conf_v<SourceStateConf> || detail::is_state_set_v<SourceStateConf>,
-                "Source (1st argument) must be an instance of `maki::state_conf` or an instance of `maki::state_set`"
+                detail::is_state_builder_v<SourceStateBuilder> || detail::is_state_set_v<SourceStateBuilder>,
+                "Source (1st argument) must be an instance of `maki::state_builder` or an instance of `maki::state_set`"
             );
         }
 
         //Check target
-        if constexpr(detail::is_init_v<SourceStateConf>)
+        if constexpr(detail::is_init_v<SourceStateBuilder>)
         {
             static_assert
             (
-                detail::is_state_conf_v<TargetStateConfOrNull>,
-                "Target (2nd argument) of transition from initial pseudostate must be an instance of `maki::state_conf`."
+                detail::is_state_builder_v<TargetStateBuilderOrNull>,
+                "Target (2nd argument) of transition from initial pseudostate must be an instance of `maki::state_builder`."
             );
         }
         else
         {
             static_assert
             (
-                detail::is_state_conf_v<TargetStateConfOrNull> || detail::is_null_v<TargetStateConfOrNull>,
-                "Target (2nd argument) must be an instance of `maki::state_conf` or `maki::null`."
+                detail::is_state_builder_v<TargetStateBuilderOrNull> || detail::is_null_v<TargetStateBuilderOrNull>,
+                "Target (2nd argument) must be an instance of `maki::state_builder` or `maki::null`."
             );
         }
 
         //Check event
-        if constexpr(detail::is_init_v<SourceStateConf>)
+        if constexpr(detail::is_init_v<SourceStateBuilder>)
         {
             static_assert
             (
@@ -260,11 +260,11 @@ public:
         static_assert
         (
             detail::is_action_v<ActionOrNull> || detail::is_null_v<ActionOrNull>,
-            "4th argument must be an instance of `maki::action` or `maki::null`."
+            "Action (4th argument) must be an instance of `maki::action` or `maki::null`."
         );
 
         //Check guard
-        if constexpr(detail::is_init_v<SourceStateConf>)
+        if constexpr(detail::is_init_v<SourceStateBuilder>)
         {
             static_assert
             (
@@ -286,16 +286,16 @@ public:
         {
             static_assert
             (
-                detail::is_init_v<SourceStateConf> || detail::is_state_conf_v<SourceStateConf>,
-                "1st argument of a completion transition must be `maki::init` or an instance of `maki::state_conf`"
+                detail::is_init_v<SourceStateBuilder> || detail::is_state_builder_v<SourceStateBuilder>,
+                "Source (1st argument) of a completion transition must be `maki::init` or an instance of `maki::state_builder`"
             );
 
-            if constexpr(detail::is_state_conf_v<SourceStateConf>)
+            if constexpr(detail::is_state_builder_v<SourceStateBuilder>)
             {
                 static_assert
                 (
-                    decltype(impl_of(source_state_conf).transition_tables)::size == 0,
-                    "Source state of a completion transition must be a non-composite state"
+                    decltype(impl_of(source_state_builder).transition_tables)::size == 0,
+                    "Source (1st argument) of a completion transition must be a non-composite state"
                 );
             }
         }
@@ -307,8 +307,8 @@ public:
                 impl_.transitions,
                 detail::transition
                 {
-                    detail::store_state_conf(source_state_conf),
-                    detail::store_state_conf(target_state_conf),
+                    detail::store_state_builder(source_state_builder),
+                    detail::store_state_builder(target_state_builder),
                     evt_set,
                     detail::to_action(action),
                     detail::to_guard(guard)

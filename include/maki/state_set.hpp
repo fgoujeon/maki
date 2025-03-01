@@ -7,7 +7,7 @@
 #ifndef MAKI_STATE_SET_HPP
 #define MAKI_STATE_SET_HPP
 
-#include "detail/state_conf_fwd.hpp"
+#include "detail/state_builder_fwd.hpp"
 #include "detail/impl.hpp"
 #include "detail/set.hpp"
 
@@ -101,8 +101,8 @@ constexpr auto operator!(const state_set<Impl>& stt_set)
 @brief Creates a `maki::state_set` that contains all the states but the ones
 created from `stt_conf`.
 */
-template<class StateConfImpl>
-constexpr auto operator!(const state_conf<StateConfImpl>& stt_conf)
+template<class StateBuilderImpl>
+constexpr auto operator!(const state_builder<StateBuilderImpl>& stt_conf)
 {
     return detail::make_state_set_from_impl
     (
@@ -133,11 +133,11 @@ constexpr auto operator||
 @brief Creates a `maki::state_set` that contains the states of `stt_set`, plus
 the ones created from `stt_conf`.
 */
-template<class StateSetImpl, class StateConfImpl>
+template<class StateSetImpl, class StateBuilderImpl>
 constexpr auto operator||
 (
     const state_set<StateSetImpl>& stt_set,
-    const state_conf<StateConfImpl>& stt_conf
+    const state_builder<StateBuilderImpl>& stt_conf
 )
 {
     return detail::make_state_set_from_impl
@@ -151,10 +151,10 @@ constexpr auto operator||
 @brief Creates a `maki::state_set` that contains the states of `stt_set`, plus
 the ones created from `stt_conf`.
 */
-template<class StateConfImpl, class StateSetImpl>
+template<class StateBuilderImpl, class StateSetImpl>
 constexpr auto operator||
 (
-    const state_conf<StateConfImpl>& stt_conf,
+    const state_builder<StateBuilderImpl>& stt_conf,
     const state_set<StateSetImpl>& stt_set
 )
 {
@@ -166,11 +166,11 @@ constexpr auto operator||
 @brief Creates a `maki::state_set` that contains the states created from `lhs`
 and `rhs`.
 */
-template<class LhsStateConfImpl, class RhsStateConfImpl>
+template<class LhsStateBuilderImpl, class RhsStateBuilderImpl>
 constexpr auto operator||
 (
-    const state_conf<LhsStateConfImpl>& lhs,
-    const state_conf<RhsStateConfImpl>& rhs
+    const state_builder<LhsStateBuilderImpl>& lhs,
+    const state_builder<RhsStateBuilderImpl>& rhs
 )
 {
     return detail::make_state_set_from_impl
@@ -199,14 +199,14 @@ constexpr auto operator&&
 
 namespace detail
 {
-    template<class StateConfImpl, class StateConfImpl2>
-    constexpr bool contained_in(const state_conf<StateConfImpl>& lhs, const state_conf<StateConfImpl2>* rhs)
+    template<class StateBuilderImpl, class StateBuilderImpl2>
+    constexpr bool contained_in(const state_builder<StateBuilderImpl>& lhs, const state_builder<StateBuilderImpl2>* rhs)
     {
         return equals(&lhs, rhs);
     }
 
-    template<class StateConfImpl, class... Predicates>
-    constexpr bool contained_in(const state_conf<StateConfImpl>& stt_conf, const state_set<Predicates>&... state_sets)
+    template<class StateBuilderImpl, class... Predicates>
+    constexpr bool contained_in(const state_builder<StateBuilderImpl>& stt_conf, const state_set<Predicates>&... state_sets)
     {
         return (contains(impl_of(state_sets), &stt_conf) || ...);
     }

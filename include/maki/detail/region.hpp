@@ -476,19 +476,7 @@ private:
             //Completion transition
             if constexpr(!ptr_equals(TargetStateId, &state_builders::null))
             {
-                using candidate_transition_index_constant_list = transition_table_filters::by_source_state_and_null_event_t
-                <
-                    transition_tuple,
-                    TargetStateId
-                >;
-
-                if constexpr(!tlu::empty_v<candidate_transition_index_constant_list>)
-                {
-                    if(impl_of(target_state).completed())
-                    {
-                        try_executing_transitions<candidate_transition_index_constant_list>(*this, mach, ctx, null);
-                    }
-                }
+                try_executing_completion_transitions(target_state, mach, ctx);
             }
         }
     }
@@ -539,28 +527,44 @@ private:
                 extra_args...
             );
 
-            //Completion transition
+            if constexpr(!Dry)
             {
-                constexpr auto target_state_id = impl_of_t<State>::identifier;
-
-                using candidate_transition_index_constant_list = transition_table_filters::by_source_state_and_null_event_t
-                <
-                    transition_tuple,
-                    target_state_id
-                >;
-
-                if constexpr(!tlu::empty_v<candidate_transition_index_constant_list>)
-                {
-                    if(impl_of(active_state).completed())
-                    {
-                        try_executing_transitions<candidate_transition_index_constant_list>(self, mach, ctx, null);
-                    }
-                }
+                self.try_executing_completion_transitions
+                (
+                    active_state,
+                    mach,
+                    ctx
+                );
             }
 
             return true;
         }
     };
+
+    template<class ActiveState, class Machine, class Context>
+    void try_executing_completion_transitions
+    (
+        ActiveState& active_state,
+        Machine& mach,
+        Context& ctx
+    )
+    {
+        constexpr auto active_state_id = impl_of_t<ActiveState>::identifier;
+
+        using candidate_transition_index_constant_list = transition_table_filters::by_source_state_and_null_event_t
+        <
+            transition_tuple,
+            active_state_id
+        >;
+
+        if constexpr(!tlu::empty_v<candidate_transition_index_constant_list>)
+        {
+            if(impl_of(active_state).completed())
+            {
+                try_executing_transitions<candidate_transition_index_constant_list>(*this, mach, ctx, null);
+            }
+        }
+    }
 
     template<class State>
     [[nodiscard]] bool is_active_state_type() const

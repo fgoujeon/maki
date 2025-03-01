@@ -9,9 +9,21 @@
 
 struct context{};
 
+// Event types
 struct E{};
+struct some_event{};
 
 constexpr auto A = maki::action_v([]{});
+
+constexpr auto X0 = maki::state_builder{};
+
+[[maybe_unused]] constexpr auto st_transition_table = maki::transition_table{}
+    (maki::init, X0)
+
+//! [transition-to-final]
+(X0, maki::final, maki::event<some_event>)
+//! [transition-to-final]
+;
 
 //! [internal-transition-in-state-builder]
 constexpr auto ST = maki::state_builder{}

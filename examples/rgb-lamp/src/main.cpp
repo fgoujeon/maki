@@ -188,8 +188,8 @@ When a match is found, Maki:
 - invokes `action`;
 - enters `target`.
 
-The initial active state of the state machine is the first state encountered in
-the transition table (`off`, is our case).
+The initial state of the state machine is the target of the transition from
+`maki::init` (`off`, is our case).
 */
 constexpr auto transition_table = maki::transition_table{}
     //source,        target,         event,       action,           guard

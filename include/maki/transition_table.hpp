@@ -18,6 +18,7 @@
 #include "state_set.hpp"
 #include "states.hpp"
 #include "init.hpp"
+#include "final.hpp"
 #include "null.hpp"
 #include "detail/impl.hpp"
 #include "detail/state_builder_fwd.hpp"
@@ -138,6 +139,12 @@ namespace detail
     }
 
     //Store a pointer in this case
+    constexpr auto store_state_builder(final_t /*init*/)
+    {
+        return &detail::state_builders::final;
+    }
+
+    //Store a pointer in this case
     template<class OptionSet>
     constexpr auto store_state_builder(const state_builder<OptionSet>& builder)
     {
@@ -187,16 +194,16 @@ public:
     */
     template
     <
-        class SourceStateBuilder,
-        class TargetStateBuilderOrNull,
+        class Source,
+        class Target,
         class EventSet = null_t,
         class ActionOrNull = null_t,
         class GuardOrNull = null_t
     >
     constexpr auto operator()
     (
-        const SourceStateBuilder& source_state_builder,
-        const TargetStateBuilderOrNull& target_state_builder,
+        const Source& source_state_builder,
+        const Target& target_state_builder,
         const EventSet& evt_set = null,
         const ActionOrNull& action = null,
         const GuardOrNull& guard = null
@@ -207,7 +214,7 @@ public:
         {
             static_assert
             (
-                detail::is_init_v<SourceStateBuilder>,
+                detail::is_init_v<Source>,
                 "Source (1st argument) of first transition must be `maki::init`. (Note: Composite state regions without initial pseudostate are not implemented yet.)"
             );
         }
@@ -215,17 +222,17 @@ public:
         {
             static_assert
             (
-                detail::is_state_builder_v<SourceStateBuilder> || detail::is_state_set_v<SourceStateBuilder>,
+                detail::is_state_builder_v<Source> || detail::is_state_set_v<Source>,
                 "Source (1st argument) must be an instance of `maki::state_builder` or an instance of `maki::state_set`"
             );
         }
 
         //Check target
-        if constexpr(detail::is_init_v<SourceStateBuilder>)
+        if constexpr(detail::is_init_v<Source>)
         {
             static_assert
             (
-                detail::is_state_builder_v<TargetStateBuilderOrNull>,
+                detail::is_state_builder_v<Target>,
                 "Target (2nd argument) of transition from initial pseudostate must be an instance of `maki::state_builder`."
             );
         }
@@ -233,13 +240,13 @@ public:
         {
             static_assert
             (
-                detail::is_state_builder_v<TargetStateBuilderOrNull> || detail::is_null_v<TargetStateBuilderOrNull>,
-                "Target (2nd argument) must be an instance of `maki::state_builder` or `maki::null`."
+                detail::is_state_builder_v<Target> || detail::is_null_v<Target> || detail::is_final_v<Target>,
+                "Target (2nd argument) must be an instance of `maki::state_builder`, `maki::null` or `maki::final`."
             );
         }
 
         //Check event
-        if constexpr(detail::is_init_v<SourceStateBuilder>)
+        if constexpr(detail::is_init_v<Source>)
         {
             static_assert
             (
@@ -264,7 +271,7 @@ public:
         );
 
         //Check guard
-        if constexpr(detail::is_init_v<SourceStateBuilder>)
+        if constexpr(detail::is_init_v<Source>)
         {
             static_assert
             (
@@ -279,25 +286,6 @@ public:
                 detail::is_guard_v<GuardOrNull> || detail::is_null_v<GuardOrNull>,
                 "Guard (5th argument) must be an instance of `maki::guard` or `maki::null`."
             );
-        }
-
-        //If completion transition
-        if constexpr(detail::is_null_v<EventSet>)
-        {
-            static_assert
-            (
-                detail::is_init_v<SourceStateBuilder> || detail::is_state_builder_v<SourceStateBuilder>,
-                "Source (1st argument) of a completion transition must be `maki::init` or an instance of `maki::state_builder`"
-            );
-
-            if constexpr(detail::is_state_builder_v<SourceStateBuilder>)
-            {
-                static_assert
-                (
-                    decltype(impl_of(source_state_builder).transition_tables)::size == 0,
-                    "Source (1st argument) of a completion transition must be a non-composite state"
-                );
-            }
         }
 
         return detail::make_transition_table

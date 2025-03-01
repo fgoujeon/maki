@@ -65,6 +65,12 @@ public:
         impl_.call_exit_action(mach, context(), event);
     }
 
+    static constexpr bool completed()
+    {
+        // Simple states are always completed.
+        return true;
+    }
+
     template<class Event>
     static constexpr bool has_internal_action_for_event()
     {

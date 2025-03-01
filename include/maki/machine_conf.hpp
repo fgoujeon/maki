@@ -59,9 +59,7 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = impl_.auto_start; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = detail::type<typename Impl::context_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = impl_.context_sig; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = impl_.entry_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_processing_hooks = impl_.pre_processing_hooks; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = impl_.exit_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_external_transition_hook = impl_.post_external_transition_hook; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_external_transition_hook = impl_.pre_external_transition_hook; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_hook = impl_.exception_hook; \
@@ -78,9 +76,7 @@ public:
         detail::machine_conf_option_set \
         < \
             typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_pre_processing_hooks)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_exception_hook)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_pre_external_transition_hook)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_post_external_transition_hook)>, \
@@ -91,9 +87,7 @@ public:
     { \
         MAKI_DETAIL_ARG_auto_start, \
         MAKI_DETAIL_ARG_context_sig, \
-        MAKI_DETAIL_ARG_entry_actions, \
         MAKI_DETAIL_ARG_pre_processing_hooks, \
-        MAKI_DETAIL_ARG_exit_actions, \
         MAKI_DETAIL_ARG_post_external_transition_hook, \
         MAKI_DETAIL_ARG_pre_external_transition_hook, \
         MAKI_DETAIL_ARG_exception_hook, \
@@ -119,39 +113,6 @@ public:
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Adds a start action (see @ref maki::action_signature "signatures") \
-    to be called for any event type in `evt_set`. \
-    */ \
-    template<class EventSetPredicate, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE start_action_##signature(const event_set<EventSetPredicate>& evt_set, const Action& action) const \
-    { \
-        return start_action<action_signature::signature>(evt_set, action); \
-    } \
- \
-    /** \
-    @brief Adds a start action (see @ref maki::action_signature "signatures") \
-    to be called for the event type `Event`. \
-    */ \
-    template<class Event, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE start_action_##signature(const Action& action) const \
-    { \
-        return start_action_##signature(event<Event>, action); \
-    } \
- \
-    /** \
-    @brief Adds a start action (see @ref maki::action_signature "signatures") \
-    to be called whatever the event type. \
-    */ \
-    template<class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE start_action_##signature(const Action& action) const \
-    { \
-        return start_action_##signature(all_events, action); \
-    }
-    MAKI_DETAIL_ACTION_SIGNATURES
-#undef MAKI_DETAIL_X
-
-#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    /** \
     @brief Adds a hook (see @ref maki::action_signature "signatures") to be \
     called whenever `maki::machine` is about to process an event whose type is \
     part of `evt_set`. \
@@ -171,39 +132,6 @@ public:
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_processing_hook_##signature(const Action& action) const \
     { \
         return pre_processing_hook_##signature(event_set{event<Event>}, action); \
-    }
-    MAKI_DETAIL_ACTION_SIGNATURES
-#undef MAKI_DETAIL_X
-
-#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    /** \
-    @brief Adds a stop action (see @ref maki::action_signature "signatures") \
-    to be called for any event type in `evt_set`. \
-    */ \
-    template<class EventSetPredicate, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE stop_action_##signature(const event_set<EventSetPredicate>& evt_set, const Action& action) const \
-    { \
-        return stop_action<action_signature::signature>(evt_set, action); \
-    } \
- \
-    /** \
-    @brief Adds a stop action (see @ref maki::action_signature "signatures") \
-    to be called for the event type `Event`. \
-    */ \
-    template<class Event, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE stop_action_##signature(const Action& action) const \
-    { \
-        return stop_action_##signature(event<Event>, action); \
-    } \
- \
-    /** \
-    @brief Adds a stop action (see @ref maki::action_signature "signatures") \
-    to be called whatever the event type. \
-    */ \
-    template<class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE stop_action_##signature(const Action& action) const \
-    { \
-        return stop_action_##signature(all_events, action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -480,21 +408,6 @@ private:
 #undef MAKI_DETAIL_ARG_context_sig
     }
 
-    template<action_signature Sig, class EventSetPredicate, class Action>
-    [[nodiscard]] constexpr auto start_action(const event_set<EventSetPredicate>& evt_set, const Action& action) const
-    {
-        const auto new_entry_actions = tuple_append
-        (
-            impl_.entry_actions,
-            detail::make_event_action<Sig>(evt_set, action)
-        );
-
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_entry_actions new_entry_actions
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_entry_actions
-    }
-
     template<action_signature Sig, class EventSetPredicate, class Hook>
     [[nodiscard]] constexpr auto pre_processing_hook(const event_set<EventSetPredicate>& evt_set, const Hook& hook) const
     {
@@ -508,21 +421,6 @@ private:
 #define MAKI_DETAIL_ARG_pre_processing_hooks new_pre_processing_hooks
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_pre_processing_hooks
-    }
-
-    template<action_signature Sig, class EventSetPredicate, class Action>
-    [[nodiscard]] constexpr auto stop_action(const event_set<EventSetPredicate>& evt_set, const Action& action) const
-    {
-        const auto new_exit_actions = tuple_append
-        (
-            impl_.exit_actions,
-            detail::make_event_action<Sig>(evt_set, action)
-        );
-
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_exit_actions new_exit_actions
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_exit_actions
     }
 
 #undef MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END

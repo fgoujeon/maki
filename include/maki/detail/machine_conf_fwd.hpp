@@ -28,9 +28,7 @@ namespace detail
     template
     <
         class Context = void,
-        class EntryActionTuple = tuple<>,
         class PreProcessingHookTuple = tuple<>,
-        class ExitActionTuple = tuple<>,
         class ExceptionHook = null_t,
         class PreExternalTransitionHook = null_t,
         class PostExternalTransitionHook = null_t,
@@ -48,9 +46,7 @@ namespace detail
 
         bool auto_start = true;
         machine_context_signature context_sig = machine_context_signature::a;
-        EntryActionTuple entry_actions;
         PreProcessingHookTuple pre_processing_hooks;
-        ExitActionTuple exit_actions;
         PostExternalTransitionHook post_external_transition_hook = null;
         PreExternalTransitionHook pre_external_transition_hook = null;
         ExceptionHook exception_hook = null;
@@ -61,6 +57,8 @@ namespace detail
         std::size_t small_event_max_size = machine_conf_default_small_event_max_size;
         TransitionTableTuple transition_tables;
 
+        static constexpr auto entry_actions = tuple<>{};
+        static constexpr auto exit_actions = tuple<>{};
         static constexpr auto internal_actions = tuple<>{};
     };
 }

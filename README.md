@@ -1,13 +1,15 @@
 [![Windows Build status](https://ci.appveyor.com/api/projects/status/2vc1wsgwg7bo9y45/branch/main?svg=true)](https://ci.appveyor.com/project/fgoujeon/maki/branch/main)
-
 [![Linux build status](https://github.com/fgoujeon/maki/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/fgoujeon/maki/actions/workflows/ci.yml)
 
 ---
 
-# Maki
+<img src="images/logo.png" align="left">
+
 Maki is a C++17 finite-state machine library.
 
 **This library is still in early development stage: it is functional and tested, but its API is subject to change.**
+
+<br clear="left"/>
 
 ## Features
 Maki implements the following key features:

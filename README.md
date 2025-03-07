@@ -14,20 +14,17 @@ Maki is a C++17 finite-state machine library.
 ## Features
 Maki implements the following key features:
 
-* **transition tables**, featuring:
-  * **actions**;
-  * **guards**;
-  * **internal transitions**;
-  * **completion transitions**, aka anonymous transitions;
-  * **event type sets**;
-  * **state sets**;
-* **states**, featuring:
-  * **entry/exit actions**;
-  * **internal transition actions**;
-  * **associated data**;
+* **transition tables**;
+* **actions** (transition actions, entry/exit actions);
+* **guards**;
+* **internal transitions**;
+* **completion transitions**, aka anonymous transitions;
 * **run-to-completion**;
 * **orthogonal regions**;
-* **composite states**.
+* **composite states**;
+* **state data**;
+* **event type sets**;
+* **state sets**.
 
 Besides its features, Maki:
 

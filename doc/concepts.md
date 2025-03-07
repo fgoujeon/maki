@@ -17,6 +17,7 @@ The concepts are the following:
 * @subpage region
 * @subpage composite-state
 * @subpage transition
+* @subpage pseudostate
 
 > [!note]
 > The *state machine theory* explained in this documentation is the "Behavior StateMachines" section of the UML specification, version 2.5.1.

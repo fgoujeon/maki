@@ -25,7 +25,7 @@ The table below summarizes all the combinations of the three traits:
         <th>Position of Target</th>
         <th>Locality</th>
         <th>Trigger</th>
-        <th>Standard Notation</th>
+        <th>UML Notation</th>
         <th>Maki Notation</th>
     </tr>
 

@@ -41,4 +41,4 @@ Another example: a set of states could be grouped into a composite state `runnin
 You make Maki create a composite state just like you make it create a simple state: by defining a `maki::state_builder`. A state becomes composite as soon as you give it at least one transition table, which you do by calling `maki::state_builder::transition_tables()`.
 
 > [!important]
-> When the same state builder is given to several transition tables (e.g. the table of a composite state and the table of the state machine root), it builds several, independent `maki::state` objects.
+> When the same state builder is referenced in several transition tables (e.g. the table of a composite state and the table of the state machine root), it builds several, independent `maki::state` objects.

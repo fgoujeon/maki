@@ -14,8 +14,8 @@ The concepts are the following:
 * @subpage action
 * @subpage guard
 * @subpage run-to-completion
-* @subpage region
 * @subpage composite-state
+* @subpage region
 * @subpage transition
 * @subpage pseudostate
 

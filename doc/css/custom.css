@@ -1,3 +1,17 @@
+html {
+    --note-color: #e2fae6;
+    --note-color-dark: #5cd47d;
+    --note-color-darker: #235430;
+}
+
+@media (prefers-color-scheme: dark) {
+    html:not(.light-mode) {
+        --note-color: #17381f;
+        --note-color-dark: #65de85;
+        --note-color-darker: #8cc998;
+    }
+}
+
 #nav-tree .arrow {
     opacity: 1;
 }

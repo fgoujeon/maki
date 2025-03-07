@@ -12,7 +12,6 @@
 #include "integer_constant_sequence.hpp"
 #include "type_list.hpp"
 #include "../states.hpp"
-#include "../final.hpp"
 #include "../null.hpp"
 #include "tlu/push_back_if.hpp"
 #include "tlu/left_fold.hpp"

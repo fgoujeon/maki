@@ -178,6 +178,21 @@ public:
     }
 
     /**
+    @brief Terminates the state machine
+
+    This clears the run-to-completion queue (if any) and stops event processing
+    without calling any exit action.
+    */
+    void terminate()
+    {
+        if constexpr(impl_of(conf).run_to_completion)
+        {
+            operation_queue_.clear();
+        }
+        impl_.terminate();
+    }
+
+    /**
     @brief Processes the given event
     @param event the event to be processed
 
@@ -464,16 +479,9 @@ private:
         }
     };
 
-    void process_exception(const std::exception_ptr& eptr)
+    void process_exception([[maybe_unused]] const std::exception_ptr& eptr)
     {
-        if constexpr(std::is_same_v<typename option_set_type::exception_hook_type, null_t>)
-        {
-            process_event(events::exception{eptr});
-        }
-        else
-        {
-            impl_of(conf).exception_hook(*this, eptr);
-        }
+        terminate();
     }
 
     template<detail::machine_operation Operation, class Event>

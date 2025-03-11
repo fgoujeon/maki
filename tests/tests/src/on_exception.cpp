@@ -48,21 +48,6 @@ namespace on_exception_ns
                     }
                 }
             )
-            .internal_action_ce<maki::events::exception>
-            (
-                [](context& ctx, const maki::events::exception& event)
-                {
-                    try
-                    {
-                        std::rethrow_exception(event.eptr);
-                    }
-                    catch(const std::exception& e)
-                    {
-                        ctx.out += "default;";
-                        ctx.out += e.what();
-                    }
-                }
-            )
             .exit_action_c
             (
                 [](context& ctx)
@@ -84,61 +69,25 @@ namespace on_exception_ns
         (states::on,  states::off, maki::event<events::button_press>)
     ;
 
-    constexpr auto default_machine_conf = maki::machine_conf{}
+    constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
         .context_a<context>()
     ;
 
-    using default_sm_t = maki::machine<default_machine_conf>;
-
-    constexpr auto custom_machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
-        .context_a<context>()
-        .exception_hook_mx
-        (
-            [](auto& mach, const std::exception_ptr& eptr)
-            {
-                try
-                {
-                    std::rethrow_exception(eptr);
-                }
-                catch(const std::exception& e)
-                {
-                    mach.context().out += "custom;";
-                    mach.context().out += e.what();
-                }
-            }
-        )
-    ;
-
-    using custom_sm_t = maki::machine<custom_machine_conf>;
+    using sm_t = maki::machine<machine_conf>;
 }
 
 TEST_CASE("on_exception")
 {
     using namespace on_exception_ns;
 
-    {
-        auto machine = default_sm_t{};
-        auto& ctx = machine.context();
+    auto machine = sm_t{};
+    auto& ctx = machine.context();
 
-        machine.start();
-        ctx.out.clear();
+    machine.start();
+    ctx.out.clear();
 
-        machine.process_event(events::button_press{});
-        REQUIRE(machine.is<states::on>());
-        REQUIRE(ctx.out == "off::on_exit;on::on_entry;default;test;");
-    }
-
-    {
-        auto machine = custom_sm_t{};
-        auto& ctx = machine.context();
-
-        machine.start();
-        ctx.out.clear();
-
-        machine.process_event(events::button_press{});
-        REQUIRE(machine.is<states::on>());
-        REQUIRE(ctx.out == "off::on_exit;on::on_entry;custom;test;");
-    }
+    machine.process_event(events::button_press{});
+    REQUIRE(!machine.running());
+    REQUIRE(ctx.out == "off::on_exit;on::on_entry;");
 }

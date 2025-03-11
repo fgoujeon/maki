@@ -56,20 +56,6 @@ namespace orthogonal_regions_ns
                 (states::off1, states::on1, maki::event<events::button_press>)
         )
         .context_a<context>()
-        .exception_hook_mx
-        (
-            [](auto& mach, const std::exception_ptr& eptr)
-            {
-                try
-                {
-                    std::rethrow_exception(eptr);
-                }
-                catch(const std::exception& e)
-                {
-                    mach.context().out += std::string{"on_exception:"} + e.what() + ";";
-                }
-            }
-        )
         .pre_external_transition_hook_crset
         (
             [](context& ctx, const auto& region, const auto& /*source_state*/, const auto& /*event*/, const auto& /*target_state*/)
@@ -111,5 +97,6 @@ TEST_CASE("orthogonal_regions")
 
     ctx.out.clear();
     machine.process_event(events::exception_request{});
-    REQUIRE(ctx.out == "on_exception:exception;");
+    REQUIRE(!machine.running());
+    REQUIRE(ctx.out == "");
 }

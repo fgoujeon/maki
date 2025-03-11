@@ -156,6 +156,11 @@ public:
         process_event_2<Dry>(*this, mach, ctx, event, processed);
     }
 
+    void terminate()
+    {
+        active_state_index_ = region_detail::final_state_index;
+    }
+
     template<const auto& StateBuilder>
     const auto& state() const
     {

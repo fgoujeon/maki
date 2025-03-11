@@ -57,6 +57,11 @@ public:
         }
     }
 
+    void clear()
+    {
+        std::queue<data_container>{}.swap(queue_);
+    }
+
 private:
     using call_fn_ptr_t = void (*)(const void*, Arg);
     using delete_fn_ptr_t = void (*)(const void*);

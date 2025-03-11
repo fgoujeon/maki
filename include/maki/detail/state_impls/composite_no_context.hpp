@@ -186,6 +186,11 @@ public:
         );
     }
 
+    void terminate()
+    {
+        tlu::for_each<region_tuple_type, region_terminate>(*this);
+    }
+
     template<int Index>
     [[nodiscard]] const auto& region() const
     {
@@ -279,6 +284,15 @@ private:
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
             impl_of(tuple_get<Region>(self.regions_)).template exit<TargetStateId>(mach, ctx, event);
+        }
+    };
+
+    struct region_terminate
+    {
+        template<class Region, class Self>
+        static void call(Self& self)
+        {
+            impl_of(tuple_get<Region>(self.regions_)).terminate();
         }
     };
 

@@ -10,6 +10,7 @@
 #include "detail/state_builder_fwd.hpp"
 #include "detail/impl.hpp"
 #include "detail/set.hpp"
+#include "catch.hpp"
 
 namespace maki
 {
@@ -209,6 +210,12 @@ namespace detail
     constexpr bool contained_in(const state_builder<StateBuilderImpl>& stt_builder, const state_set<Predicates>&... state_sets)
     {
         return (contains(impl_of(state_sets), &stt_builder) || ...);
+    }
+
+    template<class StateBuilderImpl>
+    constexpr bool contained_in(const state_builder<StateBuilderImpl>& /*lhs*/, const catch_t* /*rhs*/)
+    {
+        return false;
     }
 
     template<class T>

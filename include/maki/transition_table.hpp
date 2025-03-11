@@ -19,6 +19,7 @@
 #include "states.hpp"
 #include "init.hpp"
 #include "final.hpp"
+#include "catch.hpp"
 #include "null.hpp"
 #include "detail/impl.hpp"
 #include "detail/state_builder_fwd.hpp"
@@ -133,15 +134,21 @@ namespace detail
     }
 
     //Store a pointer in this case
-    constexpr auto store_state_builder(init_t /*init*/)
+    constexpr auto store_state_builder(init_t /*ignored*/)
     {
         return &detail::state_builders::null;
     }
 
     //Store a pointer in this case
-    constexpr auto store_state_builder(final_t /*init*/)
+    constexpr auto store_state_builder(final_t /*ignored*/)
     {
         return &detail::state_builders::final;
+    }
+
+    //Store a pointer in this case
+    constexpr auto store_state_builder(catch_t /*ignored*/)
+    {
+        return &catch_;
     }
 
     //Store a pointer in this case
@@ -222,8 +229,8 @@ public:
         {
             static_assert
             (
-                detail::is_state_builder_v<Source> || detail::is_state_set_v<Source>,
-                "Source (1st argument) must be an instance of `maki::state_builder` or an instance of `maki::state_set`"
+                detail::is_state_builder_v<Source> || detail::is_state_set_v<Source> || detail::is_catch_v<Source>,
+                "Source (1st argument) must be an instance of `maki::state_builder`, an instance of `maki::state_set`, or `maki::catch_`"
             );
         }
 

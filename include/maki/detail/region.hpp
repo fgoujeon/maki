@@ -30,6 +30,7 @@
 #include "../state.hpp"
 #include "../transition_table.hpp"
 #include <type_traits>
+#include <exception>
 
 namespace maki
 {
@@ -393,6 +394,82 @@ private:
         class Event
     >
     void execute_transition
+    (
+        Machine& mach,
+        Context& ctx,
+        const Event& event
+    )
+    {
+        using candidate_catch_transition_index_constant_list =
+            transition_table_filters::by_catch_source_state_t
+            <
+                transition_tuple
+            >
+        ;
+
+        if constexpr(!tlu::empty_v<candidate_catch_transition_index_constant_list>)
+        {
+            try
+            {
+                execute_transition_no_try_catch
+                <
+                    SourceStateId,
+                    TargetStateId,
+                    ActionPtr
+                >(mach, ctx, event);
+            }
+            catch(...)
+            {
+                /*
+                If something in the transition throws, transition to the target
+                state of the catch pseudostate.
+
+                We also don't want to invoke the exit action of the target of
+                the throwing transition because, since the transition failed,
+                the entry action either hasn't been invoked or has been invoked
+                but threw.
+                */
+
+                // Find transition from catch pseudostate
+                static constexpr auto catch_transition_index =
+                    tlu::front_t<candidate_catch_transition_index_constant_list>::value
+                ;
+
+                static constexpr const auto& catch_transition =
+                    tuple_get<catch_transition_index>(transition_tuple)
+                ;
+                static constexpr auto target_state_id = catch_transition.target_state_builder;
+                static constexpr auto action = catch_transition.act;
+
+                execute_transition_no_try_catch
+                <
+                    &state_builders::null,
+                    target_state_id,
+                    &action
+                >(mach, ctx, std::current_exception());
+            }
+        }
+        else
+        {
+            execute_transition_no_try_catch
+            <
+                SourceStateId,
+                TargetStateId,
+                ActionPtr
+            >(mach, ctx, event);
+        }
+    }
+
+    template
+    <
+        auto SourceStateId,
+        auto TargetStateId,
+        auto ActionPtr,
+        class Machine,
+        class Context,
+        class Event
+    >
+    void execute_transition_no_try_catch
     (
         Machine& mach,
         Context& ctx,

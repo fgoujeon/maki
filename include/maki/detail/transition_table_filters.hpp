@@ -9,6 +9,7 @@
 
 #include "tlu/filter.hpp"
 #include "integer_constant_sequence.hpp"
+#include "../catch.hpp"
 #include "../event_set.hpp"
 #include "../null.hpp"
 
@@ -54,6 +55,23 @@ namespace by_source_state_and_null_event_detail
     };
 }
 
+namespace by_catch_source_state_detail
+{
+    template<auto TransitionTuplePtr>
+    struct predicate_holder
+    {
+        template<class TransitionIndexConstant>
+        struct predicate
+        {
+            static constexpr auto value = equals
+            (
+                tuple_get<TransitionIndexConstant::value>(*TransitionTuplePtr).source_state_builder,
+                &catch_
+            );
+        };
+    };
+}
+
 template<const auto& TransitionTuple, class Event>
 using by_event_t = tlu::filter_t
 <
@@ -66,6 +84,13 @@ using by_source_state_and_null_event_t = tlu::filter_t
 <
     make_integer_constant_sequence<int, TransitionTuple.size>,
     by_source_state_and_null_event_detail::predicate_holder<&TransitionTuple, SourceStateId>::template predicate
+>;
+
+template<const auto& TransitionTuple>
+using by_catch_source_state_t = tlu::filter_t
+<
+    make_integer_constant_sequence<int, TransitionTuple.size>,
+    by_catch_source_state_detail::predicate_holder<&TransitionTuple>::template predicate
 >;
 
 } //namespace

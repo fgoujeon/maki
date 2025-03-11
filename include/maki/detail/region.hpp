@@ -405,6 +405,7 @@ private:
         const Event& event
     )
     {
+        // Find transitions from catch pseudostate
         using candidate_catch_transition_index_constant_list =
             transition_table_filters::by_catch_source_state_t
             <
@@ -599,6 +600,109 @@ private:
                 return false;
             }
 
+            call_active_state_internal_action_3<Dry, State>
+            (
+                self,
+                mach,
+                ctx,
+                event,
+                extra_args...
+            );
+
+            return true;
+        }
+    };
+
+    template<bool Dry, class State, class Self, class Machine, class Context, class Event, class... ExtraArgs>
+    static void call_active_state_internal_action_3
+    (
+        Self& self,
+        Machine& mach,
+        Context& ctx,
+        const Event& event,
+        ExtraArgs&... extra_args
+    )
+    {
+        // Find transitions from catch pseudostate
+        using candidate_catch_transition_index_constant_list =
+            transition_table_filters::by_catch_source_state_t
+            <
+                transition_tuple
+            >
+        ;
+
+        if constexpr(!tlu::empty_v<candidate_catch_transition_index_constant_list> && !Dry)
+        {
+            try
+            {
+                call_active_state_internal_action_4<Dry>::template call<State>
+                (
+                    self,
+                    mach,
+                    ctx,
+                    event,
+                    extra_args...
+                );
+            }
+            catch(...)
+            {
+                /*
+                If something in the transition throws, transition to the target
+                state of the catch pseudostate.
+
+                We also don't want to invoke the exit action of the target of
+                the throwing transition because, since the transition failed,
+                the entry action either hasn't been invoked or has been invoked
+                but threw.
+                */
+
+                // Find transition from catch pseudostate
+                static constexpr auto catch_transition_index =
+                    tlu::front_t<candidate_catch_transition_index_constant_list>::value
+                ;
+
+                static constexpr const auto& catch_transition =
+                    tuple_get<catch_transition_index>(transition_tuple)
+                ;
+
+                constexpr auto active_state_id = impl_of_t<State>::identifier;
+                static constexpr auto target_state_id = catch_transition.target_state_builder;
+                static constexpr auto action = catch_transition.act;
+
+                self.template execute_transition_no_try_catch
+                <
+                    active_state_id,
+                    target_state_id,
+                    &action
+                >(mach, ctx, std::current_exception());
+            }
+        }
+        else
+        {
+            call_active_state_internal_action_4<Dry>::template call<State>
+            (
+                self,
+                mach,
+                ctx,
+                event,
+                extra_args...
+            );
+        }
+    }
+
+    template<bool Dry>
+    struct call_active_state_internal_action_4
+    {
+        template<class State, class Self, class Machine, class Context, class Event, class... ExtraArgs>
+        static void call
+        (
+            Self& self,
+            Machine& mach,
+            Context& ctx,
+            const Event& event,
+            ExtraArgs&... extra_args
+        )
+        {
             auto& active_state = self.template state_type_to_obj<State>();
 
             impl_of(active_state).template call_internal_action<Dry>
@@ -618,8 +722,6 @@ private:
                     ctx
                 );
             }
-
-            return true;
         }
     };
 

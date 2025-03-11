@@ -12,8 +12,6 @@
 #ifndef MAKI_EVENTS_HPP
 #define MAKI_EVENTS_HPP
 
-#include <exception>
-
 /**
 @brief Some predefined events emitted by Maki itself
 */

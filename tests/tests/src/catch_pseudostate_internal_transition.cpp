@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace catch_pseudostate_simple_ns
+namespace catch_pseudostate_internal_transition_ns
 {
     struct context
     {
@@ -17,10 +17,18 @@ namespace catch_pseudostate_simple_ns
     };
 
     struct button_press{};
+    struct other_button_press{};
 
     constexpr auto off = maki::state_builder{};
     constexpr auto on = maki::state_builder{}
-        .exit_action_c
+        .internal_action_v<other_button_press>
+        (
+            []
+            {
+                throw std::runtime_error{"Error"};
+            }
+        ).
+        exit_action_c
         (
             [](context& ctx)
             {
@@ -44,17 +52,9 @@ namespace catch_pseudostate_simple_ns
             }
         );
 
-    constexpr auto throw_runtime_error = maki::action_v
-    (
-        []
-        {
-            throw std::runtime_error{"Error"};
-        }
-    );
-
     constexpr auto transition_table = maki::transition_table{}
         (maki::init,   off)
-        (off,          on,    maki::event<button_press>, throw_runtime_error)
+        (off,          on,    maki::event<button_press>)
         (maki::catch_, error, maki::event<std::exception_ptr>)
     ;
 
@@ -66,18 +66,26 @@ namespace catch_pseudostate_simple_ns
     using machine_t = maki::machine<machine_conf>;
 }
 
-TEST_CASE("catch_pseudostate_simple")
+TEST_CASE("catch_pseudostate_internal_transition")
 {
-    using namespace catch_pseudostate_simple_ns;
+    using namespace catch_pseudostate_internal_transition_ns;
 
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
-    REQUIRE(machine.is<off>());
+    CHECK(machine.is<off>());
 
+    ctx.out.clear();
     ctx.error.clear();
     machine.process_event(button_press{});
-    REQUIRE(machine.is<error>());
-    REQUIRE(ctx.error == "Error");
-    REQUIRE(ctx.out == "");
+    CHECK(machine.is<on>());
+    CHECK(ctx.out == "");
+    CHECK(ctx.error == "");
+
+    ctx.out.clear();
+    ctx.error.clear();
+    machine.process_event(other_button_press{});
+    CHECK(machine.is<error>());
+    CHECK(ctx.out == "exit;");
+    CHECK(ctx.error == "Error");
 }

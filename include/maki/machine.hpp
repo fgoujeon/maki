@@ -14,7 +14,6 @@
 
 #include "machine_conf.hpp"
 #include "events.hpp"
-#include "null.hpp"
 #include "detail/path.hpp"
 #include "detail/state_impls/simple.hpp" //NOLINT misc-include-cleaner
 #include "detail/state_impls/composite.hpp" //NOLINT misc-include-cleaner

@@ -41,6 +41,23 @@ namespace detail
     };
 }
 
+#define MAKI_DETAIL_MAYBE_CATCH(statement) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    if constexpr(detail::is_null_v<typename option_set_type::exception_handler_type>) \
+    { \
+        statement; \
+    } \
+    else \
+    { \
+        try \
+        { \
+            statement; \
+        } \
+        catch(...) \
+        { \
+            impl_of(conf).exception_handler(*this, std::current_exception()); \
+        } \
+    }
+
 /**
 @brief The state machine implementation template.
 @tparam Conf the state machine configuration, with defined `transition_tables`
@@ -154,21 +171,7 @@ public:
     template<class Event = events::start>
     void start(const Event& event = {})
     {
-        if constexpr(detail::is_null_v<typename option_set_type::exception_handler_type>)
-        {
-            start_no_catch(event);
-        }
-        else
-        {
-            try
-            {
-                start_no_catch(event);
-            }
-            catch(...)
-            {
-                impl_of(conf).exception_handler(*this, std::current_exception());
-            }
-        }
+        MAKI_DETAIL_MAYBE_CATCH(start_no_catch(event))
     }
 
     /**
@@ -182,21 +185,7 @@ public:
     template<class Event = events::stop>
     void stop(const Event& event = {})
     {
-        if constexpr(detail::is_null_v<typename option_set_type::exception_handler_type>)
-        {
-            stop_no_catch(event);
-        }
-        else
-        {
-            try
-            {
-                stop_no_catch(event);
-            }
-            catch(...)
-            {
-                impl_of(conf).exception_handler(*this, std::current_exception());
-            }
-        }
+        MAKI_DETAIL_MAYBE_CATCH(stop_no_catch(event))
     }
 
     /**
@@ -250,21 +239,7 @@ public:
     template<class Event>
     void process_event(const Event& event)
     {
-        if constexpr(detail::is_null_v<typename option_set_type::exception_handler_type>)
-        {
-            execute_operation<detail::machine_operation::process_event>(event);
-        }
-        else
-        {
-            try
-            {
-                execute_operation<detail::machine_operation::process_event>(event);
-            }
-            catch(...)
-            {
-                impl_of(conf).exception_handler(*this, std::current_exception());
-            }
-        }
+        MAKI_DETAIL_MAYBE_CATCH(execute_operation<detail::machine_operation::process_event>(event))
     }
 
     /**
@@ -289,21 +264,7 @@ public:
     template<class Event>
     void process_event_now(const Event& event)
     {
-        if constexpr(detail::is_null_v<typename option_set_type::exception_handler_type>)
-        {
-            process_event_now_no_catch(event);
-        }
-        else
-        {
-            try
-            {
-                process_event_now_no_catch(event);
-            }
-            catch(...)
-            {
-                impl_of(conf).exception_handler(*this, std::current_exception());
-            }
-        }
+        MAKI_DETAIL_MAYBE_CATCH(process_event_now_no_catch(event))
     }
 
     /**
@@ -338,21 +299,7 @@ public:
     template<class Event>
     MAKI_NOINLINE void enqueue_event(const Event& event)
     {
-        if constexpr(detail::is_null_v<typename option_set_type::exception_handler_type>)
-        {
-            enqueue_event_no_catch(event);
-        }
-        else
-        {
-            try
-            {
-                enqueue_event_no_catch(event);
-            }
-            catch(...)
-            {
-                impl_of(conf).exception_handler(*this, std::current_exception());
-            }
-        }
+        MAKI_DETAIL_MAYBE_CATCH(enqueue_event_no_catch(event))
     }
 
     /**
@@ -364,21 +311,7 @@ public:
     */
     void process_enqueued_events()
     {
-        if constexpr(detail::is_null_v<typename option_set_type::exception_handler_type>)
-        {
-            process_enqueued_events_no_catch();
-        }
-        else
-        {
-            try
-            {
-                process_enqueued_events_no_catch();
-            }
-            catch(...)
-            {
-                impl_of(conf).exception_handler(*this, std::current_exception());
-            }
-        }
+        MAKI_DETAIL_MAYBE_CATCH(process_enqueued_events_no_catch())
     }
 
     /**
@@ -641,6 +574,8 @@ private:
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;
 };
+
+#undef MAKI_DETAIL_MAYBE_CATCH
 
 } //namespace
 

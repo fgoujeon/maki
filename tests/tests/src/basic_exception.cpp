@@ -96,7 +96,7 @@ TEST_CASE("basic_exception")
     REQUIRE(machine.context().out == "off::on_entry;");
 
     machine.context().out.clear();
-    machine.process_event(events::button_press{});
+    CHECK_THROWS(machine.process_event(events::button_press{}));
     REQUIRE(machine.is<maki::transitioning>());
     REQUIRE(machine.context().out == "off::on_exit;");
 }

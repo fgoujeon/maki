@@ -61,11 +61,16 @@ namespace on_exception_ns
     namespace events
     {
         struct button_press{};
+
+        struct exception
+        {
+            std::exception_ptr eptr;
+        };
     }
 
     constexpr auto log_exception_default = maki::action_ce
     (
-        [](context& ctx, const maki::events::exception& event)
+        [](context& ctx, const events::exception& event)
         {
             try
             {
@@ -73,7 +78,6 @@ namespace on_exception_ns
             }
             catch(const std::exception& e)
             {
-                ctx.out += "default;";
                 ctx.out += e.what();
             }
         }
@@ -83,7 +87,7 @@ namespace on_exception_ns
         (maki::init,          states::off)
         (states::off,         states::on,  maki::event<events::button_press>)
         (states::on,          states::off, maki::event<events::button_press>)
-        (maki::transitioning, maki::null,  maki::event<maki::events::exception>, log_exception_default)
+        (maki::transitioning, maki::null,  maki::event<events::exception>, log_exception_default)
     ;
 
     constexpr auto default_machine_conf = maki::machine_conf{}
@@ -100,15 +104,7 @@ namespace on_exception_ns
         (
             [](auto& mach, const std::exception_ptr& eptr)
             {
-                try
-                {
-                    std::rethrow_exception(eptr);
-                }
-                catch(const std::exception& e)
-                {
-                    mach.context().out += "custom;";
-                    mach.context().out += e.what();
-                }
+                mach.process_event(events::exception{eptr});
             }
         )
     ;
@@ -127,9 +123,9 @@ TEST_CASE("on_exception")
         machine.start();
         ctx.out.clear();
 
-        machine.process_event(events::button_press{});
-        REQUIRE(machine.is<maki::transitioning>());
-        REQUIRE(ctx.out == "off::on_exit;on::on_entry;default;test;");
+        CHECK_THROWS(machine.process_event(events::button_press{}));
+        CHECK(machine.is<maki::transitioning>());
+        CHECK(ctx.out == "off::on_exit;on::on_entry;");
     }
 
     {
@@ -140,7 +136,7 @@ TEST_CASE("on_exception")
         ctx.out.clear();
 
         machine.process_event(events::button_press{});
-        REQUIRE(machine.is<maki::transitioning>());
-        REQUIRE(ctx.out == "off::on_exit;on::on_entry;custom;test;");
+        CHECK(machine.is<maki::transitioning>());
+        CHECK(ctx.out == "off::on_exit;on::on_entry;test;");
     }
 }

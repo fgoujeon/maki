@@ -154,9 +154,20 @@ public:
     template<class Event = events::start>
     void start(const Event& event = {})
     {
-        if(!running())
+        if constexpr(detail::is_null_v<typename option_set_type::exception_hook_type>)
         {
-            execute_operation<detail::machine_operation::start>(event);
+            start_no_catch(event);
+        }
+        else
+        {
+            try
+            {
+                start_no_catch(event);
+            }
+            catch(...)
+            {
+                impl_of(conf).exception_hook(*this, std::current_exception());
+            }
         }
     }
 
@@ -171,9 +182,20 @@ public:
     template<class Event = events::stop>
     void stop(const Event& event = {})
     {
-        if(running())
+        if constexpr(detail::is_null_v<typename option_set_type::exception_hook_type>)
         {
-            execute_operation<detail::machine_operation::stop>(event);
+            stop_no_catch(event);
+        }
+        else
+        {
+            try
+            {
+                stop_no_catch(event);
+            }
+            catch(...)
+            {
+                impl_of(conf).exception_hook(*this, std::current_exception());
+            }
         }
     }
 
@@ -228,7 +250,21 @@ public:
     template<class Event>
     void process_event(const Event& event)
     {
-        execute_operation<detail::machine_operation::process_event>(event);
+        if constexpr(detail::is_null_v<typename option_set_type::exception_hook_type>)
+        {
+            execute_operation<detail::machine_operation::process_event>(event);
+        }
+        else
+        {
+            try
+            {
+                execute_operation<detail::machine_operation::process_event>(event);
+            }
+            catch(...)
+            {
+                impl_of(conf).exception_hook(*this, std::current_exception());
+            }
+        }
     }
 
     /**
@@ -253,12 +289,21 @@ public:
     template<class Event>
     void process_event_now(const Event& event)
     {
-        static_assert
-        (
-            impl_of(conf).process_event_now_enabled,
-            "`maki::machine_conf::process_event_now_enabled()` hasn't been set to `true`"
-        );
-        execute_operation_now<detail::machine_operation::process_event>(event);
+        if constexpr(detail::is_null_v<typename option_set_type::exception_hook_type>)
+        {
+            process_event_now_no_catch(event);
+        }
+        else
+        {
+            try
+            {
+                process_event_now_no_catch(event);
+            }
+            catch(...)
+            {
+                impl_of(conf).exception_hook(*this, std::current_exception());
+            }
+        }
     }
 
     /**
@@ -270,7 +315,7 @@ public:
     given the current state of the state machine and guard checks against the
     event itself.
 
-    Note: Run-to-completion mechanism is bypassed.
+    Note: Run-to-completion mechanism is bypassed and exceptions are not caught.
     */
     template<class Event>
     bool check_event(const Event& event) const
@@ -293,14 +338,20 @@ public:
     template<class Event>
     MAKI_NOINLINE void enqueue_event(const Event& event)
     {
-        static_assert(impl_of(conf).run_to_completion);
-        try
+        if constexpr(detail::is_null_v<typename option_set_type::exception_hook_type>)
         {
-            enqueue_event_impl<detail::machine_operation::process_event>(event);
+            enqueue_event_no_catch(event);
         }
-        catch(...)
+        else
         {
-            process_exception(std::current_exception());
+            try
+            {
+                enqueue_event_no_catch(event);
+            }
+            catch(...)
+            {
+                impl_of(conf).exception_hook(*this, std::current_exception());
+            }
         }
     }
 
@@ -313,16 +364,19 @@ public:
     */
     void process_enqueued_events()
     {
-        if(!executing_operation_)
+        if constexpr(detail::is_null_v<typename option_set_type::exception_hook_type>)
         {
-            auto grd = executing_operation_guard{*this};
+            process_enqueued_events_no_catch();
+        }
+        else
+        {
             try
             {
-                operation_queue_.invoke_and_pop_all(*this);
+                process_enqueued_events_no_catch();
             }
             catch(...)
             {
-                process_exception(std::current_exception());
+                impl_of(conf).exception_hook(*this, std::current_exception());
             }
         }
     }
@@ -403,31 +457,53 @@ private:
         empty_holder
     >::template type<>;
 
+    template<class Event>
+    void start_no_catch(const Event& event)
+    {
+        if(!running())
+        {
+            execute_operation<detail::machine_operation::start>(event);
+        }
+    }
+
+    template<class Event>
+    void stop_no_catch(const Event& event)
+    {
+        if(running())
+        {
+            execute_operation<detail::machine_operation::stop>(event);
+        }
+    }
+
+    template<class Event>
+    void process_event_now_no_catch(const Event& event)
+    {
+        static_assert
+        (
+            impl_of(conf).process_event_now_enabled,
+            "`maki::machine_conf::process_event_now_enabled()` hasn't been set to `true`"
+        );
+        execute_operation_now<detail::machine_operation::process_event>(event);
+    }
+
     template<detail::machine_operation Operation, class Event>
     void execute_operation(const Event& event)
     {
-        try
+        if constexpr(impl_of(conf).run_to_completion)
         {
-            if constexpr(impl_of(conf).run_to_completion)
+            if(!executing_operation_) //If call is not recursive
             {
-                if(!executing_operation_) //If call is not recursive
-                {
-                    execute_operation_now<Operation>(event);
-                }
-                else
-                {
-                    //Enqueue event in case of recursive call
-                    enqueue_event_impl<Operation>(event);
-                }
+                execute_operation_now<Operation>(event);
             }
             else
             {
-                execute_one_operation<Operation>(event);
+                //Enqueue event in case of recursive call
+                enqueue_event_impl<Operation>(event);
             }
         }
-        catch(...)
+        else
         {
-            process_exception(std::current_exception());
+            execute_one_operation<Operation>(event);
         }
     }
 
@@ -449,10 +525,26 @@ private:
         }
     }
 
+    template<class Event>
+    MAKI_NOINLINE void enqueue_event_no_catch(const Event& event)
+    {
+        static_assert(impl_of(conf).run_to_completion);
+        enqueue_event_impl<detail::machine_operation::process_event>(event);
+    }
+
     template<detail::machine_operation Operation, class Event>
     void enqueue_event_impl(const Event& event)
     {
         operation_queue_.template push<any_event_visitor<Operation>>(event);
+    }
+
+    void process_enqueued_events_no_catch()
+    {
+        if(!executing_operation_)
+        {
+            auto grd = executing_operation_guard{*this};
+            operation_queue_.invoke_and_pop_all(*this);
+        }
     }
 
     template<detail::machine_operation Operation>
@@ -464,18 +556,6 @@ private:
             self.execute_one_operation<Operation>(event);
         }
     };
-
-    void process_exception(const std::exception_ptr& eptr)
-    {
-        if constexpr(std::is_same_v<typename option_set_type::exception_hook_type, null_t>)
-        {
-            process_event(events::exception{eptr});
-        }
-        else
-        {
-            impl_of(conf).exception_hook(*this, eptr);
-        }
-    }
 
     template<detail::machine_operation Operation, class Event>
     void execute_one_operation(const Event& event)

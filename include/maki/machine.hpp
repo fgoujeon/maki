@@ -210,10 +210,11 @@ public:
                     GUARD() == true
                 )
                 {
+                    SET_ACTIVE_STATE(transitioning);
                     CALL_EXIT_ACTION(source_state);
-                    SET_ACTIVE_STATE(target_state);
                     CALL_TRANSITION_ACTION();
                     CALL_ENTRY_ACTION(target_state);
+                    SET_ACTIVE_STATE(target_state);
                     break;
                 }
             }

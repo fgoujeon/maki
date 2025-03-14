@@ -42,12 +42,19 @@ namespace maki::detail
 
 namespace region_detail
 {
+    inline constexpr auto transitioning_state_index = -2;
     inline constexpr auto final_state_index = -1;
 
     template<class StateIdConstantList, auto StateId>
     struct state_id_to_index
     {
         static constexpr auto value = tlu::find_v<StateIdConstantList, constant_t<StateId>>;
+    };
+
+    template<class StateIdConstantList>
+    struct state_id_to_index<StateIdConstantList, &maki::transitioning>
+    {
+        static constexpr auto value = transitioning_state_index;
     };
 
     template<class StateIdConstantList>
@@ -401,47 +408,62 @@ private:
     {
         using machine_option_set_type = typename Machine::option_set_type;
 
-        auto& source_state = state_id_to_obj<SourceStateId>();
-
-        constexpr auto is_internal_transition = std::is_same_v
+        constexpr auto is_external_transition = !is_null_v
         <
-            std::decay_t<decltype(TargetStateId)>,
-            null_t
+            std::decay_t<decltype(TargetStateId)>
         >;
 
-        if constexpr(!is_internal_transition)
+        auto& source_state = state_id_to_obj<SourceStateId>();
+
+        /*
+        For external transitions, invoke the pre-transition hook, if any.
+        */
+        if constexpr
+        (
+            is_external_transition &&
+            !is_null_v<typename machine_option_set_type::pre_external_transition_hook_type>
+        )
         {
-            auto& target_state = state_id_to_obj<TargetStateId>();
+            impl_of(Machine::conf).pre_external_transition_hook
+            (
+                ctx,
+                *pitf_,
+                source_state,
+                event,
+                state_id_to_obj<TargetStateId>()
+            );
+        }
 
-            if constexpr(!std::is_same_v<typename machine_option_set_type::pre_external_transition_hook_type, null_t>)
-            {
-                impl_of(Machine::conf).pre_external_transition_hook
-                (
-                    ctx,
-                    *pitf_,
-                    source_state,
-                    event,
-                    target_state
-                );
-            }
+        /*
+        For external transitions, change the active state to `transitioning`
+        (useful in case of exception).
+        */
+        if constexpr
+        (
+            is_external_transition &&
+            !ptr_equals(TargetStateId, &state_builders::null)
+        )
+        {
+            active_state_index_ = region_detail::transitioning_state_index;
+        }
 
+        /*
+        For external transitions, invoke the exit action of the source state, if
+        any.
+        */
+        if constexpr(is_external_transition)
+        {
             impl_of(source_state).call_exit_action
             (
                 mach,
                 ctx,
                 event
             );
-
-            if constexpr(!ptr_equals(TargetStateId, &state_builders::null))
-            {
-                active_state_index_ = region_detail::state_id_to_index_v
-                <
-                    state_id_constant_list,
-                    TargetStateId
-                >;
-            }
         }
 
+        /*
+        Invoke the transition action, if any.
+        */
         detail::call_action
         (
             *ActionPtr,
@@ -450,7 +472,11 @@ private:
             event
         );
 
-        if constexpr(!is_internal_transition)
+        /*
+        For external transitions, invoke the entry action of the target state,
+        if any.
+        */
+        if constexpr(is_external_transition)
         {
             auto& target_state = state_id_to_obj<TargetStateId>();
 
@@ -460,24 +486,58 @@ private:
                 ctx,
                 event
             );
+        }
 
-            if constexpr(!std::is_same_v<typename machine_option_set_type::post_external_transition_hook_type, null_t>)
-            {
-                impl_of(Machine::conf).post_external_transition_hook
-                (
-                    ctx,
-                    *pitf_,
-                    source_state,
-                    event,
-                    target_state
-                );
-            }
+        /*
+        For external transitions, change the active state to the target state.
+        */
+        if constexpr
+        (
+            is_external_transition &&
+            !ptr_equals(TargetStateId, &state_builders::null)
+        )
+        {
+            active_state_index_ = region_detail::state_id_to_index_v
+            <
+                state_id_constant_list,
+                TargetStateId
+            >;
+        }
 
-            //Completion transition
-            if constexpr(!ptr_equals(TargetStateId, &state_builders::null))
-            {
-                try_executing_completion_transitions(target_state, mach, ctx);
-            }
+        /*
+        For external transitions, invoke the post-transition hook, if any.
+        */
+        if constexpr
+        (
+            is_external_transition &&
+            !is_null_v<typename machine_option_set_type::post_external_transition_hook_type>
+        )
+        {
+            impl_of(Machine::conf).post_external_transition_hook
+            (
+                ctx,
+                *pitf_,
+                source_state,
+                event,
+                state_id_to_obj<TargetStateId>()
+            );
+        }
+
+        /*
+        For external transitions, execute the completion transitions, if any.
+        */
+        if constexpr
+        (
+            is_external_transition &&
+            !ptr_equals(TargetStateId, &state_builders::null)
+        )
+        {
+            try_executing_completion_transitions
+            (
+                state_id_to_obj<TargetStateId>(),
+                mach,
+                ctx
+            );
         }
     }
 
@@ -671,6 +731,10 @@ private:
         if constexpr(ptr_equals(StateId, &state_builders::null))
         {
             return states::null;
+        }
+        else if constexpr(ptr_equals(StateId, &maki::transitioning))
+        {
+            return states::transitioning;
         }
         else if constexpr(ptr_equals(StateId, &state_builders::final))
         {

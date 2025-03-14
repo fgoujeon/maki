@@ -22,6 +22,8 @@ namespace detail::state_builders
     inline constexpr auto final = state_builder{};
 }
 
+inline constexpr auto transitioning = state_builder{};
+
 /**
 @brief Predefined state and pseudostate objects.
 */
@@ -55,6 +57,10 @@ namespace states
 #else
     inline constexpr auto final = state<detail::state_impls::simple_no_context<&detail::state_builders::final>>{};
 #endif
+
+    inline constexpr auto transitioning =
+        state<detail::state_impls::simple_no_context<&maki::transitioning>>{}
+    ;
 }
 
 } //namespace

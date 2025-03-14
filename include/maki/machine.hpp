@@ -154,7 +154,7 @@ public:
     template<class Event = events::start>
     void start(const Event& event = {})
     {
-        if constexpr(detail::is_null_v<typename option_set_type::exception_hook_type>)
+        if constexpr(detail::is_null_v<typename option_set_type::exception_handler_type>)
         {
             start_no_catch(event);
         }
@@ -166,7 +166,7 @@ public:
             }
             catch(...)
             {
-                impl_of(conf).exception_hook(*this, std::current_exception());
+                impl_of(conf).exception_handler(*this, std::current_exception());
             }
         }
     }
@@ -182,7 +182,7 @@ public:
     template<class Event = events::stop>
     void stop(const Event& event = {})
     {
-        if constexpr(detail::is_null_v<typename option_set_type::exception_hook_type>)
+        if constexpr(detail::is_null_v<typename option_set_type::exception_handler_type>)
         {
             stop_no_catch(event);
         }
@@ -194,7 +194,7 @@ public:
             }
             catch(...)
             {
-                impl_of(conf).exception_hook(*this, std::current_exception());
+                impl_of(conf).exception_handler(*this, std::current_exception());
             }
         }
     }
@@ -250,7 +250,7 @@ public:
     template<class Event>
     void process_event(const Event& event)
     {
-        if constexpr(detail::is_null_v<typename option_set_type::exception_hook_type>)
+        if constexpr(detail::is_null_v<typename option_set_type::exception_handler_type>)
         {
             execute_operation<detail::machine_operation::process_event>(event);
         }
@@ -262,7 +262,7 @@ public:
             }
             catch(...)
             {
-                impl_of(conf).exception_hook(*this, std::current_exception());
+                impl_of(conf).exception_handler(*this, std::current_exception());
             }
         }
     }
@@ -289,7 +289,7 @@ public:
     template<class Event>
     void process_event_now(const Event& event)
     {
-        if constexpr(detail::is_null_v<typename option_set_type::exception_hook_type>)
+        if constexpr(detail::is_null_v<typename option_set_type::exception_handler_type>)
         {
             process_event_now_no_catch(event);
         }
@@ -301,7 +301,7 @@ public:
             }
             catch(...)
             {
-                impl_of(conf).exception_hook(*this, std::current_exception());
+                impl_of(conf).exception_handler(*this, std::current_exception());
             }
         }
     }
@@ -338,7 +338,7 @@ public:
     template<class Event>
     MAKI_NOINLINE void enqueue_event(const Event& event)
     {
-        if constexpr(detail::is_null_v<typename option_set_type::exception_hook_type>)
+        if constexpr(detail::is_null_v<typename option_set_type::exception_handler_type>)
         {
             enqueue_event_no_catch(event);
         }
@@ -350,7 +350,7 @@ public:
             }
             catch(...)
             {
-                impl_of(conf).exception_hook(*this, std::current_exception());
+                impl_of(conf).exception_handler(*this, std::current_exception());
             }
         }
     }
@@ -364,7 +364,7 @@ public:
     */
     void process_enqueued_events()
     {
-        if constexpr(detail::is_null_v<typename option_set_type::exception_hook_type>)
+        if constexpr(detail::is_null_v<typename option_set_type::exception_handler_type>)
         {
             process_enqueued_events_no_catch();
         }
@@ -376,7 +376,7 @@ public:
             }
             catch(...)
             {
-                impl_of(conf).exception_hook(*this, std::current_exception());
+                impl_of(conf).exception_handler(*this, std::current_exception());
             }
         }
     }

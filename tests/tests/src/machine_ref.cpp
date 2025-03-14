@@ -36,12 +36,6 @@ namespace machine_ref_ns
         .transition_tables(transition_table)
         .context_a<context>()
         .run_to_completion(false)
-        .exception_hook_mx
-        (
-            [](auto& /*mach*/, const std::exception_ptr& /*eptr*/)
-            {
-            }
-        )
     ;
 
     using machine_t = maki::machine<machine_conf>;

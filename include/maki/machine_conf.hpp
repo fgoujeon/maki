@@ -62,7 +62,7 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_processing_hooks = impl_.pre_processing_hooks; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_external_transition_hook = impl_.post_external_transition_hook; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_external_transition_hook = impl_.pre_external_transition_hook; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_hook = impl_.exception_hook; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_handler = impl_.exception_handler; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_processing_hooks = impl_.post_processing_hooks; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_process_event_now_enabled = impl_.process_event_now_enabled; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = impl_.run_to_completion; \
@@ -77,7 +77,7 @@ public:
         < \
             typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_pre_processing_hooks)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_exception_hook)>, \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_exception_handler)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_pre_external_transition_hook)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_post_external_transition_hook)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_post_processing_hooks)>, \
@@ -90,7 +90,7 @@ public:
         MAKI_DETAIL_ARG_pre_processing_hooks, \
         MAKI_DETAIL_ARG_post_external_transition_hook, \
         MAKI_DETAIL_ARG_pre_external_transition_hook, \
-        MAKI_DETAIL_ARG_exception_hook, \
+        MAKI_DETAIL_ARG_exception_handler, \
         MAKI_DETAIL_ARG_post_processing_hooks, \
         MAKI_DETAIL_ARG_process_event_now_enabled, \
         MAKI_DETAIL_ARG_run_to_completion, \
@@ -218,7 +218,7 @@ public:
     }
 
     /**
-    @brief Specifies an action to be called whenever an exception is caught by
+    @brief Specifies a callable to be invoked whenever an exception is caught by
     `machine`.
 
     As the suffix of the function suggests, the action must take references to:
@@ -228,25 +228,21 @@ public:
 
     Example:
     @code
-    .exception_hook_mx([](auto& mach, const std::exception_ptr& eptr)
+    .catch_mx([](auto& mach, const std::exception_ptr& eptr)
     {
         //...
     })
     @endcode
 
-    If this action isn't set, `maki::machine` will send itself a
-    `maki::events::exception` event, like so:
-    @code
-    process_event(maki::events::exception{std::current_exception()});
-    @endcode
+    If this action isn't set, `maki::machine` doesn't catch any exception.
     */
-    template<class Action>
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE exception_hook_mx(const Action& action) const
+    template<class Callable>
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE catch_mx(const Callable& callable) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_exception_hook action
+#define MAKI_DETAIL_ARG_exception_handler callable
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_ARG_exception_hook
+#undef MAKI_DETAIL_ARG_exception_handler
     }
 
     /**

@@ -80,7 +80,7 @@ namespace process_event_now_ns
         template<class Event>
         constexpr auto process_event_now = maki::action_m([](auto& mach)
         {
-            // Shouldn't have any effect as the active state is `transitioning`.
+            // Shouldn't have any effect as the active state is `undefined`.
             mach.process_event_now(Event{});
         });
 

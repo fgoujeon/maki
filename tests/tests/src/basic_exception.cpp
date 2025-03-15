@@ -97,6 +97,6 @@ TEST_CASE("basic_exception")
 
     machine.context().out.clear();
     CHECK_THROWS(machine.process_event(events::button_press{}));
-    REQUIRE(machine.is<maki::transitioning>());
+    REQUIRE(machine.is<maki::undefined>());
     REQUIRE(machine.context().out == "off::on_exit;");
 }

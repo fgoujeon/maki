@@ -23,9 +23,9 @@ namespace detail::state_builders
 }
 
 /**
-@brief The state builder of the transitioning state.
+@brief The state builder of the undefined state.
 */
-inline constexpr auto transitioning = state_builder{};
+inline constexpr auto undefined = state_builder{};
 
 /**
 @brief Predefined state and pseudostate objects.
@@ -63,14 +63,14 @@ namespace states
 
 #if MAKI_DETAIL_DOXYGEN
     /**
-    @brief Represents the transitioning state.
+    @brief Represents the undefined state.
 
-    Not to be confused with `maki::transitioning`.
+    Not to be confused with `maki::undefined`.
     */
-    constexpr auto transitioning = state<IMPLEMENTATION_DETAIL>{};
+    constexpr auto undefined = state<IMPLEMENTATION_DETAIL>{};
 #else
-    inline constexpr auto transitioning =
-        state<detail::state_impls::simple_no_context<&maki::transitioning>>{}
+    inline constexpr auto undefined =
+        state<detail::state_impls::simple_no_context<&maki::undefined>>{}
     ;
 #endif
 }

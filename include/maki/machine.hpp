@@ -221,7 +221,7 @@ public:
                     GUARD() == true
                 )
                 {
-                    SET_ACTIVE_STATE(transitioning);
+                    SET_ACTIVE_STATE(undefined);
                     CALL_EXIT_ACTION(source_state);
                     CALL_TRANSITION_ACTION();
                     CALL_ENTRY_ACTION(target_state);

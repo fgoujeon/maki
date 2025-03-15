@@ -42,7 +42,7 @@ namespace maki::detail
 
 namespace region_detail
 {
-    inline constexpr auto transitioning_state_index = -2;
+    inline constexpr auto undefined_state_index = -2;
     inline constexpr auto final_state_index = -1;
 
     template<class StateIdConstantList, auto StateId>
@@ -52,9 +52,9 @@ namespace region_detail
     };
 
     template<class StateIdConstantList>
-    struct state_id_to_index<StateIdConstantList, &maki::transitioning>
+    struct state_id_to_index<StateIdConstantList, &maki::undefined>
     {
-        static constexpr auto value = transitioning_state_index;
+        static constexpr auto value = undefined_state_index;
     };
 
     template<class StateIdConstantList>
@@ -435,7 +435,7 @@ private:
         }
 
         /*
-        For external transitions, change the active state to `transitioning`
+        For external transitions, change the active state to `undefined`
         (useful in case of exception).
         */
         if constexpr
@@ -444,7 +444,7 @@ private:
             !ptr_equals(TargetStateId, &state_builders::null)
         )
         {
-            active_state_index_ = region_detail::transitioning_state_index;
+            active_state_index_ = region_detail::undefined_state_index;
         }
 
         /*
@@ -732,9 +732,9 @@ private:
         {
             return states::null;
         }
-        else if constexpr(ptr_equals(StateId, &maki::transitioning))
+        else if constexpr(ptr_equals(StateId, &maki::undefined))
         {
-            return states::transitioning;
+            return states::undefined;
         }
         else if constexpr(ptr_equals(StateId, &state_builders::final))
         {

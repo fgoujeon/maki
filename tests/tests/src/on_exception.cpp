@@ -84,10 +84,10 @@ namespace on_exception_ns
     );
 
     constexpr auto transition_table = maki::transition_table{}
-        (maki::init,          states::off)
-        (states::off,         states::on,  maki::event<events::button_press>)
-        (states::on,          states::off, maki::event<events::button_press>)
-        (maki::transitioning, maki::null,  maki::event<events::exception>, log_exception_default)
+        (maki::init,      states::off)
+        (states::off,     states::on,  maki::event<events::button_press>)
+        (states::on,      states::off, maki::event<events::button_press>)
+        (maki::undefined, maki::null,  maki::event<events::exception>, log_exception_default)
     ;
 
     constexpr auto default_machine_conf = maki::machine_conf{}
@@ -124,7 +124,7 @@ TEST_CASE("on_exception")
         ctx.out.clear();
 
         CHECK_THROWS(machine.process_event(events::button_press{}));
-        CHECK(machine.is<maki::transitioning>());
+        CHECK(machine.is<maki::undefined>());
         CHECK(ctx.out == "off::on_exit;on::on_entry;");
     }
 
@@ -136,7 +136,7 @@ TEST_CASE("on_exception")
         ctx.out.clear();
 
         machine.process_event(events::button_press{});
-        CHECK(machine.is<maki::transitioning>());
+        CHECK(machine.is<maki::undefined>());
         CHECK(ctx.out == "off::on_exit;on::on_entry;test;");
     }
 }

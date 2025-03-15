@@ -12,7 +12,7 @@ namespace nullary_member_functions_ns
 {
     struct context
     {
-        std::string out;
+        mutable std::string out;
     };
 
     namespace events
@@ -75,7 +75,7 @@ namespace nullary_member_functions_ns
         }
     });
 
-    constexpr auto guard = maki::guard_ce([](context& ctx, const auto& event)
+    constexpr auto guard = maki::guard_ce([](const context& ctx, const auto& event)
     {
         using event_type = std::decay_t<decltype(event)>;
         if constexpr(std::is_same_v<event_type, events::e1>)

@@ -42,14 +42,14 @@ namespace guard_operators_ns
     {
 
 #define GUARD(NAME) \
-    inline constexpr auto NAME = maki::guard_c([](context& ctx) \
+    inline constexpr auto NAME = maki::guard_c([](const context& ctx) \
     { \
         return ctx.NAME; \
     });
 
 //Test with another signature
 #define GUARD_2(NAME) \
-    inline constexpr auto NAME = maki::guard_cme([](context& ctx, auto& /*machine*/, const auto& /*event*/) \
+    inline constexpr auto NAME = maki::guard_cme([](const context& ctx, const auto& /*machine*/, const auto& /*event*/) \
     { \
         return ctx.NAME; \
     });

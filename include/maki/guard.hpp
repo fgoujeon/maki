@@ -27,22 +27,22 @@ enum class guard_signature: char
     ///`bool guard()`
     v,
 
-    ///`bool guard(context&)`
+    ///`bool guard(const context&)`
     c,
 
-    ///`bool guard(context&, machine&)`
+    ///`bool guard(const context&, const machine&)`
     cm,
 
-    ///`bool guard(context&, machine&, const event&)`
+    ///`bool guard(const context&, const machine&, const event&)`
     cme,
 
-    ///`bool guard(context&, const event&)`
+    ///`bool guard(const context&, const event&)`
     ce,
 
-    ///`bool guard(machine&)`
+    ///`bool guard(const machine&)`
     m,
 
-    ///`bool guard(machine&, const event&)`
+    ///`bool guard(const machine&, const event&)`
     me,
 
     ///`bool guard(const event&)`
@@ -61,8 +61,8 @@ namespace detail
     bool call_guard
     (
         const Guard& grd,
-        Context& ctx,
-        Machine& mach,
+        const Context& ctx,
+        const Machine& mach,
         const Event& event
     )
     {
@@ -120,7 +120,7 @@ constexpr auto operator&&
 {
     return guard_cme
     (
-        [lhs, rhs](auto& ctx, auto& mach, const auto& event)
+        [lhs, rhs](const auto& ctx, const auto& mach, const auto& event)
         {
             return
                 detail::call_guard(lhs, ctx, mach, event) &&
@@ -148,7 +148,7 @@ constexpr auto operator||
 {
     return guard_cme
     (
-        [lhs, rhs](auto& ctx, auto& mach, const auto& event)
+        [lhs, rhs](const auto& ctx, const auto& mach, const auto& event)
         {
             return
                 detail::call_guard(lhs, ctx, mach, event) ||
@@ -176,7 +176,7 @@ constexpr auto operator!=
 {
     return guard_cme
     (
-        [lhs, rhs](auto& ctx, auto& mach, const auto& event)
+        [lhs, rhs](const auto& ctx, const auto& mach, const auto& event)
         {
             return
                 detail::call_guard(lhs, ctx, mach, event) !=
@@ -195,7 +195,7 @@ constexpr auto operator!(const guard<Signature, Callable>& grd)
 {
     return guard_cme
     (
-        [grd](auto& ctx, auto& mach, const auto& event)
+        [grd](const auto& ctx, const auto& mach, const auto& event)
         {
             return !detail::call_guard(grd, ctx, mach, event);
         }

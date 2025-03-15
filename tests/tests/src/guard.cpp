@@ -30,7 +30,7 @@ namespace guard_ns
 
     namespace guards
     {
-        constexpr auto has_power = maki::guard_c([](context& ctx)
+        constexpr auto has_power = maki::guard_c([](const context& ctx)
         {
             return ctx.has_power;
         });

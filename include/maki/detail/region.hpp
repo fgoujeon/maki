@@ -42,19 +42,12 @@ namespace maki::detail
 
 namespace region_detail
 {
-    inline constexpr auto undefined_state_index = -2;
     inline constexpr auto final_state_index = -1;
 
     template<class StateIdConstantList, auto StateId>
     struct state_id_to_index
     {
         static constexpr auto value = tlu::find_v<StateIdConstantList, constant_t<StateId>>;
-    };
-
-    template<class StateIdConstantList>
-    struct state_id_to_index<StateIdConstantList, &maki::undefined>
-    {
-        static constexpr auto value = undefined_state_index;
     };
 
     template<class StateIdConstantList>
@@ -182,7 +175,8 @@ private:
         transition_table_digest<transition_tuple>
     ;
 
-    using state_id_constant_list = typename transition_table_digest_type::state_id_constant_list;
+    using state_id_constant_list_0 = typename transition_table_digest_type::state_id_constant_list;
+    using state_id_constant_list = tlu::push_back_t<state_id_constant_list_0, constant_t<&maki::undefined>>;
 
     template<class... StateIdConstants>
     using state_id_constant_pack_to_state_tuple_t = tuple
@@ -435,8 +429,8 @@ private:
         }
 
         /*
-        For external transitions, change the active state to `undefined`
-        (useful in case of exception).
+        For external transitions, change the active state to `undefined` (useful
+        in case of exception).
         */
         if constexpr
         (
@@ -444,7 +438,11 @@ private:
             !ptr_equals(TargetStateId, &state_builders::null)
         )
         {
-            active_state_index_ = region_detail::undefined_state_index;
+            active_state_index_ = region_detail::state_id_to_index_v
+            <
+                state_id_constant_list,
+                &maki::undefined
+            >;
         }
 
         /*

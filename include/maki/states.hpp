@@ -22,6 +22,9 @@ namespace detail::state_builders
     inline constexpr auto final = state_builder{};
 }
 
+/**
+@brief The state builder of the transitioning state.
+*/
 inline constexpr auto transitioning = state_builder{};
 
 /**
@@ -58,9 +61,18 @@ namespace states
     inline constexpr auto final = state<detail::state_impls::simple_no_context<&detail::state_builders::final>>{};
 #endif
 
+#if MAKI_DETAIL_DOXYGEN
+    /**
+    @brief Represents the transitioning state.
+
+    Not to be confused with `maki::transitioning`.
+    */
+    constexpr auto transitioning = state<IMPLEMENTATION_DETAIL>{};
+#else
     inline constexpr auto transitioning =
         state<detail::state_impls::simple_no_context<&maki::transitioning>>{}
     ;
+#endif
 }
 
 } //namespace

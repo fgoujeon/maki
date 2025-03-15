@@ -218,10 +218,11 @@ public:
     }
 
     /**
-    @brief Specifies a callable to be invoked whenever an exception is caught by
-    `machine`.
+    @brief Sets up a `try`/`catch(...)` block at the top-level of every
+    non-`const` member function of `maki::machine` and invokes `callable` from
+    the `catch` block.
 
-    As the suffix of the function suggests, the action must take references to:
+    As the suffix of the function suggests, `callable` must take references to:
 
     - the machine;
     - the exception pointer.

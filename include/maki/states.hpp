@@ -23,6 +23,11 @@ namespace detail::state_builders
 }
 
 /**
+@brief The state builder of the undefined state.
+*/
+inline constexpr auto undefined = state_builder{};
+
+/**
 @brief Predefined state and pseudostate objects.
 */
 namespace states
@@ -54,6 +59,19 @@ namespace states
     constexpr auto final = state<IMPLEMENTATION_DETAIL>{};
 #else
     inline constexpr auto final = state<detail::state_impls::simple_no_context<&detail::state_builders::final>>{};
+#endif
+
+#if MAKI_DETAIL_DOXYGEN
+    /**
+    @brief Represents the undefined state.
+
+    Not to be confused with `maki::undefined`.
+    */
+    constexpr auto undefined = state<IMPLEMENTATION_DETAIL>{};
+#else
+    inline constexpr auto undefined =
+        state<detail::state_impls::simple_no_context<&maki::undefined>>{}
+    ;
 #endif
 }
 

@@ -7,45 +7,33 @@
 #include <maki.hpp>
 #include <iostream>
 
-struct event_0{};
-struct event_1{};
+struct E0{};
+struct E1{};
 
 struct context{};
 
-void say_hello()
+void say_hello_and_emit_E1(const maki::machine_ref_e<E1> mach)
 {
-    std::cout << "Hello";
+    std::cout << "Hello,";
+    mach.process_event(E1{});
 }
 
-void emit_event_1_and_say_world
-(
-    const maki::machine_ref_e<event_1> mach
-)
+void say_world()
 {
-    mach.process_event(event_1{});
-    std::cout << ", World!";
-}
-
-void say_goodbye()
-{
-    std::cout << "\nGoodbye.";
+    std::cout << " World!";
 }
 
 constexpr auto state_a = maki::state_builder{}
-    .exit_action_v(&say_hello)
+    .exit_action_m(&say_hello_and_emit_E1)
 ;
 
 constexpr auto state_b = maki::state_builder{}
-    .entry_action_m(&emit_event_1_and_say_world)
-    .exit_action_v(&say_goodbye)
+    .internal_action_v<E1>(&say_world)
 ;
-
-constexpr auto state_c = maki::state_builder{};
 
 constexpr auto transition_table = maki::transition_table{}
     (maki::init, state_a)
-    (state_a,    state_b, maki::event<event_0>)
-    (state_b,    state_c, maki::event<event_1>)
+    (state_a,    state_b, maki::event<E0>)
 ;
 
 #ifdef ENABLE_RTC
@@ -69,6 +57,6 @@ using machine_t = maki::machine<machine_conf>;
 int main()
 {
     auto machine = machine_t{};
-    machine.process_event(event_0{});
+    machine.process_event(E0{});
     std::cout << "\n";
 }

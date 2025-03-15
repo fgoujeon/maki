@@ -8,25 +8,23 @@ The simplest way to explain what run-to-completion is is to show what happens wh
 
 @startuml{rtc_diagram.png}
 [*] --> A
-hide empty description
 A --> B : E0
-B --> C : E1
 
-A : exit / say_hello()
+A : exit / say_hello_and_emit_E1()
 
-B : entry / emit_event_1_and_say_world()
-B : exit / say_goodbye()
+B : E1 / say_world()
+
+hide empty description
 @enduml
 
 Its actions are the following:
 
-* `say_hello()`, which outputs `"Hello"`;
-* `emit_event_1_and_say_world()`, which emits the event `E1` and outputs `", World!"` (in this order);
-* `say_goodbye()`, which outputs `"\nGoodbye."`.
+* `say_hello_and_emit_E1()`, which outputs `"Hello,"` and emits the event `E1` (in this order);
+* `say_world()`, which outputs `" World!"`.
 
-Say the active state is `A` and some external component emits the event `E0`. This makes the state machine transition from `A` to `B`, then from `B` to `C` since the entry action of `B` emits the event `E1`.
+Whenever the active state is `A` and the event `E0` occurs, the state machine transitions from `A` to `B` and processes the event `E1`.
 
-With run-to-completion, you'd have got this output:
+With run-to-completion, you'd have gotten this output:
 
 @include concepts/run-to-completion/ok/expected-output.txt
 
@@ -38,11 +36,13 @@ Frightening.
 
 What is happening is that the processing of `E0` and the processing of `E1` are intertwined; the state machine:
 
-1. performs some steps of the processing of `E0`;
+1. performs some steps of the processing of `E0` (namely, invoking the exit action of `A`);
 2. processes `E1` from beginning to end;
-3. performs the remaining steps of the processing of `E0`.
+3. performs the remaining steps of the processing of `E0` (namely, invoking the entry action of `B` and marking it as the active state).
 
-With run-to-completion, both events would have been fully processed sequentially.
+Because of this, the state machine processes `E1` before it enters `B`, which results in `say_world()` not being called.
+
+With run-to-completion, both events would have been fully processed in a sequential way.
 
 ## When to use run-to-completion
 

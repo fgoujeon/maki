@@ -80,6 +80,7 @@ namespace process_event_now_ns
         template<class Event>
         constexpr auto process_event_now = maki::action_m([](auto& mach)
         {
+            // Shouldn't have any effect as the active state is `undefined`.
             mach.process_event_now(Event{});
         });
 
@@ -113,17 +114,12 @@ TEST_CASE("process_event_now")
     machine.start();
     REQUIRE(ctx.output == "s0::on_entry;");
 
-    //Indirectly process s1_to_s2_request and s2_to_s0_request
     ctx.output.clear();
-    machine.process_event(events::s0_to_s1_request{});
+    machine.process_event_now(events::s0_to_s1_request{});
     REQUIRE
     (
         ctx.output ==
             "s0::on_exit;"
-            "s1::on_exit;"
-            "s2::on_exit;"
-            "s0::on_entry;"
-            "s2::on_entry;"
             "s1::on_entry;"
     );
 }

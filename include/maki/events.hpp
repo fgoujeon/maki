@@ -30,18 +30,6 @@ struct start{};
 */
 struct stop{};
 
-/**
-@brief Event sent by the default exception handler of `maki::machine` whenever
-it catches an exception.
-*/
-struct exception
-{
-    /**
-    @brief Pointer to the caught exception
-    */
-    std::exception_ptr eptr;
-};
-
 } //namespace
 
 #endif

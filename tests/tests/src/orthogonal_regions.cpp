@@ -56,7 +56,7 @@ namespace orthogonal_regions_ns
                 (states::off1, states::on1, maki::event<events::button_press>)
         )
         .context_a<context>()
-        .exception_hook_mx
+        .catch_mx
         (
             [](auto& mach, const std::exception_ptr& eptr)
             {

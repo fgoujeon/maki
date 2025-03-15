@@ -56,9 +56,10 @@ namespace transition_table_digest_detail
         {
             /*
             We must add target state to list of states unless:
-            - it's not already in the list;
-            - it's final;
-            - it's null.
+            - it's already in the list;
+            - it's `final`;
+            - it's `null`;
+            - it's `undefined`.
             */
             static constexpr auto must_add_target_state =
                 !tlu::contains_v
@@ -67,7 +68,8 @@ namespace transition_table_digest_detail
                     constant_t<tuple_get<Index>(TransitionTuple).target_state_builder>
                 > &&
                 !equals(tuple_get<Index>(TransitionTuple).target_state_builder, state_builders::final) &&
-                !equals(tuple_get<Index>(TransitionTuple).target_state_builder, null)
+                !equals(tuple_get<Index>(TransitionTuple).target_state_builder, null) &&
+                !equals(tuple_get<Index>(TransitionTuple).target_state_builder, undefined)
             ;
 
             using state_id_constant_list = tlu::push_back_if_t

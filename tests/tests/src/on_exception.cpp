@@ -48,21 +48,6 @@ namespace on_exception_ns
                     }
                 }
             )
-            .internal_action_ce<maki::events::exception>
-            (
-                [](context& ctx, const maki::events::exception& event)
-                {
-                    try
-                    {
-                        std::rethrow_exception(event.eptr);
-                    }
-                    catch(const std::exception& e)
-                    {
-                        ctx.out += "default;";
-                        ctx.out += e.what();
-                    }
-                }
-            )
             .exit_action_c
             (
                 [](context& ctx)
@@ -76,69 +61,139 @@ namespace on_exception_ns
     namespace events
     {
         struct button_press{};
+
+        struct exception
+        {
+            std::exception_ptr eptr;
+        };
     }
 
-    constexpr auto transition_table = maki::transition_table{}
+    constexpr auto log_exception_default = maki::action_ce
+    (
+        [](context& ctx, const events::exception& event)
+        {
+            try
+            {
+                std::rethrow_exception(event.eptr);
+            }
+            catch(const std::exception& e)
+            {
+                ctx.out += e.what();
+            }
+        }
+    );
+
+
+    /*
+    Default case (no catch)
+    */
+
+    constexpr auto transition_table_default = maki::transition_table{}
         (maki::init,  states::off)
         (states::off, states::on,  maki::event<events::button_press>)
         (states::on,  states::off, maki::event<events::button_press>)
     ;
 
-    constexpr auto default_machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
+    constexpr auto machine_conf_default = maki::machine_conf{}
+        .transition_tables(transition_table_default)
         .context_a<context>()
     ;
 
-    using default_sm_t = maki::machine<default_machine_conf>;
+    using sm_default_t = maki::machine<machine_conf_default>;
 
-    constexpr auto custom_machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
+
+    /*
+    Case with catch and transition from `undefined`
+    */
+
+    constexpr auto transition_table_with_trans = maki::transition_table{}
+        (maki::init,      states::off)
+        (states::off,     states::on,  maki::event<events::button_press>)
+        (states::on,      states::off, maki::event<events::button_press>)
+        (maki::undefined, maki::null,  maki::event<events::exception>, log_exception_default)
+    ;
+
+    constexpr auto machine_conf_with_trans = maki::machine_conf{}
+        .transition_tables(transition_table_with_trans)
         .context_a<context>()
-        .exception_hook_mx
+        .catch_mx
         (
             [](auto& mach, const std::exception_ptr& eptr)
             {
-                try
-                {
-                    std::rethrow_exception(eptr);
-                }
-                catch(const std::exception& e)
-                {
-                    mach.context().out += "custom;";
-                    mach.context().out += e.what();
-                }
+                mach.process_event(events::exception{eptr});
             }
         )
     ;
 
-    using custom_sm_t = maki::machine<custom_machine_conf>;
+    using sm_with_trans_t = maki::machine<machine_conf_with_trans>;
+
+
+    /*
+    Case with catch and transition from `all_states`
+    */
+
+    constexpr auto transition_table_with_all = maki::transition_table{}
+        (maki::init,       states::off)
+        (states::off,      states::on,  maki::event<events::button_press>)
+        (states::on,       states::off, maki::event<events::button_press>)
+        (maki::all_states, maki::null,  maki::event<events::exception>, log_exception_default)
+    ;
+
+    constexpr auto machine_conf_with_all = maki::machine_conf{}
+        .transition_tables(transition_table_with_all)
+        .context_a<context>()
+        .catch_mx
+        (
+            [](auto& mach, const std::exception_ptr& eptr)
+            {
+                mach.process_event(events::exception{eptr});
+            }
+        )
+    ;
+
+    using sm_with_all_t = maki::machine<machine_conf_with_all>;
+
+
+    template<class Mach>
+    void test_with_catch()
+    {
+        auto machine = Mach{};
+        auto& ctx = machine.context();
+
+        machine.start();
+        ctx.out.clear();
+
+        machine.process_event(events::button_press{});
+        CHECK(machine.template is<maki::undefined>());
+        CHECK(ctx.out == "off::on_exit;on::on_entry;test;");
+    }
 }
 
-TEST_CASE("on_exception")
+TEST_CASE("exception_default")
 {
     using namespace on_exception_ns;
 
     {
-        auto machine = default_sm_t{};
+        auto machine = sm_default_t{};
         auto& ctx = machine.context();
 
         machine.start();
         ctx.out.clear();
 
-        machine.process_event(events::button_press{});
-        REQUIRE(machine.is<states::on>());
-        REQUIRE(ctx.out == "off::on_exit;on::on_entry;default;test;");
+        CHECK_THROWS(machine.process_event(events::button_press{}));
+        CHECK(machine.is<maki::undefined>());
+        CHECK(ctx.out == "off::on_exit;on::on_entry;");
     }
+}
 
-    {
-        auto machine = custom_sm_t{};
-        auto& ctx = machine.context();
+TEST_CASE("exception_with_trans")
+{
+    using namespace on_exception_ns;
+    test_with_catch<sm_with_trans_t>();
+}
 
-        machine.start();
-        ctx.out.clear();
-
-        machine.process_event(events::button_press{});
-        REQUIRE(machine.is<states::on>());
-        REQUIRE(ctx.out == "off::on_exit;on::on_entry;custom;test;");
-    }
+TEST_CASE("exception_with_all")
+{
+    using namespace on_exception_ns;
+    test_with_catch<sm_with_all_t>();
 }

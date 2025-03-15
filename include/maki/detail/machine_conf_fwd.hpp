@@ -29,7 +29,7 @@ namespace detail
     <
         class Context = void,
         class PreProcessingHookTuple = tuple<>,
-        class ExceptionHook = null_t,
+        class ExceptionHandler = null_t,
         class PreExternalTransitionHook = null_t,
         class PostExternalTransitionHook = null_t,
         class PostProcessingHookTuple = tuple<>,
@@ -38,7 +38,7 @@ namespace detail
     struct machine_conf_option_set
     {
         using context_type = Context;
-        using exception_hook_type = ExceptionHook;
+        using exception_handler_type = ExceptionHandler;
         using pre_external_transition_hook_type = PreExternalTransitionHook;
         using post_external_transition_hook_type = PostExternalTransitionHook;
         using pre_processing_hook_tuple_type = PreProcessingHookTuple;
@@ -49,7 +49,7 @@ namespace detail
         PreProcessingHookTuple pre_processing_hooks;
         PostExternalTransitionHook post_external_transition_hook = null;
         PreExternalTransitionHook pre_external_transition_hook = null;
-        ExceptionHook exception_hook = null;
+        ExceptionHandler exception_handler = null;
         PostProcessingHookTuple post_processing_hooks;
         bool process_event_now_enabled = false;
         bool run_to_completion = true;

@@ -9,4 +9,5 @@ These features are the following:
 * @subpage state-set
 * @subpage guard-composition
 * @subpage undefined-state
+* @subpage exception-safety
 * @subpage thread-safety

@@ -239,7 +239,17 @@ public:
     template<class Event>
     void process_event(const Event& event)
     {
-        MAKI_DETAIL_MAYBE_CATCH(execute_operation<detail::machine_operation::process_event>(event))
+        MAKI_DETAIL_MAYBE_CATCH(process_event_no_catch(event))
+    }
+
+    /**
+    @brief Like `process_event()`, but doesn't catch exceptions, even if
+    `maki::machine_conf::catch_mx()` is set.
+    */
+    template<class Event>
+    void process_event_no_catch(const Event& event)
+    {
+        execute_operation<detail::machine_operation::process_event>(event);
     }
 
     /**

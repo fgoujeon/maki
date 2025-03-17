@@ -30,11 +30,11 @@ constexpr auto machine_conf = maki::machine_conf{}
     .catch_mx([](auto& mach, const std::exception_ptr& eptr)
     {
         /*
-        Note: The possibility of the call below to throw as well should also be
-        taken care of to avoid infinite recursion.
+        Note: The possibility of the call below to throw in its turn should also
+        be taken care of.
         */
 
-        mach.process_event(error{eptr});
+        mach.process_event_no_catch(error{eptr});
     })
 ;
 //! [catch]

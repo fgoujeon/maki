@@ -146,7 +146,13 @@ namespace on_exception_ns
         (
             [](auto& mach, const std::exception_ptr& eptr)
             {
-                mach.process_event(events::exception{eptr});
+                try
+                {
+                    mach.process_event_no_catch(events::exception{eptr});
+                }
+                catch(...)
+                {
+                }
             }
         )
     ;

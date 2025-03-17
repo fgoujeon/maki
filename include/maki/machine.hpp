@@ -200,7 +200,7 @@ public:
     //current processing
     if(processing_event)
     {
-        enqueue_event(event);
+        push_event(event);
     }
 
     //Process the event
@@ -232,8 +232,8 @@ public:
         }
     }
 
-    //Run-to-completion: Process enqueued events the same way
-    process_enqueued_events();
+    //Run-to-completion: Process pending events the same way
+    process_pending_events();
     @endcode
     */
     template<class Event>
@@ -264,7 +264,7 @@ public:
     called. Otherwise, <b>run-to-completion will be broken</b>.
 
     Compared to `maki::machine::process_event()`, this function is:
-    - faster to build, because the `maki::machine::enqueue_event()` function
+    - faster to build, because the `maki::machine::push_event()` function
     template won't be instantiated;
     - faster to run, because an `if` statement is skipped.
 
@@ -307,21 +307,9 @@ public:
     not sure what you're doing, just call @ref process_event() instead.
     */
     template<class Event>
-    MAKI_NOINLINE void enqueue_event(const Event& event)
+    MAKI_NOINLINE void push_event(const Event& event)
     {
-        MAKI_DETAIL_MAYBE_CATCH(enqueue_event_no_catch(event))
-    }
-
-    /**
-    @brief Processes events that have been enqueued by the run-to-completion
-    mechanism.
-
-    Calling this function is only relevant when managing an exception thrown by
-    user code and caught by the state machine.
-    */
-    void process_enqueued_events()
-    {
-        MAKI_DETAIL_MAYBE_CATCH(process_enqueued_events_no_catch())
+        MAKI_DETAIL_MAYBE_CATCH(push_event_no_catch(event))
     }
 
     /**
@@ -440,8 +428,8 @@ private:
             }
             else
             {
-                //Enqueue event in case of recursive call
-                enqueue_event_impl<Operation>(event);
+                //Push event to RTC queue in case of recursive call
+                push_event_impl<Operation>(event);
             }
         }
         else
@@ -469,19 +457,26 @@ private:
     }
 
     template<class Event>
-    MAKI_NOINLINE void enqueue_event_no_catch(const Event& event)
+    MAKI_NOINLINE void push_event_no_catch(const Event& event)
     {
         static_assert(impl_of(conf).run_to_completion);
-        enqueue_event_impl<detail::machine_operation::process_event>(event);
+        push_event_impl<detail::machine_operation::process_event>(event);
     }
 
     template<detail::machine_operation Operation, class Event>
-    void enqueue_event_impl(const Event& event)
+    void push_event_impl(const Event& event)
     {
         operation_queue_.template push<any_event_visitor<Operation>>(event);
     }
 
-    void process_enqueued_events_no_catch()
+    /**
+    @brief Processes events that have been pushed into the run-to-completion
+    queue.
+
+    Calling this function is only relevant when managing an exception thrown by
+    user code and caught by the state machine.
+    */
+    void process_pending_events()
     {
         if(!executing_operation_)
         {

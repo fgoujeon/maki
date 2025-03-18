@@ -11,3 +11,4 @@ These features are the following:
 * @subpage undefined-state
 * @subpage exception-safety
 * @subpage thread-safety
+* @subpage hook

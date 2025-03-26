@@ -527,6 +527,7 @@ private:
         if constexpr
         (
             is_external_transition &&
+            transition_table_digest_type::has_completion_transitions &&
             !ptr_equals(TargetStateId, &state_builders::null)
         )
         {
@@ -585,7 +586,11 @@ private:
                 extra_args...
             );
 
-            if constexpr(!Dry)
+            if constexpr
+            (
+                transition_table_digest_type::has_completion_transitions &&
+                !Dry
+            )
             {
                 self.try_executing_completion_transitions
                 (

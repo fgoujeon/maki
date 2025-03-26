@@ -15,7 +15,7 @@ Executing an external transition mainly consists of:
 
 Also, at some point, the target state must be activated (i.e. marked as the active state of the region).
 
-Problem: Any of these steps can throw an exception, and there's no obvious choice for the resulting active state in case of exception.
+Problem: any of these steps can throw an exception, and there's no obvious choice for the resulting active state in case of exception.
 * We can't reasonably keep the source state active. What if we already invoked its exit action? We don't want to risk using deallocated resources from an internal action, or deallocate resources twice, or even try to invoke that exit action again if it's the one that threw.
 * We can't reasonably activate the target state either. What if it has an entry action that we couldn't successfully execute? We don't want to risk using or releasing non-allocated resources from an internal action or an exit action. Even in the absence of an entry action, we don't want to go against the behavior defined in the transition table by activating a state without properly executing the action of the transition that leads to it.
 

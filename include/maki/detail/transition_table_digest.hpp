@@ -15,6 +15,7 @@
 #include "../null.hpp"
 #include "tlu/push_back_if.hpp"
 #include "tlu/left_fold.hpp"
+#include <type_traits>
 
 namespace maki::detail
 {
@@ -46,6 +47,7 @@ namespace transition_table_digest_detail
     struct initial_digest
     {
         using state_id_constant_list = type_list_t<>;
+        static constexpr auto has_completion_transitions = false;
     };
 
     template<const auto& TransitionTuple>
@@ -78,6 +80,17 @@ namespace transition_table_digest_detail
                 constant_t<tuple_get<Index>(TransitionTuple).target_state_builder>,
                 must_add_target_state
             >;
+
+            static constexpr auto has_completion_transitions =
+                Digest::has_completion_transitions ||
+                (
+                    Index != 0 &&
+                    is_null_v
+                    <
+                        std::decay_t<decltype(tuple_get<Index>(TransitionTuple).evt_set)>
+                    >
+                )
+            ;
         };
 
         template<class Digest, class IndexConstant>

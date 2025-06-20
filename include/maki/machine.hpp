@@ -120,8 +120,7 @@ public:
     {
         if constexpr(impl_of(conf).auto_start)
         {
-            //start
-            execute_operation_now<detail::machine_operation::start>(events::start{});
+            MAKI_DETAIL_MAYBE_CATCH(start_now())
         }
     }
 
@@ -387,6 +386,11 @@ private:
         real_operation_queue_holder,
         empty_holder
     >::template type<>;
+
+    void start_now()
+    {
+        execute_operation_now<detail::machine_operation::start>(events::start{});
+    }
 
     template<class Event>
     void start_no_catch(const Event& event)

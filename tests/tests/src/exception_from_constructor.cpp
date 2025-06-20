@@ -19,13 +19,13 @@ namespace exception_from_constructor_ns
     namespace states
     {
         constexpr auto running = maki::state_builder{}
-            .entry_action_v
-            (
-                []
+            .entry_action_c([](context& ctx)
+            {
+                if(ctx.always_zero == 0) //We need this to avoid "unreachable code" warnings
                 {
                     throw std::runtime_error{"error"};
                 }
-            )
+            })
         ;
     }
 

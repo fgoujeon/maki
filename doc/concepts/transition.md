@@ -124,7 +124,7 @@ The table below summarizes all the combinations of the three traits:
 
             or
 
-            @snippet concepts/transition/src/main.cpp internal-transition-in-state-builder
+            @snippet concepts/transition/src/main.cpp internal-transition-in-state-mold
         </td>
     </tr>
 

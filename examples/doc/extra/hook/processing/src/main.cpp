@@ -37,7 +37,7 @@ void log_warning(const Args&... args)
     (std::cout << ... << args) << '\n';
 }
 
-constexpr auto some_state = maki::state_builder{};
+constexpr auto some_state = maki::state_mold{};
 
 constexpr auto transition_table = maki::transition_table{}
     (maki::ini, some_state)

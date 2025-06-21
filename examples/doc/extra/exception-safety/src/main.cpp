@@ -15,8 +15,8 @@ struct error
     std::exception_ptr eptr;
 };
 
-constexpr auto off = maki::state_builder{};
-constexpr auto on = maki::state_builder{};
+constexpr auto off = maki::state_mold{};
+constexpr auto on = maki::state_mold{};
 
 constexpr auto transition_table = maki::transition_table{}
     (maki::ini, off)

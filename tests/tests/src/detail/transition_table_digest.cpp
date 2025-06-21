@@ -40,7 +40,7 @@ namespace transition_table_digest_ns
 
     using digest_t = maki::detail::transition_table_digest<transition_tuple>;
 
-    using state_builder_ptr_constant_list = maki::detail::type_list_t
+    using state_mold_ptr_constant_list = maki::detail::type_list_t
     <
         maki::detail::constant_t<&state0>,
         maki::detail::constant_t<&state1>,
@@ -52,5 +52,5 @@ namespace transition_table_digest_ns
 TEST_CASE("detail::transition_table_digest")
 {
     using namespace transition_table_digest_ns;
-    REQUIRE(std::is_same_v<digest_t::state_id_constant_list, state_builder_ptr_constant_list>);
+    REQUIRE(std::is_same_v<digest_t::state_id_constant_list, state_mold_ptr_constant_list>);
 }

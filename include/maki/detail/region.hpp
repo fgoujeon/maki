@@ -26,7 +26,7 @@
 #include "../guard.hpp"
 #include "../path.hpp"
 #include "../null.hpp"
-#include "../state_builder.hpp"
+#include "../state_mold.hpp"
 #include "../state.hpp"
 #include "../transition_table.hpp"
 #include <type_traits>
@@ -51,7 +51,7 @@ namespace region_detail
     };
 
     template<class StateIdConstantList>
-    struct state_id_to_index<StateIdConstantList, &state_builders::fin>
+    struct state_id_to_index<StateIdConstantList, &state_molds::fin>
     {
         static constexpr auto value = final_state_index;
     };
@@ -77,22 +77,22 @@ public:
     region& operator=(region&&) = delete;
     ~region() = default;
 
-    template<const auto& StateBuilder>
+    template<const auto& StateMold>
     [[nodiscard]] bool is() const
     {
-        if constexpr(is_state_set_v<std::decay_t<decltype(StateBuilder)>>)
+        if constexpr(is_state_set_v<std::decay_t<decltype(StateMold)>>)
         {
-            return is_active_state_id_in_set<&StateBuilder>();
+            return is_active_state_id_in_set<&StateMold>();
         }
         else
         {
-            return is_active_state_id<&StateBuilder>();
+            return is_active_state_id<&StateMold>();
         }
     }
 
     [[nodiscard]] bool completed() const
     {
-        return is_active_state_id<&state_builders::fin>();
+        return is_active_state_id<&state_molds::fin>();
     }
 
     // Enter the initial state
@@ -104,7 +104,7 @@ public:
 
         execute_transition
         <
-            &state_builders::null,
+            &state_molds::null,
             initial_state_id,
             &action
         >
@@ -155,10 +155,10 @@ public:
         process_event_2<Dry>(*this, mach, ctx, event, processed);
     }
 
-    template<const auto& StateBuilder>
+    template<const auto& StateMold>
     const auto& state() const
     {
-        return state_id_to_obj<&StateBuilder>();
+        return state_id_to_obj<&StateMold>();
     }
 
     static const auto& path()
@@ -285,28 +285,28 @@ private:
         static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
             static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(transition_tuple);
-            static constexpr auto source_state_builder = trans.source_state_builder;
+            static constexpr auto source_state_mold = trans.source_state_mold;
             static constexpr auto action = trans.act;
             static constexpr auto guard = trans.grd;
 
-            if constexpr(is_state_set_v<std::decay_t<decltype(source_state_builder)>>)
+            if constexpr(is_state_set_v<std::decay_t<decltype(source_state_mold)>>)
             {
-                //List of state builders that belong to the source state set
-                using matching_state_builder_constant_list = state_type_list_filters::by_state_set_t
+                //List of state molds that belong to the source state set
+                using matching_state_mold_constant_list = state_type_list_filters::by_state_set_t
                 <
                     state_id_constant_list,
-                    &source_state_builder
+                    &source_state_mold
                 >;
 
-                static_assert(!tlu::empty_v<matching_state_builder_constant_list>);
+                static_assert(!tlu::empty_v<matching_state_mold_constant_list>);
 
                 return tlu::for_each_or
                 <
-                    matching_state_builder_constant_list,
+                    matching_state_mold_constant_list,
                     try_executing_transition_2
                     <
                         Dry,
-                        trans.target_state_builder,
+                        trans.target_state_mold,
                         action,
                         guard
                     >
@@ -317,10 +317,10 @@ private:
                 return try_executing_transition_2
                 <
                     Dry,
-                    trans.target_state_builder,
+                    trans.target_state_mold,
                     action,
                     guard
-                >::template call<constant_t<trans.source_state_builder>>
+                >::template call<constant_t<trans.source_state_mold>>
                 (
                     self,
                     mach,
@@ -435,7 +435,7 @@ private:
         if constexpr
         (
             is_external_transition &&
-            !ptr_equals(TargetStateId, &state_builders::null)
+            !ptr_equals(TargetStateId, &state_molds::null)
         )
         {
             active_state_index_ = region_detail::state_id_to_index_v
@@ -492,7 +492,7 @@ private:
         if constexpr
         (
             is_external_transition &&
-            !ptr_equals(TargetStateId, &state_builders::null)
+            !ptr_equals(TargetStateId, &state_molds::null)
         )
         {
             active_state_index_ = region_detail::state_id_to_index_v
@@ -528,7 +528,7 @@ private:
         (
             is_external_transition &&
             transition_table_digest_type::has_completion_transitions &&
-            !ptr_equals(TargetStateId, &state_builders::null)
+            !ptr_equals(TargetStateId, &state_molds::null)
         )
         {
             try_executing_completion_transitions
@@ -652,7 +652,7 @@ private:
         auto matches = false;
         with_active_state_id
         <
-            tlu::push_back_t<state_id_constant_list, constant_t<&state_builders::fin>>,
+            tlu::push_back_t<state_id_constant_list, constant_t<&state_molds::fin>>,
             is_active_state_id_in_set_2<StateSetPtr>
         >(matches);
         return matches;
@@ -731,7 +731,7 @@ private:
     template<auto StateId, class Region>
     static auto& static_state_id_to_obj(Region& self)
     {
-        if constexpr(ptr_equals(StateId, &state_builders::null))
+        if constexpr(ptr_equals(StateId, &state_molds::null))
         {
             return states::null;
         }
@@ -739,7 +739,7 @@ private:
         {
             return states::undefined;
         }
-        else if constexpr(ptr_equals(StateId, &state_builders::fin))
+        else if constexpr(ptr_equals(StateId, &state_molds::fin))
         {
             return states::fin;
         }

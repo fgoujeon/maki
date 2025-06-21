@@ -24,12 +24,12 @@ struct left_reactor_rotation{};
 struct right_reactor_rotation{};
 struct error{};
 
-constexpr auto deploying_left_wing = maki::state_builder{};
-constexpr auto deploying_right_wing = maki::state_builder{};
-constexpr auto starting_left_reactor = maki::state_builder{};
-constexpr auto starting_right_reactor = maki::state_builder{};
-constexpr auto flying = maki::state_builder{};
-constexpr auto failing = maki::state_builder{};
+constexpr auto deploying_left_wing = maki::state_mold{};
+constexpr auto deploying_right_wing = maki::state_mold{};
+constexpr auto starting_left_reactor = maki::state_mold{};
+constexpr auto starting_right_reactor = maki::state_mold{};
+constexpr auto flying = maki::state_mold{};
+constexpr auto failing = maki::state_mold{};
 
 constexpr auto initializing_left_region_tt = maki::transition_table{}
     (maki::ini,             deploying_left_wing)
@@ -43,7 +43,7 @@ constexpr auto initializing_right_region_tt = maki::transition_table{}
     (starting_right_reactor, maki::fin,              maki::event<right_reactor_rotation>)
 ;
 
-constexpr auto initializing = maki::state_builder{}.
+constexpr auto initializing = maki::state_mold{}.
     transition_tables
     (
         initializing_left_region_tt,

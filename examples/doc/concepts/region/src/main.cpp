@@ -12,10 +12,10 @@ struct left_wing_deployment{};
 
 struct right_wing_deployment{};
 
-constexpr auto deploying_left_wing = maki::state_builder{};
-constexpr auto deploying_right_wing = maki::state_builder{};
-constexpr auto starting_left_reactor = maki::state_builder{};
-constexpr auto starting_right_reactor = maki::state_builder{};
+constexpr auto deploying_left_wing = maki::state_mold{};
+constexpr auto deploying_right_wing = maki::state_mold{};
+constexpr auto starting_left_reactor = maki::state_mold{};
+constexpr auto starting_right_reactor = maki::state_mold{};
 
 //! [regions]
 constexpr auto initializing_left_region_tt = maki::transition_table{}
@@ -28,7 +28,7 @@ constexpr auto initializing_right_region_tt = maki::transition_table{}
     (deploying_right_wing, starting_right_reactor, maki::event<right_wing_deployment>)
 ;
 
-constexpr auto initializing = maki::state_builder{}
+constexpr auto initializing = maki::state_mold{}
     .transition_tables(initializing_left_region_tt, initializing_right_region_tt)
 ;
 //! [regions]

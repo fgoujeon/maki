@@ -26,7 +26,7 @@ struct my_context
 //! [context]
 
 //! [state]
-constexpr auto my_state = maki::state_builder{}
+constexpr auto my_state = maki::state_mold{}
     .entry_action_c([](my_context& ctx)
     {
         ++ctx.some_value;

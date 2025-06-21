@@ -15,7 +15,7 @@ struct some_event{};
 
 constexpr auto A = maki::action_v([]{});
 
-constexpr auto X0 = maki::state_builder{};
+constexpr auto X0 = maki::state_mold{};
 
 [[maybe_unused]] constexpr auto st_transition_table = maki::transition_table{}
     (maki::ini, X0)
@@ -25,17 +25,17 @@ constexpr auto X0 = maki::state_builder{};
 //! [transition-to-final]
 ;
 
-//! [internal-transition-in-state-builder]
-constexpr auto ST = maki::state_builder{}
+//! [internal-transition-in-state-mold]
+constexpr auto ST = maki::state_mold{}
     .internal_action_v<E>([]
     {
         //...
     })
 ;
-//! [internal-transition-in-state-builder]
+//! [internal-transition-in-state-mold]
 
-constexpr auto S = maki::state_builder{};
-constexpr auto T = maki::state_builder{};
+constexpr auto S = maki::state_mold{};
+constexpr auto T = maki::state_mold{};
 
 constexpr auto transition_table = maki::transition_table{}
     (maki::ini, S)

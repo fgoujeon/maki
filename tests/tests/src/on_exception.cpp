@@ -18,7 +18,7 @@ namespace on_exception_ns
 
     namespace states
     {
-        constexpr auto off = maki::state_builder{}
+        constexpr auto off = maki::state_mold{}
             .entry_action_c
             (
                 [](context& ctx)
@@ -35,7 +35,7 @@ namespace on_exception_ns
             )
         ;
 
-        constexpr auto on = maki::state_builder{}
+        constexpr auto on = maki::state_mold{}
             .entry_action_c
             (
                 [](context& ctx)

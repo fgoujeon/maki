@@ -34,7 +34,7 @@ namespace on_event_signatures_ns
 
     namespace states
     {
-        constexpr auto state0 = maki::state_builder{}
+        constexpr auto state0 = maki::state_mold{}
             .internal_action_ce<events::event1>
             (
                 [](context& ctx, const events::event1& event)

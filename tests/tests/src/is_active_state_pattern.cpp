@@ -44,7 +44,7 @@ namespace is_active_state_set_ns
             (states::emitting_blue,  states::emitting_red,   maki::event<events::color_button_press>)
         ;
 
-        constexpr auto on = maki::state_builder{}
+        constexpr auto on = maki::state_mold{}
             .transition_tables(on_transition_table)
         ;
     }

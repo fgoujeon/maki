@@ -321,24 +321,24 @@ public:
     }
 
     /**
-    @brief Returns the `maki::state` object created by `StateBuilder` (of type
-    `maki::state_builder`). Only valid if machine is only made of one region.
+    @brief Returns the `maki::state` object created by `StateMold` (of type
+    `maki::state_mold`). Only valid if machine is only made of one region.
     */
-    template<const auto& StateBuilder>
+    template<const auto& StateMold>
     [[nodiscard]] const auto& state() const
     {
-        return impl_.template state<StateBuilder>();
+        return impl_.template state<StateMold>();
     }
 
     /**
-    @brief Returns whether the state created by `StateBuilder` is active in the
+    @brief Returns whether the state created by `StateMold` is active in the
     region of the state machine. Only valid if machine is only made of one
     region.
     */
-    template<const auto& StateBuilder>
+    template<const auto& StateMold>
     [[nodiscard]] bool is() const
     {
-        return impl_.template is<StateBuilder>();
+        return impl_.template is<StateMold>();
     }
 
 private:

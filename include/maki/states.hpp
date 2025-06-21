@@ -9,23 +9,23 @@
 
 #include "detail/state_impls/simple_no_context.hpp"
 #include "state.hpp"
-#include "state_builder.hpp"
+#include "state_mold.hpp"
 
 namespace maki
 {
 
-namespace detail::state_builders
+namespace detail::state_molds
 {
-    inline constexpr auto null = state_builder{}
+    inline constexpr auto null = state_mold{}
         .pretty_name("");
 
-    inline constexpr auto fin = state_builder{};
+    inline constexpr auto fin = state_mold{};
 }
 
 /**
-@brief The state builder of the undefined state.
+@brief The state mold of the undefined state.
 */
-inline constexpr auto undefined = state_builder{};
+inline constexpr auto undefined = state_mold{};
 
 /**
 @brief Predefined state and pseudostate objects.
@@ -47,7 +47,7 @@ namespace states
     */
     constexpr auto null = state<IMPLEMENTATION_DETAIL>{};
 #else
-    inline constexpr auto null = state<detail::state_impls::simple_no_context<&detail::state_builders::null>>{};
+    inline constexpr auto null = state<detail::state_impls::simple_no_context<&detail::state_molds::null>>{};
 #endif
 
 #if MAKI_DETAIL_DOXYGEN
@@ -58,7 +58,7 @@ namespace states
     */
     constexpr auto fin = state<IMPLEMENTATION_DETAIL>{};
 #else
-    inline constexpr auto fin = state<detail::state_impls::simple_no_context<&detail::state_builders::fin>>{};
+    inline constexpr auto fin = state<detail::state_impls::simple_no_context<&detail::state_molds::fin>>{};
 #endif
 
 #if MAKI_DETAIL_DOXYGEN

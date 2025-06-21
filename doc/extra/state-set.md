@@ -11,7 +11,7 @@ A state set can be "any state", "no state at all", or everything in between.
 
 Maki exposes the `maki::state_set` class template to represent state sets. Internally, it's nothing more than a predicate, i.e. a function taking a `maki::state` and returning a `bool`.
 
-To instantiate a `maki::state_set`, you have to compose `maki::state_builder` objects with boolean operators, such as:
+To instantiate a `maki::state_set`, you have to compose `maki::state_mold` objects with boolean operators, such as:
 
 @snippet extra/state-set/src/main.cpp state-set
 

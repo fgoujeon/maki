@@ -42,28 +42,28 @@ namespace post_processing_hook_ns
 
     namespace states
     {
-        constexpr auto off = maki::state_builder{}
+        constexpr auto off = maki::state_mold{}
             .internal_action_v<events::ignored_by_emitting_blue>
             (
                 []{}
             )
         ;
 
-        constexpr auto emitting_red = maki::state_builder{}
+        constexpr auto emitting_red = maki::state_mold{}
             .internal_action_v<events::ignored_by_emitting_blue>
             (
                 []{}
             )
         ;
 
-        constexpr auto emitting_green = maki::state_builder{}
+        constexpr auto emitting_green = maki::state_mold{}
             .internal_action_v<events::ignored_by_emitting_blue>
             (
                 []{}
             )
         ;
 
-        constexpr auto emitting_blue = maki::state_builder{};
+        constexpr auto emitting_blue = maki::state_mold{};
 
         constexpr auto on_transition_table = maki::transition_table{}
             (maki::ini,              states::emitting_red)
@@ -72,7 +72,7 @@ namespace post_processing_hook_ns
             (states::emitting_blue,  states::emitting_red,   maki::event<events::color_button_press>)
         ;
 
-        constexpr auto on = maki::state_builder{}
+        constexpr auto on = maki::state_mold{}
             .transition_tables(on_transition_table)
         ;
     }

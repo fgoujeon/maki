@@ -29,7 +29,7 @@ template
 >
 struct region_tuple_elem
 {
-    static constexpr auto transition_table = tuple_get<Index>(impl_of(ParentSm::builder).transition_tables);
+    static constexpr auto transition_table = tuple_get<Index>(impl_of(ParentSm::mold).transition_tables);
     static constexpr auto path = ParentPath.add_region_index(Index);
     using type = maki::region<detail::region<transition_table, path>>;
 };
@@ -79,10 +79,10 @@ class composite_no_context
 {
 public:
     static constexpr auto identifier = Id;
-    static constexpr const auto& builder = *Id;
-    using builder_type = std::decay_t<decltype(builder)>;
-    using option_set_type = std::decay_t<decltype(impl_of(builder))>;
-    using transition_table_type_list = decltype(impl_of(builder).transition_tables);
+    static constexpr const auto& mold = *Id;
+    using mold_type = std::decay_t<decltype(mold)>;
+    using option_set_type = std::decay_t<decltype(impl_of(mold))>;
+    using transition_table_type_list = decltype(impl_of(mold).transition_tables);
 
     template<class Machine, class Context>
     composite_no_context(Machine& mach, Context& ctx):
@@ -152,7 +152,7 @@ public:
     template<class Machine, class Context, class Event>
     void call_exit_action(Machine& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each<region_tuple_type, region_exit<&state_builders::null>>
+        tlu::for_each<region_tuple_type, region_exit<&state_molds::null>>
         (
             *this,
             mach,
@@ -171,7 +171,7 @@ public:
     template<class Machine, class Context, class Event>
     void exit_to_finals(Machine& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each<region_tuple_type, region_exit<&state_builders::fin>>
+        tlu::for_each<region_tuple_type, region_exit<&state_molds::fin>>
         (
             *this,
             mach,
@@ -192,18 +192,18 @@ public:
         return tuple_get<Index>(regions_);
     }
 
-    template<const auto& StateBuilder>
+    template<const auto& StateMold>
     [[nodiscard]] const auto& state() const
     {
         static_assert(region_tuple_type::size == 1);
-        return impl_of(region<0>()).template state<StateBuilder>();
+        return impl_of(region<0>()).template state<StateMold>();
     }
 
-    template<const auto& StateBuilder>
+    template<const auto& StateMold>
     [[nodiscard]] bool is() const
     {
         static_assert(region_tuple_type::size == 1);
-        return impl_of(region<0>()).template is<StateBuilder>();
+        return impl_of(region<0>()).template is<StateMold>();
     }
 
     [[nodiscard]] bool completed() const

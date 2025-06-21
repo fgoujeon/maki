@@ -11,7 +11,7 @@ struct context
 {
 };
 
-constexpr auto my_state = maki::state_builder{};
+constexpr auto my_state = maki::state_mold{};
 
 constexpr auto transition_table = maki::transition_table{}
     (maki::ini, my_state)

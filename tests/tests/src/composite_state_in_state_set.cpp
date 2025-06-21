@@ -32,7 +32,7 @@ namespace composite_state_in_state_set_ns
             (s0_sub,     maki::null, maki::event<events::dummy>)
         ;
 
-        constexpr auto s0 = maki::state_builder{}
+        constexpr auto s0 = maki::state_mold{}
             .transition_tables(s0_transition_table)
         ;
     }

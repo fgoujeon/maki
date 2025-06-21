@@ -76,7 +76,7 @@ States are represented by constexpr objects.
 */
 namespace states
 {
-    constexpr auto off = maki::state_builder{}
+    constexpr auto off = maki::state_mold{}
         /*
         Entry action invoked whenever the state machine enters the `off` state
         with a `button::push_event`.
@@ -113,7 +113,7 @@ namespace states
     {
         int counter = 0;
     };
-    constexpr auto emitting_white = maki::state_builder{}
+    constexpr auto emitting_white = maki::state_mold{}
         .context_v<emitting_white_data>()
         .entry_action_c([](emitting_white_data& data)
         {
@@ -124,9 +124,9 @@ namespace states
     /*
     These are minimal valid state classes.
     */
-    constexpr auto emitting_red = maki::state_builder{};
-    constexpr auto emitting_green = maki::state_builder{};
-    constexpr auto emitting_blue = maki::state_builder{};
+    constexpr auto emitting_red = maki::state_mold{};
+    constexpr auto emitting_green = maki::state_mold{};
+    constexpr auto emitting_blue = maki::state_mold{};
 }
 
 /*

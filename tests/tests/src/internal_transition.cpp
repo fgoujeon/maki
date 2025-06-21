@@ -33,7 +33,7 @@ namespace internal_transition_ns
         EMPTY_STATE(state8)
         EMPTY_STATE(state9)
 
-        constexpr auto benchmarking = maki::state_builder{}
+        constexpr auto benchmarking = maki::state_mold{}
             .internal_action_c<events::internal_transition>
             (
                 [](context& ctx)

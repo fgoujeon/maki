@@ -14,7 +14,7 @@ struct bap_request{};
 struct context{};
 
 // [event-set]
-constexpr auto busy = maki::state_builder{}
+constexpr auto busy = maki::state_mold{}
     .internal_action_v
     (
         maki::event<beep_request> || maki::event<boop_request> || maki::event<bap_request>,

@@ -24,7 +24,7 @@ This is why Maki has made the choice of a third outcome: the activation of anoth
 ## How to Use the Undefined State with Maki
 
 Maki defines these two objects:
-* `maki::undefined`, the state builder of the undefined state, to be given to transition tables;
+* `maki::undefined`, the state mold of the undefined state, to be given to transition tables;
 * `maki::states::undefined`, the state object created by `maki::undefined`, given to transition hooks.
 
 To take advantage of the undefined state, you should define, in every topmost region, a transition whose:

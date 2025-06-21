@@ -20,9 +20,9 @@ constexpr auto my_action = maki::action_m([](auto& mach)
 });
 //! [resolution]
 
-constexpr auto my_state = maki::state_builder{};
+constexpr auto my_state = maki::state_mold{};
 
-constexpr auto my_other_state = maki::state_builder{};
+constexpr auto my_other_state = maki::state_mold{};
 
 constexpr auto transition_table = maki::transition_table{}
     (maki::ini, my_state)

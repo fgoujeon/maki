@@ -40,14 +40,14 @@ public:
     ~state() = default;
 
     /**
-    @brief Returns the `maki::state` object created by `StateBuilder` (of type
-    `maki::state_builder`). Only valid if state is composite and only made of
+    @brief Returns the `maki::state` object created by `StateMold` (of type
+    `maki::state_mold`). Only valid if state is composite and only made of
     one region.
     */
-    template<const auto& StateBuilder>
+    template<const auto& StateMold>
     [[nodiscard]] const auto& substate() const
     {
-        return impl_.template state<StateBuilder>();
+        return impl_.template state<StateMold>();
     }
 
     /**
@@ -61,13 +61,13 @@ public:
     }
 
     /**
-    @brief Returns whether the state created by `StateBuilder` is active. Only
+    @brief Returns whether the state created by `StateMold` is active. Only
     valid if state is composite and only made of one region.
     */
-    template<const auto& StateBuilder>
+    template<const auto& StateMold>
     [[nodiscard]] bool is() const
     {
-        return impl_.template is<StateBuilder>();
+        return impl_.template is<StateMold>();
     }
 
     /**
@@ -82,13 +82,13 @@ public:
     @brief The pretty name of the state.
 
     Returns either:
-    - the value given to `maki::state_builder::pretty_name()`, if any;
-    - the name of the `maki::state_builder` variable, without scope nor template
+    - the value given to `maki::state_mold::pretty_name()`, if any;
+    - the name of the `maki::state_mold` variable, without scope nor template
     argument list.
     */
     [[nodiscard]] static std::string_view pretty_name()
     {
-        return detail::pretty_name<Impl::builder>();
+        return detail::pretty_name<Impl::mold>();
     }
 
 private:

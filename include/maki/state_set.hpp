@@ -7,7 +7,7 @@
 #ifndef MAKI_STATE_SET_HPP
 #define MAKI_STATE_SET_HPP
 
-#include "detail/state_builder_fwd.hpp"
+#include "detail/state_mold_fwd.hpp"
 #include "detail/impl.hpp"
 #include "detail/set.hpp"
 
@@ -99,14 +99,14 @@ constexpr auto operator!(const state_set<Impl>& stt_set)
 /**
 @relates state_set
 @brief Creates a `maki::state_set` that contains all the states but the ones
-created by `stt_builder`.
+created by `stt_mold`.
 */
-template<class StateBuilderImpl>
-constexpr auto operator!(const state_builder<StateBuilderImpl>& stt_builder)
+template<class StateMoldImpl>
+constexpr auto operator!(const state_mold<StateMoldImpl>& stt_mold)
 {
     return detail::make_state_set_from_impl
     (
-        detail::make_set_excluding(&stt_builder)
+        detail::make_set_excluding(&stt_mold)
     );
 }
 
@@ -131,34 +131,34 @@ constexpr auto operator||
 /**
 @relates state_set
 @brief Creates a `maki::state_set` that contains the states of `stt_set`, plus
-the ones created by `stt_builder`.
+the ones created by `stt_mold`.
 */
-template<class StateSetImpl, class StateBuilderImpl>
+template<class StateSetImpl, class StateMoldImpl>
 constexpr auto operator||
 (
     const state_set<StateSetImpl>& stt_set,
-    const state_builder<StateBuilderImpl>& stt_builder
+    const state_mold<StateMoldImpl>& stt_mold
 )
 {
     return detail::make_state_set_from_impl
     (
-        detail::make_set_union(detail::impl_of(stt_set), &stt_builder)
+        detail::make_set_union(detail::impl_of(stt_set), &stt_mold)
     );
 }
 
 /**
 @relates state_set
 @brief Creates a `maki::state_set` that contains the states of `stt_set`, plus
-the ones created by `stt_builder`.
+the ones created by `stt_mold`.
 */
-template<class StateBuilderImpl, class StateSetImpl>
+template<class StateMoldImpl, class StateSetImpl>
 constexpr auto operator||
 (
-    const state_builder<StateBuilderImpl>& stt_builder,
+    const state_mold<StateMoldImpl>& stt_mold,
     const state_set<StateSetImpl>& stt_set
 )
 {
-    return stt_set || stt_builder;
+    return stt_set || stt_mold;
 }
 
 /**
@@ -166,11 +166,11 @@ constexpr auto operator||
 @brief Creates a `maki::state_set` that contains the states created from `lhs`
 and `rhs`.
 */
-template<class LhsStateBuilderImpl, class RhsStateBuilderImpl>
+template<class LhsStateMoldImpl, class RhsStateMoldImpl>
 constexpr auto operator||
 (
-    const state_builder<LhsStateBuilderImpl>& lhs,
-    const state_builder<RhsStateBuilderImpl>& rhs
+    const state_mold<LhsStateMoldImpl>& lhs,
+    const state_mold<RhsStateMoldImpl>& rhs
 )
 {
     return detail::make_state_set_from_impl
@@ -199,16 +199,16 @@ constexpr auto operator&&
 
 namespace detail
 {
-    template<class StateBuilderImpl, class StateBuilderImpl2>
-    constexpr bool contained_in(const state_builder<StateBuilderImpl>& lhs, const state_builder<StateBuilderImpl2>* rhs)
+    template<class StateMoldImpl, class StateMoldImpl2>
+    constexpr bool contained_in(const state_mold<StateMoldImpl>& lhs, const state_mold<StateMoldImpl2>* rhs)
     {
         return equals(&lhs, rhs);
     }
 
-    template<class StateBuilderImpl, class... Predicates>
-    constexpr bool contained_in(const state_builder<StateBuilderImpl>& stt_builder, const state_set<Predicates>&... state_sets)
+    template<class StateMoldImpl, class... Predicates>
+    constexpr bool contained_in(const state_mold<StateMoldImpl>& stt_mold, const state_set<Predicates>&... state_sets)
     {
-        return (contains(impl_of(state_sets), &stt_builder) || ...);
+        return (contains(impl_of(state_sets), &stt_mold) || ...);
     }
 
     template<class T>

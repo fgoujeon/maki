@@ -29,9 +29,9 @@ namespace pre_processing_hook_ns
 
     namespace states
     {
-        constexpr auto off = maki::state_builder{};
+        constexpr auto off = maki::state_mold{};
 
-        constexpr auto on = maki::state_builder{}
+        constexpr auto on = maki::state_mold{}
             .internal_action_c<events::button_press>
             (
                 [](context& ctx)

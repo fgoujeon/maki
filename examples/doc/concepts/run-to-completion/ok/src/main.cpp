@@ -23,11 +23,11 @@ void say_world()
     std::cout << " World!";
 }
 
-constexpr auto state_a = maki::state_builder{}
+constexpr auto state_a = maki::state_mold{}
     .exit_action_m(&say_hello_and_emit_E1)
 ;
 
-constexpr auto state_b = maki::state_builder{}
+constexpr auto state_b = maki::state_mold{}
     .internal_action_v<E1>(&say_world)
 ;
 

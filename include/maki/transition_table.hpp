@@ -21,7 +21,7 @@
 #include "fin.hpp"
 #include "null.hpp"
 #include "detail/impl.hpp"
-#include "detail/state_builder_fwd.hpp"
+#include "detail/state_mold_fwd.hpp"
 #include "detail/tuple.hpp"
 
 namespace maki
@@ -68,8 +68,8 @@ namespace detail
 {
     template
     <
-        class SourceStateBuilder,
-        class TargetStateBuilder,
+        class SourceStateMold,
+        class TargetStateMold,
         class EventSet,
         action_signature ActionSignature,
         class ActionCallable,
@@ -78,8 +78,8 @@ namespace detail
     >
     struct transition
     {
-        SourceStateBuilder source_state_builder;
-        TargetStateBuilder target_state_builder;
+        SourceStateMold source_state_mold;
+        TargetStateMold target_state_mold;
         EventSet evt_set;
         action<ActionSignature, ActionCallable> act;
         guard<GuardSignature, GuardCallable> grd;
@@ -87,8 +87,8 @@ namespace detail
 
     template
     <
-        class SourceStateBuilder,
-        class TargetStateBuilder,
+        class SourceStateMold,
+        class TargetStateMold,
         class EventSet,
         action_signature ActionSignature,
         class ActionCallable,
@@ -97,15 +97,15 @@ namespace detail
     >
     transition
     (
-        SourceStateBuilder,
-        TargetStateBuilder,
+        SourceStateMold,
+        TargetStateMold,
         EventSet,
         action<ActionSignature, ActionCallable>,
         guard<GuardSignature, GuardCallable>
     ) -> transition
     <
-        SourceStateBuilder,
-        TargetStateBuilder,
+        SourceStateMold,
+        TargetStateMold,
         EventSet,
         ActionSignature,
         ActionCallable,
@@ -127,28 +127,28 @@ namespace detail
     }
 
     template<class T>
-    constexpr decltype(auto) store_state_builder(T&& obj)
+    constexpr decltype(auto) store_state_mold(T&& obj)
     {
         return std::forward<T>(obj);
     }
 
     //Store a pointer in this case
-    constexpr auto store_state_builder(ini_t /*ini*/)
+    constexpr auto store_state_mold(ini_t /*ini*/)
     {
-        return &detail::state_builders::null;
+        return &detail::state_molds::null;
     }
 
     //Store a pointer in this case
-    constexpr auto store_state_builder(fin_t /*fin*/)
+    constexpr auto store_state_mold(fin_t /*fin*/)
     {
-        return &detail::state_builders::fin;
+        return &detail::state_molds::fin;
     }
 
     //Store a pointer in this case
     template<class OptionSet>
-    constexpr auto store_state_builder(const state_builder<OptionSet>& builder)
+    constexpr auto store_state_mold(const state_mold<OptionSet>& mold)
     {
-        return &builder;
+        return &mold;
     }
 }
 
@@ -186,8 +186,8 @@ public:
     /**
     @brief Creates a new `transition_table` with an additional transition.
 
-    @param source_state_builder the builder of the active state (or states, plural, if it's a @ref state-set "state set") from which the transition can occur
-    @param target_state_builder the builder of the state that becomes active after the transition occurs
+    @param source_state_mold the mold of the active state (or states, plural, if it's a @ref state-set "state set") from which the transition can occur
+    @param target_state_mold the mold of the state that becomes active after the transition occurs
     @param evt_set the event type (or types, plural, if it's an @ref event-set "event type set") that can cause the transition to occur
     @param action the `maki::action` invoked when the transition occurs, or `maki::null`
     @param guard the `maki::guard` that must return `true` for the transition to occur, or `maki::null`
@@ -202,8 +202,8 @@ public:
     >
     constexpr auto operator()
     (
-        const Source& source_state_builder,
-        const Target& target_state_builder,
+        const Source& source_state_mold,
+        const Target& target_state_mold,
         const EventSet& evt_set = null,
         const ActionOrNull& action = null,
         const GuardOrNull& guard = null
@@ -222,8 +222,8 @@ public:
         {
             static_assert
             (
-                detail::is_state_builder_v<Source> || detail::is_state_set_v<Source>,
-                "Source (1st argument) must be an instance of `maki::state_builder` or an instance of `maki::state_set`"
+                detail::is_state_mold_v<Source> || detail::is_state_set_v<Source>,
+                "Source (1st argument) must be an instance of `maki::state_mold` or an instance of `maki::state_set`"
             );
         }
 
@@ -232,16 +232,16 @@ public:
         {
             static_assert
             (
-                detail::is_state_builder_v<Target>,
-                "Target (2nd argument) of transition from initial pseudostate must be an instance of `maki::state_builder`."
+                detail::is_state_mold_v<Target>,
+                "Target (2nd argument) of transition from initial pseudostate must be an instance of `maki::state_mold`."
             );
         }
         else
         {
             static_assert
             (
-                detail::is_state_builder_v<Target> || detail::is_null_v<Target> || detail::is_fin_v<Target>,
-                "Target (2nd argument) must be an instance of `maki::state_builder`, `maki::null` or `maki::fin`."
+                detail::is_state_mold_v<Target> || detail::is_null_v<Target> || detail::is_fin_v<Target>,
+                "Target (2nd argument) must be an instance of `maki::state_mold`, `maki::null` or `maki::fin`."
             );
         }
 
@@ -295,8 +295,8 @@ public:
                 impl_.transitions,
                 detail::transition
                 {
-                    detail::store_state_builder(source_state_builder),
-                    detail::store_state_builder(target_state_builder),
+                    detail::store_state_mold(source_state_mold),
+                    detail::store_state_mold(target_state_mold),
                     evt_set,
                     detail::to_action(action),
                     detail::to_guard(guard)

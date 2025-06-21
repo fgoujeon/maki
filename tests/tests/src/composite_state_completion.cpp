@@ -34,7 +34,7 @@ namespace composite_state_completion_ns
             (waiting,    maki::fin,   maki::event<events::other_button_press>)
         ;
 
-        constexpr auto running = maki::state_builder{}
+        constexpr auto running = maki::state_mold{}
             .transition_tables(running_transition_table_0, running_transition_table_1)
         ;
     }

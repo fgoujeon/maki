@@ -11,7 +11,7 @@ struct global_namespace_struct{};
 
 constexpr global_namespace_struct global_namespace_constant;
 
-constexpr auto default_state_from_global_namespace = maki::state_builder{};
+constexpr auto default_state_from_global_namespace = maki::state_mold{};
 
 namespace pretty_name_ns
 {
@@ -22,27 +22,27 @@ namespace pretty_name_ns
     template<class T, class U>
     struct templ
     {
-        static constexpr auto inner_state = maki::state_builder{};
+        static constexpr auto inner_state = maki::state_mold{};
 
         template<class T2>
-        static constexpr auto inner_state_templ = maki::state_builder{};
+        static constexpr auto inner_state_templ = maki::state_mold{};
     };
 
     template<class T>
     class templ_inner{};
 
-    constexpr auto state = maki::state_builder{}
+    constexpr auto state = maki::state_mold{}
         .pretty_name("my_state")
     ;
 
-    constexpr auto default_state = maki::state_builder{};
+    constexpr auto default_state = maki::state_mold{};
 
     constexpr auto composite_state_transition_table = maki::transition_table{}
         (maki::ini,   state)
         (state, maki::null, maki::null)
     ;
 
-    constexpr auto composite_state = maki::state_builder{}
+    constexpr auto composite_state = maki::state_mold{}
         .transition_tables(composite_state_transition_table)
         .pretty_name("my_composite_state")
     ;

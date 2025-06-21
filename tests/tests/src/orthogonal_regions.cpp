@@ -31,7 +31,7 @@ namespace orthogonal_regions_ns
         EMPTY_STATE(off0)
         EMPTY_STATE(off1)
         EMPTY_STATE(on0)
-        constexpr auto on1 = maki::state_builder{}
+        constexpr auto on1 = maki::state_mold{}
             .internal_action_c<events::exception_request>
             (
                 [](context& ctx)

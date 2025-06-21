@@ -53,7 +53,7 @@ namespace small_event_requirements_ns
     using small_event = event<int>;
     using big_event = event<long double>;
 
-    constexpr auto state = maki::state_builder{};
+    constexpr auto state = maki::state_mold{};
 
     template<class Event>
     inline constexpr auto process_event = maki::action_m([](auto& machine)

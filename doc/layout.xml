@@ -19,7 +19,7 @@
       <tab title="path" type="user" url="@ref maki::path"/>
       <tab title="region" type="user" url="@ref maki::region"/>
       <tab title="state" type="user" url="@ref maki::state"/>
-      <tab title="state_builder" type="user" url="@ref maki::state_builder"/>
+      <tab title="state_mold" type="user" url="@ref maki::state_mold"/>
       <tab title="state_set" type="user" url="@ref maki::state_set"/>
       <tab title="states" type="user" url="@ref maki::states"/>
       <tab title="transition_table" type="user" url="@ref maki::transition_table"/>

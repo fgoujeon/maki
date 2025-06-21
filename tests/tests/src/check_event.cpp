@@ -57,7 +57,7 @@ namespace check_event_ns
             ;
         }
 
-        constexpr auto on = maki::state_builder{}
+        constexpr auto on = maki::state_mold{}
             .transition_tables(on_ns::transition_table)
         ;
 

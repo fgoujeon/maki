@@ -18,18 +18,18 @@ namespace maki::detail
 {
 
 /**
-@brief Gets the pretty name of `maki::state_builder`.
+@brief Gets the pretty name of `maki::state_mold`.
 */
-template<const auto& Builder>
+template<const auto& Mold>
 decltype(auto) pretty_name()
 {
-    if constexpr(impl_of(Builder).pretty_name.data() == nullptr)
+    if constexpr(impl_of(Mold).pretty_name.data() == nullptr)
     {
-        return detail::decayed_constant_name<Builder>();
+        return detail::decayed_constant_name<Mold>();
     }
     else
     {
-        return impl_of(Builder).pretty_name;
+        return impl_of(Mold).pretty_name;
     }
 }
 

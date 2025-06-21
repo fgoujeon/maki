@@ -13,8 +13,8 @@ struct some_event
     int size = 0;
 };
 
-constexpr auto some_state = maki::state_builder{};
-constexpr auto some_other_state = maki::state_builder{};
+constexpr auto some_state = maki::state_mold{};
+constexpr auto some_other_state = maki::state_mold{};
 
 constexpr auto some_action = maki::action_v([]{});
 

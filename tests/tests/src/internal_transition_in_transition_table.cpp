@@ -23,7 +23,7 @@ namespace internal_transition_in_transition_table_ns
 
     namespace states
     {
-        constexpr auto idle = maki::state_builder{}
+        constexpr auto idle = maki::state_mold{}
             .entry_action_c
             (
                 [](context& ctx)
@@ -40,7 +40,7 @@ namespace internal_transition_in_transition_table_ns
             )
         ;
 
-        constexpr auto running = maki::state_builder{}
+        constexpr auto running = maki::state_mold{}
             .entry_action_c
             (
                 [](context& ctx)

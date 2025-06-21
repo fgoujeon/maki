@@ -39,7 +39,7 @@ namespace by_source_state_and_null_event_detail
         const auto& trans = tuple_get<TransitionIndexConstant::value>(transitions);
         return
             equals(trans.evt_set, null) &&
-            contained_in(*source_state_id, trans.source_state_builder)
+            contained_in(*source_state_id, trans.source_state_mold)
         ;
     }
 

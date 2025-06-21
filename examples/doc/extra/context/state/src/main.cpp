@@ -34,7 +34,7 @@ private:
     int value_ = 0;
 };
 
-constexpr auto my_state = maki::state_builder{}
+constexpr auto my_state = maki::state_mold{}
     .context_c<my_state_context>()
     .entry_action_c(&my_state_context::on_entry)
 ;

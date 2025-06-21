@@ -27,7 +27,7 @@ namespace on_entry_event_exit_ns
     {
         EMPTY_STATE(idle)
 
-        constexpr auto english = maki::state_builder{}
+        constexpr auto english = maki::state_mold{}
             .entry_action_c
             (
                 [](context& ctx)
@@ -51,7 +51,7 @@ namespace on_entry_event_exit_ns
             )
         ;
 
-        constexpr auto french = maki::state_builder{}
+        constexpr auto french = maki::state_mold{}
             .entry_action_m
             (
                 [](auto& mach)

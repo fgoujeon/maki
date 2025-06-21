@@ -30,7 +30,7 @@ namespace initial_composite_state_ns
 
     namespace states
     {
-        constexpr auto off = maki::state_builder{}
+        constexpr auto off = maki::state_mold{}
             .entry_action_c
             (
                 [](context& ctx)
@@ -40,7 +40,7 @@ namespace initial_composite_state_ns
             )
         ;
 
-        constexpr auto emitting_red = maki::state_builder{}
+        constexpr auto emitting_red = maki::state_mold{}
             .entry_action_c
             (
                 [](context& ctx)
@@ -50,7 +50,7 @@ namespace initial_composite_state_ns
             )
         ;
 
-        constexpr auto emitting_green = maki::state_builder{}
+        constexpr auto emitting_green = maki::state_mold{}
             .entry_action_c
             (
                 [](context& ctx)
@@ -60,7 +60,7 @@ namespace initial_composite_state_ns
             )
         ;
 
-        constexpr auto emitting_blue = maki::state_builder{}
+        constexpr auto emitting_blue = maki::state_mold{}
             .entry_action_c
             (
                 [](context& ctx)
@@ -77,7 +77,7 @@ namespace initial_composite_state_ns
             (states::emitting_blue,  states::emitting_red,   maki::event<events::color_button_press>)
         ;
 
-        constexpr auto on = maki::state_builder{}
+        constexpr auto on = maki::state_mold{}
             .transition_tables(on_transition_table)
         ;
     }

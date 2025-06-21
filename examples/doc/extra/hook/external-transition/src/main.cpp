@@ -17,8 +17,8 @@ struct context
 {
 };
 
-constexpr auto initializing = maki::state_builder{};
-constexpr auto running = maki::state_builder{};
+constexpr auto initializing = maki::state_mold{};
+constexpr auto running = maki::state_mold{};
 
 constexpr auto transition_table = maki::transition_table{}
     (maki::ini,    initializing)

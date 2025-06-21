@@ -19,11 +19,11 @@ class simple
 {
 public:
     static constexpr auto identifier = Id;
-    static constexpr const auto& builder = *Id;
-    using option_set_type = std::decay_t<decltype(impl_of(builder))>;
+    static constexpr const auto& mold = *Id;
+    using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using context_type = typename option_set_type::context_type;
 
-    static constexpr auto context_sig = impl_of(builder).context_sig;
+    static constexpr auto context_sig = impl_of(mold).context_sig;
 
     template<class... Args>
     simple(Args&... args):

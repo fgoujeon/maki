@@ -11,15 +11,15 @@ struct some_event{};
 
 struct context{};
 
-//! [state-builder-default]
-constexpr auto my_state = maki::state_builder{};
-//! [state-builder-default]
+//! [state-mold-default]
+constexpr auto my_state = maki::state_mold{};
+//! [state-mold-default]
 
-//! [state-builder-with-options]
-constexpr auto my_state_with_options = maki::state_builder{}
+//! [state-mold-with-options]
+constexpr auto my_state_with_options = maki::state_mold{}
     .entry_action_v([]{std::cout << "Hello\n";})
     .exit_action_v([]{std::cout << "Goodbye\n";});
-//! [state-builder-with-options]
+//! [state-mold-with-options]
 
 constexpr auto transition_table = maki::transition_table{}
     //source,               target,                event

@@ -28,11 +28,11 @@ You use orthogonal regions to split the behavior of a system or subsystem into a
 
 ## How to Define Orthogonal Regions with Maki
 
-A state machine (or a composite state) is made of one or more regions. To add a region to a state machine (or to a composite state), you just have to add a transition table to the list given to `maki::machine_conf::transition_tables()` (or to `maki::state_builder::transition_tables()`).
+A state machine (or a composite state) is made of one or more regions. To add a region to a state machine (or to a composite state), you just have to add a transition table to the list given to `maki::machine_conf::transition_tables()` (or to `maki::state_mold::transition_tables()`).
 
 @snippet concepts/region/src/main.cpp regions
 
 Whenever the state machine (or the composite state) processes an event, it iterates over its regions in the order in which their transition tables are listed.
 
 > [!important]
-> When the same state builder is referenced in several transition tables (i.e. in several regions, orthogonal or not), it builds several, independent `maki::state` objects.
+> When the same state mold is referenced in several transition tables (i.e. in several regions, orthogonal or not), it's used to make several, independent `maki::state` objects.

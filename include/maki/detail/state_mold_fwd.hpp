@@ -6,11 +6,11 @@
 
 /**
 @file
-@brief Defines the maki::state_builder struct template
+@brief Forward-declares the maki::state_mold struct template
 */
 
-#ifndef MAKI_STATE_BUILDER_FWD_HPP
-#define MAKI_STATE_BUILDER_FWD_HPP
+#ifndef MAKI_STATE_MOLD_FWD_HPP
+#define MAKI_STATE_MOLD_FWD_HPP
 
 #include "../context.hpp"
 #include "tuple.hpp"
@@ -29,7 +29,7 @@ namespace detail
         class ExitActionTuple = tuple<>,
         class TransitionTableTuple = tuple<>
     >
-    struct state_builder_option_set
+    struct state_mold_option_set
     {
         using context_type = Context;
 
@@ -45,26 +45,26 @@ namespace detail
 #ifdef MAKI_DETAIL_DOXYGEN
 template<IMPLEMENTATION_DETAIL>
 #else
-template<class OptionSet = detail::state_builder_option_set<>>
+template<class OptionSet = detail::state_mold_option_set<>>
 #endif
-class state_builder;
+class state_mold;
 
 namespace detail
 {
     template<class T>
-    struct is_state_builder
+    struct is_state_mold
     {
         static constexpr auto value = false;
     };
 
     template<class OptionSet>
-    struct is_state_builder<state_builder<OptionSet>>
+    struct is_state_mold<state_mold<OptionSet>>
     {
         static constexpr auto value = true;
     };
 
     template<class T>
-    constexpr bool is_state_builder_v = is_state_builder<T>::value;
+    constexpr bool is_state_mold_v = is_state_mold<T>::value;
 }
 
 } //namespace

@@ -67,17 +67,17 @@ namespace transition_table_digest_detail
                 !tlu::contains_v
                 <
                     typename Digest::state_id_constant_list,
-                    constant_t<tuple_get<Index>(TransitionTuple).target_state_builder>
+                    constant_t<tuple_get<Index>(TransitionTuple).target_state_mold>
                 > &&
-                !equals(tuple_get<Index>(TransitionTuple).target_state_builder, state_builders::fin) &&
-                !equals(tuple_get<Index>(TransitionTuple).target_state_builder, null) &&
-                !equals(tuple_get<Index>(TransitionTuple).target_state_builder, undefined)
+                !equals(tuple_get<Index>(TransitionTuple).target_state_mold, state_molds::fin) &&
+                !equals(tuple_get<Index>(TransitionTuple).target_state_mold, null) &&
+                !equals(tuple_get<Index>(TransitionTuple).target_state_mold, undefined)
             ;
 
             using state_id_constant_list = tlu::push_back_if_t
             <
                 typename Digest::state_id_constant_list,
-                constant_t<tuple_get<Index>(TransitionTuple).target_state_builder>,
+                constant_t<tuple_get<Index>(TransitionTuple).target_state_mold>,
                 must_add_target_state
             >;
 

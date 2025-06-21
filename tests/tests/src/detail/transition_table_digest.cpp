@@ -28,7 +28,7 @@ namespace transition_table_digest_ns
     constexpr auto guard1 = maki::guard_v([]{return true;});
 
     constexpr auto transition_table = maki::transition_table{}
-        (maki::init,       state0)
+        (maki::ini,        state0)
         (state0,           state1, maki::event<event0>)
         (state1,           state2, maki::event<event1>, maki::null, guard0)
         (state2,           state3, maki::event<event2>, action0)

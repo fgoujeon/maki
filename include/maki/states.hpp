@@ -19,7 +19,7 @@ namespace detail::state_builders
     inline constexpr auto null = state_builder{}
         .pretty_name("");
 
-    inline constexpr auto final = state_builder{};
+    inline constexpr auto fin = state_builder{};
 }
 
 /**
@@ -54,11 +54,11 @@ namespace states
     /**
     @brief Dummy final state object given to transition hooks. It represents the final state.
 
-    Not to be confused with `maki::final`.
+    Not to be confused with `maki::fin`.
     */
-    constexpr auto final = state<IMPLEMENTATION_DETAIL>{};
+    constexpr auto fin = state<IMPLEMENTATION_DETAIL>{};
 #else
-    inline constexpr auto final = state<detail::state_impls::simple_no_context<&detail::state_builders::final>>{};
+    inline constexpr auto fin = state<detail::state_impls::simple_no_context<&detail::state_builders::fin>>{};
 #endif
 
 #if MAKI_DETAIL_DOXYGEN

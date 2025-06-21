@@ -51,7 +51,7 @@ namespace region_detail
     };
 
     template<class StateIdConstantList>
-    struct state_id_to_index<StateIdConstantList, &state_builders::final>
+    struct state_id_to_index<StateIdConstantList, &state_builders::fin>
     {
         static constexpr auto value = final_state_index;
     };
@@ -92,7 +92,7 @@ public:
 
     [[nodiscard]] bool completed() const
     {
-        return is_active_state_id<&state_builders::final>();
+        return is_active_state_id<&state_builders::fin>();
     }
 
     // Enter the initial state
@@ -652,7 +652,7 @@ private:
         auto matches = false;
         with_active_state_id
         <
-            tlu::push_back_t<state_id_constant_list, constant_t<&state_builders::final>>,
+            tlu::push_back_t<state_id_constant_list, constant_t<&state_builders::fin>>,
             is_active_state_id_in_set_2<StateSetPtr>
         >(matches);
         return matches;
@@ -739,9 +739,9 @@ private:
         {
             return states::undefined;
         }
-        else if constexpr(ptr_equals(StateId, &state_builders::final))
+        else if constexpr(ptr_equals(StateId, &state_builders::fin))
         {
-            return states::final;
+            return states::fin;
         }
         else
         {

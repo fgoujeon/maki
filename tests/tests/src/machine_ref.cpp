@@ -27,7 +27,7 @@ namespace machine_ref_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (maki::init,  states::off)
+        (maki::ini,   states::off)
         (states::off, states::on,  maki::event<events::on_button_press>)
         (states::on,  states::off, maki::event<events::off_button_press>)
     ;

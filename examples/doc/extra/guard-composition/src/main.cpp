@@ -45,7 +45,7 @@ constexpr auto is_average_2 = !is_small && !is_large;
 
 //! [better-guard-composition-in-tt]
 constexpr auto transition_table = maki::transition_table{}
-    (maki::init, some_state)
+    (maki::ini,  some_state)
     (some_state, some_other_state, maki::event<some_event>, some_action, !is_small && !is_large)
 ;
 //! [better-guard-composition-in-tt]

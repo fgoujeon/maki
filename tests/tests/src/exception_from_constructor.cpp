@@ -30,7 +30,7 @@ namespace exception_from_constructor_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (maki::init, states::running)
+        (maki::ini,  states::running)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

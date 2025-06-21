@@ -17,8 +17,8 @@
 #include "event_set.hpp"
 #include "state_set.hpp"
 #include "states.hpp"
-#include "init.hpp"
-#include "final.hpp"
+#include "ini.hpp"
+#include "fin.hpp"
 #include "null.hpp"
 #include "detail/impl.hpp"
 #include "detail/state_builder_fwd.hpp"
@@ -51,7 +51,7 @@ To define a transition table, you have to instantiate an empty
 ```cpp
 constexpr auto transition_table = maki::transition_table{}
     //source,    target, event,                     action,        guard
-    (maki::init, off)
+    (maki::ini,  off)
     (off,        on,     maki::event<button_press>, turn_light_on, has_enough_power)
     (on,         off,    maki::event<button_press>, turn_light_off)
 ;
@@ -133,15 +133,15 @@ namespace detail
     }
 
     //Store a pointer in this case
-    constexpr auto store_state_builder(init_t /*init*/)
+    constexpr auto store_state_builder(ini_t /*ini*/)
     {
         return &detail::state_builders::null;
     }
 
     //Store a pointer in this case
-    constexpr auto store_state_builder(final_t /*init*/)
+    constexpr auto store_state_builder(fin_t /*fin*/)
     {
-        return &detail::state_builders::final;
+        return &detail::state_builders::fin;
     }
 
     //Store a pointer in this case
@@ -214,8 +214,8 @@ public:
         {
             static_assert
             (
-                detail::is_init_v<Source>,
-                "Source (1st argument) of first transition must be `maki::init`. (Note: Composite state regions without initial pseudostate are not implemented yet.)"
+                detail::is_ini_v<Source>,
+                "Source (1st argument) of first transition must be `maki::ini`. (Note: Composite state regions without initial pseudostate are not implemented yet.)"
             );
         }
         else
@@ -228,7 +228,7 @@ public:
         }
 
         //Check target
-        if constexpr(detail::is_init_v<Source>)
+        if constexpr(detail::is_ini_v<Source>)
         {
             static_assert
             (
@@ -240,13 +240,13 @@ public:
         {
             static_assert
             (
-                detail::is_state_builder_v<Target> || detail::is_null_v<Target> || detail::is_final_v<Target>,
-                "Target (2nd argument) must be an instance of `maki::state_builder`, `maki::null` or `maki::final`."
+                detail::is_state_builder_v<Target> || detail::is_null_v<Target> || detail::is_fin_v<Target>,
+                "Target (2nd argument) must be an instance of `maki::state_builder`, `maki::null` or `maki::fin`."
             );
         }
 
         //Check event
-        if constexpr(detail::is_init_v<Source>)
+        if constexpr(detail::is_ini_v<Source>)
         {
             static_assert
             (
@@ -271,7 +271,7 @@ public:
         );
 
         //Check guard
-        if constexpr(detail::is_init_v<Source>)
+        if constexpr(detail::is_ini_v<Source>)
         {
             static_assert
             (

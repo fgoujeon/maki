@@ -189,11 +189,11 @@ When a match is found, Maki:
 - enters `target`.
 
 The initial state of the state machine is the target of the transition from
-`maki::init` (`off`, is our case).
+`maki::ini` (`off`, is our case).
 */
 constexpr auto transition_table = maki::transition_table{}
     //source,        target,         event,       action,           guard
-    (maki::init,     off)
+    (maki::ini,      off)
     (off,            emitting_white, button_push, turn_light_white)
     (emitting_white, emitting_red,   button_push, turn_light_red,   is_short_push)
     (emitting_red,   emitting_green, button_push, turn_light_green, is_short_push)

@@ -26,7 +26,7 @@ types of a given transition_table.
 
 For example, the following digest type...:
     using transition_table = maki::transition_table{}
-        (maki::init, state0)
+        (maki::ini,  state0)
         (state0,     state1, event0)
         (state1,     state2, event1, null,    guard0)
         (state2,     state3, event2, action0)
@@ -59,7 +59,7 @@ namespace transition_table_digest_detail
             /*
             We must add target state to list of states unless:
             - it's already in the list;
-            - it's `final`;
+            - it's `fin`;
             - it's `null`;
             - it's `undefined`.
             */
@@ -69,7 +69,7 @@ namespace transition_table_digest_detail
                     typename Digest::state_id_constant_list,
                     constant_t<tuple_get<Index>(TransitionTuple).target_state_builder>
                 > &&
-                !equals(tuple_get<Index>(TransitionTuple).target_state_builder, state_builders::final) &&
+                !equals(tuple_get<Index>(TransitionTuple).target_state_builder, state_builders::fin) &&
                 !equals(tuple_get<Index>(TransitionTuple).target_state_builder, null) &&
                 !equals(tuple_get<Index>(TransitionTuple).target_state_builder, undefined)
             ;

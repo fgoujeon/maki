@@ -19,8 +19,8 @@ constexpr auto off = maki::state_builder{};
 constexpr auto on = maki::state_builder{};
 
 constexpr auto transition_table = maki::transition_table{}
-    (maki::init, off)
-    (off,        on)
+    (maki::ini, off)
+    (off,       on)
 ;
 
 //! [catch]

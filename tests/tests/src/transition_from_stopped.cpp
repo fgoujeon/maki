@@ -20,7 +20,7 @@ namespace transition_from_stopped_any_state_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (maki::init,       states::idle)
+        (maki::ini,        states::idle)
         (states::idle,     maki::null,      maki::null)
         (maki::all_states, states::running, maki::event<some_event>)
     ;

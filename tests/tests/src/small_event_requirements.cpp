@@ -62,7 +62,7 @@ namespace small_event_requirements_ns
     });
 
     constexpr auto transition_table = maki::transition_table{}
-        (maki::init, state)
+        (maki::ini,  state)
         (state, maki::null, maki::event<event_processing_request<small_event>>, process_event<small_event>)
         (state, maki::null, maki::event<event_processing_request<big_event>>, process_event<big_event>)
     ;

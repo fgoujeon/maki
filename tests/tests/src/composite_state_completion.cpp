@@ -25,13 +25,13 @@ namespace composite_state_completion_ns
         EMPTY_STATE(waiting)
 
         constexpr auto running_transition_table_0 = maki::transition_table{}
-            (maki::init, waiting)
-            (waiting,    maki::final, maki::event<events::button_press>)
+            (maki::ini,  waiting)
+            (waiting,    maki::fin,   maki::event<events::button_press>)
         ;
 
         constexpr auto running_transition_table_1 = maki::transition_table{}
-            (maki::init, waiting)
-            (waiting,    maki::final, maki::event<events::other_button_press>)
+            (maki::ini,  waiting)
+            (waiting,    maki::fin,   maki::event<events::other_button_press>)
         ;
 
         constexpr auto running = maki::state_builder{}
@@ -48,8 +48,8 @@ namespace composite_state_completion_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (maki::init,      states::running)
-        (states::running, maki::final, maki::null, actions::beep)
+        (maki::ini,       states::running)
+        (states::running, maki::fin,   maki::null, actions::beep)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

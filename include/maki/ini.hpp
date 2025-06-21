@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_FINAL_HPP
-#define MAKI_FINAL_HPP
+#ifndef MAKI_INI_HPP
+#define MAKI_INI_HPP
 
 #include <type_traits>
 
@@ -14,24 +14,23 @@ namespace maki
 
 #ifdef MAKI_DETAIL_DOXYGEN
 /**
-@brief The type of `maki::final`
+@brief The type of `maki::ini`
 */
-using final_t = IMPLEMENTATION_DETAIL;
+using ini_t = IMPLEMENTATION_DETAIL;
 #else
-struct final_t{};
+struct ini_t{};
 #endif
 
 /**
-@relates final_t
-@brief Represents the final state in transition tables, to be passed as a target
-state to `maki::transition_table::operator()()`.
+@relates ini_t
+@brief The initial pseudostate, to be passed as a source state to `maki::transition_table::operator()()`.
 */
-inline constexpr auto final = final_t{};
+inline constexpr auto ini = ini_t{};
 
 namespace detail
 {
     template<class T>
-    constexpr bool is_final_v = std::is_same_v<T, final_t>;
+    constexpr bool is_ini_v = std::is_same_v<T, ini_t>;
 }
 
 } //namespace

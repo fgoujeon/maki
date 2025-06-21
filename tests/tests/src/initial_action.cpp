@@ -33,7 +33,7 @@ namespace initial_action
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (maki::init, states::off, maki::null, actions::beep)
+        (maki::ini,  states::off, maki::null, actions::beep)
     ;
 
     constexpr auto machine_conf = maki::machine_conf{}

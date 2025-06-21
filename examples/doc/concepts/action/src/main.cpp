@@ -86,13 +86,13 @@ constexpr auto some_other_action = maki::action_e([](const some_other_event& eve
 
 //Transition table
 constexpr auto transition_table = maki::transition_table{}
-    //source,    target,     event,                         action
-    (maki::init, state0)
-    (state0,     state1,     maki::event<some_event>,       some_action /*state transition action*/)
-    (state0,     maki::null, maki::event<some_other_event>, some_other_action /*internal transition action*/)
-    (state0,     state2,     maki::event<yet_another_event>)
-    (state1,     state2,     maki::event<yet_another_event>)
-    (state2,     state0,     maki::event<yet_another_event>)
+    //source,   target,     event,                         action
+    (maki::ini, state0)
+    (state0,    state1,     maki::event<some_event>,       some_action /*state transition action*/)
+    (state0,    maki::null, maki::event<some_other_event>, some_other_action /*internal transition action*/)
+    (state0,    state2,     maki::event<yet_another_event>)
+    (state1,    state2,     maki::event<yet_another_event>)
+    (state2,    state0,     maki::event<yet_another_event>)
 ;
 //! [short-in-transition]
 

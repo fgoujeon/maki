@@ -21,7 +21,7 @@ constexpr auto initializing = maki::state_builder{};
 constexpr auto running = maki::state_builder{};
 
 constexpr auto transition_table = maki::transition_table{}
-    (maki::init,   initializing)
+    (maki::ini,    initializing)
     (initializing, running)
 ;
 

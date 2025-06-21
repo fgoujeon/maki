@@ -45,7 +45,7 @@ namespace internal_transition_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (maki::init,     states::state0)
+        (maki::ini,      states::state0)
         (states::state0, states::state1,       maki::event<events::next_state>)
         (states::state1, states::state2,       maki::event<events::next_state>)
         (states::state2, states::state3,       maki::event<events::next_state>)

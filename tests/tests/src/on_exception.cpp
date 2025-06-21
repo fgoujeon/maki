@@ -89,7 +89,7 @@ namespace on_exception_ns
     */
 
     constexpr auto transition_table_default = maki::transition_table{}
-        (maki::init,  states::off)
+        (maki::ini,   states::off)
         (states::off, states::on,  maki::event<events::button_press>)
         (states::on,  states::off, maki::event<events::button_press>)
     ;
@@ -107,7 +107,7 @@ namespace on_exception_ns
     */
 
     constexpr auto transition_table_with_trans = maki::transition_table{}
-        (maki::init,      states::off)
+        (maki::ini,       states::off)
         (states::off,     states::on,  maki::event<events::button_press>)
         (states::on,      states::off, maki::event<events::button_press>)
         (maki::undefined, maki::null,  maki::event<events::exception>, log_exception_default)
@@ -133,7 +133,7 @@ namespace on_exception_ns
     */
 
     constexpr auto transition_table_with_all = maki::transition_table{}
-        (maki::init,       states::off)
+        (maki::ini,        states::off)
         (states::off,      states::on,  maki::event<events::button_press>)
         (states::on,       states::off, maki::event<events::button_press>)
         (maki::all_states, maki::null,  maki::event<events::exception>, log_exception_default)

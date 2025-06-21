@@ -23,7 +23,7 @@ constexpr auto my_state_with_options = maki::state_builder{}
 
 constexpr auto transition_table = maki::transition_table{}
     //source,               target,                event
-    (maki::init,            my_state)
+    (maki::ini,             my_state)
     (my_state,              my_state_with_options, maki::event<some_event>)
     (my_state_with_options, my_state,              maki::event<some_event>)
 ;

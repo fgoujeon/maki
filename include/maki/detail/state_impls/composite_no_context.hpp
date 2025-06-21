@@ -171,7 +171,7 @@ public:
     template<class Machine, class Context, class Event>
     void exit_to_finals(Machine& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each<region_tuple_type, region_exit<&state_builders::final>>
+        tlu::for_each<region_tuple_type, region_exit<&state_builders::fin>>
         (
             *this,
             mach,

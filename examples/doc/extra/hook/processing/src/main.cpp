@@ -40,7 +40,7 @@ void log_warning(const Args&... args)
 constexpr auto some_state = maki::state_builder{};
 
 constexpr auto transition_table = maki::transition_table{}
-    (maki::init, some_state)
+    (maki::ini, some_state)
 ;
 
 constexpr auto machine_conf = maki::machine_conf{}

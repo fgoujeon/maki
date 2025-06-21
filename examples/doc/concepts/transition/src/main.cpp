@@ -18,10 +18,10 @@ constexpr auto A = maki::action_v([]{});
 constexpr auto X0 = maki::state_builder{};
 
 [[maybe_unused]] constexpr auto st_transition_table = maki::transition_table{}
-    (maki::init, X0)
+    (maki::ini, X0)
 
 //! [transition-to-final]
-(X0, maki::final, maki::event<some_event>)
+(X0, maki::fin, maki::event<some_event>)
 //! [transition-to-final]
 ;
 
@@ -38,7 +38,7 @@ constexpr auto S = maki::state_builder{};
 constexpr auto T = maki::state_builder{};
 
 constexpr auto transition_table = maki::transition_table{}
-    (maki::init, S)
+    (maki::ini, S)
 
 //! [external-transition]
 (S, T, maki::event<E>)

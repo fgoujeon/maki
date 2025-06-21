@@ -53,7 +53,7 @@ namespace on_event_signatures_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (maki::init,     states::state0)
+        (maki::ini,      states::state0)
         (states::state0, maki::null, maki::event<events::unused>)
     ;
 

@@ -37,7 +37,7 @@ namespace internal_transition_in_transition_table_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (maki::init,      states::idle)
+        (maki::ini,       states::idle)
         (states::idle,    states::running, maki::event<events::should_trigger_transition_in_state>)
         (states::idle,    states::running, maki::event<events::should_trigger_transition_in_tt>)
         (states::running, states::idle,    maki::event<events::should_trigger_transition_in_tt>)

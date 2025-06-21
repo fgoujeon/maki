@@ -19,12 +19,12 @@ constexpr auto starting_right_reactor = maki::state_builder{};
 
 //! [regions]
 constexpr auto initializing_left_region_tt = maki::transition_table{}
-    (maki::init,          deploying_left_wing)
+    (maki::ini,           deploying_left_wing)
     (deploying_left_wing, starting_left_reactor, maki::event<left_wing_deployment>)
 ;
 
 constexpr auto initializing_right_region_tt = maki::transition_table{}
-    (maki::init,           deploying_right_wing)
+    (maki::ini,            deploying_right_wing)
     (deploying_right_wing, starting_right_reactor, maki::event<right_wing_deployment>)
 ;
 
@@ -34,7 +34,7 @@ constexpr auto initializing = maki::state_builder{}
 //! [regions]
 
 constexpr auto transition_table = maki::transition_table{}
-    (maki::init, initializing)
+    (maki::ini, initializing)
 ;
 
 constexpr auto machine_conf = maki::machine_conf{}

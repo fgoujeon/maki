@@ -19,7 +19,7 @@ The initial pseudostate must obey these rules:
 
 ## How to Use the Initial Pseudostate in Maki
 
-In transition tables, the initial pseudostate is represented by the `maki::init` object. It must be the source state of the first transition of the table and cannot be used elsewhere.
+In transition tables, the initial pseudostate is represented by the `maki::ini` object. It must be the source state of the first transition of the table and cannot be used elsewhere.
 
 > [!note]
-> In theory, a composite state doesn't have to define initial pseudostates for its regions. A composite state can indeed be entered in other ways than the default one. But since Maki doesn't support these alternate ways yet, defining a transition from `maki::init` is mandatory.
+> In theory, a composite state doesn't have to define initial pseudostates for its regions. A composite state can indeed be entered in other ways than the default one. But since Maki doesn't support these alternate ways yet, defining a transition from `maki::ini` is mandatory.

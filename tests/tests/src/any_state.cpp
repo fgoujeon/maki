@@ -26,7 +26,7 @@ namespace any_state_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (maki::init,       states::idle)
+        (maki::ini,        states::idle)
         (states::idle,     states::running, maki::event<events::start_button_press>)
         (states::running,  states::idle,    maki::event<events::stop_button_press>)
         (states::failed,   states::idle,    maki::event<events::stop_button_press>)

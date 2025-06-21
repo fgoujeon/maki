@@ -34,7 +34,7 @@ namespace completion_transition_ns
     });
 
     constexpr auto transition_table = maki::transition_table{}
-        (maki::init, states::s0)
+        (maki::ini,  states::s0)
         (states::s0, states::s1, maki::event<events::go_on>)
         (states::s1, states::s2, maki::null, do_something)
         (states::s2, states::s3, maki::event<events::go_on>)

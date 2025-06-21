@@ -79,7 +79,7 @@ constexpr auto is_speed_high = maki::guard_e([](const memory_read& event)
 //! [transition-table]
 constexpr auto transition_table = maki::transition_table{}
     //source,        target,        event,                           action,     guard
-    (maki::init,     reading_memory)
+    (maki::ini,      reading_memory)
     (reading_memory, spinning_low,  maki::event<memory_read>,        maki::null, is_speed_low)
     (reading_memory, spinning_med,  maki::event<memory_read>,        maki::null, is_speed_med)
     (reading_memory, spinning_high, maki::event<memory_read>,        maki::null, is_speed_high)

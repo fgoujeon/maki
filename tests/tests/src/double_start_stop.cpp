@@ -30,7 +30,7 @@ namespace double_start_stop_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (maki::init,  states::off)
+        (maki::ini,   states::off)
         (states::off, states::on,  maki::event<events::button_press>)
         (states::on,  states::off, maki::event<events::button_press>)
     ;
@@ -97,8 +97,8 @@ TEST_CASE("double_start_stop")
     REQUIRE
     (
         out ==
-        "Transition in main_sm/0: off -> final...;"
-        "Transition in main_sm/0: off -> final;"
+        "Transition in main_sm/0: off -> fin...;"
+        "Transition in main_sm/0: off -> fin;"
     );
 
     out.clear();

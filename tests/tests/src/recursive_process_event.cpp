@@ -95,7 +95,7 @@ namespace recursive_process_event_ns
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (maki::init, states::s0)
+        (maki::ini,  states::s0)
         (states::s0, states::s1, maki::event<events::s0_to_s1_request>, actions::s0_to_s1)
         (states::s1, states::s2, maki::event<events::s1_to_s2_request>, actions::s1_to_s2)
         (states::s2, states::s0, maki::event<events::s2_to_s0_request>)

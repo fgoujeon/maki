@@ -32,15 +32,15 @@ constexpr auto flying = maki::state_builder{};
 constexpr auto failing = maki::state_builder{};
 
 constexpr auto initializing_left_region_tt = maki::transition_table{}
-    (maki::init,            deploying_left_wing)
+    (maki::ini,             deploying_left_wing)
     (deploying_left_wing,   starting_left_reactor, maki::event<left_wing_sensor_signal>)
-    (starting_left_reactor, maki::final,           maki::event<left_reactor_rotation>)
+    (starting_left_reactor, maki::fin,             maki::event<left_reactor_rotation>)
 ;
 
 constexpr auto initializing_right_region_tt = maki::transition_table{}
-    (maki::init,             deploying_right_wing)
+    (maki::ini,              deploying_right_wing)
     (deploying_right_wing,   starting_right_reactor, maki::event<right_wing_sensor_signal>)
-    (starting_right_reactor, maki::final,            maki::event<right_reactor_rotation>)
+    (starting_right_reactor, maki::fin,              maki::event<right_reactor_rotation>)
 ;
 
 constexpr auto initializing = maki::state_builder{}.
@@ -52,7 +52,7 @@ constexpr auto initializing = maki::state_builder{}.
 ;
 
 constexpr auto transition_table = maki::transition_table{}
-    (maki::init,   initializing)
+    (maki::ini,    initializing)
     (initializing, flying)
     (initializing, failing, maki::event<error>)
 ;

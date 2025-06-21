@@ -43,6 +43,6 @@ Pass `maki::null` in lieu of an event type:
 
 @snippet concepts/transition/src/main.cpp completion-transition
 
-The final state is represented by `maki::final` in transition tables:
+The final state is represented by `maki::fin` in transition tables:
 
 @snippet concepts/transition/src/main.cpp transition-to-final

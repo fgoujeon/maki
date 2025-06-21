@@ -18,7 +18,7 @@ struct context{};
 //Events are types (more about that later)
 struct button_press{};
 
-//States are constexpr objects (more about that later)
+//States are made from constexpr objects (more about that later)
 constexpr auto off = maki::state_mold{};
 constexpr auto on = maki::state_mold{};
 
@@ -36,7 +36,7 @@ constexpr auto turn_light_off = maki::action_v([]
 //! [transition-table]
 constexpr auto transition_table = maki::transition_table{}
     //source,   target, event,                     action
-    (maki::ini, off)
+    (maki::ini, off) //Initial state is `off`.
     (off,       on,     maki::event<button_press>, turn_light_on)
     (on,        off,    maki::event<button_press>, turn_light_off)
 ;

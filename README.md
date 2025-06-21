@@ -136,7 +136,7 @@ struct context
 };
 
 /*
-States are represented by constexpr objects.
+States are created from the `constexpr` objects of this namespace.
 */
 namespace states
 {
@@ -248,9 +248,9 @@ over the transitions of this table until it finds a match, i.e. when:
 
 When a match is found, Maki:
 - exits `source`;
-- marks `target` as the new active state;
 - invokes `action`;
-- enters `target`.
+- enters `target`;
+- marks `target` as the new active state.
 
 The initial state of the state machine is the target of the transition from
 `maki::ini` (`off`, is our case).

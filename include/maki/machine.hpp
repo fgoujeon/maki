@@ -196,21 +196,22 @@ public:
     following pseudocode:
     @code
     //Run-to-completion: Don't let potential recursive calls interrupt the
-    //current processing
+    //current processing.
     if(processing_event)
     {
         push_event(event);
+        return;
     }
 
-    //Process the event
+    //Process the event.
     FOR_EACH_REGION()
     {
-        //Process event in active state
+        //Process event in active state.
         const bool processed = CALL_ACTIVE_STATE_INTERNAL_ACTION();
 
         if(!processed)
         {
-            //Process event in transition table
+            //Process event in transition table.
             FOR_EACH_TRANSITION_IN_REGION_TRANSITION_TABLE()
             {
                 if
@@ -220,7 +221,7 @@ public:
                     GUARD() == true
                 )
                 {
-                    SET_ACTIVE_STATE(undefined);
+                    SET_ACTIVE_STATE(maki::undefined);
                     CALL_EXIT_ACTION(source_state);
                     CALL_TRANSITION_ACTION();
                     CALL_ENTRY_ACTION(target_state);

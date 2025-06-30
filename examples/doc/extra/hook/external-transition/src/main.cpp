@@ -30,16 +30,16 @@ template
 <
     class RegionImpl,
     class SourceStateImpl,
-    class Event,
-    class TargetStateImpl
+    class TargetStateImpl,
+    class Event
 >
 void hook
 (
     context& ctx,
     const maki::region<RegionImpl>& region,
     const maki::state<SourceStateImpl>& source_state,
-    const Event& event,
-    const maki::state<TargetStateImpl>& target_state
+    const maki::state<TargetStateImpl>& target_state,
+    const Event& event
 );
 //! [signature]
 
@@ -47,16 +47,16 @@ template
 <
     class RegionImpl,
     class SourceStateImpl,
-    class Event,
-    class TargetStateImpl
+    class TargetStateImpl,
+    class Event
 >
 void hook
 (
     context& /*ctx*/,
     const maki::region<RegionImpl>& /*region*/,
     const maki::state<SourceStateImpl>& /*source_state*/,
-    const Event& /*event*/,
-    const maki::state<TargetStateImpl>& /*target_state*/
+    const maki::state<TargetStateImpl>& /*target_state*/,
+    const Event& /*event*/
 )
 {
 }
@@ -66,9 +66,9 @@ constexpr auto machine_conf = maki::machine_conf{}
     .context_a<context>()
 //! [external-transition-hooks]
 //! [pre]
-    .pre_external_transition_hook_crset
+    .pre_external_transition_hook_crste
     (
-        [](context& /*ctx*/, const auto& region, const auto& source_state, const auto& /*event*/, const auto& target_state)
+        [](context& /*ctx*/, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
         {
             log_info
             (
@@ -84,9 +84,9 @@ constexpr auto machine_conf = maki::machine_conf{}
     )
 //! [pre]
 //! [post]
-    .post_external_transition_hook_crset
+    .post_external_transition_hook_crste
     (
-        [](context& /*ctx*/, const auto& region, const auto& source_state, const auto& /*event*/, const auto& target_state)
+        [](context& /*ctx*/, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
         {
             log_info
             (
@@ -110,18 +110,18 @@ using machine_t = maki::machine<machine_conf>;
 constexpr auto machine_conf_2 = maki::machine_conf{}
     .transition_tables(transition_table)
     .context_a<context>()
-    .pre_external_transition_hook_crset
+    .pre_external_transition_hook_crste
     (
-        [](context& ctx, const auto& region, const auto& source_state, const auto& event, const auto& target_state)
+        [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& event)
         {
-            hook(ctx, region, source_state, event, target_state);
+            hook(ctx, region, source_state, target_state, event);
         }
     )
-    .post_external_transition_hook_crset
+    .post_external_transition_hook_crste
     (
-        [](context& ctx, const auto& region, const auto& source_state, const auto& event, const auto& target_state)
+        [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& event)
         {
-            hook(ctx, region, source_state, event, target_state);
+            hook(ctx, region, source_state, target_state, event);
         }
     )
 ;

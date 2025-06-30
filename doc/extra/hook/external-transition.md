@@ -3,15 +3,15 @@
 You can ask `maki::machine` to call hooks before or after the state machine executes a non-internal transition in a region.
 
 These hooks are configured by calling overloads and variants of the following functions:
-* `maki::machine_conf::pre_external_transition_hook_crset()`;
-* `maki::machine_conf::post_external_transition_hook_crset()`.
+* `maki::machine_conf::pre_external_transition_hook_crste()`;
+* `maki::machine_conf::post_external_transition_hook_crste()`.
 
 These hooks take the following arguments:
 * `ctx`, the context of the state machine;
 * `region` (of type `const maki::region<...>&`), the region where the transition is happening;
 * `source_state` (of type `const maki::state<...>&`), the source state;
-* `event`, the event that triggered the transition;
-* `target_state` (of type `const maki::state<...>&`), the target state.
+* `target_state` (of type `const maki::state<...>&`), the target state;
+* `event`, the event that triggered the transition.
 
 These hooks are particularly useful to log transitions. For example:
 

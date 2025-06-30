@@ -148,7 +148,7 @@ public:
     @snippet misc/external-transition-hook/src/main.cpp post
     */
     template<class Hook>
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_external_transition_hook_crset(const Hook& hook) const
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_external_transition_hook_crste(const Hook& hook) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_post_external_transition_hook hook
@@ -180,7 +180,7 @@ public:
     @snippet misc/external-transition-hook/src/main.cpp pre
     */
     template<class Hook>
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_external_transition_hook_crset(const Hook& hook) const
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_external_transition_hook_crste(const Hook& hook) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_pre_external_transition_hook hook

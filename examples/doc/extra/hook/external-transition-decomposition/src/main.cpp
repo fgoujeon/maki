@@ -60,9 +60,9 @@ constexpr auto transition_table = maki::transition_table{}
 constexpr auto machine_conf = maki::machine_conf{}
     .transition_tables(transition_table)
     .context_a<context>()
-    .pre_external_transition_hook_crset
+    .pre_external_transition_hook_crste
     (
-        [](context& ctx, const auto& region, const auto& source_state, const auto& /*event*/, const auto& target_state)
+        [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
         {
             if(ctx.log)
             {
@@ -79,9 +79,9 @@ constexpr auto machine_conf = maki::machine_conf{}
             }
         }
     )
-    .post_external_transition_hook_crset
+    .post_external_transition_hook_crste
     (
-        [](context& ctx, const auto& region, const auto& source_state, const auto& /*event*/, const auto& target_state)
+        [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
         {
             if(ctx.log)
             {

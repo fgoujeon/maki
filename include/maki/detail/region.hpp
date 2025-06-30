@@ -423,8 +423,8 @@ private:
                 ctx,
                 *pitf_,
                 source_state,
-                event,
-                state_id_to_obj<TargetStateId>()
+                state_id_to_obj<TargetStateId>(),
+                event
             );
         }
 
@@ -516,8 +516,8 @@ private:
                 ctx,
                 *pitf_,
                 source_state,
-                event,
-                state_id_to_obj<TargetStateId>()
+                state_id_to_obj<TargetStateId>(),
+                event
             );
         }
 

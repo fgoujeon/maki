@@ -70,16 +70,16 @@ namespace orthogonal_regions_ns
                 }
             }
         )
-        .pre_external_transition_hook_crset
+        .pre_external_transition_hook_crste
         (
-            [](context& ctx, const auto& region, const auto& /*source_state*/, const auto& /*event*/, const auto& /*target_state*/)
+            [](context& ctx, const auto& region, const auto& /*source_state*/, const auto& /*target_state*/, const auto& /*event*/)
             {
                 ctx.out += "before_transition[" + region.path().to_string() + "];";
             }
         )
-        .post_external_transition_hook_crset
+        .post_external_transition_hook_crste
         (
-            [](context& ctx, const auto& region, const auto& /*source_state*/, const auto& /*event*/, const auto& /*target_state*/)
+            [](context& ctx, const auto& region, const auto& /*source_state*/, const auto& /*target_state*/, const auto& /*event*/)
             {
                 ctx.out += "after_transition[" + region.path().to_string() + "];";
             }

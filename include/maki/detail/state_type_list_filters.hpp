@@ -41,7 +41,7 @@ namespace by_required_on_event_detail
         template<class State>
         struct requires_on_event
         {
-            static constexpr auto value = impl_of_t<State>::template has_internal_action_for_event<Event>();
+            static constexpr auto value = impl_of_t<State>::template can_process_event_type<Event>();
         };
     };
 }

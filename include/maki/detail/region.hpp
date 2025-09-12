@@ -167,6 +167,35 @@ public:
         return value;
     }
 
+    template<class Event>
+    static constexpr bool can_process_event_type()
+    {
+        //List the transitions whose event set contains `Event`
+        using candidate_transition_index_constant_list = transition_table_filters::by_event_t
+        <
+            transition_tuple,
+            Event
+        >;
+
+        /*
+        List the state types that require us to call their internal actions for
+        `Event`
+        */
+        using candidate_state_type_list =
+            state_type_list_filters::by_required_on_event_t
+            <
+                state_tuple_type,
+                region,
+                Event
+            >
+        ;
+
+        return
+            !tlu::empty_v<candidate_transition_index_constant_list> ||
+            !tlu::empty_v<candidate_state_type_list>
+        ;
+    }
+
 private:
     static constexpr const auto& transition_table = TransitionTable;
     static constexpr auto transition_tuple = maki::detail::rows(transition_table);

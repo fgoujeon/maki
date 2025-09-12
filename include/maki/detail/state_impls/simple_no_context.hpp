@@ -100,7 +100,7 @@ public:
     }
 
     template<class Event>
-    static constexpr bool has_internal_action_for_event()
+    static constexpr bool can_process_event_type()
     {
         return tlu::contains_if_v
         <

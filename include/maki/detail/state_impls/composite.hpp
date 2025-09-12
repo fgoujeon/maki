@@ -136,10 +136,10 @@ public:
         return impl_.completed();
     }
 
-    template<class /*Event*/>
-    static constexpr bool has_internal_action_for_event()
+    template<class Event>
+    static constexpr bool can_process_event_type()
     {
-        return true;
+        return impl_type::template can_process_event_type<Event>();
     }
 
 private:

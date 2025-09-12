@@ -215,10 +215,13 @@ public:
         >::call(*this);
     }
 
-    template<class /*Event*/>
-    static constexpr bool has_internal_action_for_event()
+    template<class Event>
+    static constexpr bool can_process_event_type()
     {
-        return true;
+        return
+            impl_type::template can_process_event_type<Event>() ||
+            tlu::apply_t<region_tuple_type, with_regions>::template can_process_event_type<Event>()
+        ;
     }
 
 private:
@@ -282,6 +285,16 @@ private:
         }
     };
 
+    template<class... Regions>
+    struct with_regions
+    {
+        template<class Event>
+        static constexpr bool can_process_event_type()
+        {
+            return (impl_of_t<Regions>::template can_process_event_type<Event>() || ...);
+        }
+    };
+
     template<bool Dry, class Self, class Machine, class Context, class Event, class... MaybeBool>
     static void call_internal_action_2
     (
@@ -292,7 +305,7 @@ private:
         MaybeBool&... processed
     )
     {
-        if constexpr(impl_type::template has_internal_action_for_event<Event>())
+        if constexpr(impl_type::template can_process_event_type<Event>())
         {
             self.impl_.template call_internal_action<Dry>
             (

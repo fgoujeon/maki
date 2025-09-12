@@ -8,9 +8,8 @@
 #define MAKI_DETAIL_TRANSITION_TABLE_FILTERS_HPP
 
 #include "tlu/filter.hpp"
+#include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
-#include "../event_set.hpp"
-#include "../null.hpp"
 
 namespace maki::detail::transition_table_filters
 {
@@ -21,24 +20,24 @@ struct by_event_predicate_holder
     template<class TransitionIndexConstant>
     struct predicate
     {
-        static constexpr auto make_value()
+        static constexpr bool make_value()
         {
             const auto& trans = tuple_get<TransitionIndexConstant::value>(TransitionTuple);
-            return contained_in(event<Event>, trans.evt_set);
+            return trans.template can_process_event_type<Event>();
         }
 
-        static constexpr auto value = make_value();
+        static constexpr bool value = make_value();
     };
 };
 
 namespace by_source_state_and_null_event_detail
 {
     template<class TransitionIndexConstant, class TransitionTuple, class SourceStateId>
-    constexpr auto matches(const TransitionTuple& transitions, const SourceStateId source_state_id)
+    constexpr bool matches(const TransitionTuple& transitions, const SourceStateId source_state_id)
     {
         const auto& trans = tuple_get<TransitionIndexConstant::value>(transitions);
         return
-            equals(trans.evt_set, null) &&
+            trans.can_process_completion_event() &&
             contained_in(*source_state_id, trans.source_state_mold)
         ;
     }
@@ -49,7 +48,7 @@ namespace by_source_state_and_null_event_detail
         template<class TransitionIndexConstant>
         struct predicate
         {
-            static constexpr auto value = matches<TransitionIndexConstant>(*TransitionTuplePtr, SourceStateId);
+            static constexpr bool value = matches<TransitionIndexConstant>(*TransitionTuplePtr, SourceStateId);
         };
     };
 }

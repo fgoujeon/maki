@@ -21,7 +21,7 @@ namespace by_state_set_detail
         template<class StateIdConstant>
         struct matches
         {
-            static constexpr auto value = contains(impl_of(*StateSetPtr), StateIdConstant::value);
+            static constexpr bool value = contains(impl_of(*StateSetPtr), StateIdConstant::value);
         };
     };
 }

@@ -171,7 +171,7 @@ public:
     static constexpr bool can_process_event_type()
     {
         return
-            can_transition_table_process_event_type<Event>() ||
+            detail::can_process_event_type<Event>(transition_table) ||
             can_states_process_event_type<Event>()
         ;
     }
@@ -780,19 +780,6 @@ private:
             return (impl_of_t<States>::template can_process_event_type<Event>() || ...);
         }
     };
-
-    template<class Event>
-    static constexpr bool can_transition_table_process_event_type()
-    {
-        return tuple_apply
-        (
-            transition_tuple,
-            [](const auto&... transitions)
-            {
-                return (contained_in(event<Event>, transitions.evt_set) || ...);
-            }
-        );
-    }
 
     const maki::region<region>* pitf_;
     state_tuple_type states_;

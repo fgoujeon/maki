@@ -351,10 +351,13 @@ private:
             MaybeBool&... processed
         )
         {
-            //Make sure the transition source state is the active state
-            if(!self.template is_active_state_id<SourceStateIdConstant::value>())
+            if constexpr(!is_null_v<Event>) // Already filtered out
             {
-                return false;
+                //Make sure the transition source state is the active state
+                if(!self.template is_active_state_id<SourceStateIdConstant::value>())
+                {
+                    return false;
+                }
             }
 
             //Check guard

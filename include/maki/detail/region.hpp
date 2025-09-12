@@ -170,29 +170,9 @@ public:
     template<class Event>
     static constexpr bool can_process_event_type()
     {
-        //List the transitions whose event set contains `Event`
-        using candidate_transition_index_constant_list = transition_table_filters::by_event_t
-        <
-            transition_tuple,
-            Event
-        >;
-
-        /*
-        List the state types that require us to call their internal actions for
-        `Event`
-        */
-        using candidate_state_type_list =
-            state_type_list_filters::by_required_on_event_t
-            <
-                state_tuple_type,
-                region,
-                Event
-            >
-        ;
-
         return
-            !tlu::empty_v<candidate_transition_index_constant_list> ||
-            !tlu::empty_v<candidate_state_type_list>
+            can_transition_table_process_event_type<Event>() ||
+            can_states_process_event_type<Event>()
         ;
     }
 
@@ -236,20 +216,9 @@ private:
             Event
         >;
 
-        //List the state types that require us to call their internal actions
-        using candidate_state_type_list =
-            state_type_list_filters::by_required_on_event_t
-            <
-                state_tuple_type,
-                region,
-                Event
-            >
-        ;
-
         constexpr auto must_try_executing_transitions = !tlu::empty_v<candidate_transition_index_constant_list>;
-        constexpr auto must_try_processing_event_in_active_state = !tlu::empty_v<candidate_state_type_list>;
 
-        if constexpr(must_try_executing_transitions && must_try_processing_event_in_active_state)
+        if constexpr(must_try_executing_transitions && can_states_process_event_type<Event>())
         {
             /*
             There is a possibility of conflicting transition in this case.
@@ -257,7 +226,7 @@ private:
             transitions.
             */
             auto processed_in_active_state = false;
-            call_active_state_internal_action<candidate_state_type_list, Dry>(self, mach, ctx, event, processed_in_active_state);
+            call_active_state_internal_action<Dry>(self, mach, ctx, event, processed_in_active_state);
             if(processed_in_active_state)
             {
                 maybe_bool_util::set_to_true(processed...);
@@ -267,11 +236,11 @@ private:
                 try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
             }
         }
-        else if constexpr(!must_try_executing_transitions && must_try_processing_event_in_active_state)
+        else if constexpr(!must_try_executing_transitions && can_states_process_event_type<Event>())
         {
-            call_active_state_internal_action<candidate_state_type_list, Dry>(self, mach, ctx, event, processed...);
+            call_active_state_internal_action<Dry>(self, mach, ctx, event, processed...);
         }
-        else if constexpr(must_try_executing_transitions && !must_try_processing_event_in_active_state)
+        else if constexpr(must_try_executing_transitions && !can_states_process_event_type<Event>())
         {
             try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
         }
@@ -570,7 +539,7 @@ private:
     }
 
     // Find the active state and call its internal action for `event`.
-    template<class StateTypeList, bool Dry, class Self, class Machine, class Context, class Event, class... ExtraArgs>
+    template<bool Dry, class Self, class Machine, class Context, class Event, class... ExtraArgs>
     static void call_active_state_internal_action
     (
         Self& self,
@@ -582,7 +551,7 @@ private:
     {
         tlu::for_each_or
         <
-            StateTypeList,
+            state_tuple_type,
             call_active_state_internal_action_2<Dry>
         >(self, mach, ctx, event, extra_args...);
     }
@@ -600,36 +569,43 @@ private:
             ExtraArgs&... extra_args
         )
         {
-            if(!self.template is_active_state_type<State>())
+            if constexpr(impl_of_t<State>::template can_process_event_type<Event>())
+            {
+                if(!self.template is_active_state_type<State>())
+                {
+                    return false;
+                }
+
+                auto& active_state = self.template state_type_to_obj<State>();
+
+                impl_of(active_state).template call_internal_action<Dry>
+                (
+                    mach,
+                    ctx,
+                    event,
+                    extra_args...
+                );
+
+                if constexpr
+                (
+                    transition_table_digest_type::has_completion_transitions &&
+                    !Dry
+                )
+                {
+                    self.try_executing_completion_transitions
+                    (
+                        active_state,
+                        mach,
+                        ctx
+                    );
+                }
+
+                return true;
+            }
+            else
             {
                 return false;
             }
-
-            auto& active_state = self.template state_type_to_obj<State>();
-
-            impl_of(active_state).template call_internal_action<Dry>
-            (
-                mach,
-                ctx,
-                event,
-                extra_args...
-            );
-
-            if constexpr
-            (
-                transition_table_digest_type::has_completion_transitions &&
-                !Dry
-            )
-            {
-                self.try_executing_completion_transitions
-                (
-                    active_state,
-                    mach,
-                    ctx
-                );
-            }
-
-            return true;
         }
     };
 
@@ -783,6 +759,36 @@ private:
             ;
             return tuple_get<state_index>(self.states_);
         }
+    }
+
+    template<class Event>
+    static constexpr bool can_states_process_event_type()
+    {
+        using with_all_state_types = tlu::apply_t<state_tuple_type, with_state_types>;
+        return with_all_state_types::template can_process_event_type<Event>();
+    }
+
+    template<class... States>
+    struct with_state_types
+    {
+        template<class Event>
+        static constexpr bool can_process_event_type()
+        {
+            return (impl_of_t<States>::template can_process_event_type<Event>() || ...);
+        }
+    };
+
+    template<class Event>
+    static constexpr bool can_transition_table_process_event_type()
+    {
+        return tuple_apply
+        (
+            transition_tuple,
+            [](const auto&... transitions)
+            {
+                return (contained_in(event<Event>, transitions.evt_set) || ...);
+            }
+        );
     }
 
     const maki::region<region>* pitf_;

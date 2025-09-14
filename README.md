@@ -7,8 +7,6 @@
 
 Maki is a C++17 finite-state machine library.
 
-**This library is still in early development stage: it is functional and tested, but its API is subject to change.**
-
 <br clear="left"/>
 
 ## Features

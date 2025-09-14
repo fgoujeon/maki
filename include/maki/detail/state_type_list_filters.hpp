@@ -21,7 +21,7 @@ namespace by_state_set_detail
         template<class StateIdConstant>
         struct matches
         {
-            static constexpr auto value = contains(impl_of(*StateSetPtr), StateIdConstant::value);
+            static constexpr bool value = contains(impl_of(*StateSetPtr), StateIdConstant::value);
         };
     };
 }
@@ -31,26 +31,6 @@ using by_state_set_t = tlu::filter_t
 <
     StateIdConstantList,
     by_state_set_detail::for_state_set<StateSetPtr>::template matches
->;
-
-namespace by_required_on_event_detail
-{
-    template<class Region, class Event>
-    struct with
-    {
-        template<class State>
-        struct requires_on_event
-        {
-            static constexpr auto value = impl_of_t<State>::template can_process_event_type<Event>();
-        };
-    };
-}
-
-template<class StateList, class Region, class Event>
-using by_required_on_event_t = tlu::filter_t
-<
-    StateList,
-    by_required_on_event_detail::with<Region, Event>::template requires_on_event
 >;
 
 } //namespace

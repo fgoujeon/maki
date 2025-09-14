@@ -7,11 +7,9 @@
 #ifndef MAKI_EVENT_SET_HPP
 #define MAKI_EVENT_SET_HPP
 
-#include "null.hpp"
 #include "event.hpp"
 #include "detail/set.hpp"
 #include "detail/impl.hpp"
-#include "detail/equals.hpp"
 
 namespace maki
 {
@@ -224,24 +222,6 @@ constexpr auto operator&&
 
 namespace detail
 {
-    template<class Event, class Event2>
-    constexpr bool contained_in(const event_t<Event> lhs, const event_t<Event2> rhs)
-    {
-        return equals(lhs, rhs);
-    }
-
-    template<class Event>
-    constexpr bool contained_in(event_t<Event> /*lhs*/, null_t /*rhs*/)
-    {
-        return false;
-    }
-
-    template<class Event, class... Predicates>
-    constexpr bool contained_in(const event_t<Event> evt, const event_set<Predicates>&... evt_sets)
-    {
-        return (evt_sets.contains(evt) || ...);
-    }
-
     template<class T>
     struct is_event_set
     {

@@ -168,6 +168,11 @@ constexpr bool operator==(const tuple<LhsArgs...>& /*lhs*/, const tuple<RhsArgs.
     return false;
 }
 
+
+/*
+tuple_get
+*/
+
 template<int Index, class Tuple>
 constexpr auto& tuple_get(Tuple& tpl)
 {
@@ -182,6 +187,11 @@ constexpr auto& tuple_get(Tuple& tpl)
 
 template<const auto& Tuple, int Index>
 constexpr auto tuple_static_get_copy_c = tuple_get<Index>(Tuple);
+
+
+/*
+tuple_append
+*/
 
 template<class IndexSequence>
 struct tuple_append_impl;
@@ -202,6 +212,11 @@ constexpr tuple<Ts..., U> tuple_append(const tuple<Ts...>& tpl, const U& elem)
     using impl_t = tuple_append_impl<std::make_integer_sequence<int, sizeof...(Ts)>>;
     return impl_t::call(tpl, elem);
 }
+
+
+/*
+tuple_apply
+*/
 
 template<class IndexSequence>
 struct tuple_apply_impl;
@@ -236,6 +251,11 @@ constexpr auto tuple_apply(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
     return impl_t::call(tpl, fun, std::forward<ExtraArgs>(extra_args)...);
 }
 
+
+/*
+tuple_to_element_ptr_constant_list_t
+*/
+
 template<const auto& Tuple, class IndexSequence>
 struct tuple_to_element_ptr_constant_list_impl;
 
@@ -253,6 +273,11 @@ struct tuple_to_element_ptr_constant_list
 
 template<const auto& Tuple>
 using tuple_to_element_ptr_constant_list_t = typename tuple_to_element_ptr_constant_list<Tuple>::type;
+
+
+/*
+tuple_tail
+*/
 
 template<class Tuple>
 constexpr auto tuple_tail(Tuple& tpl)

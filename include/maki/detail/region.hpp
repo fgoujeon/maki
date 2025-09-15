@@ -569,7 +569,7 @@ private:
             Machine& mach,
             Context& ctx,
             const Event& event,
-            ExtraArgs&... extra_args
+            [[maybe_unused]] ExtraArgs&... extra_args
         )
         {
             if constexpr(impl_of_t<State>::template can_process_event_type<Event>())

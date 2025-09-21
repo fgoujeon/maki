@@ -552,65 +552,65 @@ private:
         ExtraArgs&... extra_args
     )
     {
-        tlu::for_each_or
-        <
-            state_tuple_type,
-            call_active_state_internal_action_2<Dry>
-        >(self, mach, ctx, event, extra_args...);
-    }
-
-    template<bool Dry>
-    struct call_active_state_internal_action_2
-    {
-        template<class State, class Self, class Machine, class Context, class Event, class... ExtraArgs>
-        static bool call
+        self.states_.for_each
         (
-            Self& self,
-            Machine& mach,
-            Context& ctx,
-            const Event& event,
-            [[maybe_unused]] ExtraArgs&... extra_args
-        )
-        {
-            if constexpr(impl_of_t<State>::template can_process_event_type<Event>())
+            []
+            (
+                const auto& state,
+                Self& self,
+                Machine& mach,
+                Context& ctx,
+                const Event& event,
+                [[maybe_unused]] auto&... extra_args
+            )
             {
-                if(!self.template is_active_state_type<State>())
+                using State = std::decay_t<decltype(state)>;
+
+                if constexpr(impl_of_t<State>::template can_process_event_type<Event>())
+                {
+                    if(!self.template is_active_state_type<State>())
+                    {
+                        return false;
+                    }
+
+                    auto& active_state = self.template state_type_to_obj<State>();
+
+                    impl_of(active_state).template call_internal_action<Dry>
+                    (
+                        mach,
+                        ctx,
+                        event,
+                        extra_args...
+                    );
+
+                    if constexpr
+                    (
+                        transition_table_digest_type::has_completion_transitions &&
+                        !Dry
+                    )
+                    {
+                        self.try_executing_completion_transitions
+                        (
+                            active_state,
+                            mach,
+                            ctx
+                        );
+                    }
+
+                    return true;
+                }
+                else
                 {
                     return false;
                 }
-
-                auto& active_state = self.template state_type_to_obj<State>();
-
-                impl_of(active_state).template call_internal_action<Dry>
-                (
-                    mach,
-                    ctx,
-                    event,
-                    extra_args...
-                );
-
-                if constexpr
-                (
-                    transition_table_digest_type::has_completion_transitions &&
-                    !Dry
-                )
-                {
-                    self.try_executing_completion_transitions
-                    (
-                        active_state,
-                        mach,
-                        ctx
-                    );
-                }
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-    };
+            },
+            self,
+            mach,
+            ctx,
+            event,
+            extra_args...
+        );
+    }
 
     template<class ActiveState, class Machine, class Context>
     void try_executing_completion_transitions

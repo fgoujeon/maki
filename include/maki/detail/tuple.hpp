@@ -52,6 +52,16 @@ public:
         return value_;
     }
 
+    T& value()
+    {
+        return value_;
+    }
+
+    const T& value() const
+    {
+        return value_;
+    }
+
 private:
     T value_;
 };
@@ -103,6 +113,64 @@ public:
     }
 
     using tuple_element<Indexes, Ts>::get...;
+
+    template<class F, class... ExtraArgs>
+    constexpr void for_each(const F& fun, ExtraArgs&... extra_args)
+    {
+        (
+            fun(tuple_element<Indexes, Ts>::value(), extra_args...),
+            ...
+        );
+    }
+
+    template<class F, class... ExtraArgs>
+    constexpr void for_each(const F& fun, ExtraArgs&... extra_args) const
+    {
+        (
+            fun(tuple_element<Indexes, Ts>::value(), extra_args...),
+            ...
+        );
+    }
+
+    template<class F, class... ExtraArgs>
+    constexpr bool for_each_or(const F& fun, ExtraArgs&... extra_args)
+    {
+        return
+        (
+            fun(tuple_element<Indexes, Ts>::value(), extra_args...) ||
+            ...
+        );
+    }
+
+    template<class F, class... ExtraArgs>
+    constexpr bool for_each_or(const F& fun, ExtraArgs&... extra_args) const
+    {
+        return
+        (
+            fun(tuple_element<Indexes, Ts>::value(), extra_args...) ||
+            ...
+        );
+    }
+
+    template<class F, class... ExtraArgs>
+    constexpr bool for_each_and(const F& fun, ExtraArgs&... extra_args)
+    {
+        return
+        (
+            fun(tuple_element<Indexes, Ts>::value(), extra_args...) &&
+            ...
+        );
+    }
+
+    template<class F, class... ExtraArgs>
+    constexpr bool for_each_and(const F& fun, ExtraArgs&... extra_args) const
+    {
+        return
+        (
+            fun(tuple_element<Indexes, Ts>::value(), extra_args...) &&
+            ...
+        );
+    }
 };
 
 /*
@@ -110,7 +178,7 @@ A minimal std::tuple-like container.
 Using this instead of std::tuple improves build time.
 */
 template<class... Ts>
-class tuple: private tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>
+class tuple: public tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>
 {
 public:
     using base_t = tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>;

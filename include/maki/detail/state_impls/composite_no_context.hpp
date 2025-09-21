@@ -101,7 +101,18 @@ public:
     void call_entry_action(Machine& mach, Context& ctx, const Event& event)
     {
         impl_.call_entry_action(mach, ctx, event);
-        tlu::for_each<region_tuple_type, region_enter>(*this, mach, ctx, event);
+
+        // Enter every region
+        regions_.for_each
+        (
+            [](auto& region, Machine& mach, Context& ctx, const Event& event)
+            {
+                impl_of(region).enter(mach, ctx, event);
+            },
+            mach,
+            ctx,
+            event
+        );
     }
 
     template<bool Dry, class Machine, class Context, class Event>
@@ -153,13 +164,18 @@ public:
     template<class Machine, class Context, class Event>
     void call_exit_action(Machine& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each<region_tuple_type, region_exit<&state_molds::null>>
+        // Exit every region
+        regions_.for_each
         (
-            *this,
+            [](auto& region, Machine& mach, Context& ctx, const Event& event)
+            {
+                impl_of(region).template exit<&state_molds::null>(mach, ctx, event);
+            },
             mach,
             ctx,
             event
         );
+
         impl_.call_exit_action
         (
             mach,
@@ -172,13 +188,18 @@ public:
     template<class Machine, class Context, class Event>
     void exit_to_finals(Machine& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each<region_tuple_type, region_exit<&state_molds::fin>>
+        // Exit every region
+        regions_.for_each
         (
-            *this,
+            [](auto& region, Machine& mach, Context& ctx, const Event& event)
+            {
+                impl_of(region).template exit<&state_molds::fin>(mach, ctx, event);
+            },
             mach,
             ctx,
             event
         );
+
         impl_.call_exit_action
         (
             mach,
@@ -209,11 +230,13 @@ public:
 
     [[nodiscard]] bool completed() const
     {
-        return tlu::apply_t
-        <
-            region_index_constant_sequence,
-            all_regions_completed
-        >::call(*this);
+        return regions_.for_each_and
+        (
+            [](auto& region)
+            {
+                return impl_of(region).completed();
+            }
+        );
     }
 
     template<class Event>
@@ -247,45 +270,6 @@ private:
         region_index_sequence_type
     >::type;
 
-    template<class... RegionIndexConstants>
-    struct all_regions_completed
-    {
-        template<class Self>
-        static bool call(const Self& self)
-        {
-            return (impl_of(tuple_get<RegionIndexConstants::value>(self.regions_)).completed() && ...);
-        }
-    };
-
-    struct region_enter
-    {
-        template<class Region, class Self, class Machine, class Context, class Event>
-        static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
-        {
-            impl_of(tuple_get<Region>(self.regions_)).enter(mach, ctx, event);
-        }
-    };
-
-    template<bool Dry>
-    struct region_process_event
-    {
-        template<class Region, class Self, class Machine, class Context, class Event, class... MaybeBool>
-        static void call(Self& self, Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
-        {
-            impl_of(tuple_get<Region>(self.regions_)).template process_event<Dry>(mach, ctx, event, processed...);
-        }
-    };
-
-    template<auto TargetStateId>
-    struct region_exit
-    {
-        template<class Region, class Self, class Machine, class Context, class Event>
-        static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
-        {
-            impl_of(tuple_get<Region>(self.regions_)).template exit<TargetStateId>(mach, ctx, event);
-        }
-    };
-
     template<class... Regions>
     struct with_regions
     {
@@ -315,13 +299,32 @@ private:
                 event
             );
 
-            tlu::for_each<region_tuple_type, region_process_event<Dry>>(self, mach, ctx, event);
+            self.regions_.for_each
+            (
+                [](auto& region, Machine& mach, Context& ctx, const Event& event)
+                {
+                    impl_of(region).template process_event<Dry>(mach, ctx, event);
+                },
+                mach,
+                ctx,
+                event
+            );
 
             maybe_bool_util::set_to_true(processed...);
         }
         else
         {
-            tlu::for_each<region_tuple_type, region_process_event<Dry>>(self, mach, ctx, event, processed...);
+            self.regions_.for_each
+            (
+                [](auto& region, Machine& mach, Context& ctx, const Event& event, auto&... processed)
+                {
+                    impl_of(region).template process_event<Dry>(mach, ctx, event, processed...);
+                },
+                mach,
+                ctx,
+                event,
+                processed...
+            );
         }
     }
 

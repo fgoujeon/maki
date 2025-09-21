@@ -52,9 +52,22 @@ public:
         return value_;
     }
 
+    constexpr T& value()
+    {
+        return value_;
+    }
+
+    constexpr const T& value() const
+    {
+        return value_;
+    }
+
 private:
     T value_;
 };
+
+template<class... Ts>
+class tuple;
 
 template<class IndexSequence, class... Ts>
 class tuple_base;
@@ -103,6 +116,12 @@ public:
     }
 
     using tuple_element<Indexes, Ts>::get...;
+
+    template<class U>
+    constexpr auto append(const U& elem) const
+    {
+        return tuple<Ts..., U>{distributed_construct, tuple_element<Indexes, Ts>::value()..., elem};
+    }
 };
 
 /*
@@ -110,7 +129,7 @@ A minimal std::tuple-like container.
 Using this instead of std::tuple improves build time.
 */
 template<class... Ts>
-class tuple: private tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>
+class tuple: public tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>
 {
 public:
     using base_t = tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>;
@@ -187,31 +206,6 @@ constexpr auto& tuple_get(Tuple& tpl)
 
 template<const auto& Tuple, int Index>
 constexpr auto tuple_static_get_copy_c = tuple_get<Index>(Tuple);
-
-
-/*
-tuple_append
-*/
-
-template<class IndexSequence>
-struct tuple_append_impl;
-
-template<int... Indexes>
-struct tuple_append_impl<std::integer_sequence<int, Indexes...>>
-{
-    template<class... Ts, class U>
-    static constexpr tuple<Ts..., U> call(const tuple<Ts...>& tpl, const U& elem)
-    {
-        return tuple<Ts..., U>{distributed_construct, tuple_get<Indexes>(tpl)..., elem};
-    }
-};
-
-template<class... Ts, class U>
-constexpr tuple<Ts..., U> tuple_append(const tuple<Ts...>& tpl, const U& elem)
-{
-    using impl_t = tuple_append_impl<std::make_integer_sequence<int, sizeof...(Ts)>>;
-    return impl_t::call(tpl, elem);
-}
 
 
 /*

@@ -67,7 +67,7 @@ public:
 
     template<class ParentPath, class Elem>
     constexpr path(const ParentPath& parent_path, const Elem& elem):
-        elems_(tuple_append(parent_path.elems(), elem))
+        elems_(parent_path.elems().append(elem))
     {
     }
 

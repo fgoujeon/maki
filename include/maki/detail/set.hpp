@@ -141,7 +141,7 @@ constexpr auto make_set_union
     const Elem& elem
 )
 {
-    return tuple_based_set{tuple_append(set.elems, elem)};
+    return tuple_based_set{set.elems.append(elem)};
 }
 
 

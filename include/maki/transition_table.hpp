@@ -327,9 +327,8 @@ public:
 
         return detail::make_transition_table
         (
-            tuple_append
+            impl_.transitions.append
             (
-                impl_.transitions,
                 detail::transition
                 {
                     detail::store_state_mold(source_state_mold),

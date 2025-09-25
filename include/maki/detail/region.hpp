@@ -7,6 +7,7 @@
 #ifndef MAKI_DETAIL_REGION_HPP
 #define MAKI_DETAIL_REGION_HPP
 
+#include "any_event_ref.hpp"
 #include "state_id_to_type.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
@@ -97,21 +98,23 @@ public:
 
     // Enter the initial state
     template<class Machine, class Context, class Event>
-    void enter(Machine& mach, Context& ctx, const Event& event)
+    void enter(Machine& mach, Context& ctx, const Event& evt)
     {
         static constexpr auto initial_state_id = tlu::front_t<state_id_constant_list>::value;
         static constexpr auto action = tuple_get<0>(transition_tuple).act;
+        static constexpr auto event_type = event<Event>;
 
         execute_transition
         <
             &state_molds::null,
             initial_state_id,
+            &event_type,
             &action
         >
         (
             mach,
             ctx,
-            event
+            evt
         );
     }
 
@@ -233,7 +236,7 @@ private:
             }
             else
             {
-                try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
+                try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, any_event_ref{event}, processed...);
             }
         }
         else if constexpr(!must_try_executing_transitions && can_states_process_event_type<Event>())
@@ -242,7 +245,7 @@ private:
         }
         else if constexpr(must_try_executing_transitions && !can_states_process_event_type<Event>())
         {
-            try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
+            try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, any_event_ref{event}, processed...);
         }
     }
 
@@ -250,14 +253,15 @@ private:
     struct exit_2
     {
         template<class ActiveStateIdConstant, class Machine, class Context, class Event>
-        static void call(region& self, Machine& mach, Context& ctx, const Event& event)
+        static void call(region& self, Machine& mach, Context& ctx, const Event& evt)
         {
             self.execute_transition
             <
                 ActiveStateIdConstant::value,
                 TargetStateId,
+                &event<Event>,
                 &null_action
-            >(mach, ctx, event);
+            >(mach, ctx, evt);
         }
     };
 
@@ -284,6 +288,7 @@ private:
         {
             static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(transition_tuple);
             static constexpr auto source_state_mold = trans.source_state_mold;
+            static constexpr auto trans_evt_set = trans.evt_set;
             static constexpr auto action = trans.act;
             static constexpr auto guard = trans.grd;
 
@@ -305,6 +310,7 @@ private:
                     <
                         Dry,
                         trans.target_state_mold,
+                        &trans_evt_set,
                         action,
                         guard
                     >
@@ -316,6 +322,7 @@ private:
                 <
                     Dry,
                     trans.target_state_mold,
+                    &trans_evt_set,
                     action,
                     guard
                 >::template call<constant_t<trans.source_state_mold>>
@@ -330,7 +337,14 @@ private:
         }
     };
 
-    template<bool Dry, auto TargetStateId, const auto& Action, const auto& Guard>
+    template
+    <
+        bool Dry,
+        auto TargetStateId,
+        auto TransitionEventPtr,
+        const auto& Action,
+        const auto& Guard
+    >
     struct try_executing_transition_2
     {
         template
@@ -363,7 +377,16 @@ private:
             //Check guard
             if constexpr(!std::is_same_v<decltype(Guard), const null_t&>)
             {
-                if(!detail::call_guard(Guard, ctx, mach, event))
+                const auto guard_result = any_event_ref_visit<*TransitionEventPtr>
+                (
+                    [&](const auto& event)
+                    {
+                        return detail::call_guard(Guard, ctx, mach, event);
+                    },
+                    event
+                );
+
+                if(!guard_result)
                 {
                     return false;
                 }
@@ -375,6 +398,7 @@ private:
                 <
                     SourceStateIdConstant::value,
                     TargetStateId,
+                    TransitionEventPtr,
                     &Action
                 >(mach, ctx, event);
             }
@@ -389,6 +413,7 @@ private:
     <
         auto SourceStateId,
         auto TargetStateId,
+        auto TransitionEventPtr,
         auto ActionPtr,
         class Machine,
         class Context,
@@ -419,12 +444,19 @@ private:
             !is_null_v<typename machine_option_set_type::pre_external_transition_hook_type>
         )
         {
-            impl_of(Machine::conf).pre_external_transition_hook
+            any_event_ref_visit<*TransitionEventPtr>
             (
-                ctx,
-                *pitf_,
-                source_state,
-                state_id_to_obj<TargetStateId>(),
+                [&](const auto& event)
+                {
+                    impl_of(Machine::conf).pre_external_transition_hook
+                    (
+                        ctx,
+                        *pitf_,
+                        source_state,
+                        state_id_to_obj<TargetStateId>(),
+                        event
+                    );
+                },
                 event
             );
         }
@@ -452,10 +484,17 @@ private:
         */
         if constexpr(is_external_transition)
         {
-            impl_of(source_state).call_exit_action
+            any_event_ref_visit<*TransitionEventPtr>
             (
-                mach,
-                ctx,
+                [&](const auto& event)
+                {
+                    impl_of(source_state).call_exit_action
+                    (
+                        mach,
+                        ctx,
+                        event
+                    );
+                },
                 event
             );
         }
@@ -463,11 +502,18 @@ private:
         /*
         Invoke the transition action, if any.
         */
-        detail::call_action
+        any_event_ref_visit<*TransitionEventPtr>
         (
-            *ActionPtr,
-            ctx,
-            mach,
+            [&](const auto& event)
+            {
+                call_action
+                (
+                    *ActionPtr,
+                    ctx,
+                    mach,
+                    event
+                );
+            },
             event
         );
 
@@ -479,10 +525,17 @@ private:
         {
             auto& target_state = state_id_to_obj<TargetStateId>();
 
-            impl_of(target_state).call_entry_action
+            any_event_ref_visit<*TransitionEventPtr>
             (
-                mach,
-                ctx,
+                [&](const auto& event)
+                {
+                    impl_of(target_state).call_entry_action
+                    (
+                        mach,
+                        ctx,
+                        event
+                    );
+                },
                 event
             );
         }
@@ -512,12 +565,19 @@ private:
             !is_null_v<typename machine_option_set_type::post_external_transition_hook_type>
         )
         {
-            impl_of(Machine::conf).post_external_transition_hook
+            any_event_ref_visit<*TransitionEventPtr>
             (
-                ctx,
-                *pitf_,
-                source_state,
-                state_id_to_obj<TargetStateId>(),
+                [&](const auto& event)
+                {
+                    impl_of(Machine::conf).post_external_transition_hook
+                    (
+                        ctx,
+                        *pitf_,
+                        source_state,
+                        state_id_to_obj<TargetStateId>(),
+                        event
+                    );
+                },
                 event
             );
         }

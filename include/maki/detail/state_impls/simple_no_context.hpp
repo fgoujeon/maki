@@ -102,14 +102,28 @@ public:
     template<class Event>
     static constexpr bool can_process_event_type()
     {
-        return tlu::contains_if_v
-        <
-            internal_action_ptr_constant_list,
-            event_action_traits::for_event<Event>::template has_containing_event_set
-        >;
+        return evt_set.template contains<Event>();
     }
 
 private:
+    static constexpr auto make_event_set()
+    {
+        return tlu::apply_t
+        <
+            internal_action_ptr_constant_list,
+            make_event_set_2
+        >::call();
+    }
+
+    template<class... InternalActionPtrConstants>
+    struct make_event_set_2
+    {
+        static constexpr auto call()
+        {
+            return (InternalActionPtrConstants::value->evt_set || ... || no_event);
+        }
+    };
+
     static constexpr auto entry_actions = impl_of(mold).entry_actions;
     using entry_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<entry_actions>;
 
@@ -118,6 +132,8 @@ private:
 
     static constexpr auto exit_actions = impl_of(mold).exit_actions;
     using exit_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<exit_actions>;
+
+    static constexpr auto evt_set = make_event_set();
 };
 
 } //namespace

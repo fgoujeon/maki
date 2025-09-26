@@ -99,10 +99,9 @@ public:
         return true;
     }
 
-    template<class Event>
-    static constexpr bool can_process_event_type()
+    static constexpr const auto& evt_set()
     {
-        return evt_set.template contains<Event>();
+        return computed_evt_set;
     }
 
 private:
@@ -133,7 +132,7 @@ private:
     static constexpr auto exit_actions = impl_of(mold).exit_actions;
     using exit_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<exit_actions>;
 
-    static constexpr auto evt_set = make_event_set();
+    static constexpr auto computed_evt_set = make_event_set();
 };
 
 } //namespace

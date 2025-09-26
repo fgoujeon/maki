@@ -100,12 +100,12 @@ public:
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
     @brief Adds an entry action (see @ref maki::action_signature "signatures") \
-    to be called for any event type in `evt_set`. \
+    to be called for any event type in `event_types`. \
     */ \
     template<class EventSetPredicate, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const event_set<EventSetPredicate>& evt_set, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const event_set<EventSetPredicate>& event_types, const Action& action) const \
     { \
-        return entry_action<action_signature::signature>(evt_set, action); \
+        return entry_action<action_signature::signature>(event_types, action); \
     } \
  \
     /** \
@@ -137,12 +137,12 @@ public:
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
     @brief Adds an internal action (see @ref maki::action_signature "signatures") \
-    to be called for any event type in `evt_set`. \
+    to be called for any event type in `event_types`. \
     */ \
     template<class EventSetPredicate, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const event_set<EventSetPredicate>& evt_set, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const event_set<EventSetPredicate>& event_types, const Action& action) const \
     { \
-        return internal_action<action_signature::signature>(evt_set, action); \
+        return internal_action<action_signature::signature>(event_types, action); \
     } \
  \
     /** \
@@ -160,12 +160,12 @@ public:
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
     @brief Adds an exit action (see @ref maki::action_signature "signatures") \
-    to be called for any event type in `evt_set`. \
+    to be called for any event type in `event_types`. \
     */ \
     template<class EventSetPredicate, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const event_set<EventSetPredicate>& evt_set, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const event_set<EventSetPredicate>& event_types, const Action& action) const \
     { \
-        return exit_action<action_signature::signature>(evt_set, action); \
+        return exit_action<action_signature::signature>(event_types, action); \
     } \
  \
     /** \
@@ -239,11 +239,11 @@ private:
     }
 
     template<action_signature Sig, class EventSetPredicate, class Action>
-    [[nodiscard]] constexpr auto entry_action(const event_set<EventSetPredicate>& evt_set, const Action& action) const
+    [[nodiscard]] constexpr auto entry_action(const event_set<EventSetPredicate>& event_types, const Action& action) const
     {
         const auto new_entry_actions = impl_.entry_actions.append
         (
-            detail::make_event_action<Sig>(evt_set, action)
+            detail::make_event_action<Sig>(event_types, action)
         );
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
@@ -253,11 +253,11 @@ private:
     }
 
     template<action_signature Sig, class EventSetPredicate, class Action>
-    [[nodiscard]] constexpr auto internal_action(const event_set<EventSetPredicate>& evt_set, const Action& action) const
+    [[nodiscard]] constexpr auto internal_action(const event_set<EventSetPredicate>& event_types, const Action& action) const
     {
         const auto new_internal_actions = impl_.internal_actions.append
         (
-            detail::make_event_action<Sig>(evt_set, action)
+            detail::make_event_action<Sig>(event_types, action)
         );
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
@@ -267,11 +267,11 @@ private:
     }
 
     template<action_signature Sig, class EventSetPredicate, class Action>
-    [[nodiscard]] constexpr auto exit_action(const event_set<EventSetPredicate>& evt_set, const Action& action) const
+    [[nodiscard]] constexpr auto exit_action(const event_set<EventSetPredicate>& event_types, const Action& action) const
     {
         const auto new_exit_actions = impl_.exit_actions.append
         (
-            detail::make_event_action<Sig>(evt_set, action)
+            detail::make_event_action<Sig>(event_types, action)
         );
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN

@@ -136,9 +136,9 @@ public:
         return impl_.completed();
     }
 
-    static constexpr const auto& evt_set()
+    static constexpr const auto& event_types()
     {
-        return impl_type::evt_set();
+        return impl_type::event_types();
     }
 
 private:

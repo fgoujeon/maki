@@ -167,9 +167,9 @@ public:
         return value;
     }
 
-    static constexpr const auto& evt_set()
+    static constexpr const auto& event_types()
     {
-        return computed_evt_set;
+        return computed_event_types;
     }
 
 private:
@@ -214,7 +214,7 @@ private:
 
         constexpr auto must_try_executing_transitions = !tlu::empty_v<candidate_transition_index_constant_list>;
 
-        if constexpr(must_try_executing_transitions && states_evt_set.template contains<Event>())
+        if constexpr(must_try_executing_transitions && states_event_types.template contains<Event>())
         {
             /*
             There is a possibility of conflicting transition in this case.
@@ -232,11 +232,11 @@ private:
                 try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
             }
         }
-        else if constexpr(!must_try_executing_transitions && states_evt_set.template contains<Event>())
+        else if constexpr(!must_try_executing_transitions && states_event_types.template contains<Event>())
         {
             call_active_state_internal_action<Dry>(self, mach, ctx, event, processed...);
         }
-        else if constexpr(must_try_executing_transitions && !states_evt_set.template contains<Event>())
+        else if constexpr(must_try_executing_transitions && !states_event_types.template contains<Event>())
         {
             try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
         }
@@ -568,7 +568,7 @@ private:
             [[maybe_unused]] ExtraArgs&... extra_args
         )
         {
-            if constexpr(impl_of_t<State>::evt_set().template contains<Event>())
+            if constexpr(impl_of_t<State>::event_types().template contains<Event>())
             {
                 if(!self.template is_active_state_type<State>())
                 {
@@ -760,31 +760,31 @@ private:
         }
     }
 
-    static constexpr auto make_evt_set()
+    static constexpr auto list_event_types()
     {
-        return detail::evt_set(transition_table) || make_states_evt_set();
+        return detail::event_types(transition_table) || list_states_event_types();
     }
 
-    static constexpr auto make_states_evt_set()
+    static constexpr auto list_states_event_types()
     {
         return tlu::apply_t
         <
             state_tuple_type,
             with_state_types
-        >::make_evt_set();
+        >::list_event_types();
     }
 
     template<class... States>
     struct with_state_types
     {
-        static constexpr auto make_evt_set()
+        static constexpr auto list_event_types()
         {
-            return (impl_of_t<States>::evt_set() || ... || no_event);
+            return (impl_of_t<States>::event_types() || ... || no_event);
         }
     };
 
-    static constexpr auto states_evt_set = make_states_evt_set();
-    static constexpr auto computed_evt_set = detail::evt_set(transition_table) || states_evt_set;
+    static constexpr auto states_event_types = list_states_event_types();
+    static constexpr auto computed_event_types = detail::event_types(transition_table) || states_event_types;
 
     const maki::region<region>* pitf_;
     state_tuple_type states_;

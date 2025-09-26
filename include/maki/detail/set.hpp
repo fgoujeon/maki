@@ -180,6 +180,16 @@ constexpr auto make_set_union
     return type_list_based_set<Ts..., U>{};
 }
 
+template<class... Ts, class... Us>
+constexpr auto make_set_union
+(
+    type_list_based_set<Ts...> /*ignored*/,
+    type_list_based_set<Us...> /*ignored*/
+)
+{
+    return type_list_based_set<Ts..., Us...>{};
+}
+
 
 /*
 Common

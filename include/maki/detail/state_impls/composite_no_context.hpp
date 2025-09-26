@@ -216,13 +216,9 @@ public:
         >::call(*this);
     }
 
-    template<class Event>
-    static constexpr bool can_process_event_type()
+    static constexpr const auto& evt_set()
     {
-        return
-            impl_type::template can_process_event_type<Event>() ||
-            tlu::apply_t<region_tuple_type, with_regions>::template can_process_event_type<Event>()
-        ;
+        return computed_evt_set;
     }
 
 private:
@@ -289,10 +285,9 @@ private:
     template<class... Regions>
     struct with_regions
     {
-        template<class Event>
-        static constexpr bool can_process_event_type()
+        static constexpr auto evt_set()
         {
-            return (impl_of_t<Regions>::template can_process_event_type<Event>() || ...);
+            return (impl_of_t<Regions>::evt_set() || ... || no_event);
         }
     };
 
@@ -306,7 +301,7 @@ private:
         MaybeBool&... processed
     )
     {
-        if constexpr(impl_type::template can_process_event_type<Event>())
+        if constexpr(impl_type::evt_set().template contains<Event>())
         {
             self.impl_.template call_internal_action<Dry>
             (
@@ -324,6 +319,11 @@ private:
             tlu::for_each<region_tuple_type, region_process_event<Dry>>(self, mach, ctx, event, processed...);
         }
     }
+
+    static constexpr auto computed_evt_set =
+        impl_type::evt_set() ||
+        tlu::apply_t<region_tuple_type, with_regions>::evt_set()
+    ;
 
     impl_type impl_;
     region_tuple_type regions_;

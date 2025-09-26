@@ -71,10 +71,9 @@ public:
         return true;
     }
 
-    template<class Event>
-    static constexpr bool can_process_event_type()
+    static constexpr const auto& evt_set()
     {
-        return impl_type::template can_process_event_type<Event>();
+        return impl_type::evt_set();
     }
 
 private:

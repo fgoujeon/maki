@@ -47,7 +47,17 @@ public:
     */
     template<class Event>
     [[nodiscard]]
-    constexpr bool contains(event_t<Event> /*ignored*/ = {}) const
+    constexpr bool contains() const
+    {
+        return detail::contains(impl_, detail::type<Event>);
+    }
+
+    /**
+    @brief Checks whether the set contains `Event`.
+    */
+    template<class Event>
+    [[nodiscard]]
+    constexpr bool contains(event_t<Event> /*ignored*/) const
     {
         return detail::contains(impl_, detail::type<Event>);
     }
@@ -102,7 +112,7 @@ inline constexpr auto no_event = IMPLEMENTATION_DETAIL;
 #else
 inline constexpr auto no_event = detail::make_event_set_from_impl
 (
-    detail::make_set_excluding_all()
+    detail::make_set_including_types()
 );
 #endif
 

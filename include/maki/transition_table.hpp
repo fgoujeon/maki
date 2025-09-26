@@ -84,21 +84,20 @@ namespace detail
         action<ActionSignature, ActionCallable> act;
         guard<GuardSignature, GuardCallable> grd;
 
-        template<class Event>
         [[nodiscard]]
-        constexpr bool can_process_event_type() const
+        constexpr auto evt_set_2() const
         {
             if constexpr(is_event_v<EventSet>)
             {
-                return equals(evt_set, event<Event>);
+                return event_set{evt_set};
             }
             else if constexpr(is_event_set_v<EventSet>)
             {
-                return evt_set.contains(event<Event>);
+                return evt_set;
             }
             else if constexpr(is_null_v<EventSet>) // Completion event
             {
-                return is_null_v<Event>;
+                return no_event;
             }
         }
 
@@ -150,15 +149,15 @@ namespace detail
         return impl_of(table).transitions;
     }
 
-    template<class Event, class Impl>
-    constexpr bool can_process_event_type(const transition_table<Impl>& table)
+    template<class Impl>
+    constexpr auto evt_set(const transition_table<Impl>& table)
     {
         return tuple_apply
         (
             rows(table),
             [](const auto&... transitions)
             {
-                return (transitions.template can_process_event_type<Event>() || ...);
+                return (transitions.evt_set_2() || ... || no_event);
             }
         );
     }

@@ -23,7 +23,7 @@ struct by_event_predicate_holder
         static constexpr bool make_value()
         {
             const auto& trans = tuple_get<TransitionIndexConstant::value>(TransitionTuple);
-            return trans.evt_set_2().template contains<Event>();
+            return trans.event_types().template contains<Event>();
         }
 
         static constexpr bool value = make_value();

@@ -70,7 +70,7 @@ namespace detail
     <
         class SourceStateMold,
         class TargetStateMold,
-        class EventSet,
+        class Event,
         action_signature ActionSignature,
         class ActionCallable,
         guard_signature GuardSignature,
@@ -80,22 +80,22 @@ namespace detail
     {
         SourceStateMold source_state_mold;
         TargetStateMold target_state_mold;
-        EventSet evt_set;
+        Event evt;
         action<ActionSignature, ActionCallable> act;
         guard<GuardSignature, GuardCallable> grd;
 
         [[nodiscard]]
-        constexpr auto evt_set_2() const
+        constexpr auto event_types() const
         {
-            if constexpr(is_event_v<EventSet>)
+            if constexpr(is_event_v<Event>)
             {
-                return event_set{evt_set};
+                return event_set{evt};
             }
-            else if constexpr(is_event_set_v<EventSet>)
+            else if constexpr(is_event_set_v<Event>)
             {
-                return evt_set;
+                return evt;
             }
-            else if constexpr(is_null_v<EventSet>) // Completion event
+            else if constexpr(is_null_v<Event>) // Completion event
             {
                 return no_event;
             }
@@ -104,7 +104,7 @@ namespace detail
         [[nodiscard]]
         static constexpr bool can_process_completion_event()
         {
-            return is_null_v<EventSet>;
+            return is_null_v<Event>;
         }
     };
 
@@ -112,7 +112,7 @@ namespace detail
     <
         class SourceStateMold,
         class TargetStateMold,
-        class EventSet,
+        class Event,
         action_signature ActionSignature,
         class ActionCallable,
         guard_signature GuardSignature,
@@ -122,14 +122,14 @@ namespace detail
     (
         SourceStateMold,
         TargetStateMold,
-        EventSet,
+        Event,
         action<ActionSignature, ActionCallable>,
         guard<GuardSignature, GuardCallable>
     ) -> transition
     <
         SourceStateMold,
         TargetStateMold,
-        EventSet,
+        Event,
         ActionSignature,
         ActionCallable,
         GuardSignature,
@@ -150,14 +150,14 @@ namespace detail
     }
 
     template<class Impl>
-    constexpr auto evt_set(const transition_table<Impl>& table)
+    constexpr auto event_types(const transition_table<Impl>& table)
     {
         return tuple_apply
         (
             rows(table),
             [](const auto&... transitions)
             {
-                return (transitions.evt_set_2() || ... || no_event);
+                return (transitions.event_types() || ... || no_event);
             }
         );
     }
@@ -224,7 +224,7 @@ public:
 
     @param source_state_mold the mold of the active state (or states, plural, if it's a @ref state-set "state set") from which the transition can occur
     @param target_state_mold the mold of the state that becomes active after the transition occurs
-    @param evt_set the event type (or types, plural, if it's an @ref event-set "event type set") that can cause the transition to occur
+    @param evt the event type (or types, plural, if it's an @ref event-set "event type set") that can cause the transition to occur
     @param action the `maki::action` invoked when the transition occurs, or `maki::null`
     @param guard the `maki::guard` that must return `true` for the transition to occur, or `maki::null`
     */
@@ -232,7 +232,7 @@ public:
     <
         class Source,
         class Target,
-        class EventSet = null_t,
+        class Event = null_t,
         class ActionOrNull = null_t,
         class GuardOrNull = null_t
     >
@@ -240,7 +240,7 @@ public:
     (
         const Source& source_state_mold,
         const Target& target_state_mold,
-        const EventSet& evt_set = null,
+        const Event& evt = null,
         const ActionOrNull& action = null,
         const GuardOrNull& guard = null
     )
@@ -286,7 +286,7 @@ public:
         {
             static_assert
             (
-                detail::is_null_v<EventSet>,
+                detail::is_null_v<Event>,
                 "Event (3rd argument) of transition from initial pseudostate must be `maki::null`"
             );
         }
@@ -294,7 +294,7 @@ public:
         {
             static_assert
             (
-                detail::is_event_v<EventSet> || detail::is_event_set_v<EventSet> || detail::is_null_v<EventSet>,
+                detail::is_event_v<Event> || detail::is_event_set_v<Event> || detail::is_null_v<Event>,
                 "Event (3rd argument) must be an instance of `maki::event_t`, an instance of `maki::event_set`, or `maki::null`"
             );
         }
@@ -332,7 +332,7 @@ public:
                 {
                     detail::store_state_mold(source_state_mold),
                     detail::store_state_mold(target_state_mold),
-                    evt_set,
+                    evt,
                     detail::to_action(action),
                     detail::to_guard(guard)
                 }

@@ -87,7 +87,7 @@ namespace transition_table_digest_detail
                     Index != 0 &&
                     is_null_v
                     <
-                        std::decay_t<decltype(tuple_get<Index>(TransitionTuple).evt_set)>
+                        std::decay_t<decltype(tuple_get<Index>(TransitionTuple).evt)>
                     >
                 )
             ;

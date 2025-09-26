@@ -216,9 +216,9 @@ public:
         >::call(*this);
     }
 
-    static constexpr const auto& evt_set()
+    static constexpr const auto& event_types()
     {
-        return computed_evt_set;
+        return computed_event_types;
     }
 
 private:
@@ -285,9 +285,9 @@ private:
     template<class... Regions>
     struct with_regions
     {
-        static constexpr auto evt_set()
+        static constexpr auto event_types()
         {
-            return (impl_of_t<Regions>::evt_set() || ... || no_event);
+            return (impl_of_t<Regions>::event_types() || ... || no_event);
         }
     };
 
@@ -301,7 +301,7 @@ private:
         MaybeBool&... processed
     )
     {
-        if constexpr(impl_type::evt_set().template contains<Event>())
+        if constexpr(impl_type::event_types().template contains<Event>())
         {
             self.impl_.template call_internal_action<Dry>
             (
@@ -320,9 +320,9 @@ private:
         }
     }
 
-    static constexpr auto computed_evt_set =
-        impl_type::evt_set() ||
-        tlu::apply_t<region_tuple_type, with_regions>::evt_set()
+    static constexpr auto computed_event_types =
+        impl_type::event_types() ||
+        tlu::apply_t<region_tuple_type, with_regions>::event_types()
     ;
 
     impl_type impl_;

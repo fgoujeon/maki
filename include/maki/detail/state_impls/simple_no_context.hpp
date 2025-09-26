@@ -99,27 +99,27 @@ public:
         return true;
     }
 
-    static constexpr const auto& evt_set()
+    static constexpr const auto& event_types()
     {
-        return computed_evt_set;
+        return computed_event_types;
     }
 
 private:
-    static constexpr auto make_event_set()
+    static constexpr auto list_event_types()
     {
         return tlu::apply_t
         <
             internal_action_ptr_constant_list,
-            make_event_set_2
+            list_event_types_2
         >::call();
     }
 
     template<class... InternalActionPtrConstants>
-    struct make_event_set_2
+    struct list_event_types_2
     {
         static constexpr auto call()
         {
-            return (InternalActionPtrConstants::value->evt_set || ... || no_event);
+            return (InternalActionPtrConstants::value->event_types || ... || no_event);
         }
     };
 
@@ -132,7 +132,7 @@ private:
     static constexpr auto exit_actions = impl_of(mold).exit_actions;
     using exit_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<exit_actions>;
 
-    static constexpr auto computed_evt_set = make_event_set();
+    static constexpr auto computed_event_types = list_event_types();
 };
 
 } //namespace

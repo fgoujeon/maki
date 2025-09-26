@@ -115,12 +115,12 @@ public:
     /** \
     @brief Adds a hook (see @ref maki::action_signature "signatures") to be \
     called whenever `maki::machine` is about to process an event whose type is \
-    part of `evt_set`. \
+    part of `event_types`. \
     */ \
     template<class EventSetPredicate, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_processing_hook_##signature(const event_set<EventSetPredicate>& evt_set, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_processing_hook_##signature(const event_set<EventSetPredicate>& event_types, const Action& action) const \
     { \
-        return pre_processing_hook<action_signature::signature>(evt_set, action); \
+        return pre_processing_hook<action_signature::signature>(event_types, action); \
     } \
  \
     /** \
@@ -248,7 +248,7 @@ public:
 
     /**
     @brief Adds a hook to be called whenever `maki::machine` is done processing
-    an event whose type is part of `evt_set`.
+    an event whose type is part of `event_types`.
 
     Hook must have the following form:
 
@@ -279,11 +279,11 @@ public:
     @endcode
     */
     template<class EventSetPredicate, class Action>
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_processing_hook_mep(const event_set<EventSetPredicate>& evt_set, const Action& action) const
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_processing_hook_mep(const event_set<EventSetPredicate>& event_types, const Action& action) const
     {
         const auto new_post_processing_hooks = impl_.post_processing_hooks.append
         (
-            detail::make_event_action<action_signature::me>(evt_set, action)
+            detail::make_event_action<action_signature::me>(event_types, action)
         );
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
@@ -405,11 +405,11 @@ private:
     }
 
     template<action_signature Sig, class EventSetPredicate, class Hook>
-    [[nodiscard]] constexpr auto pre_processing_hook(const event_set<EventSetPredicate>& evt_set, const Hook& hook) const
+    [[nodiscard]] constexpr auto pre_processing_hook(const event_set<EventSetPredicate>& event_types, const Hook& hook) const
     {
         const auto new_pre_processing_hooks = impl_.pre_processing_hooks.append
         (
-            detail::make_event_action<Sig>(evt_set, hook)
+            detail::make_event_action<Sig>(event_types, hook)
         );
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN

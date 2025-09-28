@@ -4,8 +4,6 @@
 #https://www.boost.org/LICENSE_1_0.txt)
 #Official repository: https://github.com/fgoujeon/maki
 
-cmake_minimum_required(VERSION 3.10)
-
 include(maki)
 
 set(TARGET example-doc-extra-event-set-in-transition-table)

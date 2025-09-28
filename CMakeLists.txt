@@ -111,15 +111,13 @@ target_compile_features(maki INTERFACE cxx_std_17)
 
 if(MAKI_BUILD_TESTS)
     find_package(Catch2 REQUIRED)
+
+    enable_testing()
+    add_subdirectory(tests)
 endif()
 
 if(MAKI_BUILD_EXAMPLES)
     add_subdirectory(examples)
-endif()
-
-if(MAKI_BUILD_TESTS)
-    enable_testing()
-    add_subdirectory(tests)
 endif()
 
 if(MAKI_INSTALL)

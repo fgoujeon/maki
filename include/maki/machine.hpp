@@ -576,8 +576,8 @@ private:
     static constexpr auto post_processing_hooks = impl_of(conf).post_processing_hooks;
     static constexpr auto path = detail::path{};
 
-    using pre_processing_hook_ptr_constant_list = detail::tuple_to_element_ptr_constant_list_t<pre_processing_hooks>;
-    using post_processing_hook_ptr_constant_list = detail::tuple_to_element_ptr_constant_list_t<post_processing_hooks>;
+    using pre_processing_hook_ptr_constant_list = detail::mix_constant_list_t<pre_processing_hooks>;
+    using post_processing_hook_ptr_constant_list = detail::mix_constant_list_t<post_processing_hooks>;
 
     detail::context_holder<context_type, impl_of(conf).context_sig> ctx_holder_;
     detail::state_impls::composite_no_context<&conf, path> impl_;

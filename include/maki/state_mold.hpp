@@ -241,8 +241,9 @@ private:
     template<action_signature Sig, class EventSetPredicate, class Action>
     [[nodiscard]] constexpr auto entry_action(const event_set<EventSetPredicate>& event_types, const Action& action) const
     {
-        const auto new_entry_actions = impl_.entry_actions.append
+        const auto new_entry_actions = append
         (
+            impl_.entry_actions,
             detail::make_event_action<Sig>(event_types, action)
         );
 
@@ -255,8 +256,9 @@ private:
     template<action_signature Sig, class EventSetPredicate, class Action>
     [[nodiscard]] constexpr auto internal_action(const event_set<EventSetPredicate>& event_types, const Action& action) const
     {
-        const auto new_internal_actions = impl_.internal_actions.append
+        const auto new_internal_actions = append
         (
+            impl_.internal_actions,
             detail::make_event_action<Sig>(event_types, action)
         );
 
@@ -269,8 +271,9 @@ private:
     template<action_signature Sig, class EventSetPredicate, class Action>
     [[nodiscard]] constexpr auto exit_action(const event_set<EventSetPredicate>& event_types, const Action& action) const
     {
-        const auto new_exit_actions = impl_.exit_actions.append
+        const auto new_exit_actions = append
         (
+            impl_.exit_actions,
             detail::make_event_action<Sig>(event_types, action)
         );
 

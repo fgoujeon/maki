@@ -13,6 +13,7 @@
 #define MAKI_MACHINE_CONF_FWD_HPP
 
 #include "tuple.hpp"
+#include "mix.hpp"
 #include "../context.hpp"
 #include "../null.hpp"
 #include <cstdlib>
@@ -28,12 +29,12 @@ namespace detail
     template
     <
         class Context = void,
-        class PreProcessingHookTuple = tuple<>,
+        class PreProcessingHookTuple = mix<>,
         class ExceptionHandler = null_t,
         class PreExternalTransitionHook = null_t,
         class PostExternalTransitionHook = null_t,
-        class PostProcessingHookTuple = tuple<>,
-        class TransitionTableTuple = tuple<>
+        class PostProcessingHookTuple = mix<>,
+        class TransitionTableTuple = mix<>
     >
     struct machine_conf_option_set
     {
@@ -57,9 +58,9 @@ namespace detail
         std::size_t small_event_max_size = machine_conf_default_small_event_max_size;
         TransitionTableTuple transition_tables;
 
-        static constexpr auto entry_actions = tuple<>{};
-        static constexpr auto exit_actions = tuple<>{};
-        static constexpr auto internal_actions = tuple<>{};
+        static constexpr auto entry_actions = mix<>{};
+        static constexpr auto exit_actions = mix<>{};
+        static constexpr auto internal_actions = mix<>{};
     };
 }
 

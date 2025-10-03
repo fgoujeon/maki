@@ -281,8 +281,9 @@ public:
     template<class EventSetPredicate, class Action>
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_processing_hook_mep(const event_set<EventSetPredicate>& event_types, const Action& action) const
     {
-        const auto new_post_processing_hooks = impl_.post_processing_hooks.append
+        const auto new_post_processing_hooks = append
         (
+            impl_.post_processing_hooks,
             detail::make_event_action<action_signature::me>(event_types, action)
         );
 
@@ -407,8 +408,9 @@ private:
     template<action_signature Sig, class EventSetPredicate, class Hook>
     [[nodiscard]] constexpr auto pre_processing_hook(const event_set<EventSetPredicate>& event_types, const Hook& hook) const
     {
-        const auto new_pre_processing_hooks = impl_.pre_processing_hooks.append
+        const auto new_pre_processing_hooks = append
         (
+            impl_.pre_processing_hooks,
             detail::make_event_action<Sig>(event_types, hook)
         );
 

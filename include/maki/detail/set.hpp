@@ -10,6 +10,8 @@
 #include "tuple.hpp"
 #include "equals.hpp"
 #include "type.hpp"
+#include "tlu/push_back_all_unique.hpp"
+#include "tlu/push_back_unique.hpp"
 #include "tlu/contains.hpp"
 
 namespace maki::detail
@@ -177,7 +179,25 @@ constexpr auto make_set_union
     type_t<U> /*ignored*/
 )
 {
-    return type_list_based_set<Ts..., U>{};
+    return tlu::push_back_unique_t
+    <
+        type_list_based_set<Ts...>,
+        U
+    >{};
+}
+
+template<class... Ts, class... Us>
+constexpr auto make_set_union
+(
+    type_list_based_set<Ts...> /*ignored*/,
+    type_list_based_set<Us...> /*ignored*/
+)
+{
+    return tlu::push_back_all_unique_t
+    <
+        type_list_based_set<Ts...>,
+        type_list_based_set<Us...>
+    >{};
 }
 
 

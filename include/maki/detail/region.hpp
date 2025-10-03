@@ -21,6 +21,7 @@
 #include "tlu/find.hpp"
 #include "tlu/front.hpp"
 #include "tlu/push_back.hpp"
+#include "../event_set.hpp"
 #include "../states.hpp"
 #include "../action.hpp"
 #include "../guard.hpp"
@@ -167,13 +168,9 @@ public:
         return value;
     }
 
-    template<class Event>
-    static constexpr bool can_process_event_type()
+    static constexpr const auto& event_types()
     {
-        return
-            detail::can_process_event_type<Event>(transition_table) ||
-            can_states_process_event_type<Event>()
-        ;
+        return computed_event_types;
     }
 
 private:
@@ -218,7 +215,7 @@ private:
 
         constexpr auto must_try_executing_transitions = !tlu::empty_v<candidate_transition_index_constant_list>;
 
-        if constexpr(must_try_executing_transitions && can_states_process_event_type<Event>())
+        if constexpr(must_try_executing_transitions && states_event_types.template contains<Event>())
         {
             /*
             There is a possibility of conflicting transition in this case.
@@ -236,11 +233,11 @@ private:
                 try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
             }
         }
-        else if constexpr(!must_try_executing_transitions && can_states_process_event_type<Event>())
+        else if constexpr(!must_try_executing_transitions && states_event_types.template contains<Event>())
         {
             call_active_state_internal_action<Dry>(self, mach, ctx, event, processed...);
         }
-        else if constexpr(must_try_executing_transitions && !can_states_process_event_type<Event>())
+        else if constexpr(must_try_executing_transitions && !states_event_types.template contains<Event>())
         {
             try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
         }
@@ -572,7 +569,7 @@ private:
             [[maybe_unused]] ExtraArgs&... extra_args
         )
         {
-            if constexpr(impl_of_t<State>::template can_process_event_type<Event>())
+            if constexpr(impl_of_t<State>::event_types().template contains<Event>())
             {
                 if(!self.template is_active_state_type<State>())
                 {
@@ -764,22 +761,31 @@ private:
         }
     }
 
-    template<class Event>
-    static constexpr bool can_states_process_event_type()
+    static constexpr auto list_event_types()
     {
-        using with_all_state_types = tlu::apply_t<state_tuple_type, with_state_types>;
-        return with_all_state_types::template can_process_event_type<Event>();
+        return detail::event_types(transition_table) || list_states_event_types();
+    }
+
+    static constexpr auto list_states_event_types()
+    {
+        return tlu::apply_t
+        <
+            state_tuple_type,
+            with_state_types
+        >::list_event_types();
     }
 
     template<class... States>
     struct with_state_types
     {
-        template<class Event>
-        static constexpr bool can_process_event_type()
+        static constexpr auto list_event_types()
         {
-            return (impl_of_t<States>::template can_process_event_type<Event>() || ...);
+            return (impl_of_t<States>::event_types() || ... || no_event);
         }
     };
+
+    static constexpr auto states_event_types = list_states_event_types();
+    static constexpr auto computed_event_types = detail::event_types(transition_table) || states_event_types;
 
     const maki::region<region>* pitf_;
     state_tuple_type states_;

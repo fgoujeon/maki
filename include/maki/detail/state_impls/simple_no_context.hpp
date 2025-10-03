@@ -10,7 +10,9 @@
 #include "../event_action.hpp"
 #include "../tuple.hpp"
 #include "../maybe_bool_util.hpp"
-#include "../tlu.hpp"
+#include "../tlu/empty.hpp"
+#include "../tlu/apply.hpp"
+#include "../../event_set.hpp"
 #include <type_traits>
 
 namespace maki::detail::state_impls
@@ -99,17 +101,30 @@ public:
         return true;
     }
 
-    template<class Event>
-    static constexpr bool can_process_event_type()
+    static constexpr const auto& event_types()
     {
-        return tlu::contains_if_v
-        <
-            internal_action_ptr_constant_list,
-            event_action_traits::for_event<Event>::template has_containing_event_set
-        >;
+        return computed_event_types;
     }
 
 private:
+    static constexpr auto list_event_types()
+    {
+        return tlu::apply_t
+        <
+            internal_action_ptr_constant_list,
+            list_event_types_2
+        >::call();
+    }
+
+    template<class... InternalActionPtrConstants>
+    struct list_event_types_2
+    {
+        static constexpr auto call()
+        {
+            return (InternalActionPtrConstants::value->event_types || ... || no_event);
+        }
+    };
+
     static constexpr auto entry_actions = impl_of(mold).entry_actions;
     using entry_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<entry_actions>;
 
@@ -118,6 +133,8 @@ private:
 
     static constexpr auto exit_actions = impl_of(mold).exit_actions;
     using exit_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<exit_actions>;
+
+    static constexpr auto computed_event_types = list_event_types();
 };
 
 } //namespace

@@ -47,7 +47,17 @@ public:
     */
     template<class Event>
     [[nodiscard]]
-    constexpr bool contains(event_t<Event> /*ignored*/ = {}) const
+    constexpr bool contains() const
+    {
+        return detail::contains(impl_, detail::type<Event>);
+    }
+
+    /**
+    @brief Checks whether the set contains `Event`.
+    */
+    template<class Event>
+    [[nodiscard]]
+    constexpr bool contains(event_t<Event> /*ignored*/) const
     {
         return detail::contains(impl_, detail::type<Event>);
     }
@@ -102,21 +112,21 @@ inline constexpr auto no_event = IMPLEMENTATION_DETAIL;
 #else
 inline constexpr auto no_event = detail::make_event_set_from_impl
 (
-    detail::make_set_excluding_all()
+    detail::make_set_including_types()
 );
 #endif
 
 /**
 @relates event_set
 @brief Creates a `maki::event_set` that contains all the event types that are
-not contained in `evt_set`.
+not contained in `event_types`.
 */
 template<class Predicate>
-constexpr auto operator!(const event_set<Predicate>& evt_set)
+constexpr auto operator!(const event_set<Predicate>& event_types)
 {
     return detail::make_event_set_from_impl
     (
-        detail::inverse_set(detail::impl_of(evt_set))
+        detail::inverse_set(detail::impl_of(event_types))
     );
 }
 
@@ -154,35 +164,35 @@ constexpr auto operator||
 
 /**
 @relates event_set
-@brief Creates a `maki::event_set` that contains the content of `evt_set`, plus
-`Event`.
+@brief Creates a `maki::event_set` that contains the content of `event_types`,
+plus `Event`.
 */
 template<class EventSetPredicate, class Event>
 constexpr auto operator||
 (
-    const event_set<EventSetPredicate>& evt_set,
+    const event_set<EventSetPredicate>& event_types,
     event_t<Event> /*evt*/
 )
 {
     return detail::make_event_set_from_impl
     (
-        detail::make_set_union(detail::impl_of(evt_set), detail::type<Event>)
+        detail::make_set_union(detail::impl_of(event_types), detail::type<Event>)
     );
 }
 
 /**
 @relates event_set
-@brief Creates a `maki::event_set` that contains the content of `evt_set`, plus
-`Event`.
+@brief Creates a `maki::event_set` that contains the content of `event_types`,
+plus `Event`.
 */
 template<class Event, class EventSetPredicate>
 constexpr auto operator||
 (
     const event_t<Event> evt,
-    const event_set<EventSetPredicate>& evt_set
+    const event_set<EventSetPredicate>& event_types
 )
 {
-    return evt_set || evt;
+    return event_types || evt;
 }
 
 /**

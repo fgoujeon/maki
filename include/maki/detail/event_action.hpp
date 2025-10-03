@@ -22,14 +22,14 @@ struct event_action
     using event_set_type = event_set<EventSetPredicate>;
 
     static constexpr auto sig = Sig;
-    event_set_type evt_set;
+    event_set_type event_types;
     Action action;
 };
 
 template<action_signature Sig, class EventSetPredicate, class Action>
-constexpr auto make_event_action(const event_set<EventSetPredicate>& evt_set, const Action& action)
+constexpr auto make_event_action(const event_set<EventSetPredicate>& event_types, const Action& action)
 {
-    return event_action<EventSetPredicate, Action, Sig>{evt_set, action};
+    return event_action<EventSetPredicate, Action, Sig>{event_types, action};
 }
 
 namespace event_action_traits
@@ -40,7 +40,7 @@ namespace event_action_traits
         template<class EventActionConstant>
         struct has_containing_event_set
         {
-            static constexpr auto value = EventActionConstant::value->evt_set.template contains<Event>();
+            static constexpr auto value = EventActionConstant::value->event_types.template contains<Event>();
         };
     };
 }

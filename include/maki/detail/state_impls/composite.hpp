@@ -136,10 +136,9 @@ public:
         return impl_.completed();
     }
 
-    template<class Event>
-    static constexpr bool can_process_event_type()
+    static constexpr const auto& event_types()
     {
-        return impl_type::template can_process_event_type<Event>();
+        return impl_type::event_types();
     }
 
 private:

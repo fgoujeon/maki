@@ -27,16 +27,6 @@
 namespace maki
 {
 
-namespace detail
-{
-    template<class... Transitions>
-    struct transition_table_impl
-    {
-        static constexpr auto size = sizeof...(Transitions);
-        tuple<Transitions...> transitions;
-    };
-}
-
 #ifdef MAKI_DETAIL_DOXYGEN
 /**
 @brief Represents a transition table.
@@ -60,7 +50,7 @@ constexpr auto transition_table = maki::transition_table{}
 template<class Impl = IMPLEMENTATION_DETAIL>
 class transition_table;
 #else
-template<class Impl = detail::transition_table_impl<>>
+template<class Impl = detail::tuple<>>
 class transition_table;
 #endif
 
@@ -160,14 +150,7 @@ namespace detail
     template<class... Transitions>
     constexpr auto make_transition_table(const tuple<Transitions...>& transitions)
     {
-        using impl_t = transition_table_impl<Transitions...>;
-        return transition_table<impl_t>{impl_t{transitions}};
-    }
-
-    template<class Impl>
-    constexpr const auto& rows(const transition_table<Impl>& table)
-    {
-        return impl_of(table).transitions;
+        return transition_table<tuple<Transitions...>>{transitions};
     }
 
     template<class Impl>
@@ -175,7 +158,7 @@ namespace detail
     {
         return tuple_apply
         (
-            rows(table),
+            impl_of(table),
             [](const auto&... transitions)
             {
                 return (event_types(transitions) || ... || no_event);
@@ -347,7 +330,7 @@ public:
 
         return detail::make_transition_table
         (
-            impl_.transitions.append
+            impl_.append
             (
                 detail::transition
                 {

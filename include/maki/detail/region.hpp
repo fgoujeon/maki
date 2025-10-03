@@ -175,7 +175,7 @@ public:
 
 private:
     static constexpr const auto& transition_table = TransitionTable;
-    static constexpr auto transition_tuple = maki::detail::rows(transition_table);
+    static constexpr auto transition_tuple = impl_of(transition_table);
 
     using transition_table_digest_type =
         transition_table_digest<transition_tuple>

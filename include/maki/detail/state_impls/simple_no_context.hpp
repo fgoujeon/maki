@@ -10,7 +10,9 @@
 #include "../event_action.hpp"
 #include "../tuple.hpp"
 #include "../maybe_bool_util.hpp"
-#include "../tlu.hpp"
+#include "../tlu/empty.hpp"
+#include "../tlu/apply.hpp"
+#include "../../event_set.hpp"
 #include <type_traits>
 
 namespace maki::detail::state_impls

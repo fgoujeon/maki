@@ -85,23 +85,6 @@ namespace detail
         guard<GuardSignature, GuardCallable> grd;
 
         [[nodiscard]]
-        constexpr auto event_types() const
-        {
-            if constexpr(is_event_v<Event>)
-            {
-                return event_set{evt};
-            }
-            else if constexpr(is_event_set_v<Event>)
-            {
-                return evt;
-            }
-            else if constexpr(is_null_v<Event>) // Completion event
-            {
-                return no_event;
-            }
-        }
-
-        [[nodiscard]]
         static constexpr bool can_process_completion_event()
         {
             return is_null_v<Event>;
@@ -136,6 +119,44 @@ namespace detail
         GuardCallable
     >;
 
+    template
+    <
+        class SourceStateMold,
+        class TargetStateMold,
+        class Event,
+        action_signature ActionSignature,
+        class ActionCallable,
+        guard_signature GuardSignature,
+        class GuardCallable
+    >
+    [[nodiscard]]
+    constexpr auto event_types
+    (
+        const transition
+        <
+            SourceStateMold,
+            TargetStateMold,
+            Event,
+            ActionSignature,
+            ActionCallable,
+            GuardSignature,
+            GuardCallable
+        >& trans)
+    {
+        if constexpr(is_event_v<Event>)
+        {
+            return event_set{trans.evt};
+        }
+        else if constexpr(is_event_set_v<Event>)
+        {
+            return trans.evt;
+        }
+        else if constexpr(is_null_v<Event>) // Completion event
+        {
+            return no_event;
+        }
+    }
+
     template<class... Transitions>
     constexpr auto make_transition_table(const tuple<Transitions...>& transitions)
     {
@@ -157,7 +178,7 @@ namespace detail
             rows(table),
             [](const auto&... transitions)
             {
-                return (transitions.event_types() || ... || no_event);
+                return (event_types(transitions) || ... || no_event);
             }
         );
     }

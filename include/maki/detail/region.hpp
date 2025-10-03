@@ -21,6 +21,7 @@
 #include "tlu/find.hpp"
 #include "tlu/front.hpp"
 #include "tlu/push_back.hpp"
+#include "../event_set.hpp"
 #include "../states.hpp"
 #include "../action.hpp"
 #include "../guard.hpp"

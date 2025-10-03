@@ -14,6 +14,7 @@
 #include "../tuple.hpp"
 #include "../impl.hpp"
 #include "../tlu/apply.hpp"
+#include "../../event_set.hpp"
 #include "../../states.hpp"
 #include "../../region.hpp"
 #include <type_traits>

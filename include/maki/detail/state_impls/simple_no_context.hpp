@@ -8,7 +8,7 @@
 #define MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP
 
 #include "../event_action.hpp"
-#include "../tuple.hpp"
+#include "../mix.hpp"
 #include "../maybe_bool_util.hpp"
 #include "../tlu/empty.hpp"
 #include "../tlu/apply.hpp"

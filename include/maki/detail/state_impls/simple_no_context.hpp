@@ -8,7 +8,7 @@
 #define MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP
 
 #include "../event_action.hpp"
-#include "../tuple.hpp"
+#include "../mix.hpp"
 #include "../maybe_bool_util.hpp"
 #include "../tlu/empty.hpp"
 #include "../tlu/apply.hpp"
@@ -126,13 +126,13 @@ private:
     };
 
     static constexpr auto entry_actions = impl_of(mold).entry_actions;
-    using entry_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<entry_actions>;
+    using entry_action_ptr_constant_list = mix_constant_list_t<entry_actions>;
 
     static constexpr auto internal_actions = impl_of(mold).internal_actions;
-    using internal_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<internal_actions>;
+    using internal_action_ptr_constant_list = mix_constant_list_t<internal_actions>;
 
     static constexpr auto exit_actions = impl_of(mold).exit_actions;
-    using exit_action_ptr_constant_list = tuple_to_element_ptr_constant_list_t<exit_actions>;
+    using exit_action_ptr_constant_list = mix_constant_list_t<exit_actions>;
 
     static constexpr auto computed_event_types = list_event_types();
 };

@@ -14,6 +14,7 @@
 #include "equals.hpp"
 #include "maybe_bool_util.hpp"
 #include "tuple.hpp"
+#include "mix.hpp"
 #include "constant.hpp"
 #include "impl.hpp"
 #include "tlu/apply.hpp"
@@ -68,7 +69,7 @@ public:
     template<class Machine, class Context>
     region(const maki::region<region>* pitf, Machine& mach, Context& ctx):
         pitf_(pitf),
-        states_(uniform_construct, mach, ctx)
+        states_(mix_uniform_construct, mach, ctx)
     {
     }
 
@@ -185,15 +186,15 @@ private:
     using state_id_constant_list = tlu::push_back_t<state_id_constant_list_0, constant_t<&maki::undefined>>;
 
     template<class... StateIdConstants>
-    using state_id_constant_pack_to_state_tuple_t = tuple
+    using state_id_constant_pack_to_state_mix_t = mix
     <
         state_traits::state_id_to_type_t<StateIdConstants::value, Path>...
     >;
 
-    using state_tuple_type = tlu::apply_t
+    using state_mix_type = tlu::apply_t
     <
         state_id_constant_list,
-        state_id_constant_pack_to_state_tuple_t
+        state_id_constant_pack_to_state_mix_t
     >;
 
     template<bool Dry, class Self, class Machine, class Context, class Event, class... MaybeBool>
@@ -551,7 +552,7 @@ private:
     {
         tlu::for_each_or
         <
-            state_tuple_type,
+            state_mix_type,
             call_active_state_internal_action_2<Dry>
         >(self, mach, ctx, event, extra_args...);
     }
@@ -750,14 +751,10 @@ private:
         }
         else
         {
-            static constexpr auto state_index =
-                region_detail::state_id_to_index_v
-                <
-                    state_id_constant_list,
-                    StateId
-                >
+            using state_t =
+                state_traits::state_id_to_type_t<StateId, Path>
             ;
-            return tuple_get<state_index>(self.states_);
+            return get<state_t>(self.states_);
         }
     }
 
@@ -770,7 +767,7 @@ private:
     {
         return tlu::apply_t
         <
-            state_tuple_type,
+            state_mix_type,
             with_state_types
         >::list_event_types();
     }
@@ -788,7 +785,7 @@ private:
     static constexpr auto computed_event_types = detail::event_types(transition_table) || states_event_types;
 
     const maki::region<region>* pitf_;
-    state_tuple_type states_;
+    state_mix_type states_;
     int active_state_index_ = region_detail::final_state_index;
 };
 

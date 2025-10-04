@@ -13,7 +13,7 @@
 #define MAKI_STATE_MOLD_FWD_HPP
 
 #include "../context.hpp"
-#include "tuple.hpp"
+#include "mix.hpp"
 #include <string_view>
 
 namespace maki
@@ -24,10 +24,10 @@ namespace detail
     template
     <
         class Context = void,
-        class EntryActionTuple = tuple<>,
-        class InternalActionTuple = tuple<>,
-        class ExitActionTuple = tuple<>,
-        class TransitionTableTuple = tuple<>
+        class EntryActionTuple = mix<>,
+        class InternalActionTuple = mix<>,
+        class ExitActionTuple = mix<>,
+        class TransitionTableTuple = mix<>
     >
     struct state_mold_option_set
     {

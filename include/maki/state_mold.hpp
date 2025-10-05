@@ -208,7 +208,7 @@ public:
     template<class... TransitionTables>
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE transition_tables(const TransitionTables&... tables) const
     {
-        const auto tpl = detail::tuple<TransitionTables...>{detail::distributed_construct, tables...};
+        const auto tpl = detail::tuple<TransitionTables...>{tables...};
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_transition_tables tpl
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_END

@@ -15,12 +15,6 @@
 namespace maki::detail
 {
 
-struct uniform_construct_t{};
-inline constexpr auto uniform_construct = uniform_construct_t{};
-
-struct distributed_construct_t{};
-inline constexpr auto distributed_construct = distributed_construct_t{};
-
 template<int Index, class T>
 class tuple_element
 {
@@ -83,20 +77,8 @@ public:
     constexpr tuple_base(tuple_base&& other) = delete;
 
     template<class... Args>
-    explicit constexpr tuple_base(distributed_construct_t /*tag*/, Args&&... args):
+    explicit constexpr tuple_base(Args&&... args):
         tuple_element<Indexes, Ts>{std::forward<Args>(args)}...
-    {
-    }
-
-    template<class Arg>
-    constexpr tuple_base(uniform_construct_t /*tag*/, Arg& arg):
-        tuple_element<Indexes, Ts>{arg}...
-    {
-    }
-
-    template<class Arg0, class Arg1>
-    constexpr tuple_base(uniform_construct_t /*tag*/, Arg0& arg0, Arg1& arg1):
-        tuple_element<Indexes, Ts>{arg0, arg1}...
     {
     }
 
@@ -119,7 +101,7 @@ public:
     template<class U>
     constexpr auto append(const U& elem) const
     {
-        return tuple<Ts..., U>{distributed_construct, tuple_element<Indexes, Ts>::value()..., elem};
+        return tuple<Ts..., U>{tuple_element<Indexes, Ts>::value()..., elem};
     }
 };
 
@@ -140,12 +122,10 @@ public:
 };
 
 template<class... Args>
-constexpr auto make_tuple(distributed_construct_t /*tag*/, const Args&... args)
+constexpr auto make_tuple(const Args&... args)
 {
-    return tuple<Args...>{distributed_construct, args...};
+    return tuple<Args...>{args...};
 }
-
-inline constexpr auto empty_tuple = make_tuple(distributed_construct);
 
 template<class IndexSequence>
 struct tuple_equality_impl;
@@ -254,7 +234,7 @@ constexpr auto tuple_tail(Tuple& tpl)
         tpl,
         [](const auto&... elems)
         {
-            return make_tuple(distributed_construct, elems...);
+            return make_tuple(elems...);
         }
     );
 }

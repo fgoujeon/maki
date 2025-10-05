@@ -116,7 +116,7 @@ tuple_based_set(const tuple<Elems...>&) -> tuple_based_set<Elems...>;
 template<class... Elems>
 constexpr auto make_set_including(const Elems&... elems)
 {
-    return tuple_based_set{make_tuple(distributed_construct, elems...)};
+    return tuple_based_set{make_tuple(elems...)};
 }
 
 template<class... Elems, class Elem>

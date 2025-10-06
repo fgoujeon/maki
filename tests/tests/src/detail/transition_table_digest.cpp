@@ -36,9 +36,7 @@ namespace transition_table_digest_ns
         (maki::all_states, state0, maki::event<event3>)
     ;
 
-    constexpr auto transition_tuple = maki::detail::impl_of(transition_table);
-
-    using digest_t = maki::detail::transition_table_digest<transition_tuple>;
+    using digest_t = maki::detail::transition_table_digest<transition_table>;
 
     using state_mold_ptr_constant_list = maki::detail::type_list_t
     <

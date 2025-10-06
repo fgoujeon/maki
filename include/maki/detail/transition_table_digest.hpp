@@ -43,14 +43,13 @@ For example, the following digest type...:
 
 namespace transition_table_digest_detail
 {
-    template<const auto& TransitionTuple>
     struct initial_digest
     {
         using state_id_constant_list = type_list_t<>;
         static constexpr auto has_completion_transitions = false;
     };
 
-    template<const auto& TransitionTuple>
+    template<const auto& TransitionTable>
     struct add_transition_to_digest_holder
     {
         template<class Digest, int Index>
@@ -67,17 +66,17 @@ namespace transition_table_digest_detail
                 !tlu::contains_v
                 <
                     typename Digest::state_id_constant_list,
-                    constant_t<tuple_get<Index>(TransitionTuple).target_state_mold>
+                    constant_t<tuple_get<Index>(impl_of(TransitionTable)).target_state_mold>
                 > &&
-                !equals(tuple_get<Index>(TransitionTuple).target_state_mold, state_molds::fin) &&
-                !equals(tuple_get<Index>(TransitionTuple).target_state_mold, null) &&
-                !equals(tuple_get<Index>(TransitionTuple).target_state_mold, undefined)
+                !equals(tuple_get<Index>(impl_of(TransitionTable)).target_state_mold, state_molds::fin) &&
+                !equals(tuple_get<Index>(impl_of(TransitionTable)).target_state_mold, null) &&
+                !equals(tuple_get<Index>(impl_of(TransitionTable)).target_state_mold, undefined)
             ;
 
             using state_id_constant_list = tlu::push_back_if_t
             <
                 typename Digest::state_id_constant_list,
-                constant_t<tuple_get<Index>(TransitionTuple).target_state_mold>,
+                constant_t<tuple_get<Index>(impl_of(TransitionTable)).target_state_mold>,
                 must_add_target_state
             >;
 
@@ -87,7 +86,7 @@ namespace transition_table_digest_detail
                     Index != 0 &&
                     is_null_v
                     <
-                        std::decay_t<decltype(tuple_get<Index>(TransitionTuple).evt)>
+                        std::decay_t<decltype(tuple_get<Index>(impl_of(TransitionTable)).evt)>
                     >
                 )
             ;
@@ -102,15 +101,15 @@ namespace transition_table_digest_detail
     };
 }
 
-template<const auto& TransitionTuple>
+template<const auto& TransitionTable>
 using transition_table_digest = tlu::left_fold_t
 <
-    make_integer_constant_sequence<int, TransitionTuple.size>,
+    make_integer_constant_sequence<int, impl_of(TransitionTable).size>,
     transition_table_digest_detail::add_transition_to_digest_holder
     <
-        TransitionTuple
+        TransitionTable
     >::template add_transition_to_digest,
-    transition_table_digest_detail::initial_digest<TransitionTuple>
+    transition_table_digest_detail::initial_digest
 >;
 
 } //namespace

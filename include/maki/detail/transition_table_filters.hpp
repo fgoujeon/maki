@@ -14,7 +14,7 @@
 namespace maki::detail::transition_table_filters
 {
 
-template<const auto& TransitionTuple, class Event>
+template<const auto& TransitionTable, class Event>
 struct by_event_predicate_holder
 {
     template<class TransitionIndexConstant>
@@ -22,7 +22,7 @@ struct by_event_predicate_holder
     {
         static constexpr bool make_value()
         {
-            const auto& trans = tuple_get<TransitionIndexConstant::value>(TransitionTuple);
+            const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(TransitionTable));
             return event_types(trans).template contains<Event>();
         }
 
@@ -32,39 +32,39 @@ struct by_event_predicate_holder
 
 namespace by_source_state_and_null_event_detail
 {
-    template<class TransitionIndexConstant, class TransitionTuple, class SourceStateId>
-    constexpr bool matches(const TransitionTuple& transitions, const SourceStateId source_state_id)
+    template<class TransitionIndexConstant, class TransitionTable, class SourceStateId>
+    constexpr bool matches(const TransitionTable& table, const SourceStateId source_state_id)
     {
-        const auto& trans = tuple_get<TransitionIndexConstant::value>(transitions);
+        const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(table));
         return
             trans.can_process_completion_event() &&
             contained_in(*source_state_id, trans.source_state_mold)
         ;
     }
 
-    template<auto TransitionTuplePtr, auto SourceStateId>
+    template<auto TransitionTablePtr, auto SourceStateId>
     struct predicate_holder
     {
         template<class TransitionIndexConstant>
         struct predicate
         {
-            static constexpr bool value = matches<TransitionIndexConstant>(*TransitionTuplePtr, SourceStateId);
+            static constexpr bool value = matches<TransitionIndexConstant>(*TransitionTablePtr, SourceStateId);
         };
     };
 }
 
-template<const auto& TransitionTuple, class Event>
+template<const auto& TransitionTable, class Event>
 using by_event_t = tlu::filter_t
 <
-    make_integer_constant_sequence<int, TransitionTuple.size>,
-    by_event_predicate_holder<TransitionTuple, Event>::template predicate
+    make_integer_constant_sequence<int, impl_of(TransitionTable).size>,
+    by_event_predicate_holder<TransitionTable, Event>::template predicate
 >;
 
-template<const auto& TransitionTuple, auto SourceStateId>
+template<const auto& TransitionTable, auto SourceStateId>
 using by_source_state_and_null_event_t = tlu::filter_t
 <
-    make_integer_constant_sequence<int, TransitionTuple.size>,
-    by_source_state_and_null_event_detail::predicate_holder<&TransitionTuple, SourceStateId>::template predicate
+    make_integer_constant_sequence<int, impl_of(TransitionTable).size>,
+    by_source_state_and_null_event_detail::predicate_holder<&TransitionTable, SourceStateId>::template predicate
 >;
 
 } //namespace

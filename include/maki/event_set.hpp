@@ -8,7 +8,7 @@
 #define MAKI_EVENT_SET_HPP
 
 #include "event.hpp"
-#include "detail/set.hpp"
+#include "detail/type_set_impls.hpp"
 #include "detail/impl.hpp"
 
 namespace maki
@@ -24,9 +24,9 @@ class event_set;
 namespace detail
 {
     template<class Impl>
-    constexpr auto make_event_set_from_impl(const Impl& impl)
+    constexpr event_set<Impl> make_event_set_from_impl()
     {
-        return event_set<Impl>{impl};
+        return event_set<Impl>{};
     }
 }
 
@@ -49,7 +49,7 @@ public:
     [[nodiscard]]
     constexpr bool contains() const
     {
-        return detail::contains(impl_, detail::type<Event>);
+        return detail::type_set_impls::contains_v<Impl, Event>;
     }
 
     /**
@@ -59,21 +59,14 @@ public:
     [[nodiscard]]
     constexpr bool contains(event_t<Event> /*ignored*/) const
     {
-        return detail::contains(impl_, detail::type<Event>);
+        return detail::type_set_impls::contains_v<Impl, Event>;
     }
 
 private:
-    using impl_type = Impl;
-
     template<class Impl2>
-    friend constexpr auto detail::make_event_set_from_impl(const Impl2&);
+    friend constexpr event_set<Impl2> detail::make_event_set_from_impl();
 
-    constexpr explicit event_set(const Impl& impl):
-        impl_(impl)
-    {
-    }
-
-    MAKI_DETAIL_FRIENDLY_IMPL
+    constexpr event_set() = default;
 };
 
 /**
@@ -86,7 +79,7 @@ event_set(event_t<Event>) -> event_set
 #ifdef MAKI_DETAIL_DOXYGEN
     IMPLEMENTATION_DETAIL
 #else
-    decltype(detail::make_set_including_types<Event>())
+    detail::type_set_impls::item<Event>
 #endif
 >;
 
@@ -98,9 +91,9 @@ event_set(event_t<Event>) -> event_set
 inline constexpr auto all_events = IMPLEMENTATION_DETAIL;
 #else
 inline constexpr auto all_events = detail::make_event_set_from_impl
-(
-    detail::make_set_including_all()
-);
+<
+    detail::type_set_impls::exclusion_list<>
+>();
 #endif
 
 #ifdef MAKI_DETAIL_DOXYGEN
@@ -111,9 +104,9 @@ inline constexpr auto all_events = detail::make_event_set_from_impl
 inline constexpr auto no_event = IMPLEMENTATION_DETAIL;
 #else
 inline constexpr auto no_event = detail::make_event_set_from_impl
-(
-    detail::make_set_including_types()
-);
+<
+    detail::type_set_impls::inclusion_list<>
+>();
 #endif
 
 /**
@@ -121,13 +114,20 @@ inline constexpr auto no_event = detail::make_event_set_from_impl
 @brief Creates a `maki::event_set` that contains all the event types that are
 not contained in `event_types`.
 */
-template<class Predicate>
-constexpr auto operator!(const event_set<Predicate>& event_types)
+template<class EventSetImpl>
+constexpr auto operator!
+(
+#ifdef MAKI_DETAIL_DOXYGEN
+    const event_set<EventSetImpl>& event_types
+#else
+    const event_set<EventSetImpl>& /*event_types*/
+#endif
+)
 {
     return detail::make_event_set_from_impl
-    (
-        detail::inverse_set(detail::impl_of(event_types))
-    );
+    <
+        detail::type_set_impls::inverse_of_t<EventSetImpl>
+    >();
 }
 
 /**
@@ -139,9 +139,9 @@ template<class Event>
 constexpr auto operator!(event_t<Event> /*evt*/)
 {
     return detail::make_event_set_from_impl
-    (
-        detail::make_set_excluding(detail::type<Event>)
-    );
+    <
+        detail::type_set_impls::exclusion_list<Event>
+    >();
 }
 
 /**
@@ -152,47 +152,61 @@ constexpr auto operator!(event_t<Event> /*evt*/)
 template<class LhsImpl, class RhsImpl>
 constexpr auto operator||
 (
+#ifdef MAKI_DETAIL_DOXYGEN
     const event_set<LhsImpl>& lhs,
+    const event_set<RhsImpl>& rhs
+#else
+    const event_set<LhsImpl>& /*lhs*/,
+    const event_set<RhsImpl>& /*rhs*/
+#endif
+)
+{
+    return detail::make_event_set_from_impl
+    <
+        detail::type_set_impls::union_of_t<LhsImpl, RhsImpl>
+    >();
+}
+
+/**
+@relates event_set
+@brief Creates a `maki::event_set` that contains the content of `event_types`,
+plus `Event`.
+*/
+template<class LhsImpl, class Event>
+constexpr auto operator||
+(
+#ifdef MAKI_DETAIL_DOXYGEN
+    const event_set<LhsImpl>& lhs,
+    event_t<Event> rhs
+#else
+    const event_set<LhsImpl>& /*lhs*/,
+    event_t<Event> /*rhs*/
+#endif
+)
+{
+    return detail::make_event_set_from_impl
+    <
+        detail::type_set_impls::union_of_t
+        <
+            LhsImpl,
+            detail::type_set_impls::item<Event>
+        >
+    >();
+}
+
+/**
+@relates event_set
+@brief Creates a `maki::event_set` that contains the content of `event_types`,
+plus `Event`.
+*/
+template<class Event, class RhsImpl>
+constexpr auto operator||
+(
+    const event_t<Event> lhs,
     const event_set<RhsImpl>& rhs
 )
 {
-    return detail::make_event_set_from_impl
-    (
-        detail::make_set_union(detail::impl_of(lhs), detail::impl_of(rhs))
-    );
-}
-
-/**
-@relates event_set
-@brief Creates a `maki::event_set` that contains the content of `event_types`,
-plus `Event`.
-*/
-template<class EventSetPredicate, class Event>
-constexpr auto operator||
-(
-    const event_set<EventSetPredicate>& event_types,
-    event_t<Event> /*evt*/
-)
-{
-    return detail::make_event_set_from_impl
-    (
-        detail::make_set_union(detail::impl_of(event_types), detail::type<Event>)
-    );
-}
-
-/**
-@relates event_set
-@brief Creates a `maki::event_set` that contains the content of `event_types`,
-plus `Event`.
-*/
-template<class Event, class EventSetPredicate>
-constexpr auto operator||
-(
-    const event_t<Event> evt,
-    const event_set<EventSetPredicate>& event_types
-)
-{
-    return event_types || evt;
+    return rhs || lhs;
 }
 
 /**
@@ -207,9 +221,9 @@ constexpr auto operator||
 )
 {
     return detail::make_event_set_from_impl
-    (
-        detail::make_set_including_types<LhsEvent, RhsEvent>()
-    );
+    <
+        detail::type_set_impls::inclusion_list<LhsEvent, RhsEvent>
+    >();
 }
 
 /**
@@ -220,14 +234,19 @@ constexpr auto operator||
 template<class LhsImpl, class RhsImpl>
 constexpr auto operator&&
 (
+#ifdef MAKI_DETAIL_DOXYGEN
     const event_set<LhsImpl>& lhs,
     const event_set<RhsImpl>& rhs
+#else
+    const event_set<LhsImpl>& /*lhs*/,
+    const event_set<RhsImpl>& /*rhs*/
+#endif
 )
 {
     return detail::make_event_set_from_impl
-    (
-        detail::make_set_intersection(detail::impl_of(lhs) && detail::impl_of(rhs))
-    );
+    <
+        detail::type_set_impls::intersection_of_t<LhsImpl, RhsImpl>
+    >();
 }
 
 namespace detail
@@ -238,8 +257,8 @@ namespace detail
         static constexpr auto value = false;
     };
 
-    template<class Predicate>
-    struct is_event_set<event_set<Predicate>>
+    template<class EventSetImpl>
+    struct is_event_set<event_set<EventSetImpl>>
     {
         static constexpr auto value = true;
     };

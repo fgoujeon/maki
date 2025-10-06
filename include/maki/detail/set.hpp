@@ -9,16 +9,12 @@
 
 #include "tuple.hpp"
 #include "equals.hpp"
-#include "type.hpp"
-#include "tlu/push_back_all_unique.hpp"
-#include "tlu/push_back_unique.hpp"
-#include "tlu/contains.hpp"
 
 namespace maki::detail
 {
 
 /*
-Implementation types for `maki::event_set` and `maki::state_set`.
+Implementation types for `maki::state_set`.
 */
 
 /*
@@ -144,60 +140,6 @@ constexpr auto make_set_union
 )
 {
     return tuple_based_set{set.elems.append(elem)};
-}
-
-
-/*
-type_list_based_set
-
-Better than `tuple_based_set` for types.
-*/
-
-template<class... Ts>
-struct type_list_based_set{};
-
-template<class... Ts>
-constexpr auto make_set_including_types()
-{
-    return type_list_based_set<Ts...>{};
-}
-
-template<class... Ts, class U>
-constexpr bool contains
-(
-    type_list_based_set<Ts...> /*ignored*/,
-    type_t<U> /*ignored*/
-)
-{
-    return tlu::contains_v<type_list_based_set<Ts...>, U>;
-}
-
-template<class... Ts, class U>
-constexpr auto make_set_union
-(
-    type_list_based_set<Ts...> /*ignored*/,
-    type_t<U> /*ignored*/
-)
-{
-    return tlu::push_back_unique_t
-    <
-        type_list_based_set<Ts...>,
-        U
-    >{};
-}
-
-template<class... Ts, class... Us>
-constexpr auto make_set_union
-(
-    type_list_based_set<Ts...> /*ignored*/,
-    type_list_based_set<Us...> /*ignored*/
-)
-{
-    return tlu::push_back_all_unique_t
-    <
-        type_list_based_set<Ts...>,
-        type_list_based_set<Us...>
-    >{};
 }
 
 

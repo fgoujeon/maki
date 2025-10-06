@@ -7,9 +7,6 @@
 #ifndef MAKI_DETAIL_TYPE_SET_IMPLS_HPP
 #define MAKI_DETAIL_TYPE_SET_IMPLS_HPP
 
-#include "tuple.hpp"
-#include "equals.hpp"
-#include "type.hpp"
 #include "tlu/remove_all.hpp"
 #include "tlu/remove.hpp"
 #include "tlu/intersection.hpp"

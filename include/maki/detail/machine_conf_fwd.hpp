@@ -12,7 +12,6 @@
 #ifndef MAKI_MACHINE_CONF_FWD_HPP
 #define MAKI_MACHINE_CONF_FWD_HPP
 
-#include "tuple.hpp"
 #include "mix.hpp"
 #include "../context.hpp"
 #include "../null.hpp"

@@ -10,7 +10,6 @@
 #include "left_fold.hpp"
 #include "push_back_if.hpp"
 #include "contains.hpp"
-#include <type_traits>
 
 namespace maki::detail::tlu
 {

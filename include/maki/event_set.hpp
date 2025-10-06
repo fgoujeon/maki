@@ -9,7 +9,6 @@
 
 #include "event.hpp"
 #include "detail/type_set_impls.hpp"
-#include "detail/impl.hpp"
 
 namespace maki
 {

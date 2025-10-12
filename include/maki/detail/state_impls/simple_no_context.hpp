@@ -62,16 +62,11 @@ public:
         Caller is supposed to check an interal action exists for the given event
         type before calling this function.
         */
-        static_assert(!tlu::empty_v<internal_action_ptr_constant_list>);
+        static_assert(impl_of(mold).internal_actions.size > 0);
 
         if constexpr(!Dry)
         {
-            call_matching_event_action<internal_action_ptr_constant_list>
-            (
-                mach,
-                ctx,
-                event
-            );
+            impl_of(mold).internal_actions(ctx, mach, event);
         }
 
         maybe_bool_util::set_to_true(processed...);
@@ -103,38 +98,22 @@ public:
 
     static constexpr const auto& event_types()
     {
-        return computed_event_types;
+        return internal_action_event_types;
     }
 
 private:
-    static constexpr auto list_event_types()
-    {
-        return tlu::apply_t
-        <
-            internal_action_ptr_constant_list,
-            list_event_types_2
-        >::call();
-    }
-
-    template<class... InternalActionPtrConstants>
-    struct list_event_types_2
-    {
-        static constexpr auto call()
-        {
-            return (InternalActionPtrConstants::value->event_types || ... || no_event);
-        }
-    };
-
     static constexpr auto entry_actions = impl_of(mold).entry_actions;
     using entry_action_ptr_constant_list = mix_constant_list_t<entry_actions>;
 
-    static constexpr auto internal_actions = impl_of(mold).internal_actions;
-    using internal_action_ptr_constant_list = mix_constant_list_t<internal_actions>;
+    static constexpr auto internal_action_event_types =
+        make_event_set_from_impl
+        <
+            typename option_set_type::internal_action_event_set_impl_type
+        >()
+    ;
 
     static constexpr auto exit_actions = impl_of(mold).exit_actions;
     using exit_action_ptr_constant_list = mix_constant_list_t<exit_actions>;
-
-    static constexpr auto computed_event_types = list_event_types();
 };
 
 } //namespace

@@ -12,8 +12,10 @@
 #ifndef MAKI_STATE_MOLD_FWD_HPP
 #define MAKI_STATE_MOLD_FWD_HPP
 
+#include "../event_set.hpp"
 #include "../context.hpp"
 #include "mix.hpp"
+#include "overload.hpp"
 #include <string_view>
 
 namespace maki
@@ -25,46 +27,23 @@ namespace detail
     <
         class Context = void,
         class EntryActionTuple = mix<>,
-        class InternalActionTuple = mix<>,
+        class InternalActionEventSetImpl = detail::type_set_impls::inclusion_list<>,
+        class InternalActionOverload = overload<>,
         class ExitActionTuple = mix<>,
         class TransitionTableTuple = mix<>
     >
     struct state_mold_option_set
     {
         using context_type = Context;
+        using internal_action_event_set_impl_type = InternalActionEventSetImpl;
 
         state_context_signature context_sig = state_context_signature::v;
         EntryActionTuple entry_actions;
-        InternalActionTuple internal_actions;
+        InternalActionOverload internal_actions;
         ExitActionTuple exit_actions;
         std::string_view pretty_name;
         TransitionTableTuple transition_tables;
     };
-}
-
-#ifdef MAKI_DETAIL_DOXYGEN
-template<IMPLEMENTATION_DETAIL>
-#else
-template<class OptionSet = detail::state_mold_option_set<>>
-#endif
-class state_mold;
-
-namespace detail
-{
-    template<class T>
-    struct is_state_mold
-    {
-        static constexpr auto value = false;
-    };
-
-    template<class OptionSet>
-    struct is_state_mold<state_mold<OptionSet>>
-    {
-        static constexpr auto value = true;
-    };
-
-    template<class T>
-    constexpr bool is_state_mold_v = is_state_mold<T>::value;
 }
 
 } //namespace

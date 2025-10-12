@@ -210,6 +210,16 @@ struct intersection_of<inclusion_list<Lhss...>, exclusion_list<Rhss...>>
     >;
 };
 
+template<class... Lhss, class Rhs>
+struct intersection_of<exclusion_list<Lhss...>, item<Rhs>>
+{
+    using type = tlu::remove_all_t
+    <
+        inclusion_list<Rhs>,
+        exclusion_list<Lhss...>
+    >;
+};
+
 template<class... Lhss, class... Rhss>
 struct intersection_of<exclusion_list<Lhss...>, inclusion_list<Rhss...>>
 {

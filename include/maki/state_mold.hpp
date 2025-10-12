@@ -59,6 +59,7 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = detail::type<typename Impl::context_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = impl_.context_sig; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = impl_.entry_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_action_event_set_impl_type = detail::type<typename Impl::internal_action_event_set_impl_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = impl_.internal_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = impl_.exit_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = impl_.pretty_name; \
@@ -71,6 +72,7 @@ public:
         < \
             typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
+            typename std::decay_t<decltype(MAKI_DETAIL_ARG_internal_action_event_set_impl_type)>::type, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
@@ -102,8 +104,8 @@ public:
     @brief Adds an entry action (see @ref maki::action_signature "signatures") \
     to be called for any event type in `event_types`. \
     */ \
-    template<class EventSetPredicate, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const event_set<EventSetPredicate>& event_types, const Action& action) const \
+    template<class EventSetImpl, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const event_set<EventSetImpl>& event_types, const Action& action) const \
     { \
         return entry_action<action_signature::signature>(event_types, action); \
     } \
@@ -139,8 +141,8 @@ public:
     @brief Adds an internal action (see @ref maki::action_signature "signatures") \
     to be called for any event type in `event_types`. \
     */ \
-    template<class EventSetPredicate, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const event_set<EventSetPredicate>& event_types, const Action& action) const \
+    template<class EventSetImpl, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const event_set<EventSetImpl>& event_types, const Action& action) const \
     { \
         return internal_action<action_signature::signature>(event_types, action); \
     } \
@@ -162,8 +164,8 @@ public:
     @brief Adds an exit action (see @ref maki::action_signature "signatures") \
     to be called for any event type in `event_types`. \
     */ \
-    template<class EventSetPredicate, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const event_set<EventSetPredicate>& event_types, const Action& action) const \
+    template<class EventSetImpl, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const event_set<EventSetImpl>& event_types, const Action& action) const \
     { \
         return exit_action<action_signature::signature>(event_types, action); \
     } \
@@ -238,8 +240,8 @@ private:
 #undef MAKI_DETAIL_ARG_context_sig
     }
 
-    template<action_signature Sig, class EventSetPredicate, class Action>
-    [[nodiscard]] constexpr auto entry_action(const event_set<EventSetPredicate>& event_types, const Action& action) const
+    template<action_signature Sig, class EventSetImpl, class Action>
+    [[nodiscard]] constexpr auto entry_action(const event_set<EventSetImpl>& event_types, const Action& action) const
     {
         const auto new_entry_actions = append
         (
@@ -253,23 +255,59 @@ private:
 #undef MAKI_DETAIL_ARG_entry_actions
     }
 
-    template<action_signature Sig, class EventSetPredicate, class Action>
-    [[nodiscard]] constexpr auto internal_action(const event_set<EventSetPredicate>& event_types, const Action& action) const
+    template<action_signature Sig, class EventSetImpl, class Action>
+    [[nodiscard]] constexpr auto internal_action(const event_set<EventSetImpl>& /*event_types*/, const Action& action) const
     {
-        const auto new_internal_actions = append
+        using new_internal_action_event_set_impl_type =
+            detail::type_set_impls::union_of_t
+            <
+                typename Impl::internal_action_event_set_impl_type,
+                EventSetImpl
+            >
+        ;
+
+        using new_internal_action_event_set_type =
+            detail::type_set_impls::intersection_of_t
+            <
+                detail::type_set_impls::inverse_of_t
+                <
+                    typename Impl::internal_action_event_set_impl_type
+                >,
+                EventSetImpl
+            >
+        ;
+
+        const auto new_internal_actions = add
         (
             impl_.internal_actions,
-            detail::make_event_action<Sig>(event_types, action)
+            [action]
+            (
+                auto& ctx,
+                auto& mach,
+                const auto& evt,
+                std::enable_if_t<detail::type_set_impls::contains_v<new_internal_action_event_set_type, std::decay_t<decltype(evt)>>>* = nullptr
+            )
+            {
+                detail::call_callable<action_signature, Sig>
+                (
+                    action,
+                    ctx,
+                    mach,
+                    evt
+                );
+            }
         );
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_internal_action_event_set_impl_type detail::type<new_internal_action_event_set_impl_type>
 #define MAKI_DETAIL_ARG_internal_actions new_internal_actions
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_internal_action_event_set_impl_type
 #undef MAKI_DETAIL_ARG_internal_actions
     }
 
-    template<action_signature Sig, class EventSetPredicate, class Action>
-    [[nodiscard]] constexpr auto exit_action(const event_set<EventSetPredicate>& event_types, const Action& action) const
+    template<action_signature Sig, class EventSetImpl, class Action>
+    [[nodiscard]] constexpr auto exit_action(const event_set<EventSetImpl>& event_types, const Action& action) const
     {
         const auto new_exit_actions = append
         (
@@ -290,6 +328,33 @@ private:
 };
 
 #undef MAKI_DETAIL_STATE_CONF_RETURN_TYPE
+
+#ifdef MAKI_DETAIL_DOXYGEN
+state_mold() -> state_mold<IMPLEMENTATION_DETAIL>;
+#else
+state_mold() -> state_mold
+<
+    detail::state_mold_option_set<>
+>;
+#endif
+
+namespace detail
+{
+    template<class T>
+    struct is_state_mold
+    {
+        static constexpr auto value = false;
+    };
+
+    template<class OptionSet>
+    struct is_state_mold<state_mold<OptionSet>>
+    {
+        static constexpr auto value = true;
+    };
+
+    template<class T>
+    constexpr bool is_state_mold_v = is_state_mold<T>::value;
+}
 
 } //namespace
 

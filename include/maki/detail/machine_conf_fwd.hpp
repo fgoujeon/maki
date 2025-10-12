@@ -12,6 +12,7 @@
 #ifndef MAKI_MACHINE_CONF_FWD_HPP
 #define MAKI_MACHINE_CONF_FWD_HPP
 
+#include "overload.hpp"
 #include "mix.hpp"
 #include "../context.hpp"
 #include "../null.hpp"
@@ -59,7 +60,8 @@ namespace detail
 
         static constexpr auto entry_actions = mix<>{};
         static constexpr auto exit_actions = mix<>{};
-        static constexpr auto internal_actions = mix<>{};
+        using internal_action_event_set_impl_type = detail::type_set_impls::inclusion_list<>;
+        static constexpr auto internal_actions = overload{};
     };
 }
 

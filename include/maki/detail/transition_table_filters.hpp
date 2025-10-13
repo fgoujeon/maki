@@ -10,6 +10,7 @@
 #include "tlu/filter.hpp"
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
+#include "../transition_table.hpp"
 
 namespace maki::detail::transition_table_filters
 {
@@ -23,7 +24,9 @@ struct by_event_predicate_holder
         static constexpr bool make_value()
         {
             const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(TransitionTable));
-            return event_types(trans).template contains<Event>();
+            using trans_t = std::decay_t<decltype(trans)>;
+            using trans_event_type_set_t = transition_event_type_set_t<trans_t>;
+            return type_set_impls::contains_v<trans_event_type_set_t, Event>;
         }
 
         static constexpr bool value = make_value();

@@ -138,62 +138,10 @@ namespace detail
     template<class Transition>
     using transition_event_type_set_t = transition_event_event_type_set_t<typename Transition::event_type>;
 
-    template
-    <
-        class SourceStateMold,
-        class TargetStateMold,
-        class Event,
-        action_signature ActionSignature,
-        class ActionCallable,
-        guard_signature GuardSignature,
-        class GuardCallable
-    >
-    [[nodiscard]]
-    constexpr auto event_types
-    (
-        const transition
-        <
-            SourceStateMold,
-            TargetStateMold,
-            Event,
-            ActionSignature,
-            ActionCallable,
-            GuardSignature,
-            GuardCallable
-        >& trans
-    )
-    {
-        if constexpr(is_event_v<Event>)
-        {
-            return event_set{trans.evt};
-        }
-        else if constexpr(is_event_set_v<Event>)
-        {
-            return trans.evt;
-        }
-        else if constexpr(is_null_v<Event>) // Completion event
-        {
-            return no_event;
-        }
-    }
-
     template<class... Transitions>
     constexpr auto make_transition_table(const tuple<Transitions...>& transitions)
     {
         return transition_table<tuple<Transitions...>>{transitions};
-    }
-
-    template<class Impl>
-    constexpr auto event_types(const transition_table<Impl>& table)
-    {
-        return tuple_apply
-        (
-            impl_of(table),
-            [](const auto&... transitions)
-            {
-                return (event_types(transitions) || ... || no_event);
-            }
-        );
     }
 
     template<class T>

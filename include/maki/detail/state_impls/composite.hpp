@@ -138,11 +138,6 @@ public:
         return impl_.completed();
     }
 
-    static constexpr const auto& event_types()
-    {
-        return impl_type::event_types();
-    }
-
 private:
     context_holder<context_type, impl_of(mold).context_sig> ctx_holder_;
     impl_type impl_;

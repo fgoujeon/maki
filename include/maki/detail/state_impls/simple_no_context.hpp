@@ -119,11 +119,6 @@ public:
         return true;
     }
 
-    static constexpr const auto& event_types()
-    {
-        return computed_event_types;
-    }
-
 private:
     static constexpr auto entry_actions = impl_of(mold).entry_actions;
     using entry_action_ptr_constant_list = mix_constant_list_t<entry_actions>;
@@ -133,8 +128,6 @@ private:
 
     static constexpr auto exit_actions = impl_of(mold).exit_actions;
     using exit_action_ptr_constant_list = mix_constant_list_t<exit_actions>;
-
-    static constexpr auto computed_event_types = make_event_set_from_impl<event_type_set>();
 };
 
 } //namespace

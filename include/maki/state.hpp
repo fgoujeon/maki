@@ -97,6 +97,24 @@ private:
     MAKI_DETAIL_FRIENDLY_IMPL
 };
 
+namespace detail
+{
+    template<class EventTypeSet, class State>
+    using state_type_list_event_type_set_operation_t = type_set_impls::union_of_t
+    <
+        EventTypeSet,
+        typename impl_of_t<State>::event_type_set
+    >;
+
+    template<class StateTypeList>
+    using state_type_list_event_type_set_t = tlu::left_fold_t
+    <
+        StateTypeList,
+        state_type_list_event_type_set_operation_t,
+        type_set_impls::inclusion_list<>
+    >;
+}
+
 } //namespace
 
 #endif

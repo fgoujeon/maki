@@ -60,13 +60,6 @@ namespace region_detail
 
     template<class StateIdConstantList, auto StateId>
     inline constexpr auto state_id_to_index_v = state_id_to_index<StateIdConstantList, StateId>::value;
-
-    template<class EventTypeSet, class State>
-    using event_type_set_fold_operation = type_set_impls::union_of_t
-    <
-        EventTypeSet,
-        typename impl_of_t<State>::event_type_set
-    >;
 }
 
 template<const auto& TransitionTable, const auto& Path>
@@ -94,12 +87,7 @@ public:
         state_id_constant_pack_to_state_mix_t
     >;
 
-    using states_event_type_set = tlu::left_fold_t
-    <
-        state_mix_type,
-        region_detail::event_type_set_fold_operation,
-        type_set_impls::inclusion_list<>
-    >;
+    using states_event_type_set = state_type_list_event_type_set_t<state_mix_type>;
 
     using event_type_set = type_set_impls::union_of_t
     <
@@ -210,11 +198,6 @@ public:
         return value;
     }
 
-    static constexpr const auto& event_types()
-    {
-        return computed_event_types;
-    }
-
 private:
     template<bool Dry, class Self, class Machine, class Context, class Event, class... MaybeBool>
     static void process_event_2
@@ -235,7 +218,13 @@ private:
 
         constexpr auto must_try_executing_transitions = !tlu::empty_v<candidate_transition_index_constant_list>;
 
-        if constexpr(must_try_executing_transitions && states_event_types.template contains<Event>())
+        constexpr auto must_try_process_event_in_states = type_set_impls::contains_v
+        <
+            states_event_type_set,
+            Event
+        >;
+
+        if constexpr(must_try_executing_transitions && must_try_process_event_in_states)
         {
             /*
             There is a possibility of conflicting transition in this case.
@@ -253,11 +242,11 @@ private:
                 try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
             }
         }
-        else if constexpr(!must_try_executing_transitions && states_event_types.template contains<Event>())
+        else if constexpr(!must_try_executing_transitions && must_try_process_event_in_states)
         {
             call_active_state_internal_action<Dry>(self, mach, ctx, event, processed...);
         }
-        else if constexpr(must_try_executing_transitions && !states_event_types.template contains<Event>())
+        else if constexpr(must_try_executing_transitions && !must_try_process_event_in_states)
         {
             try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
         }
@@ -589,7 +578,15 @@ private:
             [[maybe_unused]] ExtraArgs&... extra_args
         )
         {
-            if constexpr(impl_of_t<State>::event_types().template contains<Event>())
+            constexpr auto can_state_process_event =
+                type_set_impls::contains_v
+                <
+                    typename impl_of_t<State>::event_type_set,
+                    Event
+                >
+            ;
+
+            if constexpr(can_state_process_event)
             {
                 if(!self.template is_active_state_type<State>())
                 {
@@ -776,27 +773,6 @@ private:
             return get<state_t>(self.states_);
         }
     }
-
-    static constexpr auto list_states_event_types()
-    {
-        return tlu::apply_t
-        <
-            state_mix_type,
-            with_state_types
-        >::list_event_types();
-    }
-
-    template<class... States>
-    struct with_state_types
-    {
-        static constexpr auto list_event_types()
-        {
-            return (impl_of_t<States>::event_types() || ... || no_event);
-        }
-    };
-
-    static constexpr auto states_event_types = list_states_event_types();
-    static constexpr auto computed_event_types = make_event_set_from_impl<event_type_set>();
 
     const maki::region<region>* pitf_;
     state_mix_type states_;

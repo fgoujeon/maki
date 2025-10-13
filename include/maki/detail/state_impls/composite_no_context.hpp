@@ -264,11 +264,6 @@ public:
         >::call(*this);
     }
 
-    static constexpr const auto& event_types()
-    {
-        return computed_event_types;
-    }
-
 private:
     template<class... Regions>
     struct all_regions_completed
@@ -319,7 +314,13 @@ private:
         MaybeBool&... processed
     )
     {
-        if constexpr(impl_type::event_types().template contains<Event>())
+        constexpr auto can_process_event = type_set_impls::contains_v
+        <
+            typename impl_type::event_type_set,
+            Event
+        >;
+
+        if constexpr(can_process_event)
         {
             self.impl_.template call_internal_action<Dry>
             (
@@ -337,10 +338,6 @@ private:
             tlu::for_each<region_mix_type, region_process_event<Dry>>(self, mach, ctx, event, processed...);
         }
     }
-
-    static constexpr auto computed_event_types =
-        make_event_set_from_impl<event_type_set>()
-    ;
 
     impl_type impl_;
     region_mix_type regions_;

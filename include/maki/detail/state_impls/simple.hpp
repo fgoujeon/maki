@@ -75,11 +75,6 @@ public:
         return true;
     }
 
-    static constexpr const auto& event_types()
-    {
-        return impl_type::event_types();
-    }
-
 private:
     context_holder<context_type, context_sig> ctx_holder_;
     impl_type impl_;

@@ -18,6 +18,15 @@
 namespace maki::detail::state_impls
 {
 
+template<class EventTypeSet, class EventAction>
+using event_action_event_set_operation =
+    maki::detail::type_set_impls::union_of_t
+    <
+        EventTypeSet,
+        typename EventAction::event_set_impl_type
+    >
+;
+
 template<auto Id>
 class simple_no_context
 {
@@ -107,23 +116,14 @@ public:
     }
 
 private:
-    static constexpr auto list_event_types()
-    {
-        return tlu::apply_t
+    using internal_action_event_type_set =
+        tlu::left_fold_t
         <
-            internal_action_ptr_constant_list,
-            list_event_types_2
-        >::call();
-    }
-
-    template<class... InternalActionPtrConstants>
-    struct list_event_types_2
-    {
-        static constexpr auto call()
-        {
-            return (InternalActionPtrConstants::value->event_types || ... || no_event);
-        }
-    };
+            typename option_set_type::internal_action_mix_type,
+            event_action_event_set_operation,
+            type_set_impls::inclusion_list<>
+        >
+    ;
 
     static constexpr auto entry_actions = impl_of(mold).entry_actions;
     using entry_action_ptr_constant_list = mix_constant_list_t<entry_actions>;
@@ -134,7 +134,7 @@ private:
     static constexpr auto exit_actions = impl_of(mold).exit_actions;
     using exit_action_ptr_constant_list = mix_constant_list_t<exit_actions>;
 
-    static constexpr auto computed_event_types = list_event_types();
+    static constexpr auto computed_event_types = make_event_set_from_impl<internal_action_event_type_set>();
 };
 
 } //namespace

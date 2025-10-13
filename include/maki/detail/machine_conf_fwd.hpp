@@ -43,6 +43,7 @@ namespace detail
         using post_external_transition_hook_type = PostExternalTransitionHook;
         using pre_processing_hook_tuple_type = PreProcessingHookTuple;
         using post_processing_hook_tuple_type = PostProcessingHookTuple;
+        using internal_action_mix_type = mix<>;
 
         bool auto_start = true;
         machine_context_signature context_sig = machine_context_signature::a;

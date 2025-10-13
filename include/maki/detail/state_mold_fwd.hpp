@@ -32,6 +32,7 @@ namespace detail
     struct state_mold_option_set
     {
         using context_type = Context;
+        using internal_action_mix_type = InternalActionTuple;
 
         state_context_signature context_sig = state_context_signature::v;
         EntryActionTuple entry_actions;

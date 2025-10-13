@@ -16,20 +16,21 @@
 namespace maki::detail
 {
 
-template<class EventSetPredicate, class Action, action_signature Sig>
+template<class EventSetImpl, class Action, action_signature Sig>
 struct event_action
 {
-    using event_set_type = event_set<EventSetPredicate>;
+    using event_set_impl_type = EventSetImpl;
+    using event_set_type = event_set<EventSetImpl>;
 
     static constexpr auto sig = Sig;
     event_set_type event_types;
     Action action;
 };
 
-template<action_signature Sig, class EventSetPredicate, class Action>
-constexpr auto make_event_action(const event_set<EventSetPredicate>& event_types, const Action& action)
+template<action_signature Sig, class EventSetImpl, class Action>
+constexpr auto make_event_action(const event_set<EventSetImpl>& event_types, const Action& action)
 {
-    return event_action<EventSetPredicate, Action, Sig>{event_types, action};
+    return event_action<EventSetImpl, Action, Sig>{event_types, action};
 }
 
 namespace event_action_traits

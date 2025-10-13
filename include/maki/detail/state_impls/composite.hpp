@@ -26,6 +26,8 @@ public:
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);
     using context_type = typename option_set_type::context_type;
+    using impl_type = composite_no_context<identifier, Path>;
+    using event_type_set = typename impl_type::event_type_set;
 
     template<class Machine, class ParentContext>
     composite(Machine& mach, ParentContext& parent_ctx):
@@ -142,8 +144,6 @@ public:
     }
 
 private:
-    using impl_type = composite_no_context<identifier, Path>;
-
     context_holder<context_type, impl_of(mold).context_sig> ctx_holder_;
     impl_type impl_;
 };

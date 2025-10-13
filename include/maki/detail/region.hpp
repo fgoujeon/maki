@@ -60,12 +60,53 @@ namespace region_detail
 
     template<class StateIdConstantList, auto StateId>
     inline constexpr auto state_id_to_index_v = state_id_to_index<StateIdConstantList, StateId>::value;
+
+    template<class EventTypeSet, class State>
+    using event_type_set_fold_operation = type_set_impls::union_of_t
+    <
+        EventTypeSet,
+        typename impl_of_t<State>::event_type_set
+    >;
 }
 
 template<const auto& TransitionTable, const auto& Path>
 class region
 {
 public:
+    using transition_table_type = std::decay_t<decltype(TransitionTable)>;
+
+    using transition_table_digest_type =
+        transition_table_digest<TransitionTable>
+    ;
+
+    using state_id_constant_list_0 = typename transition_table_digest_type::state_id_constant_list;
+    using state_id_constant_list = tlu::push_back_t<state_id_constant_list_0, constant_t<&maki::undefined>>;
+
+    template<class... StateIdConstants>
+    using state_id_constant_pack_to_state_mix_t = mix
+    <
+        state_traits::state_id_to_type_t<StateIdConstants::value, Path>...
+    >;
+
+    using state_mix_type = tlu::apply_t
+    <
+        state_id_constant_list,
+        state_id_constant_pack_to_state_mix_t
+    >;
+
+    using states_event_type_set = tlu::left_fold_t
+    <
+        state_mix_type,
+        region_detail::event_type_set_fold_operation,
+        type_set_impls::inclusion_list<>
+    >;
+
+    using event_type_set = type_set_impls::union_of_t
+    <
+        transition_table_event_type_set_t<transition_table_type>,
+        states_event_type_set
+    >;
+
     template<class Machine, class Context>
     region(const maki::region<region>* pitf, Machine& mach, Context& ctx):
         pitf_(pitf),
@@ -175,25 +216,6 @@ public:
     }
 
 private:
-    using transition_table_digest_type =
-        transition_table_digest<TransitionTable>
-    ;
-
-    using state_id_constant_list_0 = typename transition_table_digest_type::state_id_constant_list;
-    using state_id_constant_list = tlu::push_back_t<state_id_constant_list_0, constant_t<&maki::undefined>>;
-
-    template<class... StateIdConstants>
-    using state_id_constant_pack_to_state_mix_t = mix
-    <
-        state_traits::state_id_to_type_t<StateIdConstants::value, Path>...
-    >;
-
-    using state_mix_type = tlu::apply_t
-    <
-        state_id_constant_list,
-        state_id_constant_pack_to_state_mix_t
-    >;
-
     template<bool Dry, class Self, class Machine, class Context, class Event, class... MaybeBool>
     static void process_event_2
     (
@@ -755,11 +777,6 @@ private:
         }
     }
 
-    static constexpr auto list_event_types()
-    {
-        return detail::event_types(TransitionTable) || list_states_event_types();
-    }
-
     static constexpr auto list_states_event_types()
     {
         return tlu::apply_t
@@ -779,7 +796,7 @@ private:
     };
 
     static constexpr auto states_event_types = list_states_event_types();
-    static constexpr auto computed_event_types = detail::event_types(TransitionTable) || states_event_types;
+    static constexpr auto computed_event_types = make_event_set_from_impl<event_type_set>();
 
     const maki::region<region>* pitf_;
     state_mix_type states_;

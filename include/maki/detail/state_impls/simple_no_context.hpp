@@ -35,6 +35,15 @@ public:
     static constexpr const auto& mold = *Id;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
 
+    using event_type_set =
+        tlu::left_fold_t
+        <
+            typename option_set_type::internal_action_mix_type,
+            event_action_event_set_operation,
+            type_set_impls::inclusion_list<>
+        >
+    ;
+
     template<class... Args>
     constexpr simple_no_context(Args&... /*args*/)
     {
@@ -116,15 +125,6 @@ public:
     }
 
 private:
-    using internal_action_event_type_set =
-        tlu::left_fold_t
-        <
-            typename option_set_type::internal_action_mix_type,
-            event_action_event_set_operation,
-            type_set_impls::inclusion_list<>
-        >
-    ;
-
     static constexpr auto entry_actions = impl_of(mold).entry_actions;
     using entry_action_ptr_constant_list = mix_constant_list_t<entry_actions>;
 
@@ -134,7 +134,7 @@ private:
     static constexpr auto exit_actions = impl_of(mold).exit_actions;
     using exit_action_ptr_constant_list = mix_constant_list_t<exit_actions>;
 
-    static constexpr auto computed_event_types = make_event_set_from_impl<internal_action_event_type_set>();
+    static constexpr auto computed_event_types = make_event_set_from_impl<event_type_set>();
 };
 
 } //namespace

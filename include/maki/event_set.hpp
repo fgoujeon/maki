@@ -9,6 +9,7 @@
 
 #include "event.hpp"
 #include "detail/type_set_impls.hpp"
+#include "detail/impl.hpp"
 
 namespace maki
 {
@@ -62,6 +63,11 @@ public:
     }
 
 private:
+    using impl_type = Impl;
+
+    template<class T>
+    friend struct detail::impl_of_t_helper;
+
     template<class Impl2>
     friend constexpr event_set<Impl2> detail::make_event_set_from_impl();
 

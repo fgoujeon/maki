@@ -79,6 +79,23 @@ struct region_mix
     >;
 };
 
+template<class EventTypeSet, class Region>
+using region_type_list_event_type_set_operation =
+    type_set_impls::union_of_t
+    <
+        EventTypeSet,
+        typename impl_of_t<Region>::event_type_set
+    >
+;
+
+template<class RegionTypeList>
+using region_type_list_event_type_set = tlu::left_fold_t
+<
+    RegionTypeList,
+    region_type_list_event_type_set_operation,
+    type_set_impls::inclusion_list<>
+>;
+
 template<auto Id, const auto& Path>
 class composite_no_context
 {
@@ -88,6 +105,32 @@ public:
     using mold_type = std::decay_t<decltype(mold)>;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);
+    using impl_type = simple_no_context<Id>;
+
+    using region_index_sequence_type = std::make_integer_sequence
+    <
+        int,
+        tlu::size_v<transition_table_type_list>
+    >;
+
+    using region_index_constant_sequence = make_integer_constant_sequence
+    <
+        int,
+        tlu::size_v<transition_table_type_list>
+    >;
+
+    using region_mix_type = typename region_mix
+    <
+        composite_no_context,
+        Path,
+        region_index_sequence_type
+    >::type;
+
+    using event_type_set = type_set_impls::union_of_t
+    <
+        typename impl_type::event_type_set,
+        region_type_list_event_type_set<region_mix_type>
+    >;
 
     template<class Machine, class Context>
     composite_no_context(Machine& mach, Context& ctx):
@@ -227,27 +270,6 @@ public:
     }
 
 private:
-    using impl_type = simple_no_context<Id>;
-
-    using region_index_sequence_type = std::make_integer_sequence
-    <
-        int,
-        tlu::size_v<transition_table_type_list>
-    >;
-
-    using region_index_constant_sequence = make_integer_constant_sequence
-    <
-        int,
-        tlu::size_v<transition_table_type_list>
-    >;
-
-    using region_mix_type = typename region_mix
-    <
-        composite_no_context,
-        Path,
-        region_index_sequence_type
-    >::type;
-
     template<class... Regions>
     struct all_regions_completed
     {
@@ -287,15 +309,6 @@ private:
         }
     };
 
-    template<class... Regions>
-    struct with_regions
-    {
-        static constexpr auto event_types()
-        {
-            return (impl_of_t<Regions>::event_types() || ... || no_event);
-        }
-    };
-
     template<bool Dry, class Self, class Machine, class Context, class Event, class... MaybeBool>
     static void call_internal_action_2
     (
@@ -326,8 +339,7 @@ private:
     }
 
     static constexpr auto computed_event_types =
-        impl_type::event_types() ||
-        tlu::apply_t<region_mix_type, with_regions>::event_types()
+        make_event_set_from_impl<event_type_set>()
     ;
 
     impl_type impl_;

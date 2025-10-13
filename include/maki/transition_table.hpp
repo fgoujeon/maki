@@ -68,6 +68,8 @@ namespace detail
     >
     struct transition
     {
+        using event_type = Event;
+
         SourceStateMold source_state_mold;
         TargetStateMold target_state_mold;
         Event evt;
@@ -109,6 +111,30 @@ namespace detail
         GuardCallable
     >;
 
+    template<class TransitionEvent>
+    struct transition_event_type_set;
+
+    template<class Event>
+    struct transition_event_type_set<event_t<Event>>
+    {
+        using type = type_set_impls::item<Event>;
+    };
+
+    template<class... Events>
+    struct transition_event_type_set<event_set<Events...>>
+    {
+        using type = impl_of_t<event_set<Events...>>;
+    };
+
+    template<>
+    struct transition_event_type_set<null_t>
+    {
+        using type = type_set_impls::inclusion_list<>;
+    };
+
+    template<class TransitionEvent>
+    using transition_event_type_set_t = typename transition_event_type_set<TransitionEvent>::type;
+
     template
     <
         class SourceStateMold,
@@ -131,7 +157,8 @@ namespace detail
             ActionCallable,
             GuardSignature,
             GuardCallable
-        >& trans)
+        >& trans
+    )
     {
         if constexpr(is_event_v<Event>)
         {
@@ -359,6 +386,24 @@ private:
 
     MAKI_DETAIL_FRIENDLY_IMPL
 };
+
+namespace detail
+{
+    template<class EventTypeSet, class Transition>
+    using transition_table_event_type_set_fold_operation_t = type_set_impls::union_of_t
+    <
+        EventTypeSet,
+        transition_event_type_set_t<typename Transition::event_type>
+    >;
+
+    template<class TransitionTable>
+    using transition_table_event_type_set_t = tlu::left_fold_t
+    <
+        impl_of_t<TransitionTable>,
+        transition_table_event_type_set_fold_operation_t,
+        type_set_impls::inclusion_list<>
+    >;
+}
 
 } //namespace
 

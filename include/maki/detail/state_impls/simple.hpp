@@ -23,6 +23,10 @@ public:
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using context_type = typename option_set_type::context_type;
 
+    using impl_type = simple_no_context<identifier>;
+
+    using event_type_set = typename impl_type::event_type_set;
+
     static constexpr auto context_sig = impl_of(mold).context_sig;
 
     template<class... Args>
@@ -77,8 +81,6 @@ public:
     }
 
 private:
-    using impl_type = simple_no_context<identifier>;
-
     context_holder<context_type, context_sig> ctx_holder_;
     impl_type impl_;
 };

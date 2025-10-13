@@ -112,28 +112,31 @@ namespace detail
     >;
 
     template<class TransitionEvent>
-    struct transition_event_type_set;
+    struct transition_event_event_type_set;
 
     template<class Event>
-    struct transition_event_type_set<event_t<Event>>
+    struct transition_event_event_type_set<event_t<Event>>
     {
         using type = type_set_impls::item<Event>;
     };
 
     template<class... Events>
-    struct transition_event_type_set<event_set<Events...>>
+    struct transition_event_event_type_set<event_set<Events...>>
     {
         using type = impl_of_t<event_set<Events...>>;
     };
 
     template<>
-    struct transition_event_type_set<null_t>
+    struct transition_event_event_type_set<null_t>
     {
         using type = type_set_impls::inclusion_list<>;
     };
 
     template<class TransitionEvent>
-    using transition_event_type_set_t = typename transition_event_type_set<TransitionEvent>::type;
+    using transition_event_event_type_set_t = typename transition_event_event_type_set<TransitionEvent>::type;
+
+    template<class Transition>
+    using transition_event_type_set_t = transition_event_event_type_set_t<typename Transition::event_type>;
 
     template
     <
@@ -393,7 +396,7 @@ namespace detail
     using transition_table_event_type_set_fold_operation_t = type_set_impls::union_of_t
     <
         EventTypeSet,
-        transition_event_type_set_t<typename Transition::event_type>
+        transition_event_type_set_t<Transition>
     >;
 
     template<class TransitionTable>

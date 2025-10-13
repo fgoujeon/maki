@@ -23,14 +23,14 @@ struct event_action
     using event_set_type = event_set<EventSetImpl>;
 
     static constexpr auto sig = Sig;
-    event_set_type event_types;
+
     Action action;
 };
 
 template<action_signature Sig, class EventSetImpl, class Action>
-constexpr auto make_event_action(const event_set<EventSetImpl>& event_types, const Action& action)
+constexpr auto make_event_action(const Action& action)
 {
-    return event_action<EventSetImpl, Action, Sig>{event_types, action};
+    return event_action<EventSetImpl, Action, Sig>{action};
 }
 
 namespace event_action_traits
@@ -41,7 +41,13 @@ namespace event_action_traits
         template<class EventActionConstant>
         struct has_containing_event_set
         {
-            static constexpr auto value = EventActionConstant::value->event_types.template contains<Event>();
+            using event_action_type = std::decay_t<decltype(*EventActionConstant::value)>;
+
+            static constexpr auto value = type_set_impls::contains_v
+            <
+                typename event_action_type::event_set_impl_type,
+                Event
+            >;
         };
     };
 }

@@ -15,7 +15,7 @@
 namespace maki::detail::transition_table_filters
 {
 
-template<const auto& TransitionTable, class Event>
+template<class TransitionTable, class Event>
 struct by_event_predicate_holder
 {
     template<class TransitionIndexConstant>
@@ -23,8 +23,7 @@ struct by_event_predicate_holder
     {
         static constexpr bool make_value()
         {
-            const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(TransitionTable));
-            using trans_t = std::decay_t<decltype(trans)>;
+            using trans_t = tlu::get_t<impl_of_t<TransitionTable>, TransitionIndexConstant::value>;
             using trans_event_type_set_t = transition_event_type_set_t<trans_t>;
             return type_set_impls::contains_v<trans_event_type_set_t, Event>;
         }
@@ -56,10 +55,10 @@ namespace by_source_state_and_null_event_detail
     };
 }
 
-template<const auto& TransitionTable, class Event>
+template<class TransitionTable, class Event>
 using by_event_t = tlu::filter_t
 <
-    make_integer_constant_sequence<int, impl_of(TransitionTable).size>,
+    make_integer_constant_sequence<int, impl_of_t<TransitionTable>::size>,
     by_event_predicate_holder<TransitionTable, Event>::template predicate
 >;
 

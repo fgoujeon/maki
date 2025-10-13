@@ -212,7 +212,7 @@ private:
         //List the transitions whose event set contains `Event`
         using candidate_transition_index_constant_list = transition_table_filters::by_event_t
         <
-            TransitionTable,
+            transition_table_type,
             Event
         >;
 

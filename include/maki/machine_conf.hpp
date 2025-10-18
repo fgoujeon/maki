@@ -15,7 +15,7 @@
 #include "event_set.hpp"
 #include "context.hpp"
 #include "action.hpp"
-#include "detail/machine_conf_fwd.hpp"
+#include "detail/machine_conf_impl.hpp"
 #include "detail/type.hpp"
 #include "detail/event_action.hpp"
 #include "detail/signature_macros.hpp"
@@ -73,7 +73,7 @@ public:
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return machine_conf \
     < \
-        detail::machine_conf_option_set \
+        detail::machine_conf_impl \
         < \
             typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_pre_processing_hooks)>, \
@@ -429,6 +429,12 @@ private:
 };
 
 #undef MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE
+
+#ifdef MAKI_DETAIL_DOXYGEN
+machine_conf() -> machine_conf<IMPLEMENTATION_DETAIL>;
+#else
+machine_conf() -> machine_conf<detail::machine_conf_impl<>>;
+#endif
 
 namespace detail
 {

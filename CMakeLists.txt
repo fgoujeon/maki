@@ -67,8 +67,9 @@ target_sources(maki
         include/maki/detail/region_impl.hpp
         include/maki/detail/set.hpp
         include/maki/detail/signature_macros.hpp
-        include/maki/detail/state_id_to_type.hpp
+        include/maki/detail/state_id_to_state.hpp
         include/maki/detail/state_id_traits.hpp
+        include/maki/detail/state_impl.hpp
         include/maki/detail/state_mold_fwd.hpp
         include/maki/detail/state_type_list_filters.hpp
         include/maki/detail/tlu.hpp

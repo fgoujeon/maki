@@ -9,7 +9,7 @@
 
 #include "compiler.hpp"
 #include "type_set.hpp"
-#include "state_id_to_type.hpp"
+#include "state_id_to_state.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
@@ -79,7 +79,7 @@ public:
     template<class... StateIdConstants>
     using state_id_constant_pack_to_state_mix_t = mix
     <
-        state_traits::state_id_to_type_t<StateIdConstants::value, Path>...
+        state_traits::state_id_to_state_t<StateIdConstants::value, Path>...
     >;
 
     using state_mix_type = tlu::apply_t
@@ -773,7 +773,7 @@ private:
         else
         {
             using state_t =
-                state_traits::state_id_to_type_t<StateId, Path>
+                state_traits::state_id_to_state_t<StateId, Path>
             ;
             return get<state_t>(self.states_);
         }

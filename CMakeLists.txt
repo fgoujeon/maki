@@ -64,8 +64,7 @@ target_sources(maki
         include/maki/detail/overload_priority.hpp
         include/maki/detail/path.hpp
         include/maki/detail/pretty_name.hpp
-        include/maki/detail/region.hpp
-        include/maki/detail/region_fwd.hpp
+        include/maki/detail/region_impl.hpp
         include/maki/detail/set.hpp
         include/maki/detail/signature_macros.hpp
         include/maki/detail/state_id_to_type.hpp

@@ -10,7 +10,7 @@
 #include "simple_no_context.hpp"
 #include "../type_set.hpp"
 #include "../maybe_bool_util.hpp"
-#include "../region.hpp"
+#include "../region_impl.hpp"
 #include "../integer_constant_sequence.hpp"
 #include "../mix.hpp"
 #include "../friendly_impl.hpp"
@@ -37,7 +37,7 @@ struct region_mix_elem
 {
     static constexpr auto transition_table = tuple_get<Index>(impl_of(ParentSm::mold).transition_tables);
     static constexpr auto path = ParentPath.add_region_index(Index);
-    using type = maki::region<detail::region<transition_table, path>>;
+    using type = region<region_impl<transition_table, path>>;
 };
 
 template

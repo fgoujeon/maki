@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_REGION_HPP
-#define MAKI_DETAIL_REGION_HPP
+#ifndef MAKI_DETAIL_REGION_IMPL_HPP
+#define MAKI_DETAIL_REGION_IMPL_HPP
 
 #include "compiler.hpp"
 #include "type_set.hpp"
@@ -64,7 +64,7 @@ namespace region_detail
 }
 
 template<const auto& TransitionTable, const auto& Path>
-class region
+class region_impl
 {
 public:
     using transition_table_type = std::decay_t<decltype(TransitionTable)>;
@@ -97,17 +97,17 @@ public:
     >;
 
     template<class Machine, class Context>
-    region(const maki::region<region>* pitf, Machine& mach, Context& ctx):
+    region_impl(const region<region_impl>* pitf, Machine& mach, Context& ctx):
         pitf_(pitf),
         states_(mix_uniform_construct, mach, ctx)
     {
     }
 
-    region(const region&) = delete;
-    region(region&&) = delete;
-    region& operator=(const region&) = delete;
-    region& operator=(region&&) = delete;
-    ~region() = default;
+    region_impl(const region_impl&) = delete;
+    region_impl(region_impl&&) = delete;
+    region_impl& operator=(const region_impl&) = delete;
+    region_impl& operator=(region_impl&&) = delete;
+    ~region_impl() = default;
 
     template<const auto& StateMold>
     [[nodiscard]] bool is() const
@@ -261,7 +261,7 @@ private:
     struct exit_2
     {
         template<class ActiveStateIdConstant, class Machine, class Context, class Event>
-        static void call(region& self, Machine& mach, Context& ctx, const Event& event)
+        static void call(region_impl& self, Machine& mach, Context& ctx, const Event& event)
         {
             self.execute_transition
             <
@@ -712,7 +712,7 @@ private:
     struct with_active_state_id_2
     {
         template<class StateIdConstant, class... Args>
-        static bool call(const region& self, Args&&... args)
+        static bool call(const region_impl& self, Args&&... args)
         {
             if(self.is_active_state_id<StateIdConstant::value>())
             {
@@ -779,7 +779,7 @@ private:
         }
     }
 
-    const maki::region<region>* pitf_;
+    const region<region_impl>* pitf_;
     state_mix_type states_;
     int active_state_index_ = region_detail::final_state_index;
 };

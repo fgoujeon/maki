@@ -15,7 +15,7 @@
 #include "machine_conf.hpp"
 #include "events.hpp"
 #include "null.hpp"
-#include "detail/path.hpp"
+#include "detail/path_impl.hpp"
 #include "detail/state_impls/simple.hpp" //NOLINT misc-include-cleaner
 #include "detail/state_impls/composite.hpp" //NOLINT misc-include-cleaner
 #include "detail/state_impls/composite_no_context.hpp"
@@ -574,7 +574,7 @@ private:
 
     static constexpr auto pre_processing_hooks = impl_of(conf).pre_processing_hooks;
     static constexpr auto post_processing_hooks = impl_of(conf).post_processing_hooks;
-    static constexpr auto path = detail::path{};
+    static constexpr auto path = detail::path_impl{};
 
     using pre_processing_hook_ptr_constant_list = detail::mix_constant_list_t<pre_processing_hooks>;
     using post_processing_hook_ptr_constant_list = detail::mix_constant_list_t<post_processing_hooks>;

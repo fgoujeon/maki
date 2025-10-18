@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_PATH_HPP
-#define MAKI_DETAIL_PATH_HPP
+#ifndef MAKI_DETAIL_PATH_IMPL_HPP
+#define MAKI_DETAIL_PATH_IMPL_HPP
 
 #include "tuple.hpp"
 #include "constant.hpp"
@@ -60,26 +60,26 @@ private:
 };
 
 template<class... Elems>
-class path
+class path_impl
 {
 public:
-    constexpr path() = default;
+    constexpr path_impl() = default;
 
     template<class ParentPath, class Elem>
-    constexpr path(const ParentPath& parent_path, const Elem& elem):
+    constexpr path_impl(const ParentPath& parent_path, const Elem& elem):
         elems_(parent_path.elems().append(elem))
     {
     }
 
     constexpr auto add_region_index(const int region_index) const
     {
-        return path<Elems..., path_element_index>{*this, path_element_index{region_index}};
+        return path_impl<Elems..., path_element_index>{*this, path_element_index{region_index}};
     }
 
     template<const auto& Mold>
     constexpr auto add_state() const
     {
-        return path<Elems..., path_element_state>{*this, path_element_state{cref_constant<Mold>}};
+        return path_impl<Elems..., path_element_state>{*this, path_element_state{cref_constant<Mold>}};
     }
 
     constexpr const auto& elems() const

@@ -62,7 +62,7 @@ target_sources(maki
         include/maki/detail/mix.hpp
         include/maki/detail/noinline.hpp
         include/maki/detail/overload_priority.hpp
-        include/maki/detail/path.hpp
+        include/maki/detail/path_impl.hpp
         include/maki/detail/pretty_name.hpp
         include/maki/detail/region_impl.hpp
         include/maki/detail/set.hpp

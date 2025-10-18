@@ -17,6 +17,7 @@
 #include "event_set.hpp"
 #include "event.hpp"
 #include "state_set.hpp"
+#include "state_mold.hpp"
 #include "states.hpp"
 #include "ini.hpp"
 #include "fin.hpp"
@@ -24,7 +25,6 @@
 #include "detail/tlu/left_fold.hpp"
 #include "detail/type_set.hpp"
 #include "detail/friendly_impl.hpp"
-#include "detail/state_mold_impl.hpp"
 #include "detail/tuple.hpp"
 
 namespace maki

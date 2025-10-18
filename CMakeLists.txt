@@ -49,7 +49,7 @@ target_sources(maki
 
         # detail/
         include/maki/detail/call.hpp
-        include/maki/detail/conf_traits.hpp
+        include/maki/detail/compiler.hpp
         include/maki/detail/constant.hpp
         include/maki/detail/context_holder.hpp
         include/maki/detail/equals.hpp
@@ -79,6 +79,7 @@ target_sources(maki
         include/maki/detail/type.hpp
         include/maki/detail/type_list.hpp
         include/maki/detail/type_name.hpp
+        include/maki/detail/type_set.hpp
         include/maki/detail/type_traits.hpp
 
         # detail/state_impls/

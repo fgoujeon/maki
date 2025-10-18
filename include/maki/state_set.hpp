@@ -8,7 +8,7 @@
 #define MAKI_STATE_SET_HPP
 
 #include "detail/state_mold_fwd.hpp"
-#include "detail/impl.hpp"
+#include "detail/friendly_impl.hpp"
 #include "detail/set.hpp"
 
 namespace maki
@@ -43,6 +43,8 @@ public:
     constexpr state_set& operator=(state_set&& other) = default;
 
 private:
+    MAKI_DETAIL_FRIENDLY_IMPL
+
     using impl_type = Impl;
 
     template<class Impl2>
@@ -53,7 +55,7 @@ private:
     {
     }
 
-    MAKI_DETAIL_FRIENDLY_IMPL
+    impl_type impl_;
 };
 
 #ifdef MAKI_DETAIL_DOXYGEN

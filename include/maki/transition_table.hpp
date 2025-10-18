@@ -23,7 +23,7 @@
 #include "null.hpp"
 #include "detail/tlu/left_fold.hpp"
 #include "detail/type_set.hpp"
-#include "detail/impl.hpp"
+#include "detail/friendly_impl.hpp"
 #include "detail/state_mold_fwd.hpp"
 #include "detail/tuple.hpp"
 
@@ -326,6 +326,8 @@ public:
     }
 
 private:
+    MAKI_DETAIL_FRIENDLY_IMPL
+
     using impl_type = Impl;
 
 #ifndef MAKI_DETAIL_DOXYGEN
@@ -338,7 +340,7 @@ private:
     {
     }
 
-    MAKI_DETAIL_FRIENDLY_IMPL
+    impl_type impl_;
 };
 
 namespace detail

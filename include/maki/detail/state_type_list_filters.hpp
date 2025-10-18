@@ -7,7 +7,7 @@
 #ifndef MAKI_DETAIL_STATE_TYPE_LIST_FILTERS_HPP
 #define MAKI_DETAIL_STATE_TYPE_LIST_FILTERS_HPP
 
-#include "impl.hpp"
+#include "friendly_impl.hpp"
 #include "tlu/filter.hpp"
 
 namespace maki::detail::state_type_list_filters

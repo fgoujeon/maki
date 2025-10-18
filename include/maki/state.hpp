@@ -9,7 +9,7 @@
 
 #include "detail/type_set.hpp"
 #include "detail/pretty_name.hpp"
-#include "detail/impl.hpp"
+#include "detail/friendly_impl.hpp"
 #include "detail/tlu/left_fold.hpp"
 #include <string_view>
 #include <utility>
@@ -94,9 +94,11 @@ public:
     }
 
 private:
+    MAKI_DETAIL_FRIENDLY_IMPL
+
     using impl_type = Impl;
 
-    MAKI_DETAIL_FRIENDLY_IMPL
+    impl_type impl_;
 };
 
 namespace detail

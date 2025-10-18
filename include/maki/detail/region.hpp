@@ -18,7 +18,7 @@
 #include "tuple.hpp"
 #include "mix.hpp"
 #include "constant.hpp"
-#include "impl.hpp"
+#include "friendly_impl.hpp"
 #include "tlu/apply.hpp"
 #include "tlu/empty.hpp"
 #include "tlu/find.hpp"

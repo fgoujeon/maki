@@ -7,7 +7,7 @@
 #ifndef MAKI_REGION_HPP
 #define MAKI_REGION_HPP
 
-#include "detail/impl.hpp"
+#include "detail/friendly_impl.hpp"
 #include <utility>
 
 namespace maki
@@ -69,9 +69,11 @@ public:
     }
 
 private:
+    MAKI_DETAIL_FRIENDLY_IMPL
+
     using impl_type = Impl;
 
-    MAKI_DETAIL_FRIENDLY_IMPL
+    impl_type impl_;
 };
 
 } //namespace

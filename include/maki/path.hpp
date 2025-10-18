@@ -7,7 +7,7 @@
 #ifndef MAKI_PATH_HPP
 #define MAKI_PATH_HPP
 
-#include "detail/impl.hpp"
+#include "detail/friendly_impl.hpp"
 #include <string>
 
 namespace maki
@@ -44,9 +44,11 @@ public:
     }
 
 private:
+    MAKI_DETAIL_FRIENDLY_IMPL
+
     using impl_type = Impl;
 
-    MAKI_DETAIL_FRIENDLY_IMPL
+    impl_type impl_;
 };
 
 } //namespace

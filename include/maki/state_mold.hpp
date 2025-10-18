@@ -20,7 +20,7 @@
 #include "detail/event_action.hpp"
 #include "detail/signature_macros.hpp"
 #include "detail/tuple.hpp"
-#include "detail/impl.hpp"
+#include "detail/friendly_impl.hpp"
 #include "detail/tlu.hpp"
 #include <string_view>
 #include <type_traits>
@@ -216,6 +216,8 @@ public:
     }
 
 private:
+    MAKI_DETAIL_FRIENDLY_IMPL
+
     using impl_type = Impl;
 
     template<class Impl2>
@@ -286,7 +288,7 @@ private:
 #undef MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
 #undef MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
 
-    MAKI_DETAIL_FRIENDLY_IMPL
+    impl_type impl_;
 };
 
 #undef MAKI_DETAIL_STATE_CONF_RETURN_TYPE

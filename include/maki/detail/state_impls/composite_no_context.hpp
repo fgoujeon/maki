@@ -13,7 +13,7 @@
 #include "../region.hpp"
 #include "../integer_constant_sequence.hpp"
 #include "../mix.hpp"
-#include "../impl.hpp"
+#include "../friendly_impl.hpp"
 #include "../tlu/apply.hpp"
 #include "../tlu/left_fold.hpp"
 #include "../tlu/for_each.hpp"

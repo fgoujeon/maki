@@ -4,11 +4,31 @@
 //https://www.boost.org/LICENSE_1_without_event.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_IMPL_OF_HPP
-#define MAKI_DETAIL_IMPL_OF_HPP
+#ifndef MAKI_DETAIL_FRIENDLY_IMPL_HPP
+#define MAKI_DETAIL_FRIENDLY_IMPL_HPP
 
 /*
-Uniform way to access a private `impl_` member variable.
+Numerous public classes of this library follow this recurring pattern:
+
+    template<class Impl>
+    class some_class
+    {
+    public:
+        // ...
+
+    private:
+        MAKI_DETAIL_FRIENDLY_IMPL
+
+        using impl_type = Impl;
+
+        impl_type impl_;
+    };
+
+where `MAKI_DETAIL_FRIENDLY_IMPL` expands to a set of `friend` declarations
+giving internals of the library access to the private parts of the class.
+
+This file defines both the `MAKI_DETAIL_FRIENDLY_IMPL` and the types and
+functions to access `impl_type` and `impl_`.
 */
 
 #define MAKI_DETAIL_FRIENDLY_IMPL \
@@ -19,9 +39,7 @@ Uniform way to access a private `impl_` member variable.
     friend constexpr auto& detail::impl_of(T&); \
  \
     template<class T> \
-    friend constexpr const auto& detail::impl_of(const T&); \
- \
-    impl_type impl_;
+    friend constexpr const auto& detail::impl_of(const T&);
 
 namespace maki::detail
 {

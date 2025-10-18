@@ -12,7 +12,7 @@
 #include "compiler.hpp"
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
-#include "impl.hpp"
+#include "friendly_impl.hpp"
 #include "../transition_table.hpp"
 
 namespace maki::detail::transition_table_filters

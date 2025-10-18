@@ -7,6 +7,7 @@
 #ifndef MAKI_DETAIL_REGION_HPP
 #define MAKI_DETAIL_REGION_HPP
 
+#include "compiler.hpp"
 #include "state_id_to_type.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
@@ -212,7 +213,11 @@ private:
         //List the transitions whose event set contains `Event`
         using candidate_transition_index_constant_list = transition_table_filters::by_event_t
         <
+#if !MAKI_DETAIL_COMPILER_GCC
             transition_table_type,
+#else
+            TransitionTable,
+#endif
             Event
         >;
 

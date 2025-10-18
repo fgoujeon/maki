@@ -8,9 +8,11 @@
 #define MAKI_DETAIL_TRANSITION_TABLE_FILTERS_HPP
 
 #include "tlu/filter.hpp"
+#include "tlu/get.hpp"
 #include "compiler.hpp"
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
+#include "impl.hpp"
 #include "../transition_table.hpp"
 
 namespace maki::detail::transition_table_filters
@@ -32,7 +34,7 @@ struct by_event_predicate_holder
         {
             using trans_t = tlu::get_t<impl_of_t<TransitionTable>, TransitionIndexConstant::value>;
             using trans_event_type_set_t = transition_event_type_set_t<trans_t>;
-            return type_set_impls::contains_v<trans_event_type_set_t, Event>;
+            return type_set_contains_v<trans_event_type_set_t, Event>;
         }
 
         static constexpr bool value = make_value();
@@ -63,7 +65,7 @@ struct by_event_predicate_holder
             const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(TransitionTable));
             using trans_t = std::decay_t<decltype(trans)>;
             using trans_event_type_set_t = transition_event_type_set_t<trans_t>;
-            return type_set_impls::contains_v<trans_event_type_set_t, Event>;
+            return type_set_contains_v<trans_event_type_set_t, Event>;
         }
 
         static constexpr bool value = make_value();

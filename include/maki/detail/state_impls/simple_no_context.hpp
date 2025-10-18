@@ -7,12 +7,12 @@
 #ifndef MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP
 #define MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP
 
+#include "../type_set.hpp"
 #include "../event_action.hpp"
 #include "../mix.hpp"
 #include "../maybe_bool_util.hpp"
 #include "../tlu/empty.hpp"
-#include "../tlu/apply.hpp"
-#include "../../event_set.hpp"
+#include "../tlu/left_fold.hpp"
 #include <type_traits>
 
 namespace maki::detail::state_impls
@@ -20,7 +20,7 @@ namespace maki::detail::state_impls
 
 template<class EventTypeSet, class EventAction>
 using event_action_event_set_operation =
-    maki::detail::type_set_impls::union_of_t
+    maki::detail::type_set_union_t
     <
         EventTypeSet,
         typename EventAction::event_set_impl_type
@@ -40,7 +40,7 @@ public:
         <
             typename option_set_type::internal_action_mix_type,
             event_action_event_set_operation,
-            type_set_impls::inclusion_list<>
+            empty_type_set_t
         >
     ;
 

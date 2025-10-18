@@ -8,7 +8,7 @@
 #define MAKI_EVENT_SET_HPP
 
 #include "event.hpp"
-#include "detail/type_set_impls.hpp"
+#include "detail/type_set.hpp"
 #include "detail/impl.hpp"
 
 namespace maki
@@ -49,7 +49,7 @@ public:
     [[nodiscard]]
     constexpr bool contains() const
     {
-        return detail::type_set_impls::contains_v<Impl, Event>;
+        return detail::type_set_contains_v<Impl, Event>;
     }
 
     /**
@@ -59,7 +59,7 @@ public:
     [[nodiscard]]
     constexpr bool contains(event_t<Event> /*ignored*/) const
     {
-        return detail::type_set_impls::contains_v<Impl, Event>;
+        return detail::type_set_contains_v<Impl, Event>;
     }
 
 private:
@@ -84,7 +84,7 @@ event_set(event_t<Event>) -> event_set
 #ifdef MAKI_DETAIL_DOXYGEN
     IMPLEMENTATION_DETAIL
 #else
-    detail::type_set_impls::item<Event>
+    detail::type_set_item<Event>
 #endif
 >;
 
@@ -97,7 +97,7 @@ inline constexpr auto all_events = IMPLEMENTATION_DETAIL;
 #else
 inline constexpr auto all_events = detail::make_event_set_from_impl
 <
-    detail::type_set_impls::exclusion_list<>
+    detail::universal_type_set_t
 >();
 #endif
 
@@ -110,7 +110,7 @@ inline constexpr auto no_event = IMPLEMENTATION_DETAIL;
 #else
 inline constexpr auto no_event = detail::make_event_set_from_impl
 <
-    detail::type_set_impls::inclusion_list<>
+    detail::empty_type_set_t
 >();
 #endif
 
@@ -131,7 +131,7 @@ constexpr auto operator!
 {
     return detail::make_event_set_from_impl
     <
-        detail::type_set_impls::inverse_of_t<EventSetImpl>
+        detail::type_set_inverse_t<EventSetImpl>
     >();
 }
 
@@ -145,7 +145,7 @@ constexpr auto operator!(event_t<Event> /*evt*/)
 {
     return detail::make_event_set_from_impl
     <
-        detail::type_set_impls::exclusion_list<Event>
+        detail::type_set_exclusion_list<Event>
     >();
 }
 
@@ -168,7 +168,7 @@ constexpr auto operator||
 {
     return detail::make_event_set_from_impl
     <
-        detail::type_set_impls::union_of_t<LhsImpl, RhsImpl>
+        detail::type_set_union_t<LhsImpl, RhsImpl>
     >();
 }
 
@@ -191,10 +191,10 @@ constexpr auto operator||
 {
     return detail::make_event_set_from_impl
     <
-        detail::type_set_impls::union_of_t
+        detail::type_set_union_t
         <
             LhsImpl,
-            detail::type_set_impls::item<Event>
+            detail::type_set_item<Event>
         >
     >();
 }
@@ -227,7 +227,7 @@ constexpr auto operator||
 {
     return detail::make_event_set_from_impl
     <
-        detail::type_set_impls::inclusion_list<LhsEvent, RhsEvent>
+        detail::type_set_inclusion_list<LhsEvent, RhsEvent>
     >();
 }
 
@@ -250,7 +250,7 @@ constexpr auto operator&&
 {
     return detail::make_event_set_from_impl
     <
-        detail::type_set_impls::intersection_of_t<LhsImpl, RhsImpl>
+        detail::type_set_intersection_t<LhsImpl, RhsImpl>
     >();
 }
 

@@ -11,6 +11,7 @@
 #include "tlu/get.hpp"
 #include "../event_set.hpp"
 #include "../action.hpp"
+#include <type_traits>
 #include <utility>
 
 namespace maki::detail
@@ -43,7 +44,7 @@ namespace event_action_traits
         {
             using event_action_type = std::decay_t<decltype(*EventActionConstant::value)>;
 
-            static constexpr auto value = type_set_impls::contains_v
+            static constexpr auto value = type_set_contains_v
             <
                 typename event_action_type::event_set_impl_type,
                 Event

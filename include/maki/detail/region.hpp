@@ -8,6 +8,7 @@
 #define MAKI_DETAIL_REGION_HPP
 
 #include "compiler.hpp"
+#include "type_set.hpp"
 #include "state_id_to_type.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
@@ -23,7 +24,6 @@
 #include "tlu/find.hpp"
 #include "tlu/front.hpp"
 #include "tlu/push_back.hpp"
-#include "../event_set.hpp"
 #include "../states.hpp"
 #include "../action.hpp"
 #include "../guard.hpp"
@@ -90,7 +90,7 @@ public:
 
     using states_event_type_set = state_type_list_event_type_set_t<state_mix_type>;
 
-    using event_type_set = type_set_impls::union_of_t
+    using event_type_set = type_set_union_t
     <
         transition_table_event_type_set_t<transition_table_type>,
         states_event_type_set
@@ -223,7 +223,7 @@ private:
 
         constexpr auto must_try_executing_transitions = !tlu::empty_v<candidate_transition_index_constant_list>;
 
-        constexpr auto must_try_process_event_in_states = type_set_impls::contains_v
+        constexpr auto must_try_process_event_in_states = type_set_contains_v
         <
             states_event_type_set,
             Event
@@ -584,7 +584,7 @@ private:
         )
         {
             constexpr auto can_state_process_event =
-                type_set_impls::contains_v
+                type_set_contains_v
                 <
                     typename impl_of_t<State>::event_type_set,
                     Event

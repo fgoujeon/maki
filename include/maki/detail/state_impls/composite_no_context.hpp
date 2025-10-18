@@ -8,16 +8,17 @@
 #define MAKI_DETAIL_STATE_IMPLS_COMPOSITE_NO_CONTEXT_HPP
 
 #include "simple_no_context.hpp"
+#include "../type_set.hpp"
 #include "../maybe_bool_util.hpp"
 #include "../region.hpp"
 #include "../integer_constant_sequence.hpp"
 #include "../mix.hpp"
 #include "../impl.hpp"
-#include "../tlu/for_each.hpp"
 #include "../tlu/apply.hpp"
+#include "../tlu/left_fold.hpp"
+#include "../tlu/for_each.hpp"
 #include "../tlu/get.hpp"
 #include "../tlu/size.hpp"
-#include "../../event_set.hpp"
 #include "../../states.hpp"
 #include "../../region.hpp"
 #include <type_traits>
@@ -81,7 +82,7 @@ struct region_mix
 
 template<class EventTypeSet, class Region>
 using region_type_list_event_type_set_operation =
-    type_set_impls::union_of_t
+    type_set_union_t
     <
         EventTypeSet,
         typename impl_of_t<Region>::event_type_set
@@ -93,7 +94,7 @@ using region_type_list_event_type_set = tlu::left_fold_t
 <
     RegionTypeList,
     region_type_list_event_type_set_operation,
-    type_set_impls::inclusion_list<>
+    empty_type_set_t
 >;
 
 template<auto Id, const auto& Path>
@@ -126,7 +127,7 @@ public:
         region_index_sequence_type
     >::type;
 
-    using event_type_set = type_set_impls::union_of_t
+    using event_type_set = type_set_union_t
     <
         typename impl_type::event_type_set,
         region_type_list_event_type_set<region_mix_type>
@@ -314,7 +315,7 @@ private:
         MaybeBool&... processed
     )
     {
-        constexpr auto can_process_event = type_set_impls::contains_v
+        constexpr auto can_process_event = type_set_contains_v
         <
             typename impl_type::event_type_set,
             Event

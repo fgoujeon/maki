@@ -15,11 +15,14 @@
 #include "action.hpp"
 #include "guard.hpp"
 #include "event_set.hpp"
+#include "event.hpp"
 #include "state_set.hpp"
 #include "states.hpp"
 #include "ini.hpp"
 #include "fin.hpp"
 #include "null.hpp"
+#include "detail/tlu/left_fold.hpp"
+#include "detail/type_set.hpp"
 #include "detail/impl.hpp"
 #include "detail/state_mold_fwd.hpp"
 #include "detail/tuple.hpp"
@@ -117,7 +120,7 @@ namespace detail
     template<class Event>
     struct transition_event_event_type_set<event_t<Event>>
     {
-        using type = type_set_impls::item<Event>;
+        using type = type_set_item<Event>;
     };
 
     template<class... Events>
@@ -129,7 +132,7 @@ namespace detail
     template<>
     struct transition_event_event_type_set<null_t>
     {
-        using type = type_set_impls::inclusion_list<>;
+        using type = empty_type_set_t;
     };
 
     template<class TransitionEvent>
@@ -341,7 +344,7 @@ private:
 namespace detail
 {
     template<class EventTypeSet, class Transition>
-    using transition_table_event_type_set_fold_operation_t = type_set_impls::union_of_t
+    using transition_table_event_type_set_fold_operation_t = type_set_union_t
     <
         EventTypeSet,
         transition_event_type_set_t<Transition>
@@ -352,7 +355,7 @@ namespace detail
     <
         impl_of_t<TransitionTable>,
         transition_table_event_type_set_fold_operation_t,
-        type_set_impls::inclusion_list<>
+        empty_type_set_t
     >;
 }
 

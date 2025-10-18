@@ -117,8 +117,8 @@ public:
     called whenever `maki::machine` is about to process an event whose type is \
     part of `event_types`. \
     */ \
-    template<class EventSetPredicate, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_processing_hook_##signature(const event_set<EventSetPredicate>& event_types, const Action& action) const \
+    template<class EventSetImpl, class Action> \
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_processing_hook_##signature(const event_set<EventSetImpl>& event_types, const Action& action) const \
     { \
         return pre_processing_hook<action_signature::signature>(event_types, action); \
     } \
@@ -278,13 +278,13 @@ public:
     ;
     @endcode
     */
-    template<class EventSetPredicate, class Action>
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_processing_hook_mep(const event_set<EventSetPredicate>& event_types, const Action& action) const
+    template<class EventSetImpl, class Action>
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_processing_hook_mep(const event_set<EventSetImpl>& /*event_types*/, const Action& action) const
     {
         const auto new_post_processing_hooks = append
         (
             impl_.post_processing_hooks,
-            detail::make_event_action<action_signature::me>(event_types, action)
+            detail::make_event_action<action_signature::me, EventSetImpl>(action)
         );
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
@@ -405,13 +405,13 @@ private:
 #undef MAKI_DETAIL_ARG_context_sig
     }
 
-    template<action_signature Sig, class EventSetPredicate, class Hook>
-    [[nodiscard]] constexpr auto pre_processing_hook(const event_set<EventSetPredicate>& event_types, const Hook& hook) const
+    template<action_signature Sig, class EventSetImpl, class Hook>
+    [[nodiscard]] constexpr auto pre_processing_hook(const event_set<EventSetImpl>& /*event_types*/, const Hook& hook) const
     {
         const auto new_pre_processing_hooks = append
         (
             impl_.pre_processing_hooks,
-            detail::make_event_action<Sig>(event_types, hook)
+            detail::make_event_action<Sig, EventSetImpl>(hook)
         );
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN

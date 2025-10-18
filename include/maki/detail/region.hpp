@@ -7,6 +7,8 @@
 #ifndef MAKI_DETAIL_REGION_HPP
 #define MAKI_DETAIL_REGION_HPP
 
+#include "compiler.hpp"
+#include "type_set.hpp"
 #include "state_id_to_type.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
@@ -22,7 +24,6 @@
 #include "tlu/find.hpp"
 #include "tlu/front.hpp"
 #include "tlu/push_back.hpp"
-#include "../event_set.hpp"
 #include "../states.hpp"
 #include "../action.hpp"
 #include "../guard.hpp"
@@ -66,6 +67,35 @@ template<const auto& TransitionTable, const auto& Path>
 class region
 {
 public:
+    using transition_table_type = std::decay_t<decltype(TransitionTable)>;
+
+    using transition_table_digest_type =
+        transition_table_digest<TransitionTable>
+    ;
+
+    using state_id_constant_list_0 = typename transition_table_digest_type::state_id_constant_list;
+    using state_id_constant_list = tlu::push_back_t<state_id_constant_list_0, constant_t<&maki::undefined>>;
+
+    template<class... StateIdConstants>
+    using state_id_constant_pack_to_state_mix_t = mix
+    <
+        state_traits::state_id_to_type_t<StateIdConstants::value, Path>...
+    >;
+
+    using state_mix_type = tlu::apply_t
+    <
+        state_id_constant_list,
+        state_id_constant_pack_to_state_mix_t
+    >;
+
+    using states_event_type_set = state_type_list_event_type_set_t<state_mix_type>;
+
+    using event_type_set = type_set_union_t
+    <
+        transition_table_event_type_set_t<transition_table_type>,
+        states_event_type_set
+    >;
+
     template<class Machine, class Context>
     region(const maki::region<region>* pitf, Machine& mach, Context& ctx):
         pitf_(pitf),
@@ -169,31 +199,7 @@ public:
         return value;
     }
 
-    static constexpr const auto& event_types()
-    {
-        return computed_event_types;
-    }
-
 private:
-    using transition_table_digest_type =
-        transition_table_digest<TransitionTable>
-    ;
-
-    using state_id_constant_list_0 = typename transition_table_digest_type::state_id_constant_list;
-    using state_id_constant_list = tlu::push_back_t<state_id_constant_list_0, constant_t<&maki::undefined>>;
-
-    template<class... StateIdConstants>
-    using state_id_constant_pack_to_state_mix_t = mix
-    <
-        state_traits::state_id_to_type_t<StateIdConstants::value, Path>...
-    >;
-
-    using state_mix_type = tlu::apply_t
-    <
-        state_id_constant_list,
-        state_id_constant_pack_to_state_mix_t
-    >;
-
     template<bool Dry, class Self, class Machine, class Context, class Event, class... MaybeBool>
     static void process_event_2
     (
@@ -207,13 +213,23 @@ private:
         //List the transitions whose event set contains `Event`
         using candidate_transition_index_constant_list = transition_table_filters::by_event_t
         <
+#if !MAKI_DETAIL_COMPILER_GCC
+            transition_table_type,
+#else
             TransitionTable,
+#endif
             Event
         >;
 
         constexpr auto must_try_executing_transitions = !tlu::empty_v<candidate_transition_index_constant_list>;
 
-        if constexpr(must_try_executing_transitions && states_event_types.template contains<Event>())
+        constexpr auto must_try_process_event_in_states = type_set_contains_v
+        <
+            states_event_type_set,
+            Event
+        >;
+
+        if constexpr(must_try_executing_transitions && must_try_process_event_in_states)
         {
             /*
             There is a possibility of conflicting transition in this case.
@@ -231,11 +247,11 @@ private:
                 try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
             }
         }
-        else if constexpr(!must_try_executing_transitions && states_event_types.template contains<Event>())
+        else if constexpr(!must_try_executing_transitions && must_try_process_event_in_states)
         {
             call_active_state_internal_action<Dry>(self, mach, ctx, event, processed...);
         }
-        else if constexpr(must_try_executing_transitions && !states_event_types.template contains<Event>())
+        else if constexpr(must_try_executing_transitions && !must_try_process_event_in_states)
         {
             try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
         }
@@ -567,7 +583,15 @@ private:
             [[maybe_unused]] ExtraArgs&... extra_args
         )
         {
-            if constexpr(impl_of_t<State>::event_types().template contains<Event>())
+            constexpr auto can_state_process_event =
+                type_set_contains_v
+                <
+                    typename impl_of_t<State>::event_type_set,
+                    Event
+                >
+            ;
+
+            if constexpr(can_state_process_event)
             {
                 if(!self.template is_active_state_type<State>())
                 {
@@ -754,32 +778,6 @@ private:
             return get<state_t>(self.states_);
         }
     }
-
-    static constexpr auto list_event_types()
-    {
-        return detail::event_types(TransitionTable) || list_states_event_types();
-    }
-
-    static constexpr auto list_states_event_types()
-    {
-        return tlu::apply_t
-        <
-            state_mix_type,
-            with_state_types
-        >::list_event_types();
-    }
-
-    template<class... States>
-    struct with_state_types
-    {
-        static constexpr auto list_event_types()
-        {
-            return (impl_of_t<States>::event_types() || ... || no_event);
-        }
-    };
-
-    static constexpr auto states_event_types = list_states_event_types();
-    static constexpr auto computed_event_types = detail::event_types(TransitionTable) || states_event_types;
 
     const maki::region<region>* pitf_;
     state_mix_type states_;

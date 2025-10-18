@@ -7,8 +7,10 @@
 #ifndef MAKI_REGION_STATE_HPP
 #define MAKI_REGION_STATE_HPP
 
+#include "detail/type_set.hpp"
 #include "detail/pretty_name.hpp"
 #include "detail/impl.hpp"
+#include "detail/tlu/left_fold.hpp"
 #include <string_view>
 #include <utility>
 
@@ -96,6 +98,24 @@ private:
 
     MAKI_DETAIL_FRIENDLY_IMPL
 };
+
+namespace detail
+{
+    template<class EventTypeSet, class State>
+    using state_type_list_event_type_set_operation_t = type_set_union_t
+    <
+        EventTypeSet,
+        typename impl_of_t<State>::event_type_set
+    >;
+
+    template<class StateTypeList>
+    using state_type_list_event_type_set_t = tlu::left_fold_t
+    <
+        StateTypeList,
+        state_type_list_event_type_set_operation_t,
+        empty_type_set_t
+    >;
+}
 
 } //namespace
 

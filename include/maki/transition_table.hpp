@@ -15,11 +15,14 @@
 #include "action.hpp"
 #include "guard.hpp"
 #include "event_set.hpp"
+#include "event.hpp"
 #include "state_set.hpp"
 #include "states.hpp"
 #include "ini.hpp"
 #include "fin.hpp"
 #include "null.hpp"
+#include "detail/tlu/left_fold.hpp"
+#include "detail/type_set.hpp"
 #include "detail/impl.hpp"
 #include "detail/state_mold_fwd.hpp"
 #include "detail/tuple.hpp"
@@ -68,6 +71,8 @@ namespace detail
     >
     struct transition
     {
+        using event_type = Event;
+
         SourceStateMold source_state_mold;
         TargetStateMold target_state_mold;
         Event evt;
@@ -109,61 +114,37 @@ namespace detail
         GuardCallable
     >;
 
-    template
-    <
-        class SourceStateMold,
-        class TargetStateMold,
-        class Event,
-        action_signature ActionSignature,
-        class ActionCallable,
-        guard_signature GuardSignature,
-        class GuardCallable
-    >
-    [[nodiscard]]
-    constexpr auto event_types
-    (
-        const transition
-        <
-            SourceStateMold,
-            TargetStateMold,
-            Event,
-            ActionSignature,
-            ActionCallable,
-            GuardSignature,
-            GuardCallable
-        >& trans)
+    template<class TransitionEvent>
+    struct transition_event_event_type_set;
+
+    template<class Event>
+    struct transition_event_event_type_set<event_t<Event>>
     {
-        if constexpr(is_event_v<Event>)
-        {
-            return event_set{trans.evt};
-        }
-        else if constexpr(is_event_set_v<Event>)
-        {
-            return trans.evt;
-        }
-        else if constexpr(is_null_v<Event>) // Completion event
-        {
-            return no_event;
-        }
-    }
+        using type = type_set_item<Event>;
+    };
+
+    template<class... Events>
+    struct transition_event_event_type_set<event_set<Events...>>
+    {
+        using type = impl_of_t<event_set<Events...>>;
+    };
+
+    template<>
+    struct transition_event_event_type_set<null_t>
+    {
+        using type = empty_type_set_t;
+    };
+
+    template<class TransitionEvent>
+    using transition_event_event_type_set_t = typename transition_event_event_type_set<TransitionEvent>::type;
+
+    template<class Transition>
+    using transition_event_type_set_t = transition_event_event_type_set_t<typename Transition::event_type>;
 
     template<class... Transitions>
     constexpr auto make_transition_table(const tuple<Transitions...>& transitions)
     {
         return transition_table<tuple<Transitions...>>{transitions};
-    }
-
-    template<class Impl>
-    constexpr auto event_types(const transition_table<Impl>& table)
-    {
-        return tuple_apply
-        (
-            impl_of(table),
-            [](const auto&... transitions)
-            {
-                return (event_types(transitions) || ... || no_event);
-            }
-        );
     }
 
     template<class T>
@@ -359,6 +340,24 @@ private:
 
     MAKI_DETAIL_FRIENDLY_IMPL
 };
+
+namespace detail
+{
+    template<class EventTypeSet, class Transition>
+    using transition_table_event_type_set_fold_operation_t = type_set_union_t
+    <
+        EventTypeSet,
+        transition_event_type_set_t<Transition>
+    >;
+
+    template<class TransitionTable>
+    using transition_table_event_type_set_t = tlu::left_fold_t
+    <
+        impl_of_t<TransitionTable>,
+        transition_table_event_type_set_fold_operation_t,
+        empty_type_set_t
+    >;
+}
 
 } //namespace
 

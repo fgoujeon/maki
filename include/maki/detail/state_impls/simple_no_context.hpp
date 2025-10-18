@@ -7,16 +7,25 @@
 #ifndef MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP
 #define MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP
 
+#include "../type_set.hpp"
 #include "../event_action.hpp"
 #include "../mix.hpp"
 #include "../maybe_bool_util.hpp"
 #include "../tlu/empty.hpp"
-#include "../tlu/apply.hpp"
-#include "../../event_set.hpp"
+#include "../tlu/left_fold.hpp"
 #include <type_traits>
 
 namespace maki::detail::state_impls
 {
+
+template<class EventTypeSet, class EventAction>
+using event_action_event_set_operation =
+    maki::detail::type_set_union_t
+    <
+        EventTypeSet,
+        typename EventAction::event_set_impl_type
+    >
+;
 
 template<auto Id>
 class simple_no_context
@@ -25,6 +34,15 @@ public:
     static constexpr auto identifier = Id;
     static constexpr const auto& mold = *Id;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
+
+    using event_type_set =
+        tlu::left_fold_t
+        <
+            typename option_set_type::internal_action_mix_type,
+            event_action_event_set_operation,
+            empty_type_set_t
+        >
+    ;
 
     template<class... Args>
     constexpr simple_no_context(Args&... /*args*/)
@@ -101,30 +119,7 @@ public:
         return true;
     }
 
-    static constexpr const auto& event_types()
-    {
-        return computed_event_types;
-    }
-
 private:
-    static constexpr auto list_event_types()
-    {
-        return tlu::apply_t
-        <
-            internal_action_ptr_constant_list,
-            list_event_types_2
-        >::call();
-    }
-
-    template<class... InternalActionPtrConstants>
-    struct list_event_types_2
-    {
-        static constexpr auto call()
-        {
-            return (InternalActionPtrConstants::value->event_types || ... || no_event);
-        }
-    };
-
     static constexpr auto entry_actions = impl_of(mold).entry_actions;
     using entry_action_ptr_constant_list = mix_constant_list_t<entry_actions>;
 
@@ -133,8 +128,6 @@ private:
 
     static constexpr auto exit_actions = impl_of(mold).exit_actions;
     using exit_action_ptr_constant_list = mix_constant_list_t<exit_actions>;
-
-    static constexpr auto computed_event_types = list_event_types();
 };
 
 } //namespace

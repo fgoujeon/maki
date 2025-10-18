@@ -70,7 +70,7 @@ target_sources(maki
         include/maki/detail/state_id_to_state.hpp
         include/maki/detail/state_id_traits.hpp
         include/maki/detail/state_impl.hpp
-        include/maki/detail/state_mold_fwd.hpp
+        include/maki/detail/state_mold_impl.hpp
         include/maki/detail/state_type_list_filters.hpp
         include/maki/detail/tlu.hpp
         include/maki/detail/transition_table_digest.hpp

@@ -15,7 +15,7 @@
 #include "action.hpp"
 #include "context.hpp"
 #include "event_set.hpp"
-#include "detail/state_mold_fwd.hpp"
+#include "detail/state_mold_impl.hpp"
 #include "detail/type.hpp"
 #include "detail/event_action.hpp"
 #include "detail/signature_macros.hpp"
@@ -67,7 +67,7 @@ public:
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return state_mold \
     < \
-        detail::state_mold_option_set \
+        detail::state_mold_impl \
         < \
             typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
@@ -292,6 +292,30 @@ private:
 };
 
 #undef MAKI_DETAIL_STATE_CONF_RETURN_TYPE
+
+#ifdef MAKI_DETAIL_DOXYGEN
+state_mold() -> state_mold<IMPLEMENTATION_DETAIL>;
+#else
+state_mold() -> state_mold<detail::state_mold_impl<>>;
+#endif
+
+namespace detail
+{
+    template<class T>
+    struct is_state_mold
+    {
+        static constexpr auto value = false;
+    };
+
+    template<class OptionSet>
+    struct is_state_mold<state_mold<OptionSet>>
+    {
+        static constexpr auto value = true;
+    };
+
+    template<class T>
+    constexpr bool is_state_mold_v = is_state_mold<T>::value;
+}
 
 } //namespace
 

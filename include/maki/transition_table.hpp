@@ -24,7 +24,7 @@
 #include "detail/tlu/left_fold.hpp"
 #include "detail/type_set.hpp"
 #include "detail/friendly_impl.hpp"
-#include "detail/state_mold_fwd.hpp"
+#include "detail/state_mold_impl.hpp"
 #include "detail/tuple.hpp"
 
 namespace maki

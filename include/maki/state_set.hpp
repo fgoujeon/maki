@@ -7,7 +7,7 @@
 #ifndef MAKI_STATE_SET_HPP
 #define MAKI_STATE_SET_HPP
 
-#include "detail/state_mold_fwd.hpp"
+#include "detail/state_mold_impl.hpp"
 #include "detail/friendly_impl.hpp"
 #include "detail/set.hpp"
 

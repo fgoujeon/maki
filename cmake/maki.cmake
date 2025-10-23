@@ -4,31 +4,10 @@
 #https://www.boost.org/LICENSE_1_0.txt)
 #Official repository: https://github.com/fgoujeon/maki
 
-cmake_minimum_required(VERSION 3.10)
-
 function(maki_target_common_options TARGET)
-    set_target_properties(
-        ${TARGET} PROPERTIES
-        CXX_STANDARD 17
-    )
-
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        target_compile_options(
-            ${TARGET}
-            PRIVATE
-                -Wall -Wextra -Wsign-conversion -pedantic -Werror
-        )
-    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        target_compile_options(
-            ${TARGET}
-            PRIVATE
-                -Wall -Wextra -Wsign-conversion -pedantic -Werror
-        )
-    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        target_compile_options(
-            ${TARGET}
-            PRIVATE
-                /W4 /permissive- /WX
-        )
-    endif()
+    target_compile_features(${TARGET} PRIVATE cxx_std_17)
+    target_compile_options(${TARGET} PRIVATE
+        $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -Wsign-conversion -pedantic -Werror>
+        $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Wsign-conversion -pedantic -Werror>
+        $<$<CXX_COMPILER_ID:MSVC>:/W4 /permissive- /WX>)
 endfunction()

@@ -57,10 +57,10 @@ public:
         impl_.call_entry_action(mach, context(), event);
     }
 
-    template<bool Dry, class Machine, class ParentContext, class Event, class... MaybeBool>
-    void call_internal_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event, MaybeBool&... processed)
+    template<bool Dry, class Machine, class ParentContext, class Event>
+    bool call_internal_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        impl_.template call_internal_action<Dry>(mach, context(), event, processed...);
+        return impl_.template call_internal_action<Dry>(mach, context(), event);
     }
 
     template<class Machine, class ParentContext, class Event>

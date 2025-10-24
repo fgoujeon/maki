@@ -10,7 +10,6 @@
 #include "../type_set.hpp"
 #include "../event_action.hpp"
 #include "../mix.hpp"
-#include "../maybe_bool_util.hpp"
 #include "../tlu/empty.hpp"
 #include "../tlu/left_fold.hpp"
 #include <type_traits>
@@ -73,8 +72,8 @@ public:
         }
     }
 
-    template<bool Dry, class Machine, class Context, class Event, class... MaybeBool>
-    static void call_internal_action(Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
+    template<bool Dry, class Machine, class Context, class Event>
+    static bool call_internal_action(Machine& mach, Context& ctx, const Event& event)
     {
         /*
         Caller is supposed to check an interal action exists for the given event
@@ -92,7 +91,7 @@ public:
             );
         }
 
-        maybe_bool_util::set_to_true(processed...);
+        return true;
     }
 
     template<class Machine, class Context, class Event>

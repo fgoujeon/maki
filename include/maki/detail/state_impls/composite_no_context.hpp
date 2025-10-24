@@ -9,13 +9,13 @@
 
 #include "simple_no_context.hpp"
 #include "../type_set.hpp"
-#include "../maybe_bool_util.hpp"
 #include "../region_impl.hpp"
 #include "../integer_constant_sequence.hpp"
 #include "../mix.hpp"
 #include "../friendly_impl.hpp"
 #include "../tlu/apply.hpp"
 #include "../tlu/left_fold.hpp"
+#include "../tlu/for_each_plus.hpp"
 #include "../tlu/for_each.hpp"
 #include "../tlu/get.hpp"
 #include "../tlu/size.hpp"
@@ -153,49 +153,25 @@ public:
     }
 
     template<bool Dry, class Machine, class Context, class Event>
-    void call_internal_action
+    bool call_internal_action
     (
         Machine& mach,
         Context& ctx,
         const Event& event
     )
     {
-        call_internal_action_2<Dry>(*this, mach, ctx, event);
+        return call_internal_action_2<Dry>(*this, mach, ctx, event);
     }
 
     template<bool Dry, class Machine, class Context, class Event>
-    void call_internal_action
-    (
-        Machine& mach,
-        Context& ctx,
-        const Event& event,
-        bool& processed
-    )
-    {
-        call_internal_action_2<Dry>(*this, mach, ctx, event, processed);
-    }
-
-    template<bool Dry, class Machine, class Context, class Event>
-    void call_internal_action
+    bool call_internal_action
     (
         Machine& mach,
         Context& ctx,
         const Event& event
     ) const
     {
-        call_internal_action_2<Dry>(*this, mach, ctx, event);
-    }
-
-    template<bool Dry, class Machine, class Context, class Event>
-    void call_internal_action
-    (
-        Machine& mach,
-        Context& ctx,
-        const Event& event,
-        bool& processed
-    ) const
-    {
-        call_internal_action_2<Dry>(*this, mach, ctx, event, processed);
+        return call_internal_action_2<Dry>(*this, mach, ctx, event);
     }
 
     template<class Machine, class Context, class Event>
@@ -288,10 +264,11 @@ private:
     template<bool Dry>
     struct region_process_event
     {
-        template<class Region, class Self, class Machine, class Context, class Event, class... MaybeBool>
-        static void call(Self& self, Machine& mach, Context& ctx, const Event& event, MaybeBool&... processed)
+        template<class Region, class Self, class Machine, class Context, class Event>
+        static int call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
-            impl_of(get<Region>(self.regions_)).template process_event<Dry>(mach, ctx, event, processed...);
+            const auto processed = impl_of(get<Region>(self.regions_)).template process_event<Dry>(mach, ctx, event);
+            return static_cast<int>(processed);
         }
     };
 
@@ -305,14 +282,13 @@ private:
         }
     };
 
-    template<bool Dry, class Self, class Machine, class Context, class Event, class... MaybeBool>
-    static void call_internal_action_2
+    template<bool Dry, class Self, class Machine, class Context, class Event>
+    static bool call_internal_action_2
     (
         Self& self,
         Machine& mach,
         Context& ctx,
-        const Event& event,
-        MaybeBool&... processed
+        const Event& event
     )
     {
         constexpr auto can_process_event = type_set_contains_v
@@ -332,11 +308,12 @@ private:
 
             tlu::for_each<region_mix_type, region_process_event<Dry>>(self, mach, ctx, event);
 
-            maybe_bool_util::set_to_true(processed...);
+            return true;
         }
         else
         {
-            tlu::for_each<region_mix_type, region_process_event<Dry>>(self, mach, ctx, event, processed...);
+            const auto processed_count = tlu::for_each_plus<region_mix_type, region_process_event<Dry>>(self, mach, ctx, event);
+            return static_cast<bool>(processed_count);
         }
     }
 

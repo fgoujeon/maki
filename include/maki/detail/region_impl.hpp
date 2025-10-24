@@ -14,7 +14,6 @@
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
 #include "equals.hpp"
-#include "maybe_bool_util.hpp"
 #include "tuple.hpp"
 #include "mix.hpp"
 #include "constant.hpp"
@@ -164,27 +163,15 @@ public:
     }
 
     template<bool Dry, class Machine, class Context, class Event>
-    void process_event(Machine& mach, Context& ctx, const Event& event)
+    bool process_event(Machine& mach, Context& ctx, const Event& event)
     {
-        process_event_2<Dry>(*this, mach, ctx, event);
+        return process_event_2<Dry>(*this, mach, ctx, event);
     }
 
     template<bool Dry, class Machine, class Context, class Event>
-    void process_event(Machine& mach, Context& ctx, const Event& event, bool& processed)
+    bool process_event(Machine& mach, Context& ctx, const Event& event) const
     {
-        process_event_2<Dry>(*this, mach, ctx, event, processed);
-    }
-
-    template<bool Dry, class Machine, class Context, class Event>
-    void process_event(Machine& mach, Context& ctx, const Event& event) const
-    {
-        process_event_2<Dry>(*this, mach, ctx, event);
-    }
-
-    template<bool Dry, class Machine, class Context, class Event>
-    void process_event(Machine& mach, Context& ctx, const Event& event, bool& processed) const
-    {
-        process_event_2<Dry>(*this, mach, ctx, event, processed);
+        return process_event_2<Dry>(*this, mach, ctx, event);
     }
 
     template<const auto& StateMold>
@@ -200,14 +187,13 @@ public:
     }
 
 private:
-    template<bool Dry, class Self, class Machine, class Context, class Event, class... MaybeBool>
-    static void process_event_2
+    template<bool Dry, class Self, class Machine, class Context, class Event>
+    static bool process_event_2
     (
         Self& self,
         Machine& mach,
         Context& ctx,
-        const Event& event,
-        [[maybe_unused]] MaybeBool&... processed
+        const Event& event
     )
     {
         //List the transitions whose event set contains `Event`
@@ -236,24 +222,22 @@ private:
             Note that nested transitions take precedence over higher-order
             transitions.
             */
-            auto processed_in_active_state = false;
-            call_active_state_internal_action<Dry>(self, mach, ctx, event, processed_in_active_state);
-            if(processed_in_active_state)
-            {
-                maybe_bool_util::set_to_true(processed...);
-            }
-            else
-            {
-                try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
-            }
+            return
+                call_active_state_internal_action<Dry>(self, mach, ctx, event) ||
+                try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event)
+            ;
         }
         else if constexpr(!must_try_executing_transitions && must_try_process_event_in_states)
         {
-            call_active_state_internal_action<Dry>(self, mach, ctx, event, processed...);
+            return call_active_state_internal_action<Dry>(self, mach, ctx, event);
         }
         else if constexpr(must_try_executing_transitions && !must_try_process_event_in_states)
         {
-            try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event, processed...);
+            return try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event);
+        }
+        else
+        {
+            return false;
         }
     }
 
@@ -276,14 +260,14 @@ private:
     Try executing one of the transitions at indices
     `TransitionIndexConstantList`.
     */
-    template<class TransitionIndexConstantList, bool Dry = false, class Self, class Machine, class Context, class Event, class... ExtraArgs>
-    static void try_executing_transitions(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
+    template<class TransitionIndexConstantList, bool Dry = false, class Self, class Machine, class Context, class Event>
+    static bool try_executing_transitions(Self& self, Machine& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each_or
+        return tlu::for_each_or
         <
             TransitionIndexConstantList,
             try_executing_transition<Dry>
-        >(self, mach, ctx, event, extra_args...);
+        >(self, mach, ctx, event);
     }
 
     // Try executing the transition at index `TransitionIndexConstant`.
@@ -334,8 +318,7 @@ private:
                     self,
                     mach,
                     ctx,
-                    event,
-                    extra_args...
+                    event
                 );
             }
         }
@@ -350,16 +333,14 @@ private:
             class Self,
             class Machine,
             class Context,
-            class Event,
-            class... MaybeBool
+            class Event
         >
         static bool call
         (
             Self& self,
             Machine& mach,
             Context& ctx,
-            const Event& event,
-            MaybeBool&... processed
+            const Event& event
         )
         {
             if constexpr(!is_null_v<Event>) // Already filtered out
@@ -389,8 +370,6 @@ private:
                     &Action
                 >(mach, ctx, event);
             }
-
-            maybe_bool_util::set_to_true(processed...);
 
             return true;
         }
@@ -553,34 +532,35 @@ private:
     }
 
     // Find the active state and call its internal action for `event`.
-    template<bool Dry, class Self, class Machine, class Context, class Event, class... ExtraArgs>
-    static void call_active_state_internal_action
+    template<bool Dry, class Self, class Machine, class Context, class Event>
+    static bool call_active_state_internal_action
     (
         Self& self,
         Machine& mach,
         Context& ctx,
-        const Event& event,
-        ExtraArgs&... extra_args
+        const Event& event
     )
     {
+        auto processing_count = 0;
         tlu::for_each_or
         <
             state_mix_type,
             call_active_state_internal_action_2<Dry>
-        >(self, mach, ctx, event, extra_args...);
+        >(self, mach, ctx, event, processing_count);
+        return static_cast<bool>(processing_count);
     }
 
     template<bool Dry>
     struct call_active_state_internal_action_2
     {
-        template<class State, class Self, class Machine, class Context, class Event, class... ExtraArgs>
+        template<class State, class Self, class Machine, class Context, class Event>
         static bool call
         (
             Self& self,
             Machine& mach,
             Context& ctx,
             const Event& event,
-            [[maybe_unused]] ExtraArgs&... extra_args
+            int& processing_count
         )
         {
             constexpr auto can_state_process_event =
@@ -600,13 +580,13 @@ private:
 
                 auto& active_state = self.template state_type_to_obj<State>();
 
-                impl_of(active_state).template call_internal_action<Dry>
+                const auto processed = impl_of(active_state).template call_internal_action<Dry>
                 (
                     mach,
                     ctx,
-                    event,
-                    extra_args...
+                    event
                 );
+                processing_count += static_cast<int>(processed);
 
                 if constexpr
                 (

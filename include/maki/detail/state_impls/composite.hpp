@@ -59,49 +59,25 @@ public:
     }
 
     template<bool Dry, class Machine, class ParentContext, class Event>
-    void call_internal_action
+    bool call_internal_action
     (
         Machine& mach,
         ParentContext& /*parent_ctx*/,
         const Event& event
     )
     {
-        impl_.template call_internal_action<Dry>(mach, context(), event);
+        return impl_.template call_internal_action<Dry>(mach, context(), event);
     }
 
     template<bool Dry, class Machine, class ParentContext, class Event>
-    void call_internal_action
-    (
-        Machine& mach,
-        ParentContext& /*parent_ctx*/,
-        const Event& event,
-        bool& processed
-    )
-    {
-        impl_.template call_internal_action<Dry>(mach, context(), event, processed);
-    }
-
-    template<bool Dry, class Machine, class ParentContext, class Event>
-    void call_internal_action
+    bool call_internal_action
     (
         Machine& mach,
         ParentContext& /*parent_ctx*/,
         const Event& event
     ) const
     {
-        impl_.template call_internal_action<Dry>(mach, context(), event);
-    }
-
-    template<bool Dry, class Machine, class ParentContext, class Event>
-    void call_internal_action
-    (
-        Machine& mach,
-        ParentContext& /*parent_ctx*/,
-        const Event& event,
-        bool& processed
-    ) const
-    {
-        impl_.template call_internal_action<Dry>(mach, context(), event, processed);
+        return impl_.template call_internal_action<Dry>(mach, context(), event);
     }
 
     template<class Machine, class ParentContext, class Event>

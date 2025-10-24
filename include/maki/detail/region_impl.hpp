@@ -541,13 +541,13 @@ private:
         const Event& event
     )
     {
-        auto processing_count = 0;
+        auto processed = false;
         tlu::for_each_or
         <
             state_mix_type,
             call_active_state_internal_action_2<Dry>
-        >(self, mach, ctx, event, processing_count);
-        return static_cast<bool>(processing_count);
+        >(self, mach, ctx, event, processed);
+        return processed;
     }
 
     template<bool Dry>
@@ -560,7 +560,7 @@ private:
             Machine& mach,
             Context& ctx,
             const Event& event,
-            int& processing_count
+            bool& processed
         )
         {
             constexpr auto can_state_process_event =
@@ -580,13 +580,12 @@ private:
 
                 auto& active_state = self.template state_type_to_obj<State>();
 
-                const auto processed = impl_of(active_state).template call_internal_action<Dry>
+                processed = impl_of(active_state).template call_internal_action<Dry>
                 (
                     mach,
                     ctx,
                     event
                 );
-                processing_count += static_cast<int>(processed);
 
                 if constexpr
                 (

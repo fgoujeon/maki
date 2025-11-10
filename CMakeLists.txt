@@ -40,7 +40,6 @@ target_sources(maki
         include/maki/detail/function_queue.hpp
         include/maki/detail/integer_constant_sequence.hpp
         include/maki/detail/machine_conf_impl.hpp
-        include/maki/detail/maybe_bool_util.hpp
         include/maki/detail/mix.hpp
         include/maki/detail/noinline.hpp
         include/maki/detail/overload_priority.hpp
@@ -74,6 +73,7 @@ target_sources(maki
         include/maki/detail/tlu/find_if_or.hpp
         include/maki/detail/tlu/for_each.hpp
         include/maki/detail/tlu/for_each_or.hpp
+        include/maki/detail/tlu/for_each_plus.hpp
         include/maki/detail/tlu/front.hpp
         include/maki/detail/tlu/get.hpp
         include/maki/detail/tlu/intersection.hpp

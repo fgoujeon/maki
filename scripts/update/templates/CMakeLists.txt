@@ -8,10 +8,10 @@
 
 cmake_minimum_required(VERSION 3.23)
 
+project(maki VERSION @VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@ LANGUAGES CXX)
+
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
-
-project(maki VERSION @VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@ LANGUAGES CXX)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 

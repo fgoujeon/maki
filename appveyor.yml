@@ -22,7 +22,7 @@ install:
   - vcpkg install catch2:x86-windows
 
 before_build:
-  - cmake -DMAKI_BUILD_TESTS=1 -DMAKI_BUILD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake -A%PLATFORM% .
+  - cmake -DCMAKE_CXX_FLAGS="/std:c++17 /EHsc /W4 /permissive- /WX" -DMAKI_BUILD_TESTS=1 -DMAKI_BUILD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake -A%PLATFORM% .
 
 build:
   project: $(APPVEYOR_BUILD_FOLDER)\$(APPVEYOR_PROJECT_NAME).sln

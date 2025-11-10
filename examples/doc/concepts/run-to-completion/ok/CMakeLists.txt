@@ -4,15 +4,11 @@
 #https://www.boost.org/LICENSE_1_0.txt)
 #Official repository: https://github.com/fgoujeon/maki
 
-include(maki)
-
 set(TARGET example-doc-concepts-run-to-completion-ok)
 
 file(GLOB_RECURSE SOURCE_FILES *)
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${SOURCE_FILES})
 add_executable(${TARGET} ${SOURCE_FILES})
-
-maki_target_common_options(${TARGET})
 
 target_compile_definitions(
     ${TARGET}

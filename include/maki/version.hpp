@@ -19,7 +19,7 @@ namespace maki::version
 
 constexpr auto major = 1;
 constexpr auto minor = 0;
-constexpr auto patch = 3;
+constexpr auto patch = 4;
 
 } //namespace
 

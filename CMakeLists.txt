@@ -8,7 +8,7 @@
 
 cmake_minimum_required(VERSION 3.23)
 
-project(maki VERSION 1.0.3 LANGUAGES CXX)
+project(maki VERSION 1.0.4 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)

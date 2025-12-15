@@ -49,7 +49,7 @@ namespace region_detail
     template<class StateIdConstantList, auto StateId>
     struct state_id_to_index
     {
-        static constexpr auto value = tlu::find_v<StateIdConstantList, constant_t<StateId>>;
+        static constexpr auto value = boost::mp11::mp_find<StateIdConstantList, constant_t<StateId>>::value;
     };
 
     template<class StateIdConstantList>
@@ -73,7 +73,7 @@ public:
     ;
 
     using state_id_constant_list_0 = typename transition_table_digest_type::state_id_constant_list;
-    using state_id_constant_list = tlu::push_back_t<state_id_constant_list_0, constant_t<&maki::undefined>>;
+    using state_id_constant_list = boost::mp11::mp_push_back<state_id_constant_list_0, constant_t<&maki::undefined>>;
 
     template<class... StateIdConstants>
     using state_id_constant_pack_to_state_mix_t = mix
@@ -81,10 +81,10 @@ public:
         state_traits::state_id_to_state_t<StateIdConstants::value, Path>...
     >;
 
-    using state_mix_type = tlu::apply_t
+    using state_mix_type = boost::mp11::mp_apply
     <
-        state_id_constant_list,
-        state_id_constant_pack_to_state_mix_t
+        state_id_constant_pack_to_state_mix_t,
+        state_id_constant_list
     >;
 
     using states_event_type_set = state_type_list_event_type_set_t<state_mix_type>;
@@ -130,7 +130,7 @@ public:
     template<class Machine, class Context, class Event>
     void enter(Machine& mach, Context& ctx, const Event& event)
     {
-        static constexpr auto initial_state_id = tlu::front_t<state_id_constant_list>::value;
+        static constexpr auto initial_state_id = boost::mp11::mp_front<state_id_constant_list>::value;
         static constexpr auto action = tuple_get<0>(impl_of(TransitionTable)).act;
 
         execute_transition
@@ -207,7 +207,7 @@ private:
             Event
         >;
 
-        constexpr auto must_try_executing_transitions = !tlu::empty_v<candidate_transition_index_constant_list>;
+        constexpr auto must_try_executing_transitions = !boost::mp11::mp_empty<candidate_transition_index_constant_list>::value;
 
         constexpr auto must_try_process_event_in_states = type_set_contains_v
         <
@@ -291,7 +291,7 @@ private:
                     &source_state_mold
                 >;
 
-                static_assert(!tlu::empty_v<matching_state_mold_constant_list>);
+                static_assert(!boost::mp11::mp_empty<matching_state_mold_constant_list>::value);
 
                 return tlu::for_each_or
                 <
@@ -626,7 +626,7 @@ private:
             active_state_id
         >;
 
-        if constexpr(!tlu::empty_v<candidate_transition_index_constant_list>)
+        if constexpr(!boost::mp11::mp_empty<candidate_transition_index_constant_list>::value)
         {
             if(impl_of(active_state).completed())
             {
@@ -658,7 +658,7 @@ private:
         auto matches = false;
         with_active_state_id
         <
-            tlu::push_back_t<state_id_constant_list, constant_t<&state_molds::fin>>,
+            boost::mp11::mp_push_back<state_id_constant_list, constant_t<&state_molds::fin>>,
             is_active_state_id_in_set_2<StateSetPtr>
         >(matches);
         return matches;

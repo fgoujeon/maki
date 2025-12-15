@@ -27,10 +27,10 @@ namespace by_state_set_detail
 }
 
 template<class StateIdConstantList, auto StateSetPtr>
-using by_state_set_t = tlu::filter_t
+using by_state_set_t = boost::mp11::mp_filter
 <
-    StateIdConstantList,
-    by_state_set_detail::for_state_set<StateSetPtr>::template matches
+    by_state_set_detail::for_state_set<StateSetPtr>::template matches,
+    StateIdConstantList
 >;
 
 } //namespace

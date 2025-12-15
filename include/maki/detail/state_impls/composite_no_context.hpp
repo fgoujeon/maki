@@ -21,6 +21,7 @@
 #include "../tlu/size.hpp"
 #include "../../states.hpp"
 #include "../../region.hpp"
+#include <boost/mp11.hpp>
 #include <type_traits>
 #include <utility>
 
@@ -90,11 +91,11 @@ using region_type_list_event_type_set_operation =
 ;
 
 template<class RegionTypeList>
-using region_type_list_event_type_set = tlu::left_fold_t
+using region_type_list_event_type_set = boost::mp11::mp_fold
 <
     RegionTypeList,
-    region_type_list_event_type_set_operation,
-    empty_type_set_t
+    empty_type_set_t,
+    region_type_list_event_type_set_operation
 >;
 
 template<auto Id, const auto& Path>
@@ -111,13 +112,13 @@ public:
     using region_index_sequence_type = std::make_integer_sequence
     <
         int,
-        tlu::size_v<transition_table_type_list>
+        boost::mp11::mp_size<transition_table_type_list>::value
     >;
 
     using region_index_constant_sequence = make_integer_constant_sequence
     <
         int,
-        tlu::size_v<transition_table_type_list>
+        boost::mp11::mp_size<transition_table_type_list>::value
     >;
 
     using region_mix_type = typename region_mix
@@ -214,7 +215,7 @@ public:
     template<int Index>
     [[nodiscard]] const auto& region() const
     {
-        using region_type = tlu::get_t<region_mix_type, Index>;
+        using region_type = boost::mp11::mp_at_c<region_mix_type, Index>;
         return get<region_type>(regions_);
     }
 
@@ -234,10 +235,10 @@ public:
 
     [[nodiscard]] bool completed() const
     {
-        return tlu::apply_t
+        return boost::mp11::mp_apply
         <
-            region_mix_type,
-            all_regions_completed
+            all_regions_completed,
+            region_mix_type
         >::call(*this);
     }
 

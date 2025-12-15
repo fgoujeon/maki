@@ -15,6 +15,7 @@
 #include "../null.hpp"
 #include "tlu/push_back_if.hpp"
 #include "tlu/left_fold.hpp"
+#include <boost/mp11.hpp>
 #include <type_traits>
 
 namespace maki::detail
@@ -63,11 +64,11 @@ namespace transition_table_digest_detail
             - it's `undefined`.
             */
             static constexpr auto must_add_target_state =
-                !tlu::contains_v
+                !boost::mp11::mp_contains
                 <
                     typename Digest::state_id_constant_list,
                     constant_t<tuple_get<Index>(impl_of(TransitionTable)).target_state_mold>
-                > &&
+                >::value &&
                 !equals(tuple_get<Index>(impl_of(TransitionTable)).target_state_mold, state_molds::fin) &&
                 !equals(tuple_get<Index>(impl_of(TransitionTable)).target_state_mold, null) &&
                 !equals(tuple_get<Index>(impl_of(TransitionTable)).target_state_mold, undefined)
@@ -102,14 +103,14 @@ namespace transition_table_digest_detail
 }
 
 template<const auto& TransitionTable>
-using transition_table_digest = tlu::left_fold_t
+using transition_table_digest = boost::mp11::mp_fold
 <
     make_integer_constant_sequence<int, impl_of(TransitionTable).size>,
+    transition_table_digest_detail::initial_digest,
     transition_table_digest_detail::add_transition_to_digest_holder
     <
         TransitionTable
-    >::template add_transition_to_digest,
-    transition_table_digest_detail::initial_digest
+    >::template add_transition_to_digest
 >;
 
 } //namespace

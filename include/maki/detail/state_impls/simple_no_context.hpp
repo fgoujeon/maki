@@ -12,6 +12,7 @@
 #include "../mix.hpp"
 #include "../tlu/empty.hpp"
 #include "../tlu/left_fold.hpp"
+#include <boost/mp11.hpp>
 #include <type_traits>
 
 namespace maki::detail::state_impls
@@ -35,11 +36,11 @@ public:
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
 
     using event_type_set =
-        tlu::left_fold_t
+        boost::mp11::mp_fold
         <
             typename option_set_type::internal_action_mix_type,
-            event_action_event_set_operation,
-            empty_type_set_t
+            empty_type_set_t,
+            event_action_event_set_operation
         >
     ;
 
@@ -57,7 +58,7 @@ public:
     template<class Machine, class Context, class Event>
     static void call_entry_action(Machine& mach, Context& ctx, const Event& event)
     {
-        if constexpr(!tlu::empty_v<entry_action_ptr_constant_list>)
+        if constexpr(!boost::mp11::mp_empty<entry_action_ptr_constant_list>::value)
         {
             /*
             If at least one entry action is defined, state is required to define
@@ -79,7 +80,7 @@ public:
         Caller is supposed to check an interal action exists for the given event
         type before calling this function.
         */
-        static_assert(!tlu::empty_v<internal_action_ptr_constant_list>);
+        static_assert(!boost::mp11::mp_empty<internal_action_ptr_constant_list>::value);
 
         if constexpr(!Dry)
         {
@@ -97,7 +98,7 @@ public:
     template<class Machine, class Context, class Event>
     static void call_exit_action(Machine& mach, Context& ctx, const Event& event)
     {
-        if constexpr(!tlu::empty_v<exit_action_ptr_constant_list>)
+        if constexpr(!boost::mp11::mp_empty<exit_action_ptr_constant_list>::value)
         {
             /*
             If at least one exit action is defined, state is required to define

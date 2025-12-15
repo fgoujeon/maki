@@ -511,17 +511,17 @@ private:
         }
         else
         {
-            constexpr auto has_matching_pre_processing_hook = detail::tlu::contains_if_v
+            constexpr auto has_matching_pre_processing_hook = boost::mp11::mp_any_of
             <
                 pre_processing_hook_ptr_constant_list,
                 detail::event_action_traits::for_event<Event>::template has_containing_event_set
-            >;
+            >::value;
 
-            constexpr auto has_matching_post_processing_hook = detail::tlu::contains_if_v
+            constexpr auto has_matching_post_processing_hook = boost::mp11::mp_any_of
             <
                 post_processing_hook_ptr_constant_list,
                 detail::event_action_traits::for_event<Event>::template has_containing_event_set
-            >;
+            >::value;
 
             //If running, execute pre-processing hook for `Event`, if any.
             if constexpr(has_matching_pre_processing_hook)

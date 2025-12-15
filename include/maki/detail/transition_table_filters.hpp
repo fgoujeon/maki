@@ -32,7 +32,7 @@ struct by_event_predicate_holder
     {
         static constexpr bool make_value()
         {
-            using trans_t = tlu::get_t<impl_of_t<TransitionTable>, TransitionIndexConstant::value>;
+            using trans_t = boost::mp11::mp_at_c<impl_of_t<TransitionTable>, TransitionIndexConstant::value>;
             using trans_event_type_set_t = transition_event_type_set_t<trans_t>;
             return type_set_contains_v<trans_event_type_set_t, Event>;
         }
@@ -42,10 +42,10 @@ struct by_event_predicate_holder
 };
 
 template<class TransitionTable, class Event>
-using by_event_t = tlu::filter_t
+using by_event_t = boost::mp11::mp_filter
 <
-    make_integer_constant_sequence<int, impl_of_t<TransitionTable>::size>,
-    by_event_predicate_holder<TransitionTable, Event>::template predicate
+    by_event_predicate_holder<TransitionTable, Event>::template predicate,
+    make_integer_constant_sequence<int, impl_of_t<TransitionTable>::size>
 >;
 
 #else // if MAKI_DETAIL_COMPILER_GCC
@@ -73,10 +73,10 @@ struct by_event_predicate_holder
 };
 
 template<const auto& TransitionTable, class Event>
-using by_event_t = tlu::filter_t
+using by_event_t = boost::mp11::mp_filter
 <
-    make_integer_constant_sequence<int, impl_of(TransitionTable).size>,
-    by_event_predicate_holder<TransitionTable, Event>::template predicate
+    by_event_predicate_holder<TransitionTable, Event>::template predicate,
+    make_integer_constant_sequence<int, impl_of(TransitionTable).size>
 >;
 
 #endif // endif MAKI_DETAIL_COMPILER_GCC
@@ -110,10 +110,10 @@ namespace by_source_state_and_null_event_detail
 }
 
 template<const auto& TransitionTable, auto SourceStateId>
-using by_source_state_and_null_event_t = tlu::filter_t
+using by_source_state_and_null_event_t = boost::mp11::mp_filter
 <
-    make_integer_constant_sequence<int, impl_of(TransitionTable).size>,
-    by_source_state_and_null_event_detail::predicate_holder<&TransitionTable, SourceStateId>::template predicate
+    by_source_state_and_null_event_detail::predicate_holder<&TransitionTable, SourceStateId>::template predicate,
+    make_integer_constant_sequence<int, impl_of(TransitionTable).size>
 >;
 
 } //namespace

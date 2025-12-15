@@ -110,11 +110,11 @@ public:
     {
         static_assert
         (
-            detail::tlu::contains_v
+            boost::mp11::mp_contains
             <
                 event_type_list,
                 Event
-            >,
+            >::value,
             "Given event type must be part of the type list given to `events()`"
         );
         impl_.process_event(evt);
@@ -123,10 +123,10 @@ public:
 private:
     using event_type_list = typename std::decay_t<decltype(Conf)>::event_type_list;
 
-    using event_impl_type = detail::tlu::apply_t
+    using event_impl_type = boost::mp11::mp_apply
     <
-        event_type_list,
-        detail::machine_ref_event_impl
+        detail::machine_ref_event_impl,
+        event_type_list
     >;
 
     event_impl_type impl_;

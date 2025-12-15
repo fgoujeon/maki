@@ -20,13 +20,15 @@ option(MAKI_BUILD_TESTS "Build test executable" OFF)
 option(MAKI_FORCE_CATCH2_V2 "Force version 2 of catch2" OFF)
 option(MAKI_INSTALL "Install the library" ON)
 
+find_package(Boost REQUIRED)
+
 add_library(maki INTERFACE)
 
 target_sources(maki
     INTERFACE
     FILE_SET HEADERS
     BASE_DIRS include
-    FILES 
+    FILES
         include/maki.hpp
         include/maki/action.hpp
         include/maki/context.hpp
@@ -116,6 +118,8 @@ target_sources(maki
         include/maki/version.hpp)
 
 target_compile_features(maki INTERFACE cxx_std_17)
+
+target_link_libraries(maki INTERFACE Boost::headers)
 
 if(MAKI_BUILD_TESTS)
     find_package(Catch2 REQUIRED)

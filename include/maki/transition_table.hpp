@@ -353,11 +353,11 @@ namespace detail
     >;
 
     template<class TransitionTable>
-    using transition_table_event_type_set_t = tlu::left_fold_t
+    using transition_table_event_type_set_t = boost::mp11::mp_fold
     <
         impl_of_t<TransitionTable>,
-        transition_table_event_type_set_fold_operation_t,
-        empty_type_set_t
+        empty_type_set_t,
+        transition_table_event_type_set_fold_operation_t
     >;
 }
 

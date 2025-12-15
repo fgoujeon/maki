@@ -13,6 +13,7 @@
 #include "tlu/push_back_all_unique.hpp"
 #include "tlu/push_back_unique.hpp"
 #include "tlu/contains.hpp"
+#include <boost/mp11.hpp>
 
 namespace maki::detail
 {
@@ -63,13 +64,13 @@ struct type_set_contains<type_set_item<T>, U>
 template<class... Ts, class T>
 struct type_set_contains<type_set_inclusion_list<Ts...>, T>
 {
-    static constexpr bool value = tlu::contains_v<type_set_inclusion_list<Ts...>, T>;
+    static constexpr bool value = boost::mp11::mp_contains<type_set_inclusion_list<Ts...>, T>::value;
 };
 
 template<class... Ts, class T>
 struct type_set_contains<type_set_exclusion_list<Ts...>, T>
 {
-    static constexpr bool value = !tlu::contains_v<type_set_exclusion_list<Ts...>, T>;
+    static constexpr bool value = !boost::mp11::mp_contains<type_set_exclusion_list<Ts...>, T>::value;
 };
 
 template<class Impl, class T>
@@ -115,7 +116,7 @@ struct type_set_union<type_set_item<Lhs>, type_set_item<Rhs>>
 template<class Lhs, class... Rhss>
 struct type_set_union<type_set_item<Lhs>, type_set_inclusion_list<Rhss...>>
 {
-    using type = tlu::push_back_unique_t
+    using type = boost::mp11::mp_set_push_back
     <
         type_set_inclusion_list<Rhss...>,
         Lhs
@@ -125,7 +126,7 @@ struct type_set_union<type_set_item<Lhs>, type_set_inclusion_list<Rhss...>>
 template<class Lhs, class... Rhss>
 struct type_set_union<type_set_item<Lhs>, type_set_exclusion_list<Rhss...>>
 {
-    using type = tlu::remove_t
+    using type = boost::mp11::mp_remove
     <
         type_set_exclusion_list<Rhss...>,
         Lhs
@@ -135,7 +136,7 @@ struct type_set_union<type_set_item<Lhs>, type_set_exclusion_list<Rhss...>>
 template<class... Lhss, class Rhs>
 struct type_set_union<type_set_inclusion_list<Lhss...>, type_set_item<Rhs>>
 {
-    using type = tlu::push_back_unique_t
+    using type = boost::mp11::mp_set_push_back
     <
         type_set_inclusion_list<Lhss...>,
         Rhs
@@ -145,17 +146,17 @@ struct type_set_union<type_set_inclusion_list<Lhss...>, type_set_item<Rhs>>
 template<class... Lhss, class... Rhss>
 struct type_set_union<type_set_inclusion_list<Lhss...>, type_set_inclusion_list<Rhss...>>
 {
-    using type = tlu::push_back_all_unique_t
+    using type = boost::mp11::mp_set_push_back
     <
         type_set_inclusion_list<Lhss...>,
-        type_set_inclusion_list<Rhss...>
+        Rhss...
     >;
 };
 
 template<class... Lhss, class... Rhss>
 struct type_set_union<type_set_inclusion_list<Lhss...>, type_set_exclusion_list<Rhss...>>
 {
-    using type = tlu::remove_all_t
+    using type = boost::mp11::mp_set_difference
     <
         type_set_exclusion_list<Rhss...>,
         type_set_inclusion_list<Lhss...>
@@ -165,7 +166,7 @@ struct type_set_union<type_set_inclusion_list<Lhss...>, type_set_exclusion_list<
 template<class... Lhss, class Rhs>
 struct type_set_union<type_set_exclusion_list<Lhss...>, type_set_item<Rhs>>
 {
-    using type = tlu::remove_t
+    using type = boost::mp11::mp_remove
     <
         type_set_exclusion_list<Lhss...>,
         Rhs
@@ -175,7 +176,7 @@ struct type_set_union<type_set_exclusion_list<Lhss...>, type_set_item<Rhs>>
 template<class... Lhss, class... Rhss>
 struct type_set_union<type_set_exclusion_list<Lhss...>, type_set_inclusion_list<Rhss...>>
 {
-    using type = tlu::remove_all_t
+    using type = boost::mp11::mp_set_difference
     <
         type_set_exclusion_list<Lhss...>,
         type_set_inclusion_list<Rhss...>
@@ -185,7 +186,7 @@ struct type_set_union<type_set_exclusion_list<Lhss...>, type_set_inclusion_list<
 template<class... Lhss, class... Rhss>
 struct type_set_union<type_set_exclusion_list<Lhss...>, type_set_exclusion_list<Rhss...>>
 {
-    using type = tlu::intersection_t
+    using type = boost::mp11::mp_set_intersection
     <
         type_set_exclusion_list<Lhss...>,
         type_set_exclusion_list<Rhss...>
@@ -206,7 +207,7 @@ struct type_set_intersection;
 template<class... Lhss, class... Rhss>
 struct type_set_intersection<type_set_inclusion_list<Lhss...>, type_set_inclusion_list<Rhss...>>
 {
-    using type = tlu::intersection_t
+    using type = boost::mp11::mp_set_intersection
     <
         type_set_inclusion_list<Lhss...>,
         type_set_inclusion_list<Rhss...>
@@ -216,7 +217,7 @@ struct type_set_intersection<type_set_inclusion_list<Lhss...>, type_set_inclusio
 template<class... Lhss, class... Rhss>
 struct type_set_intersection<type_set_inclusion_list<Lhss...>, type_set_exclusion_list<Rhss...>>
 {
-    using type = tlu::remove_all_t
+    using type = boost::mp11::mp_set_difference
     <
         type_set_inclusion_list<Lhss...>,
         type_set_exclusion_list<Rhss...>
@@ -226,7 +227,7 @@ struct type_set_intersection<type_set_inclusion_list<Lhss...>, type_set_exclusio
 template<class... Lhss, class... Rhss>
 struct type_set_intersection<type_set_exclusion_list<Lhss...>, type_set_inclusion_list<Rhss...>>
 {
-    using type = tlu::remove_all_t
+    using type = boost::mp11::mp_set_difference
     <
         type_set_inclusion_list<Rhss...>,
         type_set_exclusion_list<Lhss...>
@@ -236,10 +237,10 @@ struct type_set_intersection<type_set_exclusion_list<Lhss...>, type_set_inclusio
 template<class... Lhss, class... Rhss>
 struct type_set_intersection<type_set_exclusion_list<Lhss...>, type_set_exclusion_list<Rhss...>>
 {
-    using type = tlu::push_back_all_unique_t
+    using type = boost::mp11::mp_set_push_back
     <
         type_set_exclusion_list<Lhss...>,
-        type_set_exclusion_list<Rhss...>
+        Rhss...
     >;
 };
 

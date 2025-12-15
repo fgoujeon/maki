@@ -11,6 +11,7 @@
 #include "tlu/get.hpp"
 #include "../event_set.hpp"
 #include "../action.hpp"
+#include <boost/mp11.hpp>
 #include <type_traits>
 #include <utility>
 
@@ -95,13 +96,13 @@ void call_matching_event_action
     ExtraArgs&&... extra_args
 )
 {
-    constexpr auto matching_action_index = tlu::find_if_v
+    constexpr auto matching_action_index = boost::mp11::mp_find_if
     <
         ActionConstantList,
         event_action_traits::for_event<Event>::template has_containing_event_set
-    >;
+    >::value;
 
-    call_event_action<tlu::get_t<ActionConstantList, matching_action_index>::value>
+    call_event_action<boost::mp11::mp_at_c<ActionConstantList, matching_action_index>::value>
     (
         mach,
         ctx,

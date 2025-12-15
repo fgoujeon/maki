@@ -111,11 +111,11 @@ namespace detail
     >;
 
     template<class StateTypeList>
-    using state_type_list_event_type_set_t = tlu::left_fold_t
+    using state_type_list_event_type_set_t = boost::mp11::mp_fold
     <
         StateTypeList,
-        state_type_list_event_type_set_operation_t,
-        empty_type_set_t
+        empty_type_set_t,
+        state_type_list_event_type_set_operation_t
     >;
 }
 

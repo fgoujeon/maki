@@ -7,8 +7,7 @@
 #ifndef MAKI_DETAIL_TLU_INTERSECTION_HPP
 #define MAKI_DETAIL_TLU_INTERSECTION_HPP
 
-#include "left_fold.hpp"
-#include "push_back_if.hpp"
+#include "filter.hpp"
 #include "contains.hpp"
 
 namespace maki::detail::tlu
@@ -16,35 +15,23 @@ namespace maki::detail::tlu
 
 namespace intersection_detail
 {
-    template<class LhsList>
-    struct fold_operation_holder
+    template<class UList>
+    struct is_in
     {
-        template<class OutList, class Rhs>
-        using operation = push_back_if_t
-        <
-            OutList,
-            Rhs,
-            contains_v<LhsList, Rhs>
-        >;
+        template<class T>
+        struct sub
+        {
+            static constexpr auto value = contains_v<UList, T>;
+        };
     };
 }
 
-template<class LhsList, class RhsList>
-struct intersection;
-
-template<template<class...> class LhsList, class... Lhss, class RhsList>
-struct intersection<LhsList<Lhss...>, RhsList>
-{
-    using type = left_fold_t
-    <
-        RhsList,
-        intersection_detail::fold_operation_holder<LhsList<Lhss...>>::template operation,
-        LhsList<>
-    >;
-};
-
-template<class LhsList, class RhsList>
-using intersection_t = typename intersection<LhsList, RhsList>::type;
+template<class TList, class UList>
+using intersection_t = filter_t
+<
+    TList,
+    intersection_detail::is_in<UList>::template sub
+>;
 
 } //namespace
 

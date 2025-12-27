@@ -118,9 +118,9 @@ public:
     part of `event_types`. \
     */ \
     template<class EventSetImpl, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_processing_hook_##signature(const event_set<EventSetImpl>& event_types, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_processing_hook_##signature(const event_set<EventSetImpl>& /*event_types*/, const Action& action) const \
     { \
-        return pre_processing_hook<action_signature::signature>(event_types, action); \
+        return pre_processing_hook<EventSetImpl, action_signature::signature>(action); \
     } \
  \
     /** \
@@ -131,7 +131,7 @@ public:
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_processing_hook_##signature(const Action& action) const \
     { \
-        return pre_processing_hook_##signature(event_set{event<Event>}, action); \
+        return pre_processing_hook<detail::type_set_item<Event>, action_signature::signature>(action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -407,13 +407,13 @@ private:
 #undef MAKI_DETAIL_ARG_context_sig
     }
 
-    template<action_signature Sig, class EventSetImpl, class Hook>
-    [[nodiscard]] constexpr auto pre_processing_hook(const event_set<EventSetImpl>& /*event_types*/, const Hook& hook) const
+    template<class EventTypeSet, action_signature Sig, class Hook>
+    [[nodiscard]] constexpr auto pre_processing_hook(const Hook& hook) const
     {
         const auto new_pre_processing_hooks = append
         (
             impl_.pre_processing_hooks,
-            detail::make_event_action<Sig, EventSetImpl>(hook)
+            detail::make_event_action<Sig, EventTypeSet>(hook)
         );
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN

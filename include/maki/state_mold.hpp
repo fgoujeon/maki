@@ -103,9 +103,9 @@ public:
     to be called for any event type in `event_types`. \
     */ \
     template<class EventSetImpl, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const event_set<EventSetImpl>& event_types, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const event_set<EventSetImpl>& /*event_types*/, const Action& action) const \
     { \
-        return entry_action<action_signature::signature>(event_types, action); \
+        return entry_action<action_signature::signature, EventSetImpl>(action); \
     } \
  \
     /** \
@@ -115,7 +115,7 @@ public:
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const Action& action) const \
     { \
-        return entry_action_##signature(event_set{event<Event>}, action); \
+        return entry_action<action_signature::signature, detail::type_set_item<Event>>(action); \
     } \
  \
     /** \
@@ -125,7 +125,7 @@ public:
     template<class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const Action& action) const \
     { \
-        return entry_action_##signature(all_events, action); \
+        return entry_action<action_signature::signature, detail::universal_type_set_t>(action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -140,9 +140,9 @@ public:
     to be called for any event type in `event_types`. \
     */ \
     template<class EventSetImpl, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const event_set<EventSetImpl>& event_types, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const event_set<EventSetImpl>& /*event_types*/, const Action& action) const \
     { \
-        return internal_action<action_signature::signature>(event_types, action); \
+        return internal_action<action_signature::signature, EventSetImpl>(action); \
     } \
  \
     /** \
@@ -152,7 +152,7 @@ public:
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const Action& action) const \
     { \
-        return internal_action_##signature(event_set{event<Event>}, action); \
+        return internal_action<action_signature::signature, detail::type_set_item<Event>>(action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -163,9 +163,9 @@ public:
     to be called for any event type in `event_types`. \
     */ \
     template<class EventSetImpl, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const event_set<EventSetImpl>& event_types, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const event_set<EventSetImpl>& /*event_types*/, const Action& action) const \
     { \
-        return exit_action<action_signature::signature>(event_types, action); \
+        return exit_action<action_signature::signature, EventSetImpl>(action); \
     } \
  \
     /** \
@@ -175,7 +175,7 @@ public:
     template<class Event, class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const Action& action) const \
     { \
-        return exit_action_##signature(event_set{event<Event>}, action); \
+        return exit_action<action_signature::signature, detail::type_set_item<Event>>(action); \
     } \
  \
     /** \
@@ -185,7 +185,7 @@ public:
     template<class Action> \
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const Action& action) const \
     { \
-        return exit_action_##signature(all_events, action); \
+        return exit_action<action_signature::signature, detail::universal_type_set_t>(action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -240,13 +240,13 @@ private:
 #undef MAKI_DETAIL_ARG_context_sig
     }
 
-    template<action_signature Sig, class EventSetImpl, class Action>
-    [[nodiscard]] constexpr auto entry_action(const event_set<EventSetImpl>& /*event_types*/, const Action& action) const
+    template<action_signature Sig, class EventTypeSet, class Action>
+    [[nodiscard]] constexpr auto entry_action(const Action& action) const
     {
         const auto new_entry_actions = append
         (
             impl_.entry_actions,
-            detail::make_event_action<Sig, EventSetImpl>(action)
+            detail::make_event_action<Sig, EventTypeSet>(action)
         );
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
@@ -255,13 +255,13 @@ private:
 #undef MAKI_DETAIL_ARG_entry_actions
     }
 
-    template<action_signature Sig, class EventSetImpl, class Action>
-    [[nodiscard]] constexpr auto internal_action(const event_set<EventSetImpl>& /*event_types*/, const Action& action) const
+    template<action_signature Sig, class EventTypeSet, class Action>
+    [[nodiscard]] constexpr auto internal_action(const Action& action) const
     {
         const auto new_internal_actions = append
         (
             impl_.internal_actions,
-            detail::make_event_action<Sig, EventSetImpl>(action)
+            detail::make_event_action<Sig, EventTypeSet>(action)
         );
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
@@ -270,13 +270,13 @@ private:
 #undef MAKI_DETAIL_ARG_internal_actions
     }
 
-    template<action_signature Sig, class EventSetImpl, class Action>
-    [[nodiscard]] constexpr auto exit_action(const event_set<EventSetImpl>& /*event_types*/, const Action& action) const
+    template<action_signature Sig, class EventTypeSet, class Action>
+    [[nodiscard]] constexpr auto exit_action(const Action& action) const
     {
         const auto new_exit_actions = append
         (
             impl_.exit_actions,
-            detail::make_event_action<Sig, EventSetImpl>(action)
+            detail::make_event_action<Sig, EventTypeSet>(action)
         );
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN

@@ -7,8 +7,6 @@
 #ifndef MAKI_DETAIL_TLU_PUSH_BACK_IF_HPP
 #define MAKI_DETAIL_TLU_PUSH_BACK_IF_HPP
 
-#include "push_back.hpp"
-
 namespace maki::detail::tlu
 {
 
@@ -33,10 +31,10 @@ struct push_back_if<TList, U, false>
     using type = TList;
 };
 
-template<class TList, class U>
-struct push_back_if<TList, U, true>
+template<template<class...> class TList, class... Ts, class U>
+struct push_back_if<TList<Ts...>, U, true>
 {
-    using type = push_back_t<TList, U>;
+    using type = TList<Ts..., U>;
 };
 
 template<class TList, class U, bool Condition>

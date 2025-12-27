@@ -103,6 +103,34 @@ private:
     T ctx_;
 };
 
+template<auto ContextSignature>
+class context_holder<void, ContextSignature>
+{
+public:
+    template<class... Args>
+    context_holder(Args&&... /*args*/)
+    {
+    }
+};
+
+template<class T, auto ContextSignature, class U>
+T& get_context_or(context_holder<T, ContextSignature>& ctx_holder, U& /*other_ctx*/)
+{
+    return ctx_holder.get();
+}
+
+template<class T, auto ContextSignature, class U>
+const T& get_context_or(const context_holder<T, ContextSignature>& ctx_holder, U& /*other_ctx*/)
+{
+    return ctx_holder.get();
+}
+
+template<auto ContextSignature, class U>
+U& get_context_or(const context_holder<void, ContextSignature>& /*ctx_holder*/, U& other_ctx)
+{
+    return other_ctx;
+}
+
 } //namespace
 
 #endif

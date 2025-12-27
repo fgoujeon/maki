@@ -32,7 +32,7 @@ public:
     template<class Machine, class ParentContext>
     composite(Machine& mach, ParentContext& parent_ctx):
         ctx_holder_(mach, parent_ctx),
-        impl_(mach, context())
+        impl_(mach, get_context_or(ctx_holder_, parent_ctx))
     {
     }
 
@@ -53,42 +53,42 @@ public:
     }
 
     template<class Machine, class ParentContext, class Event>
-    void call_entry_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
+    void call_entry_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
     {
-        impl_.call_entry_action(mach, context(), event);
+        impl_.call_entry_action(mach, get_context_or(ctx_holder_, parent_ctx), event);
     }
 
     template<bool Dry, class Machine, class ParentContext, class Event>
     bool call_internal_action
     (
         Machine& mach,
-        ParentContext& /*parent_ctx*/,
+        ParentContext& parent_ctx,
         const Event& event
     )
     {
-        return impl_.template call_internal_action<Dry>(mach, context(), event);
+        return impl_.template call_internal_action<Dry>(mach, get_context_or(ctx_holder_, parent_ctx), event);
     }
 
     template<bool Dry, class Machine, class ParentContext, class Event>
     bool call_internal_action
     (
         Machine& mach,
-        ParentContext& /*parent_ctx*/,
+        ParentContext& parent_ctx,
         const Event& event
     ) const
     {
-        return impl_.template call_internal_action<Dry>(mach, context(), event);
+        return impl_.template call_internal_action<Dry>(mach, get_context_or(ctx_holder_, parent_ctx), event);
     }
 
     template<class Machine, class ParentContext, class Event>
     void call_exit_action
     (
         Machine& mach,
-        ParentContext& /*parent_ctx*/,
+        ParentContext& parent_ctx,
         const Event& event
     )
     {
-        impl_.call_exit_action(mach, context(), event);
+        impl_.call_exit_action(mach, get_context_or(ctx_holder_, parent_ctx), event);
     }
 
     template<int Index>

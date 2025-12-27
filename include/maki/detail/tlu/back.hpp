@@ -7,14 +7,38 @@
 #ifndef MAKI_DETAIL_TLU_BACK_HPP
 #define MAKI_DETAIL_TLU_BACK_HPP
 
-#include "get.hpp"
-#include "size.hpp"
-
 namespace maki::detail::tlu
 {
 
+namespace back_detail
+{
+    template<class... Ts>
+    struct type_pack_back;
+
+    template<class T0, class T1, class... Ts>
+    struct type_pack_back<T0, T1, Ts...>
+    {
+        using type = type_pack_back<T1, Ts...>;
+    };
+
+    template<class T>
+    struct type_pack_back<T>
+    {
+        using type = T;
+    };
+}
+
 template<class TList>
-using back_t = get_t<TList, size_v<TList> - 1>;
+struct back;
+
+template<template<class...> class TList, class... Ts>
+struct back<TList<Ts...>>
+{
+    using type = back_detail::type_pack_back<Ts...>;
+};
+
+template<class TList>
+using back_t = back<TList>;
 
 } //namespace
 

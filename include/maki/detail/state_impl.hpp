@@ -9,7 +9,6 @@
 
 #include "state_impls/simple_fwd.hpp"
 #include "state_impls/composite_fwd.hpp"
-#include <type_traits>
 
 namespace maki::detail::state_traits
 {
@@ -20,11 +19,7 @@ struct state_impl_helper;
 template<auto StateId, const auto& ParentPath>
 struct state_impl_helper<StateId, ParentPath, false>
 {
-    using type = state_impls::simple
-    <
-        StateId,
-        typename std::decay_t<decltype(impl_of(*StateId))>::context_type
-    >;
+    using type = state_impls::simple<StateId>;
 };
 
 template<auto StateId, const auto& ParentPath>

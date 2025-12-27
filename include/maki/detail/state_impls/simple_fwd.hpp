@@ -7,10 +7,17 @@
 #ifndef MAKI_DETAIL_STATE_IMPLS_SIMPLE_FWD_HPP
 #define MAKI_DETAIL_STATE_IMPLS_SIMPLE_FWD_HPP
 
+#include "../friendly_impl.hpp"
+#include <type_traits>
+
 namespace maki::detail::state_impls
 {
 
-template<auto Id, class Context>
+template
+<
+    auto Id,
+    class Context = typename std::decay_t<decltype(impl_of(*Id))>::context_type
+>
 class simple;
 
 } //namespace

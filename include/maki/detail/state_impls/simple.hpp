@@ -8,12 +8,13 @@
 #define MAKI_DETAIL_STATE_IMPLS_SIMPLE_HPP
 
 #include "simple_fwd.hpp"
-#include "../context_holder.hpp"
+#include "../constant.hpp"
 #include "../type_set.hpp"
 #include "../event_action.hpp"
 #include "../mix.hpp"
 #include "../tlu/empty.hpp"
 #include "../tlu/left_fold.hpp"
+#include "../../context.hpp"
 #include <type_traits>
 
 namespace maki::detail::state_impls
@@ -42,8 +43,8 @@ public:
     static constexpr auto context_sig = impl_of(mold).context_sig;
 
     template<class... Args>
-    constexpr simple(Args&&... args):
-        ctx_holder_(std::forward<Args>(args)...)
+    simple(Args&&... args):
+        simple{constant<context_sig>, std::forward<Args>(args)...}
     {
     }
 
@@ -55,42 +56,42 @@ public:
 
     context_type& context()
     {
-        return ctx_holder_.get();
+        return ctx_;
     }
 
     const context_type& context() const
     {
-        return ctx_holder_.get();
+        return ctx_;
     }
 
     template<class ParentContext>
     context_type& context_or(ParentContext& /*parent_ctx*/)
     {
-        return context();
+        return ctx_;
     }
 
     template<class ParentContext>
     const context_type& context_or(ParentContext& /*parent_ctx*/) const
     {
-        return context();
+        return ctx_;
     }
 
     template<class Machine, class ParentContext, class Event>
     void call_entry_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        impl_type::call_entry_action(mach, context(), event);
+        impl_type::call_entry_action(mach, ctx_, event);
     }
 
     template<bool Dry, class Machine, class ParentContext, class Event>
     bool call_internal_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        return impl_type::template call_internal_action<Dry>(mach, context(), event);
+        return impl_type::template call_internal_action<Dry>(mach, ctx_, event);
     }
 
     template<class Machine, class ParentContext, class Event>
     void call_exit_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        impl_type::call_exit_action(mach, context(), event);
+        impl_type::call_exit_action(mach, ctx_, event);
     }
 
     static constexpr bool completed()
@@ -100,7 +101,72 @@ public:
     }
 
 private:
-    context_holder<context_type, context_sig> ctx_holder_;
+    template<class Machine, class... Args>
+    simple
+    (
+        constant_t<machine_context_signature::a> /*tag*/,
+        Machine& /*mach*/,
+        Args&&... args
+    ):
+        ctx_{std::forward<Args>(args)...}
+    {
+    }
+
+    template<class Machine, class... Args>
+    simple
+    (
+        constant_t<machine_context_signature::am> /*tag*/,
+        Machine& mach,
+        Args&&... args
+    ):
+        ctx_{std::forward<Args>(args)..., mach}
+    {
+    }
+
+    template<class Machine, class ParentContext>
+    simple
+    (
+        constant_t<state_context_signature::c> /*tag*/,
+        Machine& /*mach*/,
+        ParentContext& parent_ctx
+    ):
+        ctx_{parent_ctx}
+    {
+    }
+
+    template<class Machine, class ParentContext>
+    simple
+    (
+        constant_t<state_context_signature::cm> /*tag*/,
+        Machine& mach,
+        ParentContext& parent_ctx
+    ):
+        ctx_{parent_ctx, mach}
+    {
+    }
+
+    template<class Machine, class ParentContext>
+    simple
+    (
+        constant_t<state_context_signature::m> /*tag*/,
+        Machine& mach,
+        ParentContext& /*parent_ctx*/
+    ):
+        ctx_{mach}
+    {
+    }
+
+    template<class Machine, class ParentContext>
+    simple
+    (
+        constant_t<state_context_signature::v> /*tag*/,
+        Machine& /*mach*/,
+        ParentContext& /*parent_ctx*/
+    )
+    {
+    }
+
+    Context ctx_;
     impl_type impl_;
 };
 
@@ -212,7 +278,6 @@ private:
     static constexpr auto exit_actions = impl_of(mold).exit_actions;
     using exit_action_ptr_constant_list = mix_constant_list_t<exit_actions>;
 };
-
 
 } //namespace
 

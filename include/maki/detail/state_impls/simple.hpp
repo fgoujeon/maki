@@ -7,6 +7,7 @@
 #ifndef MAKI_DETAIL_STATE_IMPLS_SIMPLE_HPP
 #define MAKI_DETAIL_STATE_IMPLS_SIMPLE_HPP
 
+#include "simple_fwd.hpp"
 #include "../context_holder.hpp"
 #include "../type_set.hpp"
 #include "../event_action.hpp"
@@ -27,26 +28,16 @@ using event_action_event_set_operation =
     >
 ;
 
-struct simple_from_context_args_tag_t{};
-constexpr simple_from_context_args_tag_t simple_from_context_args_tag;
-
-template<auto Id>
+template<auto Id, class Context>
 class simple
 {
 public:
     static constexpr auto identifier = Id;
     static constexpr const auto& mold = *Id;
-    using option_set_type = std::decay_t<decltype(impl_of(mold))>;
-    using context_type = typename option_set_type::context_type;
+    using impl_type = simple<Id, void>;
+    using context_type = Context;
 
-    using event_type_set =
-        tlu::left_fold_t
-        <
-            typename option_set_type::internal_action_mix_type,
-            event_action_event_set_operation,
-            empty_type_set_t
-        >
-    ;
+    using event_type_set = typename impl_type::event_type_set;
 
     static constexpr auto context_sig = impl_of(mold).context_sig;
 
@@ -62,62 +53,44 @@ public:
     simple& operator=(simple&&) = delete;
     ~simple() = default;
 
-    auto& context()
+    context_type& context()
     {
         return ctx_holder_.get();
     }
 
-    const auto& context() const
+    const context_type& context() const
     {
         return ctx_holder_.get();
     }
 
     template<class ParentContext>
-    auto& context_or(ParentContext& parent_ctx)
+    context_type& context_or(ParentContext& /*parent_ctx*/)
     {
-        return ctx_holder_.get_or(parent_ctx);
+        return context();
     }
 
     template<class ParentContext>
-    const auto& context_or(ParentContext& parent_ctx) const
+    const context_type& context_or(ParentContext& /*parent_ctx*/) const
     {
-        return ctx_holder_.get_or(parent_ctx);
+        return context();
     }
 
     template<class Machine, class ParentContext, class Event>
-    void call_entry_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
+    void call_entry_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        call_entry_action_2(mach, ctx_holder_.get_or(parent_ctx), event);
-    }
-
-    template<class Machine, class ParentContext, class Event>
-    void call_entry_action(Machine& mach, ParentContext& parent_ctx, const Event& event) const
-    {
-        call_entry_action_2(mach, ctx_holder_.get_or(parent_ctx), event);
+        impl_type::call_entry_action(mach, context(), event);
     }
 
     template<bool Dry, class Machine, class ParentContext, class Event>
-    bool call_internal_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
+    bool call_internal_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        return call_internal_action_2<Dry>(mach, ctx_holder_.get_or(parent_ctx), event);
-    }
-
-    template<bool Dry, class Machine, class ParentContext, class Event>
-    bool call_internal_action(Machine& mach, ParentContext& parent_ctx, const Event& event) const
-    {
-        return call_internal_action_2<Dry>(mach, ctx_holder_.get_or(parent_ctx), event);
+        return impl_type::template call_internal_action<Dry>(mach, context(), event);
     }
 
     template<class Machine, class ParentContext, class Event>
-    void call_exit_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
+    void call_exit_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        call_exit_action_2(mach, ctx_holder_.get_or(parent_ctx), event);
-    }
-
-    template<class Machine, class ParentContext, class Event>
-    void call_exit_action(Machine& mach, ParentContext& parent_ctx, const Event& event) const
-    {
-        call_exit_action_2(mach, ctx_holder_.get_or(parent_ctx), event);
+        impl_type::call_exit_action(mach, context(), event);
     }
 
     static constexpr bool completed()
@@ -127,22 +100,46 @@ public:
     }
 
 private:
-    static constexpr auto entry_actions = impl_of(mold).entry_actions;
-    using entry_action_ptr_constant_list = mix_constant_list_t<entry_actions>;
+    context_holder<context_type, context_sig> ctx_holder_;
+    impl_type impl_;
+};
 
-    static constexpr auto internal_actions = impl_of(mold).internal_actions;
-    using internal_action_ptr_constant_list = mix_constant_list_t<internal_actions>;
+template<auto Id>
+class simple<Id, void>
+{
+public:
+    static constexpr auto identifier = Id;
+    static constexpr const auto& mold = *Id;
+    using option_set_type = std::decay_t<decltype(impl_of(mold))>;
 
-    static constexpr auto exit_actions = impl_of(mold).exit_actions;
-    using exit_action_ptr_constant_list = mix_constant_list_t<exit_actions>;
+    using event_type_set =
+        tlu::left_fold_t
+        <
+            typename option_set_type::internal_action_mix_type,
+            event_action_event_set_operation,
+            empty_type_set_t
+        >
+    ;
+
+    template<class... Args>
+    constexpr simple(Args&&... /*args*/)
+    {
+    }
+
+    simple(const simple&) = delete;
+    simple(simple&&) = delete;
+    simple& operator=(const simple&) = delete;
+    simple& operator=(simple&&) = delete;
+    ~simple() = default;
+
+    template<class ParentContext>
+    static ParentContext& context_or(ParentContext& parent_ctx)
+    {
+        return parent_ctx;
+    }
 
     template<class Machine, class Context, class Event>
-    static void call_entry_action_2
-    (
-        Machine& mach,
-        Context& ctx,
-        const Event& event
-    )
+    static void call_entry_action(Machine& mach, Context& ctx, const Event& event)
     {
         if constexpr(!tlu::empty_v<entry_action_ptr_constant_list>)
         {
@@ -160,12 +157,7 @@ private:
     }
 
     template<bool Dry, class Machine, class Context, class Event>
-    static bool call_internal_action_2
-    (
-        Machine& mach,
-        Context& ctx,
-        const Event& event
-    )
+    static bool call_internal_action(Machine& mach, Context& ctx, const Event& event)
     {
         /*
         Caller is supposed to check an interal action exists for the given event
@@ -187,12 +179,7 @@ private:
     }
 
     template<class Machine, class Context, class Event>
-    static void call_exit_action_2
-    (
-        Machine& mach,
-        Context& ctx,
-        const Event& event
-    )
+    static void call_exit_action(Machine& mach, Context& ctx, const Event& event)
     {
         if constexpr(!tlu::empty_v<exit_action_ptr_constant_list>)
         {
@@ -209,8 +196,23 @@ private:
         }
     }
 
-    context_holder<context_type, context_sig> ctx_holder_;
+    static constexpr bool completed()
+    {
+        // Simple states are always completed.
+        return true;
+    }
+
+private:
+    static constexpr auto entry_actions = impl_of(mold).entry_actions;
+    using entry_action_ptr_constant_list = mix_constant_list_t<entry_actions>;
+
+    static constexpr auto internal_actions = impl_of(mold).internal_actions;
+    using internal_action_ptr_constant_list = mix_constant_list_t<internal_actions>;
+
+    static constexpr auto exit_actions = impl_of(mold).exit_actions;
+    using exit_action_ptr_constant_list = mix_constant_list_t<exit_actions>;
 };
+
 
 } //namespace
 

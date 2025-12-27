@@ -10,7 +10,7 @@
 namespace maki::detail::state_impls
 {
 
-template<auto Id>
+template<auto Id, class Context>
 class simple;
 
 } //namespace

@@ -47,7 +47,7 @@ namespace states
     */
     constexpr auto null = state<IMPLEMENTATION_DETAIL>{};
 #else
-    inline constexpr auto null = state<detail::state_impls::simple<&detail::state_molds::null>>{};
+    inline constexpr auto null = state<detail::state_impls::simple<&detail::state_molds::null, void>>{};
 #endif
 
 #if MAKI_DETAIL_DOXYGEN
@@ -58,7 +58,7 @@ namespace states
     */
     constexpr auto fin = state<IMPLEMENTATION_DETAIL>{};
 #else
-    inline constexpr auto fin = state<detail::state_impls::simple<&detail::state_molds::fin>>{};
+    inline constexpr auto fin = state<detail::state_impls::simple<&detail::state_molds::fin, void>>{};
 #endif
 
 #if MAKI_DETAIL_DOXYGEN
@@ -70,7 +70,7 @@ namespace states
     constexpr auto undefined = state<IMPLEMENTATION_DETAIL>{};
 #else
     inline constexpr auto undefined =
-        state<detail::state_impls::simple<&maki::undefined>>{}
+        state<detail::state_impls::simple<&maki::undefined, void>>{}
     ;
 #endif
 }

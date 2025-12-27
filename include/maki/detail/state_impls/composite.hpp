@@ -111,7 +111,7 @@ public:
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);
     using context_type = typename option_set_type::context_type;
-    using impl_type = simple<identifier>;
+    using impl_type = simple<identifier, context_type>;
 
     using region_index_sequence_type = std::make_integer_sequence
     <

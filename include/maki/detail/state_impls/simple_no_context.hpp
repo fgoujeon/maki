@@ -22,7 +22,7 @@ using event_action_event_set_operation =
     maki::detail::type_set_union_t
     <
         EventTypeSet,
-        typename EventAction::event_set_impl_type
+        typename EventAction::event_type_set
     >
 ;
 

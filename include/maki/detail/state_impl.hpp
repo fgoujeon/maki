@@ -7,39 +7,23 @@
 #ifndef MAKI_DETAIL_STATE_IMPL_HPP
 #define MAKI_DETAIL_STATE_IMPL_HPP
 
-#include "state_impls/simple_no_context_fwd.hpp"
 #include "state_impls/simple_fwd.hpp"
-#include "state_impls/composite_no_context_fwd.hpp"
 #include "state_impls/composite_fwd.hpp"
-#include "state_id_traits.hpp"
 
 namespace maki::detail::state_traits
 {
 
-template<auto StateId, const auto& ParentPath, bool HasTransitionTables, bool HasContext>
+template<auto StateId, const auto& ParentPath, bool HasTransitionTables>
 struct state_impl_helper;
 
 template<auto StateId, const auto& ParentPath>
-struct state_impl_helper<StateId, ParentPath, false, false>
-{
-    using type = state_impls::simple_no_context<StateId>;
-};
-
-template<auto StateId, const auto& ParentPath>
-struct state_impl_helper<StateId, ParentPath, false, true>
+struct state_impl_helper<StateId, ParentPath, false>
 {
     using type = state_impls::simple<StateId>;
 };
 
 template<auto StateId, const auto& ParentPath>
-struct state_impl_helper<StateId, ParentPath, true, false>
-{
-    static constexpr auto path = ParentPath.template add_state<*StateId>();
-    using type = state_impls::composite_no_context<StateId, path>;
-};
-
-template<auto StateId, const auto& ParentPath>
-struct state_impl_helper<StateId, ParentPath, true, true>
+struct state_impl_helper<StateId, ParentPath, true>
 {
     static constexpr auto path = ParentPath.template add_state<*StateId>();
     using type = state_impls::composite<StateId, path>;
@@ -52,8 +36,7 @@ struct state_impl
     <
         StateId,
         ParentPath,
-        impl_of(*StateId).transition_tables.size != 0,
-        state_id_traits::has_context_v<StateId>
+        impl_of(*StateId).transition_tables.size != 0
     >::type;
 };
 

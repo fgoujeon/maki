@@ -85,7 +85,7 @@ public:
         auto ContextSig = ContextSignature,
         std::enable_if_t<ContextSig == state_context_signature::v, bool> = true
     >
-    context_holder(Machine& /*mach*/, ParentContext& /*parent_ctx*/)
+    constexpr context_holder(Machine& /*mach*/, ParentContext& /*parent_ctx*/)
     {
     }
 
@@ -108,7 +108,7 @@ class context_holder<void, ContextSignature>
 {
 public:
     template<class... Args>
-    context_holder(Args&&... /*args*/)
+    constexpr context_holder(Args&&... /*args*/)
     {
     }
 };

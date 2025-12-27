@@ -16,10 +16,7 @@
 #include "events.hpp"
 #include "null.hpp"
 #include "detail/path_impl.hpp"
-#include "detail/state_impls/simple.hpp" //NOLINT misc-include-cleaner
-#include "detail/state_impls/composite.hpp" //NOLINT misc-include-cleaner
-#include "detail/state_impls/composite_no_context.hpp"
-#include "detail/context_holder.hpp"
+#include "detail/state_impls/composite.hpp"
 #include "detail/event_action.hpp"
 #include "detail/noinline.hpp"
 #include "detail/function_queue.hpp"
@@ -115,8 +112,12 @@ public:
     */
     template<class... ContextArgs>
     explicit machine(ContextArgs&&... ctx_args):
-        ctx_holder_(*this, std::forward<ContextArgs>(ctx_args)...),
-        impl_(*this, context())
+        impl_
+        (
+            *this,
+            detail::state_impls::composite_from_context_args_tag,
+            std::forward<ContextArgs>(ctx_args)...
+        )
     {
         if constexpr(impl_of(conf).auto_start)
         {
@@ -135,7 +136,7 @@ public:
     */
     context_type& context()
     {
-        return ctx_holder_.get();
+        return impl_.context();
     }
 
     /**
@@ -143,7 +144,7 @@ public:
     */
     const context_type& context() const
     {
-        return ctx_holder_.get();
+        return impl_.context();
     }
 
     /**
@@ -576,8 +577,7 @@ private:
     using pre_processing_hook_ptr_constant_list = detail::mix_constant_list_t<pre_processing_hooks>;
     using post_processing_hook_ptr_constant_list = detail::mix_constant_list_t<post_processing_hooks>;
 
-    detail::context_holder<context_type, impl_of(conf).context_sig> ctx_holder_;
-    detail::state_impls::composite_no_context<&conf, path> impl_;
+    detail::state_impls::composite<&conf, path> impl_;
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;
 };

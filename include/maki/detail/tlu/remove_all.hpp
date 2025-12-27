@@ -7,8 +7,7 @@
 #ifndef MAKI_DETAIL_TLU_REMOVE_ALL_HPP
 #define MAKI_DETAIL_TLU_REMOVE_ALL_HPP
 
-#include "left_fold.hpp"
-#include "push_back_if.hpp"
+#include "filter.hpp"
 #include "contains.hpp"
 
 namespace maki::detail::tlu
@@ -16,40 +15,23 @@ namespace maki::detail::tlu
 
 namespace remove_all_detail
 {
-    template<class RhsList>
-    struct fold_operation_holder
+    template<class UList>
+    struct is_not_in
     {
-        template<class OutList, class Lhs>
-        using operation = push_back_if_t
-        <
-            OutList,
-            Lhs,
-            !contains_v<RhsList, Lhs>
-        >;
+        template<class T>
+        struct sub
+        {
+            static constexpr auto value = !contains_v<UList, T>;
+        };
     };
 }
 
-template<class LhsList, class RhsList>
-struct remove_all;
-
-template
+template<class TList, class UList>
+using remove_all_t = filter_t
 <
-    template<class...> class LhsList,
-    class... Lhss,
-    class RhsList
->
-struct remove_all<LhsList<Lhss...>, RhsList>
-{
-    using type = left_fold_t
-    <
-        LhsList<Lhss...>,
-        remove_all_detail::fold_operation_holder<RhsList>::template operation,
-        LhsList<>
-    >;
-};
-
-template<class LhsList, class RhsList>
-using remove_all_t = typename remove_all<LhsList, RhsList>::type;
+    TList,
+    remove_all_detail::is_not_in<UList>::template sub
+>;
 
 } //namespace
 

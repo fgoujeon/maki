@@ -87,37 +87,37 @@ public:
     template<class Machine, class ParentContext, class Event>
     void call_entry_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
     {
-        call_entry_action_2(*this, mach, parent_ctx, event);
+        call_entry_action_2(mach, context_or(parent_ctx), event);
     }
 
     template<class Machine, class ParentContext, class Event>
     void call_entry_action(Machine& mach, ParentContext& parent_ctx, const Event& event) const
     {
-        call_entry_action_2(*this, mach, parent_ctx, event);
+        call_entry_action_2(mach, context_or(parent_ctx), event);
     }
 
     template<bool Dry, class Machine, class ParentContext, class Event>
     bool call_internal_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
     {
-        return call_internal_action_2<Dry>(*this, mach, parent_ctx, event);
+        return call_internal_action_2<Dry>(mach, context_or(parent_ctx), event);
     }
 
     template<bool Dry, class Machine, class ParentContext, class Event>
     bool call_internal_action(Machine& mach, ParentContext& parent_ctx, const Event& event) const
     {
-        return call_internal_action_2<Dry>(*this, mach, parent_ctx, event);
+        return call_internal_action_2<Dry>(mach, context_or(parent_ctx), event);
     }
 
     template<class Machine, class ParentContext, class Event>
     void call_exit_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
     {
-        call_exit_action_2(*this, mach, parent_ctx, event);
+        call_exit_action_2(mach, context_or(parent_ctx), event);
     }
 
     template<class Machine, class ParentContext, class Event>
     void call_exit_action(Machine& mach, ParentContext& parent_ctx, const Event& event) const
     {
-        call_exit_action_2(*this, mach, parent_ctx, event);
+        call_exit_action_2(mach, context_or(parent_ctx), event);
     }
 
     static constexpr bool completed()
@@ -136,12 +136,11 @@ private:
     static constexpr auto exit_actions = impl_of(mold).exit_actions;
     using exit_action_ptr_constant_list = mix_constant_list_t<exit_actions>;
 
-    template<class Self, class Machine, class ParentContext, class Event>
+    template<class Machine, class Context, class Event>
     static void call_entry_action_2
     (
-        Self& self,
         Machine& mach,
-        ParentContext& parent_ctx,
+        Context& ctx,
         const Event& event
     )
     {
@@ -154,18 +153,17 @@ private:
             call_matching_event_action<entry_action_ptr_constant_list>
             (
                 mach,
-                self.context_or(parent_ctx),
+                ctx,
                 event
             );
         }
     }
 
-    template<bool Dry, class Self, class Machine, class ParentContext, class Event>
+    template<bool Dry, class Machine, class Context, class Event>
     static bool call_internal_action_2
     (
-        Self& self,
         Machine& mach,
-        ParentContext& parent_ctx,
+        Context& ctx,
         const Event& event
     )
     {
@@ -180,7 +178,7 @@ private:
             call_matching_event_action<internal_action_ptr_constant_list>
             (
                 mach,
-                self.context_or(parent_ctx),
+                ctx,
                 event
             );
         }
@@ -188,12 +186,11 @@ private:
         return true;
     }
 
-    template<class Self, class Machine, class ParentContext, class Event>
+    template<class Machine, class Context, class Event>
     static void call_exit_action_2
     (
-        Self& self,
         Machine& mach,
-        ParentContext& parent_ctx,
+        Context& ctx,
         const Event& event
     )
     {
@@ -206,7 +203,7 @@ private:
             call_matching_event_action<exit_action_ptr_constant_list>
             (
                 mach,
-                self.context_or(parent_ctx),
+                ctx,
                 event
             );
         }

@@ -8,7 +8,7 @@
 #define MAKI_DETAIL_EVENT_ACTION_HPP
 
 #include "call.hpp"
-#include "tlu/get.hpp"
+#include "tlu/find_if.hpp"
 #include "../event_set.hpp"
 #include "../action.hpp"
 #include <type_traits>
@@ -95,13 +95,13 @@ void call_matching_event_action
     ExtraArgs&&... extra_args
 )
 {
-    constexpr auto matching_action_index = tlu::find_if_v
+    using matching_action_constant_t = tlu::find_if_t
     <
         ActionConstantList,
         event_action_traits::for_event<Event>::template has_containing_event_set
     >;
 
-    call_event_action<tlu::get_t<ActionConstantList, matching_action_index>::value>
+    call_event_action<matching_action_constant_t::value>
     (
         mach,
         ctx,

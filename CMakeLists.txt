@@ -70,7 +70,6 @@ target_sources(maki
         include/maki/detail/tlu/filter.hpp
         include/maki/detail/tlu/find.hpp
         include/maki/detail/tlu/find_if.hpp
-        include/maki/detail/tlu/find_if_or.hpp
         include/maki/detail/tlu/for_each.hpp
         include/maki/detail/tlu/for_each_or.hpp
         include/maki/detail/tlu/for_each_plus.hpp
@@ -84,6 +83,7 @@ target_sources(maki
         include/maki/detail/tlu/push_back_if.hpp
         include/maki/detail/tlu/push_back_unique.hpp
         include/maki/detail/tlu/push_front.hpp
+        include/maki/detail/tlu/push_front_if.hpp
         include/maki/detail/tlu/remove.hpp
         include/maki/detail/tlu/remove_all.hpp
         include/maki/detail/tlu/size.hpp

@@ -12,30 +12,23 @@
 namespace maki::detail::tlu
 {
 
-template<class TList, template<class> class Predicate, int Index = 0, class Enable = void>
+template<class TList, template<class> class Predicate, class Enable = void>
 struct find_if_impl;
 
-template<template<class...> class TList, class T, class... Ts, template<class> class Predicate, int Index>
-struct find_if_impl<TList<T, Ts...>, Predicate, Index, std::enable_if_t<Predicate<T>::value>>
+template<template<class...> class TList, class T, class... Ts, template<class> class Predicate>
+struct find_if_impl<TList<T, Ts...>, Predicate, std::enable_if_t<Predicate<T>::value>>
 {
     using type = T;
-    static constexpr auto value = Index;
 };
 
-template<template<class...> class TList, class T, class... Ts, template<class> class Predicate, int Index>
-struct find_if_impl<TList<T, Ts...>, Predicate, Index, std::enable_if_t<!Predicate<T>::value>>
+template<template<class...> class TList, class T, class... Ts, template<class> class Predicate>
+struct find_if_impl<TList<T, Ts...>, Predicate, std::enable_if_t<!Predicate<T>::value>>
 {
-    using next_t = find_if_impl<TList<Ts...>, Predicate, Index + 1>;
-
-    using type = typename next_t::type;
-    static constexpr auto value = next_t::value;
+    using type = typename find_if_impl<TList<Ts...>, Predicate>::type;
 };
 
 template<class TList, template<class> class Predicate>
 using find_if_t = typename find_if_impl<TList, Predicate>::type;
-
-template<class TList, template<class> class Predicate>
-static constexpr int find_if_v = find_if_impl<TList, Predicate>::value;
 
 } //namespace
 

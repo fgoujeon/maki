@@ -23,10 +23,7 @@ In this example...:
 typelist3 is an alias of tuple<char, short, int>.
 */
 template<class TList, class U, bool Condition>
-struct push_back_if;
-
-template<class TList, class U>
-struct push_back_if<TList, U, false>
+struct push_back_if
 {
     using type = TList;
 };

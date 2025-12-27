@@ -14,10 +14,7 @@ namespace maki::detail::tlu
 `push_front_if` adds `U` to the front of `TList` if `Condition` is `true`.
 */
 template<class TList, class U, bool Condition>
-struct push_front_if;
-
-template<class TList, class U>
-struct push_front_if<TList, U, false>
+struct push_front_if
 {
     using type = TList;
 };

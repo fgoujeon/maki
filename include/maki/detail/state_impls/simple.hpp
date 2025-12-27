@@ -75,49 +75,49 @@ public:
     template<class ParentContext>
     auto& context_or(ParentContext& parent_ctx)
     {
-        return get_context_or(ctx_holder_, parent_ctx);
+        return ctx_holder_.get_or(parent_ctx);
     }
 
     template<class ParentContext>
     const auto& context_or(ParentContext& parent_ctx) const
     {
-        return get_context_or(ctx_holder_, parent_ctx);
+        return ctx_holder_.get_or(parent_ctx);
     }
 
     template<class Machine, class ParentContext, class Event>
     void call_entry_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
     {
-        call_entry_action_2(mach, context_or(parent_ctx), event);
+        call_entry_action_2(mach, ctx_holder_.get_or(parent_ctx), event);
     }
 
     template<class Machine, class ParentContext, class Event>
     void call_entry_action(Machine& mach, ParentContext& parent_ctx, const Event& event) const
     {
-        call_entry_action_2(mach, context_or(parent_ctx), event);
+        call_entry_action_2(mach, ctx_holder_.get_or(parent_ctx), event);
     }
 
     template<bool Dry, class Machine, class ParentContext, class Event>
     bool call_internal_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
     {
-        return call_internal_action_2<Dry>(mach, context_or(parent_ctx), event);
+        return call_internal_action_2<Dry>(mach, ctx_holder_.get_or(parent_ctx), event);
     }
 
     template<bool Dry, class Machine, class ParentContext, class Event>
     bool call_internal_action(Machine& mach, ParentContext& parent_ctx, const Event& event) const
     {
-        return call_internal_action_2<Dry>(mach, context_or(parent_ctx), event);
+        return call_internal_action_2<Dry>(mach, ctx_holder_.get_or(parent_ctx), event);
     }
 
     template<class Machine, class ParentContext, class Event>
     void call_exit_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
     {
-        call_exit_action_2(mach, context_or(parent_ctx), event);
+        call_exit_action_2(mach, ctx_holder_.get_or(parent_ctx), event);
     }
 
     template<class Machine, class ParentContext, class Event>
     void call_exit_action(Machine& mach, ParentContext& parent_ctx, const Event& event) const
     {
-        call_exit_action_2(mach, context_or(parent_ctx), event);
+        call_exit_action_2(mach, ctx_holder_.get_or(parent_ctx), event);
     }
 
     static constexpr bool completed()

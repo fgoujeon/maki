@@ -89,12 +89,24 @@ public:
     {
     }
 
-    auto& get()
+    T& get()
     {
         return ctx_;
     }
 
-    const auto& get() const
+    const T& get() const
+    {
+        return ctx_;
+    }
+
+    template<class U>
+    T& get_or(U& /*other_ctx*/)
+    {
+        return ctx_;
+    }
+
+    template<class U>
+    const T& get_or(U& /*other_ctx*/) const
     {
         return ctx_;
     }
@@ -111,25 +123,13 @@ public:
     constexpr context_holder(Args&&... /*args*/)
     {
     }
+
+    template<class U>
+    U& get_or(U& other_ctx) const
+    {
+        return other_ctx;
+    }
 };
-
-template<class T, auto ContextSignature, class U>
-T& get_context_or(context_holder<T, ContextSignature>& ctx_holder, U& /*other_ctx*/)
-{
-    return ctx_holder.get();
-}
-
-template<class T, auto ContextSignature, class U>
-const T& get_context_or(const context_holder<T, ContextSignature>& ctx_holder, U& /*other_ctx*/)
-{
-    return ctx_holder.get();
-}
-
-template<auto ContextSignature, class U>
-U& get_context_or(const context_holder<void, ContextSignature>& /*ctx_holder*/, U& other_ctx)
-{
-    return other_ctx;
-}
 
 } //namespace
 

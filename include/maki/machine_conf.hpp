@@ -16,6 +16,7 @@
 #include "context.hpp"
 #include "action.hpp"
 #include "detail/machine_conf_impl.hpp"
+#include "detail/type_set.hpp"
 #include "detail/type.hpp"
 #include "detail/event_action.hpp"
 #include "detail/signature_macros.hpp"

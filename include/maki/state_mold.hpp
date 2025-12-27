@@ -16,6 +16,7 @@
 #include "context.hpp"
 #include "event_set.hpp"
 #include "detail/state_mold_impl.hpp"
+#include "detail/type_set.hpp"
 #include "detail/type.hpp"
 #include "detail/event_action.hpp"
 #include "detail/signature_macros.hpp"

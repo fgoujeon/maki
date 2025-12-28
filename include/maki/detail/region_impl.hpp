@@ -68,8 +68,10 @@ class region_impl
 public:
     using transition_table_type = std::decay_t<decltype(TransitionTable)>;
 
+    static constexpr auto transition_tuple = impl_of(TransitionTable);
+
     using transition_table_digest_type =
-        transition_table_digest<TransitionTable>
+        transition_table_digest<transition_tuple>
     ;
 
     using state_id_constant_list_0 = typename transition_table_digest_type::state_id_constant_list;
@@ -131,7 +133,7 @@ public:
     void enter(Machine& mach, Context& ctx, const Event& event)
     {
         static constexpr auto initial_state_id = tlu::front_t<state_id_constant_list>::value;
-        static constexpr auto action = tuple_get<0>(impl_of(TransitionTable)).act;
+        static constexpr auto action = tuple_get<0>(transition_tuple).act;
 
         execute_transition
         <
@@ -277,7 +279,7 @@ private:
         template<class TransitionIndexConstant, class Self, class Machine, class Context, class Event, class... ExtraArgs>
         static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
-            static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(TransitionTable));
+            static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(transition_tuple);
             static constexpr auto source_state_mold = trans.source_state_mold;
             static constexpr auto action = trans.act;
             static constexpr auto guard = trans.grd;

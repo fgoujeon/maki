@@ -9,6 +9,7 @@
 
 #include "tlu.hpp"
 #include "constant.hpp"
+#include "type_list.hpp"
 #include "type.hpp"
 #include <utility>
 
@@ -185,6 +186,14 @@ constexpr auto& tuple_get(Tuple& tpl)
 
 
 /*
+tuple_static_get_copy_c
+*/
+
+template<const auto& Tuple, int Index>
+constexpr auto tuple_static_get_copy_c = tuple_get<Index>(Tuple);
+
+
+/*
 tuple_apply
 */
 
@@ -238,6 +247,29 @@ constexpr auto tuple_tail(Tuple& tpl)
         }
     );
 }
+
+
+/*
+tuple_to_ptr_constant_list_t
+*/
+
+template<const auto& Tuple, class IndexSequence>
+struct tuple_to_ptr_constant_list_impl;
+
+template<const auto& Tuple, int... Indexes>
+struct tuple_to_ptr_constant_list_impl<Tuple, std::integer_sequence<int, Indexes...>>
+{
+    using type = type_list_t<constant_t<&tuple_static_get_copy_c<Tuple, Indexes>>...>;
+};
+
+template<const auto& Tuple>
+struct tuple_to_ptr_constant_list
+{
+    using type = typename tuple_to_ptr_constant_list_impl<Tuple, std::make_integer_sequence<int, Tuple.size>>::type;
+};
+
+template<const auto& Tuple>
+using tuple_to_ptr_constant_list_t = typename tuple_to_ptr_constant_list<Tuple>::type;
 
 } //namespace
 

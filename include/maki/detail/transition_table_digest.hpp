@@ -49,66 +49,57 @@ namespace transition_table_digest_detail
         static constexpr auto has_completion_transitions = false;
     };
 
-    template<const auto& TransitionTable>
-    struct add_transition_to_digest_holder
+    template<class Digest, class TransitionPtrConstant>
+    struct add_transition_to_digest
     {
-        template<class Digest, int Index>
-        struct add_transition_to_digest_impl
-        {
-            /*
-            We must add target state to list of states unless:
-            - it's already in the list;
-            - it's `fin`;
-            - it's `null`;
-            - it's `undefined`.
-            */
-            static constexpr auto must_add_target_state =
-                !tlu::contains_v
-                <
-                    typename Digest::state_id_constant_list,
-                    constant_t<tuple_get<Index>(impl_of(TransitionTable)).target_state_mold>
-                > &&
-                !equals(tuple_get<Index>(impl_of(TransitionTable)).target_state_mold, state_molds::fin) &&
-                !equals(tuple_get<Index>(impl_of(TransitionTable)).target_state_mold, null) &&
-                !equals(tuple_get<Index>(impl_of(TransitionTable)).target_state_mold, undefined)
-            ;
-
-            using state_id_constant_list = tlu::push_back_if_t
+        /*
+        We must add target state to list of states unless:
+        - it's already in the list;
+        - it's `fin`;
+        - it's `null`;
+        - it's `undefined`.
+        */
+        static constexpr auto must_add_target_state =
+            !tlu::contains_v
             <
                 typename Digest::state_id_constant_list,
-                constant_t<tuple_get<Index>(impl_of(TransitionTable)).target_state_mold>,
-                must_add_target_state
-            >;
+                constant_t<TransitionPtrConstant::value->target_state_mold>
+            > &&
+            !equals(TransitionPtrConstant::value->target_state_mold, state_molds::fin) &&
+            !equals(TransitionPtrConstant::value->target_state_mold, null) &&
+            !equals(TransitionPtrConstant::value->target_state_mold, undefined)
+        ;
 
-            static constexpr auto has_completion_transitions =
-                Digest::has_completion_transitions ||
-                (
-                    Index != 0 &&
-                    is_null_v
-                    <
-                        std::decay_t<decltype(tuple_get<Index>(impl_of(TransitionTable)).evt)>
-                    >
-                )
-            ;
-        };
-
-        template<class Digest, class IndexConstant>
-        using add_transition_to_digest = add_transition_to_digest_impl
+        using state_id_constant_list = tlu::push_back_if_t
         <
-            Digest,
-            IndexConstant::value
+            typename Digest::state_id_constant_list,
+            constant_t<TransitionPtrConstant::value->target_state_mold>,
+            must_add_target_state
         >;
+
+        static constexpr auto has_completion_transitions =
+            Digest::has_completion_transitions ||
+            (
+                !equals(TransitionPtrConstant::value->source_state_mold, state_molds::null) &&
+                is_null_v
+                <
+                    std::decay_t<decltype(TransitionPtrConstant::value->evt)>
+                >
+            )
+        ;
     };
+
+    template<const auto& TransitionTuple>
+    using transition_tuple_to_ptr_constant_list =
+        tuple_to_ptr_constant_list_t<TransitionTuple>
+    ;
 }
 
-template<const auto& TransitionTable>
+template<const auto& TransitionTuple>
 using transition_table_digest = tlu::left_fold_t
 <
-    make_integer_constant_sequence<int, impl_of(TransitionTable).size>,
-    transition_table_digest_detail::add_transition_to_digest_holder
-    <
-        TransitionTable
-    >::template add_transition_to_digest,
+    transition_table_digest_detail::transition_tuple_to_ptr_constant_list<TransitionTuple>,
+    transition_table_digest_detail::add_transition_to_digest,
     transition_table_digest_detail::initial_digest
 >;
 

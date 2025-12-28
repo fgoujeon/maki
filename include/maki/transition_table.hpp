@@ -123,10 +123,10 @@ namespace detail
         using type = type_set_item<Event>;
     };
 
-    template<class... Events>
-    struct transition_event_event_type_set<event_set<Events...>>
+    template<class EventSetImpl>
+    struct transition_event_event_type_set<event_set<EventSetImpl>>
     {
-        using type = impl_of_t<event_set<Events...>>;
+        using type = EventSetImpl;
     };
 
     template<>

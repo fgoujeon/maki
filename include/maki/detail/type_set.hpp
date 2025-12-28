@@ -10,8 +10,7 @@
 #include "tlu/remove_all.hpp"
 #include "tlu/remove.hpp"
 #include "tlu/intersection.hpp"
-#include "tlu/push_back_all_unique.hpp"
-#include "tlu/push_back_unique.hpp"
+#include "tlu/push_back.hpp"
 #include "tlu/contains.hpp"
 
 namespace maki::detail
@@ -115,11 +114,7 @@ struct type_set_union<type_set_item<Lhs>, type_set_item<Rhs>>
 template<class Lhs, class... Rhss>
 struct type_set_union<type_set_item<Lhs>, type_set_inclusion_list<Rhss...>>
 {
-    using type = tlu::push_back_unique_t
-    <
-        type_set_inclusion_list<Rhss...>,
-        Lhs
-    >;
+    using type = type_set_inclusion_list<Lhs, Rhss...>;
 };
 
 template<class Lhs, class... Rhss>
@@ -135,21 +130,13 @@ struct type_set_union<type_set_item<Lhs>, type_set_exclusion_list<Rhss...>>
 template<class... Lhss, class Rhs>
 struct type_set_union<type_set_inclusion_list<Lhss...>, type_set_item<Rhs>>
 {
-    using type = tlu::push_back_unique_t
-    <
-        type_set_inclusion_list<Lhss...>,
-        Rhs
-    >;
+    using type = type_set_inclusion_list<Lhss..., Rhs>;
 };
 
 template<class... Lhss, class... Rhss>
 struct type_set_union<type_set_inclusion_list<Lhss...>, type_set_inclusion_list<Rhss...>>
 {
-    using type = tlu::push_back_all_unique_t
-    <
-        type_set_inclusion_list<Lhss...>,
-        type_set_inclusion_list<Rhss...>
-    >;
+    using type = type_set_inclusion_list<Lhss..., Rhss...>;
 };
 
 template<class... Lhss, class... Rhss>
@@ -236,11 +223,7 @@ struct type_set_intersection<type_set_exclusion_list<Lhss...>, type_set_inclusio
 template<class... Lhss, class... Rhss>
 struct type_set_intersection<type_set_exclusion_list<Lhss...>, type_set_exclusion_list<Rhss...>>
 {
-    using type = tlu::push_back_all_unique_t
-    <
-        type_set_exclusion_list<Lhss...>,
-        type_set_exclusion_list<Rhss...>
-    >;
+    using type = type_set_exclusion_list<Lhss..., Rhss...>;
 };
 
 template<class Lhs, class Rhs>

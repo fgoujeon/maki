@@ -9,14 +9,16 @@
 
 #include "composite_no_context.hpp"
 #include "../context_holder.hpp"
+#include "../context_storage.hpp"
 #include "../tlu.hpp"
 #include "../../state_mold.hpp"
+#include "../../context.hpp"
 #include <type_traits>
 
 namespace maki::detail::state_impls
 {
 
-template<auto Id, const auto& Path>
+template<auto Id, const auto& Path, context_storage ParentCtxStorage>
 class composite
 {
 public:
@@ -26,7 +28,7 @@ public:
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);
     using context_type = typename option_set_type::context_type;
-    using impl_type = composite_no_context<identifier, Path>;
+    using impl_type = composite_no_context<identifier, Path, ParentCtxStorage>;
     using event_type_set = typename impl_type::event_type_set;
 
     template<class Machine, class ParentContext>
@@ -53,9 +55,20 @@ public:
     }
 
     template<class Machine, class ParentContext, class Event>
-    void enter(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
+    void enter
+    (
+        Machine& mach,
+        [[maybe_unused]] ParentContext& parent_ctx,
+        const Event& event
+    )
     {
-        impl_.enter(mach, context(), event);
+        if constexpr(ctx_lifetime == state_context_lifetime::state_activation)
+        {
+            auto& ctx = ctx_holder_.emplace(mach, parent_ctx);
+            impl_.emplace_contexts_with_parent_lifetime(ctx, mach);
+        }
+
+        impl_.enter(mach, ctx_holder_.get_deep(), event);
     }
 
     template<bool Dry, class Machine, class ParentContext, class Event>
@@ -66,7 +79,7 @@ public:
         const Event& event
     )
     {
-        return impl_.template call_internal_action<Dry>(mach, context(), event);
+        return impl_.template call_internal_action<Dry>(mach, ctx_holder_.get_deep(), event);
     }
 
     template<bool Dry, class Machine, class ParentContext, class Event>
@@ -77,7 +90,7 @@ public:
         const Event& event
     ) const
     {
-        return impl_.template call_internal_action<Dry>(mach, context(), event);
+        return impl_.template call_internal_action<Dry>(mach, ctx_holder_.get_deep(), event);
     }
 
     template<class Machine, class ParentContext, class Event>
@@ -88,7 +101,13 @@ public:
         const Event& event
     )
     {
-        impl_.exit(mach, context(), event);
+        impl_.exit(mach, ctx_holder_.get_deep(), event);
+
+        if constexpr(ctx_lifetime == state_context_lifetime::state_activation)
+        {
+            impl_.reset_contexts_with_parent_lifetime();
+            ctx_holder_.reset();
+        }
     }
 
     template<int Index>
@@ -115,7 +134,17 @@ public:
     }
 
 private:
-    context_holder<context_type, impl_of(mold).context_sig> ctx_holder_;
+    static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
+
+    static constexpr auto ctx_storage =
+        ctx_lifetime == state_context_lifetime::parent ?
+        ParentCtxStorage :
+        context_storage::optional
+    ;
+
+    static constexpr auto ctx_sig = impl_of(mold).context_sig;
+
+    context_holder<context_type, ctx_storage, ctx_sig> ctx_holder_;
     impl_type impl_;
 };
 

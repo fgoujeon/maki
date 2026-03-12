@@ -9,12 +9,14 @@
 
 #include "simple_no_context.hpp"
 #include "../context_holder.hpp"
+#include "../context_storage.hpp"
+#include "../../context.hpp"
 #include <type_traits>
 
 namespace maki::detail::state_impls
 {
 
-template<auto Id>
+template<auto Id, context_storage ParentCtxStorage>
 class simple
 {
 public:
@@ -51,22 +53,49 @@ public:
         return ctx_holder_.get();
     }
 
-    template<class Machine, class ParentContext, class Event>
-    void enter(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
+    template<class ParentContext, class Machine>
+    void emplace_contexts_with_parent_lifetime(ParentContext& parent_ctx, Machine& mach)
     {
-        impl_.enter(mach, context(), event);
+        if constexpr(ctx_lifetime == state_context_lifetime::parent)
+        {
+            ctx_holder_.emplace(mach, parent_ctx);
+        }
+    }
+
+    template<class Machine, class ParentContext, class Event>
+    void enter(Machine& mach, ParentContext& parent_ctx, const Event& event)
+    {
+        if constexpr(ctx_lifetime == state_context_lifetime::state_activation)
+        {
+            ctx_holder_.emplace(mach, parent_ctx);
+        }
+
+        impl_.enter(mach, ctx_holder_.get_deep(), event);
     }
 
     template<bool Dry, class Machine, class ParentContext, class Event>
     bool call_internal_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        return impl_.template call_internal_action<Dry>(mach, context(), event);
+        return impl_.template call_internal_action<Dry>(mach, ctx_holder_.get_deep(), event);
     }
 
     template<class Machine, class ParentContext, class Event>
     void exit(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        impl_.exit(mach, context(), event);
+        impl_.exit(mach, ctx_holder_.get_deep(), event);
+
+        if constexpr(ctx_lifetime == state_context_lifetime::state_activation)
+        {
+            ctx_holder_.reset();
+        }
+    }
+
+    void reset_contexts_with_parent_lifetime()
+    {
+        if constexpr(ctx_lifetime == state_context_lifetime::parent)
+        {
+            ctx_holder_.reset();
+        }
     }
 
     static constexpr bool completed()
@@ -76,7 +105,15 @@ public:
     }
 
 private:
-    context_holder<context_type, context_sig> ctx_holder_;
+    static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
+
+    static constexpr auto ctx_storage =
+        ctx_lifetime == state_context_lifetime::parent ?
+        ParentCtxStorage :
+        context_storage::optional
+    ;
+
+    context_holder<context_type, ctx_storage, context_sig> ctx_holder_;
     impl_type impl_;
 };
 

@@ -4,16 +4,17 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_STATE_IMPLS_COMPOSITE_FWD_HPP
-#define MAKI_DETAIL_STATE_IMPLS_COMPOSITE_FWD_HPP
+#ifndef MAKI_DETAIL_CONTEXT_STORAGE_HPP
+#define MAKI_DETAIL_CONTEXT_STORAGE_HPP
 
-#include "../context_storage.hpp"
-
-namespace maki::detail::state_impls
+namespace maki::detail
 {
 
-template<auto Id, const auto& Path, context_storage ParentCtxStorage>
-class composite;
+enum class context_storage: char
+{
+    plain,
+    optional
+};
 
 } //namespace
 

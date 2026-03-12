@@ -59,6 +59,7 @@ public:
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = detail::type<typename Impl::context_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = impl_.context_sig; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_lifetime = impl_.context_lifetime; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = impl_.entry_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = impl_.internal_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = impl_.exit_actions; \
@@ -79,6 +80,7 @@ public:
     > \
     { \
         MAKI_DETAIL_ARG_context_sig, \
+        MAKI_DETAIL_ARG_context_lifetime, \
         MAKI_DETAIL_ARG_entry_actions, \
         MAKI_DETAIL_ARG_internal_actions, \
         MAKI_DETAIL_ARG_exit_actions, \
@@ -97,6 +99,14 @@ public:
     }
     MAKI_DETAIL_STATE_CONTEXT_CONSTRUCTOR_SIGNATURES
 #undef MAKI_DETAIL_X
+
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE context_lifetime(const state_context_lifetime value) const
+    {
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_context_lifetime value
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_context_lifetime
+    }
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \

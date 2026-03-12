@@ -28,6 +28,7 @@ struct state_mold_impl
     using internal_action_mix_type = InternalActionTuple;
 
     state_context_signature context_sig = state_context_signature::v;
+    state_context_lifetime context_lifetime = state_context_lifetime::parent;
     EntryActionTuple entry_actions;
     InternalActionTuple internal_actions;
     ExitActionTuple exit_actions;

@@ -40,6 +40,12 @@ enum class state_context_signature: char
     m
 };
 
+enum class state_context_lifetime: char
+{
+    parent,
+    state_activation
+};
+
 } //namespace
 
 #endif

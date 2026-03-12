@@ -54,6 +54,12 @@ public:
     simple_no_context& operator=(simple_no_context&&) = default;
     ~simple_no_context() = default;
 
+    template<class ParentContext, class Machine>
+    constexpr void emplace_contexts_with_parent_lifetime(ParentContext& /*parent_ctx*/, Machine& /*mach*/) const
+    {
+        // No context to emplace
+    }
+
     template<class Machine, class Context, class Event>
     static void enter(Machine& mach, Context& ctx, const Event& event)
     {
@@ -112,6 +118,11 @@ public:
                 event
             );
         }
+    }
+
+    constexpr void reset_contexts_with_parent_lifetime() const
+    {
+        // No context to reset
     }
 
     static constexpr bool completed()

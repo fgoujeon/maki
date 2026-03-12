@@ -55,11 +55,12 @@ public:
     ~simple_no_context() = default;
 
     template<class Machine, class Context, class Event>
-    static void call_entry_action(Machine& mach, Context& ctx, const Event& event)
+    static void enter(Machine& mach, Context& ctx, const Event& event)
     {
         if constexpr(!tlu::empty_v<entry_action_ptr_constant_list>)
         {
             /*
+            Execute entry action.
             If at least one entry action is defined, state is required to define
             entry actions for all possible event types.
             */
@@ -95,11 +96,12 @@ public:
     }
 
     template<class Machine, class Context, class Event>
-    static void call_exit_action(Machine& mach, Context& ctx, const Event& event)
+    static void exit(Machine& mach, Context& ctx, const Event& event)
     {
         if constexpr(!tlu::empty_v<exit_action_ptr_constant_list>)
         {
             /*
+            Execute exit action.
             If at least one exit action is defined, state is required to define
             entry actions for all possible event types.
             */

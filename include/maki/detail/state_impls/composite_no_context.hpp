@@ -146,9 +146,9 @@ public:
     ~composite_no_context() = default;
 
     template<class Machine, class Context, class Event>
-    void call_entry_action(Machine& mach, Context& ctx, const Event& event)
+    void enter(Machine& mach, Context& ctx, const Event& event)
     {
-        impl_.call_entry_action(mach, ctx, event);
+        impl_.enter(mach, ctx, event);
         tlu::for_each<region_mix_type, region_enter>(*this, mach, ctx, event);
     }
 
@@ -175,7 +175,7 @@ public:
     }
 
     template<class Machine, class Context, class Event>
-    void call_exit_action(Machine& mach, Context& ctx, const Event& event)
+    void exit(Machine& mach, Context& ctx, const Event& event)
     {
         tlu::for_each<region_mix_type, region_exit<&state_molds::null>>
         (
@@ -184,7 +184,7 @@ public:
             ctx,
             event
         );
-        impl_.call_exit_action
+        impl_.exit
         (
             mach,
             ctx,
@@ -203,7 +203,7 @@ public:
             ctx,
             event
         );
-        impl_.call_exit_action
+        impl_.exit
         (
             mach,
             ctx,

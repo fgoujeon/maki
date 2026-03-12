@@ -442,7 +442,7 @@ private:
         */
         if constexpr(is_external_transition)
         {
-            impl_of(source_state).call_exit_action
+            impl_of(source_state).exit
             (
                 mach,
                 ctx,
@@ -469,7 +469,7 @@ private:
         {
             auto& target_state = state_id_to_obj<TargetStateId>();
 
-            impl_of(target_state).call_entry_action
+            impl_of(target_state).enter
             (
                 mach,
                 ctx,

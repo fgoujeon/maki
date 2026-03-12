@@ -503,7 +503,7 @@ private:
     {
         if constexpr(Operation == detail::machine_operation::start)
         {
-            impl_.call_entry_action(*this, context(), event);
+            impl_.enter(*this, context(), event);
         }
         else if constexpr(Operation == detail::machine_operation::stop)
         {

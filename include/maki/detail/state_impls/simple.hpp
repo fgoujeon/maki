@@ -52,9 +52,9 @@ public:
     }
 
     template<class Machine, class ParentContext, class Event>
-    void call_entry_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
+    void enter(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        impl_.call_entry_action(mach, context(), event);
+        impl_.enter(mach, context(), event);
     }
 
     template<bool Dry, class Machine, class ParentContext, class Event>
@@ -64,9 +64,9 @@ public:
     }
 
     template<class Machine, class ParentContext, class Event>
-    void call_exit_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
+    void exit(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        impl_.call_exit_action(mach, context(), event);
+        impl_.exit(mach, context(), event);
     }
 
     static constexpr bool completed()

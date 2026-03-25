@@ -40,9 +40,26 @@ enum class state_context_signature: char
     m
 };
 
+/**
+@brief The lifetime of a context instance.
+
+@note Available from Maki 1.1.0.
+*/
 enum class state_context_lifetime: char
 {
+    /**
+    The lifetime of the context is tied to its parent. This is the default.
+
+    Note that the lifetime of the root context (i.e. the context of the
+    `machine`) is tied to the `machine`.
+    */
     parent,
+
+    /**
+    The lifetime of the context is tied to the state activity, that is, the
+    context is instantiated right before the state is entered and uninstantiated
+    right after the state is exited.
+    */
     state_activity
 };
 

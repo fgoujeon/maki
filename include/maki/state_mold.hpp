@@ -100,6 +100,10 @@ public:
     MAKI_DETAIL_STATE_CONTEXT_CONSTRUCTOR_SIGNATURES
 #undef MAKI_DETAIL_X
 
+    /**
+    @brief Sets the lifetime of the context.
+    @note Available from Maki 1.1.0.
+    */
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE context_lifetime(const state_context_lifetime value) const
     {
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN

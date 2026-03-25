@@ -13,6 +13,7 @@
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "state_type_list_filters.hpp"
+#include "context_storage.hpp"
 #include "equals.hpp"
 #include "tuple.hpp"
 #include "mix.hpp"
@@ -62,7 +63,7 @@ namespace region_detail
     inline constexpr auto state_id_to_index_v = state_id_to_index<StateIdConstantList, StateId>::value;
 }
 
-template<const auto& TransitionTable, const auto& Path>
+template<const auto& TransitionTable, const auto& Path, context_storage ParentCtxStorage>
 class region_impl
 {
 public:
@@ -78,7 +79,7 @@ public:
     template<class... StateIdConstants>
     using state_id_constant_pack_to_state_mix_t = mix
     <
-        state_traits::state_id_to_state_t<StateIdConstants::value, Path>...
+        state_traits::state_id_to_state_t<StateIdConstants::value, Path, ParentCtxStorage>...
     >;
 
     using state_mix_type = tlu::apply_t
@@ -126,6 +127,16 @@ public:
         return is_active_state_id<&state_molds::fin>();
     }
 
+    template<class Context, class Machine>
+    void emplace_contexts_with_parent_lifetime(Context& ctx, Machine& mach)
+    {
+        tlu::for_each
+        <
+            state_mix_type,
+            state_emplace_contexts_with_parent_lifetime
+        >(*this, ctx, mach);
+    }
+
     // Enter the initial state
     template<class Machine, class Context, class Event>
     void enter(Machine& mach, Context& ctx, const Event& event)
@@ -162,6 +173,15 @@ public:
         }
     }
 
+    void reset_contexts_with_parent_lifetime()
+    {
+        tlu::for_each
+        <
+            state_mix_type,
+            state_reset_contexts_with_parent_lifetime
+        >(*this);
+    }
+
     template<bool Dry, class Machine, class Context, class Event>
     bool process_event(Machine& mach, Context& ctx, const Event& event)
     {
@@ -187,6 +207,31 @@ public:
     }
 
 private:
+    struct state_emplace_contexts_with_parent_lifetime
+    {
+        template<class State, class Self, class Context, class Machine>
+        static void call
+        (
+            Self& self,
+            Context& ctx,
+            Machine& mach
+        )
+        {
+            auto& stt = self.template state_type_to_obj<State>();
+            impl_of(stt).emplace_contexts_with_parent_lifetime(ctx, mach);
+        }
+    };
+
+    struct state_reset_contexts_with_parent_lifetime
+    {
+        template<class State, class Self>
+        static void call(Self& self)
+        {
+            auto& stt = self.template state_type_to_obj<State>();
+            impl_of(stt).reset_contexts_with_parent_lifetime();
+        }
+    };
+
     template<bool Dry, class Self, class Machine, class Context, class Event>
     static bool process_event_2
     (
@@ -442,7 +487,7 @@ private:
         */
         if constexpr(is_external_transition)
         {
-            impl_of(source_state).call_exit_action
+            impl_of(source_state).exit
             (
                 mach,
                 ctx,
@@ -469,7 +514,7 @@ private:
         {
             auto& target_state = state_id_to_obj<TargetStateId>();
 
-            impl_of(target_state).call_entry_action
+            impl_of(target_state).enter
             (
                 mach,
                 ctx,
@@ -752,7 +797,7 @@ private:
         else
         {
             using state_t =
-                state_traits::state_id_to_state_t<StateId, Path>
+                state_traits::state_id_to_state_t<StateId, Path, ParentCtxStorage>
             ;
             return get<state_t>(self.states_);
         }

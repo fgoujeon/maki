@@ -7,10 +7,12 @@
 #ifndef MAKI_DETAIL_STATE_IMPLS_SIMPLE_FWD_HPP
 #define MAKI_DETAIL_STATE_IMPLS_SIMPLE_FWD_HPP
 
+#include "../context_storage.hpp"
+
 namespace maki::detail::state_impls
 {
 
-template<auto Id>
+template<auto Id, context_storage ParentCtxStorage>
 class simple;
 
 } //namespace

@@ -7,10 +7,12 @@
 #ifndef MAKI_DETAIL_STATE_IMPLS_COMPOSITE_NO_CONTEXT_FWD_HPP
 #define MAKI_DETAIL_STATE_IMPLS_COMPOSITE_NO_CONTEXT_FWD_HPP
 
+#include "../context_storage.hpp"
+
 namespace maki::detail::state_impls
 {
 
-template<auto Id, const auto& Path>
+template<auto Id, const auto& Path, context_storage ParentCtxStorage>
 class composite_no_context;
 
 } //namespace

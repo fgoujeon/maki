@@ -20,6 +20,7 @@
 #include "detail/state_impls/composite.hpp" //NOLINT misc-include-cleaner
 #include "detail/state_impls/composite_no_context.hpp"
 #include "detail/context_holder.hpp"
+#include "detail/context_storage.hpp"
 #include "detail/event_action.hpp"
 #include "detail/noinline.hpp"
 #include "detail/function_queue.hpp"
@@ -503,7 +504,7 @@ private:
     {
         if constexpr(Operation == detail::machine_operation::start)
         {
-            impl_.call_entry_action(*this, context(), event);
+            impl_.enter(*this, context(), event);
         }
         else if constexpr(Operation == detail::machine_operation::stop)
         {
@@ -576,8 +577,18 @@ private:
     using pre_processing_hook_ptr_constant_list = detail::mix_constant_list_t<pre_processing_hooks>;
     using post_processing_hook_ptr_constant_list = detail::mix_constant_list_t<post_processing_hooks>;
 
-    detail::context_holder<context_type, impl_of(conf).context_sig> ctx_holder_;
-    detail::state_impls::composite_no_context<&conf, path> impl_;
+    detail::context_holder
+    <
+        context_type,
+        detail::context_storage::plain,
+        impl_of(conf).context_sig
+    > ctx_holder_;
+    detail::state_impls::composite_no_context
+    <
+        &conf,
+        path,
+        detail::context_storage::plain
+    > impl_;
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;
 };

@@ -8,13 +8,14 @@
 #define MAKI_DETAIL_STATE_ID_TO_STATE_HPP
 
 #include "state_impl.hpp"
+#include "context_storage.hpp"
 #include "../state.hpp"
 
 namespace maki::detail::state_traits
 {
 
-template<auto StateId, const auto& ParentPath>
-using state_id_to_state_t = state<state_impl_t<StateId, ParentPath>>;
+template<auto StateId, const auto& ParentPath, context_storage ParentCtxStorage>
+using state_id_to_state_t = state<state_impl_t<StateId, ParentPath, ParentCtxStorage>>;
 
 } //namespace
 

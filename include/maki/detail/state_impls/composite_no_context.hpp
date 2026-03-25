@@ -10,6 +10,7 @@
 #include "simple_no_context.hpp"
 #include "../type_set.hpp"
 #include "../region_impl.hpp"
+#include "../context_storage.hpp"
 #include "../integer_constant_sequence.hpp"
 #include "../mix.hpp"
 #include "../friendly_impl.hpp"
@@ -21,6 +22,7 @@
 #include "../tlu/size.hpp"
 #include "../../states.hpp"
 #include "../../region.hpp"
+#include "../../context.hpp"
 #include <type_traits>
 #include <utility>
 
@@ -31,27 +33,30 @@ template
 <
     class ParentSm,
     const auto& ParentPath,
+    context_storage ParentCtxStorage,
     int Index
 >
 struct region_mix_elem
 {
     static constexpr auto transition_table = tuple_get<Index>(impl_of(ParentSm::mold).transition_tables);
     static constexpr auto path = ParentPath.add_region_index(Index);
-    using type = region<region_impl<transition_table, path>>;
+    using type = region<region_impl<transition_table, path, ParentCtxStorage>>;
 };
 
 template
 <
     class ParentSm,
     const auto& ParentPath,
+    context_storage ParentCtxStorage,
     int Index
 >
-using region_mix_elem_t = typename region_mix_elem<ParentSm, ParentPath, Index>::type;
+using region_mix_elem_t = typename region_mix_elem<ParentSm, ParentPath, ParentCtxStorage, Index>::type;
 
 template
 <
     class ParentSm,
     const auto& ParentPath,
+    context_storage ParentCtxStorage,
     class RegionIndexSequence
 >
 struct region_mix;
@@ -60,12 +65,14 @@ template
 <
     class ParentSm,
     const auto& ParentPath,
+    context_storage ParentCtxStorage,
     int... RegionIndexes
 >
 struct region_mix
 <
     ParentSm,
     ParentPath,
+    ParentCtxStorage,
     std::integer_sequence<int, RegionIndexes...>
 >
 {
@@ -75,6 +82,7 @@ struct region_mix
         <
             ParentSm,
             ParentPath,
+            ParentCtxStorage,
             RegionIndexes
         >...
     >;
@@ -97,7 +105,7 @@ using region_type_list_event_type_set = tlu::left_fold_t
     empty_type_set_t
 >;
 
-template<auto Id, const auto& Path>
+template<auto Id, const auto& Path, context_storage ParentCtxStorage>
 class composite_no_context
 {
 public:
@@ -107,6 +115,14 @@ public:
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);
     using impl_type = simple_no_context<Id>;
+
+    static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
+
+    static constexpr auto ctx_storage =
+        ctx_lifetime == state_context_lifetime::parent ?
+        ParentCtxStorage :
+        context_storage::optional
+    ;
 
     using region_index_sequence_type = std::make_integer_sequence
     <
@@ -124,6 +140,7 @@ public:
     <
         composite_no_context,
         Path,
+        ctx_storage,
         region_index_sequence_type
     >::type;
 
@@ -145,10 +162,20 @@ public:
     composite_no_context& operator=(composite_no_context&&) = delete;
     ~composite_no_context() = default;
 
-    template<class Machine, class Context, class Event>
-    void call_entry_action(Machine& mach, Context& ctx, const Event& event)
+    template<class Context, class Machine>
+    void emplace_contexts_with_parent_lifetime(Context& ctx, Machine& mach)
     {
-        impl_.call_entry_action(mach, ctx, event);
+        tlu::for_each
+        <
+            region_mix_type,
+            region_emplace_contexts_with_parent_lifetime
+        >(*this, ctx, mach);
+    }
+
+    template<class Machine, class Context, class Event>
+    void enter(Machine& mach, Context& ctx, const Event& event)
+    {
+        impl_.enter(mach, ctx, event);
         tlu::for_each<region_mix_type, region_enter>(*this, mach, ctx, event);
     }
 
@@ -175,7 +202,7 @@ public:
     }
 
     template<class Machine, class Context, class Event>
-    void call_exit_action(Machine& mach, Context& ctx, const Event& event)
+    void exit(Machine& mach, Context& ctx, const Event& event)
     {
         tlu::for_each<region_mix_type, region_exit<&state_molds::null>>
         (
@@ -184,7 +211,7 @@ public:
             ctx,
             event
         );
-        impl_.call_exit_action
+        impl_.exit
         (
             mach,
             ctx,
@@ -203,12 +230,21 @@ public:
             ctx,
             event
         );
-        impl_.call_exit_action
+        impl_.exit
         (
             mach,
             ctx,
             event
         );
+    }
+
+    void reset_contexts_with_parent_lifetime()
+    {
+        tlu::for_each
+        <
+            region_mix_type,
+            region_reset_contexts_with_parent_lifetime
+        >(*this);
     }
 
     template<int Index>
@@ -252,6 +288,15 @@ private:
         }
     };
 
+    struct region_emplace_contexts_with_parent_lifetime
+    {
+        template<class Region, class Self, class Context, class Machine>
+        static void call(Self& self, Context& ctx, Machine& mach)
+        {
+            impl_of(get<Region>(self.regions_)).emplace_contexts_with_parent_lifetime(ctx, mach);
+        }
+    };
+
     struct region_enter
     {
         template<class Region, class Self, class Machine, class Context, class Event>
@@ -279,6 +324,15 @@ private:
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
             impl_of(get<Region>(self.regions_)).template exit<TargetStateId>(mach, ctx, event);
+        }
+    };
+
+    struct region_reset_contexts_with_parent_lifetime
+    {
+        template<class Region, class Self>
+        static void call(Self& self)
+        {
+            impl_of(get<Region>(self.regions_)).reset_contexts_with_parent_lifetime();
         }
     };
 

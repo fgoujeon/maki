@@ -61,6 +61,7 @@ struct machine_conf_impl
     std::size_t small_event_max_size = machine_conf_default_small_event_max_size;
     TransitionTableTuple transition_tables;
 
+    static constexpr auto context_lifetime = state_context_lifetime::parent;
     static constexpr auto entry_actions = mix<>{};
     static constexpr auto exit_actions = mix<>{};
     static constexpr auto internal_actions = mix<>{};

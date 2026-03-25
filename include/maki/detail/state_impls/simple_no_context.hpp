@@ -54,12 +54,19 @@ public:
     simple_no_context& operator=(simple_no_context&&) = default;
     ~simple_no_context() = default;
 
+    template<class ParentContext, class Machine>
+    constexpr void emplace_contexts_with_parent_lifetime(ParentContext& /*parent_ctx*/, Machine& /*mach*/) const
+    {
+        // No context to emplace
+    }
+
     template<class Machine, class Context, class Event>
-    static void call_entry_action(Machine& mach, Context& ctx, const Event& event)
+    static void enter(Machine& mach, Context& ctx, const Event& event)
     {
         if constexpr(!tlu::empty_v<entry_action_ptr_constant_list>)
         {
             /*
+            Execute entry action.
             If at least one entry action is defined, state is required to define
             entry actions for all possible event types.
             */
@@ -95,11 +102,12 @@ public:
     }
 
     template<class Machine, class Context, class Event>
-    static void call_exit_action(Machine& mach, Context& ctx, const Event& event)
+    static void exit(Machine& mach, Context& ctx, const Event& event)
     {
         if constexpr(!tlu::empty_v<exit_action_ptr_constant_list>)
         {
             /*
+            Execute exit action.
             If at least one exit action is defined, state is required to define
             entry actions for all possible event types.
             */
@@ -110,6 +118,11 @@ public:
                 event
             );
         }
+    }
+
+    constexpr void reset_contexts_with_parent_lifetime() const
+    {
+        // No context to reset
     }
 
     static constexpr bool completed()

@@ -1,4 +1,4 @@
-#Copyright Florian Goujeon 2021 - 2025.
+#Copyright Florian Goujeon 2021 - 2026.
 #Distributed under the Boost Software License, Version 1.0.
 #(See accompanying file LICENSE or copy at
 #https://www.boost.org/LICENSE_1_0.txt)
@@ -26,7 +26,7 @@ target_sources(maki
     INTERFACE
     FILE_SET HEADERS
     BASE_DIRS include
-    FILES 
+    FILES
         include/maki.hpp
         include/maki/action.hpp
         include/maki/context.hpp

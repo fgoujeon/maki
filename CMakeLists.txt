@@ -8,7 +8,7 @@
 
 cmake_minimum_required(VERSION 3.23)
 
-project(maki VERSION 1.0.4 LANGUAGES CXX)
+project(maki VERSION 1.1.0 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
@@ -26,7 +26,7 @@ target_sources(maki
     INTERFACE
     FILE_SET HEADERS
     BASE_DIRS include
-    FILES
+    FILES 
         include/maki.hpp
         include/maki/action.hpp
         include/maki/context.hpp
@@ -34,6 +34,7 @@ target_sources(maki
         include/maki/detail/compiler.hpp
         include/maki/detail/constant.hpp
         include/maki/detail/context_holder.hpp
+        include/maki/detail/context_storage.hpp
         include/maki/detail/equals.hpp
         include/maki/detail/event_action.hpp
         include/maki/detail/friendly_impl.hpp

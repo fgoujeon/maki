@@ -35,7 +35,7 @@ namespace simple_state_with_activation_lifetime_ns
 
         constexpr auto on = maki::state_mold{}
             .context_c<on_context>()
-            .context_lifetime(maki::state_context_lifetime::state_activation)
+            .context_lifetime(maki::state_context_lifetime::state_activity)
         ;
     }
 

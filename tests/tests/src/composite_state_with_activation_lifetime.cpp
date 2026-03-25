@@ -80,7 +80,7 @@ namespace composite_state_with_activation_lifetime_ns
 
             constexpr auto emitting_blue = maki::state_mold{}
                 .context_c<emitting_blue_ns::context>()
-                .context_lifetime(maki::state_context_lifetime::state_activation)
+                .context_lifetime(maki::state_context_lifetime::state_activity)
                 .entry_action_c
                 (
                     [](emitting_blue_ns::context& ctx)
@@ -101,7 +101,7 @@ namespace composite_state_with_activation_lifetime_ns
         constexpr auto on = maki::state_mold{}
             .transition_tables(on_ns::transition_table)
             .context_c<on_ns::context>()
-            .context_lifetime(maki::state_context_lifetime::state_activation)
+            .context_lifetime(maki::state_context_lifetime::state_activity)
         ;
     }
 

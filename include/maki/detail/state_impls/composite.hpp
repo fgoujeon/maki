@@ -62,7 +62,7 @@ public:
         const Event& event
     )
     {
-        if constexpr(ctx_lifetime == state_context_lifetime::state_activation)
+        if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
         {
             auto& ctx = ctx_holder_.emplace(mach, parent_ctx);
             impl_.emplace_contexts_with_parent_lifetime(ctx, mach);
@@ -103,7 +103,7 @@ public:
     {
         impl_.exit(mach, ctx_holder_.get_deep(), event);
 
-        if constexpr(ctx_lifetime == state_context_lifetime::state_activation)
+        if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
         {
             impl_.reset_contexts_with_parent_lifetime();
             ctx_holder_.reset();

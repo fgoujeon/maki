@@ -43,7 +43,7 @@ enum class state_context_signature: char
 enum class state_context_lifetime: char
 {
     parent,
-    state_activation
+    state_activity
 };
 
 } //namespace

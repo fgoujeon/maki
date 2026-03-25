@@ -65,7 +65,7 @@ public:
     template<class Machine, class ParentContext, class Event>
     void enter(Machine& mach, ParentContext& parent_ctx, const Event& event)
     {
-        if constexpr(ctx_lifetime == state_context_lifetime::state_activation)
+        if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
         {
             ctx_holder_.emplace(mach, parent_ctx);
         }
@@ -84,7 +84,7 @@ public:
     {
         impl_.exit(mach, ctx_holder_.get_deep(), event);
 
-        if constexpr(ctx_lifetime == state_context_lifetime::state_activation)
+        if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
         {
             ctx_holder_.reset();
         }

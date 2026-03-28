@@ -9,7 +9,6 @@
 
 #include "state_impls/simple_no_context_fwd.hpp"
 #include "state_impls/simple_fwd.hpp"
-#include "state_impls/composite_no_context_fwd.hpp"
 #include "state_impls/composite_fwd.hpp"
 #include "state_id_traits.hpp"
 #include "context_storage.hpp"
@@ -36,14 +35,26 @@ template<auto StateId, const auto& ParentPath, context_storage ParentCtxStorage>
 struct state_impl_helper<StateId, ParentPath, ParentCtxStorage, true, false>
 {
     static constexpr auto path = ParentPath.template add_state<*StateId>();
-    using type = state_impls::composite_no_context<StateId, path, ParentCtxStorage>;
+    using type = state_impls::composite
+    <
+        StateId,
+        path,
+        void,
+        ParentCtxStorage
+    >;
 };
 
 template<auto StateId, const auto& ParentPath, context_storage ParentCtxStorage>
 struct state_impl_helper<StateId, ParentPath, ParentCtxStorage, true, true>
 {
     static constexpr auto path = ParentPath.template add_state<*StateId>();
-    using type = state_impls::composite<StateId, path, ParentCtxStorage>;
+    using type = state_impls::composite
+    <
+        StateId,
+        path,
+        state_id_traits::context_t<StateId>,
+        ParentCtxStorage
+    >;
 };
 
 template<auto StateId, const auto& ParentPath, context_storage ParentCtxStorage>

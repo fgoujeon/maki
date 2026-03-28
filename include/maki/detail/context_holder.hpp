@@ -144,6 +144,18 @@ public:
         return ctx_;
     }
 
+    template<class ParentContext>
+    storage_type& get_or(const ParentContext& /*parent_ctx*/)
+    {
+        return get();
+    }
+
+    template<class ParentContext>
+    const storage_type& get_or(const ParentContext& /*parent_ctx*/) const
+    {
+        return get();
+    }
+
     T& get_deep()
     {
         if constexpr (Storage == context_storage::plain)
@@ -168,8 +180,58 @@ public:
         }
     }
 
+    template<class ParentContext>
+    T& get_deep_or(const ParentContext& /*parent_ctx*/)
+    {
+        return get_deep();
+    }
+
+    template<class ParentContext>
+    const T& get_deep_or(const ParentContext& /*parent_ctx*/) const
+    {
+        return get_deep();
+    }
+
 private:
     storage_type ctx_;
+};
+
+// Specialization for `void` context type
+template<context_storage Storage, auto Signature>
+class context_holder<void, Storage, Signature>
+{
+public:
+    template<class... Args>
+    context_holder(const Args&... /*args*/)
+    {
+    }
+
+    template<class Machine, class ParentContext>
+    static ParentContext& emplace
+    (
+        Machine& /*mach*/,
+        ParentContext& parent_ctx
+    )
+    {
+        return parent_ctx;
+    }
+
+    static void reset()
+    {
+        // Nothing to reset
+    }
+
+    template<class ParentContext>
+    static ParentContext& get_or(ParentContext& parent_ctx)
+    {
+        return parent_ctx;
+    }
+
+    template<class ParentContext>
+    static ParentContext& get_deep_or(ParentContext& parent_ctx)
+    {
+        return parent_ctx;
+    }
 };
 
 } //namespace

@@ -12,7 +12,7 @@
 namespace maki::detail::state_impls
 {
 
-template<auto Id, const auto& Path, context_storage ParentCtxStorage>
+template<auto Id, const auto& Path, class ContextType, context_storage ParentCtxStorage>
 class composite;
 
 } //namespace

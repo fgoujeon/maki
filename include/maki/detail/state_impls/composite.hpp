@@ -7,8 +7,8 @@
 #ifndef MAKI_DETAIL_STATE_IMPLS_COMPOSITE_HPP
 #define MAKI_DETAIL_STATE_IMPLS_COMPOSITE_HPP
 
-#include "../context_holder.hpp"
-#include "../context_storage.hpp"
+#include "composite_fwd.hpp"
+#include "simple.hpp"
 #include "../type_set.hpp"
 #include "../region_impl.hpp"
 #include "../context_storage.hpp"

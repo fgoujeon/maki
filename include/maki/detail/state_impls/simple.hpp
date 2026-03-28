@@ -7,6 +7,12 @@
 #ifndef MAKI_DETAIL_STATE_IMPLS_SIMPLE_HPP
 #define MAKI_DETAIL_STATE_IMPLS_SIMPLE_HPP
 
+#include "simple_fwd.hpp"
+#include "../type_set.hpp"
+#include "../event_action.hpp"
+#include "../mix.hpp"
+#include "../tlu/empty.hpp"
+#include "../tlu/left_fold.hpp"
 #include "../context_holder.hpp"
 #include "../context_storage.hpp"
 #include "../../context.hpp"

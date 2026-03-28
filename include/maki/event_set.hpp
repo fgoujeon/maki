@@ -9,7 +9,7 @@
 
 #include "event.hpp"
 #include "detail/type_set.hpp"
-#include "detail/friendly_impl.hpp"
+#include "detail/friendly_impl.hpp" //NOLINT misc-include-cleaner
 
 namespace maki
 {

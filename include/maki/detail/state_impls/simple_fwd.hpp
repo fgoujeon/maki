@@ -12,7 +12,7 @@
 namespace maki::detail::state_impls
 {
 
-template<auto Id, context_storage ParentCtxStorage>
+template<auto Id, class ContextType = void, context_storage ParentCtxStorage = context_storage::plain>
 class simple;
 
 } //namespace

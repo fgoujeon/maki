@@ -117,7 +117,7 @@ public:
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);
     using context_type = ContextType;
-    using impl_type = simple_no_context<identifier>;
+    using impl_type = simple<identifier, context_type, ParentCtxStorage>;
 
     static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
 
@@ -155,8 +155,8 @@ public:
 
     template<class Machine, class ParentContext>
     composite(Machine& mach, ParentContext& parent_ctx):
-        ctx_holder_(mach, parent_ctx),
-        regions_(mix_uniform_construct, mach, ctx_holder_.get_or(parent_ctx))
+        impl_(mach, parent_ctx),
+        regions_(mix_uniform_construct, mach, impl_.context_or(parent_ctx))
     {
     }
 
@@ -168,27 +168,24 @@ public:
 
     auto& context()
     {
-        return ctx_holder_.get();
+        return impl_.context();
     }
 
     const auto& context() const
     {
-        return ctx_holder_.get();
+        return impl_.context();
     }
 
     template<class ParentContext, class Machine>
     void emplace_contexts_with_parent_lifetime(ParentContext& parent_ctx, Machine& mach)
     {
-        if constexpr(ctx_lifetime == state_context_lifetime::parent)
-        {
-            ctx_holder_.emplace(mach, parent_ctx);
-        }
+        impl_.emplace_contexts_with_parent_lifetime(parent_ctx, mach);
 
         tlu::for_each
         <
             region_mix_type,
             region_emplace_contexts_with_parent_lifetime
-        >(*this, ctx_holder_.get_deep_or(parent_ctx), mach);
+        >(*this, impl_.deep_context_or(parent_ctx), mach);
     }
 
     template<class Machine, class ParentContext, class Event>
@@ -199,24 +196,22 @@ public:
         const Event& event
     )
     {
+        impl_.enter(mach, parent_ctx, event);
+
         if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
         {
-            auto& ctx = ctx_holder_.emplace(mach, parent_ctx);
-
             tlu::for_each
             <
                 region_mix_type,
                 region_emplace_contexts_with_parent_lifetime
-            >(*this, ctx, mach);
+            >(*this, impl_.deep_context_or(parent_ctx), mach);
         }
-
-        impl_type::enter(mach, ctx_holder_.get_deep_or(parent_ctx), event);
 
         tlu::for_each<region_mix_type, region_enter>
         (
             *this,
             mach,
-            ctx_holder_.get_deep_or(parent_ctx),
+            impl_.deep_context_or(parent_ctx),
             event
         );
     }
@@ -233,7 +228,7 @@ public:
         (
             *this,
             mach,
-            ctx_holder_.get_deep_or(parent_ctx),
+            parent_ctx,
             event
         );
     }
@@ -250,7 +245,7 @@ public:
         (
             *this,
             mach,
-            ctx_holder_.get_deep_or(parent_ctx),
+            parent_ctx,
             event
         );
     }
@@ -267,14 +262,7 @@ public:
         (
             *this,
             mach,
-            ctx_holder_.get_deep_or(parent_ctx),
-            event
-        );
-
-        impl_type::exit
-        (
-            mach,
-            ctx_holder_.get_deep_or(parent_ctx),
+            impl_.deep_context_or(parent_ctx),
             event
         );
 
@@ -285,9 +273,14 @@ public:
                 region_mix_type,
                 region_reset_contexts_with_parent_lifetime
             >(*this);
-
-            ctx_holder_.reset();
         }
+
+        impl_.exit
+        (
+            mach,
+            parent_ctx,
+            event
+        );
     }
 
     // For each region, transition from active state to final state.
@@ -298,14 +291,14 @@ public:
         (
             *this,
             mach,
-            ctx_holder_.get_deep_or(parent_ctx),
+            impl_.deep_context_or(parent_ctx),
             event
         );
 
-        impl_type::exit
+        impl_.exit
         (
             mach,
-            ctx_holder_.get_deep_or(parent_ctx),
+            impl_.deep_context_or(parent_ctx),
             event
         );
     }
@@ -318,10 +311,7 @@ public:
             region_reset_contexts_with_parent_lifetime
         >(*this);
 
-        if constexpr(ctx_lifetime == state_context_lifetime::parent)
-        {
-            ctx_holder_.reset();
-        }
+        impl_.reset_contexts_with_parent_lifetime();
     }
 
     template<int Index>
@@ -413,12 +403,12 @@ private:
         }
     };
 
-    template<bool Dry, class Self, class Machine, class Context, class Event>
+    template<bool Dry, class Self, class Machine, class ParentContext, class Event>
     static bool call_internal_action_2
     (
         Self& self,
         Machine& mach,
-        Context& ctx,
+        ParentContext& parent_ctx,
         const Event& event
     )
     {
@@ -430,27 +420,47 @@ private:
 
         if constexpr(can_process_event)
         {
-            impl_type::template call_internal_action<Dry>
+            self.impl_.template call_internal_action<Dry>
             (
                 mach,
-                ctx,
+                parent_ctx,
                 event
             );
 
-            tlu::for_each<region_mix_type, region_process_event<Dry>>(self, mach, ctx, event);
+            tlu::for_each
+            <
+                region_mix_type,
+                region_process_event<Dry>
+            >
+            (
+                self,
+                mach,
+                self.impl_.deep_context_or(parent_ctx),
+                event
+            );
 
             return true;
         }
         else
         {
-            const auto processed_count = tlu::for_each_plus<region_mix_type, region_process_event<Dry>>(self, mach, ctx, event);
+            const auto processed_count = tlu::for_each_plus
+            <
+                region_mix_type,
+                region_process_event<Dry>
+            >
+            (
+                self,
+                mach,
+                self.impl_.deep_context_or(parent_ctx),
+                event
+            );
             return static_cast<bool>(processed_count);
         }
     }
 
     static constexpr auto ctx_sig = impl_of(mold).context_sig;
 
-    context_holder<context_type, ctx_storage, ctx_sig> ctx_holder_;
+    impl_type impl_;
     region_mix_type regions_;
 };
 

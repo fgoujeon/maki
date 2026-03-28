@@ -202,7 +202,7 @@ class context_holder<void, Storage, Signature>
 {
 public:
     template<class... Args>
-    context_holder(const Args&... /*args*/)
+    constexpr context_holder(const Args&... /*args*/)
     {
     }
 

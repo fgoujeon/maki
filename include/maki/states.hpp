@@ -7,7 +7,7 @@
 #ifndef MAKI_STATES_HPP
 #define MAKI_STATES_HPP
 
-#include "detail/state_impls/simple_no_context.hpp"
+#include "detail/state_impls/simple.hpp"
 #include "state.hpp"
 #include "state_mold.hpp"
 
@@ -47,7 +47,7 @@ namespace states
     */
     constexpr auto null = state<IMPLEMENTATION_DETAIL>{};
 #else
-    inline constexpr auto null = state<detail::state_impls::simple_no_context<&detail::state_molds::null>>{};
+    inline constexpr auto null = state<detail::state_impls::simple<&detail::state_molds::null>>{};
 #endif
 
 #if MAKI_DETAIL_DOXYGEN
@@ -58,7 +58,7 @@ namespace states
     */
     constexpr auto fin = state<IMPLEMENTATION_DETAIL>{};
 #else
-    inline constexpr auto fin = state<detail::state_impls::simple_no_context<&detail::state_molds::fin>>{};
+    inline constexpr auto fin = state<detail::state_impls::simple<&detail::state_molds::fin>>{};
 #endif
 
 #if MAKI_DETAIL_DOXYGEN
@@ -70,7 +70,7 @@ namespace states
     constexpr auto undefined = state<IMPLEMENTATION_DETAIL>{};
 #else
     inline constexpr auto undefined =
-        state<detail::state_impls::simple_no_context<&maki::undefined>>{}
+        state<detail::state_impls::simple<&maki::undefined>>{}
     ;
 #endif
 }

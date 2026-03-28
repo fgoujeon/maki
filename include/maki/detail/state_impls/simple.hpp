@@ -70,19 +70,19 @@ public:
             ctx_holder_.emplace(mach, parent_ctx);
         }
 
-        impl_.enter(mach, ctx_holder_.get_deep(), event);
+        impl_type::enter(mach, ctx_holder_.get_deep(), event);
     }
 
     template<bool Dry, class Machine, class ParentContext, class Event>
     bool call_internal_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        return impl_.template call_internal_action<Dry>(mach, ctx_holder_.get_deep(), event);
+        return impl_type::template call_internal_action<Dry>(mach, ctx_holder_.get_deep(), event);
     }
 
     template<class Machine, class ParentContext, class Event>
     void exit(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        impl_.exit(mach, ctx_holder_.get_deep(), event);
+        impl_type::exit(mach, ctx_holder_.get_deep(), event);
 
         if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
         {
@@ -114,7 +114,6 @@ private:
     ;
 
     context_holder<context_type, ctx_storage, context_sig> ctx_holder_;
-    impl_type impl_;
 };
 
 } //namespace

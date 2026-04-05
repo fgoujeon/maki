@@ -17,7 +17,6 @@
 #include "null.hpp"
 #include "detail/path_impl.hpp"
 #include "detail/state_impls/simple.hpp" //NOLINT misc-include-cleaner
-#include "detail/state_impls/composite.hpp" //NOLINT misc-include-cleaner
 #include "detail/state_impls/composite_no_context.hpp"
 #include "detail/context_holder.hpp"
 #include "detail/context_storage.hpp"

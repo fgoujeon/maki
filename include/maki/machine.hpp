@@ -12,32 +12,24 @@
 #ifndef MAKI_MACHINE_HPP
 #define MAKI_MACHINE_HPP
 
-#include "context.hpp"
+#include "events.hpp"
+#include "machine_conf.hpp"
+#include "null.hpp"
+#include "region.hpp"
+#include "states.hpp"
 #include "detail/context_holder.hpp"
 #include "detail/context_storage.hpp"
 #include "detail/event_action.hpp"
-#include "detail/friendly_impl.hpp"
+#include "detail/friendly_impl.hpp" //NOLINT misc-include-cleaner
 #include "detail/function_queue.hpp"
-#include "detail/integer_constant_sequence.hpp"
 #include "detail/mix.hpp"
 #include "detail/noinline.hpp"
 #include "detail/path_impl.hpp"
 #include "detail/region_impl.hpp"
 #include "detail/state_impls/simple.hpp" //NOLINT misc-include-cleaner
 #include "detail/state_impls/simple_no_context.hpp"
-#include "detail/tlu/apply.hpp"
 #include "detail/tlu/contains_if.hpp"
-#include "detail/tlu/for_each.hpp"
-#include "detail/tlu/for_each_plus.hpp"
-#include "detail/tlu/get.hpp"
-#include "detail/tlu/left_fold.hpp"
-#include "detail/tlu/size.hpp"
 #include "detail/type_set.hpp"
-#include "events.hpp"
-#include "machine_conf.hpp"
-#include "null.hpp"
-#include "region.hpp"
-#include "states.hpp"
 #include <exception>
 #include <type_traits>
 #include <utility>
@@ -47,82 +39,6 @@ namespace maki
 
 namespace detail
 {
-    template
-    <
-        class ParentSm,
-        const auto& ParentPath,
-        context_storage ParentCtxStorage,
-        int Index
-    >
-    struct region_mix_elem
-    {
-        static constexpr auto transition_tbl = tuple_get<Index>(impl_of(ParentSm::conf).transition_tables);
-        static constexpr auto path = ParentPath.add_region_index(Index);
-        using type = region<region_impl<transition_tbl, path, ParentCtxStorage>>;
-    };
-
-    template
-    <
-        class ParentSm,
-        const auto& ParentPath,
-        context_storage ParentCtxStorage,
-        int Index
-    >
-    using region_mix_elem_t = typename region_mix_elem<ParentSm, ParentPath, ParentCtxStorage, Index>::type;
-
-    template
-    <
-        class ParentSm,
-        const auto& ParentPath,
-        context_storage ParentCtxStorage,
-        class RegionIndexSequence
-    >
-    struct region_mix;
-
-    template
-    <
-        class ParentSm,
-        const auto& ParentPath,
-        context_storage ParentCtxStorage,
-        int... RegionIndexes
-    >
-    struct region_mix
-    <
-        ParentSm,
-        ParentPath,
-        ParentCtxStorage,
-        std::integer_sequence<int, RegionIndexes...>
-    >
-    {
-        using type = mix
-        <
-            region_mix_elem_t
-            <
-                ParentSm,
-                ParentPath,
-                ParentCtxStorage,
-                RegionIndexes
-            >...
-        >;
-    };
-
-    template<class EventTypeSet, class Region>
-    using region_type_list_event_type_set_operation =
-        type_set_union_t
-        <
-            EventTypeSet,
-            typename impl_of_t<Region>::event_type_set
-        >
-    ;
-
-    template<class RegionTypeList>
-    using region_type_list_event_type_set = tlu::left_fold_t
-    <
-        RegionTypeList,
-        region_type_list_event_type_set_operation,
-        empty_type_set_t
-    >;
-
     enum class machine_operation: char
     {
         start,
@@ -206,7 +122,7 @@ public:
     template<class... ContextArgs>
     explicit machine(ContextArgs&&... ctx_args):
         ctx_holder_(*this, std::forward<ContextArgs>(ctx_args)...),
-        regions_(detail::mix_uniform_construct, *this, context())
+        region_(*this, context())
     {
         if constexpr(impl_of(conf).auto_start)
         {
@@ -401,24 +317,13 @@ public:
     }
 
     /**
-    @brief Returns the `maki::region` object at index `Index`.
-    */
-    template<int Index>
-    [[nodiscard]] const auto& region() const
-    {
-        using region_type = detail::tlu::get_t<region_mix_type, Index>;
-        return detail::get<region_type>(regions_);
-    }
-
-    /**
     @brief Returns the `maki::state` object created by `StateMold` (of type
     `maki::state_mold`). Only valid if machine is only made of one region.
     */
     template<const auto& StateMold>
     [[nodiscard]] const auto& state() const
     {
-        static_assert(region_mix_type::size == 1);
-        return impl_of(region<0>()).template state<StateMold>();
+        return impl_of(region_).template state<StateMold>();
     }
 
     /**
@@ -429,8 +334,7 @@ public:
     template<const auto& StateMold>
     [[nodiscard]] bool is() const
     {
-        static_assert(region_mix_type::size == 1);
-        return impl_of(region<0>()).template is<StateMold>();
+        return impl_of(region_).template is<StateMold>();
     }
 
 private:
@@ -442,32 +346,6 @@ private:
     static constexpr auto ctx_storage = detail::context_storage::plain;
 
     static constexpr auto path = detail::path_impl{};
-
-    using region_index_sequence_type = std::make_integer_sequence
-    <
-        int,
-        detail::tlu::size_v<transition_table_type_list>
-    >;
-
-    using region_index_constant_sequence = detail::make_integer_constant_sequence
-    <
-        int,
-        detail::tlu::size_v<transition_table_type_list>
-    >;
-
-    using region_mix_type = typename detail::region_mix
-    <
-        machine,
-        path,
-        ctx_storage,
-        region_index_sequence_type
-    >::type;
-
-    using event_type_set = detail::type_set_union_t
-    <
-        typename impl_type::event_type_set,
-        detail::region_type_list_event_type_set<region_mix_type>
-    >;
 
     class executing_operation_guard
     {
@@ -700,18 +578,14 @@ private:
     template<class Context, class Machine>
     void emplace_contexts_with_parent_lifetime(Context& ctx, Machine& mach)
     {
-        detail::tlu::for_each
-        <
-            region_mix_type,
-            region_emplace_contexts_with_parent_lifetime
-        >(*this, ctx, mach);
+        impl_of(region_).emplace_contexts_with_parent_lifetime(ctx, mach);
     }
 
     template<class Machine, class Context, class Event>
     void enter(Machine& mach, Context& ctx, const Event& event)
     {
         impl_.enter(mach, ctx, event);
-        detail::tlu::for_each<region_mix_type, region_enter>(*this, mach, ctx, event);
+        impl_of(region_).enter(mach, ctx, event);
     }
 
     template<bool Dry, class Machine, class Context, class Event>
@@ -739,13 +613,8 @@ private:
     template<class Machine, class Context, class Event>
     void exit(Machine& mach, Context& ctx, const Event& event)
     {
-        detail::tlu::for_each<region_mix_type, region_exit<&detail::state_molds::null>>
-        (
-            *this,
-            mach,
-            ctx,
-            event
-        );
+        impl_of(region_).template exit<&detail::state_molds::null>(mach, ctx, event);
+
         impl_.exit
         (
             mach,
@@ -758,13 +627,8 @@ private:
     template<class Machine, class Context, class Event>
     void exit_to_finals(Machine& mach, Context& ctx, const Event& event)
     {
-        detail::tlu::for_each<region_mix_type, region_exit<&detail::state_molds::fin>>
-        (
-            *this,
-            mach,
-            ctx,
-            event
-        );
+        impl_of(region_).template exit<&detail::state_molds::fin>(mach, ctx, event);
+
         impl_.exit
         (
             mach,
@@ -775,79 +639,13 @@ private:
 
     void reset_contexts_with_parent_lifetime()
     {
-        detail::tlu::for_each
-        <
-            region_mix_type,
-            region_reset_contexts_with_parent_lifetime
-        >(*this);
+        impl_of(region_).reset_contexts_with_parent_lifetime();
     }
 
     [[nodiscard]] bool completed() const
     {
-        return detail::tlu::apply_t
-        <
-            region_mix_type,
-            all_regions_completed
-        >::call(*this);
+        return impl_of(region_).completed();
     }
-
-    template<class... Regions>
-    struct all_regions_completed
-    {
-        template<class Self>
-        static bool call(const Self& self)
-        {
-            return (impl_of(detail::get<Regions>(self.regions_)).completed() && ...);
-        }
-    };
-
-    struct region_emplace_contexts_with_parent_lifetime
-    {
-        template<class Region, class Self, class Context, class Machine>
-        static void call(Self& self, Context& ctx, Machine& mach)
-        {
-            impl_of(detail::get<Region>(self.regions_)).emplace_contexts_with_parent_lifetime(ctx, mach);
-        }
-    };
-
-    struct region_enter
-    {
-        template<class Region, class Self, class Machine, class Context, class Event>
-        static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
-        {
-            impl_of(detail::get<Region>(self.regions_)).enter(mach, ctx, event);
-        }
-    };
-
-    template<bool Dry>
-    struct region_process_event
-    {
-        template<class Region, class Self, class Machine, class Context, class Event>
-        static int call(Self& self, Machine& mach, Context& ctx, const Event& event)
-        {
-            const auto processed = impl_of(detail::get<Region>(self.regions_)).template process_event<Dry>(mach, ctx, event);
-            return static_cast<int>(processed);
-        }
-    };
-
-    template<auto TargetStateId>
-    struct region_exit
-    {
-        template<class Region, class Self, class Machine, class Context, class Event>
-        static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
-        {
-            impl_of(detail::get<Region>(self.regions_)).template exit<TargetStateId>(mach, ctx, event);
-        }
-    };
-
-    struct region_reset_contexts_with_parent_lifetime
-    {
-        template<class Region, class Self>
-        static void call(Self& self)
-        {
-            impl_of(detail::get<Region>(self.regions_)).reset_contexts_with_parent_lifetime();
-        }
-    };
 
     template<bool Dry, class Self, class Machine, class Context, class Event>
     static bool call_internal_action_2
@@ -873,14 +671,13 @@ private:
                 event
             );
 
-            detail::tlu::for_each<region_mix_type, region_process_event<Dry>>(self, mach, ctx, event);
+            impl_of(self.region_).template process_event<Dry>(mach, ctx, event);
 
             return true;
         }
         else
         {
-            const auto processed_count = detail::tlu::for_each_plus<region_mix_type, region_process_event<Dry>>(self, mach, ctx, event);
-            return static_cast<bool>(processed_count);
+            return impl_of(self.region_).template process_event<Dry>(mach, ctx, event);
         }
     }
 
@@ -897,7 +694,11 @@ private:
         impl_of(conf).context_sig
     > ctx_holder_;
     impl_type impl_;
-    region_mix_type regions_;
+
+    static constexpr auto region_transition_table = detail::tuple_get<0>(impl_of(conf).transition_tables);
+    static constexpr auto region_path = path.add_region_index(0);
+    region<detail::region_impl<region_transition_table, region_path, ctx_storage>> region_;
+
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;
 };

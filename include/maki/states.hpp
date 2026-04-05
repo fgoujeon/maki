@@ -7,7 +7,8 @@
 #ifndef MAKI_STATES_HPP
 #define MAKI_STATES_HPP
 
-#include "detail/state_impls/simple_no_context.hpp"
+#include "detail/state_impls/simple.hpp" //NOLINT misc-include-cleaner
+#include "detail/state_impls/simple_fwd.hpp"
 #include "state.hpp"
 #include "state_mold.hpp"
 

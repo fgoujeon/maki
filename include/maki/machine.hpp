@@ -27,7 +27,6 @@
 #include "detail/path_impl.hpp"
 #include "detail/region_impl.hpp"
 #include "detail/state_impls/simple.hpp" //NOLINT misc-include-cleaner
-#include "detail/state_impls/simple_no_context.hpp"
 #include "detail/tlu/contains_if.hpp"
 #include "detail/type_set.hpp"
 #include <exception>
@@ -339,7 +338,7 @@ public:
 
 private:
     using transition_table_type_list = decltype(impl_of(conf).transition_tables);
-    using impl_type = detail::state_impls::simple_no_context<&conf>;
+    using impl_type = detail::state_impls::simple<&conf, void, detail::context_storage::plain>;
 
     static constexpr auto ctx_lifetime = impl_of(conf).context_lifetime;
 

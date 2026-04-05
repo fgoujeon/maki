@@ -12,6 +12,7 @@
 #include "state_id_to_state.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
+#include "flatten_transition_table.hpp"
 #include "state_type_list_filters.hpp"
 #include "context_storage.hpp"
 #include "equals.hpp"
@@ -63,14 +64,16 @@ namespace region_detail
     inline constexpr auto state_id_to_index_v = state_id_to_index<StateIdConstantList, StateId>::value;
 }
 
-template<const auto& TransitionTable, const auto& Path, context_storage ParentCtxStorage>
+template<const auto& RawTransitionTable, const auto& Path, context_storage ParentCtxStorage>
 class region_impl
 {
 public:
-    using transition_table_type = std::decay_t<decltype(TransitionTable)>;
+    static constexpr auto transition_table = flatten_transition_table(RawTransitionTable);
+
+    using transition_table_type = std::decay_t<decltype(transition_table)>;
 
     using transition_table_digest_type =
-        transition_table_digest<TransitionTable>
+        transition_table_digest<transition_table>
     ;
 
     using state_id_constant_list_0 = typename transition_table_digest_type::state_id_constant_list;
@@ -142,7 +145,7 @@ public:
     void enter(Machine& mach, Context& ctx, const Event& event)
     {
         static constexpr auto initial_state_id = tlu::front_t<state_id_constant_list>::value;
-        static constexpr auto action = tuple_get<0>(impl_of(TransitionTable)).act;
+        static constexpr auto action = tuple_get<0>(impl_of(transition_table)).act;
 
         execute_transition
         <
@@ -247,7 +250,7 @@ private:
 #if !MAKI_DETAIL_COMPILER_GCC
             transition_table_type,
 #else
-            TransitionTable,
+            transition_table,
 #endif
             Event
         >;
@@ -322,7 +325,7 @@ private:
         template<class TransitionIndexConstant, class Self, class Machine, class Context, class Event, class... ExtraArgs>
         static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
-            static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(TransitionTable));
+            static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(transition_table));
             static constexpr auto source_state_mold = trans.source_state_mold;
             static constexpr auto action = trans.act;
             static constexpr auto guard = trans.grd;
@@ -667,7 +670,7 @@ private:
 
         using candidate_transition_index_constant_list = transition_table_filters::by_source_state_and_null_event_t
         <
-            TransitionTable,
+            transition_table,
             active_state_id
         >;
 

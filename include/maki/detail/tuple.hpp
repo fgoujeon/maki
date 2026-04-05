@@ -223,6 +223,68 @@ constexpr auto tuple_apply(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
 
 
 /*
+tuple_left_fold
+*/
+
+namespace tuple_left_fold_detail
+{
+    struct folder_t
+    {
+        template<class Operation, class InitialOutputTuple>
+        constexpr auto operator()
+        (
+            const Operation& /*operation*/,
+            const InitialOutputTuple& initial_output_tpl
+        ) const
+        {
+            return initial_output_tpl;
+        }
+
+        template<class Operation, class InitialOutputTuple, class InputElem, class... InputElems>
+        constexpr auto operator()
+        (
+            const Operation& operation,
+            const InitialOutputTuple& initial_output_tpl,
+            const InputElem& input_elem,
+            const InputElems&... input_elems
+        ) const
+        {
+            return (*this)
+            (
+                operation,
+                operation(initial_output_tpl, input_elem),
+                input_elems...
+            );
+        }
+    };
+
+    inline constexpr folder_t folder;
+}
+
+template
+<
+    class InputTuple,
+    class Operation,
+    class InitialOutputTuple
+>
+constexpr auto tuple_left_fold
+(
+    const InputTuple& input_tpl,
+    const Operation& operation,
+    const InitialOutputTuple& initial_output_tpl
+)
+{
+    return tuple_apply
+    (
+        input_tpl,
+        tuple_left_fold_detail::folder,
+        operation,
+        initial_output_tpl
+    );
+}
+
+
+/*
 tuple_tail
 */
 

@@ -158,7 +158,7 @@ public:
     */
     [[nodiscard]] bool running() const
     {
-        return !completed();
+        return !impl_of(region_).completed();
     }
 
     /**
@@ -339,10 +339,6 @@ public:
 private:
     using transition_table_type_list = decltype(impl_of(conf).transition_tables);
     using impl_type = detail::state_impl<&conf, void, detail::context_storage::plain>;
-
-    static constexpr auto ctx_lifetime = impl_of(conf).context_lifetime;
-
-    static constexpr auto ctx_storage = detail::context_storage::plain;
 
     static constexpr auto path = detail::path_impl{};
 
@@ -574,12 +570,6 @@ private:
         }
     }
 
-    template<class Context, class Machine>
-    void emplace_contexts_with_parent_lifetime(Context& ctx, Machine& mach)
-    {
-        impl_of(region_).emplace_contexts_with_parent_lifetime(ctx, mach);
-    }
-
     template<class Machine, class Context, class Event>
     void enter(Machine& mach, Context& ctx, const Event& event)
     {
@@ -595,7 +585,7 @@ private:
         const Event& event
     )
     {
-        return call_internal_action_2<Dry>(*this, mach, ctx, event);
+        return impl_of(region_).template process_event<Dry>(mach, ctx, event);
     }
 
     template<bool Dry, class Machine, class Context, class Event>
@@ -606,7 +596,7 @@ private:
         const Event& event
     ) const
     {
-        return call_internal_action_2<Dry>(*this, mach, ctx, event);
+        return impl_of(region_).template process_event<Dry>(mach, ctx, event);
     }
 
     template<class Machine, class Context, class Event>
@@ -636,50 +626,6 @@ private:
         );
     }
 
-    void reset_contexts_with_parent_lifetime()
-    {
-        impl_of(region_).reset_contexts_with_parent_lifetime();
-    }
-
-    [[nodiscard]] bool completed() const
-    {
-        return impl_of(region_).completed();
-    }
-
-    template<bool Dry, class Self, class Machine, class Context, class Event>
-    static bool call_internal_action_2
-    (
-        Self& self,
-        Machine& mach,
-        Context& ctx,
-        const Event& event
-    )
-    {
-        constexpr auto can_process_event = detail::type_set_contains_v
-        <
-            typename impl_type::event_type_set,
-            Event
-        >;
-
-        if constexpr(can_process_event)
-        {
-            self.impl_.template call_internal_action<Dry>
-            (
-                mach,
-                ctx,
-                event
-            );
-
-            impl_of(self.region_).template process_event<Dry>(mach, ctx, event);
-
-            return true;
-        }
-        else
-        {
-            return impl_of(self.region_).template process_event<Dry>(mach, ctx, event);
-        }
-    }
-
     static constexpr auto pre_processing_hooks = impl_of(conf).pre_processing_hooks;
     static constexpr auto post_processing_hooks = impl_of(conf).post_processing_hooks;
 
@@ -696,7 +642,7 @@ private:
 
     static constexpr auto region_transition_table = detail::tuple_get<0>(impl_of(conf).transition_tables);
     static constexpr auto region_path = path.add_region_index(0);
-    region<detail::region_impl<region_transition_table, region_path, ctx_storage>> region_;
+    region<detail::region_impl<region_transition_table, region_path, detail::context_storage::plain>> region_;
 
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;

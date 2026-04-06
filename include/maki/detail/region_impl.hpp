@@ -93,12 +93,6 @@ public:
 
     using states_event_type_set = state_type_list_event_type_set_t<state_mix_type>;
 
-    using event_type_set = type_set_union_t
-    <
-        transition_table_event_type_set_t<transition_table_type>,
-        states_event_type_set
-    >;
-
     template<class Machine, class Context>
     region_impl(const region<region_impl>* pitf, Machine& mach, Context& ctx):
         pitf_(pitf),
@@ -128,16 +122,6 @@ public:
     [[nodiscard]] bool completed() const
     {
         return is_active_state_id<&state_molds::fin>();
-    }
-
-    template<class Context, class Machine>
-    void emplace_contexts_with_parent_lifetime(Context& ctx, Machine& mach)
-    {
-        tlu::for_each
-        <
-            state_mix_type,
-            state_emplace_contexts_with_parent_lifetime
-        >(*this, ctx, mach);
     }
 
     // Enter the initial state
@@ -176,15 +160,6 @@ public:
         }
     }
 
-    void reset_contexts_with_parent_lifetime()
-    {
-        tlu::for_each
-        <
-            state_mix_type,
-            state_reset_contexts_with_parent_lifetime
-        >(*this);
-    }
-
     template<bool Dry, class Machine, class Context, class Event>
     bool process_event(Machine& mach, Context& ctx, const Event& event)
     {
@@ -210,31 +185,6 @@ public:
     }
 
 private:
-    struct state_emplace_contexts_with_parent_lifetime
-    {
-        template<class State, class Self, class Context, class Machine>
-        static void call
-        (
-            Self& self,
-            Context& ctx,
-            Machine& mach
-        )
-        {
-            auto& stt = self.template state_type_to_obj<State>();
-            impl_of(stt).emplace_contexts_with_parent_lifetime(ctx, mach);
-        }
-    };
-
-    struct state_reset_contexts_with_parent_lifetime
-    {
-        template<class State, class Self>
-        static void call(Self& self)
-        {
-            auto& stt = self.template state_type_to_obj<State>();
-            impl_of(stt).reset_contexts_with_parent_lifetime();
-        }
-    };
-
     template<bool Dry, class Self, class Machine, class Context, class Event>
     static bool process_event_2
     (

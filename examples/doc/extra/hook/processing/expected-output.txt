@@ -1,2 +1,0 @@
-Alert! Aliens are coming!
-[-> client #0] Can't reboot right now

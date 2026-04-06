@@ -1,2 +1,0 @@
-Beginning of transition in FSM/0:  -> my_state
-End of transition in FSM/0:  -> my_state

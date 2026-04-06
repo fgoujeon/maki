@@ -71,6 +71,8 @@ namespace detail
     >
     struct transition
     {
+        using source_state_mold_type = SourceStateMold;
+        using target_state_mold_type = TargetStateMold;
         using event_type = Event;
 
         SourceStateMold source_state_mold;

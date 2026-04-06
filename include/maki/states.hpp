@@ -14,12 +14,20 @@
 namespace maki
 {
 
+namespace detail
+{
+    struct null_context{};
+    struct fin_context{};
+}
+
 namespace detail::state_molds
 {
     inline constexpr auto null = state_mold{}
+        .context_v<null_context>()
         .pretty_name("");
 
-    inline constexpr auto fin = state_mold{};
+    inline constexpr auto fin = state_mold{}
+        .context_v<fin_context>();
 }
 
 /**

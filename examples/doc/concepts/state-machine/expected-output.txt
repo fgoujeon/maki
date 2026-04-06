@@ -1,2 +1,0 @@
-Light is on
-Light is off

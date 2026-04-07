@@ -7,11 +7,10 @@
 #ifndef MAKI_DETAIL_REGION_IMPL_HPP
 #define MAKI_DETAIL_REGION_IMPL_HPP
 
-#include "compiler.hpp"
+#include "integer_constant_sequence.hpp"
 #include "type_set.hpp"
 #include "state_id_to_state.hpp"
 #include "transition_table_digest.hpp"
-#include "transition_table_filters.hpp"
 #include "flatten_transition_table.hpp"
 #include "state_type_list_filters.hpp"
 #include "context_storage.hpp"
@@ -52,6 +51,12 @@ namespace region_detail
     struct state_id_to_index
     {
         static constexpr auto value = tlu::find_v<StateIdConstantList, constant_t<StateId>>;
+    };
+
+    template<class StateIdConstantList>
+    struct state_id_to_index<StateIdConstantList, &state_molds::null>
+    {
+        static constexpr auto value = final_state_index;
     };
 
     template<class StateIdConstantList>
@@ -194,26 +199,13 @@ private:
         const Event& event
     )
     {
-        //List the transitions whose event set contains `Event`
-        using candidate_transition_index_constant_list = transition_table_filters::by_event_t
-        <
-#if !MAKI_DETAIL_COMPILER_GCC
-            transition_table_type,
-#else
-            transition_table,
-#endif
-            Event
-        >;
-
-        constexpr auto must_try_executing_transitions = !tlu::empty_v<candidate_transition_index_constant_list>;
-
         constexpr auto must_try_process_event_in_states = type_set_contains_v
         <
             states_event_type_set,
             Event
         >;
 
-        if constexpr(must_try_executing_transitions && must_try_process_event_in_states)
+        if constexpr(must_try_process_event_in_states)
         {
             /*
             There is a possibility of conflicting transition in this case.
@@ -222,20 +214,12 @@ private:
             */
             return
                 call_active_state_internal_action<Dry>(self, mach, ctx, event) ||
-                try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event)
+                try_executing_transitions<transition_index_constant_list, Dry>(self, mach, ctx, event)
             ;
         }
-        else if constexpr(!must_try_executing_transitions && must_try_process_event_in_states)
+        else if constexpr(!must_try_process_event_in_states)
         {
-            return call_active_state_internal_action<Dry>(self, mach, ctx, event);
-        }
-        else if constexpr(must_try_executing_transitions && !must_try_process_event_in_states)
-        {
-            return try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event);
-        }
-        else
-        {
-            return false;
+            return try_executing_transitions<transition_index_constant_list, Dry>(self, mach, ctx, event);
         }
     }
 
@@ -276,48 +260,62 @@ private:
         static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
             static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(transition_table));
-            static constexpr auto source_state_mold = trans.source_state_mold;
-            static constexpr auto action = trans.act;
-            static constexpr auto guard = trans.grd;
+            using trans_t = std::decay_t<decltype(trans)>;
+            using trans_event_type_set_t = transition_event_type_set_t<trans_t>;
 
-            if constexpr(is_state_set_v<std::decay_t<decltype(source_state_mold)>>)
+            if constexpr
+            (
+                type_set_contains_v<trans_event_type_set_t, Event> ||
+                (is_null_v<typename trans_t::event_type> && is_null_v<Event>)
+            )
             {
-                //List of state molds that belong to the source state set
-                using matching_state_mold_constant_list = state_type_list_filters::by_state_set_t
-                <
-                    state_id_constant_list,
-                    &source_state_mold
-                >;
+                static constexpr auto source_state_mold = trans.source_state_mold;
+                static constexpr auto action = trans.act;
+                static constexpr auto guard = trans.grd;
 
-                static_assert(!tlu::empty_v<matching_state_mold_constant_list>);
+                if constexpr(is_state_set_v<std::decay_t<decltype(source_state_mold)>>)
+                {
+                    //List of state molds that belong to the source state set
+                    using matching_state_mold_constant_list = state_type_list_filters::by_state_set_t
+                    <
+                        state_id_constant_list,
+                        &source_state_mold
+                    >;
 
-                return tlu::for_each_or
-                <
-                    matching_state_mold_constant_list,
-                    try_executing_transition_2
+                    static_assert(!tlu::empty_v<matching_state_mold_constant_list>);
+
+                    return tlu::for_each_or
+                    <
+                        matching_state_mold_constant_list,
+                        try_executing_transition_2
+                        <
+                            Dry,
+                            trans.target_state_mold,
+                            action,
+                            guard
+                        >
+                    >(self, mach, ctx, event, extra_args...);
+                }
+                else
+                {
+                    return try_executing_transition_2
                     <
                         Dry,
                         trans.target_state_mold,
                         action,
                         guard
-                    >
-                >(self, mach, ctx, event, extra_args...);
+                    >::template call<constant_t<trans.source_state_mold>>
+                    (
+                        self,
+                        mach,
+                        ctx,
+                        event
+                    );
+                }
             }
             else
             {
-                return try_executing_transition_2
-                <
-                    Dry,
-                    trans.target_state_mold,
-                    action,
-                    guard
-                >::template call<constant_t<trans.source_state_mold>>
-                (
-                    self,
-                    mach,
-                    ctx,
-                    event
-                );
+                return false;
             }
         }
     };
@@ -341,13 +339,10 @@ private:
             const Event& event
         )
         {
-            if constexpr(!is_null_v<Event>) // Already filtered out
+            //Make sure the transition source state is the active state
+            if(!self.template is_active_state_id<SourceStateIdConstant::value>())
             {
-                //Make sure the transition source state is the active state
-                if(!self.template is_active_state_id<SourceStateIdConstant::value>())
-                {
-                    return false;
-                }
+                return false;
             }
 
             //Check guard
@@ -517,7 +512,8 @@ private:
         (
             is_external_transition &&
             transition_table_digest_type::has_completion_transitions &&
-            !ptr_equals(TargetStateId, &state_molds::null)
+            !ptr_equals(TargetStateId, &state_molds::null) &&
+            !ptr_equals(TargetStateId, &state_molds::fin)
         )
         {
             try_executing_completion_transitions
@@ -616,20 +612,9 @@ private:
         Context& ctx
     )
     {
-        constexpr auto active_state_id = impl_of_t<ActiveState>::identifier;
-
-        using candidate_transition_index_constant_list = transition_table_filters::by_source_state_and_null_event_t
-        <
-            transition_table,
-            active_state_id
-        >;
-
-        if constexpr(!tlu::empty_v<candidate_transition_index_constant_list>)
+        if(impl_of(active_state).completed())
         {
-            if(impl_of(active_state).completed())
-            {
-                try_executing_transitions<candidate_transition_index_constant_list>(*this, mach, ctx, null);
-            }
+            try_executing_transitions<transition_index_constant_list>(*this, mach, ctx, null);
         }
     }
 
@@ -755,6 +740,10 @@ private:
             return get<state_t>(self.states_);
         }
     }
+
+    using transition_index_constant_list =
+        make_integer_constant_sequence<int, impl_of(transition_table).size>
+    ;
 
     const region<region_impl>* pitf_;
     state_mix_type states_;

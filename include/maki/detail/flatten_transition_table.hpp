@@ -16,15 +16,75 @@
 namespace maki::detail
 {
 
-template<class TransitionTableImpl, class InitialFlatTransitionTuple>
-constexpr auto flatten_transition_table_2
-(
-    const transition_table<TransitionTableImpl>& table,
-    const InitialFlatTransitionTuple& initial_flat
-);
-
 namespace flatten_transition_table_detail
 {
+    template
+    <
+        class TransitionTableImpl,
+        class InitialFlatTransitionTuple,
+        class InitialStateSubstitudeMold,
+        class FinalStateSubstitudeMold
+    >
+    constexpr auto flatten
+    (
+        const transition_table<TransitionTableImpl>& table,
+        const InitialFlatTransitionTuple& initial_flat,
+        const InitialStateSubstitudeMold& initial_state_substitute_mold,
+        const FinalStateSubstitudeMold& final_state_substitute_mold
+    );
+
+    template<class StateMold>
+    struct prepend_with_state_internal_transitions
+    {
+        template<class Flat, class ActEventTypeSet, class ActAction, action_signature ActSig>
+        constexpr auto operator()
+        (
+            const Flat& flat,
+            const event_action<ActEventTypeSet, ActAction, ActSig>& event_act
+        ) const
+        {
+            return flat.append
+            (
+                transition
+                {
+                    store_state_mold(state_mold),
+                    store_state_mold(null),
+                    make_event_set_from_impl<ActEventTypeSet>(),
+                    action<ActSig, ActAction>{event_act.action},
+                    to_guard(null)
+                }
+            );
+        }
+
+        const StateMold& state_mold;
+    };
+
+    template<class Flat, class Transition>
+    constexpr auto prepend_with_target_state_internal_transitions
+    (
+        const Flat& flat,
+        const Transition& trans
+    )
+    {
+        using target_state_mold_type =
+            std::decay_t<std::remove_pointer_t<typename Transition::target_state_mold_type>>
+        ;
+
+        if constexpr(std::is_same_v<target_state_mold_type, null_t_impl>)
+        {
+            return flat;
+        }
+        else
+        {
+            return tuple_left_fold
+            (
+                impl_of(*trans.target_state_mold).internal_actions,
+                prepend_with_state_internal_transitions<target_state_mold_type>{*trans.target_state_mold},
+                flat
+            );
+        }
+    }
+
     template<class Transition>
     constexpr bool has_composite_target_state()
     {
@@ -126,19 +186,20 @@ namespace flatten_transition_table_detail
         {
             if constexpr(has_composite_target_state_v<Transition>)
             {
-                return flatten_transition_table_2
+                const auto flat2 = flatten
                 (
                     tuple_get<0>(impl_of(*trans.target_state_mold).transition_tables),
                     flat,
                     substitute_initial_pseudostate(trans.source_state_mold, initial_state_substitute_mold),
                     substitute_final_state(trans.target_state_mold, final_state_substitute_mold)
                 );
+                return prepend_with_target_state_internal_transitions(flat2, trans);
             }
             else
             {
-                return flat.append
+                const auto flat2 = flat.append
                 (
-                    detail::transition
+                    transition
                     {
                         substitute_initial_pseudostate(trans.source_state_mold, initial_state_substitute_mold),
                         substitute_final_state(trans.target_state_mold, final_state_substitute_mold),
@@ -147,43 +208,44 @@ namespace flatten_transition_table_detail
                         trans.grd
                     }
                 );
+                return prepend_with_target_state_internal_transitions(flat2, trans);
             }
         }
 
         InitialStateSubstitudeMold initial_state_substitute_mold;
         FinalStateSubstitudeMold final_state_substitute_mold;
     };
-}
 
-template
-<
-    class TransitionTableImpl,
-    class InitialFlatTransitionTuple,
-    class InitialStateSubstitudeMold,
-    class FinalStateSubstitudeMold
->
-constexpr auto flatten_transition_table_2
-(
-    const transition_table<TransitionTableImpl>& table,
-    const InitialFlatTransitionTuple& initial_flat,
-    const InitialStateSubstitudeMold& initial_state_substitute_mold,
-    const FinalStateSubstitudeMold& final_state_substitute_mold
-)
-{
-    return tuple_left_fold
+    template
+    <
+        class TransitionTableImpl,
+        class InitialFlatTransitionTuple,
+        class InitialStateSubstitudeMold,
+        class FinalStateSubstitudeMold
+    >
+    constexpr auto flatten
     (
-        impl_of(table),
-        flatten_transition_table_detail::operation
-        <
-            InitialStateSubstitudeMold,
-            FinalStateSubstitudeMold
-        >
-        {
-            initial_state_substitute_mold,
-            final_state_substitute_mold
-        },
-        initial_flat
-    );
+        const transition_table<TransitionTableImpl>& table,
+        const InitialFlatTransitionTuple& initial_flat,
+        const InitialStateSubstitudeMold& initial_state_substitute_mold,
+        const FinalStateSubstitudeMold& final_state_substitute_mold
+    )
+    {
+        return tuple_left_fold
+        (
+            impl_of(table),
+            operation
+            <
+                InitialStateSubstitudeMold,
+                FinalStateSubstitudeMold
+            >
+            {
+                initial_state_substitute_mold,
+                final_state_substitute_mold
+            },
+            initial_flat
+        );
+    }
 }
 
 template<class TransitionTableImpl>
@@ -191,7 +253,7 @@ constexpr auto flatten_transition_table(const transition_table<TransitionTableIm
 {
     return make_transition_table
     (
-        flatten_transition_table_2(table, make_tuple(), store_state_mold(ini), store_state_mold(fin))
+        flatten_transition_table_detail::flatten(table, make_tuple(), store_state_mold(ini), store_state_mold(fin))
     );
 }
 

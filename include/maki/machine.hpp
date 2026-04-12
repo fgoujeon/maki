@@ -339,7 +339,7 @@ public:
     template<class Event>
     bool check_event(const Event& event) const
     {
-        return do_process_event<true>(*this, context(), event);
+        return try_executing_transitions<true>(*this, context(), event);
     }
 
     /**
@@ -597,7 +597,7 @@ private:
             {
                 if(running())
                 {
-                    const auto processed = do_process_event<false>(*this, context(), event);
+                    const auto processed = try_executing_transitions<false>(*this, context(), event);
                     detail::call_matching_event_action<post_processing_hook_ptr_constant_list>
                     (
                         *this,
@@ -615,7 +615,7 @@ private:
                 is stopped.
                 */
 
-                do_process_event<false>(*this, context(), event);
+                try_executing_transitions<false>(*this, context(), event);
             }
         }
     }
@@ -685,8 +685,6 @@ private:
         state_id_constant_pack_to_state_mix_t
     >;
 
-    using states_event_type_set = detail::state_type_list_event_type_set_t<state_mix_type>;
-
     [[nodiscard]] bool completed() const
     {
         return is_active_state_id<&detail::state_molds::fin>();
@@ -696,38 +694,6 @@ private:
     {
         static const auto value = maki::path{region_path};
         return value;
-    }
-
-    template<bool Dry, class Self, class Context, class Event>
-    static bool do_process_event
-    (
-        Self& self,
-        Context& ctx,
-        const Event& event
-    )
-    {
-        constexpr auto must_try_process_event_in_states = detail::type_set_contains_v
-        <
-            states_event_type_set,
-            Event
-        >;
-
-        if constexpr(must_try_process_event_in_states)
-        {
-            /*
-            There is a possibility of conflicting transition in this case.
-            Note that nested transitions take precedence over higher-order
-            transitions.
-            */
-            return
-                call_active_state_internal_action<Dry>(self, ctx, event) ||
-                try_executing_transitions<transition_index_constant_list, Dry>(self, ctx, event)
-            ;
-        }
-        else if constexpr(!must_try_process_event_in_states)
-        {
-            return try_executing_transitions<transition_index_constant_list, Dry>(self, ctx, event);
-        }
     }
 
     template<auto TargetStateId>
@@ -749,12 +715,12 @@ private:
     Try executing one of the transitions at indices
     `TransitionIndexConstantList`.
     */
-    template<class TransitionIndexConstantList, bool Dry = false, class Self, class Context, class Event>
+    template<bool Dry = false, class Self, class Context, class Event>
     static bool try_executing_transitions(Self& self, Context& ctx, const Event& event)
     {
         return detail::tlu::for_each_or
         <
-            TransitionIndexConstantList,
+            transition_index_constant_list,
             try_executing_transition<Dry>
         >(self, ctx, event);
     }
@@ -1024,82 +990,6 @@ private:
         }
     }
 
-    // Find the active state and call its internal action for `event`.
-    template<bool Dry, class Self, class Context, class Event>
-    static bool call_active_state_internal_action
-    (
-        Self& self,
-        Context& ctx,
-        const Event& event
-    )
-    {
-        auto processed = false;
-        detail::tlu::for_each_or
-        <
-            state_mix_type,
-            call_active_state_internal_action_2<Dry>
-        >(self, ctx, event, processed);
-        return processed;
-    }
-
-    template<bool Dry>
-    struct call_active_state_internal_action_2
-    {
-        template<class State, class Self, class Context, class Event>
-        static bool call
-        (
-            Self& self,
-            Context& ctx,
-            const Event& event,
-            bool& processed
-        )
-        {
-            constexpr auto can_state_process_event =
-                detail::type_set_contains_v
-                <
-                    typename detail::impl_of_t<State>::event_type_set,
-                    Event
-                >
-            ;
-
-            if constexpr(can_state_process_event)
-            {
-                if(!self.template is_active_state_type<State>())
-                {
-                    return false;
-                }
-
-                auto& active_state = self.template state_type_to_obj<State>();
-
-                processed = impl_of(active_state).template call_internal_action<Dry>
-                (
-                    self,
-                    ctx,
-                    event
-                );
-
-                if constexpr
-                (
-                    transition_table_digest_type::has_completion_transitions &&
-                    !Dry
-                )
-                {
-                    self.try_executing_completion_transitions
-                    (
-                        active_state,
-                        ctx
-                    );
-                }
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-    };
-
     template<class ActiveState, class Context>
     void try_executing_completion_transitions
     (
@@ -1109,14 +999,8 @@ private:
     {
         if(impl_of(active_state).completed())
         {
-            try_executing_transitions<transition_index_constant_list>(*this, ctx, null);
+            try_executing_transitions(*this, ctx, null);
         }
-    }
-
-    template<class State>
-    [[nodiscard]] bool is_active_state_type() const
-    {
-        return is_active_state_id<detail::impl_of_t<State>::identifier>();
     }
 
     template<auto StateId>
@@ -1179,18 +1063,6 @@ private:
             return false;
         }
     };
-
-    template<class State>
-    auto& state_type_to_obj()
-    {
-        return static_state_type_to_obj<State>(*this);
-    }
-
-    template<class State>
-    const auto& state_type_to_obj() const
-    {
-        return static_state_type_to_obj<State>(*this);
-    }
 
     template<auto StateId>
     auto& state_id_to_obj()

@@ -8,6 +8,7 @@
 #define MAKI_STATE_MOLD_IMPL_HPP
 
 #include "../context.hpp"
+#include "tuple.hpp"
 #include "mix.hpp"
 #include <string_view>
 
@@ -18,7 +19,7 @@ template
 <
     class Context = void,
     class EntryActionTuple = mix<>,
-    class InternalActionTuple = mix<>,
+    class InternalActionTuple = tuple<>,
     class ExitActionTuple = mix<>,
     class TransitionTableTuple = mix<>
 >

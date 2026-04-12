@@ -273,9 +273,8 @@ private:
     template<action_signature Sig, class EventTypeSet, class Action>
     [[nodiscard]] constexpr auto internal_action(const Action& action) const
     {
-        const auto new_internal_actions = append
+        const auto new_internal_actions = impl_.internal_actions.append
         (
-            impl_.internal_actions,
             detail::make_event_action<Sig, EventTypeSet>(action)
         );
 

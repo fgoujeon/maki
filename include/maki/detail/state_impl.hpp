@@ -119,28 +119,6 @@ public:
         enter_2(*this, mach, parent_ctx, event);
     }
 
-    template<bool Dry, class Machine, class ParentContext, class Event>
-    bool call_internal_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
-    {
-        /*
-        Caller is supposed to check an interal action exists for the given event
-        type before calling this function.
-        */
-        static_assert(!tlu::empty_v<internal_action_ptr_constant_list>);
-
-        if constexpr(!Dry)
-        {
-            call_matching_event_action<internal_action_ptr_constant_list>
-            (
-                mach,
-                ctx_holder_.get_deep_or(parent_ctx),
-                event
-            );
-        }
-
-        return true;
-    }
-
     template<class Machine, class ParentContext, class Event>
     void exit(Machine& mach, ParentContext& parent_ctx, const Event& event)
     {
@@ -238,9 +216,6 @@ private:
 
     static constexpr auto entry_actions = impl_of(mold).entry_actions;
     using entry_action_ptr_constant_list = mix_constant_list_t<entry_actions>;
-
-    static constexpr auto internal_actions = impl_of(mold).internal_actions;
-    using internal_action_ptr_constant_list = mix_constant_list_t<internal_actions>;
 
     static constexpr auto exit_actions = impl_of(mold).exit_actions;
     using exit_action_ptr_constant_list = mix_constant_list_t<exit_actions>;

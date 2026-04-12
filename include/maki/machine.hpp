@@ -158,7 +158,7 @@ public:
     */
     [[nodiscard]] bool running() const
     {
-        return !impl_of(region_).completed();
+        return !region_.completed();
     }
 
     /**
@@ -333,7 +333,7 @@ public:
     template<const auto& StateMold>
     [[nodiscard]] bool is() const
     {
-        return impl_of(region_).template is<StateMold>();
+        return region_.template is<StateMold>();
     }
 
 private:
@@ -574,7 +574,7 @@ private:
     void enter(Machine& mach, Context& ctx, const Event& event)
     {
         impl_.enter(mach, ctx, event);
-        impl_of(region_).enter(mach, ctx, event);
+        region_.enter(mach, ctx, event);
     }
 
     template<bool Dry, class Machine, class Context, class Event>
@@ -585,7 +585,7 @@ private:
         const Event& event
     )
     {
-        return impl_of(region_).template process_event<Dry>(mach, ctx, event);
+        return region_.template process_event<Dry>(mach, ctx, event);
     }
 
     template<bool Dry, class Machine, class Context, class Event>
@@ -596,13 +596,13 @@ private:
         const Event& event
     ) const
     {
-        return impl_of(region_).template process_event<Dry>(mach, ctx, event);
+        return region_.template process_event<Dry>(mach, ctx, event);
     }
 
     template<class Machine, class Context, class Event>
     void exit(Machine& mach, Context& ctx, const Event& event)
     {
-        impl_of(region_).template exit<&detail::state_molds::null>(mach, ctx, event);
+        region_.template exit<&detail::state_molds::null>(mach, ctx, event);
 
         impl_.exit
         (
@@ -616,7 +616,7 @@ private:
     template<class Machine, class Context, class Event>
     void exit_to_finals(Machine& mach, Context& ctx, const Event& event)
     {
-        impl_of(region_).template exit<&detail::state_molds::fin>(mach, ctx, event);
+        region_.template exit<&detail::state_molds::fin>(mach, ctx, event);
 
         impl_.exit
         (
@@ -642,7 +642,7 @@ private:
 
     static constexpr auto region_transition_table = detail::tuple_get<0>(impl_of(conf).transition_tables);
     static constexpr auto region_path = path.add_region_index(0);
-    region<detail::region_impl<region_transition_table, region_path, detail::context_storage::plain>> region_;
+    detail::region_impl<region_transition_table, region_path, detail::context_storage::plain> region_;
 
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;

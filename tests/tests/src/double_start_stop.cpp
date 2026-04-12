@@ -40,13 +40,11 @@ namespace double_start_stop_ns
         .context_a<context>()
         .pre_external_transition_hook_crste
         (
-            [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
+            [](context& ctx, const auto& source_state, const auto& target_state, const auto& /*event*/)
             {
                 //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
 
-                ctx.out += "Transition in main_sm/";
-                ctx.out += region.path().to_string();
-                ctx.out += ": ";
+                ctx.out += "Transition in main_sm/0: ";
                 ctx.out += source_state.pretty_name();
                 ctx.out += " -> ";
                 ctx.out += target_state.pretty_name();
@@ -55,13 +53,11 @@ namespace double_start_stop_ns
         )
         .post_external_transition_hook_crste
         (
-            [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
+            [](context& ctx, const auto& source_state, const auto& target_state, const auto& /*event*/)
             {
                 //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
 
-                ctx.out += "Transition in main_sm/";
-                ctx.out += region.path().to_string();
-                ctx.out += ": ";
+                ctx.out += "Transition in main_sm/0: ";
                 ctx.out += source_state.pretty_name();
                 ctx.out += " -> ";
                 ctx.out += target_state.pretty_name();

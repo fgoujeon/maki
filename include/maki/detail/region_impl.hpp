@@ -99,8 +99,7 @@ public:
     using states_event_type_set = state_type_list_event_type_set_t<state_mix_type>;
 
     template<class Machine, class Context>
-    region_impl(const region<region_impl>* pitf, Machine& mach, Context& ctx):
-        pitf_(pitf),
+    region_impl(Machine& mach, Context& ctx):
         states_(mix_uniform_construct, mach, ctx)
     {
     }
@@ -405,7 +404,7 @@ private:
             impl_of(Machine::conf).pre_external_transition_hook
             (
                 ctx,
-                *pitf_,
+                //*pitf_,
                 source_state,
                 state_id_to_obj<TargetStateId>(),
                 event
@@ -498,7 +497,7 @@ private:
             impl_of(Machine::conf).post_external_transition_hook
             (
                 ctx,
-                *pitf_,
+                //*pitf_,
                 source_state,
                 state_id_to_obj<TargetStateId>(),
                 event
@@ -745,7 +744,6 @@ private:
         make_integer_constant_sequence<int, impl_of(transition_table).size>
     ;
 
-    const region<region_impl>* pitf_;
     state_mix_type states_;
     int active_state_index_ = region_detail::final_state_index;
 };

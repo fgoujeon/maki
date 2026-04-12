@@ -28,7 +28,6 @@
 #include "maki/machine_ref_conf.hpp" //NOLINT misc-include-cleaner
 #include "maki/null.hpp" //NOLINT misc-include-cleaner
 #include "maki/path.hpp" //NOLINT misc-include-cleaner
-#include "maki/region.hpp" //NOLINT misc-include-cleaner
 #include "maki/state.hpp" //NOLINT misc-include-cleaner
 #include "maki/state_mold.hpp" //NOLINT misc-include-cleaner
 #include "maki/state_set.hpp" //NOLINT misc-include-cleaner

@@ -18,9 +18,9 @@ namespace maki::detail
 template
 <
     class Context = void,
-    class EntryActionTuple = mix<>,
+    class EntryActionTuple = tuple<>,
     class InternalActionTuple = tuple<>,
-    class ExitActionTuple = mix<>,
+    class ExitActionTuple = tuple<>,
     class TransitionTableTuple = mix<>
 >
 struct state_mold_impl

@@ -258,9 +258,8 @@ private:
     template<action_signature Sig, class EventTypeSet, class Action>
     [[nodiscard]] constexpr auto entry_action(const Action& action) const
     {
-        const auto new_entry_actions = append
+        const auto new_entry_actions = impl_.entry_actions.append
         (
-            impl_.entry_actions,
             detail::make_event_action<Sig, EventTypeSet>(action)
         );
 
@@ -287,9 +286,8 @@ private:
     template<action_signature Sig, class EventTypeSet, class Action>
     [[nodiscard]] constexpr auto exit_action(const Action& action) const
     {
-        const auto new_exit_actions = append
+        const auto new_exit_actions = impl_.exit_actions.append
         (
-            impl_.exit_actions,
             detail::make_event_action<Sig, EventTypeSet>(action)
         );
 

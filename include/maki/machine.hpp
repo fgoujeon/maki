@@ -36,8 +36,6 @@
 #include "detail/mix.hpp"
 #include "detail/noinline.hpp"
 #include "detail/path_impl.hpp"
-#include "detail/state_id_to_state.hpp"
-#include "detail/state_impl.hpp" //NOLINT misc-include-cleaner
 #include "detail/state_type_list_filters.hpp"
 #include "detail/tlu/apply.hpp"
 #include "detail/tlu/contains_if.hpp"
@@ -163,8 +161,7 @@ public:
     */
     template<class... ContextArgs>
     explicit machine(ContextArgs&&... ctx_args):
-        ctx_holder_(*this, std::forward<ContextArgs>(ctx_args)...),
-        states_(detail::mix_uniform_construct, *this, context())
+        ctx_holder_(*this, std::forward<ContextArgs>(ctx_args)...)
     {
         if constexpr(impl_of(conf).auto_start)
         {
@@ -359,16 +356,6 @@ public:
     }
 
     /**
-    @brief Returns the `maki::state` object created by `StateMold` (of type
-    `maki::state_mold`). Only valid if machine is only made of one region.
-    */
-    template<const auto& StateMold>
-    [[nodiscard]] const auto& state() const
-    {
-        return state_id_to_obj<&StateMold>();
-    }
-
-    /**
     @brief Returns whether the state created by `StateMold` is active in the
     region of the state machine. Only valid if machine is only made of one
     region.
@@ -388,7 +375,6 @@ public:
 
 private:
     using transition_table_type_list = decltype(impl_of(conf).transition_tables);
-    using impl_type = detail::state_impl<&conf, void, detail::context_storage::plain>;
 
     static constexpr auto root_path = detail::path_impl{};
 
@@ -673,18 +659,6 @@ private:
     using state_id_constant_list_0 = typename transition_table_digest_type::state_id_constant_list;
     using state_id_constant_list = detail::tlu::push_back_t<state_id_constant_list_0, detail::constant_t<&maki::undefined>>;
 
-    template<class... StateIdConstants>
-    using state_id_constant_pack_to_state_mix_t = detail::mix
-    <
-        detail::state_traits::state_id_to_state_t<StateIdConstants::value, region_path, detail::context_storage::plain>...
-    >;
-
-    using state_mix_type = detail::tlu::apply_t
-    <
-        state_id_constant_list,
-        state_id_constant_pack_to_state_mix_t
-    >;
-
     [[nodiscard]] bool completed() const
     {
         return is_active_state_id<&detail::state_molds::fin>();
@@ -857,8 +831,6 @@ private:
             std::decay_t<decltype(TargetStateId)>
         >;
 
-        auto& source_state = state_id_to_obj<SourceStateId>();
-
         /*
         For external transitions, invoke the pre-transition hook, if any.
         */
@@ -872,8 +844,8 @@ private:
             (
                 ctx,
                 //*pitf_,
-                source_state,
-                state_id_to_obj<TargetStateId>(),
+                //source_state,
+                //state_id_to_obj<TargetStateId>(),
                 event
             );
         }
@@ -901,9 +873,9 @@ private:
         */
         if constexpr(is_external_transition)
         {
-            impl_of(source_state).exit
+            call_state_action
             (
-                *this,
+                impl_of(*SourceStateId).exit_actions,
                 ctx,
                 event
             );
@@ -926,11 +898,9 @@ private:
         */
         if constexpr(is_external_transition)
         {
-            auto& target_state = state_id_to_obj<TargetStateId>();
-
-            impl_of(target_state).enter
+            call_state_action
             (
-                *this,
+                impl_of(*TargetStateId).entry_actions,
                 ctx,
                 event
             );
@@ -965,8 +935,8 @@ private:
             (
                 ctx,
                 //*pitf_,
-                source_state,
-                state_id_to_obj<TargetStateId>(),
+                //source_state,
+                //state_id_to_obj<TargetStateId>(),
                 event
             );
         }
@@ -982,24 +952,83 @@ private:
             !ptr_equals(TargetStateId, &detail::state_molds::fin)
         )
         {
-            try_executing_completion_transitions
+            try_executing_completion_transitions(ctx);
+        }
+    }
+
+    template<class Context>
+    void try_executing_completion_transitions(Context& ctx)
+    {
+        try_executing_transitions(*this, ctx, null);
+    }
+
+    template<class ActionTuple, class Context, class Event>
+    void call_state_action
+    (
+        const ActionTuple& actions,
+        Context& ctx,
+        const Event& event
+    )
+    {
+        if constexpr(ActionTuple::size != 0)
+        {
+            detail::tuple_apply
             (
-                state_id_to_obj<TargetStateId>(),
-                ctx
+                actions,
+                []
+                (
+                    auto& self,
+                    Context& ctx,
+                    const Event& event,
+                    const auto&... exit_actions
+                )
+                {
+                    (
+                        self.call_state_action_if_matches
+                        (
+                            exit_actions,
+                            ctx,
+                            event
+                        ) || ...
+                    );
+                },
+                *this,
+                ctx,
+                event
             );
         }
     }
 
-    template<class ActiveState, class Context>
-    void try_executing_completion_transitions
+    template
+    <
+        class ActEventTypeSet,
+        class ActAction,
+        action_signature ActSig,
+        class Context,
+        class Event
+    >
+    bool call_state_action_if_matches
     (
-        ActiveState& active_state,
-        Context& ctx
+        const detail::event_action<ActEventTypeSet, ActAction, ActSig>& act,
+        Context& ctx,
+        const Event& event
     )
     {
-        if(impl_of(active_state).completed())
+        if constexpr (detail::type_set_contains_v<ActEventTypeSet, Event>)
         {
-            try_executing_transitions(*this, ctx, null);
+            detail::call_callable<action_signature, ActSig>
+            (
+                act.action,
+                ctx,
+                *this,
+                event
+            );
+
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
@@ -1064,50 +1093,6 @@ private:
         }
     };
 
-    template<auto StateId>
-    auto& state_id_to_obj()
-    {
-        return static_state_id_to_obj<StateId>(*this);
-    }
-
-    template<auto StateId>
-    const auto& state_id_to_obj() const
-    {
-        return static_state_id_to_obj<StateId>(*this);
-    }
-
-    //Note: We use static to factorize const and non-const Region
-    template<class State, class Region>
-    static auto& static_state_type_to_obj(Region& self)
-    {
-        return static_state_id_to_obj<detail::impl_of_t<State>::identifier>(self);
-    }
-
-    //Note: We use static to factorize const and non-const Region
-    template<auto StateId, class Region>
-    static auto& static_state_id_to_obj(Region& self)
-    {
-        if constexpr(ptr_equals(StateId, &detail::state_molds::null))
-        {
-            return states::null;
-        }
-        else if constexpr(ptr_equals(StateId, &maki::undefined))
-        {
-            return states::undefined;
-        }
-        else if constexpr(ptr_equals(StateId, &detail::state_molds::fin))
-        {
-            return states::fin;
-        }
-        else
-        {
-            using state_t =
-                detail::state_traits::state_id_to_state_t<StateId, region_path, detail::context_storage::plain>
-            ;
-            return detail::get<state_t>(self.states_);
-        }
-    }
-
     using transition_index_constant_list =
         detail::make_integer_constant_sequence<int, impl_of(transition_table).size>
     ;
@@ -1119,7 +1104,6 @@ private:
         impl_of(conf).context_sig
     > ctx_holder_;
 
-    state_mix_type states_;
     int active_state_index_ = detail::final_state_index;
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;

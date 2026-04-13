@@ -7,7 +7,6 @@
 #ifndef MAKI_STATES_HPP
 #define MAKI_STATES_HPP
 
-#include "detail/state_impl.hpp"
 #include "state.hpp"
 #include "state_mold.hpp"
 
@@ -34,54 +33,6 @@ namespace detail::state_molds
 @brief The state mold of the undefined state.
 */
 inline constexpr auto undefined = state_mold{};
-
-/**
-@brief Predefined state and pseudostate objects.
-*/
-namespace states
-{
-#if MAKI_DETAIL_DOXYGEN
-    /**
-    @brief Dummy state object given to transition hooks.
-
-    It represents either:
-
-    - the source state for transitions from the initial pseudostate;
-    - the target state for transitions that exits the superstate.
-
-    Its pretty name is an empty string.
-
-    Not to be confused with `maki::null`.
-    */
-    constexpr auto null = state<IMPLEMENTATION_DETAIL>{};
-#else
-    inline constexpr auto null = state<detail::contextless_state_impl<&detail::state_molds::null>>{};
-#endif
-
-#if MAKI_DETAIL_DOXYGEN
-    /**
-    @brief Dummy final state object given to transition hooks. It represents the final state.
-
-    Not to be confused with `maki::fin`.
-    */
-    constexpr auto fin = state<IMPLEMENTATION_DETAIL>{};
-#else
-    inline constexpr auto fin = state<detail::contextless_state_impl<&detail::state_molds::fin>>{};
-#endif
-
-#if MAKI_DETAIL_DOXYGEN
-    /**
-    @brief Represents the undefined state.
-
-    Not to be confused with `maki::undefined`.
-    */
-    constexpr auto undefined = state<IMPLEMENTATION_DETAIL>{};
-#else
-    inline constexpr auto undefined =
-        state<detail::contextless_state_impl<&maki::undefined>>{}
-    ;
-#endif
-}
 
 } //namespace
 

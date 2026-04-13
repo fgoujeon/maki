@@ -38,32 +38,6 @@ namespace double_start_stop_ns
     constexpr auto machine_conf = maki::machine_conf{}
         .transition_tables(transition_table)
         .context_a<context>()
-        .pre_external_transition_hook_crste
-        (
-            [](context& ctx, const auto& source_state, const auto& target_state, const auto& /*event*/)
-            {
-                //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
-
-                ctx.out += "Transition in main_sm/0: ";
-                ctx.out += source_state.pretty_name();
-                ctx.out += " -> ";
-                ctx.out += target_state.pretty_name();
-                ctx.out += "...;";
-            }
-        )
-        .post_external_transition_hook_crste
-        (
-            [](context& ctx, const auto& source_state, const auto& target_state, const auto& /*event*/)
-            {
-                //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
-
-                ctx.out += "Transition in main_sm/0: ";
-                ctx.out += source_state.pretty_name();
-                ctx.out += " -> ";
-                ctx.out += target_state.pretty_name();
-                ctx.out += ";";
-            }
-        )
     ;
 
     using machine_t = maki::machine<machine_conf>;
@@ -80,25 +54,12 @@ TEST_CASE("double_start_stop")
     machine.start();
 
     REQUIRE(machine.is<states::off>());
-    REQUIRE
-    (
-        out ==
-        "Transition in main_sm/0:  -> off...;"
-        "Transition in main_sm/0:  -> off;"
-    );
 
     out.clear();
     machine.stop();
     REQUIRE(!machine.running());
-    REQUIRE
-    (
-        out ==
-        "Transition in main_sm/0: off -> fin...;"
-        "Transition in main_sm/0: off -> fin;"
-    );
 
     out.clear();
     machine.stop();
     REQUIRE(!machine.running());
-    REQUIRE(out == "");
 }

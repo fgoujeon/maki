@@ -76,9 +76,8 @@ namespace flatten_transition_table_detail
         }
         else
         {
-            return tuple_left_fold
+            return impl_of(*trans.target_state_mold).internal_actions.left_fold
             (
-                impl_of(*trans.target_state_mold).internal_actions,
                 prepend_with_state_internal_transitions<target_state_mold_type>{*trans.target_state_mold},
                 flat
             );
@@ -231,9 +230,8 @@ namespace flatten_transition_table_detail
         const FinalStateSubstitudeMold& final_state_substitute_mold
     )
     {
-        return tuple_left_fold
+        return impl_of(table).left_fold
         (
-            impl_of(table),
             operation
             <
                 InitialStateSubstitudeMold,

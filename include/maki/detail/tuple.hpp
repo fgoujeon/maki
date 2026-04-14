@@ -15,6 +15,22 @@
 namespace maki::detail
 {
 
+namespace tuple_detail
+{
+    template<class Operation, class Elem>
+    struct fold_operation_wrapper
+    {
+        const Operation& op;
+        const Elem& elem;
+    };
+
+    template<class Lhs, class Operation, class Elem>
+    constexpr auto operator+(const Lhs& lhs, const fold_operation_wrapper<Operation, Elem>& rhs)
+    {
+        return rhs.op(lhs, rhs.elem);
+    }
+}
+
 template<int Index, class T>
 class tuple_element
 {
@@ -137,6 +153,26 @@ public:
             tuple_element<Indexes, Ts>::value()...
         );
     }
+
+    /*
+    For each element, invoke `op(r, elems[n])`, where `r` is:
+    - for n = 0, `initial`;
+    - for 0 <= n < size, the result of `op(r, elems[n-1])`.
+    */
+    template<class Operation, class Initial>
+    constexpr auto left_fold
+    (
+        const Operation& op,
+        const Initial& initial
+    ) const
+    {
+        return
+        (
+            initial +
+            ... +
+            tuple_detail::fold_operation_wrapper<Operation, Ts>{op, tuple_element<Indexes, Ts>::value()}
+        );
+    }
 };
 
 /*
@@ -215,67 +251,6 @@ template<class T, class Tuple>
 constexpr auto& tuple_get(Tuple& tpl)
 {
     return tpl.get(type<T>);
-}
-
-
-/*
-tuple_left_fold
-*/
-
-namespace tuple_left_fold_detail
-{
-    struct folder_t
-    {
-        template<class Operation, class InitialOutputTuple>
-        constexpr auto operator()
-        (
-            const Operation& /*operation*/,
-            const InitialOutputTuple& initial_output_tpl
-        ) const
-        {
-            return initial_output_tpl;
-        }
-
-        template<class Operation, class InitialOutputTuple, class InputElem, class... InputElems>
-        constexpr auto operator()
-        (
-            const Operation& operation,
-            const InitialOutputTuple& initial_output_tpl,
-            const InputElem& input_elem,
-            const InputElems&... input_elems
-        ) const
-        {
-            return (*this)
-            (
-                operation,
-                operation(initial_output_tpl, input_elem),
-                input_elems...
-            );
-        }
-    };
-
-    inline constexpr folder_t folder;
-}
-
-template
-<
-    class InputTuple,
-    class Operation,
-    class InitialOutputTuple
->
-constexpr auto tuple_left_fold
-(
-    const InputTuple& input_tpl,
-    const Operation& operation,
-    const InitialOutputTuple& initial_output_tpl
-)
-{
-    return input_tpl.apply
-    (
-        tuple_left_fold_detail::folder,
-        operation,
-        initial_output_tpl
-    );
 }
 
 

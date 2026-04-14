@@ -103,6 +103,40 @@ public:
     {
         return tuple<Ts..., U>{tuple_element<Indexes, Ts>::value()..., elem};
     }
+
+    template<class F>
+    constexpr auto apply(F& fun)
+    {
+        return fun(tuple_element<Indexes, Ts>::value()...);
+    }
+
+    template<class F>
+    constexpr auto apply(F& fun) const
+    {
+        return fun(tuple_element<Indexes, Ts>::value()...);
+    }
+
+    template<class F, class ExtraArg, class... ExtraArgs>
+    constexpr auto apply(F&& fun, ExtraArg&& extra_arg, ExtraArgs&&... extra_args)
+    {
+        return fun
+        (
+            std::forward<ExtraArg>(extra_arg),
+            std::forward<ExtraArgs>(extra_args)...,
+            tuple_element<Indexes, Ts>::value()...
+        );
+    }
+
+    template<class F, class ExtraArg, class... ExtraArgs>
+    constexpr auto apply(F&& fun, ExtraArg&& extra_arg, ExtraArgs&&... extra_args) const
+    {
+        return fun
+        (
+            std::forward<ExtraArg>(extra_arg),
+            std::forward<ExtraArgs>(extra_args)...,
+            tuple_element<Indexes, Ts>::value()...
+        );
+    }
 };
 
 /*
@@ -185,44 +219,6 @@ constexpr auto& tuple_get(Tuple& tpl)
 
 
 /*
-tuple_apply
-*/
-
-template<class IndexSequence>
-struct tuple_apply_impl;
-
-template<int... Indexes>
-struct tuple_apply_impl<std::integer_sequence<int, Indexes...>>
-{
-    template<class Tuple, class F>
-    static constexpr auto call(Tuple& tpl, const F& fun)
-    {
-        return fun(tuple_get<Indexes>(tpl)...);
-    }
-
-    template<class Tuple, class F, class... ExtraArgs>
-    static constexpr auto call(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
-    {
-        return fun(std::forward<ExtraArgs>(extra_args)..., tuple_get<Indexes>(tpl)...);
-    }
-};
-
-template<class Tuple, class F>
-constexpr auto tuple_apply(Tuple& tpl, const F& fun)
-{
-    using impl_t = tuple_apply_impl<std::make_integer_sequence<int, Tuple::size>>;
-    return impl_t::call(tpl, fun);
-}
-
-template<class Tuple, class F, class... ExtraArgs>
-constexpr auto tuple_apply(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
-{
-    using impl_t = tuple_apply_impl<std::make_integer_sequence<int, Tuple::size>>;
-    return impl_t::call(tpl, fun, std::forward<ExtraArgs>(extra_args)...);
-}
-
-
-/*
 tuple_left_fold
 */
 
@@ -274,9 +270,8 @@ constexpr auto tuple_left_fold
     const InitialOutputTuple& initial_output_tpl
 )
 {
-    return tuple_apply
+    return input_tpl.apply
     (
-        input_tpl,
         tuple_left_fold_detail::folder,
         operation,
         initial_output_tpl

@@ -972,12 +972,11 @@ private:
     {
         if constexpr(ActionTuple::size != 0)
         {
-            detail::tuple_apply
+            actions.apply
             (
-                actions,
                 []
                 (
-                    auto& self,
+                    machine& self,
                     Context& ctx,
                     const Event& event,
                     const auto&... exit_actions

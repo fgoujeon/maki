@@ -61,6 +61,38 @@ namespace detail
         stop,
         process_event
     };
+
+    template<class StateMold>
+    constexpr auto is_final_state_mold()
+    {
+        using state_mold_type =
+            std::decay_t<std::remove_pointer_t<StateMold>>
+        ;
+
+        if constexpr(std::is_same_v<state_mold_type, null_t_impl>)
+        {
+            return false;
+        }
+        else
+        {
+            using state_mold_impl_type =
+                impl_of_t<state_mold_type>
+            ;
+
+            using state_context_type =
+                typename state_mold_impl_type::context_type
+            ;
+
+            if constexpr(std::is_same_v<state_context_type, fin_context>)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
 }
 
 #define MAKI_DETAIL_MAYBE_CATCH(statement) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
@@ -578,12 +610,10 @@ private:
         static constexpr auto action = detail::tuple_get<0>(impl_of(transition_table)).act;
 
         execute_transition
-        <
+        (
             &detail::state_molds::null,
             initial_state_id,
-            &action
-        >
-        (
+            &action,
             ctx,
             event
         );
@@ -603,21 +633,6 @@ private:
     {
         return is_active_state_id<&detail::state_molds::fin>();
     }
-
-    template<auto TargetStateId>
-    struct exit_2
-    {
-        template<class ActiveStateIdConstant, class Self, class Context, class Event>
-        static void call(Self& self, Context& ctx, const Event& event)
-        {
-            self.template execute_transition
-            <
-                ActiveStateIdConstant::value,
-                TargetStateId,
-                &detail::null_action
-            >(ctx, event);
-        }
-    };
 
     /*
     Try executing one of the transitions at indices
@@ -654,15 +669,13 @@ private:
                 static constexpr auto action = trans.act;
                 static constexpr auto guard = trans.grd;
 
-                return try_executing_transition_2
-                <
-                    Dry,
-                    trans.target_state_mold,
-                    action,
-                    guard
-                >::template call<detail::constant_t<trans.source_state_mold>>
+                return try_executing_transition_2<Dry>
                 (
                     self,
+                    trans.source_state_mold,
+                    trans.target_state_mold,
+                    action,
+                    guard,
                     ctx,
                     event
                 );
@@ -674,69 +687,75 @@ private:
         }
     };
 
-    template<bool Dry, auto TargetStateId, const auto& Action, const auto& Guard>
-    struct try_executing_transition_2
+    template
+    <
+        bool Dry,
+        class Self,
+        class SourceStateId,
+        class TargetStateId,
+        class Action,
+        class Guard,
+        class Context,
+        class Event
+    >
+    static bool try_executing_transition_2
+    (
+        Self& self,
+        const SourceStateId source_state_id,
+        const TargetStateId target_state_id,
+        const Action& act,
+        const Guard& grd,
+        Context& ctx,
+        const Event& event
+    )
     {
-        template
-        <
-            class SourceStateIdConstant,
-            class Self,
-            class Context,
-            class Event
-        >
-        static bool call
-        (
-            Self& self,
-            Context& ctx,
-            const Event& event
-        )
+        //Make sure the transition source state is the active state
+        if(self.pactive_state_mold_ != source_state_id)
         {
-            //Make sure the transition source state is the active state
-            if(!self.template is_active_state_id<SourceStateIdConstant::value>())
-            {
-                return false;
-            }
-
-            //Check guard
-            if constexpr(!std::is_same_v<decltype(Guard), const null_t&>)
-            {
-                if(!detail::call_guard(Guard, ctx, self, event))
-                {
-                    return false;
-                }
-            }
-
-            if constexpr(!Dry)
-            {
-                self.template execute_transition
-                <
-                    SourceStateIdConstant::value,
-                    TargetStateId,
-                    &Action
-                >(ctx, event);
-            }
-
-            return true;
+            return false;
         }
-    };
+
+        //Check guard
+        if(!detail::call_guard(grd, ctx, self, event))
+        {
+            return false;
+        }
+
+        if constexpr(!Dry)
+        {
+            self.execute_transition
+            (
+                source_state_id,
+                target_state_id,
+                &act,
+                ctx,
+                event
+            );
+        }
+
+        return true;
+    }
 
     template
     <
-        auto SourceStateId,
-        auto TargetStateId,
-        auto ActionPtr,
+        class SourceStateId,
+        class TargetStateId,
+        class ActionPtr,
         class Context,
         class Event
     >
     void execute_transition
     (
+        const SourceStateId source_state_id,
+        const TargetStateId target_state_id,
+        const ActionPtr paction,
         Context& ctx,
         const Event& event
     )
     {
         constexpr auto is_external_transition = !detail::is_null_v
         <
-            std::decay_t<decltype(TargetStateId)>
+            std::decay_t<decltype(target_state_id)>
         >;
 
         /*
@@ -764,8 +783,7 @@ private:
         */
         if constexpr
         (
-            is_external_transition &&
-            !ptr_equals(TargetStateId, &detail::state_molds::null)
+            is_external_transition
         )
         {
             pactive_state_mold_ = &undefined;
@@ -779,7 +797,7 @@ private:
         {
             call_state_action
             (
-                impl_of(*SourceStateId).exit_actions,
+                impl_of(*source_state_id).exit_actions,
                 ctx,
                 event
             );
@@ -790,7 +808,7 @@ private:
         */
         detail::call_action
         (
-            *ActionPtr,
+            *paction,
             ctx,
             *this,
             event
@@ -804,7 +822,7 @@ private:
         {
             call_state_action
             (
-                impl_of(*TargetStateId).entry_actions,
+                impl_of(*target_state_id).entry_actions,
                 ctx,
                 event
             );
@@ -815,11 +833,10 @@ private:
         */
         if constexpr
         (
-            is_external_transition &&
-            !ptr_equals(TargetStateId, &detail::state_molds::null)
+            is_external_transition
         )
         {
-            pactive_state_mold_ = TargetStateId;
+            pactive_state_mold_ = target_state_id;
         }
 
         /*
@@ -847,8 +864,7 @@ private:
         if constexpr
         (
             is_external_transition &&
-            !ptr_equals(TargetStateId, &detail::state_molds::null) &&
-            !ptr_equals(TargetStateId, &detail::state_molds::fin)
+            !detail::is_final_state_mold<TargetStateId>()
         )
         {
             try_executing_completion_transitions(ctx);

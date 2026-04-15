@@ -43,7 +43,6 @@
 #include "detail/tlu/find.hpp"
 #include "detail/tlu/front.hpp"
 #include "detail/tlu/push_back.hpp"
-#include "detail/transition_table_digest.hpp"
 #include "detail/tuple.hpp"
 #include "detail/type_set.hpp"
 
@@ -62,29 +61,6 @@ namespace detail
         stop,
         process_event
     };
-
-    inline constexpr auto final_state_index = -1;
-
-    template<class StateIdConstantList, auto StateId>
-    struct state_id_to_index
-    {
-        static constexpr auto value = tlu::find_v<StateIdConstantList, constant_t<StateId>>;
-    };
-
-    template<class StateIdConstantList>
-    struct state_id_to_index<StateIdConstantList, &state_molds::null>
-    {
-        static constexpr auto value = final_state_index;
-    };
-
-    template<class StateIdConstantList>
-    struct state_id_to_index<StateIdConstantList, &state_molds::fin>
-    {
-        static constexpr auto value = final_state_index;
-    };
-
-    template<class StateIdConstantList, auto StateId>
-    inline constexpr auto state_id_to_index_v = state_id_to_index<StateIdConstantList, StateId>::value;
 }
 
 #define MAKI_DETAIL_MAYBE_CATCH(statement) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
@@ -363,21 +339,10 @@ public:
     template<const auto& StateMold>
     [[nodiscard]] bool is() const
     {
-        if constexpr(detail::is_state_set_v<std::decay_t<decltype(StateMold)>>)
-        {
-            return is_active_state_id_in_set<&StateMold>();
-        }
-        else
-        {
-            return is_active_state_id<&StateMold>();
-        }
+        return is_active_state_id<&StateMold>();
     }
 
 private:
-    using transition_table_type_list = decltype(impl_of(conf).transition_tables);
-
-    static constexpr auto root_path = detail::path_impl{};
-
     class executing_operation_guard
     {
     public:
@@ -609,7 +574,7 @@ private:
     template<class Context, class Event>
     void enter(Context& ctx, const Event& event)
     {
-        static constexpr auto initial_state_id = detail::tlu::front_t<state_id_constant_list>::value;
+        static constexpr auto initial_state_id = detail::tuple_get<0>(impl_of(transition_table)).target_state_mold;
         static constexpr auto action = detail::tuple_get<0>(impl_of(transition_table)).act;
 
         execute_transition
@@ -624,21 +589,6 @@ private:
         );
     }
 
-    // For each region, transition from active state to final state.
-    template<class Context, class Event>
-    void exit_to_finals(Context& ctx, const Event& event)
-    {
-        if(!completed())
-        {
-            with_active_state_id<state_id_constant_list, exit_2<&detail::state_molds::fin>>
-            (
-                *this,
-                ctx,
-                event
-            );
-        }
-    }
-
     static constexpr auto pre_processing_hooks = impl_of(conf).pre_processing_hooks;
     static constexpr auto post_processing_hooks = impl_of(conf).post_processing_hooks;
 
@@ -646,28 +596,12 @@ private:
     using post_processing_hook_ptr_constant_list = detail::mix_constant_list_t<post_processing_hooks>;
 
     static constexpr auto raw_transition_table = detail::tuple_get<0>(impl_of(conf).transition_tables);
-    static constexpr auto region_path = root_path.add_region_index(0);
 
     static constexpr auto transition_table = flatten_transition_table(raw_transition_table);
-
-    using transition_table_type = std::decay_t<decltype(transition_table)>;
-
-    using transition_table_digest_type =
-        detail::transition_table_digest<transition_table>
-    ;
-
-    using state_id_constant_list_0 = typename transition_table_digest_type::state_id_constant_list;
-    using state_id_constant_list = detail::tlu::push_back_t<state_id_constant_list_0, detail::constant_t<&maki::undefined>>;
 
     [[nodiscard]] bool completed() const
     {
         return is_active_state_id<&detail::state_molds::fin>();
-    }
-
-    static const auto& path()
-    {
-        static const auto value = maki::path{region_path};
-        return value;
     }
 
     template<auto TargetStateId>
@@ -720,44 +654,18 @@ private:
                 static constexpr auto action = trans.act;
                 static constexpr auto guard = trans.grd;
 
-                if constexpr(detail::is_state_set_v<std::decay_t<decltype(source_state_mold)>>)
-                {
-                    //List of state molds that belong to the source state set
-                    using matching_state_mold_constant_list = detail::state_type_list_filters::by_state_set_t
-                    <
-                        state_id_constant_list,
-                        &source_state_mold
-                    >;
-
-                    static_assert(!detail::tlu::empty_v<matching_state_mold_constant_list>);
-
-                    return detail::tlu::for_each_or
-                    <
-                        matching_state_mold_constant_list,
-                        try_executing_transition_2
-                        <
-                            Dry,
-                            trans.target_state_mold,
-                            action,
-                            guard
-                        >
-                    >(self, ctx, event, extra_args...);
-                }
-                else
-                {
-                    return try_executing_transition_2
-                    <
-                        Dry,
-                        trans.target_state_mold,
-                        action,
-                        guard
-                    >::template call<detail::constant_t<trans.source_state_mold>>
-                    (
-                        self,
-                        ctx,
-                        event
-                    );
-                }
+                return try_executing_transition_2
+                <
+                    Dry,
+                    trans.target_state_mold,
+                    action,
+                    guard
+                >::template call<detail::constant_t<trans.source_state_mold>>
+                (
+                    self,
+                    ctx,
+                    event
+                );
             }
             else
             {
@@ -939,7 +847,6 @@ private:
         if constexpr
         (
             is_external_transition &&
-            transition_table_digest_type::has_completion_transitions &&
             !ptr_equals(TargetStateId, &detail::state_molds::null) &&
             !ptr_equals(TargetStateId, &detail::state_molds::fin)
         )
@@ -1028,56 +935,6 @@ private:
     {
         return pactive_state_mold_ == StateId;
     }
-
-    template<auto StateSetPtr>
-    [[nodiscard]] bool is_active_state_id_in_set() const
-    {
-        auto matches = false;
-        with_active_state_id
-        <
-            detail::tlu::push_back_t<state_id_constant_list, detail::constant_t<&detail::state_molds::fin>>,
-            is_active_state_id_in_set_2<StateSetPtr>
-        >(matches);
-        return matches;
-    }
-
-    template<auto StateSetPtr>
-    struct is_active_state_id_in_set_2
-    {
-        template<class ActiveStateIdConstant>
-        static void call([[maybe_unused]] bool& matches)
-        {
-            if constexpr(contains(impl_of(*StateSetPtr), ActiveStateIdConstant::value))
-            {
-                matches = true;
-            }
-        }
-    };
-
-    template<class StateIdConstantList, class F, class... Args>
-    void with_active_state_id(Args&&... args) const
-    {
-        detail::tlu::for_each_or
-        <
-            StateIdConstantList,
-            with_active_state_id_2<F>
-        >(*this, std::forward<Args>(args)...);
-    }
-
-    template<class F>
-    struct with_active_state_id_2
-    {
-        template<class StateIdConstant, class... Args>
-        static bool call(const machine& self, Args&&... args)
-        {
-            if(self.is_active_state_id<StateIdConstant::value>())
-            {
-                F::template call<StateIdConstant>(std::forward<Args>(args)...);
-                return true;
-            }
-            return false;
-        }
-    };
 
     using transition_index_constant_list =
         detail::make_integer_constant_sequence<int, impl_of(transition_table).size>

@@ -641,41 +641,55 @@ private:
     template<bool Dry = false, class Self, class Context, class Event>
     static bool try_executing_transitions(Self& self, Context& ctx, const Event& event)
     {
-        return detail::tlu::for_each_or
-        <
-            transition_index_constant_list,
-            try_executing_transition<Dry>
-        >(self, ctx, event);
+        return impl_of(transition_table).apply
+        (
+            []
+            (
+                Self& self,
+                Context& ctx,
+                const Event& event,
+                const auto&... transitions
+            )
+            {
+                return
+                (
+                    try_executing_transition<Dry>::call
+                    (
+                        self,
+                        ctx,
+                        event,
+                        transitions
+                    ) || ...
+                );
+            },
+            self,
+            ctx,
+            event
+        );
     }
 
     // Try executing the transition at index `TransitionIndexConstant`.
     template<bool Dry>
     struct try_executing_transition
     {
-        template<class TransitionIndexConstant, class Self, class Context, class Event, class... ExtraArgs>
-        static bool call(Self& self, Context& ctx, const Event& event, ExtraArgs&... extra_args)
+        template<class Self, class Context, class Event, class Transition>
+        static bool call(Self& self, Context& ctx, const Event& event, const Transition& trans)
         {
-            static constexpr const auto& trans = detail::tuple_get<TransitionIndexConstant::value>(impl_of(transition_table));
-            using trans_t = std::decay_t<decltype(trans)>;
-            using trans_event_type_set_t = detail::transition_event_type_set_t<trans_t>;
+            using trans_event_type_set_t = detail::transition_event_type_set_t<Transition>;
 
             if constexpr
             (
                 detail::type_set_contains_v<trans_event_type_set_t, Event> ||
-                (detail::is_null_v<typename trans_t::event_type> && detail::is_null_v<Event>)
+                (detail::is_null_v<typename Transition::event_type> && detail::is_null_v<Event>)
             )
             {
-                static constexpr auto source_state_mold = trans.source_state_mold;
-                static constexpr auto action = trans.act;
-                static constexpr auto guard = trans.grd;
-
                 return try_executing_transition_2<Dry>
                 (
                     self,
                     trans.source_state_mold,
                     trans.target_state_mold,
-                    action,
-                    guard,
+                    trans.act,
+                    trans.grd,
                     ctx,
                     event
                 );

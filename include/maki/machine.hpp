@@ -860,11 +860,7 @@ private:
             !ptr_equals(TargetStateId, &detail::state_molds::null)
         )
         {
-            active_state_index_ = detail::state_id_to_index_v
-            <
-                state_id_constant_list,
-                &maki::undefined
-            >;
+            pactive_state_mold_ = &undefined;
         }
 
         /*
@@ -915,11 +911,7 @@ private:
             !ptr_equals(TargetStateId, &detail::state_molds::null)
         )
         {
-            active_state_index_ = detail::state_id_to_index_v
-            <
-                state_id_constant_list,
-                TargetStateId
-            >;
+            pactive_state_mold_ = TargetStateId;
         }
 
         /*
@@ -1034,12 +1026,7 @@ private:
     template<auto StateId>
     [[nodiscard]] bool is_active_state_id() const
     {
-        constexpr auto given_state_index = detail::state_id_to_index_v
-        <
-            state_id_constant_list,
-            StateId
-        >;
-        return given_state_index == active_state_index_;
+        return pactive_state_mold_ == StateId;
     }
 
     template<auto StateSetPtr>
@@ -1103,7 +1090,7 @@ private:
         impl_of(conf).context_sig
     > ctx_holder_;
 
-    int active_state_index_ = detail::final_state_index;
+    const void* pactive_state_mold_ = &detail::state_molds::fin;
     bool executing_operation_ = false;
     operation_queue_type operation_queue_;
 };

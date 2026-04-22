@@ -54,6 +54,12 @@ public:
         return ctx_holder_.get();
     }
 
+    template<class Context, class Machine>
+    void emplace_contexts_with_parent_lifetime(Context& ctx, Machine& mach)
+    {
+        impl_.emplace_contexts_with_parent_lifetime(ctx, mach);
+    }
+
     template<class Machine, class ParentContext, class Event>
     void enter
     (
@@ -108,6 +114,11 @@ public:
             impl_.reset_contexts_with_parent_lifetime();
             ctx_holder_.reset();
         }
+    }
+
+    void reset_contexts_with_parent_lifetime()
+    {
+        impl_.reset_contexts_with_parent_lifetime();
     }
 
     template<int Index>

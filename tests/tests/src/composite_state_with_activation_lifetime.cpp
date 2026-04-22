@@ -90,11 +90,44 @@ namespace composite_state_with_activation_lifetime_ns
                 )
             ;
 
+            namespace emitting_yellow_ns
+            {
+                struct context
+                {
+                    context(on_ns::context& parent):
+                        i(parent.i)
+                    {
+                    }
+
+                    int& i;
+                };
+
+                constexpr auto dummy = maki::state_mold{};
+
+                constexpr auto transition_table = maki::transition_table{}
+                    (maki::ini, dummy)
+                ;
+            }
+
+            constexpr auto emitting_yellow = maki::state_mold{}
+                .context_c<emitting_yellow_ns::context>()
+                .context_lifetime(maki::state_context_lifetime::state_activity)
+                .transition_tables(emitting_yellow_ns::transition_table)
+                .entry_action_c
+                (
+                    [](emitting_yellow_ns::context& ctx)
+                    {
+                        ++ctx.i;
+                    }
+                )
+            ;
+
             constexpr auto transition_table = maki::transition_table{}
-                (maki::ini,      emitting_red)
-                (emitting_red,   emitting_green, maki::event<events::color_button_press>)
-                (emitting_green, emitting_blue,  maki::event<events::color_button_press>)
-                (emitting_blue,  emitting_red,   maki::event<events::color_button_press>)
+                (maki::ini,       emitting_red)
+                (emitting_red,    emitting_green,  maki::event<events::color_button_press>)
+                (emitting_green,  emitting_blue,   maki::event<events::color_button_press>)
+                (emitting_blue,   emitting_yellow, maki::event<events::color_button_press>)
+                (emitting_yellow, emitting_red,    maki::event<events::color_button_press>)
             ;
         }
 
@@ -156,6 +189,16 @@ TEST_CASE("composite_state_with_activation_lifetime")
     REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_green>().context().has_value());
     REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_blue>().context().has_value());
     REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_blue>().context()->i == 44);
+
+    machine.process_event(events::color_button_press{});
+    REQUIRE(machine.is<states::on>());
+    REQUIRE(machine.state<states::on>().is<states::on_ns::emitting_yellow>());
+    REQUIRE(*ctx.pi == 45);
+    REQUIRE(machine.state<states::on>().context().has_value());
+    REQUIRE(machine.state<states::on>().context()->i == 45);
+    REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_green>().context().has_value());
+    REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_yellow>().context().has_value());
+    REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_yellow>().context()->i == 45);
 
     machine.process_event(events::button_press{});
     REQUIRE(machine.is<states::off>());

@@ -10,7 +10,7 @@
 #include "constant.hpp"
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
-#include "integer_constant_sequence_tuple.hpp"
+#include "int_sequence.hpp"
 #include "type_list.hpp"
 #include "../states.hpp"
 #include "../null.hpp"
@@ -54,11 +54,11 @@ namespace digest_transition_table_detail
     template<const auto& TransitionTable>
     struct add_to_digest
     {
-        template<class Digest, std::size_t Index>
+        template<class Digest, int Index>
         static constexpr auto call
         (
             const type_t<Digest> /*ignored*/,
-            const std::integral_constant<std::size_t, Index> /*ignored*/
+            const std::integral_constant<int, Index> /*ignored*/
         )
         {
             /*
@@ -105,15 +105,7 @@ namespace digest_transition_table_detail
 template<const auto& TransitionTable>
 constexpr auto digest_transition_table()
 {
-    const auto transition_table_index_tuple =
-        integer_constant_sequence_tuple
-        <
-            std::size_t,
-            impl_of(TransitionTable).size
-        >
-    ;
-
-    return transition_table_index_tuple.left_fold
+    return int_sequence_left_fold<impl_of(TransitionTable).size>
     (
         []
         (

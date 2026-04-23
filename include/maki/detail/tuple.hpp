@@ -15,6 +15,22 @@
 namespace maki::detail
 {
 
+namespace tuple_detail
+{
+    template<class Operation, class Elem>
+    struct fold_operation_wrapper
+    {
+        const Operation& op;
+        const Elem& elem;
+    };
+
+    template<class Lhs, class Operation, class Elem>
+    constexpr auto operator+(const Lhs& lhs, const fold_operation_wrapper<Operation, Elem>& rhs)
+    {
+        return rhs.op(lhs, rhs.elem);
+    }
+}
+
 template<int Index, class T>
 class tuple_element
 {
@@ -102,6 +118,26 @@ public:
     constexpr auto append(const U& elem) const
     {
         return tuple<Ts..., U>{tuple_element<Indexes, Ts>::value()..., elem};
+    }
+
+    /*
+    For each element, invoke `op(r, elems[n])`, where `r` is:
+    - for n = 0, `initial`;
+    - for 0 < n < size, the result of `op(r, elems[n-1])`.
+    */
+    template<class Operation, class Initial>
+    constexpr auto left_fold
+    (
+        const Operation& op,
+        const Initial& initial
+    ) const
+    {
+        return
+        (
+            initial +
+            ... +
+            tuple_detail::fold_operation_wrapper<Operation, Ts>{op, tuple_element<Indexes, Ts>::value()}
+        );
     }
 };
 

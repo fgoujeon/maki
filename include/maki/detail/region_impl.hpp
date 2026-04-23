@@ -69,9 +69,9 @@ class region_impl
 public:
     using transition_table_type = std::decay_t<decltype(TransitionTable)>;
 
-    using transition_table_digest_type =
-        transition_table_digest<TransitionTable>
-    ;
+    static constexpr auto transition_table_digest_type_holder = digest_transition_table<TransitionTable>();
+
+    using transition_table_digest_type = typename decltype(transition_table_digest_type_holder)::type;
 
     using state_id_constant_list_0 = typename transition_table_digest_type::state_id_constant_list;
     using state_id_constant_list = tlu::push_back_t<state_id_constant_list_0, constant_t<&maki::undefined>>;

@@ -10,6 +10,7 @@
 #include "constant.hpp"
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
+#include "integer_constant_sequence_tuple.hpp"
 #include "type_list.hpp"
 #include "../states.hpp"
 #include "../null.hpp"
@@ -41,19 +42,24 @@ For example, the following digest type...:
     };
 */
 
-namespace transition_table_digest_detail
+template<class StateIdConstantList, bool HasCompletionTransition>
+struct transition_table_digest
 {
-    struct initial_digest
-    {
-        using state_id_constant_list = type_list_t<>;
-        static constexpr auto has_completion_transitions = false;
-    };
+    using state_id_constant_list = StateIdConstantList;
+    static constexpr auto has_completion_transitions = HasCompletionTransition;
+};
 
+namespace digest_transition_table_detail
+{
     template<const auto& TransitionTable>
-    struct add_transition_to_digest_holder
+    struct add_to_digest
     {
-        template<class Digest, int Index>
-        struct add_transition_to_digest_impl
+        template<class Digest, std::size_t Index>
+        static constexpr auto call
+        (
+            const type_t<Digest> /*ignored*/,
+            const std::integral_constant<std::size_t, Index> /*ignored*/
+        )
         {
             /*
             We must add target state to list of states unless:
@@ -62,7 +68,7 @@ namespace transition_table_digest_detail
             - it's `null`;
             - it's `undefined`.
             */
-            static constexpr auto must_add_target_state =
+            constexpr auto must_add_target_state =
                 !tlu::contains_v
                 <
                     typename Digest::state_id_constant_list,
@@ -80,7 +86,7 @@ namespace transition_table_digest_detail
                 must_add_target_state
             >;
 
-            static constexpr auto has_completion_transitions =
+            constexpr auto has_completion_transitions =
                 Digest::has_completion_transitions ||
                 (
                     Index != 0 &&
@@ -90,27 +96,47 @@ namespace transition_table_digest_detail
                     >
                 )
             ;
-        };
 
-        template<class Digest, class IndexConstant>
-        using add_transition_to_digest = add_transition_to_digest_impl
-        <
-            Digest,
-            IndexConstant::value
-        >;
+            return type<transition_table_digest<state_id_constant_list, has_completion_transitions>>;
+        }
     };
 }
 
 template<const auto& TransitionTable>
-using transition_table_digest = tlu::left_fold_t
-<
-    make_integer_constant_sequence<int, impl_of(TransitionTable).size>,
-    transition_table_digest_detail::add_transition_to_digest_holder
-    <
-        TransitionTable
-    >::template add_transition_to_digest,
-    transition_table_digest_detail::initial_digest
->;
+constexpr auto digest_transition_table()
+{
+    const auto transition_table_index_tuple =
+        integer_constant_sequence_tuple
+        <
+            std::size_t,
+            impl_of(TransitionTable).size
+        >
+    ;
+
+    return transition_table_index_tuple.left_fold
+    (
+        []
+        (
+            const auto& digest_type_holder,
+            const auto& index_constant
+        )
+        {
+            return digest_transition_table_detail::add_to_digest<TransitionTable>::call
+            (
+                digest_type_holder,
+                index_constant
+            );
+        },
+        type
+        <
+            transition_table_digest
+            <
+                type_list_t<>,
+                false
+            >
+        >
+    );
+}
 
 } //namespace
 

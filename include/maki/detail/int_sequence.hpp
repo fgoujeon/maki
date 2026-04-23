@@ -18,25 +18,23 @@ namespace int_sequence_detail
     template<class Operation, int Index>
     struct fold_operation_wrapper
     {
-        const Operation& op;
     };
 
     template<class Lhs, class Operation, int Index>
     constexpr auto operator+(const Lhs& lhs, const fold_operation_wrapper<Operation, Index>& rhs)
     {
-        return rhs.op(lhs, std::integral_constant<int, Index>{});
+        return Operation::template call<Index>(lhs);
     }
 
-    template<class IndexSequence>
+    template<class Operation, class IndexSequence>
     struct left_fold_helper;
 
-    template<int... Indexes>
-    struct left_fold_helper<std::integer_sequence<int, Indexes...>>
+    template<class Operation, int... Indexes>
+    struct left_fold_helper<Operation, std::integer_sequence<int, Indexes...>>
     {
-        template<class Operation, class Initial>
+        template<class Initial>
         static constexpr auto call
         (
-            const Operation& op,
             const Initial& initial
         )
         {
@@ -44,7 +42,7 @@ namespace int_sequence_detail
             (
                 initial +
                 ... +
-                int_sequence_detail::fold_operation_wrapper<Operation, Indexes>{op}
+                int_sequence_detail::fold_operation_wrapper<Operation, Indexes>{}
             );
         }
     };
@@ -54,23 +52,18 @@ namespace int_sequence_detail
 For each integer `N` in `[0, Size[`, invoke:
 
     ```
-    op(r, std::integral_constant<int, N>{});
+    op<N>(r);
     ```
 
 where `r` is:
 - for n = 0, `initial`;
-- for 0 < n < size, the result of `op(r, elems[n-1])`.
+- for 0 < n < size, the result of `op<N - 1>(r)`.
 */
 template<std::size_t Size, class Operation, class Initial>
-constexpr auto int_sequence_left_fold
-(
-    const Operation& op,
-    const Initial& initial
-)
+constexpr auto int_sequence_left_fold(const Initial& initial)
 {
-    return int_sequence_detail::left_fold_helper<std::make_integer_sequence<int, Size>>::call
+    return int_sequence_detail::left_fold_helper<Operation, std::make_integer_sequence<int, Size>>::call
     (
-        op,
         initial
     );
 }

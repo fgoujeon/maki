@@ -54,12 +54,8 @@ namespace digest_transition_table_detail
     template<const auto& TransitionTable>
     struct add_to_digest
     {
-        template<class Digest, int Index>
-        static constexpr auto call
-        (
-            const type_t<Digest> /*ignored*/,
-            const std::integral_constant<int, Index> /*ignored*/
-        )
+        template<int Index, class Digest>
+        static constexpr auto call(const type_t<Digest> /*ignored*/)
         {
             /*
             We must add target state to list of states unless:
@@ -105,20 +101,12 @@ namespace digest_transition_table_detail
 template<const auto& TransitionTable>
 constexpr auto digest_transition_table()
 {
-    return int_sequence_left_fold<impl_of(TransitionTable).size>
+    return int_sequence_left_fold
+    <
+        impl_of(TransitionTable).size,
+        digest_transition_table_detail::add_to_digest<TransitionTable>
+    >
     (
-        []
-        (
-            const auto& digest_type_holder,
-            const auto& index_constant
-        )
-        {
-            return digest_transition_table_detail::add_to_digest<TransitionTable>::call
-            (
-                digest_type_holder,
-                index_constant
-            );
-        },
         type
         <
             transition_table_digest

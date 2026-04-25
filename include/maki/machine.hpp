@@ -484,16 +484,23 @@ private:
     }
 
     /*
-    Try to process all deferred events exactly once.
+    Try to process all deferred events.
     */
     void try_processing_all_deferred_operations()
     {
         /*
-        Note that we iterate in a way that prevents infinite looping.
+        Loop `A` tries to process every deferred event once.
+        Execute loop `A` as many times as necessary, that is, until every event
+        in `deferred_operations_` is deferred by an active state.
         */
-        for (auto i = 0U; i < deferred_operations_.size(); ++i)
+        auto processing_count = 1;
+        while (processing_count != 0)
         {
-            deferred_operations_.invoke_and_pop(*this);
+            processing_count = 0;
+            for (auto i = 0U; i < deferred_operations_.size(); ++i) // Loop `A`
+            {
+                processing_count += static_cast<int>(deferred_operations_.invoke_and_pop(*this));
+            }
         }
     }
 
@@ -517,22 +524,24 @@ private:
     struct any_event_visitor
     {
         template<class Event>
-        static void call(const Event& event, machine& self)
+        static bool call(const Event& event, machine& self)
         {
-            self.execute_one_operation<Operation>(event);
+            return self.execute_one_operation<Operation>(event);
         }
     };
 
     template<detail::machine_operation Operation, class Event>
-    void execute_one_operation(const Event& event)
+    bool execute_one_operation(const Event& event)
     {
         if constexpr(Operation == detail::machine_operation::start)
         {
             impl_.enter(*this, context(), event);
+            return true;
         }
         else if constexpr(Operation == detail::machine_operation::stop)
         {
             impl_.exit_to_finals(*this, context(), event);
+            return true;
         }
         else
         {
@@ -552,7 +561,7 @@ private:
             if(impl_.template defers_event<Event>())
             {
                 deferred_operations_.template push<any_event_visitor<Operation>>(event);
-                return;
+                return false;
             }
 
             //If running, execute pre-processing hook for `Event`, if any.
@@ -599,6 +608,8 @@ private:
 
                 impl_.template call_internal_action<false>(*this, context(), event);
             }
+
+            return true;
         }
     }
 

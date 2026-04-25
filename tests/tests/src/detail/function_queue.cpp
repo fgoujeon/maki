@@ -68,17 +68,19 @@ namespace
 
     struct copy_small_struct_content
     {
-        static void call(const small_struct& in, int& out)
+        static bool call(const small_struct& in, int& out)
         {
             out = in.i;
+            return true;
         }
     };
 
     struct copy_big_struct_content
     {
-        static void call(const big_struct& in, big_array_t& pout)
+        static bool call(const big_struct& in, big_array_t& pout)
         {
             pout = in.numbers;
+            return true;
         }
     };
 }

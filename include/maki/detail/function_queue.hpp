@@ -14,7 +14,7 @@ namespace maki::detail
 {
 
 /*
-A kind of std::queue<std::function<void(Arg)>>, optimized for our needs
+A kind of std::queue<std::function<bool(Arg)>>, optimized for our needs
 */
 template
 <
@@ -48,10 +48,11 @@ public:
         }
     }
 
-    void invoke_and_pop(Arg arg)
+    bool invoke_and_pop(Arg arg)
     {
-        queue_.front().call(arg);
+        const auto res = queue_.front().call(arg);
         queue_.pop();
+        return res;
     }
 
     void invoke_and_pop_all(Arg arg)
@@ -74,7 +75,7 @@ public:
     }
 
 private:
-    using call_fn_ptr_t = void (*)(const void*, Arg);
+    using call_fn_ptr_t = bool (*)(const void*, Arg);
     using delete_fn_ptr_t = void (*)(const void*);
 
     /*
@@ -136,9 +137,9 @@ private:
             pdelete_ = pdelete;
         }
 
-        void call(Arg arg)
+        bool call(Arg arg)
         {
-            pcall_(pdata_, arg);
+            return pcall_(pdata_, arg);
         }
 
     private:
@@ -162,10 +163,10 @@ private:
     }
 
     template<class Data, class FunHolder>
-    static void call(const void* const pdata, Arg arg)
+    static bool call(const void* const pdata, Arg arg)
     {
         const Data& data = *reinterpret_cast<const Data*>(pdata); //NOLINT
-        FunHolder::call(data, arg);
+        return FunHolder::call(data, arg);
     }
 
     static void dont_delete_data(const void* const /*pdata*/)

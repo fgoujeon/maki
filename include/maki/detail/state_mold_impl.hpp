@@ -20,7 +20,8 @@ template
     class EntryActionTuple = mix<>,
     class InternalActionTuple = mix<>,
     class ExitActionTuple = mix<>,
-    class TransitionTableTuple = mix<>
+    class TransitionTableTuple = mix<>,
+    class DeferredEventSetImpl = detail::empty_type_set_t
 >
 struct state_mold_impl
 {
@@ -34,6 +35,7 @@ struct state_mold_impl
     ExitActionTuple exit_actions;
     std::string_view pretty_name;
     TransitionTableTuple transition_tables;
+    event_set<DeferredEventSetImpl> deferred_event_set = make_event_set_from_impl<DeferredEventSetImpl>();
 };
 
 } //namespace

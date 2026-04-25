@@ -64,7 +64,8 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = impl_.internal_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = impl_.exit_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = impl_.pretty_name; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = impl_.transition_tables;
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = impl_.transition_tables; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_deferred_event_set = impl_.deferred_event_set;
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return state_mold \
@@ -75,7 +76,8 @@ public:
             std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)>, \
+            detail::impl_of_t<std::decay_t<decltype(MAKI_DETAIL_ARG_deferred_event_set)>> \
         > \
     > \
     { \
@@ -85,7 +87,8 @@ public:
         MAKI_DETAIL_ARG_internal_actions, \
         MAKI_DETAIL_ARG_exit_actions, \
         MAKI_DETAIL_ARG_pretty_name_view, \
-        MAKI_DETAIL_ARG_transition_tables \
+        MAKI_DETAIL_ARG_transition_tables, \
+        MAKI_DETAIL_ARG_deferred_event_set \
     };
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
@@ -228,6 +231,34 @@ public:
 #define MAKI_DETAIL_ARG_transition_tables tpl
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_transition_tables
+    }
+
+    template<class Event>
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE defer() const
+    {
+        const auto new_deferred_event_set =
+            impl_.deferred_event_set ||
+            event<Event>
+        ;
+
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_deferred_event_set new_deferred_event_set
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_deferred_event_set
+    }
+
+    template<class EventSetImpl>
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE defer(const event_set<EventSetImpl>& events) const
+    {
+        const auto new_deferred_event_set =
+            impl_.deferred_event_set ||
+            events
+        ;
+
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_deferred_event_set new_deferred_event_set
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_deferred_event_set
     }
 
 private:

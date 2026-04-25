@@ -451,18 +451,22 @@ private:
 
             execute_one_operation<Operation>(event);
 
-            // Process deferred events, if any
-            for (auto i = 0; i < deferred_operations_.size(); ++i)
-            {
-                deferred_operations_.invoke_and_pop(*this);
-            }
+            try_processing_all_deferred_operations();
 
-            // Process enqueued events, if any
-            operation_queue_.invoke_and_pop_all(*this);
+            // Process enqueued and deferred events, if any
+            while (!operation_queue_.empty())
+            {
+                // Try to process most recently enqueued event
+                operation_queue_.invoke_and_pop(*this);
+
+                try_processing_all_deferred_operations();
+            }
         }
         else
         {
             execute_one_operation<Operation>(event);
+
+            try_processing_all_deferred_operations();
         }
     }
 
@@ -477,6 +481,20 @@ private:
     void push_event_impl(const Event& event)
     {
         operation_queue_.template push<any_event_visitor<Operation>>(event);
+    }
+
+    /*
+    Try to process all deferred events exactly once.
+    */
+    void try_processing_all_deferred_operations()
+    {
+        /*
+        Note that we iterate in a way that prevents infinite looping.
+        */
+        for (auto i = 0U; i < deferred_operations_.size(); ++i)
+        {
+            deferred_operations_.invoke_and_pop(*this);
+        }
     }
 
     /**

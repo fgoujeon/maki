@@ -68,6 +68,11 @@ public:
         return queue_.size();
     }
 
+    [[nodiscard]] bool empty() const
+    {
+        return queue_.empty();
+    }
+
 private:
     using call_fn_ptr_t = void (*)(const void*, Arg);
     using delete_fn_ptr_t = void (*)(const void*);

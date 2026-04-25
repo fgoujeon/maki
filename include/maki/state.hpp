@@ -117,6 +117,21 @@ namespace detail
         state_type_list_event_type_set_operation_t,
         empty_type_set_t
     >;
+
+    template<class EventTypeSet, class State>
+    using state_type_list_deferrable_event_type_set_operation_t = type_set_union_t
+    <
+        EventTypeSet,
+        typename impl_of_t<State>::deferrable_event_type_set
+    >;
+
+    template<class StateTypeList>
+    using state_type_list_deferrable_event_type_set_t = tlu::left_fold_t
+    <
+        StateTypeList,
+        state_type_list_deferrable_event_type_set_operation_t,
+        empty_type_set_t
+    >;
 }
 
 } //namespace

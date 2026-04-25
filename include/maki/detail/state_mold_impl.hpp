@@ -23,12 +23,13 @@ template
     class InternalActionTuple = mix<>,
     class ExitActionTuple = mix<>,
     class TransitionTableTuple = mix<>,
-    class DeferredEventSetImpl = empty_type_set_t
+    class DeferredEventTypeSet = empty_type_set_t
 >
 struct state_mold_impl
 {
     using context_type = Context;
     using internal_action_mix_type = InternalActionTuple;
+    using deferred_event_type_set = DeferredEventTypeSet;
 
     state_context_signature context_sig = state_context_signature::v;
     state_context_lifetime context_lifetime = state_context_lifetime::parent;
@@ -37,7 +38,6 @@ struct state_mold_impl
     ExitActionTuple exit_actions;
     std::string_view pretty_name;
     TransitionTableTuple transition_tables;
-    event_set<DeferredEventSetImpl> deferred_event_set = make_event_set_from_impl<DeferredEventSetImpl>();
 };
 
 } //namespace

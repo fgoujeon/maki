@@ -48,6 +48,7 @@ struct machine_conf_impl
     using pre_processing_hook_tuple_type = PreProcessingHookTuple;
     using post_processing_hook_tuple_type = PostProcessingHookTuple;
     using internal_action_mix_type = mix<>;
+    using deferred_event_type_set = empty_type_set_t;
 
     bool auto_start = true;
     machine_context_signature context_sig = machine_context_signature::a;
@@ -66,7 +67,6 @@ struct machine_conf_impl
     static constexpr auto entry_actions = mix<>{};
     static constexpr auto exit_actions = mix<>{};
     static constexpr auto internal_actions = mix<>{};
-    static constexpr auto deferred_event_set = no_event;
 };
 
 } //namespace

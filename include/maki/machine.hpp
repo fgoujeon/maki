@@ -342,6 +342,16 @@ public:
     }
 
 private:
+    static constexpr auto path = detail::path_impl{};
+    using impl_type =
+        detail::state_impls::composite_no_context
+        <
+            &conf,
+            path,
+            detail::context_storage::plain
+        >
+    ;
+
     class executing_operation_guard
     {
     public:
@@ -538,6 +548,12 @@ private:
         }
         else
         {
+            constexpr auto is_deferrable_event = detail::type_set_contains_v
+            <
+                typename impl_type::deferrable_event_type_set,
+                Event
+            >;
+
             constexpr auto has_matching_pre_processing_hook = detail::tlu::contains_if_v
             <
                 pre_processing_hook_ptr_constant_list,
@@ -551,10 +567,13 @@ private:
             >;
 
             // Defer the event if required by any of the active states
-            if(impl_.template defers_event<Event>())
+            if constexpr(is_deferrable_event)
             {
-                event_deferral_queue_.template push<any_event_visitor<Operation>>(event);
-                return false;
+                if(impl_.template defers_event<Event>())
+                {
+                    event_deferral_queue_.template push<any_event_visitor<Operation>>(event);
+                    return false;
+                }
             }
 
             //If running, execute pre-processing hook for `Event`, if any.
@@ -608,7 +627,6 @@ private:
 
     static constexpr auto pre_processing_hooks = impl_of(conf).pre_processing_hooks;
     static constexpr auto post_processing_hooks = impl_of(conf).post_processing_hooks;
-    static constexpr auto path = detail::path_impl{};
 
     using pre_processing_hook_ptr_constant_list = detail::mix_constant_list_t<pre_processing_hooks>;
     using post_processing_hook_ptr_constant_list = detail::mix_constant_list_t<post_processing_hooks>;
@@ -620,12 +638,7 @@ private:
         impl_of(conf).context_sig
     > ctx_holder_;
 
-    detail::state_impls::composite_no_context
-    <
-        &conf,
-        path,
-        detail::context_storage::plain
-    > impl_;
+    impl_type impl_;
 
     bool executing_operation_ = false;
 

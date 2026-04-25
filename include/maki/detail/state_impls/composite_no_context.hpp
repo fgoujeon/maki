@@ -105,6 +105,23 @@ using region_type_list_event_type_set = tlu::left_fold_t
     empty_type_set_t
 >;
 
+template<class EventTypeSet, class Region>
+using region_type_list_deferrable_event_type_set_operation =
+    type_set_union_t
+    <
+        EventTypeSet,
+        typename impl_of_t<Region>::deferrable_event_type_set
+    >
+;
+
+template<class RegionTypeList>
+using region_type_list_deferrable_event_type_set = tlu::left_fold_t
+<
+    RegionTypeList,
+    region_type_list_deferrable_event_type_set_operation,
+    empty_type_set_t
+>;
+
 template<auto Id, const auto& Path, context_storage ParentCtxStorage>
 class composite_no_context
 {
@@ -148,6 +165,12 @@ public:
     <
         typename impl_type::event_type_set,
         region_type_list_event_type_set<region_mix_type>
+    >;
+
+    using deferrable_event_type_set = type_set_union_t
+    <
+        typename impl_type::deferrable_event_type_set,
+        region_type_list_deferrable_event_type_set<region_mix_type>
     >;
 
     template<class Machine, class Context>

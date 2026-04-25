@@ -96,6 +96,8 @@ public:
         states_event_type_set
     >;
 
+    using deferrable_event_type_set = state_type_list_deferrable_event_type_set_t<state_mix_type>;
+
     template<class Machine, class Context>
     region_impl(const region<region_impl>* pitf, Machine& mach, Context& ctx):
         pitf_(pitf),

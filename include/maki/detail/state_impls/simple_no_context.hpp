@@ -43,6 +43,10 @@ public:
         >
     ;
 
+    using deferrable_event_type_set =
+        typename option_set_type::deferred_event_type_set
+    ;
+
     template<class... Args>
     constexpr simple_no_context(Args&... /*args*/)
     {
@@ -57,7 +61,11 @@ public:
     template<class Event>
     [[nodiscard]] static constexpr bool defers_event()
     {
-        return impl_of(mold).deferred_event_set.template contains<Event>();
+        return type_set_contains_v
+        <
+            deferrable_event_type_set,
+            Event
+        >;
     }
 
     template<class ParentContext, class Machine>

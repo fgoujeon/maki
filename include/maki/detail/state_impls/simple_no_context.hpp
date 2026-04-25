@@ -55,7 +55,7 @@ public:
     ~simple_no_context() = default;
 
     template<class ParentContext, class Machine>
-    constexpr void emplace_contexts_with_parent_lifetime(ParentContext& /*parent_ctx*/, Machine& /*mach*/) const
+    static constexpr void emplace_contexts_with_parent_lifetime(ParentContext& /*parent_ctx*/, Machine& /*mach*/)
     {
         // No context to emplace
     }
@@ -120,7 +120,7 @@ public:
         }
     }
 
-    constexpr void reset_contexts_with_parent_lifetime() const
+    static constexpr void reset_contexts_with_parent_lifetime()
     {
         // No context to reset
     }

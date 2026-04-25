@@ -175,7 +175,7 @@ public:
     template<class Machine, class Context, class Event>
     void enter(Machine& mach, Context& ctx, const Event& event)
     {
-        impl_.enter(mach, ctx, event);
+        impl_type::enter(mach, ctx, event);
         tlu::for_each<region_mix_type, region_enter>(*this, mach, ctx, event);
     }
 
@@ -211,7 +211,7 @@ public:
             ctx,
             event
         );
-        impl_.exit
+        impl_type::exit
         (
             mach,
             ctx,
@@ -230,7 +230,7 @@ public:
             ctx,
             event
         );
-        impl_.exit
+        impl_type::exit
         (
             mach,
             ctx,
@@ -353,7 +353,7 @@ private:
 
         if constexpr(can_process_event)
         {
-            self.impl_.template call_internal_action<Dry>
+            impl_type::template call_internal_action<Dry>
             (
                 mach,
                 ctx,
@@ -371,7 +371,6 @@ private:
         }
     }
 
-    impl_type impl_;
     region_mix_type regions_;
 };
 

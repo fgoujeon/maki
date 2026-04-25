@@ -13,6 +13,7 @@
 #define MAKI_MACHINE_CONF_IMPL_HPP
 
 #include "mix.hpp"
+#include "../event_set.hpp"
 #include "../context.hpp"
 #include "../null.hpp"
 #include <cstdlib>
@@ -65,6 +66,7 @@ struct machine_conf_impl
     static constexpr auto entry_actions = mix<>{};
     static constexpr auto exit_actions = mix<>{};
     static constexpr auto internal_actions = mix<>{};
+    static constexpr auto deferred_event_set = no_event;
 };
 
 } //namespace

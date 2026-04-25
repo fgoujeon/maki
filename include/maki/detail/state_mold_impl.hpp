@@ -7,8 +7,10 @@
 #ifndef MAKI_STATE_MOLD_IMPL_HPP
 #define MAKI_STATE_MOLD_IMPL_HPP
 
+#include "../event_set.hpp"
 #include "../context.hpp"
 #include "mix.hpp"
+#include "type_set.hpp"
 #include <string_view>
 
 namespace maki::detail
@@ -21,7 +23,7 @@ template
     class InternalActionTuple = mix<>,
     class ExitActionTuple = mix<>,
     class TransitionTableTuple = mix<>,
-    class DeferredEventSetImpl = detail::empty_type_set_t
+    class DeferredEventSetImpl = empty_type_set_t
 >
 struct state_mold_impl
 {

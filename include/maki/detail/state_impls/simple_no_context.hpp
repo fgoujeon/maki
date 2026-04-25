@@ -54,6 +54,12 @@ public:
     simple_no_context& operator=(simple_no_context&&) = default;
     ~simple_no_context() = default;
 
+    template<class Event>
+    [[nodiscard]] static constexpr bool defers_event()
+    {
+        return impl_of(mold).deferred_event_set.template contains<Event>();
+    }
+
     template<class ParentContext, class Machine>
     static constexpr void emplace_contexts_with_parent_lifetime(ParentContext& /*parent_ctx*/, Machine& /*mach*/)
     {

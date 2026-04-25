@@ -247,6 +247,19 @@ public:
         >(*this);
     }
 
+    template<class Event>
+    [[nodiscard]] bool defers_event() const
+    {
+        return
+            impl_type::template defers_event<Event>() ||
+            tlu::for_each_or
+            <
+                region_mix_type,
+                region_defers_event<Event>
+            >(*this)
+        ;
+    }
+
     template<int Index>
     [[nodiscard]] const auto& region() const
     {
@@ -333,6 +346,16 @@ private:
         static void call(Self& self)
         {
             impl_of(get<Region>(self.regions_)).reset_contexts_with_parent_lifetime();
+        }
+    };
+
+    template<class Event>
+    struct region_defers_event
+    {
+        template<class Region>
+        static bool call(const composite_no_context& self)
+        {
+            return impl_of(get<Region>(self.regions_)).template defers_event<Event>();
         }
     };
 

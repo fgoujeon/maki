@@ -53,6 +53,12 @@ public:
         return ctx_holder_.get();
     }
 
+    template<class Event>
+    [[nodiscard]] static constexpr bool defers_event()
+    {
+        return impl_type::template defers_event<Event>();
+    }
+
     template<class ParentContext, class Machine>
     void emplace_contexts_with_parent_lifetime(ParentContext& parent_ctx, Machine& mach)
     {

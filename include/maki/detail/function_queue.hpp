@@ -48,6 +48,12 @@ public:
         }
     }
 
+    void invoke_and_pop(Arg arg)
+    {
+        queue_.front().call(arg);
+        queue_.pop();
+    }
+
     void invoke_and_pop_all(Arg arg)
     {
         while(!queue_.empty())
@@ -55,6 +61,11 @@ public:
             queue_.front().call(arg);
             queue_.pop();
         }
+    }
+
+    [[nodiscard]] std::size_t size() const
+    {
+        return queue_.size();
     }
 
 private:

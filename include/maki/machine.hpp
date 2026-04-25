@@ -451,7 +451,13 @@ private:
 
             execute_one_operation<Operation>(event);
 
-            //Process enqueued events, if any
+            // Process deferred events, if any
+            for (auto i = 0; i < deferred_operations_.size(); ++i)
+            {
+                deferred_operations_.invoke_and_pop(*this);
+            }
+
+            // Process enqueued events, if any
             operation_queue_.invoke_and_pop_all(*this);
         }
         else
@@ -524,6 +530,13 @@ private:
                 detail::event_action_traits::for_event<Event>::template has_containing_event_set
             >;
 
+            // Defer event if required by an active
+            if(impl_.template defers_event<Event>())
+            {
+                deferred_operations_.template push<any_event_visitor<Operation>>(event);
+                return;
+            }
+
             //If running, execute pre-processing hook for `Event`, if any.
             if constexpr(has_matching_pre_processing_hook)
             {
@@ -548,6 +561,7 @@ private:
                 if(running())
                 {
                     const auto processed = impl_.template call_internal_action<false>(*this, context(), event);
+
                     detail::call_matching_event_action<post_processing_hook_ptr_constant_list>
                     (
                         *this,
@@ -583,14 +597,24 @@ private:
         detail::context_storage::plain,
         impl_of(conf).context_sig
     > ctx_holder_;
+
     detail::state_impls::composite_no_context
     <
         &conf,
         path,
         detail::context_storage::plain
     > impl_;
+
     bool executing_operation_ = false;
+
     operation_queue_type operation_queue_;
+
+    detail::function_queue
+    <
+        machine&,
+        impl_of(conf).small_event_max_size,
+        impl_of(conf).small_event_max_align
+    > deferred_operations_;
 };
 
 #undef MAKI_DETAIL_MAYBE_CATCH

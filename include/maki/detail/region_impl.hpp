@@ -127,6 +127,18 @@ public:
         return is_active_state_id<&state_molds::fin>();
     }
 
+    template<class Event>
+    [[nodiscard]] bool defers_event() const
+    {
+        auto defers = false;
+        with_active_state_id
+        <
+            state_id_constant_list,
+            state_defers_event<Event>
+        >(*this, defers);
+        return defers;
+    }
+
     template<class Context, class Machine>
     void emplace_contexts_with_parent_lifetime(Context& ctx, Machine& mach)
     {
@@ -229,6 +241,17 @@ private:
         {
             auto& stt = self.template state_type_to_obj<State>();
             impl_of(stt).reset_contexts_with_parent_lifetime();
+        }
+    };
+
+    template<class Event>
+    struct state_defers_event
+    {
+        template<class StateIdConstant>
+        static void call(const region_impl& self, bool& defers)
+        {
+            const auto& stt = self.state_id_to_obj<StateIdConstant::value>();
+            defers = impl_of(stt).template defers_event<Event>();
         }
     };
 

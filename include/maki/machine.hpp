@@ -352,6 +352,14 @@ private:
         >
     ;
 
+    using deferrable_event_type_set =
+        typename impl_type::deferrable_event_type_set
+    ;
+
+    static constexpr bool has_deferrable_events =
+        !detail::type_set_empty_v<deferrable_event_type_set>
+    ;
+
     class executing_operation_guard
     {
     public:
@@ -375,7 +383,7 @@ private:
         machine& self_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
     };
 
-    struct real_operation_queue_holder
+    struct real_function_queue_holder
     {
         template<bool = true> //Dummy template for lazy evaluation
         using type = detail::function_queue
@@ -385,15 +393,24 @@ private:
             impl_of(conf).small_event_max_align
         >;
     };
+
     struct empty_holder
     {
         template<bool = true> //Dummy template for lazy evaluation
         struct type{};
     };
+
     using rtc_queue_type = typename std::conditional_t
     <
         impl_of(conf).run_to_completion,
-        real_operation_queue_holder,
+        real_function_queue_holder,
+        empty_holder
+    >::template type<>;
+
+    using event_deferral_queue_type = typename std::conditional_t
+    <
+        has_deferrable_events,
+        real_function_queue_holder,
         empty_holder
     >::template type<>;
 
@@ -510,25 +527,28 @@ private:
     */
     void try_processing_deferred_operations()
     {
-        /*
-        The inner loop tries to process every deferred event once.
-
-        The outer loop executes the inner loop as many times as necessary, that
-        is, until `event_deferral_queue_` only contains events that are still
-        deferred by any of the currently active states.
-
-        These two levels are necessary, as processing a previously deferred
-        event can change the active states and allow other events of
-        `event_deferral_queue_` to be processed.
-        */
-
-        auto processing_count = 1;
-        while (processing_count != 0) // Outer loop
+        if constexpr(has_deferrable_events)
         {
-            processing_count = 0;
-            for (auto i = 0U; i < event_deferral_queue_.size(); ++i) // Inner loop
+            /*
+            The inner loop tries to process every deferred event once.
+
+            The outer loop executes the inner loop as many times as necessary, that
+            is, until `event_deferral_queue_` only contains events that are still
+            deferred by any of the currently active states.
+
+            These two levels are necessary, as processing a previously deferred
+            event can change the active states and allow other events of
+            `event_deferral_queue_` to be processed.
+            */
+
+            auto processing_count = 1;
+            while (processing_count != 0) // Outer loop
             {
-                processing_count += static_cast<int>(event_deferral_queue_.invoke_and_pop(*this));
+                processing_count = 0;
+                for (auto i = 0U; i < event_deferral_queue_.size(); ++i) // Inner loop
+                {
+                    processing_count += static_cast<int>(event_deferral_queue_.invoke_and_pop(*this));
+                }
             }
         }
     }
@@ -550,7 +570,7 @@ private:
         {
             constexpr auto is_deferrable_event = detail::type_set_contains_v
             <
-                typename impl_type::deferrable_event_type_set,
+                deferrable_event_type_set,
                 Event
             >;
 
@@ -652,12 +672,7 @@ private:
     Storage for operations that have been postponed by the event deferral
     mechanism.
     */
-    detail::function_queue
-    <
-        machine&,
-        impl_of(conf).small_event_max_size,
-        impl_of(conf).small_event_max_align
-    > event_deferral_queue_;
+    event_deferral_queue_type event_deferral_queue_;
 };
 
 #undef MAKI_DETAIL_MAYBE_CATCH

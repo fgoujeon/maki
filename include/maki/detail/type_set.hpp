@@ -48,6 +48,14 @@ using universal_type_set_t = type_set_exclusion_list<>;
 
 
 /*
+`type_set_empty_v`
+*/
+
+template<class Impl>
+constexpr auto type_set_empty_v = std::is_same_v<Impl, empty_type_set_t>;
+
+
+/*
 `type_set_contains`
 */
 

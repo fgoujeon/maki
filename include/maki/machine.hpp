@@ -380,12 +380,22 @@ private:
         template<bool = true> //Dummy template for lazy evaluation
         struct type{};
     };
-    using operation_queue_type = typename std::conditional_t
+    using rtc_queue_type = typename std::conditional_t
     <
         impl_of(conf).run_to_completion,
         real_operation_queue_holder,
         empty_holder
     >::template type<>;
+
+    template<detail::machine_operation Operation>
+    struct any_event_visitor
+    {
+        template<class Event>
+        static bool call(const Event& event, machine& self)
+        {
+            return self.execute_one_operation<Operation>(event);
+        }
+    };
 
     void start_now()
     {
@@ -451,22 +461,24 @@ private:
 
             execute_one_operation<Operation>(event);
 
-            try_processing_all_deferred_operations();
-
-            // Process enqueued and deferred events, if any
-            while (!operation_queue_.empty())
+            /*
+            Process enqueued and deferred events, if any.
+            We guarantee order of processing: At any given state configuration,
+            if several pending events can be processed, they're processed in the
+            same order they've been given to the `machine`.
+            */
+            try_processing_deferred_operations();
+            while (!rtc_queue_.empty())
             {
-                // Try to process most recently enqueued event
-                operation_queue_.invoke_and_pop(*this);
-
-                try_processing_all_deferred_operations();
+                rtc_queue_.invoke_and_pop(*this);
+                try_processing_deferred_operations();
             }
         }
         else
         {
             execute_one_operation<Operation>(event);
 
-            try_processing_all_deferred_operations();
+            try_processing_deferred_operations();
         }
     }
 
@@ -480,55 +492,36 @@ private:
     template<detail::machine_operation Operation, class Event>
     void push_event_impl(const Event& event)
     {
-        operation_queue_.template push<any_event_visitor<Operation>>(event);
+        rtc_queue_.template push<any_event_visitor<Operation>>(event);
     }
 
     /*
-    Try to process all deferred events.
+    Process all previously deferred events that can now be processed.
     */
-    void try_processing_all_deferred_operations()
+    void try_processing_deferred_operations()
     {
         /*
-        Loop `A` tries to process every deferred event once.
-        Execute loop `A` as many times as necessary, that is, until every event
-        in `deferred_operations_` is deferred by an active state.
+        The inner loop tries to process every deferred event once.
+
+        The outer loop executes the inner loop as many times as necessary, that
+        is, until `event_deferral_queue_` only contains events that are still
+        deferred by any of the currently active states.
+
+        These two levels are necessary, as processing a previously deferred
+        event can change the active states and allow other events of
+        `event_deferral_queue_` to be processed.
         */
+
         auto processing_count = 1;
-        while (processing_count != 0)
+        while (processing_count != 0) // Outer loop
         {
             processing_count = 0;
-            for (auto i = 0U; i < deferred_operations_.size(); ++i) // Loop `A`
+            for (auto i = 0U; i < event_deferral_queue_.size(); ++i) // Inner loop
             {
-                processing_count += static_cast<int>(deferred_operations_.invoke_and_pop(*this));
+                processing_count += static_cast<int>(event_deferral_queue_.invoke_and_pop(*this));
             }
         }
     }
-
-    /**
-    @brief Processes events that have been pushed into the run-to-completion
-    queue.
-
-    Calling this function is only relevant when managing an exception thrown by
-    user code and caught by the state machine.
-    */
-    void process_pending_events()
-    {
-        if(!executing_operation_)
-        {
-            auto grd = executing_operation_guard{*this};
-            operation_queue_.invoke_and_pop_all(*this);
-        }
-    }
-
-    template<detail::machine_operation Operation>
-    struct any_event_visitor
-    {
-        template<class Event>
-        static bool call(const Event& event, machine& self)
-        {
-            return self.execute_one_operation<Operation>(event);
-        }
-    };
 
     template<detail::machine_operation Operation, class Event>
     bool execute_one_operation(const Event& event)
@@ -557,10 +550,10 @@ private:
                 detail::event_action_traits::for_event<Event>::template has_containing_event_set
             >;
 
-            // Defer event if required by an active
+            // Defer the event if required by any of the active states
             if(impl_.template defers_event<Event>())
             {
-                deferred_operations_.template push<any_event_visitor<Operation>>(event);
+                event_deferral_queue_.template push<any_event_visitor<Operation>>(event);
                 return false;
             }
 
@@ -636,14 +629,22 @@ private:
 
     bool executing_operation_ = false;
 
-    operation_queue_type operation_queue_;
+    /*
+    Storage for operations that have been postponed by the run-to-completion
+    mechanism.
+    */
+    rtc_queue_type rtc_queue_;
 
+    /*
+    Storage for operations that have been postponed by the event deferral
+    mechanism.
+    */
     detail::function_queue
     <
         machine&,
         impl_of(conf).small_event_max_size,
         impl_of(conf).small_event_max_align
-    > deferred_operations_;
+    > event_deferral_queue_;
 };
 
 #undef MAKI_DETAIL_MAYBE_CATCH

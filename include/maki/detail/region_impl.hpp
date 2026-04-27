@@ -96,6 +96,8 @@ public:
         states_event_type_set
     >;
 
+    using deferrable_event_type_set = state_type_list_deferrable_event_type_set_t<state_mix_type>;
+
     template<class Machine, class Context>
     region_impl(const region<region_impl>* pitf, Machine& mach, Context& ctx):
         pitf_(pitf),
@@ -125,6 +127,25 @@ public:
     [[nodiscard]] bool completed() const
     {
         return is_active_state_id<&state_molds::fin>();
+    }
+
+    template<class Event>
+    [[nodiscard]] bool defers_event() const
+    {
+        if constexpr(type_set_contains_v<deferrable_event_type_set, Event>)
+        {
+            auto defers = false;
+            with_active_state_id
+            <
+                state_id_constant_list,
+                state_defers_event<Event>
+            >(*this, defers);
+            return defers;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     template<class Context, class Machine>
@@ -229,6 +250,17 @@ private:
         {
             auto& stt = self.template state_type_to_obj<State>();
             impl_of(stt).reset_contexts_with_parent_lifetime();
+        }
+    };
+
+    template<class Event>
+    struct state_defers_event
+    {
+        template<class StateIdConstant>
+        static void call(const region_impl& self, bool& defers)
+        {
+            const auto& stt = self.state_id_to_obj<StateIdConstant::value>();
+            defers = impl_of(stt).template defers_event<Event>();
         }
     };
 

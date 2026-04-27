@@ -64,7 +64,8 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = impl_.internal_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = impl_.exit_actions; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = impl_.pretty_name; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = impl_.transition_tables;
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = impl_.transition_tables; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_deferred_event_type_set_type = detail::type<typename Impl::deferred_event_type_set>;
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     return state_mold \
@@ -75,7 +76,8 @@ public:
             std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
+            std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)>, \
+            typename std::decay_t<decltype(MAKI_DETAIL_ARG_deferred_event_type_set_type)>::type \
         > \
     > \
     { \
@@ -102,7 +104,7 @@ public:
 
     /**
     @brief Sets the lifetime of the context.
-    @note Available from Maki 1.1.0.
+    @note Available since Maki 1.1.0.
     */
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE context_lifetime(const state_context_lifetime value) const
     {
@@ -228,6 +230,48 @@ public:
 #define MAKI_DETAIL_ARG_transition_tables tpl
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_transition_tables
+    }
+
+    /**
+    @brief Add `Event` to the set of @ref event-deferral "deferred event" types.
+    @note Available since Maki 1.2.0.
+    */
+    template<class Event>
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE defer() const
+    {
+        using new_deferred_event_type_set =
+            detail::type_set_union_t
+            <
+                typename impl_type::deferred_event_type_set,
+                detail::type_set_item<Event>
+            >
+        ;
+
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_deferred_event_type_set_type detail::type<new_deferred_event_type_set>
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_deferred_event_type_set_type
+    }
+
+    /**
+    @brief Add `events` to the set of @ref event-deferral "deferred event" types.
+    @note Available since Maki 1.2.0.
+    */
+    template<class EventSetImpl>
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE defer(const event_set<EventSetImpl>& /*events*/) const
+    {
+        using new_deferred_event_type_set =
+            detail::type_set_union_t
+            <
+                typename impl_type::deferred_event_type_set,
+                EventSetImpl
+            >
+        ;
+
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_deferred_event_type_set_type detail::type<new_deferred_event_type_set>
+        MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_deferred_event_type_set_type
     }
 
 private:

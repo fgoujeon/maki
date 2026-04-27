@@ -43,6 +43,10 @@ public:
         >
     ;
 
+    using deferrable_event_type_set =
+        typename option_set_type::deferred_event_type_set
+    ;
+
     template<class... Args>
     constexpr simple_no_context(Args&... /*args*/)
     {
@@ -53,6 +57,23 @@ public:
     simple_no_context& operator=(const simple_no_context&) = default;
     simple_no_context& operator=(simple_no_context&&) = default;
     ~simple_no_context() = default;
+
+    template<class Event>
+    [[nodiscard]] static constexpr bool defers_event()
+    {
+        if constexpr(type_set_contains_v<deferrable_event_type_set, Event>)
+        {
+            return type_set_contains_v
+            <
+                deferrable_event_type_set,
+                Event
+            >;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
     template<class ParentContext, class Machine>
     static constexpr void emplace_contexts_with_parent_lifetime(ParentContext& /*parent_ctx*/, Machine& /*mach*/)

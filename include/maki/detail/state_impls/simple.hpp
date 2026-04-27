@@ -29,6 +29,10 @@ public:
 
     using event_type_set = typename impl_type::event_type_set;
 
+    using deferrable_event_type_set =
+        typename impl_type::deferrable_event_type_set
+    ;
+
     static constexpr auto context_sig = impl_of(mold).context_sig;
 
     template<class... Args>
@@ -51,6 +55,12 @@ public:
     const auto& context() const
     {
         return ctx_holder_.get();
+    }
+
+    template<class Event>
+    [[nodiscard]] static constexpr bool defers_event()
+    {
+        return impl_type::template defers_event<Event>();
     }
 
     template<class ParentContext, class Machine>

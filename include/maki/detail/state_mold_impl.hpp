@@ -9,6 +9,7 @@
 
 #include "../context.hpp"
 #include "mix.hpp"
+#include "type_set.hpp"
 #include <string_view>
 
 namespace maki::detail
@@ -20,12 +21,14 @@ template
     class EntryActionTuple = mix<>,
     class InternalActionTuple = mix<>,
     class ExitActionTuple = mix<>,
-    class TransitionTableTuple = mix<>
+    class TransitionTableTuple = mix<>,
+    class DeferredEventTypeSet = empty_type_set_t
 >
 struct state_mold_impl
 {
     using context_type = Context;
     using internal_action_mix_type = InternalActionTuple;
+    using deferred_event_type_set = DeferredEventTypeSet;
 
     state_context_signature context_sig = state_context_signature::v;
     state_context_lifetime context_lifetime = state_context_lifetime::parent;

@@ -105,6 +105,23 @@ using region_type_list_event_type_set = tlu::left_fold_t
     empty_type_set_t
 >;
 
+template<class EventTypeSet, class Region>
+using region_type_list_deferrable_event_type_set_operation =
+    type_set_union_t
+    <
+        EventTypeSet,
+        typename impl_of_t<Region>::deferrable_event_type_set
+    >
+;
+
+template<class RegionTypeList>
+using region_type_list_deferrable_event_type_set = tlu::left_fold_t
+<
+    RegionTypeList,
+    region_type_list_deferrable_event_type_set_operation,
+    empty_type_set_t
+>;
+
 template<auto Id, const auto& Path, context_storage ParentCtxStorage>
 class composite_no_context
 {
@@ -148,6 +165,12 @@ public:
     <
         typename impl_type::event_type_set,
         region_type_list_event_type_set<region_mix_type>
+    >;
+
+    using deferrable_event_type_set = type_set_union_t
+    <
+        typename impl_type::deferrable_event_type_set,
+        region_type_list_deferrable_event_type_set<region_mix_type>
     >;
 
     template<class Machine, class Context>
@@ -247,6 +270,26 @@ public:
         >(*this);
     }
 
+    template<class Event>
+    [[nodiscard]] bool defers_event() const
+    {
+        if constexpr(type_set_contains_v<deferrable_event_type_set, Event>)
+        {
+            return
+                impl_type::template defers_event<Event>() ||
+                tlu::for_each_or
+                <
+                    region_mix_type,
+                    region_defers_event<Event>
+                >(*this)
+            ;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     template<int Index>
     [[nodiscard]] const auto& region() const
     {
@@ -333,6 +376,16 @@ private:
         static void call(Self& self)
         {
             impl_of(get<Region>(self.regions_)).reset_contexts_with_parent_lifetime();
+        }
+    };
+
+    template<class Event>
+    struct region_defers_event
+    {
+        template<class Region>
+        static bool call(const composite_no_context& self)
+        {
+            return impl_of(get<Region>(self.regions_)).template defers_event<Event>();
         }
     };
 

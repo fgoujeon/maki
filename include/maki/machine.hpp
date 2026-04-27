@@ -342,6 +342,24 @@ public:
     }
 
 private:
+    static constexpr auto path = detail::path_impl{};
+    using impl_type =
+        detail::state_impls::composite_no_context
+        <
+            &conf,
+            path,
+            detail::context_storage::plain
+        >
+    ;
+
+    using deferrable_event_type_set =
+        typename impl_type::deferrable_event_type_set
+    ;
+
+    static constexpr bool has_deferrable_events =
+        !detail::type_set_empty_v<deferrable_event_type_set>
+    ;
+
     class executing_operation_guard
     {
     public:
@@ -365,7 +383,7 @@ private:
         machine& self_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
     };
 
-    struct real_operation_queue_holder
+    struct real_function_queue_holder
     {
         template<bool = true> //Dummy template for lazy evaluation
         using type = detail::function_queue
@@ -375,17 +393,36 @@ private:
             impl_of(conf).small_event_max_align
         >;
     };
+
     struct empty_holder
     {
         template<bool = true> //Dummy template for lazy evaluation
         struct type{};
     };
-    using operation_queue_type = typename std::conditional_t
+
+    using rtc_queue_type = typename std::conditional_t
     <
         impl_of(conf).run_to_completion,
-        real_operation_queue_holder,
+        real_function_queue_holder,
         empty_holder
     >::template type<>;
+
+    using event_deferral_queue_type = typename std::conditional_t
+    <
+        has_deferrable_events,
+        real_function_queue_holder,
+        empty_holder
+    >::template type<>;
+
+    template<detail::machine_operation Operation>
+    struct any_event_visitor
+    {
+        template<class Event>
+        static bool call(const Event& event, machine& self)
+        {
+            return self.execute_one_operation<Operation>(event);
+        }
+    };
 
     void start_now()
     {
@@ -451,12 +488,24 @@ private:
 
             execute_one_operation<Operation>(event);
 
-            //Process enqueued events, if any
-            operation_queue_.invoke_and_pop_all(*this);
+            /*
+            Process enqueued and deferred events, if any.
+            We guarantee order of processing: At any given state configuration,
+            if several pending events can be processed, they're processed in the
+            same order they've been given to the `machine`.
+            */
+            try_processing_deferred_operations();
+            while (!rtc_queue_.empty())
+            {
+                rtc_queue_.invoke_and_pop(*this);
+                try_processing_deferred_operations();
+            }
         }
         else
         {
             execute_one_operation<Operation>(event);
+
+            try_processing_deferred_operations();
         }
     }
 
@@ -470,48 +519,61 @@ private:
     template<detail::machine_operation Operation, class Event>
     void push_event_impl(const Event& event)
     {
-        operation_queue_.template push<any_event_visitor<Operation>>(event);
+        rtc_queue_.template push<any_event_visitor<Operation>>(event);
     }
 
-    /**
-    @brief Processes events that have been pushed into the run-to-completion
-    queue.
-
-    Calling this function is only relevant when managing an exception thrown by
-    user code and caught by the state machine.
+    /*
+    Process all previously deferred events that can now be processed.
     */
-    void process_pending_events()
+    void try_processing_deferred_operations()
     {
-        if(!executing_operation_)
+        if constexpr(has_deferrable_events)
         {
-            auto grd = executing_operation_guard{*this};
-            operation_queue_.invoke_and_pop_all(*this);
+            /*
+            The inner loop tries to process every deferred event once.
+
+            The outer loop executes the inner loop as many times as necessary, that
+            is, until `event_deferral_queue_` only contains events that are still
+            deferred by any of the currently active states.
+
+            These two levels are necessary, as processing a previously deferred
+            event can change the active states and allow other events of
+            `event_deferral_queue_` to be processed.
+            */
+
+            auto processing_count = 1;
+            while (processing_count != 0) // Outer loop
+            {
+                processing_count = 0;
+                for (auto i = 0U; i < event_deferral_queue_.size(); ++i) // Inner loop
+                {
+                    processing_count += static_cast<int>(event_deferral_queue_.invoke_and_pop(*this));
+                }
+            }
         }
     }
-
-    template<detail::machine_operation Operation>
-    struct any_event_visitor
-    {
-        template<class Event>
-        static void call(const Event& event, machine& self)
-        {
-            self.execute_one_operation<Operation>(event);
-        }
-    };
 
     template<detail::machine_operation Operation, class Event>
-    void execute_one_operation(const Event& event)
+    bool execute_one_operation(const Event& event)
     {
         if constexpr(Operation == detail::machine_operation::start)
         {
             impl_.enter(*this, context(), event);
+            return true;
         }
         else if constexpr(Operation == detail::machine_operation::stop)
         {
             impl_.exit_to_finals(*this, context(), event);
+            return true;
         }
         else
         {
+            constexpr auto is_deferrable_event = detail::type_set_contains_v
+            <
+                deferrable_event_type_set,
+                Event
+            >;
+
             constexpr auto has_matching_pre_processing_hook = detail::tlu::contains_if_v
             <
                 pre_processing_hook_ptr_constant_list,
@@ -523,6 +585,16 @@ private:
                 post_processing_hook_ptr_constant_list,
                 detail::event_action_traits::for_event<Event>::template has_containing_event_set
             >;
+
+            // Defer the event if required by any of the active states
+            if constexpr(is_deferrable_event)
+            {
+                if(impl_.template defers_event<Event>())
+                {
+                    event_deferral_queue_.template push<any_event_visitor<Operation>>(event);
+                    return false;
+                }
+            }
 
             //If running, execute pre-processing hook for `Event`, if any.
             if constexpr(has_matching_pre_processing_hook)
@@ -548,6 +620,7 @@ private:
                 if(running())
                 {
                     const auto processed = impl_.template call_internal_action<false>(*this, context(), event);
+
                     detail::call_matching_event_action<post_processing_hook_ptr_constant_list>
                     (
                         *this,
@@ -567,12 +640,13 @@ private:
 
                 impl_.template call_internal_action<false>(*this, context(), event);
             }
+
+            return true;
         }
     }
 
     static constexpr auto pre_processing_hooks = impl_of(conf).pre_processing_hooks;
     static constexpr auto post_processing_hooks = impl_of(conf).post_processing_hooks;
-    static constexpr auto path = detail::path_impl{};
 
     using pre_processing_hook_ptr_constant_list = detail::mix_constant_list_t<pre_processing_hooks>;
     using post_processing_hook_ptr_constant_list = detail::mix_constant_list_t<post_processing_hooks>;
@@ -583,14 +657,22 @@ private:
         detail::context_storage::plain,
         impl_of(conf).context_sig
     > ctx_holder_;
-    detail::state_impls::composite_no_context
-    <
-        &conf,
-        path,
-        detail::context_storage::plain
-    > impl_;
+
+    impl_type impl_;
+
     bool executing_operation_ = false;
-    operation_queue_type operation_queue_;
+
+    /*
+    Storage for operations that have been postponed by the run-to-completion
+    mechanism.
+    */
+    rtc_queue_type rtc_queue_;
+
+    /*
+    Storage for operations that have been postponed by the event deferral
+    mechanism.
+    */
+    event_deferral_queue_type event_deferral_queue_;
 };
 
 #undef MAKI_DETAIL_MAYBE_CATCH

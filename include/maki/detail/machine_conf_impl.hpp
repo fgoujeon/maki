@@ -13,6 +13,7 @@
 #define MAKI_MACHINE_CONF_IMPL_HPP
 
 #include "mix.hpp"
+#include "type_set.hpp"
 #include "../context.hpp"
 #include "../null.hpp"
 #include <cstdlib>
@@ -47,6 +48,7 @@ struct machine_conf_impl
     using pre_processing_hook_tuple_type = PreProcessingHookTuple;
     using post_processing_hook_tuple_type = PostProcessingHookTuple;
     using internal_action_mix_type = mix<>;
+    using deferred_event_type_set = empty_type_set_t;
 
     bool auto_start = true;
     machine_context_signature context_sig = machine_context_signature::a;

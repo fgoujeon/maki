@@ -30,6 +30,7 @@ public:
     using context_type = typename option_set_type::context_type;
     using impl_type = composite_no_context<identifier, Path, ParentCtxStorage>;
     using event_type_set = typename impl_type::event_type_set;
+    using deferrable_event_type_set = typename impl_type::deferrable_event_type_set;
 
     template<class Machine, class ParentContext>
     composite(Machine& mach, ParentContext& parent_ctx):
@@ -52,6 +53,12 @@ public:
     const auto& context() const
     {
         return ctx_holder_.get();
+    }
+
+    template<class Event>
+    [[nodiscard]] bool defers_event() const
+    {
+        return impl_.template defers_event<Event>();
     }
 
     template<class Context, class Machine>

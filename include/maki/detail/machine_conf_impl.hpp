@@ -13,7 +13,7 @@
 #define MAKI_MACHINE_CONF_IMPL_HPP
 
 #include "mix.hpp"
-#include "../event_set.hpp"
+#include "type_set.hpp"
 #include "../context.hpp"
 #include "../null.hpp"
 #include <cstdlib>

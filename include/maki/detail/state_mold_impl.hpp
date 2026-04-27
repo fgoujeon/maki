@@ -7,7 +7,6 @@
 #ifndef MAKI_STATE_MOLD_IMPL_HPP
 #define MAKI_STATE_MOLD_IMPL_HPP
 
-#include "../event_set.hpp"
 #include "../context.hpp"
 #include "mix.hpp"
 #include "type_set.hpp"

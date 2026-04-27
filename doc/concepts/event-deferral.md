@@ -36,6 +36,8 @@ The example above is a typical one: the system can't process user requests becau
 
 ## How to Defer an Event with Maki
 
+*Available since Maki 1.2.0*
+
 Call `maki::state_mold::defer()` to add an event type to the set of deferred event types of a state:
 
 @snippet concepts/event-deferral/src/main.cpp state-mold

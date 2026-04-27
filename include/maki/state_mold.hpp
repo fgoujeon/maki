@@ -104,7 +104,7 @@ public:
 
     /**
     @brief Sets the lifetime of the context.
-    @note Available from Maki 1.1.0.
+    @note Available since Maki 1.1.0.
     */
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE context_lifetime(const state_context_lifetime value) const
     {
@@ -234,6 +234,7 @@ public:
 
     /**
     @brief Add `Event` to the set of @ref event-deferral "deferred event" types.
+    @note Available since Maki 1.2.0.
     */
     template<class Event>
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE defer() const
@@ -254,6 +255,7 @@ public:
 
     /**
     @brief Add `events` to the set of @ref event-deferral "deferred event" types.
+    @note Available since Maki 1.2.0.
     */
     template<class EventSetImpl>
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE defer(const event_set<EventSetImpl>& /*events*/) const

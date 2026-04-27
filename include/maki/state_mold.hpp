@@ -232,6 +232,9 @@ public:
 #undef MAKI_DETAIL_ARG_transition_tables
     }
 
+    /**
+    @brief Add `Event` to the set of @ref event-deferral "deferred event" types.
+    */
     template<class Event>
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE defer() const
     {
@@ -249,6 +252,9 @@ public:
 #undef MAKI_DETAIL_ARG_deferred_event_type_set_type
     }
 
+    /**
+    @brief Add `events` to the set of @ref event-deferral "deferred event" types.
+    */
     template<class EventSetImpl>
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE defer(const event_set<EventSetImpl>& /*events*/) const
     {

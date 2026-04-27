@@ -16,6 +16,7 @@ The concepts are the following:
 * @subpage run-to-completion
 * @subpage composite-state
 * @subpage region
+* @subpage event-deferral
 * @subpage transition
 * @subpage pseudostate
 

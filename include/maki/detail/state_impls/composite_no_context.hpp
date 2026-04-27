@@ -273,14 +273,21 @@ public:
     template<class Event>
     [[nodiscard]] bool defers_event() const
     {
-        return
-            impl_type::template defers_event<Event>() ||
-            tlu::for_each_or
-            <
-                region_mix_type,
-                region_defers_event<Event>
-            >(*this)
-        ;
+        if constexpr(type_set_contains_v<deferrable_event_type_set, Event>)
+        {
+            return
+                impl_type::template defers_event<Event>() ||
+                tlu::for_each_or
+                <
+                    region_mix_type,
+                    region_defers_event<Event>
+                >(*this)
+            ;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     template<int Index>

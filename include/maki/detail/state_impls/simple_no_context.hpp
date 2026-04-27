@@ -61,11 +61,18 @@ public:
     template<class Event>
     [[nodiscard]] static constexpr bool defers_event()
     {
-        return type_set_contains_v
-        <
-            deferrable_event_type_set,
-            Event
-        >;
+        if constexpr(type_set_contains_v<deferrable_event_type_set, Event>)
+        {
+            return type_set_contains_v
+            <
+                deferrable_event_type_set,
+                Event
+            >;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     template<class ParentContext, class Machine>

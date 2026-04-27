@@ -132,13 +132,20 @@ public:
     template<class Event>
     [[nodiscard]] bool defers_event() const
     {
-        auto defers = false;
-        with_active_state_id
-        <
-            state_id_constant_list,
-            state_defers_event<Event>
-        >(*this, defers);
-        return defers;
+        if constexpr(type_set_contains_v<deferrable_event_type_set, Event>)
+        {
+            auto defers = false;
+            with_active_state_id
+            <
+                state_id_constant_list,
+                state_defers_event<Event>
+            >(*this, defers);
+            return defers;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     template<class Context, class Machine>

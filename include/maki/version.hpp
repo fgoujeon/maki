@@ -18,8 +18,8 @@ namespace maki::version
 {
 
 constexpr auto major = 1;
-constexpr auto minor = 1;
-constexpr auto patch = 1;
+constexpr auto minor = 2;
+constexpr auto patch = 0;
 
 } //namespace
 

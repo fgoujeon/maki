@@ -35,7 +35,6 @@ Besides its features, Maki:
 What is *not* implemented (yet):
 
 * elaborate ways to enter and exit a composite state (e.g. forks, history and exit points);
-* event deferral;
 * optional thread safety with mutexes.
 
 ## Documentation

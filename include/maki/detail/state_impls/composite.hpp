@@ -61,10 +61,15 @@ public:
         return impl_.template defers_event<Event>();
     }
 
-    template<class Context, class Machine>
-    void emplace_contexts_with_parent_lifetime(Context& ctx, Machine& mach)
+    template<class ParentContext, class Machine>
+    void emplace_contexts_with_parent_lifetime(ParentContext& parent_ctx, Machine& mach)
     {
-        impl_.emplace_contexts_with_parent_lifetime(ctx, mach);
+        if constexpr(ctx_lifetime == state_context_lifetime::parent)
+        {
+            ctx_holder_.emplace(mach, parent_ctx);
+        }
+
+        impl_.emplace_contexts_with_parent_lifetime(parent_ctx, mach);
     }
 
     template<class Machine, class ParentContext, class Event>
@@ -126,6 +131,11 @@ public:
     void reset_contexts_with_parent_lifetime()
     {
         impl_.reset_contexts_with_parent_lifetime();
+
+        if constexpr(ctx_lifetime == state_context_lifetime::parent)
+        {
+            ctx_holder_.reset();
+        }
     }
 
     template<int Index>

@@ -66,10 +66,13 @@ public:
     {
         if constexpr(ctx_lifetime == state_context_lifetime::parent)
         {
-            ctx_holder_.emplace(mach, parent_ctx);
+            auto& ctx = ctx_holder_.emplace(mach, parent_ctx);
+            impl_.emplace_contexts_with_parent_lifetime(ctx, mach);
         }
-
-        impl_.emplace_contexts_with_parent_lifetime(parent_ctx, mach);
+        else
+        {
+            impl_.emplace_contexts_with_parent_lifetime(parent_ctx, mach);
+        }
     }
 
     template<class Machine, class ParentContext, class Event>

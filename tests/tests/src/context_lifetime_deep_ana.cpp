@@ -7,13 +7,12 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace context_lifetime_deep_ns
+namespace context_lifetime_deep_ana_ns
 {
     struct context
     {
         int i = 0;
         int context_1_destructor_called = 0;
-        int context_2_destructor_called = 0;
         int context_3_destructor_called = 0;
     };
 
@@ -34,26 +33,9 @@ namespace context_lifetime_deep_ns
         int& i = parent.i;
     };
 
-    struct context_2
-    {
-        context_2(context_1& parent):
-            parent(parent)
-        {
-        }
-
-        ~context_2()
-        {
-            ++root.context_2_destructor_called;
-        }
-
-        context_1& parent;
-        context& root = parent.root;
-        int& i = parent.i;
-    };
-
     struct context_3
     {
-        context_3(context_2& parent):
+        context_3(context_1& parent):
             parent(parent)
         {
         }
@@ -63,7 +45,7 @@ namespace context_lifetime_deep_ns
             ++root.context_3_destructor_called;
         }
 
-        context_2& parent;
+        context_1& parent;
         context& root = parent.root;
         int& i = parent.i;
     };
@@ -87,7 +69,6 @@ namespace context_lifetime_deep_ns
 
     constexpr auto state_2 = maki::state_mold{}
         .transition_tables(transition_table_2)
-        .context_c<context_2>()
     ;
 
     constexpr auto transition_table_1 = maki::transition_table{}
@@ -114,9 +95,9 @@ namespace context_lifetime_deep_ns
     using machine_t = maki::machine<machine_conf>;
 }
 
-TEST_CASE("context_lifetime_deep")
+TEST_CASE("context_lifetime_deep_ana")
 {
-    using namespace context_lifetime_deep_ns;
+    using namespace context_lifetime_deep_ana_ns;
 
     auto machine = machine_t{};
     auto& ctx = machine.context();
@@ -124,11 +105,9 @@ TEST_CASE("context_lifetime_deep")
     machine.start();
     REQUIRE(ctx.i == 1);
     REQUIRE(ctx.context_1_destructor_called == 0);
-    REQUIRE(ctx.context_2_destructor_called == 0);
     REQUIRE(ctx.context_3_destructor_called == 0);
 
     machine.process_event(out_event{});
     REQUIRE(ctx.context_1_destructor_called == 1);
-    REQUIRE(ctx.context_2_destructor_called == 1);
     REQUIRE(ctx.context_3_destructor_called == 1);
 }

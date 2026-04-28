@@ -66,12 +66,7 @@ public:
     {
         if constexpr(ctx_lifetime == state_context_lifetime::parent)
         {
-            auto& ctx = ctx_holder_.emplace(mach, parent_ctx);
-            impl_.emplace_contexts_with_parent_lifetime(ctx, mach);
-        }
-        else
-        {
-            impl_.emplace_contexts_with_parent_lifetime(parent_ctx, mach);
+            emplace_context(parent_ctx, mach);
         }
     }
 
@@ -85,8 +80,7 @@ public:
     {
         if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
         {
-            auto& ctx = ctx_holder_.emplace(mach, parent_ctx);
-            impl_.emplace_contexts_with_parent_lifetime(ctx, mach);
+            emplace_context(parent_ctx, mach);
         }
 
         impl_.enter(mach, ctx_holder_.get_deep(), event);
@@ -126,18 +120,15 @@ public:
 
         if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
         {
-            impl_.reset_contexts_with_parent_lifetime();
-            ctx_holder_.reset();
+            reset_context();
         }
     }
 
     void reset_contexts_with_parent_lifetime()
     {
-        impl_.reset_contexts_with_parent_lifetime();
-
         if constexpr(ctx_lifetime == state_context_lifetime::parent)
         {
-            ctx_holder_.reset();
+            reset_context();
         }
     }
 
@@ -165,6 +156,29 @@ public:
     }
 
 private:
+    template<class ParentContext, class Machine>
+    void emplace_context(ParentContext& parent_ctx, Machine& mach)
+    {
+        auto& ctx = ctx_holder_.emplace(mach, parent_ctx);
+
+        /*
+        Also emplace contexts of substates, which depend on the context we just
+        emplaced.
+        */
+        impl_.emplace_contexts_with_parent_lifetime(ctx, mach);
+    }
+
+    void reset_context()
+    {
+        /*
+        First reset contexts of substates, which depend on the context we're
+        about to reset.
+        */
+        impl_.reset_contexts_with_parent_lifetime();
+
+        ctx_holder_.reset();
+    }
+
     static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
 
     static constexpr auto ctx_storage =

@@ -21,6 +21,7 @@ Maki implements the following key features:
 * **orthogonal regions**;
 * **composite states**;
 * **state data**;
+* **event deferral**;
 * **event type sets**;
 * **state sets**.
 

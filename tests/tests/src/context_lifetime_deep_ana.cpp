@@ -11,8 +11,10 @@ namespace context_lifetime_deep_ana_ns
 {
     struct context
     {
-        int i = 0;
+        int context_1_constructor_called = 0;
         int context_1_destructor_called = 0;
+
+        int context_3_constructor_called = 0;
         int context_3_destructor_called = 0;
     };
 
@@ -21,16 +23,21 @@ namespace context_lifetime_deep_ana_ns
         context_1(context& parent):
             parent(parent)
         {
+            ++context_1_constructor_called;
         }
 
         ~context_1()
         {
-            ++root.context_1_destructor_called;
+            ++context_1_destructor_called;
         }
 
         context& parent;
-        context& root = parent;
-        int& i = parent.i;
+
+        int& context_1_constructor_called = parent.context_1_constructor_called;
+        int& context_1_destructor_called = parent.context_1_destructor_called;
+
+        int& context_3_constructor_called = parent.context_3_constructor_called;
+        int& context_3_destructor_called = parent.context_3_destructor_called;
     };
 
     struct context_3
@@ -38,16 +45,18 @@ namespace context_lifetime_deep_ana_ns
         context_3(context_1& parent):
             parent(parent)
         {
+            ++context_3_constructor_called;
         }
 
         ~context_3()
         {
-            ++root.context_3_destructor_called;
+            ++context_3_destructor_called;
         }
 
         context_1& parent;
-        context& root = parent.root;
-        int& i = parent.i;
+
+        int& context_3_constructor_called = parent.context_3_constructor_called;
+        int& context_3_destructor_called = parent.context_3_destructor_called;
     };
 
     struct out_event{};
@@ -55,11 +64,6 @@ namespace context_lifetime_deep_ana_ns
     constexpr auto state_3 = maki::state_mold{}
         .context_c<context_3>()
         .context_lifetime(maki::state_context_lifetime::state_activity)
-        .entry_action_c(
-            [](context_3& ctx)
-            {
-                ++ctx.i;
-            })
     ;
 
     constexpr auto transition_table_2 = maki::transition_table{}
@@ -103,11 +107,14 @@ TEST_CASE("context_lifetime_deep_ana")
     auto& ctx = machine.context();
 
     machine.start();
-    REQUIRE(ctx.i == 1);
+    REQUIRE(ctx.context_1_constructor_called == 1);
     REQUIRE(ctx.context_1_destructor_called == 0);
+    REQUIRE(ctx.context_3_constructor_called == 1);
     REQUIRE(ctx.context_3_destructor_called == 0);
 
     machine.process_event(out_event{});
+    REQUIRE(ctx.context_1_constructor_called == 1);
     REQUIRE(ctx.context_1_destructor_called == 1);
+    REQUIRE(ctx.context_3_constructor_called == 1);
     REQUIRE(ctx.context_3_destructor_called == 1);
 }

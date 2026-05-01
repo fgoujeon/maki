@@ -21,9 +21,6 @@
 #include "type_list.hpp"
 #include "constant.hpp"
 #include "friendly_impl.hpp"
-#include "tlu/empty.hpp"
-#include "tlu/find.hpp"
-#include "tlu/front.hpp"
 #include "../states.hpp"
 #include "../action.hpp"
 #include "../guard.hpp"
@@ -45,13 +42,14 @@ namespace maki::detail
 
 namespace region_detail
 {
+    inline constexpr auto undefined_state_mold_index = -3;
     inline constexpr auto null_state_mold_index = -2;
     inline constexpr auto final_state_mold_index = -1;
 
     template<const auto& TransitionTable, int StateMoldIndex>
     constexpr auto state_mold_index_to_state_mold()
     {
-        if constexpr(StateMoldIndex == static_cast<int>(impl_of(TransitionTable).size))
+        if constexpr(StateMoldIndex == undefined_state_mold_index)
         {
             return &maki::undefined;
         }
@@ -87,7 +85,7 @@ namespace region_detail
     {
         if constexpr(ptr_equals(StateMold, &maki::undefined))
         {
-            return impl_of(TransitionTable).size;
+            return undefined_state_mold_index;
         }
         else if constexpr(ptr_equals(StateMold, &state_molds::null))
         {
@@ -123,8 +121,6 @@ template<const auto& TransitionTable, const auto& Path, context_storage ParentCt
 class region_impl
 {
 public:
-    static constexpr auto undefined_state_index = impl_of(TransitionTable).size;
-
     using transition_table_type = std::decay_t<decltype(TransitionTable)>;
 
     using transition_table_digest_type =
@@ -139,7 +135,7 @@ public:
         index_sequence_push_back_t
         <
             state_mold_index_sequence_0,
-            undefined_state_index
+            region_detail::undefined_state_mold_index
         >
     ;
 
@@ -611,7 +607,7 @@ private:
             TargetStateMoldIndex != region_detail::null_state_mold_index
         )
         {
-            active_state_mold_index_ = undefined_state_index;
+            active_state_mold_index_ = region_detail::undefined_state_mold_index;
         }
 
         /*

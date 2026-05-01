@@ -38,17 +38,17 @@ namespace transition_table_digest_ns
 
     using digest_t = maki::detail::transition_table_digest<transition_table>;
 
-    using state_mold_ptr_constant_list = maki::detail::type_list_t
+    using expected_unique_target_state_mold_index_sequence = maki::detail::index_sequence
     <
-        maki::detail::constant_t<&state0>,
-        maki::detail::constant_t<&state1>,
-        maki::detail::constant_t<&state2>,
-        maki::detail::constant_t<&state3>
+        0,
+        1,
+        2,
+        3
     >;
 }
 
 TEST_CASE("detail::transition_table_digest")
 {
     using namespace transition_table_digest_ns;
-    REQUIRE(std::is_same_v<digest_t::state_id_constant_list, state_mold_ptr_constant_list>);
+    REQUIRE(std::is_same_v<digest_t::unique_target_state_mold_index_sequence, expected_unique_target_state_mold_index_sequence>);
 }

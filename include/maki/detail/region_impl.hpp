@@ -61,6 +61,21 @@ namespace region_detail
 
     template<class StateIdConstantList, auto StateId>
     inline constexpr auto state_id_to_index_v = state_id_to_index<StateIdConstantList, StateId>::value;
+
+    template<const auto& TransitionTable, class TransitionIndexSequence>
+    struct transition_index_sequence_to_state_id_constant_list;
+
+    template<const auto& TransitionTable, int... TransitionIndexes>
+    struct transition_index_sequence_to_state_id_constant_list<TransitionTable, index_sequence<TransitionIndexes...>>
+    {
+        using type = type_list_t
+        <
+            constant_t
+            <
+                tuple_get<TransitionIndexes>(impl_of(TransitionTable)).target_state_mold
+            >...
+        >;
+    };
 }
 
 template<const auto& TransitionTable, const auto& Path, context_storage ParentCtxStorage>
@@ -73,7 +88,14 @@ public:
         transition_table_digest<TransitionTable>
     ;
 
-    using state_id_constant_list_0 = typename transition_table_digest_type::state_id_constant_list;
+    using state_id_constant_list_0 =
+        typename region_detail::transition_index_sequence_to_state_id_constant_list
+        <
+            TransitionTable,
+            typename transition_table_digest_type::unique_target_state_mold_index_sequence
+        >::type
+    ;
+
     using state_id_constant_list = tlu::push_back_t<state_id_constant_list_0, constant_t<&maki::undefined>>;
 
     template<class... StateIdConstants>

@@ -32,6 +32,23 @@ using index_sequence_apply_t = typename index_sequence_apply<Seq, F>::type;
 
 
 /*
+index_sequence_size_v
+*/
+
+template<class Seq>
+struct index_sequence_size;
+
+template<int... Is>
+struct index_sequence_size<index_sequence<Is...>>
+{
+    static constexpr int value = static_cast<int>(sizeof...(Is));
+};
+
+template<class Seq>
+constexpr bool index_sequence_size_v = index_sequence_size<Seq>::value;
+
+
+/*
 index_sequence_push_back_t
 */
 
@@ -69,6 +86,69 @@ struct index_sequence_push_back_if<index_sequence<Is...>, I, true>
 
 template<class Seq, int I, bool Condition>
 using index_sequence_push_back_if_t = typename index_sequence_push_back_if<Seq, I, Condition>::type;
+
+
+/*
+index_sequence_push_front_if_t
+*/
+
+template<class Seq, int I, bool Condition>
+struct index_sequence_push_front_if;
+
+template<int... Is, int I>
+struct index_sequence_push_front_if<index_sequence<Is...>, I, false>
+{
+    using type = index_sequence<Is...>;
+};
+
+template<int... Is, int I>
+struct index_sequence_push_front_if<index_sequence<Is...>, I, true>
+{
+    using type = index_sequence<I, Is...>;
+};
+
+template<class Seq, int I, bool Condition>
+using index_sequence_push_front_if_t = typename index_sequence_push_front_if<Seq, I, Condition>::type;
+
+
+/*
+index_sequence_filter
+*/
+
+template
+<
+    class Seq,
+    template<int> class Predicate
+>
+struct index_sequence_filter;
+
+template
+<
+    int I,
+    int... Is,
+    template<int> class Predicate
+>
+struct index_sequence_filter<index_sequence<I, Is...>, Predicate>
+{
+    using type = index_sequence_push_front_if_t
+    <
+        typename index_sequence_filter<index_sequence<Is...>, Predicate>::type,
+        I,
+        Predicate<I>::value
+    >;
+};
+
+template
+<
+    template<int> class Predicate
+>
+struct index_sequence_filter<index_sequence<>, Predicate>
+{
+    using type = index_sequence<>;
+};
+
+template<class Seq, template<int> class Predicate>
+using index_sequence_filter_t = typename index_sequence_filter<Seq, Predicate>::type;
 
 
 /*

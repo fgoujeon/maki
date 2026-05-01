@@ -13,14 +13,11 @@
 #include "state_id_to_state.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
-#include "state_type_list_filters.hpp"
 #include "context_storage.hpp"
 #include "equals.hpp"
 #include "tuple.hpp"
 #include "mix.hpp"
 #include "index_sequence.hpp"
-#include "type_list.hpp"
-#include "constant.hpp"
 #include "friendly_impl.hpp"
 #include "../states.hpp"
 #include "../action.hpp"
@@ -101,20 +98,26 @@ namespace region_detail
         }
     }
 
-    template<const auto& TransitionTable, class TransitionIndexSequence>
-    struct transition_index_sequence_to_state_id_constant_list;
-
-    template<const auto& TransitionTable, int... TransitionIndexes>
-    struct transition_index_sequence_to_state_id_constant_list<TransitionTable, index_sequence<TransitionIndexes...>>
+    namespace filter_state_mold_index_sequence_by_state_set_detail
     {
-        using type = type_list_t
-        <
-            constant_t
-            <
-                state_mold_index_to_state_mold<TransitionTable, TransitionIndexes>()
-            >...
-        >;
-    };
+        template<const auto& TransitionTable, auto StateSetPtr>
+        struct for_state_set
+        {
+            template<int StateMoldIndex>
+            struct matches
+            {
+                static constexpr auto state_id = state_mold_index_to_state_mold<TransitionTable, StateMoldIndex>();
+                static constexpr bool value = contains(impl_of(*StateSetPtr), state_id);
+            };
+        };
+    }
+
+    template<const auto& TransitionTable, class StateMoldIndexSequence, auto StateSetPtr>
+    using filter_state_mold_index_sequence_by_state_set_t = index_sequence_filter_t
+    <
+        StateMoldIndexSequence,
+        filter_state_mold_index_sequence_by_state_set_detail::for_state_set<TransitionTable, StateSetPtr>::template matches
+    >;
 }
 
 template<const auto& TransitionTable, const auto& Path, context_storage ParentCtxStorage>
@@ -137,14 +140,6 @@ public:
             state_mold_index_sequence_0,
             state_mold_indexes::undefined
         >
-    ;
-
-    using state_id_constant_list =
-        typename region_detail::transition_index_sequence_to_state_id_constant_list
-        <
-            TransitionTable,
-            state_mold_index_sequence
-        >::type
     ;
 
     template<int... TransitionIndexes>
@@ -441,17 +436,18 @@ private:
             if constexpr(is_state_set_v<std::decay_t<decltype(source_state_mold)>>)
             {
                 //List of state molds that belong to the source state set
-                using matching_state_mold_constant_list = state_type_list_filters::by_state_set_t
+                using matching_state_mold_index_sequence = region_detail::filter_state_mold_index_sequence_by_state_set_t
                 <
-                    state_id_constant_list,
+                    TransitionTable,
+                    state_mold_index_sequence,
                     &source_state_mold
                 >;
 
-                static_assert(!tlu::empty_v<matching_state_mold_constant_list>);
+                static_assert(index_sequence_size_v<matching_state_mold_index_sequence> != 0);
 
-                return tlu::for_each_or
+                return index_sequence_for_each_or
                 <
-                    matching_state_mold_constant_list,
+                    matching_state_mold_index_sequence,
                     try_executing_transition_2
                     <
                         Dry,
@@ -463,13 +459,21 @@ private:
             }
             else
             {
+                static constexpr auto source_state_mold_index =
+                    region_detail::state_mold_to_state_mold_index
+                    <
+                        TransitionTable,
+                        trans.source_state_mold
+                    >()
+                ;
+
                 return try_executing_transition_2
                 <
                     Dry,
                     target_state_mold_index,
                     TransitionIndexConstant::value,
                     TransitionIndexConstant::value
-                >::template call<constant_t<trans.source_state_mold>>
+                >::template call<source_state_mold_index>
                 (
                     self,
                     mach,
@@ -485,7 +489,7 @@ private:
     {
         template
         <
-            class SourceStateIdConstant,
+            int SourceStateMoldIndex,
             class Self,
             class Machine,
             class Context,
@@ -499,18 +503,10 @@ private:
             const Event& event
         )
         {
-            static constexpr auto source_state_mold_index =
-                region_detail::state_mold_to_state_mold_index
-                <
-                    TransitionTable,
-                    SourceStateIdConstant::value
-                >()
-            ;
-
             if constexpr(!is_null_v<Event>) // Already filtered out
             {
                 //Make sure the transition source state is the active state
-                if(self.active_state_mold_index_ != source_state_mold_index)
+                if(self.active_state_mold_index_ != SourceStateMoldIndex)
                 {
                     return false;
                 }
@@ -530,7 +526,7 @@ private:
             {
                 self.template execute_transition
                 <
-                    source_state_mold_index,
+                    SourceStateMoldIndex,
                     TargetStateMoldIndex,
                     ActionIndex
                 >(mach, ctx, event);

@@ -43,6 +43,9 @@ namespace maki::detail
 
 namespace region_detail
 {
+    inline constexpr auto null_action_index = -1;
+    inline constexpr auto null_guard_index = -1;
+
     template<const auto& TransitionTable, int StateMoldIndex>
     constexpr auto state_mold_index_to_state_mold()
     {
@@ -235,13 +238,11 @@ public:
     template<class Machine, class Context, class Event>
     void enter(Machine& mach, Context& ctx, const Event& event)
     {
-        static constexpr auto action = tuple_get<0>(impl_of(TransitionTable)).act;
-
         execute_transition
         <
             state_mold_indexes::null,
             state_mold_indexes::ini,
-            &action
+            0
         >
         (
             mach,
@@ -400,7 +401,7 @@ private:
             <
                 ActiveStateMoldIndex,
                 TargetStateMoldIndex,
-                &null_action
+                region_detail::null_action_index
             >(mach, ctx, event);
         }
     };
@@ -428,8 +429,6 @@ private:
         {
             static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(TransitionTable));
             static constexpr auto source_state_mold = trans.source_state_mold;
-            static constexpr auto action = trans.act;
-            static constexpr auto guard = trans.grd;
 
             static constexpr auto target_state_mold_index =
                 region_detail::state_mold_to_state_mold_index
@@ -457,8 +456,8 @@ private:
                     <
                         Dry,
                         target_state_mold_index,
-                        action,
-                        guard
+                        TransitionIndexConstant::value,
+                        TransitionIndexConstant::value
                     >
                 >(self, mach, ctx, event, extra_args...);
             }
@@ -468,8 +467,8 @@ private:
                 <
                     Dry,
                     target_state_mold_index,
-                    action,
-                    guard
+                    TransitionIndexConstant::value,
+                    TransitionIndexConstant::value
                 >::template call<constant_t<trans.source_state_mold>>
                 (
                     self,
@@ -481,7 +480,7 @@ private:
         }
     };
 
-    template<bool Dry, int TargetStateMoldIndex, const auto& Action, const auto& Guard>
+    template<bool Dry, int TargetStateMoldIndex, int ActionIndex, int GuardIndex>
     struct try_executing_transition_2
     {
         template
@@ -518,9 +517,10 @@ private:
             }
 
             //Check guard
-            if constexpr(!std::is_same_v<decltype(Guard), const null_t&>)
+            if constexpr(GuardIndex != region_detail::null_guard_index)
             {
-                if(!detail::call_guard(Guard, ctx, mach, event))
+                const auto& guard = tuple_get<GuardIndex>(impl_of(TransitionTable)).grd;
+                if(!detail::call_guard(guard, ctx, mach, event))
                 {
                     return false;
                 }
@@ -532,7 +532,7 @@ private:
                 <
                     source_state_mold_index,
                     TargetStateMoldIndex,
-                    &Action
+                    ActionIndex
                 >(mach, ctx, event);
             }
 
@@ -544,7 +544,7 @@ private:
     <
         int SourceStateMoldIndex,
         int TargetStateMoldIndex,
-        auto ActionPtr,
+        int ActionIndex,
         class Machine,
         class Context,
         class Event
@@ -616,13 +616,16 @@ private:
         /*
         Invoke the transition action, if any.
         */
-        detail::call_action
-        (
-            *ActionPtr,
-            ctx,
-            mach,
-            event
-        );
+        if constexpr(ActionIndex != region_detail::null_action_index)
+        {
+            detail::call_action
+            (
+                tuple_get<ActionIndex>(impl_of(TransitionTable)).act,
+                ctx,
+                mach,
+                event
+            );
+        }
 
         /*
         For external transitions, invoke the entry action of the target state,

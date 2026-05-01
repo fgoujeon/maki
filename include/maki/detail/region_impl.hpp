@@ -7,6 +7,7 @@
 #ifndef MAKI_DETAIL_REGION_IMPL_HPP
 #define MAKI_DETAIL_REGION_IMPL_HPP
 
+#include "state_mold_indexes.hpp"
 #include "compiler.hpp"
 #include "type_set.hpp"
 #include "state_id_to_state.hpp"
@@ -42,22 +43,18 @@ namespace maki::detail
 
 namespace region_detail
 {
-    inline constexpr auto undefined_state_mold_index = -3;
-    inline constexpr auto null_state_mold_index = -2;
-    inline constexpr auto final_state_mold_index = -1;
-
     template<const auto& TransitionTable, int StateMoldIndex>
     constexpr auto state_mold_index_to_state_mold()
     {
-        if constexpr(StateMoldIndex == undefined_state_mold_index)
+        if constexpr(StateMoldIndex == state_mold_indexes::undefined)
         {
             return &maki::undefined;
         }
-        else if constexpr(StateMoldIndex == null_state_mold_index)
+        else if constexpr(StateMoldIndex == state_mold_indexes::null)
         {
             return &state_molds::null;
         }
-        else if constexpr(StateMoldIndex == final_state_mold_index)
+        else if constexpr(StateMoldIndex == state_mold_indexes::fin)
         {
             return &state_molds::fin;
         }
@@ -85,15 +82,15 @@ namespace region_detail
     {
         if constexpr(ptr_equals(StateMold, &maki::undefined))
         {
-            return undefined_state_mold_index;
+            return state_mold_indexes::undefined;
         }
         else if constexpr(ptr_equals(StateMold, &state_molds::null))
         {
-            return null_state_mold_index;
+            return state_mold_indexes::null;
         }
         else if constexpr(ptr_equals(StateMold, &state_molds::fin))
         {
-            return final_state_mold_index;
+            return state_mold_indexes::fin;
         }
         else
         {
@@ -135,7 +132,7 @@ public:
         index_sequence_push_back_t
         <
             state_mold_index_sequence_0,
-            region_detail::undefined_state_mold_index
+            state_mold_indexes::undefined
         >
     ;
 
@@ -202,7 +199,7 @@ public:
 
     [[nodiscard]] bool completed() const
     {
-        return active_state_mold_index_ == region_detail::final_state_mold_index;
+        return active_state_mold_index_ == state_mold_indexes::fin;
     }
 
     template<class Event>
@@ -242,8 +239,8 @@ public:
 
         execute_transition
         <
-            region_detail::null_state_mold_index,
-            0 /* initial state */,
+            state_mold_indexes::null,
+            state_mold_indexes::ini,
             &action
         >
         (
@@ -254,20 +251,12 @@ public:
     }
 
     // Exit the active state
-    template<auto TargetStateId, class Machine, class Context, class Event>
+    template<int TargetStateMoldIndex, class Machine, class Context, class Event>
     void exit(Machine& mach, Context& ctx, const Event& event)
     {
         if(!completed())
         {
-            constexpr auto target_state_mold_index =
-                region_detail::state_mold_to_state_mold_index
-                <
-                    TransitionTable,
-                    TargetStateId
-                >()
-            ;
-
-            with_active_state_id<state_mold_index_sequence, exit_2<target_state_mold_index>>
+            with_active_state_id<state_mold_index_sequence, exit_2<TargetStateMoldIndex>>
             (
                 *this,
                 mach,
@@ -604,10 +593,10 @@ private:
         if constexpr
         (
             is_external_transition &&
-            TargetStateMoldIndex != region_detail::null_state_mold_index
+            TargetStateMoldIndex != state_mold_indexes::null
         )
         {
-            active_state_mold_index_ = region_detail::undefined_state_mold_index;
+            active_state_mold_index_ = state_mold_indexes::undefined;
         }
 
         /*
@@ -657,7 +646,7 @@ private:
         if constexpr
         (
             is_external_transition &&
-            TargetStateMoldIndex != region_detail::null_state_mold_index
+            TargetStateMoldIndex != state_mold_indexes::null
         )
         {
             active_state_mold_index_ = TargetStateMoldIndex;
@@ -826,7 +815,7 @@ private:
             index_sequence_push_back_t
             <
                 state_mold_index_sequence,
-                region_detail::final_state_mold_index
+                state_mold_indexes::fin
             >,
             is_active_state_id_in_set_2<StateSetPtr>
         >(matches);
@@ -950,7 +939,7 @@ private:
 
     const region<region_impl>* pitf_;
     state_mix_type states_;
-    int active_state_mold_index_ = region_detail::final_state_mold_index;
+    int active_state_mold_index_ = state_mold_indexes::fin;
 };
 
 } //namespace

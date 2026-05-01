@@ -8,6 +8,7 @@
 #define MAKI_DETAIL_STATE_IMPLS_COMPOSITE_NO_CONTEXT_HPP
 
 #include "simple_no_context.hpp"
+#include "../state_mold_indexes.hpp"
 #include "../type_set.hpp"
 #include "../region_impl.hpp"
 #include "../context_storage.hpp"
@@ -20,7 +21,6 @@
 #include "../tlu/for_each.hpp"
 #include "../tlu/get.hpp"
 #include "../tlu/size.hpp"
-#include "../../states.hpp"
 #include "../../region.hpp"
 #include "../../context.hpp"
 #include <type_traits>
@@ -227,7 +227,7 @@ public:
     template<class Machine, class Context, class Event>
     void exit(Machine& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each<region_mix_type, region_exit<&state_molds::null>>
+        tlu::for_each<region_mix_type, region_exit<state_mold_indexes::null>>
         (
             *this,
             mach,
@@ -246,7 +246,7 @@ public:
     template<class Machine, class Context, class Event>
     void exit_to_finals(Machine& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each<region_mix_type, region_exit<&state_molds::fin>>
+        tlu::for_each<region_mix_type, region_exit<state_mold_indexes::fin>>
         (
             *this,
             mach,
@@ -360,13 +360,13 @@ private:
         }
     };
 
-    template<auto TargetStateId>
+    template<int TargetStateMoldIndex>
     struct region_exit
     {
         template<class Region, class Self, class Machine, class Context, class Event>
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
-            impl_of(get<Region>(self.regions_)).template exit<TargetStateId>(mach, ctx, event);
+            impl_of(get<Region>(self.regions_)).template exit<TargetStateMoldIndex>(mach, ctx, event);
         }
     };
 

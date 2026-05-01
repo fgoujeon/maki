@@ -7,14 +7,11 @@
 #ifndef MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 #define MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 
-#include "constant.hpp"
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
 #include "index_sequence.hpp"
-#include "type_list.hpp"
 #include "../states.hpp"
 #include "../null.hpp"
-#include "tlu/push_back_if.hpp"
 #include "tlu/left_fold.hpp"
 #include <type_traits>
 

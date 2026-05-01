@@ -17,9 +17,10 @@
 #include "equals.hpp"
 #include "tuple.hpp"
 #include "mix.hpp"
+#include "index_sequence.hpp"
+#include "type_list.hpp"
 #include "constant.hpp"
 #include "friendly_impl.hpp"
-#include "tlu/apply.hpp"
 #include "tlu/empty.hpp"
 #include "tlu/find.hpp"
 #include "tlu/front.hpp"
@@ -62,6 +63,19 @@ namespace region_detail
     template<class StateIdConstantList, auto StateId>
     inline constexpr auto state_id_to_index_v = state_id_to_index<StateIdConstantList, StateId>::value;
 
+    template<const auto& TransitionTable, int TransitionIndex>
+    constexpr auto transition_index_to_state_mold()
+    {
+        if constexpr(TransitionIndex == impl_of(TransitionTable).size)
+        {
+            return &maki::undefined;
+        }
+        else
+        {
+            return tuple_get<TransitionIndex>(impl_of(TransitionTable)).target_state_mold;
+        }
+    }
+
     template<const auto& TransitionTable, class TransitionIndexSequence>
     struct transition_index_sequence_to_state_id_constant_list;
 
@@ -72,7 +86,7 @@ namespace region_detail
         <
             constant_t
             <
-                tuple_get<TransitionIndexes>(impl_of(TransitionTable)).target_state_mold
+                transition_index_to_state_mold<TransitionTable, TransitionIndexes>()
             >...
         >;
     };
@@ -82,32 +96,49 @@ template<const auto& TransitionTable, const auto& Path, context_storage ParentCt
 class region_impl
 {
 public:
+    static constexpr auto undefined_state_index = impl_of(TransitionTable).size;
+
     using transition_table_type = std::decay_t<decltype(TransitionTable)>;
 
     using transition_table_digest_type =
         transition_table_digest<TransitionTable>
     ;
 
-    using state_id_constant_list_0 =
+    using unique_target_state_mold_index_sequence_0 =
+        typename transition_table_digest_type::unique_target_state_mold_index_sequence
+    ;
+
+    using unique_target_state_mold_index_sequence =
+        index_sequence_push_back_t
+        <
+            unique_target_state_mold_index_sequence_0,
+            undefined_state_index
+        >
+    ;
+
+    using state_id_constant_list =
         typename region_detail::transition_index_sequence_to_state_id_constant_list
         <
             TransitionTable,
-            typename transition_table_digest_type::unique_target_state_mold_index_sequence
+            unique_target_state_mold_index_sequence
         >::type
     ;
 
-    using state_id_constant_list = tlu::push_back_t<state_id_constant_list_0, constant_t<&maki::undefined>>;
-
-    template<class... StateIdConstants>
-    using state_id_constant_pack_to_state_mix_t = mix
+    template<int... TransitionIndexes>
+    using transition_index_sequence_to_state_mix_t = mix
     <
-        state_traits::state_id_to_state_t<StateIdConstants::value, Path, ParentCtxStorage>...
+        state_traits::state_id_to_state_t
+        <
+            region_detail::transition_index_to_state_mold<TransitionTable, TransitionIndexes>(),
+            Path,
+            ParentCtxStorage
+        >...
     >;
 
-    using state_mix_type = tlu::apply_t
+    using state_mix_type = index_sequence_apply_t
     <
-        state_id_constant_list,
-        state_id_constant_pack_to_state_mix_t
+        unique_target_state_mold_index_sequence,
+        transition_index_sequence_to_state_mix_t
     >;
 
     using states_event_type_set = state_type_list_event_type_set_t<state_mix_type>;

@@ -15,6 +15,23 @@ struct index_sequence{};
 
 
 /*
+index_sequence_apply_t
+*/
+
+template<class Seq, template<int...> class F>
+struct index_sequence_apply;
+
+template<int... Is, template<int...> class F>
+struct index_sequence_apply<index_sequence<Is...>, F>
+{
+    using type = F<Is...>;
+};
+
+template<class Seq, template<int...> class F>
+using index_sequence_apply_t = typename index_sequence_apply<Seq, F>::type;
+
+
+/*
 index_sequence_push_back_t
 */
 

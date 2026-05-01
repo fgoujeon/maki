@@ -70,6 +70,41 @@ struct index_sequence_push_back_if<index_sequence<Is...>, I, true>
 template<class Seq, int I, bool Condition>
 using index_sequence_push_back_if_t = typename index_sequence_push_back_if<Seq, I, Condition>::type;
 
+
+/*
+index_sequence_for_each_or
+*/
+
+template<class Seq, class F>
+struct index_sequence_for_each_or_helper
+{
+    template<int... Indexes>
+    struct inner
+    {
+        template<class... Args>
+        static bool call(Args&... args)
+        {
+            return (F::template call<Indexes>(args...) || ...);
+        }
+    };
+
+    template<class... Args>
+    static bool call(Args&... args)
+    {
+        return index_sequence_apply_t
+        <
+            Seq,
+            inner
+        >::call(args...);
+    }
+};
+
+template<class Seq, class F, class... Args>
+bool index_sequence_for_each_or(Args&... args)
+{
+    return index_sequence_for_each_or_helper<Seq, F>::call(args...);
+}
+
 } //namespace
 
 #endif

@@ -8,6 +8,7 @@
 #define MAKI_DETAIL_REGION_IMPL_HPP
 
 #include "state_mold_indexes.hpp"
+#include "path_to_transition_table.hpp"
 #include "compiler.hpp"
 #include "type_set.hpp"
 #include "state_id_to_state.hpp"
@@ -120,14 +121,16 @@ namespace region_detail
     >;
 }
 
-template<const auto& TransitionTable, const auto& Path, context_storage ParentCtxStorage>
+template<const auto& MachineConf, class TransitionTablePath, const auto& Path, context_storage ParentCtxStorage>
 class region_impl
 {
 public:
-    using transition_table_type = std::decay_t<decltype(TransitionTable)>;
+    static constexpr auto trans_table = path_to_transition_table_v<MachineConf, TransitionTablePath>;
+
+    using transition_table_type = std::decay_t<decltype(trans_table)>;
 
     using transition_table_digest_type =
-        transition_table_digest<TransitionTable>
+        transition_table_digest<trans_table>
     ;
 
     using state_mold_index_sequence_0 =
@@ -142,12 +145,14 @@ public:
         >
     ;
 
-    template<int... TransitionIndexes>
-    using transition_index_sequence_to_state_mix_t = mix
+    template<int... StateMoldIndexes>
+    using state_mold_index_sequence_to_state_mix_t = mix
     <
         state_traits::state_id_to_state_t
         <
-            region_detail::state_mold_index_to_state_mold<TransitionTable, TransitionIndexes>(),
+            MachineConf,
+            index_sequence_push_back_t<TransitionTablePath, StateMoldIndexes>,
+            region_detail::state_mold_index_to_state_mold<trans_table, StateMoldIndexes>(),
             Path,
             ParentCtxStorage
         >...
@@ -156,7 +161,7 @@ public:
     using state_mix_type = index_sequence_apply_t
     <
         state_mold_index_sequence,
-        transition_index_sequence_to_state_mix_t
+        state_mold_index_sequence_to_state_mix_t
     >;
 
     using states_event_type_set = state_type_list_event_type_set_t<state_mix_type>;
@@ -347,7 +352,7 @@ private:
 #if !MAKI_DETAIL_COMPILER_GCC
             transition_table_type,
 #else
-            TransitionTable,
+            trans_table,
 #endif
             Event
         >;
@@ -422,13 +427,13 @@ private:
         template<class TransitionIndexConstant, class Self, class Machine, class Context, class Event, class... ExtraArgs>
         static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
-            static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(TransitionTable));
+            static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(trans_table));
             static constexpr auto source_state_mold = trans.source_state_mold;
 
             static constexpr auto target_state_mold_index =
                 region_detail::state_mold_to_state_mold_index
                 <
-                    TransitionTable,
+                    trans_table,
                     trans.target_state_mold
                 >()
             ;
@@ -438,7 +443,7 @@ private:
                 //List of state molds that belong to the source state set
                 using matching_state_mold_index_sequence = region_detail::filter_state_mold_index_sequence_by_state_set_t
                 <
-                    TransitionTable,
+                    trans_table,
                     state_mold_index_sequence,
                     &source_state_mold
                 >;
@@ -462,7 +467,7 @@ private:
                 static constexpr auto source_state_mold_index =
                     region_detail::state_mold_to_state_mold_index
                     <
-                        TransitionTable,
+                        trans_table,
                         trans.source_state_mold
                     >()
                 ;
@@ -515,7 +520,7 @@ private:
             //Check guard
             if constexpr(GuardIndex != region_detail::null_guard_index)
             {
-                const auto& guard = tuple_get<GuardIndex>(impl_of(TransitionTable)).grd;
+                const auto& guard = tuple_get<GuardIndex>(impl_of(trans_table)).grd;
                 if(!detail::call_guard(guard, ctx, mach, event))
                 {
                     return false;
@@ -554,7 +559,7 @@ private:
     {
         using machine_option_set_type = typename Machine::option_set_type;
 
-        constexpr auto target_state_mold = region_detail::state_mold_index_to_state_mold<TransitionTable, TargetStateMoldIndex>();
+        constexpr auto target_state_mold = region_detail::state_mold_index_to_state_mold<trans_table, TargetStateMoldIndex>();
 
         constexpr auto is_external_transition = !is_null_v
         <
@@ -616,7 +621,7 @@ private:
         {
             detail::call_action
             (
-                tuple_get<ActionIndex>(impl_of(TransitionTable)).act,
+                tuple_get<ActionIndex>(impl_of(trans_table)).act,
                 ctx,
                 mach,
                 event
@@ -780,7 +785,7 @@ private:
 
         using candidate_transition_index_constant_list = transition_table_filters::by_source_state_and_null_event_t
         <
-            TransitionTable,
+            trans_table,
             active_state_id
         >;
 
@@ -802,7 +807,7 @@ private:
     template<auto StateId>
     [[nodiscard]] bool is_active_state_id() const
     {
-        return active_state_mold_index_ == region_detail::state_mold_to_state_mold_index<TransitionTable, StateId>();
+        return active_state_mold_index_ == region_detail::state_mold_to_state_mold_index<trans_table, StateId>();
     }
 
     template<auto StateSetPtr>
@@ -827,7 +832,7 @@ private:
         template<int ActiveStateMoldIndex>
         static void call([[maybe_unused]] bool& matches)
         {
-            constexpr auto active_state_mold = region_detail::state_mold_index_to_state_mold<TransitionTable, ActiveStateMoldIndex>();
+            constexpr auto active_state_mold = region_detail::state_mold_index_to_state_mold<trans_table, ActiveStateMoldIndex>();
             if constexpr(contains(impl_of(*StateSetPtr), active_state_mold))
             {
                 matches = true;
@@ -909,8 +914,16 @@ private:
         }
         else
         {
+            constexpr int state_mold_index = region_detail::state_mold_to_state_mold_index<trans_table, StateId>();
             using state_t =
-                state_traits::state_id_to_state_t<StateId, Path, ParentCtxStorage>
+                state_traits::state_id_to_state_t
+                <
+                    MachineConf,
+                    index_sequence_push_back_t<TransitionTablePath, state_mold_index>,
+                    StateId,
+                    Path,
+                    ParentCtxStorage
+                >
             ;
             return get<state_t>(self.states_);
         }
@@ -932,7 +945,7 @@ private:
     template<int StateMoldIndex, class Region>
     static auto& static_state_mold_index_to_state(Region& self)
     {
-        constexpr auto state_mold = region_detail::state_mold_index_to_state_mold<TransitionTable, StateMoldIndex>();
+        constexpr auto state_mold = region_detail::state_mold_index_to_state_mold<trans_table, StateMoldIndex>();
         return static_state_id_to_obj<state_mold>(self);
     }
 

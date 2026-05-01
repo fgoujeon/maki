@@ -346,6 +346,8 @@ private:
     using impl_type =
         detail::state_impls::composite_no_context
         <
+            Conf,
+            detail::index_sequence<>,
             &conf,
             path,
             detail::context_storage::plain

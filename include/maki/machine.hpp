@@ -349,7 +349,6 @@ private:
         <
             Conf,
             detail::index_sequence<>,
-            &conf,
             path,
             detail::context_storage::plain
         >

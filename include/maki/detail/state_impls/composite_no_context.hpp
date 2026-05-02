@@ -129,16 +129,16 @@ using region_type_list_deferrable_event_type_set = tlu::left_fold_t
     empty_type_set_t
 >;
 
-template<const auto& MachineConf, class StateMoldPath, auto Id, const auto& Path, context_storage ParentCtxStorage>
+template<const auto& MachineConf, class StateMoldPath, const auto& Path, context_storage ParentCtxStorage>
 class composite_no_context
 {
 public:
-    static constexpr auto identifier = Id;
-    static constexpr const auto& mold = *Id;
+    static constexpr const auto& mold = ipath_to_state_mold_v<MachineConf, StateMoldPath>;
+    static constexpr auto identifier = &mold;
     using mold_type = std::decay_t<decltype(mold)>;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);
-    using impl_type = simple_no_context<Id>;
+    using impl_type = simple_no_context<identifier>;
 
     static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
 

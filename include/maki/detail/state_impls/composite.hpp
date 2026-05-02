@@ -8,6 +8,7 @@
 #define MAKI_DETAIL_STATE_IMPLS_COMPOSITE_HPP
 
 #include "composite_no_context.hpp"
+#include "../ipath_util.hpp"
 #include "../context_holder.hpp"
 #include "../context_storage.hpp"
 #include "../tlu.hpp"
@@ -18,17 +19,17 @@
 namespace maki::detail::state_impls
 {
 
-template<const auto& MachineConf, class StateMoldPath, auto Id, const auto& Path, context_storage ParentCtxStorage>
+template<const auto& MachineConf, class StateMoldPath, const auto& Path, context_storage ParentCtxStorage>
 class composite
 {
 public:
-    static constexpr auto identifier = Id;
-    static constexpr const auto& mold = *Id;
+    static constexpr const auto& mold = ipath_to_state_mold_v<MachineConf, StateMoldPath>;
+    static constexpr auto identifier = &mold;
     using mold_type = std::decay_t<decltype(mold)>;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);
     using context_type = typename option_set_type::context_type;
-    using impl_type = composite_no_context<MachineConf, StateMoldPath, identifier, Path, ParentCtxStorage>;
+    using impl_type = composite_no_context<MachineConf, StateMoldPath, Path, ParentCtxStorage>;
     using event_type_set = typename impl_type::event_type_set;
     using deferrable_event_type_set = typename impl_type::deferrable_event_type_set;
 

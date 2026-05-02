@@ -7,45 +7,117 @@
 #ifndef MAKI_DETAIL_PATH_TO_TRANSITION_TABLE_HPP
 #define MAKI_DETAIL_PATH_TO_TRANSITION_TABLE_HPP
 
+#include "tuple.hpp"
 #include "index_sequence.hpp"
 
 namespace maki::detail
 {
 
-template<const auto& MachineConf, class Path>
-struct path_to_transition_table
+namespace path_to_detail
 {
-    template<int... Indexes>
-    struct helper;
+    /*
+    Template declarations
+    */
 
-    template<int TransitionTableIndex0, int StateMoldIndex, int... Indexes>
-    struct helper<TransitionTableIndex0, StateMoldIndex, Indexes...>
+    template<const auto& StateMold, int... Indexes>
+    struct state_mold_and_ints_to_transition_table;
+
+    template<const auto& StateMold, int... Indexes>
+    struct state_mold_and_ints_to_state_mold;
+
+    template<const auto& TransitionTable, int StateMoldIndex, int... Indexes>
+    struct transition_table_and_ints_to_state_mold
     {
         static constexpr const auto& value =
-            path_to_transition_table
+            state_mold_and_ints_to_state_mold
             <
-                *tuple_get<StateMoldIndex>(impl_of(helper<TransitionTableIndex0>::value)).target_state_mold,
-                index_sequence<Indexes...>
+                *tuple_get<StateMoldIndex>(impl_of(TransitionTable)).target_state_mold,
+                Indexes...
             >::value
         ;
     };
 
-    template<int TransitionTableIndex>
-    struct helper<TransitionTableIndex>
+
+    /*
+    `state_mold_and_ints_to_transition_table` specializations
+    */
+
+    template<const auto& StateMold, int TransitionTableIndex, int StateMoldIndex, int... Indexes>
+    struct state_mold_and_ints_to_transition_table<StateMold, TransitionTableIndex, StateMoldIndex, Indexes...>
     {
         static constexpr const auto& value =
-            tuple_get<TransitionTableIndex>(impl_of(MachineConf).transition_tables)
+            state_mold_and_ints_to_transition_table
+            <
+                state_mold_and_ints_to_state_mold
+                <
+                    StateMold,
+                    TransitionTableIndex,
+                    StateMoldIndex
+                >::value,
+                Indexes...
+            >::value
         ;
     };
 
-    static constexpr const auto& value =
-        index_sequence_apply_t<Path, helper>::value
-    ;
-};
+    template<const auto& StateMold, int TransitionTableIndex>
+    struct state_mold_and_ints_to_transition_table<StateMold, TransitionTableIndex>
+    {
+        static constexpr auto value =
+            tuple_get<TransitionTableIndex>(impl_of(StateMold).transition_tables)
+        ;
+    };
+
+
+    /*
+    `state_mold_and_ints_to_state_mold` specializations
+    */
+
+    template<const auto& StateMold, int TransitionTableIndex, int... Indexes>
+    struct state_mold_and_ints_to_state_mold<StateMold, TransitionTableIndex, Indexes...>
+    {
+        static constexpr const auto& value =
+            transition_table_and_ints_to_state_mold
+            <
+                state_mold_and_ints_to_transition_table
+                <
+                    StateMold,
+                    TransitionTableIndex
+                >::value,
+                Indexes...
+            >::value
+        ;
+    };
+
+    template<const auto& StateMold>
+    struct state_mold_and_ints_to_state_mold<StateMold>
+    {
+        static constexpr const auto& value = StateMold;
+    };
+
+
+    /*
+    `with_machine_conf`
+    */
+
+    template<const auto& MachineConf>
+    struct with_machine_conf
+    {
+        template<int... Indexes>
+        using ints_to_transition_table = state_mold_and_ints_to_transition_table<MachineConf, Indexes...>;
+
+        template<int... Indexes>
+        using ints_to_state_mold = state_mold_and_ints_to_state_mold<MachineConf, Indexes...>;
+    };
+}
 
 template<const auto& MachineConf, class Path>
 constexpr const auto& path_to_transition_table_v =
-    path_to_transition_table<MachineConf, Path>::value
+    index_sequence_apply_t<Path, path_to_detail::with_machine_conf<MachineConf>::template ints_to_transition_table>::value
+;
+
+template<const auto& MachineConf, class Path>
+constexpr const auto& path_to_state_mold_v =
+    index_sequence_apply_t<Path, path_to_detail::with_machine_conf<MachineConf>::template ints_to_state_mold>::value
 ;
 
 } //namespace

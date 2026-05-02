@@ -13,6 +13,7 @@
 #include "../region_impl.hpp"
 #include "../context_storage.hpp"
 #include "../integer_constant_sequence.hpp"
+#include "../index_sequence.hpp"
 #include "../mix.hpp"
 #include "../friendly_impl.hpp"
 #include "../tlu/apply.hpp"

@@ -152,7 +152,6 @@ public:
         <
             MachineConf,
             index_sequence_push_back_t<TransitionTablePath, StateMoldIndexes>,
-            region_detail::state_mold_index_to_state_mold<trans_table, StateMoldIndexes>(),
             Path,
             ParentCtxStorage
         >...
@@ -160,7 +159,7 @@ public:
 
     using state_mix_type = index_sequence_apply_t
     <
-        state_mold_index_sequence,
+        state_mold_index_sequence_0,
         state_mold_index_sequence_to_state_mix_t
     >;
 
@@ -920,7 +919,6 @@ private:
                 <
                     MachineConf,
                     index_sequence_push_back_t<TransitionTablePath, state_mold_index>,
-                    StateId,
                     Path,
                     ParentCtxStorage
                 >

@@ -39,7 +39,9 @@ target_sources(maki
         include/maki/detail/event_action.hpp
         include/maki/detail/friendly_impl.hpp
         include/maki/detail/function_queue.hpp
+        include/maki/detail/index_sequence.hpp
         include/maki/detail/integer_constant_sequence.hpp
+        include/maki/detail/ipath_util.hpp
         include/maki/detail/machine_conf_impl.hpp
         include/maki/detail/mix.hpp
         include/maki/detail/noinline.hpp
@@ -61,7 +63,7 @@ target_sources(maki
         include/maki/detail/state_impls/simple_no_context.hpp
         include/maki/detail/state_impls/simple_no_context_fwd.hpp
         include/maki/detail/state_mold_impl.hpp
-        include/maki/detail/state_type_list_filters.hpp
+        include/maki/detail/state_mold_indexes.hpp
         include/maki/detail/tlu.hpp
         include/maki/detail/tlu/apply.hpp
         include/maki/detail/tlu/back.hpp
@@ -95,7 +97,6 @@ target_sources(maki
         include/maki/detail/type_list.hpp
         include/maki/detail/type_name.hpp
         include/maki/detail/type_set.hpp
-        include/maki/detail/type_traits.hpp
         include/maki/event.hpp
         include/maki/event_set.hpp
         include/maki/events.hpp

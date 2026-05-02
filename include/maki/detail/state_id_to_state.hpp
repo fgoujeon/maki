@@ -14,8 +14,8 @@
 namespace maki::detail::state_traits
 {
 
-template<const auto& MachineConf, class Path2, const auto& ParentPath, context_storage ParentCtxStorage>
-using state_id_to_state_t = state<state_impl_t<MachineConf, Path2, ParentPath, ParentCtxStorage>>;
+template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
+using state_id_to_state_t = state<state_impl_t<MachineConf, StateMoldPath, ParentCtxStorage>>;
 
 } //namespace
 

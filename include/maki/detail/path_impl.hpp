@@ -7,102 +7,82 @@
 #ifndef MAKI_DETAIL_PATH_IMPL_HPP
 #define MAKI_DETAIL_PATH_IMPL_HPP
 
-#include "tuple.hpp"
-#include "constant.hpp"
+#include "ipath_util.hpp"
+#include "index_sequence.hpp"
 #include "pretty_name.hpp"
-#include <string_view>
 #include <string>
 
 namespace maki::detail
 {
 
-class path_element_state
+namespace path_impl_detail
 {
-public:
-    template<class MoldConstant>
-    constexpr path_element_state(const MoldConstant /*mold_cst*/):
-        pretty_name_fn_
+    template<class ElemIpath>
+    struct to_string_left_fold_result
+    {
+        std::string str;
+    };
+
+    template<const auto& MachineConf>
+    struct to_string_left_fold_operation
+    {
+        template
+        <
+            int Index,
+            class PreviousResultElemIpath
+        >
+        static constexpr auto call
         (
-            []
-            {
-                return detail::pretty_name<MoldConstant::value>();
-            }
+            const to_string_left_fold_result<PreviousResultElemIpath>& previous_result
         )
-    {
-    }
+        {
+            using current_elem_ipath_t = index_sequence_push_back_t
+            <
+                PreviousResultElemIpath,
+                Index
+            >;
 
-    [[nodiscard]] std::string pretty_name() const
-    {
-        return std::string{pretty_name_fn_()};
-    }
+            constexpr auto is_transition_table_elem =
+                index_sequence_size_v<current_elem_ipath_t> % 2 == 1
+            ;
 
-private:
-    using pretty_name_fn = std::string_view(*)();
+            if constexpr(is_transition_table_elem)
+            {
+                const auto str = previous_result.str + std::to_string(Index) + "/";
+                return to_string_left_fold_result<current_elem_ipath_t>{str};
+            }
+            else
+            {
+                constexpr const auto& stt_mold = ipath_to_state_mold_v<MachineConf, current_elem_ipath_t>;
+                const auto state_pretty_name = detail::pretty_name<stt_mold>();
+                const auto str = previous_result.str + std::string{state_pretty_name} + "/";
+                return to_string_left_fold_result<current_elem_ipath_t>{str};
+            }
+        }
+    };
+}
 
-    pretty_name_fn pretty_name_fn_ = nullptr;
-};
-
-class path_element_index
-{
-public:
-    constexpr path_element_index(const int index):
-        index_(index)
-    {
-    }
-
-    [[nodiscard]] std::string pretty_name() const
-    {
-        return std::to_string(index_);
-    }
-
-private:
-    int index_ = 0;
-};
-
-template<class... Elems>
+template<const auto& MachineConf, class Ipath>
 class path_impl
 {
 public:
     constexpr path_impl() = default;
 
-    template<class ParentPath, class Elem>
-    constexpr path_impl(const ParentPath& parent_path, const Elem& elem):
-        elems_(parent_path.elems().append(elem))
-    {
-    }
-
-    constexpr auto add_region_index(const int region_index) const
-    {
-        return path_impl<Elems..., path_element_index>{*this, path_element_index{region_index}};
-    }
-
-    template<const auto& Mold>
-    constexpr auto add_state() const
-    {
-        return path_impl<Elems..., path_element_state>{*this, path_element_state{cref_constant<Mold>}};
-    }
-
-    constexpr const auto& elems() const
-    {
-        return elems_;
-    }
-
     [[nodiscard]] std::string to_string() const
     {
-        auto str = tuple_apply
-        (
-            elems_,
-            [](const auto&... elems)
-            {
-                return ((elems.pretty_name() + "/") + ...);
-            }
-        );
+        auto str =
+            index_sequence_left_fold
+            <
+                Ipath,
+                path_impl_detail::to_string_left_fold_operation<MachineConf>
+            >
+            (
+                path_impl_detail::to_string_left_fold_result<index_sequence<>>{""}
+            ).str
+        ;
         str.resize(str.size() - 1); //Remove last separator
         return str;
     }
-
-private:
-    tuple<Elems...> elems_;
 };
 
 } //namespace

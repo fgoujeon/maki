@@ -34,32 +34,28 @@ template
 <
     const auto& MachineConf,
     class ParentStateMoldPath,
-    const auto& ParentPath,
     context_storage ParentCtxStorage,
     int Index
 >
 struct region_mix_elem
 {
     using transition_table_path = index_sequence_push_back_t<ParentStateMoldPath, Index>;
-    static constexpr auto path = ParentPath.add_region_index(Index);
-    using type = region<region_impl<MachineConf, transition_table_path, path, ParentCtxStorage>>;
+    using type = region<region_impl<MachineConf, transition_table_path, ParentCtxStorage>>;
 };
 
 template
 <
     const auto& MachineConf,
     class ParentStateMoldPath,
-    const auto& ParentPath,
     context_storage ParentCtxStorage,
     int Index
 >
-using region_mix_elem_t = typename region_mix_elem<MachineConf, ParentStateMoldPath, ParentPath, ParentCtxStorage, Index>::type;
+using region_mix_elem_t = typename region_mix_elem<MachineConf, ParentStateMoldPath, ParentCtxStorage, Index>::type;
 
 template
 <
     const auto& MachineConf,
     class ParentStateMoldPath,
-    const auto& ParentPath,
     context_storage ParentCtxStorage,
     class RegionIndexSequence
 >
@@ -69,7 +65,6 @@ template
 <
     const auto& MachineConf,
     class ParentStateMoldPath,
-    const auto& ParentPath,
     context_storage ParentCtxStorage,
     int... RegionIndexes
 >
@@ -77,7 +72,6 @@ struct region_mix
 <
     MachineConf,
     ParentStateMoldPath,
-    ParentPath,
     ParentCtxStorage,
     std::integer_sequence<int, RegionIndexes...>
 >
@@ -88,7 +82,6 @@ struct region_mix
         <
             MachineConf,
             ParentStateMoldPath,
-            ParentPath,
             ParentCtxStorage,
             RegionIndexes
         >...
@@ -129,7 +122,7 @@ using region_type_list_deferrable_event_type_set = tlu::left_fold_t
     empty_type_set_t
 >;
 
-template<const auto& MachineConf, class StateMoldPath, const auto& Path, context_storage ParentCtxStorage>
+template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
 class composite_no_context
 {
 public:
@@ -164,7 +157,6 @@ public:
     <
         MachineConf,
         StateMoldPath,
-        Path,
         ctx_storage,
         region_index_sequence_type
     >::type;

@@ -19,6 +19,7 @@
 #include "tuple.hpp"
 #include "mix.hpp"
 #include "index_sequence.hpp"
+#include "path_impl.hpp"
 #include "friendly_impl.hpp"
 #include "../states.hpp"
 #include "../action.hpp"
@@ -121,7 +122,7 @@ namespace region_detail
     >;
 }
 
-template<const auto& MachineConf, class TransitionTablePath, const auto& Path, context_storage ParentCtxStorage>
+template<const auto& MachineConf, class TransitionTablePath, context_storage ParentCtxStorage>
 class region_impl
 {
 public:
@@ -152,7 +153,6 @@ public:
         <
             MachineConf,
             index_sequence_push_back_t<TransitionTablePath, StateMoldIndexes>,
-            Path,
             ParentCtxStorage
         >...
     >;
@@ -295,7 +295,7 @@ public:
 
     static const auto& path()
     {
-        static const auto value = maki::path{Path};
+        static const auto value = maki::path{path_impl<MachineConf, TransitionTablePath>{}};
         return value;
     }
 
@@ -919,7 +919,6 @@ private:
                 <
                     MachineConf,
                     index_sequence_push_back_t<TransitionTablePath, state_mold_index>,
-                    Path,
                     ParentCtxStorage
                 >
             ;

@@ -45,7 +45,7 @@ struct index_sequence_size<index_sequence<Is...>>
 };
 
 template<class Seq>
-constexpr bool index_sequence_size_v = index_sequence_size<Seq>::value;
+constexpr int index_sequence_size_v = index_sequence_size<Seq>::value;
 
 
 /*
@@ -109,6 +109,49 @@ struct index_sequence_push_front_if<index_sequence<Is...>, I, true>
 
 template<class Seq, int I, bool Condition>
 using index_sequence_push_front_if_t = typename index_sequence_push_front_if<Seq, I, Condition>::type;
+
+
+/*
+index_sequence_left_fold
+*/
+
+namespace index_sequence_left_fold_detail
+{
+    template<class Operation, int Index>
+    struct operation_holder
+    {
+    };
+
+    template<class Lhs, class Operation, int Index>
+    constexpr auto operator+(const Lhs& lhs, const operation_holder<Operation, Index>& /*rhs*/)
+    {
+        return Operation::template call<Index>(lhs);
+    }
+
+    template<class Seq, class Operation>
+    struct helper;
+
+    template<int... Is, class Operation>
+    struct helper<index_sequence<Is...>, Operation>
+    {
+        template<class Initial>
+        static constexpr auto call(const Initial& initial)
+        {
+            return (initial + ... + operation_holder<Operation, Is>{});
+        }
+    };
+}
+
+template
+<
+    class Seq,
+    class Operation,
+    class Initial
+>
+constexpr auto index_sequence_left_fold(const Initial& initial)
+{
+    return index_sequence_left_fold_detail::helper<Seq, Operation>::call(initial);
+}
 
 
 /*

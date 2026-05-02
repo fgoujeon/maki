@@ -15,7 +15,6 @@
 #include "machine_conf.hpp"
 #include "events.hpp"
 #include "null.hpp"
-#include "detail/path_impl.hpp"
 #include "detail/index_sequence.hpp"
 #include "detail/state_impls/simple.hpp" //NOLINT misc-include-cleaner
 #include "detail/state_impls/composite.hpp" //NOLINT misc-include-cleaner
@@ -343,13 +342,11 @@ public:
     }
 
 private:
-    static constexpr auto path = detail::path_impl{};
     using impl_type =
         detail::state_impls::composite_no_context
         <
             Conf,
             detail::index_sequence<>,
-            path,
             detail::context_storage::plain
         >
     ;

@@ -8,14 +8,14 @@
 #define MAKI_DETAIL_IPATH_UTIL_HPP
 
 #include "tuple.hpp"
-#include "index_sequence.hpp"
+#include "iseq.hpp"
 
 namespace maki::detail
 {
 
 /*
 An `ipath` is a path to a `state_mold` or a `transition_table` object under the
-form of a `machine_conf` object + an `index_sequence`.
+form of a `machine_conf` object + an `iseq`.
 */
 
 namespace ipath_util_detail
@@ -117,12 +117,12 @@ namespace ipath_util_detail
 
 template<const auto& MachineConf, class Path>
 constexpr const auto& ipath_to_transition_table_v =
-    index_sequence_apply_t<Path, ipath_util_detail::with_machine_conf<MachineConf>::template ints_to_transition_table>::value
+    iseq_apply_t<Path, ipath_util_detail::with_machine_conf<MachineConf>::template ints_to_transition_table>::value
 ;
 
 template<const auto& MachineConf, class Path>
 constexpr const auto& ipath_to_state_mold_v =
-    index_sequence_apply_t<Path, ipath_util_detail::with_machine_conf<MachineConf>::template ints_to_state_mold>::value
+    iseq_apply_t<Path, ipath_util_detail::with_machine_conf<MachineConf>::template ints_to_state_mold>::value
 ;
 
 } //namespace

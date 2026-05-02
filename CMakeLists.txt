@@ -39,9 +39,9 @@ target_sources(maki
         include/maki/detail/event_action.hpp
         include/maki/detail/friendly_impl.hpp
         include/maki/detail/function_queue.hpp
-        include/maki/detail/index_sequence.hpp
         include/maki/detail/integer_constant_sequence.hpp
         include/maki/detail/ipath_util.hpp
+        include/maki/detail/iseq.hpp
         include/maki/detail/machine_conf_impl.hpp
         include/maki/detail/mix.hpp
         include/maki/detail/noinline.hpp

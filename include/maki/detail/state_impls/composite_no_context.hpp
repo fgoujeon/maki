@@ -13,7 +13,7 @@
 #include "../region_impl.hpp"
 #include "../context_storage.hpp"
 #include "../integer_constant_sequence.hpp"
-#include "../index_sequence.hpp"
+#include "../iseq.hpp"
 #include "../mix.hpp"
 #include "../friendly_impl.hpp"
 #include "../tlu/apply.hpp"
@@ -39,7 +39,7 @@ template
 >
 struct region_mix_elem
 {
-    using transition_table_path = index_sequence_push_back_t<ParentStateMoldPath, Index>;
+    using transition_table_path = iseq_push_back_t<ParentStateMoldPath, Index>;
     using type = region<region_impl<MachineConf, transition_table_path, ParentCtxStorage>>;
 };
 

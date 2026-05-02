@@ -8,7 +8,7 @@
 #define MAKI_DETAIL_PATH_IMPL_HPP
 
 #include "ipath_util.hpp"
-#include "index_sequence.hpp"
+#include "iseq.hpp"
 #include "pretty_name.hpp"
 #include <string>
 
@@ -36,14 +36,14 @@ namespace path_impl_detail
             const to_string_left_fold_result<PreviousResultElemIpath>& previous_result
         )
         {
-            using current_elem_ipath_t = index_sequence_push_back_t
+            using current_elem_ipath_t = iseq_push_back_t
             <
                 PreviousResultElemIpath,
                 Index
             >;
 
             constexpr auto is_transition_table_elem =
-                index_sequence_size_v<current_elem_ipath_t> % 2 == 1
+                iseq_size_v<current_elem_ipath_t> % 2 == 1
             ;
 
             if constexpr(is_transition_table_elem)
@@ -71,13 +71,13 @@ public:
     [[nodiscard]] std::string to_string() const
     {
         auto str =
-            index_sequence_left_fold
+            iseq_left_fold
             <
                 Ipath,
                 path_impl_detail::to_string_left_fold_operation<MachineConf>
             >
             (
-                path_impl_detail::to_string_left_fold_result<index_sequence<>>{""}
+                path_impl_detail::to_string_left_fold_result<iseq<>>{""}
             ).str
         ;
         str.resize(str.size() - 1); //Remove last separator

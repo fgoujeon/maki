@@ -18,7 +18,7 @@
 #include "equals.hpp"
 #include "tuple.hpp"
 #include "mix.hpp"
-#include "index_sequence.hpp"
+#include "iseq.hpp"
 #include "path_impl.hpp"
 #include "friendly_impl.hpp"
 #include "../states.hpp"
@@ -100,7 +100,7 @@ namespace region_detail
         }
     }
 
-    namespace filter_state_mold_index_sequence_by_state_set_detail
+    namespace filter_state_mold_iseq_by_state_set_detail
     {
         template<const auto& TransitionTable, auto StateSetPtr>
         struct for_state_set
@@ -115,10 +115,10 @@ namespace region_detail
     }
 
     template<const auto& TransitionTable, class StateMoldIndexSequence, auto StateSetPtr>
-    using filter_state_mold_index_sequence_by_state_set_t = index_sequence_filter_t
+    using filter_state_mold_iseq_by_state_set_t = iseq_filter_t
     <
         StateMoldIndexSequence,
-        filter_state_mold_index_sequence_by_state_set_detail::for_state_set<TransitionTable, StateSetPtr>::template matches
+        filter_state_mold_iseq_by_state_set_detail::for_state_set<TransitionTable, StateSetPtr>::template matches
     >;
 }
 
@@ -134,33 +134,33 @@ public:
         transition_table_digest<trans_table>
     ;
 
-    using state_mold_index_sequence_0 =
-        typename transition_table_digest_type::unique_target_state_mold_index_sequence
+    using state_mold_iseq_0 =
+        typename transition_table_digest_type::unique_target_state_mold_iseq
     ;
 
-    using state_mold_index_sequence =
-        index_sequence_push_back_t
+    using state_mold_iseq =
+        iseq_push_back_t
         <
-            state_mold_index_sequence_0,
+            state_mold_iseq_0,
             state_mold_indexes::undefined
         >
     ;
 
     template<int... StateMoldIndexes>
-    using state_mold_index_sequence_to_state_mix_t = mix
+    using state_mold_iseq_to_state_mix_t = mix
     <
         state_traits::state_id_to_state_t
         <
             MachineConf,
-            index_sequence_push_back_t<TransitionTablePath, StateMoldIndexes>,
+            iseq_push_back_t<TransitionTablePath, StateMoldIndexes>,
             ParentCtxStorage
         >...
     >;
 
-    using state_mix_type = index_sequence_apply_t
+    using state_mix_type = iseq_apply_t
     <
-        state_mold_index_sequence_0,
-        state_mold_index_sequence_to_state_mix_t
+        state_mold_iseq_0,
+        state_mold_iseq_to_state_mix_t
     >;
 
     using states_event_type_set = state_type_list_event_type_set_t<state_mix_type>;
@@ -212,7 +212,7 @@ public:
             auto defers = false;
             with_active_state_id
             <
-                state_mold_index_sequence,
+                state_mold_iseq,
                 state_defers_event<Event>
             >(*this, defers);
             return defers;
@@ -256,7 +256,7 @@ public:
     {
         if(!completed())
         {
-            with_active_state_id<state_mold_index_sequence, exit_2<TargetStateMoldIndex>>
+            with_active_state_id<state_mold_iseq, exit_2<TargetStateMoldIndex>>
             (
                 *this,
                 mach,
@@ -440,18 +440,18 @@ private:
             if constexpr(is_state_set_v<std::decay_t<decltype(source_state_mold)>>)
             {
                 //List of state molds that belong to the source state set
-                using matching_state_mold_index_sequence = region_detail::filter_state_mold_index_sequence_by_state_set_t
+                using matching_state_mold_iseq = region_detail::filter_state_mold_iseq_by_state_set_t
                 <
                     trans_table,
-                    state_mold_index_sequence,
+                    state_mold_iseq,
                     &source_state_mold
                 >;
 
-                static_assert(index_sequence_size_v<matching_state_mold_index_sequence> != 0);
+                static_assert(iseq_size_v<matching_state_mold_iseq> != 0);
 
-                return index_sequence_for_each_or
+                return iseq_for_each_or
                 <
-                    matching_state_mold_index_sequence,
+                    matching_state_mold_iseq,
                     try_executing_transition_2
                     <
                         Dry,
@@ -815,9 +815,9 @@ private:
         auto matches = false;
         with_active_state_id
         <
-            index_sequence_push_back_t
+            iseq_push_back_t
             <
-                state_mold_index_sequence,
+                state_mold_iseq,
                 state_mold_indexes::fin
             >,
             is_active_state_id_in_set_2<StateSetPtr>
@@ -842,7 +842,7 @@ private:
     template<class StateMoldIndexSequence, class F, class... Args>
     void with_active_state_id(Args&&... args) const
     {
-        index_sequence_for_each_or
+        iseq_for_each_or
         <
             StateMoldIndexSequence,
             with_active_state_id_2<F>
@@ -918,7 +918,7 @@ private:
                 state_traits::state_id_to_state_t
                 <
                     MachineConf,
-                    index_sequence_push_back_t<TransitionTablePath, state_mold_index>,
+                    iseq_push_back_t<TransitionTablePath, state_mold_index>,
                     ParentCtxStorage
                 >
             ;

@@ -15,7 +15,7 @@
 #include "machine_conf.hpp"
 #include "events.hpp"
 #include "null.hpp"
-#include "detail/index_sequence.hpp"
+#include "detail/iseq.hpp"
 #include "detail/state_impls/simple.hpp" //NOLINT misc-include-cleaner
 #include "detail/state_impls/composite.hpp" //NOLINT misc-include-cleaner
 #include "detail/state_impls/composite_no_context.hpp"
@@ -346,7 +346,7 @@ private:
         detail::state_impls::composite_no_context
         <
             Conf,
-            detail::index_sequence<>,
+            detail::iseq<>,
             detail::context_storage::plain
         >
     ;

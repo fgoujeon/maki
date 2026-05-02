@@ -38,7 +38,7 @@ namespace transition_table_digest_ns
 
     using digest_t = maki::detail::transition_table_digest<transition_table>;
 
-    using expected_unique_target_state_mold_index_sequence = maki::detail::index_sequence
+    using expected_unique_target_state_mold_iseq = maki::detail::iseq
     <
         0,
         1,
@@ -50,5 +50,5 @@ namespace transition_table_digest_ns
 TEST_CASE("detail::transition_table_digest")
 {
     using namespace transition_table_digest_ns;
-    REQUIRE(std::is_same_v<digest_t::unique_target_state_mold_index_sequence, expected_unique_target_state_mold_index_sequence>);
+    REQUIRE(std::is_same_v<digest_t::unique_target_state_mold_iseq, expected_unique_target_state_mold_iseq>);
 }

@@ -9,7 +9,7 @@
 
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
-#include "index_sequence.hpp"
+#include "iseq.hpp"
 #include "../states.hpp"
 #include "../null.hpp"
 #include "tlu/left_fold.hpp"
@@ -35,7 +35,7 @@ For example, the following digest type...:
 ... is equivalent to this type:
     struct digest
     {
-        using unique_target_state_mold_index_sequence = maki::detail::index_sequence<0, 1, 2, 3>;
+        using unique_target_state_mold_iseq = maki::detail::iseq<0, 1, 2, 3>;
     };
 */
 
@@ -43,7 +43,7 @@ namespace transition_table_digest_detail
 {
     struct initial_digest
     {
-        using unique_target_state_mold_index_sequence = index_sequence<>;
+        using unique_target_state_mold_iseq = iseq<>;
         static constexpr auto has_completion_transitions = false;
     };
 
@@ -51,7 +51,7 @@ namespace transition_table_digest_detail
     struct has_target_state_mold;
 
     template<const auto& TransitionTable, int... TargetStateMoldIndexes, int StateMoldIndex>
-    struct has_target_state_mold<TransitionTable, index_sequence<TargetStateMoldIndexes...>, StateMoldIndex>
+    struct has_target_state_mold<TransitionTable, iseq<TargetStateMoldIndexes...>, StateMoldIndex>
     {
         static constexpr bool value =
             (
@@ -85,7 +85,7 @@ namespace transition_table_digest_detail
                 !has_target_state_mold
                 <
                     TransitionTable,
-                    typename Digest::unique_target_state_mold_index_sequence,
+                    typename Digest::unique_target_state_mold_iseq,
                     Index
                 >::value &&
                 !equals(target_state_mold, state_molds::fin) &&
@@ -93,10 +93,10 @@ namespace transition_table_digest_detail
                 !equals(target_state_mold, undefined)
             ;
 
-            using unique_target_state_mold_index_sequence =
-                index_sequence_push_back_if_t
+            using unique_target_state_mold_iseq =
+                iseq_push_back_if_t
                 <
-                    typename Digest::unique_target_state_mold_index_sequence,
+                    typename Digest::unique_target_state_mold_iseq,
                     Index,
                     must_add_target_state
                 >

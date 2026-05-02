@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_PATH_TO_TRANSITION_TABLE_HPP
-#define MAKI_DETAIL_PATH_TO_TRANSITION_TABLE_HPP
+#ifndef MAKI_DETAIL_IPATH_UTIL_HPP
+#define MAKI_DETAIL_IPATH_UTIL_HPP
 
 #include "tuple.hpp"
 #include "index_sequence.hpp"
@@ -13,7 +13,12 @@
 namespace maki::detail
 {
 
-namespace path_to_detail
+/*
+An `ipath` is a path to a `state_mold` or a `transition_table` object under the
+form of a `machine_conf` object + an `index_sequence`.
+*/
+
+namespace ipath_util_detail
 {
     /*
     Template declarations
@@ -111,13 +116,13 @@ namespace path_to_detail
 }
 
 template<const auto& MachineConf, class Path>
-constexpr const auto& path_to_transition_table_v =
-    index_sequence_apply_t<Path, path_to_detail::with_machine_conf<MachineConf>::template ints_to_transition_table>::value
+constexpr const auto& ipath_to_transition_table_v =
+    index_sequence_apply_t<Path, ipath_util_detail::with_machine_conf<MachineConf>::template ints_to_transition_table>::value
 ;
 
 template<const auto& MachineConf, class Path>
-constexpr const auto& path_to_state_mold_v =
-    index_sequence_apply_t<Path, path_to_detail::with_machine_conf<MachineConf>::template ints_to_state_mold>::value
+constexpr const auto& ipath_to_state_mold_v =
+    index_sequence_apply_t<Path, ipath_util_detail::with_machine_conf<MachineConf>::template ints_to_state_mold>::value
 ;
 
 } //namespace

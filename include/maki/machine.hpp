@@ -347,6 +347,7 @@ private:
         <
             Conf,
             detail::iseq<>,
+            &Conf,
             detail::context_storage::plain
         >
     ;

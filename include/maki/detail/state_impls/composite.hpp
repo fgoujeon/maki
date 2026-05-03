@@ -19,17 +19,17 @@
 namespace maki::detail::state_impls
 {
 
-template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
+template<const auto& MachineConf, class StateMoldPath, auto StateId, context_storage ParentCtxStorage>
 class composite
 {
 public:
-    static constexpr const auto& mold = ipath_to_state_mold_v<MachineConf, StateMoldPath>;
-    static constexpr auto identifier = &mold;
+    static constexpr const auto& mold = *StateId;
+    static constexpr auto identifier = StateId;
     using mold_type = std::decay_t<decltype(mold)>;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);
     using context_type = typename option_set_type::context_type;
-    using impl_type = composite_no_context<MachineConf, StateMoldPath, ParentCtxStorage>;
+    using impl_type = composite_no_context<MachineConf, StateMoldPath, StateId, ParentCtxStorage>;
     using event_type_set = typename impl_type::event_type_set;
     using deferrable_event_type_set = typename impl_type::deferrable_event_type_set;
 

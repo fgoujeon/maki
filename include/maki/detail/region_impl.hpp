@@ -126,7 +126,7 @@ template<const auto& MachineConf, class TransitionTablePath, context_storage Par
 class region_impl
 {
 public:
-    static constexpr auto trans_table = ipath_to_transition_table_v<MachineConf, TransitionTablePath>;
+    static constexpr auto trans_table = ipath_to_object<TransitionTablePath>(MachineConf);
 
     using transition_table_type = std::decay_t<decltype(trans_table)>;
 

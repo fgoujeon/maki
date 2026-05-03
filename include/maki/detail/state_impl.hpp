@@ -24,13 +24,13 @@ struct state_impl_helper;
 template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
 struct state_impl_helper<MachineConf, StateMoldPath, ParentCtxStorage, false, false>
 {
-    using type = state_impls::simple_no_context<&ipath_to_state_mold_v<MachineConf, StateMoldPath>>;
+    using type = state_impls::simple_no_context<&ipath_to_object<StateMoldPath>(MachineConf)>;
 };
 
 template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
 struct state_impl_helper<MachineConf, StateMoldPath, ParentCtxStorage, false, true>
 {
-    using type = state_impls::simple<&ipath_to_state_mold_v<MachineConf, StateMoldPath>, ParentCtxStorage>;
+    using type = state_impls::simple<&ipath_to_object<StateMoldPath>(MachineConf), ParentCtxStorage>;
 };
 
 template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
@@ -48,7 +48,7 @@ struct state_impl_helper<MachineConf, StateMoldPath, ParentCtxStorage, true, tru
 template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
 struct state_impl
 {
-    static constexpr auto state_id = &ipath_to_state_mold_v<MachineConf, StateMoldPath>;
+    static constexpr auto state_id = &ipath_to_object<StateMoldPath>(MachineConf);
     using type = typename state_impl_helper
     <
         MachineConf,

@@ -7,6 +7,8 @@
 #ifndef MAKI_DETAIL_IPATH_UTIL_HPP
 #define MAKI_DETAIL_IPATH_UTIL_HPP
 
+#include "../state_mold.hpp"
+#include "../transition_table.hpp"
 #include "tuple.hpp"
 #include "iseq.hpp"
 
@@ -18,112 +20,32 @@ An `ipath` is a path to a `state_mold` or a `transition_table` object under the
 form of a `machine_conf` object + an `iseq`.
 */
 
-namespace ipath_util_detail
+struct ipath_to_object_operation
 {
-    /*
-    Template declarations
-    */
-
-    template<const auto& StateMold, int... Indexes>
-    struct state_mold_and_ints_to_transition_table;
-
-    template<const auto& StateMold, int... Indexes>
-    struct state_mold_and_ints_to_state_mold;
-
-    template<const auto& TransitionTable, int StateMoldIndex, int... Indexes>
-    struct transition_table_and_ints_to_state_mold
+    template<int Index, class MachineConfImpl>
+    static constexpr const auto& call(const machine_conf<MachineConfImpl>& base)
     {
-        static constexpr const auto& value =
-            state_mold_and_ints_to_state_mold
-            <
-                *tuple_get<StateMoldIndex>(impl_of(TransitionTable)).target_state_mold,
-                Indexes...
-            >::value
-        ;
-    };
+        return tuple_get<Index>(impl_of(base).transition_tables);
+    }
 
-
-    /*
-    `state_mold_and_ints_to_transition_table` specializations
-    */
-
-    template<const auto& StateMold, int TransitionTableIndex, int StateMoldIndex, int... Indexes>
-    struct state_mold_and_ints_to_transition_table<StateMold, TransitionTableIndex, StateMoldIndex, Indexes...>
+    template<int Index, class StateMoldImpl>
+    static constexpr const auto& call(const state_mold<StateMoldImpl>& base)
     {
-        static constexpr const auto& value =
-            state_mold_and_ints_to_transition_table
-            <
-                state_mold_and_ints_to_state_mold
-                <
-                    StateMold,
-                    TransitionTableIndex,
-                    StateMoldIndex
-                >::value,
-                Indexes...
-            >::value
-        ;
-    };
+        return tuple_get<Index>(impl_of(base).transition_tables);
+    }
 
-    template<const auto& StateMold, int TransitionTableIndex>
-    struct state_mold_and_ints_to_transition_table<StateMold, TransitionTableIndex>
+    template<int Index, class TransitionTableImpl>
+    static constexpr const auto& call(const transition_table<TransitionTableImpl>& base)
     {
-        static constexpr auto value =
-            tuple_get<TransitionTableIndex>(impl_of(StateMold).transition_tables)
-        ;
-    };
+        return *tuple_get<Index>(impl_of(base)).target_state_mold;
+    }
+};
 
-
-    /*
-    `state_mold_and_ints_to_state_mold` specializations
-    */
-
-    template<const auto& StateMold, int TransitionTableIndex, int... Indexes>
-    struct state_mold_and_ints_to_state_mold<StateMold, TransitionTableIndex, Indexes...>
-    {
-        static constexpr const auto& value =
-            transition_table_and_ints_to_state_mold
-            <
-                state_mold_and_ints_to_transition_table
-                <
-                    StateMold,
-                    TransitionTableIndex
-                >::value,
-                Indexes...
-            >::value
-        ;
-    };
-
-    template<const auto& StateMold>
-    struct state_mold_and_ints_to_state_mold<StateMold>
-    {
-        static constexpr const auto& value = StateMold;
-    };
-
-
-    /*
-    `with_machine_conf`
-    */
-
-    template<const auto& MachineConf>
-    struct with_machine_conf
-    {
-        template<int... Indexes>
-        using ints_to_transition_table = state_mold_and_ints_to_transition_table<MachineConf, Indexes...>;
-
-        template<int... Indexes>
-        using ints_to_state_mold = state_mold_and_ints_to_state_mold<MachineConf, Indexes...>;
-    };
+template<class Ipath, class Base>
+constexpr const auto& ipath_to_object(const Base& base)
+{
+    return iseq_left_fold<Ipath, ipath_to_object_operation>(base);
 }
-
-template<const auto& MachineConf, class Path>
-constexpr const auto& ipath_to_transition_table_v =
-    iseq_apply_t<Path, ipath_util_detail::with_machine_conf<MachineConf>::template ints_to_transition_table>::value
-;
-
-template<const auto& MachineConf, class Path>
-constexpr const auto& ipath_to_state_mold_v =
-    iseq_apply_t<Path, ipath_util_detail::with_machine_conf<MachineConf>::template ints_to_state_mold>::value
-;
 
 } //namespace
 

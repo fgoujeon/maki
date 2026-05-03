@@ -124,7 +124,7 @@ namespace iseq_left_fold_detail
     };
 
     template<class Lhs, class Operation, int I>
-    constexpr auto operator+(const Lhs& lhs, const operation_holder<Operation, I>& /*rhs*/)
+    constexpr decltype(auto) operator+(const Lhs& lhs, const operation_holder<Operation, I>& /*rhs*/)
     {
         return Operation::template call<I>(lhs);
     }
@@ -136,7 +136,7 @@ namespace iseq_left_fold_detail
     struct helper<iseq<Is...>, Operation>
     {
         template<class Initial>
-        static constexpr auto call(const Initial& initial)
+        static constexpr decltype(auto) call(const Initial& initial)
         {
             return (initial + ... + operation_holder<Operation, Is>{});
         }
@@ -149,7 +149,7 @@ template
     class Operation,
     class Initial
 >
-constexpr auto iseq_left_fold(const Initial& initial)
+constexpr decltype(auto) iseq_left_fold(const Initial& initial)
 {
     return iseq_left_fold_detail::helper<Seq, Operation>::call(initial);
 }

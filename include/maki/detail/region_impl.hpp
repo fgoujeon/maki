@@ -429,14 +429,6 @@ private:
             static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(trans_table));
             static constexpr auto source_state_mold = trans.source_state_mold;
 
-            static constexpr auto target_state_mold_index =
-                region_detail::state_mold_to_state_mold_index
-                <
-                    trans_table,
-                    trans.target_state_mold
-                >()
-            ;
-
             if constexpr(is_state_set_v<std::decay_t<decltype(source_state_mold)>>)
             {
                 //List of state molds that belong to the source state set
@@ -455,7 +447,7 @@ private:
                     try_executing_transition_2
                     <
                         Dry,
-                        target_state_mold_index,
+                        state_mold_index_v<trans.target_state_mold>,
                         TransitionIndexConstant::value,
                         TransitionIndexConstant::value
                     >
@@ -464,17 +456,16 @@ private:
             else
             {
                 static constexpr auto source_state_mold_index =
-                    region_detail::state_mold_to_state_mold_index
+                    state_mold_index_v
                     <
-                        trans_table,
                         trans.source_state_mold
-                    >()
+                    >
                 ;
 
                 return try_executing_transition_2
                 <
                     Dry,
-                    target_state_mold_index,
+                    state_mold_index_v<trans.target_state_mold>,
                     TransitionIndexConstant::value,
                     TransitionIndexConstant::value
                 >::template call<source_state_mold_index>
@@ -806,7 +797,7 @@ private:
     template<auto StateId>
     [[nodiscard]] bool is_active_state_id() const
     {
-        return active_state_mold_index_ == region_detail::state_mold_to_state_mold_index<trans_table, StateId>();
+        return active_state_mold_index_ == state_mold_index_v<StateId>;
     }
 
     template<auto StateSetPtr>
@@ -913,7 +904,7 @@ private:
         }
         else
         {
-            constexpr int state_mold_index = region_detail::state_mold_to_state_mold_index<trans_table, StateId>();
+            constexpr int state_mold_index = state_mold_index_v<StateId>;
             using state_t =
                 state_traits::state_id_to_state_t
                 <
@@ -945,6 +936,11 @@ private:
         constexpr auto state_mold = region_detail::state_mold_index_to_state_mold<trans_table, StateMoldIndex>();
         return static_state_id_to_obj<state_mold>(self);
     }
+
+    template<auto StateMold>
+    static constexpr int state_mold_index_v =
+        region_detail::state_mold_to_state_mold_index<trans_table, StateMold>()
+    ;
 
     const region<region_impl>* pitf_;
     state_mix_type states_;

@@ -43,13 +43,6 @@ constexpr const auto& machine_element_at_path(const Base& base)
     return iseq_left_fold<Ipath, machine_element_at_path_operation>(base);
 }
 
-/*
-A machine element is either a `transition_table` or a `state_mold`.
-An `ipath` is a path under the form of an `iseq`.
-*/
-template<const auto& MachineConf, class Ipath>
-constexpr const auto& machine_element_at_path_v = machine_element_at_path<Ipath>(MachineConf);
-
 } //namespace
 
 #endif

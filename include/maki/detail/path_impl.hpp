@@ -53,7 +53,7 @@ namespace path_impl_detail
             }
             else
             {
-                constexpr const auto& stt_mold = machine_element_at_path_v<MachineConf, current_elem_ipath_t>;
+                constexpr const auto& stt_mold = machine_element_at_path<current_elem_ipath_t>(MachineConf);
                 const auto state_pretty_name = detail::pretty_name<stt_mold>();
                 const auto str = previous_result.str + std::string{state_pretty_name} + "/";
                 return to_string_left_fold_result<current_elem_ipath_t>{str};

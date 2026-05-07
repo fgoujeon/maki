@@ -45,8 +45,8 @@ namespace region_detail
     inline constexpr auto null_action_index = -1;
     inline constexpr auto null_guard_index = -1;
 
-    template<const auto& TransitionTable, int StateMoldIndex>
-    constexpr auto state_mold_at_index()
+    template<int StateMoldIndex, class TransitionTable>
+    constexpr auto state_mold_at_index(const TransitionTable& trans_table)
     {
         if constexpr(StateMoldIndex == state_mold_indexes::undefined)
         {
@@ -62,12 +62,9 @@ namespace region_detail
         }
         else
         {
-            return tuple_get<StateMoldIndex>(impl_of(TransitionTable)).target_state_mold;
+            return tuple_get<StateMoldIndex>(impl_of(trans_table)).target_state_mold;
         }
     }
-
-    template<const auto& TransitionTable, int StateMoldIndex>
-    constexpr auto state_mold_at_index_v = state_mold_at_index<TransitionTable, StateMoldIndex>();
 
     template<const auto& TransitionTable, auto StateMold, int TransitionIndex>
     constexpr int state_mold_to_state_mold_index_2()
@@ -111,7 +108,7 @@ namespace region_detail
             template<int StateMoldIndex>
             struct matches
             {
-                static constexpr auto state_id = state_mold_at_index_v<TransitionTable, StateMoldIndex>;
+                static constexpr auto state_id = state_mold_at_index<StateMoldIndex>(TransitionTable);
                 static constexpr bool value = contains(impl_of(*StateSetPtr), state_id);
             };
         };
@@ -553,7 +550,7 @@ private:
     {
         using machine_option_set_type = typename Machine::option_set_type;
 
-        constexpr auto target_state_mold = region_detail::state_mold_at_index_v<trans_table, TargetStateMoldIndex>;
+        constexpr auto target_state_mold = region_detail::state_mold_at_index<TargetStateMoldIndex>(trans_table);
 
         constexpr auto is_external_transition = !is_null_v
         <
@@ -821,7 +818,7 @@ private:
         template<int ActiveStateMoldIndex>
         static void call([[maybe_unused]] bool& matches)
         {
-            constexpr auto active_state_mold = region_detail::state_mold_at_index_v<trans_table, ActiveStateMoldIndex>;
+            constexpr auto active_state_mold = region_detail::state_mold_at_index<ActiveStateMoldIndex>(trans_table);
             if constexpr(contains(impl_of(*StateSetPtr), active_state_mold))
             {
                 matches = true;

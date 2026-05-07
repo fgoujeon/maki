@@ -936,8 +936,30 @@ private:
     template<int StateMoldIndex, class Region>
     static auto& static_state_mold_index_to_state(Region& self)
     {
-        constexpr auto state_mold = region_detail::state_mold_at_index_v<trans_table, StateMoldIndex>;
-        return static_state_id_to_obj<state_mold>(self);
+        if constexpr(StateMoldIndex == state_mold_indexes::undefined)
+        {
+            return states::undefined;
+        }
+        else if constexpr(StateMoldIndex == state_mold_indexes::null)
+        {
+            return states::null;
+        }
+        else if constexpr(StateMoldIndex == state_mold_indexes::fin)
+        {
+            return states::fin;
+        }
+        else
+        {
+            using state_t =
+                state_traits::state_id_to_state_t
+                <
+                    MachineConf,
+                    iseq_push_back_t<TransitionTablePath, StateMoldIndex>,
+                    ParentCtxStorage
+                >
+            ;
+            return get<state_t>(self.states_);
+        }
     }
 
     template<auto StateMold>

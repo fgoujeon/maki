@@ -12,7 +12,7 @@
 #include "state_impls/composite_no_context_fwd.hpp"
 #include "state_impls/composite_fwd.hpp"
 #include "state_id_traits.hpp"
-#include "ipath_util.hpp"
+#include "machine_element.hpp"
 #include "context_storage.hpp"
 
 namespace maki::detail::state_traits
@@ -24,13 +24,13 @@ struct state_impl_helper;
 template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
 struct state_impl_helper<MachineConf, StateMoldPath, ParentCtxStorage, false, false>
 {
-    using type = state_impls::simple_no_context<&ipath_to_object<StateMoldPath>(MachineConf)>;
+    using type = state_impls::simple_no_context<&machine_element_at_path_v<MachineConf, StateMoldPath>>;
 };
 
 template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
 struct state_impl_helper<MachineConf, StateMoldPath, ParentCtxStorage, false, true>
 {
-    using type = state_impls::simple<&ipath_to_object<StateMoldPath>(MachineConf), ParentCtxStorage>;
+    using type = state_impls::simple<&machine_element_at_path_v<MachineConf, StateMoldPath>, ParentCtxStorage>;
 };
 
 template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
@@ -48,7 +48,7 @@ struct state_impl_helper<MachineConf, StateMoldPath, ParentCtxStorage, true, tru
 template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
 struct state_impl
 {
-    static constexpr auto state_id = &ipath_to_object<StateMoldPath>(MachineConf);
+    static constexpr auto state_id = &machine_element_at_path_v<MachineConf, StateMoldPath>;
     using type = typename state_impl_helper
     <
         MachineConf,

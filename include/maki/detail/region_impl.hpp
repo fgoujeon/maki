@@ -8,7 +8,7 @@
 #define MAKI_DETAIL_REGION_IMPL_HPP
 
 #include "state_mold_indexes.hpp"
-#include "ipath_util.hpp"
+#include "machine_element.hpp"
 #include "compiler.hpp"
 #include "type_set.hpp"
 #include "state_id_to_state.hpp"
@@ -126,7 +126,7 @@ template<const auto& MachineConf, class TransitionTablePath, context_storage Par
 class region_impl
 {
 public:
-    static constexpr auto trans_table = ipath_to_object<TransitionTablePath>(MachineConf);
+    static constexpr auto trans_table = machine_element_at_path_v<MachineConf, TransitionTablePath>;
 
     using transition_table_type = std::decay_t<decltype(trans_table)>;
 

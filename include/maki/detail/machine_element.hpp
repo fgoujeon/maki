@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_IPATH_UTIL_HPP
-#define MAKI_DETAIL_IPATH_UTIL_HPP
+#ifndef MAKI_DETAIL_MACHINE_ELEMENT_HPP
+#define MAKI_DETAIL_MACHINE_ELEMENT_HPP
 
 #include "../state_mold.hpp"
 #include "../transition_table.hpp"
@@ -15,12 +15,7 @@
 namespace maki::detail
 {
 
-/*
-An `ipath` is a path to a `state_mold` or a `transition_table` object under the
-form of a `machine_conf` object + an `iseq`.
-*/
-
-struct ipath_to_object_operation
+struct machine_element_at_path_operation
 {
     template<int Index, class MachineConfImpl>
     static constexpr const auto& call(const machine_conf<MachineConfImpl>& base)
@@ -42,10 +37,17 @@ struct ipath_to_object_operation
 };
 
 template<class Ipath, class Base>
-constexpr const auto& ipath_to_object(const Base& base)
+constexpr const auto& machine_element_at_path(const Base& base)
 {
-    return iseq_left_fold<Ipath, ipath_to_object_operation>(base);
+    return iseq_left_fold<Ipath, machine_element_at_path_operation>(base);
 }
+
+/*
+A machine element is either a `transition_table` or a `state_mold`.
+An `ipath` is a path under the form of an `iseq`.
+*/
+template<const auto& MachineConf, class Ipath>
+constexpr const auto& machine_element_at_path_v = machine_element_at_path<Ipath>(MachineConf);
 
 } //namespace
 

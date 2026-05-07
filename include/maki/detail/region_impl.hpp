@@ -293,7 +293,8 @@ public:
     template<const auto& StateMold>
     const auto& state() const
     {
-        return state_id_to_obj<&StateMold>();
+        constexpr int state_mold_index = state_mold_index_v<&StateMold>;
+        return state_mold_index_to_state<state_mold_index>();
     }
 
     static const auto& path()
@@ -868,18 +869,6 @@ private:
     const auto& state_type_to_obj() const
     {
         return static_state_type_to_obj<State>(*this);
-    }
-
-    template<auto StateId>
-    auto& state_id_to_obj()
-    {
-        return static_state_id_to_obj<StateId>(*this);
-    }
-
-    template<auto StateId>
-    const auto& state_id_to_obj() const
-    {
-        return static_state_id_to_obj<StateId>(*this);
     }
 
     //Note: We use static to factorize const and non-const Region

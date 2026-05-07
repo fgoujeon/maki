@@ -46,7 +46,7 @@ namespace region_detail
     inline constexpr auto null_guard_index = -1;
 
     template<const auto& TransitionTable, int StateMoldIndex>
-    constexpr auto state_mold_index_to_state_mold()
+    constexpr auto state_mold_at_index()
     {
         if constexpr(StateMoldIndex == state_mold_indexes::undefined)
         {
@@ -65,6 +65,9 @@ namespace region_detail
             return tuple_get<StateMoldIndex>(impl_of(TransitionTable)).target_state_mold;
         }
     }
+
+    template<const auto& TransitionTable, int StateMoldIndex>
+    constexpr auto state_mold_at_index_v = state_mold_at_index<TransitionTable, StateMoldIndex>();
 
     template<const auto& TransitionTable, auto StateMold, int TransitionIndex>
     constexpr int state_mold_to_state_mold_index_2()
@@ -108,7 +111,7 @@ namespace region_detail
             template<int StateMoldIndex>
             struct matches
             {
-                static constexpr auto state_id = state_mold_index_to_state_mold<TransitionTable, StateMoldIndex>();
+                static constexpr auto state_id = state_mold_at_index_v<TransitionTable, StateMoldIndex>;
                 static constexpr bool value = contains(impl_of(*StateSetPtr), state_id);
             };
         };
@@ -549,7 +552,7 @@ private:
     {
         using machine_option_set_type = typename Machine::option_set_type;
 
-        constexpr auto target_state_mold = region_detail::state_mold_index_to_state_mold<trans_table, TargetStateMoldIndex>();
+        constexpr auto target_state_mold = region_detail::state_mold_at_index_v<trans_table, TargetStateMoldIndex>;
 
         constexpr auto is_external_transition = !is_null_v
         <
@@ -822,7 +825,7 @@ private:
         template<int ActiveStateMoldIndex>
         static void call([[maybe_unused]] bool& matches)
         {
-            constexpr auto active_state_mold = region_detail::state_mold_index_to_state_mold<trans_table, ActiveStateMoldIndex>();
+            constexpr auto active_state_mold = region_detail::state_mold_at_index_v<trans_table, ActiveStateMoldIndex>;
             if constexpr(contains(impl_of(*StateSetPtr), active_state_mold))
             {
                 matches = true;
@@ -933,7 +936,7 @@ private:
     template<int StateMoldIndex, class Region>
     static auto& static_state_mold_index_to_state(Region& self)
     {
-        constexpr auto state_mold = region_detail::state_mold_index_to_state_mold<trans_table, StateMoldIndex>();
+        constexpr auto state_mold = region_detail::state_mold_at_index_v<trans_table, StateMoldIndex>;
         return static_state_id_to_obj<state_mold>(self);
     }
 

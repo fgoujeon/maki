@@ -9,6 +9,7 @@
 
 #include "../state_mold.hpp"
 #include "../transition_table.hpp"
+#include "../machine_conf.hpp"
 #include "tuple.hpp"
 #include "iseq.hpp"
 

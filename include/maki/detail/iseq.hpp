@@ -196,6 +196,41 @@ using iseq_filter_t = typename iseq_filter<Seq, Predicate>::type;
 
 
 /*
+iseq_for_each
+*/
+
+template<class Seq, class F>
+struct iseq_for_each_helper
+{
+    template<int... Is>
+    struct inner
+    {
+        template<class... Args>
+        static void call(Args&... args)
+        {
+            return (F::template call<Is>(args...), ...);
+        }
+    };
+
+    template<class... Args>
+    static void call(Args&... args)
+    {
+        return iseq_apply_t
+        <
+            Seq,
+            inner
+        >::call(args...);
+    }
+};
+
+template<class Seq, class F, class... Args>
+void iseq_for_each(Args&... args)
+{
+    return iseq_for_each_helper<Seq, F>::call(args...);
+}
+
+
+/*
 iseq_for_each_or
 */
 

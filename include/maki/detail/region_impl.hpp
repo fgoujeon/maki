@@ -229,9 +229,9 @@ public:
     template<class Context, class Machine>
     void emplace_contexts_with_parent_lifetime(Context& ctx, Machine& mach)
     {
-        tlu::for_each
+        iseq_for_each
         <
-            state_mix_type,
+            state_mold_iseq_0,
             state_emplace_contexts_with_parent_lifetime
         >(*this, ctx, mach);
     }
@@ -271,9 +271,9 @@ public:
 
     void reset_contexts_with_parent_lifetime()
     {
-        tlu::for_each
+        iseq_for_each
         <
-            state_mix_type,
+            state_mold_iseq_0,
             state_reset_contexts_with_parent_lifetime
         >(*this);
     }
@@ -306,7 +306,7 @@ public:
 private:
     struct state_emplace_contexts_with_parent_lifetime
     {
-        template<class State, class Self, class Context, class Machine>
+        template<int StateMoldIndex, class Self, class Context, class Machine>
         static void call
         (
             Self& self,
@@ -314,17 +314,17 @@ private:
             Machine& mach
         )
         {
-            auto& stt = self.template state_type_to_obj<State>();
+            auto& stt = static_state_mold_index_to_state<StateMoldIndex>(self);
             impl_of(stt).emplace_contexts_with_parent_lifetime(ctx, mach);
         }
     };
 
     struct state_reset_contexts_with_parent_lifetime
     {
-        template<class State, class Self>
+        template<int StateMoldIndex, class Self>
         static void call(Self& self)
         {
-            auto& stt = self.template state_type_to_obj<State>();
+            auto& stt = static_state_mold_index_to_state<StateMoldIndex>(self);
             impl_of(stt).reset_contexts_with_parent_lifetime();
         }
     };
@@ -699,9 +699,9 @@ private:
     )
     {
         auto processed = false;
-        tlu::for_each_or
+        iseq_for_each_or
         <
-            state_mix_type,
+            state_mold_iseq_0,
             call_active_state_internal_action_2<Dry>
         >(self, mach, ctx, event, processed);
         return processed;
@@ -710,7 +710,7 @@ private:
     template<bool Dry>
     struct call_active_state_internal_action_2
     {
-        template<class State, class Self, class Machine, class Context, class Event>
+        template<int StateMoldIndex, class Self, class Machine, class Context, class Event>
         static bool call
         (
             Self& self,
@@ -720,24 +720,25 @@ private:
             bool& processed
         )
         {
+            auto& state = static_state_mold_index_to_state<StateMoldIndex>(self);
+            using state_type = std::decay_t<decltype(state)>;
+
             constexpr auto can_state_process_event =
                 type_set_contains_v
                 <
-                    typename impl_of_t<State>::event_type_set,
+                    typename impl_of_t<state_type>::event_type_set,
                     Event
                 >
             ;
 
             if constexpr(can_state_process_event)
             {
-                if(!self.template is_active_state_type<State>())
+                if(StateMoldIndex != self.active_state_mold_index_)
                 {
                     return false;
                 }
 
-                auto& active_state = self.template state_type_to_obj<State>();
-
-                processed = impl_of(active_state).template call_internal_action<Dry>
+                processed = impl_of(state).template call_internal_action<Dry>
                 (
                     mach,
                     ctx,
@@ -752,7 +753,7 @@ private:
                 {
                     self.try_executing_completion_transitions
                     (
-                        active_state,
+                        state,
                         mach,
                         ctx
                     );
@@ -790,12 +791,6 @@ private:
                 try_executing_transitions<candidate_transition_index_constant_list>(*this, mach, ctx, null);
             }
         }
-    }
-
-    template<class State>
-    [[nodiscard]] bool is_active_state_type() const
-    {
-        return is_active_state_id<impl_of_t<State>::identifier>();
     }
 
     template<auto StateId>
@@ -858,56 +853,6 @@ private:
             return false;
         }
     };
-
-    template<class State>
-    auto& state_type_to_obj()
-    {
-        return static_state_type_to_obj<State>(*this);
-    }
-
-    template<class State>
-    const auto& state_type_to_obj() const
-    {
-        return static_state_type_to_obj<State>(*this);
-    }
-
-    //Note: We use static to factorize const and non-const Region
-    template<class State, class Region>
-    static auto& static_state_type_to_obj(Region& self)
-    {
-        return static_state_id_to_obj<impl_of_t<State>::identifier>(self);
-    }
-
-    //Note: We use static to factorize const and non-const Region
-    template<auto StateId, class Region>
-    static auto& static_state_id_to_obj(Region& self)
-    {
-        if constexpr(ptr_equals(StateId, &state_molds::null))
-        {
-            return states::null;
-        }
-        else if constexpr(ptr_equals(StateId, &maki::undefined))
-        {
-            return states::undefined;
-        }
-        else if constexpr(ptr_equals(StateId, &state_molds::fin))
-        {
-            return states::fin;
-        }
-        else
-        {
-            constexpr int state_mold_index = state_mold_index_v<StateId>;
-            using state_t =
-                state_traits::state_id_to_state_t
-                <
-                    MachineConf,
-                    iseq_push_back_t<TransitionTablePath, state_mold_index>,
-                    ParentCtxStorage
-                >
-            ;
-            return get<state_t>(self.states_);
-        }
-    }
 
     template<int StateMoldIndex>
     auto& state_mold_index_to_state()

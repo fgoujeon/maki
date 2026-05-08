@@ -345,7 +345,7 @@ private:
     using impl_type =
         detail::state_impls::composite_no_context
         <
-            machine,
+            ConfHolder,
             detail::iseq<>,
             detail::context_storage::plain
         >

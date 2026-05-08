@@ -86,9 +86,9 @@ namespace region_detail
         {
             return state_mold_indexes::undefined;
         }
-        else if constexpr(ptr_equals(StateMold, &state_molds::null))
+        else if constexpr(ptr_equals(StateMold, null))
         {
-            return state_mold_indexes::null;
+            return state_mold_indexes::internal;
         }
         else if constexpr(ptr_equals(StateMold, &state_molds::fin))
         {
@@ -550,12 +550,9 @@ private:
     {
         using machine_option_set_type = typename Machine::option_set_type;
 
-        constexpr auto target_state_mold = region_detail::state_mold_at_index<TargetStateMoldIndex>(trans_table);
-
-        constexpr auto is_external_transition = !is_null_v
-        <
-            std::decay_t<decltype(target_state_mold)>
-        >;
+        constexpr auto is_external_transition =
+            TargetStateMoldIndex != state_mold_indexes::internal
+        ;
 
         auto& source_state = state_mold_index_to_state<SourceStateMoldIndex>();
 
@@ -673,7 +670,7 @@ private:
         (
             is_external_transition &&
             transition_table_digest_type::has_completion_transitions &&
-            !ptr_equals(target_state_mold, &state_molds::null)
+            TargetStateMoldIndex != state_mold_indexes::null
         )
         {
             try_executing_completion_transitions

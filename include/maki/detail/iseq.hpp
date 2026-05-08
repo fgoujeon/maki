@@ -241,14 +241,14 @@ struct iseq_for_each_or_helper
     struct inner
     {
         template<class... Args>
-        static bool call(Args&... args)
+        static constexpr bool call(Args&... args)
         {
             return (F::template call<Is>(args...) || ...);
         }
     };
 
     template<class... Args>
-    static bool call(Args&... args)
+    static constexpr bool call(Args&... args)
     {
         return iseq_apply_t
         <
@@ -259,7 +259,7 @@ struct iseq_for_each_or_helper
 };
 
 template<class Seq, class F, class... Args>
-bool iseq_for_each_or(Args&... args)
+constexpr bool iseq_for_each_or(Args&... args)
 {
     return iseq_for_each_or_helper<Seq, F>::call(args...);
 }

@@ -10,8 +10,10 @@
 namespace maki::detail::state_mold_indexes
 {
 
-inline constexpr auto undefined = -3;
-inline constexpr auto null = -2;
+inline constexpr auto invalid = -99;
+inline constexpr auto internal = -4;
+inline constexpr auto null = -3;
+inline constexpr auto undefined = -2;
 inline constexpr auto fin = -1;
 inline constexpr auto ini = 0;
 

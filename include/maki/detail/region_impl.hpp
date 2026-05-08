@@ -52,7 +52,11 @@ namespace region_detail
         {
             return &maki::undefined;
         }
-        else if constexpr(StateMoldIndex == state_mold_indexes::null)
+        else if constexpr
+        (
+            StateMoldIndex == state_mold_indexes::null ||
+            StateMoldIndex == state_mold_indexes::internal
+        )
         {
             return &state_molds::null;
         }
@@ -63,40 +67,6 @@ namespace region_detail
         else
         {
             return tuple_get<StateMoldIndex>(impl_of(trans_table)).target_state_mold;
-        }
-    }
-
-    template<const auto& TransitionTable, auto StateMold, int TransitionIndex>
-    constexpr int state_mold_to_state_mold_index_2()
-    {
-        if constexpr(ptr_equals(StateMold, tuple_get<TransitionIndex>(impl_of(TransitionTable)).target_state_mold))
-        {
-            return TransitionIndex;
-        }
-        else
-        {
-            return state_mold_to_state_mold_index_2<TransitionTable, StateMold, TransitionIndex + 1>();
-        }
-    }
-
-    template<const auto& TransitionTable, auto StateMold>
-    constexpr int state_mold_to_state_mold_index()
-    {
-        if constexpr(ptr_equals(StateMold, &maki::undefined))
-        {
-            return state_mold_indexes::undefined;
-        }
-        else if constexpr(ptr_equals(StateMold, &state_molds::null))
-        {
-            return state_mold_indexes::null;
-        }
-        else if constexpr(ptr_equals(StateMold, &state_molds::fin))
-        {
-            return state_mold_indexes::fin;
-        }
-        else
-        {
-            return state_mold_to_state_mold_index_2<TransitionTable, StateMold, 0>();
         }
     }
 
@@ -290,7 +260,7 @@ public:
     template<const auto& StateMold>
     const auto& state() const
     {
-        constexpr int state_mold_index = state_mold_index_v<&StateMold>;
+        constexpr int state_mold_index = index_of_state_mold(&StateMold);
         return state_mold_index_to_state<state_mold_index>();
     }
 
@@ -448,7 +418,7 @@ private:
                     try_executing_transition_2
                     <
                         Dry,
-                        state_mold_index_v<trans.target_state_mold>,
+                        index_of_state_mold(trans.target_state_mold),
                         TransitionIndexConstant::value,
                         TransitionIndexConstant::value
                     >
@@ -457,16 +427,13 @@ private:
             else
             {
                 static constexpr auto source_state_mold_index =
-                    state_mold_index_v
-                    <
-                        trans.source_state_mold
-                    >
+                    index_of_state_mold(trans.source_state_mold)
                 ;
 
                 return try_executing_transition_2
                 <
                     Dry,
-                    state_mold_index_v<trans.target_state_mold>,
+                    index_of_state_mold(trans.target_state_mold),
                     TransitionIndexConstant::value,
                     TransitionIndexConstant::value
                 >::template call<source_state_mold_index>
@@ -550,12 +517,9 @@ private:
     {
         using machine_option_set_type = typename Machine::option_set_type;
 
-        constexpr auto target_state_mold = region_detail::state_mold_at_index<TargetStateMoldIndex>(trans_table);
-
-        constexpr auto is_external_transition = !is_null_v
-        <
-            std::decay_t<decltype(target_state_mold)>
-        >;
+        constexpr auto is_external_transition =
+            TargetStateMoldIndex != state_mold_indexes::internal
+        ;
 
         auto& source_state = state_mold_index_to_state<SourceStateMoldIndex>();
 
@@ -673,7 +637,7 @@ private:
         (
             is_external_transition &&
             transition_table_digest_type::has_completion_transitions &&
-            !ptr_equals(target_state_mold, &state_molds::null)
+            TargetStateMoldIndex != state_mold_indexes::null
         )
         {
             try_executing_completion_transitions
@@ -793,7 +757,7 @@ private:
     template<auto StateId>
     [[nodiscard]] bool is_active_state_id() const
     {
-        return active_state_mold_index_ == state_mold_index_v<StateId>;
+        return active_state_mold_index_ == index_of_state_mold(StateId);
     }
 
     template<auto StateSetPtr>
@@ -840,7 +804,7 @@ private:
     struct with_active_state_id_2
     {
         template<int StateMoldIndex, class... Args>
-        static bool call(const region_impl& self, Args&&... args)
+        static constexpr bool call(const region_impl& self, Args&&... args)
         {
             if(self.active_state_mold_index_ == StateMoldIndex)
             {
@@ -893,10 +857,47 @@ private:
         }
     }
 
-    template<auto StateMold>
-    static constexpr int state_mold_index_v =
-        region_detail::state_mold_to_state_mold_index<trans_table, StateMold>()
-    ;
+    struct assign_index_if_state_mold_matches
+    {
+        template<int CandidateStateMoldIndex, class StateMold>
+        static constexpr bool call(const StateMold stt_mold, int& found_index)
+        {
+            if(!ptr_equals(stt_mold, tuple_get<CandidateStateMoldIndex>(impl_of(trans_table)).target_state_mold))
+            {
+                return false;
+            }
+
+            found_index = CandidateStateMoldIndex;
+            return true;
+        }
+    };
+
+    template<class StateMold>
+    static constexpr int index_of_state_mold(const StateMold stt_mold)
+    {
+        if(ptr_equals(stt_mold, &maki::undefined))
+        {
+            return state_mold_indexes::undefined;
+        }
+
+        if(ptr_equals(stt_mold, null))
+        {
+            return state_mold_indexes::internal;
+        }
+
+        if(ptr_equals(stt_mold, &state_molds::fin))
+        {
+            return state_mold_indexes::fin;
+        }
+
+        auto index = state_mold_indexes::invalid;
+        iseq_for_each_or
+        <
+            state_mold_iseq_0,
+            assign_index_if_state_mold_matches
+        >(stt_mold, index);
+        return index;
+    }
 
     const region<region_impl>* pitf_;
     state_mix_type states_;

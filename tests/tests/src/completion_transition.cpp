@@ -42,10 +42,13 @@ namespace completion_transition_ns
         (states::s4, states::s0, maki::null)
     ;
 
-    constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
-        .context_a<context>()
-    ;
+    struct machine_conf
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables(transition_table)
+            .context_a<context>()
+        ;
+    };
 
     using machine_t = maki::machine<machine_conf>;
 }

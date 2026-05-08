@@ -203,14 +203,17 @@ constexpr auto transition_table = maki::transition_table{}
 ;
 
 /*
-We have to define this variable to configure our state machine.
+We have to define this type to configure our state machine.
 Here, we just specify the transition table and the context type, but we can
 configure many other aspects of the state machine.
 */
-constexpr auto machine_conf = maki::machine_conf{}
-    .transition_tables(transition_table)
-    .context_a<context>()
-;
+struct machine_conf
+{
+    static constexpr auto value = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context_a<context>()
+    ;
+};
 
 /*
 We finally have our configured state machine.

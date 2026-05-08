@@ -25,11 +25,14 @@ namespace transition_from_stopped_any_state_ns
         (maki::all_states, states::running, maki::event<some_event>)
     ;
 
-    constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
-        .context_a<context>()
-        .auto_start(false)
-    ;
+    struct machine_conf
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables(transition_table)
+            .context_a<context>()
+            .auto_start(false)
+        ;
+    };
 
     using machine_t = maki::machine<machine_conf>;
 }

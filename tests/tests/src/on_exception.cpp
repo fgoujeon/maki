@@ -94,10 +94,13 @@ namespace on_exception_ns
         (states::on,  states::off, maki::event<events::button_press>)
     ;
 
-    constexpr auto machine_conf_default = maki::machine_conf{}
-        .transition_tables(transition_table_default)
-        .context_a<context>()
-    ;
+    struct machine_conf_default
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables(transition_table_default)
+            .context_a<context>()
+        ;
+    };
 
     using sm_default_t = maki::machine<machine_conf_default>;
 
@@ -113,17 +116,20 @@ namespace on_exception_ns
         (maki::undefined, maki::null,  maki::event<events::exception>, log_exception_default)
     ;
 
-    constexpr auto machine_conf_with_trans = maki::machine_conf{}
-        .transition_tables(transition_table_with_trans)
-        .context_a<context>()
-        .catch_mx
-        (
-            [](auto& mach, const std::exception_ptr& eptr)
-            {
-                mach.process_event(events::exception{eptr});
-            }
-        )
-    ;
+    struct machine_conf_with_trans
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables(transition_table_with_trans)
+            .context_a<context>()
+            .catch_mx
+            (
+                [](auto& mach, const std::exception_ptr& eptr)
+                {
+                    mach.process_event(events::exception{eptr});
+                }
+            )
+        ;
+    };
 
     using sm_with_trans_t = maki::machine<machine_conf_with_trans>;
 
@@ -139,23 +145,26 @@ namespace on_exception_ns
         (maki::all_states, maki::null,  maki::event<events::exception>, log_exception_default)
     ;
 
-    constexpr auto machine_conf_with_all = maki::machine_conf{}
-        .transition_tables(transition_table_with_all)
-        .context_a<context>()
-        .catch_mx
-        (
-            [](auto& mach, const std::exception_ptr& eptr)
-            {
-                try
+    struct machine_conf_with_all
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables(transition_table_with_all)
+            .context_a<context>()
+            .catch_mx
+            (
+                [](auto& mach, const std::exception_ptr& eptr)
                 {
-                    mach.process_event_no_catch(events::exception{eptr});
+                    try
+                    {
+                        mach.process_event_no_catch(events::exception{eptr});
+                    }
+                    catch(...)
+                    {
+                    }
                 }
-                catch(...)
-                {
-                }
-            }
-        )
-    ;
+            )
+        ;
+    };
 
     using sm_with_all_t = maki::machine<machine_conf_with_all>;
 

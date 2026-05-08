@@ -33,21 +33,24 @@ namespace exception_from_constructor_ns
         (maki::ini,  states::running)
     ;
 
-    constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
-        .context_a<context>()
-        .catch_mx([](auto& mach, const std::exception_ptr eptr)
-        {
-            try
+    struct machine_conf
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables(transition_table)
+            .context_a<context>()
+            .catch_mx([](auto& mach, const std::exception_ptr eptr)
             {
-                std::rethrow_exception(eptr);
-            }
-            catch(const std::exception& ex)
-            {
-                mach.context().out += std::string{"Caught "} + ex.what();
-            }
-        })
-    ;
+                try
+                {
+                    std::rethrow_exception(eptr);
+                }
+                catch(const std::exception& ex)
+                {
+                    mach.context().out += std::string{"Caught "} + ex.what();
+                }
+            })
+        ;
+    };
 
     using sm_t = maki::machine<machine_conf>;
 }

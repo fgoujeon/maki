@@ -57,48 +57,51 @@ constexpr auto transition_table = maki::transition_table{}
     (initializing, failing, maki::event<error>)
 ;
 
-constexpr auto machine_conf = maki::machine_conf{}
-    .transition_tables(transition_table)
-    .context_a<context>()
-    .pre_external_transition_hook_crste
-    (
-        [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
-        {
-            if(ctx.log)
+struct machine_conf
+{
+    static constexpr auto value = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context_a<context>()
+        .pre_external_transition_hook_crste
+        (
+            [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
             {
-                log_info
-                (
-                    "Executing transition in ",
-                    region.path().to_string(),
-                    ": ",
-                    source_state.pretty_name(),
-                    " -> ",
-                    target_state.pretty_name(),
-                    "..."
-                );
+                if(ctx.log)
+                {
+                    log_info
+                    (
+                        "Executing transition in ",
+                        region.path().to_string(),
+                        ": ",
+                        source_state.pretty_name(),
+                        " -> ",
+                        target_state.pretty_name(),
+                        "..."
+                    );
+                }
             }
-        }
-    )
-    .post_external_transition_hook_crste
-    (
-        [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
-        {
-            if(ctx.log)
+        )
+        .post_external_transition_hook_crste
+        (
+            [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
             {
-                log_info
-                (
-                    "Executed transition in ",
-                    region.path().to_string(),
-                    ": ",
-                    source_state.pretty_name(),
-                    " -> ",
-                    target_state.pretty_name(),
-                    "."
-                );
+                if(ctx.log)
+                {
+                    log_info
+                    (
+                        "Executed transition in ",
+                        region.path().to_string(),
+                        ": ",
+                        source_state.pretty_name(),
+                        " -> ",
+                        target_state.pretty_name(),
+                        "."
+                    );
+                }
             }
-        }
-    )
-;
+        )
+    ;
+};
 
 using machine_t = maki::machine<machine_conf>;
 

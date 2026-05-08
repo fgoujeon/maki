@@ -30,10 +30,13 @@ constexpr auto transition_table = maki::transition_table{}
     (my_state,  my_other_state, maki::event<some_other_event>)
 ;
 
-constexpr auto machine_conf = maki::machine_conf{}
-    .context_a<context>()
-    .transition_tables(transition_table)
-;
+struct machine_conf
+{
+    static constexpr auto value = maki::machine_conf{}
+        .context_a<context>()
+        .transition_tables(transition_table)
+    ;
+};
 
 using machine_t = maki::machine<machine_conf>;
 

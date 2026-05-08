@@ -32,7 +32,7 @@ namespace maki::detail::state_impls
 
 template
 <
-    const auto& MachineConf,
+    class Machine,
     class ParentStateMoldPath,
     context_storage ParentCtxStorage,
     int Index
@@ -40,21 +40,21 @@ template
 struct region_mix_elem
 {
     using transition_table_path = iseq_push_back_t<ParentStateMoldPath, Index>;
-    using type = region<region_impl<MachineConf, transition_table_path, ParentCtxStorage>>;
+    using type = region<region_impl<Machine, transition_table_path, ParentCtxStorage>>;
 };
 
 template
 <
-    const auto& MachineConf,
+    class Machine,
     class ParentStateMoldPath,
     context_storage ParentCtxStorage,
     int Index
 >
-using region_mix_elem_t = typename region_mix_elem<MachineConf, ParentStateMoldPath, ParentCtxStorage, Index>::type;
+using region_mix_elem_t = typename region_mix_elem<Machine, ParentStateMoldPath, ParentCtxStorage, Index>::type;
 
 template
 <
-    const auto& MachineConf,
+    class Machine,
     class ParentStateMoldPath,
     context_storage ParentCtxStorage,
     class RegionIndexSequence
@@ -63,14 +63,14 @@ struct region_mix;
 
 template
 <
-    const auto& MachineConf,
+    class Machine,
     class ParentStateMoldPath,
     context_storage ParentCtxStorage,
     int... RegionIndexes
 >
 struct region_mix
 <
-    MachineConf,
+    Machine,
     ParentStateMoldPath,
     ParentCtxStorage,
     std::integer_sequence<int, RegionIndexes...>
@@ -80,7 +80,7 @@ struct region_mix
     <
         region_mix_elem_t
         <
-            MachineConf,
+            Machine,
             ParentStateMoldPath,
             ParentCtxStorage,
             RegionIndexes
@@ -122,11 +122,11 @@ using region_type_list_deferrable_event_type_set = tlu::left_fold_t
     empty_type_set_t
 >;
 
-template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
+template<class Machine, class StateMoldPath, context_storage ParentCtxStorage>
 class composite_no_context
 {
 public:
-    static constexpr const auto& mold = machine_element_at_path<StateMoldPath>(MachineConf);
+    static constexpr const auto& mold = machine_element_at_path<StateMoldPath>(Machine::conf);
     static constexpr auto identifier = &mold;
     using mold_type = std::decay_t<decltype(mold)>;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
@@ -155,7 +155,7 @@ public:
 
     using region_mix_type = typename region_mix
     <
-        MachineConf,
+        Machine,
         StateMoldPath,
         ctx_storage,
         region_index_sequence_type
@@ -173,7 +173,7 @@ public:
         region_type_list_deferrable_event_type_set<region_mix_type>
     >;
 
-    template<class Machine, class Context>
+    template<class Context>
     composite_no_context(Machine& mach, Context& ctx):
         regions_(mix_uniform_construct, mach, ctx)
     {
@@ -185,7 +185,7 @@ public:
     composite_no_context& operator=(composite_no_context&&) = delete;
     ~composite_no_context() = default;
 
-    template<class Context, class Machine>
+    template<class Context>
     void emplace_contexts_with_parent_lifetime(Context& ctx, Machine& mach)
     {
         tlu::for_each
@@ -195,14 +195,14 @@ public:
         >(*this, ctx, mach);
     }
 
-    template<class Machine, class Context, class Event>
+    template<class Context, class Event>
     void enter(Machine& mach, Context& ctx, const Event& event)
     {
         impl_type::enter(mach, ctx, event);
         tlu::for_each<region_mix_type, region_enter>(*this, mach, ctx, event);
     }
 
-    template<bool Dry, class Machine, class Context, class Event>
+    template<bool Dry, class Context, class Event>
     bool call_internal_action
     (
         Machine& mach,
@@ -213,10 +213,10 @@ public:
         return call_internal_action_2<Dry>(*this, mach, ctx, event);
     }
 
-    template<bool Dry, class Machine, class Context, class Event>
+    template<bool Dry, class Context, class Event>
     bool call_internal_action
     (
-        Machine& mach,
+        const Machine& mach,
         Context& ctx,
         const Event& event
     ) const
@@ -224,7 +224,7 @@ public:
         return call_internal_action_2<Dry>(*this, mach, ctx, event);
     }
 
-    template<class Machine, class Context, class Event>
+    template<class Context, class Event>
     void exit(Machine& mach, Context& ctx, const Event& event)
     {
         tlu::for_each<region_mix_type, region_exit<state_mold_indexes::null>>
@@ -243,7 +243,7 @@ public:
     }
 
     // For each region, transition from active state to final state.
-    template<class Machine, class Context, class Event>
+    template<class Context, class Event>
     void exit_to_finals(Machine& mach, Context& ctx, const Event& event)
     {
         tlu::for_each<region_mix_type, region_exit<state_mold_indexes::fin>>
@@ -333,7 +333,7 @@ private:
 
     struct region_emplace_contexts_with_parent_lifetime
     {
-        template<class Region, class Self, class Context, class Machine>
+        template<class Region, class Self, class Context>
         static void call(Self& self, Context& ctx, Machine& mach)
         {
             impl_of(get<Region>(self.regions_)).emplace_contexts_with_parent_lifetime(ctx, mach);
@@ -342,7 +342,7 @@ private:
 
     struct region_enter
     {
-        template<class Region, class Self, class Machine, class Context, class Event>
+        template<class Region, class Self, class Context, class Event>
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
             impl_of(get<Region>(self.regions_)).enter(mach, ctx, event);
@@ -352,8 +352,8 @@ private:
     template<bool Dry>
     struct region_process_event
     {
-        template<class Region, class Self, class Machine, class Context, class Event>
-        static int call(Self& self, Machine& mach, Context& ctx, const Event& event)
+        template<class Region, class Self, class MachineArg, class Context, class Event>
+        static int call(Self& self, MachineArg& mach, Context& ctx, const Event& event)
         {
             const auto processed = impl_of(get<Region>(self.regions_)).template process_event<Dry>(mach, ctx, event);
             return static_cast<int>(processed);
@@ -363,7 +363,7 @@ private:
     template<int TargetStateMoldIndex>
     struct region_exit
     {
-        template<class Region, class Self, class Machine, class Context, class Event>
+        template<class Region, class Self, class Context, class Event>
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
             impl_of(get<Region>(self.regions_)).template exit<TargetStateMoldIndex>(mach, ctx, event);
@@ -389,11 +389,11 @@ private:
         }
     };
 
-    template<bool Dry, class Self, class Machine, class Context, class Event>
+    template<bool Dry, class Self, class MachineArg, class Context, class Event>
     static bool call_internal_action_2
     (
         Self& self,
-        Machine& mach,
+        MachineArg& mach,
         Context& ctx,
         const Event& event
     )

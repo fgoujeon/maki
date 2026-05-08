@@ -45,46 +45,49 @@ namespace orthogonal_regions_ns
         ;
     }
 
-    constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables
-        (
-            maki::transition_table{}
-                (maki::ini,    states::off0)
-                (states::off0, states::on0, maki::event<events::button_press>),
-            maki::transition_table{}
-                (maki::ini,    states::off1)
-                (states::off1, states::on1, maki::event<events::button_press>)
-        )
-        .context_a<context>()
-        .catch_mx
-        (
-            [](auto& mach, const std::exception_ptr& eptr)
-            {
-                try
+    struct machine_conf
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables
+            (
+                maki::transition_table{}
+                    (maki::ini,    states::off0)
+                    (states::off0, states::on0, maki::event<events::button_press>),
+                maki::transition_table{}
+                    (maki::ini,    states::off1)
+                    (states::off1, states::on1, maki::event<events::button_press>)
+            )
+            .context_a<context>()
+            .catch_mx
+            (
+                [](auto& mach, const std::exception_ptr& eptr)
                 {
-                    std::rethrow_exception(eptr);
+                    try
+                    {
+                        std::rethrow_exception(eptr);
+                    }
+                    catch(const std::exception& e)
+                    {
+                        mach.context().out += std::string{"on_exception:"} + e.what() + ";";
+                    }
                 }
-                catch(const std::exception& e)
+            )
+            .pre_external_transition_hook_crste
+            (
+                [](context& ctx, const auto& region, const auto& /*source_state*/, const auto& /*target_state*/, const auto& /*event*/)
                 {
-                    mach.context().out += std::string{"on_exception:"} + e.what() + ";";
+                    ctx.out += "before_transition[" + region.path().to_string() + "];";
                 }
-            }
-        )
-        .pre_external_transition_hook_crste
-        (
-            [](context& ctx, const auto& region, const auto& /*source_state*/, const auto& /*target_state*/, const auto& /*event*/)
-            {
-                ctx.out += "before_transition[" + region.path().to_string() + "];";
-            }
-        )
-        .post_external_transition_hook_crste
-        (
-            [](context& ctx, const auto& region, const auto& /*source_state*/, const auto& /*target_state*/, const auto& /*event*/)
-            {
-                ctx.out += "after_transition[" + region.path().to_string() + "];";
-            }
-        )
-    ;
+            )
+            .post_external_transition_hook_crste
+            (
+                [](context& ctx, const auto& region, const auto& /*source_state*/, const auto& /*target_state*/, const auto& /*event*/)
+                {
+                    ctx.out += "after_transition[" + region.path().to_string() + "];";
+                }
+            )
+        ;
+    };
 
     using machine_t = maki::machine<machine_conf>;
 }

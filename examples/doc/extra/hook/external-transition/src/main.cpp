@@ -61,70 +61,76 @@ void hook
 {
 }
 
-constexpr auto machine_conf = maki::machine_conf{}
-    .transition_tables(transition_table)
-    .context_a<context>()
+struct machine_conf
+{
+    static constexpr auto value = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context_a<context>()
 //! [external-transition-hooks]
 //! [pre]
-    .pre_external_transition_hook_crste
-    (
-        [](context& /*ctx*/, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
-        {
-            log_info
-            (
-                "Executing transition in ",
-                region.path().to_string(),
-                ": ",
-                source_state.pretty_name(),
-                " -> ",
-                target_state.pretty_name(),
-                "..."
-            );
-        }
-    )
+        .pre_external_transition_hook_crste
+        (
+            [](context& /*ctx*/, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
+            {
+                log_info
+                (
+                    "Executing transition in ",
+                    region.path().to_string(),
+                    ": ",
+                    source_state.pretty_name(),
+                    " -> ",
+                    target_state.pretty_name(),
+                    "..."
+                );
+            }
+        )
 //! [pre]
 //! [post]
-    .post_external_transition_hook_crste
-    (
-        [](context& /*ctx*/, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
-        {
-            log_info
-            (
-                "Executed transition in ",
-                region.path().to_string(),
-                ": ",
-                source_state.pretty_name(),
-                " -> ",
-                target_state.pretty_name(),
-                "."
-            );
-        }
-    )
+        .post_external_transition_hook_crste
+        (
+            [](context& /*ctx*/, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
+            {
+                log_info
+                (
+                    "Executed transition in ",
+                    region.path().to_string(),
+                    ": ",
+                    source_state.pretty_name(),
+                    " -> ",
+                    target_state.pretty_name(),
+                    "."
+                );
+            }
+        )
 //! [post]
 //! [external-transition-hooks]
-;
+    ;
+};
 
 using machine_t = maki::machine<machine_conf>;
 
 //Another machine conf to check the signature exposed by `hook()`.
-constexpr auto machine_conf_2 = maki::machine_conf{}
-    .transition_tables(transition_table)
-    .context_a<context>()
-    .pre_external_transition_hook_crste
-    (
-        [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& event)
-        {
-            hook(ctx, region, source_state, target_state, event);
-        }
-    )
-    .post_external_transition_hook_crste
-    (
-        [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& event)
-        {
-            hook(ctx, region, source_state, target_state, event);
-        }
-    )
-;
+struct machine_conf_2
+{
+    static constexpr auto value = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context_a<context>()
+        .pre_external_transition_hook_crste
+        (
+            [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& event)
+            {
+                hook(ctx, region, source_state, target_state, event);
+            }
+        )
+        .post_external_transition_hook_crste
+        (
+            [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& event)
+            {
+                hook(ctx, region, source_state, target_state, event);
+            }
+        )
+    ;
+};
 
 using machine_2_t = maki::machine<machine_conf_2>;
 

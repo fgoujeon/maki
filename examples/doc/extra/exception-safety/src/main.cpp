@@ -24,19 +24,22 @@ constexpr auto transition_table = maki::transition_table{}
 ;
 
 //! [catch]
-constexpr auto machine_conf = maki::machine_conf{}
-    .context_a<context>()
-    .transition_tables(transition_table)
-    .catch_mx([](auto& mach, const std::exception_ptr& eptr)
-    {
-        /*
-        Note: The possibility of the call below to throw in its turn should also
-        be taken care of.
-        */
+struct machine_conf
+{
+    static constexpr auto value = maki::machine_conf{}
+        .context_a<context>()
+        .transition_tables(transition_table)
+        .catch_mx([](auto& mach, const std::exception_ptr& eptr)
+        {
+            /*
+            Note: The possibility of the call below to throw in its turn should also
+            be taken care of.
+            */
 
-        mach.process_event_no_catch(error{eptr});
-    })
-;
+            mach.process_event_no_catch(error{eptr});
+        })
+    ;
+};
 //! [catch]
 
 using machine_t = maki::machine<machine_conf>;

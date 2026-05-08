@@ -50,10 +50,13 @@ constexpr auto transition_table = maki::transition_table{}
 ;
 //! [better-guard-composition-in-tt]
 
-constexpr auto machine_conf = maki::machine_conf{}
-    .context_a<context>()
-    .transition_tables(transition_table)
-;
+struct machine_conf
+{
+    static constexpr auto value = maki::machine_conf{}
+        .context_a<context>()
+        .transition_tables(transition_table)
+    ;
+};
 
 using machine_t = maki::machine<machine_conf>;
 

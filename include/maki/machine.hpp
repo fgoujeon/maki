@@ -74,14 +74,14 @@ Here is an example of valid state machine definition, where:
 The state machine type itself can then be defined like so:
 @snippet concepts/state-machine/src/main.cpp machine
 */
-template<const auto& Conf>
+template<class ConfHolder>
 class machine
 {
 public:
     /**
     @brief The state machine configuration.
     */
-    static constexpr const auto& conf = Conf;
+    static constexpr const auto& conf = ConfHolder::value;
 
 #ifndef MAKI_DETAIL_DOXYGEN
     using option_set_type = std::decay_t<decltype(impl_of(conf))>;
@@ -345,7 +345,7 @@ private:
     using impl_type =
         detail::state_impls::composite_no_context
         <
-            Conf,
+            machine,
             detail::iseq<>,
             detail::context_storage::plain
         >

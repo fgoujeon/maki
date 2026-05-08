@@ -95,11 +95,14 @@ namespace process_event_now_ns
         (states::s2, states::s0, maki::event<events::s2_to_s0_request>)
     ;
 
-    constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
-        .context_a<context>()
-        .process_event_now_enabled(true)
-    ;
+    struct machine_conf
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables(transition_table)
+            .context_a<context>()
+            .process_event_now_enabled(true)
+        ;
+    };
 
     using machine_t = maki::machine<machine_conf>;
 }

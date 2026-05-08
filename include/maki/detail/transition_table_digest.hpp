@@ -7,13 +7,11 @@
 #ifndef MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 #define MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 
-#include "constant.hpp"
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
-#include "type_list.hpp"
-#include "../states.hpp"
+#include "iseq.hpp"
+#include "../transition_table.hpp"
 #include "../null.hpp"
-#include "tlu/push_back_if.hpp"
 #include "tlu/left_fold.hpp"
 #include <type_traits>
 
@@ -21,8 +19,8 @@ namespace maki::detail
 {
 
 /*
-Creates a set of tuples containing all the action types, guard types and state
-types of a given transition_table.
+Creates a sequence of transition indexes. The target state molds of these
+transitions are all the state molds referred to by the transition table.
 
 For example, the following digest type...:
     using transition_table = maki::transition_table{}
@@ -37,7 +35,7 @@ For example, the following digest type...:
 ... is equivalent to this type:
     struct digest
     {
-        using state_def_type_list = maki::detail::type_list_t<state0, state1, state2, state3>;
+        using unique_target_state_mold_iseq = maki::detail::iseq<0, 1, 2, 3>;
     };
 */
 
@@ -45,7 +43,7 @@ namespace transition_table_digest_detail
 {
     struct initial_digest
     {
-        using state_id_constant_list = type_list_t<>;
+        using unique_target_state_mold_iseq = iseq<>;
         static constexpr auto has_completion_transitions = false;
     };
 
@@ -55,6 +53,12 @@ namespace transition_table_digest_detail
         template<class Digest, int Index>
         struct add_transition_to_digest_impl
         {
+            static constexpr int target_state_mold_index = index_of_state_mold_v
+            <
+                TransitionTable,
+                tuple_get<Index>(impl_of(TransitionTable)).target_state_mold
+            >;
+
             /*
             We must add target state to list of states unless:
             - it's already in the list;
@@ -63,22 +67,17 @@ namespace transition_table_digest_detail
             - it's `undefined`.
             */
             static constexpr auto must_add_target_state =
-                !tlu::contains_v
-                <
-                    typename Digest::state_id_constant_list,
-                    constant_t<tuple_get<Index>(impl_of(TransitionTable)).target_state_mold>
-                > &&
-                !equals(tuple_get<Index>(impl_of(TransitionTable)).target_state_mold, state_molds::fin) &&
-                !equals(tuple_get<Index>(impl_of(TransitionTable)).target_state_mold, null) &&
-                !equals(tuple_get<Index>(impl_of(TransitionTable)).target_state_mold, undefined)
+                target_state_mold_index == Index
             ;
 
-            using state_id_constant_list = tlu::push_back_if_t
-            <
-                typename Digest::state_id_constant_list,
-                constant_t<tuple_get<Index>(impl_of(TransitionTable)).target_state_mold>,
-                must_add_target_state
-            >;
+            using unique_target_state_mold_iseq =
+                iseq_push_back_if_t
+                <
+                    typename Digest::unique_target_state_mold_iseq,
+                    Index,
+                    must_add_target_state
+                >
+            ;
 
             static constexpr auto has_completion_transitions =
                 Digest::has_completion_transitions ||

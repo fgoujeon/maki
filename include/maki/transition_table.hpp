@@ -23,6 +23,7 @@
 #include "fin.hpp"
 #include "null.hpp"
 #include "detail/tlu/left_fold.hpp"
+#include "detail/state_mold_indexes.hpp"
 #include "detail/type_set.hpp"
 #include "detail/friendly_impl.hpp"
 #include "detail/tuple.hpp"
@@ -359,6 +360,45 @@ namespace detail
         transition_table_event_type_set_fold_operation_t,
         empty_type_set_t
     >;
+
+    template<const auto& TransitionTable, auto StateMold, int TransitionIndex>
+    constexpr int index_of_state_mold_2()
+    {
+        if constexpr(ptr_equals(StateMold, tuple_get<TransitionIndex>(impl_of(TransitionTable)).target_state_mold))
+        {
+            return TransitionIndex;
+        }
+        else
+        {
+            return index_of_state_mold_2<TransitionTable, StateMold, TransitionIndex + 1>();
+        }
+    }
+
+    template<const auto& TransitionTable, auto StateMold>
+    constexpr int index_of_state_mold()
+    {
+        if constexpr(ptr_equals(StateMold, &maki::undefined))
+        {
+            return state_mold_indexes::undefined;
+        }
+        else if constexpr(ptr_equals(StateMold, null))
+        {
+            return state_mold_indexes::internal;
+        }
+        else if constexpr(ptr_equals(StateMold, &state_molds::fin))
+        {
+            return state_mold_indexes::fin;
+        }
+        else
+        {
+            return index_of_state_mold_2<TransitionTable, StateMold, 0>();
+        }
+    }
+
+    template<const auto& TransitionTable, auto StateMold>
+    constexpr int index_of_state_mold_v =
+        index_of_state_mold<TransitionTable, StateMold>()
+    ;
 }
 
 } //namespace

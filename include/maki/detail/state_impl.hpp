@@ -12,55 +12,55 @@
 #include "state_impls/composite_no_context_fwd.hpp"
 #include "state_impls/composite_fwd.hpp"
 #include "state_id_traits.hpp"
+#include "machine_element.hpp"
 #include "context_storage.hpp"
 
 namespace maki::detail::state_traits
 {
 
-template<auto StateId, const auto& ParentPath, context_storage ParentCtxStorage, bool HasTransitionTables, bool HasContext>
+template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage, bool HasTransitionTables, bool HasContext>
 struct state_impl_helper;
 
-template<auto StateId, const auto& ParentPath, context_storage ParentCtxStorage>
-struct state_impl_helper<StateId, ParentPath, ParentCtxStorage, false, false>
+template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
+struct state_impl_helper<MachineConf, StateMoldPath, ParentCtxStorage, false, false>
 {
-    using type = state_impls::simple_no_context<StateId>;
+    using type = state_impls::simple_no_context<&machine_element_at_path<StateMoldPath>(MachineConf)>;
 };
 
-template<auto StateId, const auto& ParentPath, context_storage ParentCtxStorage>
-struct state_impl_helper<StateId, ParentPath, ParentCtxStorage, false, true>
+template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
+struct state_impl_helper<MachineConf, StateMoldPath, ParentCtxStorage, false, true>
 {
-    using type = state_impls::simple<StateId, ParentCtxStorage>;
+    using type = state_impls::simple<&machine_element_at_path<StateMoldPath>(MachineConf), ParentCtxStorage>;
 };
 
-template<auto StateId, const auto& ParentPath, context_storage ParentCtxStorage>
-struct state_impl_helper<StateId, ParentPath, ParentCtxStorage, true, false>
+template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
+struct state_impl_helper<MachineConf, StateMoldPath, ParentCtxStorage, true, false>
 {
-    static constexpr auto path = ParentPath.template add_state<*StateId>();
-    using type = state_impls::composite_no_context<StateId, path, ParentCtxStorage>;
+    using type = state_impls::composite_no_context<MachineConf, StateMoldPath, ParentCtxStorage>;
 };
 
-template<auto StateId, const auto& ParentPath, context_storage ParentCtxStorage>
-struct state_impl_helper<StateId, ParentPath, ParentCtxStorage, true, true>
+template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
+struct state_impl_helper<MachineConf, StateMoldPath, ParentCtxStorage, true, true>
 {
-    static constexpr auto path = ParentPath.template add_state<*StateId>();
-    using type = state_impls::composite<StateId, path, ParentCtxStorage>;
+    using type = state_impls::composite<MachineConf, StateMoldPath, ParentCtxStorage>;
 };
 
-template<auto StateId, const auto& ParentPath, context_storage ParentCtxStorage>
+template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
 struct state_impl
 {
+    static constexpr auto state_id = &machine_element_at_path<StateMoldPath>(MachineConf);
     using type = typename state_impl_helper
     <
-        StateId,
-        ParentPath,
+        MachineConf,
+        StateMoldPath,
         ParentCtxStorage,
-        impl_of(*StateId).transition_tables.size != 0,
-        state_id_traits::has_context_v<StateId>
+        impl_of(*state_id).transition_tables.size != 0,
+        state_id_traits::has_context_v<state_id>
     >::type;
 };
 
-template<auto StateId, const auto& ParentPath, context_storage ParentCtxStorage>
-using state_impl_t = typename state_impl<StateId, ParentPath, ParentCtxStorage>::type;
+template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
+using state_impl_t = typename state_impl<MachineConf, StateMoldPath, ParentCtxStorage>::type;
 
 } //namespace
 

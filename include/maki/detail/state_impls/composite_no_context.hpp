@@ -8,10 +8,12 @@
 #define MAKI_DETAIL_STATE_IMPLS_COMPOSITE_NO_CONTEXT_HPP
 
 #include "simple_no_context.hpp"
+#include "../state_mold_indexes.hpp"
 #include "../type_set.hpp"
 #include "../region_impl.hpp"
 #include "../context_storage.hpp"
 #include "../integer_constant_sequence.hpp"
+#include "../iseq.hpp"
 #include "../mix.hpp"
 #include "../friendly_impl.hpp"
 #include "../tlu/apply.hpp"
@@ -20,7 +22,6 @@
 #include "../tlu/for_each.hpp"
 #include "../tlu/get.hpp"
 #include "../tlu/size.hpp"
-#include "../../states.hpp"
 #include "../../region.hpp"
 #include "../../context.hpp"
 #include <type_traits>
@@ -31,31 +32,30 @@ namespace maki::detail::state_impls
 
 template
 <
-    class ParentSm,
-    const auto& ParentPath,
+    const auto& MachineConf,
+    class ParentStateMoldPath,
     context_storage ParentCtxStorage,
     int Index
 >
 struct region_mix_elem
 {
-    static constexpr auto transition_table = tuple_get<Index>(impl_of(ParentSm::mold).transition_tables);
-    static constexpr auto path = ParentPath.add_region_index(Index);
-    using type = region<region_impl<transition_table, path, ParentCtxStorage>>;
+    using transition_table_path = iseq_push_back_t<ParentStateMoldPath, Index>;
+    using type = region<region_impl<MachineConf, transition_table_path, ParentCtxStorage>>;
 };
 
 template
 <
-    class ParentSm,
-    const auto& ParentPath,
+    const auto& MachineConf,
+    class ParentStateMoldPath,
     context_storage ParentCtxStorage,
     int Index
 >
-using region_mix_elem_t = typename region_mix_elem<ParentSm, ParentPath, ParentCtxStorage, Index>::type;
+using region_mix_elem_t = typename region_mix_elem<MachineConf, ParentStateMoldPath, ParentCtxStorage, Index>::type;
 
 template
 <
-    class ParentSm,
-    const auto& ParentPath,
+    const auto& MachineConf,
+    class ParentStateMoldPath,
     context_storage ParentCtxStorage,
     class RegionIndexSequence
 >
@@ -63,15 +63,15 @@ struct region_mix;
 
 template
 <
-    class ParentSm,
-    const auto& ParentPath,
+    const auto& MachineConf,
+    class ParentStateMoldPath,
     context_storage ParentCtxStorage,
     int... RegionIndexes
 >
 struct region_mix
 <
-    ParentSm,
-    ParentPath,
+    MachineConf,
+    ParentStateMoldPath,
     ParentCtxStorage,
     std::integer_sequence<int, RegionIndexes...>
 >
@@ -80,8 +80,8 @@ struct region_mix
     <
         region_mix_elem_t
         <
-            ParentSm,
-            ParentPath,
+            MachineConf,
+            ParentStateMoldPath,
             ParentCtxStorage,
             RegionIndexes
         >...
@@ -122,16 +122,16 @@ using region_type_list_deferrable_event_type_set = tlu::left_fold_t
     empty_type_set_t
 >;
 
-template<auto Id, const auto& Path, context_storage ParentCtxStorage>
+template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
 class composite_no_context
 {
 public:
-    static constexpr auto identifier = Id;
-    static constexpr const auto& mold = *Id;
+    static constexpr const auto& mold = machine_element_at_path<StateMoldPath>(MachineConf);
+    static constexpr auto identifier = &mold;
     using mold_type = std::decay_t<decltype(mold)>;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);
-    using impl_type = simple_no_context<Id>;
+    using impl_type = simple_no_context<identifier>;
 
     static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
 
@@ -155,8 +155,8 @@ public:
 
     using region_mix_type = typename region_mix
     <
-        composite_no_context,
-        Path,
+        MachineConf,
+        StateMoldPath,
         ctx_storage,
         region_index_sequence_type
     >::type;
@@ -227,7 +227,7 @@ public:
     template<class Machine, class Context, class Event>
     void exit(Machine& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each<region_mix_type, region_exit<&state_molds::null>>
+        tlu::for_each<region_mix_type, region_exit<state_mold_indexes::null>>
         (
             *this,
             mach,
@@ -246,7 +246,7 @@ public:
     template<class Machine, class Context, class Event>
     void exit_to_finals(Machine& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each<region_mix_type, region_exit<&state_molds::fin>>
+        tlu::for_each<region_mix_type, region_exit<state_mold_indexes::fin>>
         (
             *this,
             mach,
@@ -360,13 +360,13 @@ private:
         }
     };
 
-    template<auto TargetStateId>
+    template<int TargetStateMoldIndex>
     struct region_exit
     {
         template<class Region, class Self, class Machine, class Context, class Event>
         static void call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
-            impl_of(get<Region>(self.regions_)).template exit<TargetStateId>(mach, ctx, event);
+            impl_of(get<Region>(self.regions_)).template exit<TargetStateMoldIndex>(mach, ctx, event);
         }
     };
 

@@ -7,23 +7,19 @@
 #ifndef MAKI_DETAIL_REGION_IMPL_HPP
 #define MAKI_DETAIL_REGION_IMPL_HPP
 
+#include "state_mold_indexes.hpp"
+#include "machine_element.hpp"
 #include "compiler.hpp"
 #include "type_set.hpp"
 #include "state_id_to_state.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
-#include "state_type_list_filters.hpp"
 #include "context_storage.hpp"
-#include "equals.hpp"
 #include "tuple.hpp"
 #include "mix.hpp"
-#include "constant.hpp"
+#include "iseq.hpp"
+#include "path_impl.hpp"
 #include "friendly_impl.hpp"
-#include "tlu/apply.hpp"
-#include "tlu/empty.hpp"
-#include "tlu/find.hpp"
-#include "tlu/front.hpp"
-#include "tlu/push_back.hpp"
 #include "../states.hpp"
 #include "../action.hpp"
 #include "../guard.hpp"
@@ -45,47 +41,91 @@ namespace maki::detail
 
 namespace region_detail
 {
-    inline constexpr auto final_state_index = -1;
+    inline constexpr auto null_action_index = -1;
+    inline constexpr auto null_guard_index = -1;
 
-    template<class StateIdConstantList, auto StateId>
-    struct state_id_to_index
+    template<int StateMoldIndex, class TransitionTable>
+    constexpr auto state_mold_at_index(const TransitionTable& trans_table)
     {
-        static constexpr auto value = tlu::find_v<StateIdConstantList, constant_t<StateId>>;
-    };
+        if constexpr(StateMoldIndex == state_mold_indexes::undefined)
+        {
+            return &maki::undefined;
+        }
+        else if constexpr(StateMoldIndex == state_mold_indexes::null)
+        {
+            return &state_molds::null;
+        }
+        else if constexpr(StateMoldIndex == state_mold_indexes::fin)
+        {
+            return &state_molds::fin;
+        }
+        else
+        {
+            return tuple_get<StateMoldIndex>(impl_of(trans_table)).target_state_mold;
+        }
+    }
 
-    template<class StateIdConstantList>
-    struct state_id_to_index<StateIdConstantList, &state_molds::fin>
+    namespace filter_state_mold_iseq_by_state_set_detail
     {
-        static constexpr auto value = final_state_index;
-    };
+        template<const auto& TransitionTable, auto StateSetPtr>
+        struct for_state_set
+        {
+            template<int StateMoldIndex>
+            struct matches
+            {
+                static constexpr auto state_id = state_mold_at_index<StateMoldIndex>(TransitionTable);
+                static constexpr bool value = contains(impl_of(*StateSetPtr), state_id);
+            };
+        };
+    }
 
-    template<class StateIdConstantList, auto StateId>
-    inline constexpr auto state_id_to_index_v = state_id_to_index<StateIdConstantList, StateId>::value;
+    template<const auto& TransitionTable, class StateMoldIndexSequence, auto StateSetPtr>
+    using filter_state_mold_iseq_by_state_set_t = iseq_filter_t
+    <
+        StateMoldIndexSequence,
+        filter_state_mold_iseq_by_state_set_detail::for_state_set<TransitionTable, StateSetPtr>::template matches
+    >;
 }
 
-template<const auto& TransitionTable, const auto& Path, context_storage ParentCtxStorage>
+template<const auto& MachineConf, class TransitionTablePath, context_storage ParentCtxStorage>
 class region_impl
 {
 public:
-    using transition_table_type = std::decay_t<decltype(TransitionTable)>;
+    static constexpr auto trans_table = machine_element_at_path<TransitionTablePath>(MachineConf);
+
+    using transition_table_type = std::decay_t<decltype(trans_table)>;
 
     using transition_table_digest_type =
-        transition_table_digest<TransitionTable>
+        transition_table_digest<trans_table>
     ;
 
-    using state_id_constant_list_0 = typename transition_table_digest_type::state_id_constant_list;
-    using state_id_constant_list = tlu::push_back_t<state_id_constant_list_0, constant_t<&maki::undefined>>;
+    using state_mold_iseq_0 =
+        typename transition_table_digest_type::unique_target_state_mold_iseq
+    ;
 
-    template<class... StateIdConstants>
-    using state_id_constant_pack_to_state_mix_t = mix
+    using state_mold_iseq =
+        iseq_push_back_t
+        <
+            state_mold_iseq_0,
+            state_mold_indexes::undefined
+        >
+    ;
+
+    template<int... StateMoldIndexes>
+    using state_mold_iseq_to_state_mix_t = mix
     <
-        state_traits::state_id_to_state_t<StateIdConstants::value, Path, ParentCtxStorage>...
+        state_traits::state_id_to_state_t
+        <
+            MachineConf,
+            iseq_push_back_t<TransitionTablePath, StateMoldIndexes>,
+            ParentCtxStorage
+        >...
     >;
 
-    using state_mix_type = tlu::apply_t
+    using state_mix_type = iseq_apply_t
     <
-        state_id_constant_list,
-        state_id_constant_pack_to_state_mix_t
+        state_mold_iseq_0,
+        state_mold_iseq_to_state_mix_t
     >;
 
     using states_event_type_set = state_type_list_event_type_set_t<state_mix_type>;
@@ -126,7 +166,7 @@ public:
 
     [[nodiscard]] bool completed() const
     {
-        return is_active_state_id<&state_molds::fin>();
+        return active_state_mold_index_ == state_mold_indexes::fin;
     }
 
     template<class Event>
@@ -137,7 +177,7 @@ public:
             auto defers = false;
             with_active_state_id
             <
-                state_id_constant_list,
+                state_mold_iseq,
                 state_defers_event<Event>
             >(*this, defers);
             return defers;
@@ -151,9 +191,9 @@ public:
     template<class Context, class Machine>
     void emplace_contexts_with_parent_lifetime(Context& ctx, Machine& mach)
     {
-        tlu::for_each
+        iseq_for_each
         <
-            state_mix_type,
+            state_mold_iseq_0,
             state_emplace_contexts_with_parent_lifetime
         >(*this, ctx, mach);
     }
@@ -162,14 +202,11 @@ public:
     template<class Machine, class Context, class Event>
     void enter(Machine& mach, Context& ctx, const Event& event)
     {
-        static constexpr auto initial_state_id = tlu::front_t<state_id_constant_list>::value;
-        static constexpr auto action = tuple_get<0>(impl_of(TransitionTable)).act;
-
         execute_transition
         <
-            &state_molds::null,
-            initial_state_id,
-            &action
+            state_mold_indexes::null,
+            state_mold_indexes::ini,
+            0
         >
         (
             mach,
@@ -179,12 +216,12 @@ public:
     }
 
     // Exit the active state
-    template<auto TargetStateId, class Machine, class Context, class Event>
+    template<int TargetStateMoldIndex, class Machine, class Context, class Event>
     void exit(Machine& mach, Context& ctx, const Event& event)
     {
         if(!completed())
         {
-            with_active_state_id<state_id_constant_list, exit_2<TargetStateId>>
+            with_active_state_id<state_mold_iseq, exit_2<TargetStateMoldIndex>>
             (
                 *this,
                 mach,
@@ -196,9 +233,9 @@ public:
 
     void reset_contexts_with_parent_lifetime()
     {
-        tlu::for_each
+        iseq_for_each
         <
-            state_mix_type,
+            state_mold_iseq_0,
             state_reset_contexts_with_parent_lifetime
         >(*this);
     }
@@ -218,19 +255,20 @@ public:
     template<const auto& StateMold>
     const auto& state() const
     {
-        return state_id_to_obj<&StateMold>();
+        constexpr int state_mold_index = index_of_state_mold_v<trans_table, &StateMold>;
+        return state_mold_index_to_state<state_mold_index>();
     }
 
     static const auto& path()
     {
-        static const auto value = maki::path{Path};
+        static const auto value = maki::path{path_impl<MachineConf, TransitionTablePath>{}};
         return value;
     }
 
 private:
     struct state_emplace_contexts_with_parent_lifetime
     {
-        template<class State, class Self, class Context, class Machine>
+        template<int StateMoldIndex, class Self, class Context, class Machine>
         static void call
         (
             Self& self,
@@ -238,17 +276,17 @@ private:
             Machine& mach
         )
         {
-            auto& stt = self.template state_type_to_obj<State>();
+            auto& stt = static_state_mold_index_to_state<StateMoldIndex>(self);
             impl_of(stt).emplace_contexts_with_parent_lifetime(ctx, mach);
         }
     };
 
     struct state_reset_contexts_with_parent_lifetime
     {
-        template<class State, class Self>
+        template<int StateMoldIndex, class Self>
         static void call(Self& self)
         {
-            auto& stt = self.template state_type_to_obj<State>();
+            auto& stt = static_state_mold_index_to_state<StateMoldIndex>(self);
             impl_of(stt).reset_contexts_with_parent_lifetime();
         }
     };
@@ -256,10 +294,10 @@ private:
     template<class Event>
     struct state_defers_event
     {
-        template<class StateIdConstant>
+        template<int StateMoldIndex>
         static void call(const region_impl& self, bool& defers)
         {
-            const auto& stt = self.state_id_to_obj<StateIdConstant::value>();
+            const auto& stt = self.state_mold_index_to_state<StateMoldIndex>();
             defers = impl_of(stt).template defers_event<Event>();
         }
     };
@@ -279,7 +317,7 @@ private:
 #if !MAKI_DETAIL_COMPILER_GCC
             transition_table_type,
 #else
-            TransitionTable,
+            trans_table,
 #endif
             Event
         >;
@@ -318,17 +356,17 @@ private:
         }
     }
 
-    template<auto TargetStateId>
+    template<int TargetStateMoldIndex>
     struct exit_2
     {
-        template<class ActiveStateIdConstant, class Machine, class Context, class Event>
+        template<int ActiveStateMoldIndex, class Machine, class Context, class Event>
         static void call(region_impl& self, Machine& mach, Context& ctx, const Event& event)
         {
             self.execute_transition
             <
-                ActiveStateIdConstant::value,
-                TargetStateId,
-                &null_action
+                ActiveStateMoldIndex,
+                TargetStateMoldIndex,
+                region_detail::null_action_index
             >(mach, ctx, event);
         }
     };
@@ -354,43 +392,50 @@ private:
         template<class TransitionIndexConstant, class Self, class Machine, class Context, class Event, class... ExtraArgs>
         static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
-            static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(TransitionTable));
+            static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(trans_table));
             static constexpr auto source_state_mold = trans.source_state_mold;
-            static constexpr auto action = trans.act;
-            static constexpr auto guard = trans.grd;
 
             if constexpr(is_state_set_v<std::decay_t<decltype(source_state_mold)>>)
             {
                 //List of state molds that belong to the source state set
-                using matching_state_mold_constant_list = state_type_list_filters::by_state_set_t
+                using matching_state_mold_iseq = region_detail::filter_state_mold_iseq_by_state_set_t
                 <
-                    state_id_constant_list,
+                    trans_table,
+                    state_mold_iseq,
                     &source_state_mold
                 >;
 
-                static_assert(!tlu::empty_v<matching_state_mold_constant_list>);
+                static_assert(iseq_size_v<matching_state_mold_iseq> != 0);
 
-                return tlu::for_each_or
+                return iseq_for_each_or
                 <
-                    matching_state_mold_constant_list,
+                    matching_state_mold_iseq,
                     try_executing_transition_2
                     <
                         Dry,
-                        trans.target_state_mold,
-                        action,
-                        guard
+                        index_of_state_mold_v<trans_table, trans.target_state_mold>,
+                        TransitionIndexConstant::value,
+                        TransitionIndexConstant::value
                     >
                 >(self, mach, ctx, event, extra_args...);
             }
             else
             {
+                static constexpr auto source_state_mold_index =
+                    index_of_state_mold_v
+                    <
+                        trans_table,
+                        trans.source_state_mold
+                    >
+                ;
+
                 return try_executing_transition_2
                 <
                     Dry,
-                    trans.target_state_mold,
-                    action,
-                    guard
-                >::template call<constant_t<trans.source_state_mold>>
+                    index_of_state_mold_v<trans_table, trans.target_state_mold>,
+                    TransitionIndexConstant::value,
+                    TransitionIndexConstant::value
+                >::template call<source_state_mold_index>
                 (
                     self,
                     mach,
@@ -401,12 +446,12 @@ private:
         }
     };
 
-    template<bool Dry, auto TargetStateId, const auto& Action, const auto& Guard>
+    template<bool Dry, int TargetStateMoldIndex, int ActionIndex, int GuardIndex>
     struct try_executing_transition_2
     {
         template
         <
-            class SourceStateIdConstant,
+            int SourceStateMoldIndex,
             class Self,
             class Machine,
             class Context,
@@ -423,16 +468,17 @@ private:
             if constexpr(!is_null_v<Event>) // Already filtered out
             {
                 //Make sure the transition source state is the active state
-                if(!self.template is_active_state_id<SourceStateIdConstant::value>())
+                if(self.active_state_mold_index_ != SourceStateMoldIndex)
                 {
                     return false;
                 }
             }
 
             //Check guard
-            if constexpr(!std::is_same_v<decltype(Guard), const null_t&>)
+            if constexpr(GuardIndex != region_detail::null_guard_index)
             {
-                if(!detail::call_guard(Guard, ctx, mach, event))
+                const auto& guard = tuple_get<GuardIndex>(impl_of(trans_table)).grd;
+                if(!detail::call_guard(guard, ctx, mach, event))
                 {
                     return false;
                 }
@@ -442,9 +488,9 @@ private:
             {
                 self.template execute_transition
                 <
-                    SourceStateIdConstant::value,
-                    TargetStateId,
-                    &Action
+                    SourceStateMoldIndex,
+                    TargetStateMoldIndex,
+                    ActionIndex
                 >(mach, ctx, event);
             }
 
@@ -454,9 +500,9 @@ private:
 
     template
     <
-        auto SourceStateId,
-        auto TargetStateId,
-        auto ActionPtr,
+        int SourceStateMoldIndex,
+        int TargetStateMoldIndex,
+        int ActionIndex,
         class Machine,
         class Context,
         class Event
@@ -470,12 +516,11 @@ private:
     {
         using machine_option_set_type = typename Machine::option_set_type;
 
-        constexpr auto is_external_transition = !is_null_v
-        <
-            std::decay_t<decltype(TargetStateId)>
-        >;
+        constexpr auto is_external_transition =
+            TargetStateMoldIndex != state_mold_indexes::internal
+        ;
 
-        auto& source_state = state_id_to_obj<SourceStateId>();
+        auto& source_state = state_mold_index_to_state<SourceStateMoldIndex>();
 
         /*
         For external transitions, invoke the pre-transition hook, if any.
@@ -491,7 +536,7 @@ private:
                 ctx,
                 *pitf_,
                 source_state,
-                state_id_to_obj<TargetStateId>(),
+                state_mold_index_to_state<TargetStateMoldIndex>(),
                 event
             );
         }
@@ -503,14 +548,10 @@ private:
         if constexpr
         (
             is_external_transition &&
-            !ptr_equals(TargetStateId, &state_molds::null)
+            TargetStateMoldIndex != state_mold_indexes::null
         )
         {
-            active_state_index_ = region_detail::state_id_to_index_v
-            <
-                state_id_constant_list,
-                &maki::undefined
-            >;
+            active_state_mold_index_ = state_mold_indexes::undefined;
         }
 
         /*
@@ -530,13 +571,16 @@ private:
         /*
         Invoke the transition action, if any.
         */
-        detail::call_action
-        (
-            *ActionPtr,
-            ctx,
-            mach,
-            event
-        );
+        if constexpr(ActionIndex != region_detail::null_action_index)
+        {
+            detail::call_action
+            (
+                tuple_get<ActionIndex>(impl_of(trans_table)).act,
+                ctx,
+                mach,
+                event
+            );
+        }
 
         /*
         For external transitions, invoke the entry action of the target state,
@@ -544,7 +588,7 @@ private:
         */
         if constexpr(is_external_transition)
         {
-            auto& target_state = state_id_to_obj<TargetStateId>();
+            auto& target_state = state_mold_index_to_state<TargetStateMoldIndex>();
 
             impl_of(target_state).enter
             (
@@ -560,14 +604,10 @@ private:
         if constexpr
         (
             is_external_transition &&
-            !ptr_equals(TargetStateId, &state_molds::null)
+            TargetStateMoldIndex != state_mold_indexes::null
         )
         {
-            active_state_index_ = region_detail::state_id_to_index_v
-            <
-                state_id_constant_list,
-                TargetStateId
-            >;
+            active_state_mold_index_ = TargetStateMoldIndex;
         }
 
         /*
@@ -584,7 +624,7 @@ private:
                 ctx,
                 *pitf_,
                 source_state,
-                state_id_to_obj<TargetStateId>(),
+                state_mold_index_to_state<TargetStateMoldIndex>(),
                 event
             );
         }
@@ -596,12 +636,12 @@ private:
         (
             is_external_transition &&
             transition_table_digest_type::has_completion_transitions &&
-            !ptr_equals(TargetStateId, &state_molds::null)
+            TargetStateMoldIndex != state_mold_indexes::null
         )
         {
             try_executing_completion_transitions
             (
-                state_id_to_obj<TargetStateId>(),
+                state_mold_index_to_state<TargetStateMoldIndex>(),
                 mach,
                 ctx
             );
@@ -619,9 +659,9 @@ private:
     )
     {
         auto processed = false;
-        tlu::for_each_or
+        iseq_for_each_or
         <
-            state_mix_type,
+            state_mold_iseq_0,
             call_active_state_internal_action_2<Dry>
         >(self, mach, ctx, event, processed);
         return processed;
@@ -630,7 +670,7 @@ private:
     template<bool Dry>
     struct call_active_state_internal_action_2
     {
-        template<class State, class Self, class Machine, class Context, class Event>
+        template<int StateMoldIndex, class Self, class Machine, class Context, class Event>
         static bool call
         (
             Self& self,
@@ -640,24 +680,25 @@ private:
             bool& processed
         )
         {
+            auto& state = static_state_mold_index_to_state<StateMoldIndex>(self);
+            using state_type = std::decay_t<decltype(state)>;
+
             constexpr auto can_state_process_event =
                 type_set_contains_v
                 <
-                    typename impl_of_t<State>::event_type_set,
+                    typename impl_of_t<state_type>::event_type_set,
                     Event
                 >
             ;
 
             if constexpr(can_state_process_event)
             {
-                if(!self.template is_active_state_type<State>())
+                if(StateMoldIndex != self.active_state_mold_index_)
                 {
                     return false;
                 }
 
-                auto& active_state = self.template state_type_to_obj<State>();
-
-                processed = impl_of(active_state).template call_internal_action<Dry>
+                processed = impl_of(state).template call_internal_action<Dry>
                 (
                     mach,
                     ctx,
@@ -672,7 +713,7 @@ private:
                 {
                     self.try_executing_completion_transitions
                     (
-                        active_state,
+                        state,
                         mach,
                         ctx
                     );
@@ -699,7 +740,7 @@ private:
 
         using candidate_transition_index_constant_list = transition_table_filters::by_source_state_and_null_event_t
         <
-            TransitionTable,
+            trans_table,
             active_state_id
         >;
 
@@ -712,21 +753,10 @@ private:
         }
     }
 
-    template<class State>
-    [[nodiscard]] bool is_active_state_type() const
-    {
-        return is_active_state_id<impl_of_t<State>::identifier>();
-    }
-
     template<auto StateId>
     [[nodiscard]] bool is_active_state_id() const
     {
-        constexpr auto given_state_index = region_detail::state_id_to_index_v
-        <
-            state_id_constant_list,
-            StateId
-        >;
-        return given_state_index == active_state_index_;
+        return active_state_mold_index_ == index_of_state_mold_v<trans_table, StateId>;
     }
 
     template<auto StateSetPtr>
@@ -735,7 +765,11 @@ private:
         auto matches = false;
         with_active_state_id
         <
-            tlu::push_back_t<state_id_constant_list, constant_t<&state_molds::fin>>,
+            iseq_push_back_t
+            <
+                state_mold_iseq,
+                state_mold_indexes::fin
+            >,
             is_active_state_id_in_set_2<StateSetPtr>
         >(matches);
         return matches;
@@ -744,22 +778,23 @@ private:
     template<auto StateSetPtr>
     struct is_active_state_id_in_set_2
     {
-        template<class ActiveStateIdConstant>
+        template<int ActiveStateMoldIndex>
         static void call([[maybe_unused]] bool& matches)
         {
-            if constexpr(contains(impl_of(*StateSetPtr), ActiveStateIdConstant::value))
+            constexpr auto active_state_mold = region_detail::state_mold_at_index<ActiveStateMoldIndex>(trans_table);
+            if constexpr(contains(impl_of(*StateSetPtr), active_state_mold))
             {
                 matches = true;
             }
         }
     };
 
-    template<class StateIdConstantList, class F, class... Args>
+    template<class StateMoldIndexSequence, class F, class... Args>
     void with_active_state_id(Args&&... args) const
     {
-        tlu::for_each_or
+        iseq_for_each_or
         <
-            StateIdConstantList,
+            StateMoldIndexSequence,
             with_active_state_id_2<F>
         >(*this, std::forward<Args>(args)...);
     }
@@ -767,69 +802,55 @@ private:
     template<class F>
     struct with_active_state_id_2
     {
-        template<class StateIdConstant, class... Args>
+        template<int StateMoldIndex, class... Args>
         static bool call(const region_impl& self, Args&&... args)
         {
-            if(self.is_active_state_id<StateIdConstant::value>())
+            if(self.active_state_mold_index_ == StateMoldIndex)
             {
-                F::template call<StateIdConstant>(std::forward<Args>(args)...);
+                F::template call<StateMoldIndex>(std::forward<Args>(args)...);
                 return true;
             }
             return false;
         }
     };
 
-    template<class State>
-    auto& state_type_to_obj()
+    template<int StateMoldIndex>
+    auto& state_mold_index_to_state()
     {
-        return static_state_type_to_obj<State>(*this);
+        return static_state_mold_index_to_state<StateMoldIndex>(*this);
     }
 
-    template<class State>
-    const auto& state_type_to_obj() const
+    template<int StateMoldIndex>
+    const auto& state_mold_index_to_state() const
     {
-        return static_state_type_to_obj<State>(*this);
-    }
-
-    template<auto StateId>
-    auto& state_id_to_obj()
-    {
-        return static_state_id_to_obj<StateId>(*this);
-    }
-
-    template<auto StateId>
-    const auto& state_id_to_obj() const
-    {
-        return static_state_id_to_obj<StateId>(*this);
+        return static_state_mold_index_to_state<StateMoldIndex>(*this);
     }
 
     //Note: We use static to factorize const and non-const Region
-    template<class State, class Region>
-    static auto& static_state_type_to_obj(Region& self)
+    template<int StateMoldIndex, class Region>
+    static auto& static_state_mold_index_to_state(Region& self)
     {
-        return static_state_id_to_obj<impl_of_t<State>::identifier>(self);
-    }
-
-    //Note: We use static to factorize const and non-const Region
-    template<auto StateId, class Region>
-    static auto& static_state_id_to_obj(Region& self)
-    {
-        if constexpr(ptr_equals(StateId, &state_molds::null))
-        {
-            return states::null;
-        }
-        else if constexpr(ptr_equals(StateId, &maki::undefined))
+        if constexpr(StateMoldIndex == state_mold_indexes::undefined)
         {
             return states::undefined;
         }
-        else if constexpr(ptr_equals(StateId, &state_molds::fin))
+        else if constexpr(StateMoldIndex == state_mold_indexes::null)
+        {
+            return states::null;
+        }
+        else if constexpr(StateMoldIndex == state_mold_indexes::fin)
         {
             return states::fin;
         }
         else
         {
             using state_t =
-                state_traits::state_id_to_state_t<StateId, Path, ParentCtxStorage>
+                state_traits::state_id_to_state_t
+                <
+                    MachineConf,
+                    iseq_push_back_t<TransitionTablePath, StateMoldIndex>,
+                    ParentCtxStorage
+                >
             ;
             return get<state_t>(self.states_);
         }
@@ -837,7 +858,7 @@ private:
 
     const region<region_impl>* pitf_;
     state_mix_type states_;
-    int active_state_index_ = region_detail::final_state_index;
+    int active_state_mold_index_ = state_mold_indexes::fin;
 };
 
 } //namespace

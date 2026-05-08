@@ -361,21 +361,25 @@ namespace detail
         empty_type_set_t
     >;
 
-    template<const auto& TransitionTable, auto StateMold, int TransitionIndex>
-    constexpr int index_of_state_mold_2()
+    template<class Transition, class StateMold>
+    constexpr bool index_of_state_mold_2
+    (
+        const Transition& trans,
+        const StateMold stt_mold,
+        int& index
+    )
     {
-        if constexpr(ptr_equals(StateMold, tuple_get<TransitionIndex>(impl_of(TransitionTable)).target_state_mold))
+        if(!ptr_equals(stt_mold, trans.target_state_mold))
         {
-            return TransitionIndex;
+            ++index;
+            return false;
         }
-        else
-        {
-            return index_of_state_mold_2<TransitionTable, StateMold, TransitionIndex + 1>();
-        }
+
+        return true;
     }
 
-    template<const auto& TransitionTable, auto StateMold>
-    constexpr int index_of_state_mold()
+    template<auto StateMold, class TransitionTable>
+    constexpr int index_of_state_mold(const TransitionTable& trans_table)
     {
         if constexpr(ptr_equals(StateMold, &maki::undefined))
         {
@@ -391,13 +395,29 @@ namespace detail
         }
         else
         {
-            return index_of_state_mold_2<TransitionTable, StateMold, 0>();
+            return tuple_apply
+            (
+                impl_of(trans_table),
+                [](const auto&... transitions)
+                {
+                    auto index = 0;
+                    (
+                        index_of_state_mold_2
+                        (
+                            transitions,
+                            StateMold,
+                            index
+                        ) || ...
+                    );
+                    return index;
+                }
+            );
         }
     }
 
     template<const auto& TransitionTable, auto StateMold>
     constexpr int index_of_state_mold_v =
-        index_of_state_mold<TransitionTable, StateMold>()
+        index_of_state_mold<StateMold>(TransitionTable)
     ;
 }
 

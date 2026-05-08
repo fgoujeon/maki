@@ -15,7 +15,6 @@
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "context_storage.hpp"
-#include "equals.hpp"
 #include "tuple.hpp"
 #include "mix.hpp"
 #include "iseq.hpp"
@@ -63,40 +62,6 @@ namespace region_detail
         else
         {
             return tuple_get<StateMoldIndex>(impl_of(trans_table)).target_state_mold;
-        }
-    }
-
-    template<const auto& TransitionTable, auto StateMold, int TransitionIndex>
-    constexpr int state_mold_to_state_mold_index_2()
-    {
-        if constexpr(ptr_equals(StateMold, tuple_get<TransitionIndex>(impl_of(TransitionTable)).target_state_mold))
-        {
-            return TransitionIndex;
-        }
-        else
-        {
-            return state_mold_to_state_mold_index_2<TransitionTable, StateMold, TransitionIndex + 1>();
-        }
-    }
-
-    template<const auto& TransitionTable, auto StateMold>
-    constexpr int state_mold_to_state_mold_index()
-    {
-        if constexpr(ptr_equals(StateMold, &maki::undefined))
-        {
-            return state_mold_indexes::undefined;
-        }
-        else if constexpr(ptr_equals(StateMold, null))
-        {
-            return state_mold_indexes::internal;
-        }
-        else if constexpr(ptr_equals(StateMold, &state_molds::fin))
-        {
-            return state_mold_indexes::fin;
-        }
-        else
-        {
-            return state_mold_to_state_mold_index_2<TransitionTable, StateMold, 0>();
         }
     }
 
@@ -290,7 +255,7 @@ public:
     template<const auto& StateMold>
     const auto& state() const
     {
-        constexpr int state_mold_index = state_mold_index_v<&StateMold>;
+        constexpr int state_mold_index = index_of_state_mold_v<trans_table, &StateMold>;
         return state_mold_index_to_state<state_mold_index>();
     }
 
@@ -448,7 +413,7 @@ private:
                     try_executing_transition_2
                     <
                         Dry,
-                        state_mold_index_v<trans.target_state_mold>,
+                        index_of_state_mold_v<trans_table, trans.target_state_mold>,
                         TransitionIndexConstant::value,
                         TransitionIndexConstant::value
                     >
@@ -457,8 +422,9 @@ private:
             else
             {
                 static constexpr auto source_state_mold_index =
-                    state_mold_index_v
+                    index_of_state_mold_v
                     <
+                        trans_table,
                         trans.source_state_mold
                     >
                 ;
@@ -466,7 +432,7 @@ private:
                 return try_executing_transition_2
                 <
                     Dry,
-                    state_mold_index_v<trans.target_state_mold>,
+                    index_of_state_mold_v<trans_table, trans.target_state_mold>,
                     TransitionIndexConstant::value,
                     TransitionIndexConstant::value
                 >::template call<source_state_mold_index>
@@ -790,7 +756,7 @@ private:
     template<auto StateId>
     [[nodiscard]] bool is_active_state_id() const
     {
-        return active_state_mold_index_ == state_mold_index_v<StateId>;
+        return active_state_mold_index_ == index_of_state_mold_v<trans_table, StateId>;
     }
 
     template<auto StateSetPtr>
@@ -889,11 +855,6 @@ private:
             return get<state_t>(self.states_);
         }
     }
-
-    template<auto StateMold>
-    static constexpr int state_mold_index_v =
-        region_detail::state_mold_to_state_mold_index<trans_table, StateMold>()
-    ;
 
     const region<region_impl>* pitf_;
     state_mix_type states_;

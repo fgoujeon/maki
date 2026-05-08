@@ -10,7 +10,7 @@
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
 #include "iseq.hpp"
-#include "../states.hpp"
+#include "../transition_table.hpp"
 #include "../null.hpp"
 #include "tlu/left_fold.hpp"
 #include <type_traits>
@@ -47,32 +47,17 @@ namespace transition_table_digest_detail
         static constexpr auto has_completion_transitions = false;
     };
 
-    template<const auto& TransitionTable, class TargetStateMoldIndexSequence, int StateMoldIndex>
-    struct has_target_state_mold;
-
-    template<const auto& TransitionTable, int... TargetStateMoldIndexes, int StateMoldIndex>
-    struct has_target_state_mold<TransitionTable, iseq<TargetStateMoldIndexes...>, StateMoldIndex>
-    {
-        static constexpr bool value =
-            (
-                equals
-                (
-                    tuple_get<TargetStateMoldIndexes>(impl_of(TransitionTable)).target_state_mold,
-                    tuple_get<StateMoldIndex>(impl_of(TransitionTable)).target_state_mold
-                ) || ...
-            )
-        ;
-    };
-
     template<const auto& TransitionTable>
     struct add_transition_to_digest_holder
     {
         template<class Digest, int Index>
         struct add_transition_to_digest_impl
         {
-            static constexpr const auto& target_state_mold =
+            static constexpr int target_state_mold_index = index_of_state_mold_v
+            <
+                TransitionTable,
                 tuple_get<Index>(impl_of(TransitionTable)).target_state_mold
-            ;
+            >;
 
             /*
             We must add target state to list of states unless:
@@ -82,15 +67,7 @@ namespace transition_table_digest_detail
             - it's `undefined`.
             */
             static constexpr auto must_add_target_state =
-                !has_target_state_mold
-                <
-                    TransitionTable,
-                    typename Digest::unique_target_state_mold_iseq,
-                    Index
-                >::value &&
-                !equals(target_state_mold, state_molds::fin) &&
-                !equals(target_state_mold, null) &&
-                !equals(target_state_mold, undefined)
+                target_state_mold_index == Index
             ;
 
             using unique_target_state_mold_iseq =

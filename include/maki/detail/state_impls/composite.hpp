@@ -8,6 +8,7 @@
 #define MAKI_DETAIL_STATE_IMPLS_COMPOSITE_HPP
 
 #include "composite_no_context.hpp"
+#include "../machine_fwd.hpp"
 #include "../machine_element.hpp"
 #include "../context_holder.hpp"
 #include "../context_storage.hpp"

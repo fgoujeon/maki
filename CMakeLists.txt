@@ -40,9 +40,10 @@ target_sources(maki
         include/maki/detail/friendly_impl.hpp
         include/maki/detail/function_queue.hpp
         include/maki/detail/integer_constant_sequence.hpp
-        include/maki/detail/ipath_util.hpp
         include/maki/detail/iseq.hpp
         include/maki/detail/machine_conf_impl.hpp
+        include/maki/detail/machine_element.hpp
+        include/maki/detail/machine_fwd.hpp
         include/maki/detail/mix.hpp
         include/maki/detail/noinline.hpp
         include/maki/detail/overload_priority.hpp
@@ -64,6 +65,7 @@ target_sources(maki
         include/maki/detail/state_impls/simple_no_context_fwd.hpp
         include/maki/detail/state_mold_impl.hpp
         include/maki/detail/state_mold_indexes.hpp
+        include/maki/detail/state_molds.hpp
         include/maki/detail/tlu.hpp
         include/maki/detail/tlu/apply.hpp
         include/maki/detail/tlu/back.hpp
@@ -115,6 +117,7 @@ target_sources(maki
         include/maki/state_set.hpp
         include/maki/states.hpp
         include/maki/transition_table.hpp
+        include/maki/undefined.hpp
         include/maki/version.hpp)
 
 target_compile_features(maki INTERFACE cxx_std_17)

@@ -132,7 +132,7 @@ public:
     using mold_type = std::decay_t<decltype(mold)>;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);
-    using impl_type = simple_no_context<identifier>;
+    using impl_type = simple_no_context<MachineConfHolder, StateMoldPath>;
 
     static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
 

@@ -10,6 +10,9 @@
 #include "../state_mold.hpp"
 #include "../transition_table.hpp"
 #include "../machine_conf.hpp"
+#include "../undefined.hpp"
+#include "state_molds.hpp"
+#include "state_mold_indexes.hpp"
 #include "tuple.hpp"
 #include "iseq.hpp"
 
@@ -33,7 +36,22 @@ struct machine_element_at_path_operation
     template<int Index, class TransitionTableImpl>
     static constexpr const auto& call(const transition_table<TransitionTableImpl>& base)
     {
-        return *tuple_get<Index>(impl_of(base)).target_state_mold;
+        if constexpr(Index == state_mold_indexes::null)
+        {
+            return state_molds::null;
+        }
+        else if constexpr(Index == state_mold_indexes::undefined)
+        {
+            return undefined;
+        }
+        else if constexpr(Index == state_mold_indexes::fin)
+        {
+            return state_molds::fin;
+        }
+        else
+        {
+            return *tuple_get<Index>(impl_of(base)).target_state_mold;
+        }
     }
 };
 

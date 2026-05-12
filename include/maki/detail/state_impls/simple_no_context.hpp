@@ -7,6 +7,7 @@
 #ifndef MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP
 #define MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP
 
+#include "../machine_element.hpp"
 #include "../type_set.hpp"
 #include "../event_action.hpp"
 #include "../mix.hpp"
@@ -26,12 +27,12 @@ using event_action_event_set_operation =
     >
 ;
 
-template<auto Id>
+template<class MachineConfHolder, class StateMoldPath>
 class simple_no_context
 {
 public:
-    static constexpr auto identifier = Id;
-    static constexpr const auto& mold = *Id;
+    static constexpr const auto& mold = machine_element_at_path<StateMoldPath>(MachineConfHolder::value);
+    static constexpr auto identifier = &mold;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
 
     using event_type_set =

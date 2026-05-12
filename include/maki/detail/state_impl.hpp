@@ -24,13 +24,13 @@ struct state_impl_helper;
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
 struct state_impl_helper<MachineConfHolder, StateMoldPath, ParentCtxStorage, false, false>
 {
-    using type = state_impls::simple_no_context<&machine_element_at_path<StateMoldPath>(MachineConfHolder::value)>;
+    using type = state_impls::simple_no_context<MachineConfHolder, StateMoldPath>;
 };
 
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
 struct state_impl_helper<MachineConfHolder, StateMoldPath, ParentCtxStorage, false, true>
 {
-    using type = state_impls::simple<&machine_element_at_path<StateMoldPath>(MachineConfHolder::value), ParentCtxStorage>;
+    using type = state_impls::simple<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
 };
 
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>

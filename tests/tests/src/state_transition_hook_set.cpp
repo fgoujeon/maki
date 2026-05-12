@@ -50,41 +50,44 @@ namespace external_transition_hook_set
         (states::off1, states::on1, maki::event<events::button_press>)
     ;
 
-    constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table_0, transition_table_1)
-        .context_a<context>()
-        .pre_external_transition_hook_crste
-        (
-            [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& event)
-            {
-                ctx.out += "Transition in main_sm/";
-                ctx.out += region.path().to_string();
-                ctx.out += ": ";
-                ctx.out += source_state.pretty_name();
-                ctx.out += " -> ";
-                ctx.out += target_state.pretty_name();
-                ctx.out += "...;";
+    struct machine_conf
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables(transition_table_0, transition_table_1)
+            .context_a<context>()
+            .pre_external_transition_hook_crste
+            (
+                [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& event)
+                {
+                    ctx.out += "Transition in main_sm/";
+                    ctx.out += region.path().to_string();
+                    ctx.out += ": ";
+                    ctx.out += source_state.pretty_name();
+                    ctx.out += " -> ";
+                    ctx.out += target_state.pretty_name();
+                    ctx.out += "...;";
 
-                ctx.out += std::to_string(event.pressure) + ";";
-            }
-        )
-        .post_external_transition_hook_crste
-        (
-            [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& event)
-            {
-                ctx.out += std::to_string(event.pressure) + ";";
+                    ctx.out += std::to_string(event.pressure) + ";";
+                }
+            )
+            .post_external_transition_hook_crste
+            (
+                [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& event)
+                {
+                    ctx.out += std::to_string(event.pressure) + ";";
 
-                ctx.out += "Transition in main_sm/";
-                ctx.out += region.path().to_string();
-                ctx.out += ": ";
-                ctx.out += source_state.pretty_name();
-                ctx.out += " -> ";
-                ctx.out += target_state.pretty_name();
-                ctx.out += ";";
-            }
-        )
-        .auto_start(false)
-    ;
+                    ctx.out += "Transition in main_sm/";
+                    ctx.out += region.path().to_string();
+                    ctx.out += ": ";
+                    ctx.out += source_state.pretty_name();
+                    ctx.out += " -> ";
+                    ctx.out += target_state.pretty_name();
+                    ctx.out += ";";
+                }
+            )
+            .auto_start(false)
+        ;
+    };
 
     using machine_t = maki::machine<machine_conf>;
 }

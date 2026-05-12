@@ -83,10 +83,13 @@ namespace on_entry_event_exit_ns
         (states::french,  states::idle,    maki::event<events::next_language_request>)
     ;
 
-    constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
-        .context_a<context>()
-    ;
+    struct machine_conf
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables(transition_table)
+            .context_a<context>()
+        ;
+    };
 
     using machine_t = maki::machine<machine_conf>;
 }

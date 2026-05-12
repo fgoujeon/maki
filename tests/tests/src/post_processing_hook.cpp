@@ -82,32 +82,35 @@ namespace post_processing_hook_ns
         (states::on, states::off, maki::event<events::power_button_press>)
     ;
 
-    constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
-        .context_a<context>()
-        .post_processing_hook_mep<events::ignored_by_emitting_blue>
-        (
-            [](auto& mach, const events::ignored_by_emitting_blue& event, const bool processed)
-            {
-                if(!processed)
+    struct machine_conf
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables(transition_table)
+            .context_a<context>()
+            .post_processing_hook_mep<events::ignored_by_emitting_blue>
+            (
+                [](auto& mach, const events::ignored_by_emitting_blue& event, const bool processed)
                 {
-                    mach.context().ignored_event = "ignored_by_emitting_blue{" + std::to_string(event.value) + "}";
+                    if(!processed)
+                    {
+                        mach.context().ignored_event = "ignored_by_emitting_blue{" + std::to_string(event.value) + "}";
+                    }
                 }
-            }
-        )
-        .post_processing_hook_mep
-        (
-            maki::all_events,
-            [](auto& mach, const auto& /*event*/, const bool processed)
-            {
-                if(!processed)
+            )
+            .post_processing_hook_mep
+            (
+                maki::all_events,
+                [](auto& mach, const auto& /*event*/, const bool processed)
                 {
-                    mach.context().ignored_event = "other";
+                    if(!processed)
+                    {
+                        mach.context().ignored_event = "other";
+                    }
                 }
-            }
-        ).
-        auto_start(false)
-    ;
+            ).
+            auto_start(false)
+        ;
+    };
 
     using machine_t = maki::machine<machine_conf>;
 }

@@ -43,34 +43,37 @@ constexpr auto transition_table = maki::transition_table{}
     (maki::ini, some_state)
 ;
 
-constexpr auto machine_conf = maki::machine_conf{}
-    .context_a<context>()
-    .transition_tables(transition_table)
+struct machine_conf
+{
+    static constexpr auto value = maki::machine_conf{}
+        .context_a<context>()
+        .transition_tables(transition_table)
 //! [pre_processing_hook]
-    // Always log alerts
-    .pre_processing_hook_e<alert_event>([](const alert_event& evt)
-    {
-        log_warning("Alert! ", evt.reason);
-    })
-//! [pre_processing_hook]
-//! [post_processing_hook]
-    // Notify client when reboot request is rejected
-    .post_processing_hook_mep<client_reboot_request>([](
-        auto& mach,
-        const client_reboot_request& event,
-        const bool processed)
-    {
-        if (!processed)
+        // Always log alerts
+        .pre_processing_hook_e<alert_event>([](const alert_event& evt)
         {
-            mach.context().server.send_to(
-                event.client_id,
-                "Can't reboot right now");
-        }
-    })
+            log_warning("Alert! ", evt.reason);
+        })
+//! [pre_processing_hook]
+//! [post_processing_hook]
+        // Notify client when reboot request is rejected
+        .post_processing_hook_mep<client_reboot_request>([](
+            auto& mach,
+            const client_reboot_request& event,
+            const bool processed)
+        {
+            if (!processed)
+            {
+                mach.context().server.send_to(
+                    event.client_id,
+                    "Can't reboot right now");
+            }
+        })
 //! [post_processing_hook]
 //! [external-transition-hooks]
 //! [external-transition-hooks]
-;
+    ;
+};
 
 using machine_t = maki::machine<machine_conf>;
 

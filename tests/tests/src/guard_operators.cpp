@@ -83,10 +83,13 @@ namespace guard_operators_ns
         (states::state3, states::idle, maki::event<events::stop>)
     ;
 
-    constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
-        .context_a<context>()
-    ;
+    struct machine_conf
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables(transition_table)
+            .context_a<context>()
+        ;
+    };
 
     using machine_t = maki::machine<machine_conf>;
 }

@@ -36,11 +36,14 @@ namespace initial_action
         (maki::ini,  states::off, maki::null, actions::beep)
     ;
 
-    constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
-        .context_a<context>()
-        .auto_start(false)
-    ;
+    struct machine_conf
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables(transition_table)
+            .context_a<context>()
+            .auto_start(false)
+        ;
+    };
 
     using machine_t = maki::machine<machine_conf>;
 }

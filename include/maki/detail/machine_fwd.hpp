@@ -4,16 +4,14 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_STATE_IMPLS_SIMPLE_FWD_HPP
-#define MAKI_DETAIL_STATE_IMPLS_SIMPLE_FWD_HPP
+#ifndef MAKI_DETAIL_MACHINE_FWD_HPP
+#define MAKI_DETAIL_MACHINE_FWD_HPP
 
-#include "../context_storage.hpp"
-
-namespace maki::detail::state_impls
+namespace maki
 {
 
-template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-class simple;
+template<class ConfHolder>
+class machine;
 
 } //namespace
 

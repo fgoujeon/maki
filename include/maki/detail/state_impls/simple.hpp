@@ -16,16 +16,16 @@
 namespace maki::detail::state_impls
 {
 
-template<auto Id, context_storage ParentCtxStorage>
+template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
 class simple
 {
 public:
-    static constexpr auto identifier = Id;
-    static constexpr const auto& mold = *Id;
+    static constexpr const auto& mold = machine_element_at_path<StateMoldPath>(MachineConfHolder::value);
+    static constexpr auto identifier = &mold;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using context_type = typename option_set_type::context_type;
 
-    using impl_type = simple_no_context<identifier>;
+    using impl_type = simple_no_context<MachineConfHolder, StateMoldPath>;
 
     using event_type_set = typename impl_type::event_type_set;
 

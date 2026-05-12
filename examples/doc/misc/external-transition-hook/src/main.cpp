@@ -54,64 +54,70 @@ void hook
 {
 }
 
-constexpr auto machine_conf = maki::machine_conf{}
-    .transition_tables(transition_table)
-    .context_a<context>()
+struct machine_conf
+{
+    static constexpr auto value = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context_a<context>()
 //! [pre]
-    .pre_external_transition_hook_crste
-    (
-        [](context& /*ctx*/, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
-        {
-            std::cout
-                << "Beginning of transition in FSM/"
-                << region.path().to_string()
-                << ": "
-                << source_state.pretty_name()
-                << " -> "
-                << target_state.pretty_name()
-                << "\n";
-        }
-    )
+        .pre_external_transition_hook_crste
+        (
+            [](context& /*ctx*/, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
+            {
+                std::cout
+                    << "Beginning of transition in FSM/"
+                    << region.path().to_string()
+                    << ": "
+                    << source_state.pretty_name()
+                    << " -> "
+                    << target_state.pretty_name()
+                    << "\n";
+            }
+        )
 //! [pre]
 //! [post]
-    .post_external_transition_hook_crste
-    (
-        [](context& /*ctx*/, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
-        {
-            std::cout
-                << "End of transition in FSM/"
-                << region.path().to_string()
-                << ": "
-                << source_state.pretty_name()
-                << " -> "
-                << target_state.pretty_name()
-                << "\n";
-        }
-    )
+        .post_external_transition_hook_crste
+        (
+            [](context& /*ctx*/, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
+            {
+                std::cout
+                    << "End of transition in FSM/"
+                    << region.path().to_string()
+                    << ": "
+                    << source_state.pretty_name()
+                    << " -> "
+                    << target_state.pretty_name()
+                    << "\n";
+            }
+        )
 //! [post]
-;
+    ;
+};
 
 using machine_t = maki::machine<machine_conf>;
 
 //Another machine conf to check the signature exposed by `hook()`.
-constexpr auto machine_conf_2 = maki::machine_conf{}
-    .transition_tables(transition_table)
-    .context_a<context>()
-    .pre_external_transition_hook_crste
-    (
-        [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& event)
-        {
-            hook(ctx, region, source_state, target_state, event);
-        }
-    )
-    .post_external_transition_hook_crste
-    (
-        [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& event)
-        {
-            hook(ctx, region, source_state, target_state, event);
-        }
-    )
-;
+struct machine_conf_2
+{
+    static constexpr auto value = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context_a<context>()
+        .pre_external_transition_hook_crste
+        (
+            [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& event)
+            {
+                hook(ctx, region, source_state, target_state, event);
+            }
+        )
+        .post_external_transition_hook_crste
+        (
+            [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& event)
+            {
+                hook(ctx, region, source_state, target_state, event);
+            }
+        )
+    ;
+};
 
 using machine_2_t = maki::machine<machine_conf_2>;
 

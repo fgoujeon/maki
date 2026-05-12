@@ -10,7 +10,7 @@
 namespace maki::detail::state_impls
 {
 
-template<auto Id>
+template<class MachineConfHolder, class StateMoldPath>
 class simple_no_context;
 
 } //namespace

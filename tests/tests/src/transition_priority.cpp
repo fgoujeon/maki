@@ -43,10 +43,13 @@ namespace internal_transition_in_transition_table_ns
         (states::running, states::idle,    maki::event<events::should_trigger_transition_in_tt>)
     ;
 
-    constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
-        .context_a<context>()
-    ;
+    struct machine_conf
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables(transition_table)
+            .context_a<context>()
+        ;
+    };
 
     using machine_t = maki::machine<machine_conf>;
 }

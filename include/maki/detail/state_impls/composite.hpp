@@ -8,6 +8,7 @@
 #define MAKI_DETAIL_STATE_IMPLS_COMPOSITE_HPP
 
 #include "composite_no_context.hpp"
+#include "../machine_fwd.hpp"
 #include "../machine_element.hpp"
 #include "../context_holder.hpp"
 #include "../context_storage.hpp"
@@ -19,22 +20,22 @@
 namespace maki::detail::state_impls
 {
 
-template<const auto& MachineConf, class StateMoldPath, context_storage ParentCtxStorage>
+template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
 class composite
 {
 public:
-    static constexpr const auto& mold = machine_element_at_path<StateMoldPath>(MachineConf);
+    static constexpr const auto& mold = machine_element_at_path<StateMoldPath>(MachineConfHolder::value);
     static constexpr auto identifier = &mold;
     using mold_type = std::decay_t<decltype(mold)>;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);
     using context_type = typename option_set_type::context_type;
-    using impl_type = composite_no_context<MachineConf, StateMoldPath, ParentCtxStorage>;
+    using impl_type = composite_no_context<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
     using event_type_set = typename impl_type::event_type_set;
     using deferrable_event_type_set = typename impl_type::deferrable_event_type_set;
 
-    template<class Machine, class ParentContext>
-    composite(Machine& mach, ParentContext& parent_ctx):
+    template<class ParentContext>
+    composite(machine<MachineConfHolder>& mach, ParentContext& parent_ctx):
         ctx_holder_(mach, parent_ctx),
         impl_(mach, context())
     {
@@ -62,8 +63,8 @@ public:
         return impl_.template defers_event<Event>();
     }
 
-    template<class ParentContext, class Machine>
-    void emplace_contexts_with_parent_lifetime(ParentContext& parent_ctx, Machine& mach)
+    template<class ParentContext>
+    void emplace_contexts_with_parent_lifetime(ParentContext& parent_ctx, machine<MachineConfHolder>& mach)
     {
         if constexpr(ctx_lifetime == state_context_lifetime::parent)
         {
@@ -71,10 +72,10 @@ public:
         }
     }
 
-    template<class Machine, class ParentContext, class Event>
+    template<class ParentContext, class Event>
     void enter
     (
-        Machine& mach,
+        machine<MachineConfHolder>& mach,
         [[maybe_unused]] ParentContext& parent_ctx,
         const Event& event
     )
@@ -87,10 +88,10 @@ public:
         impl_.enter(mach, ctx_holder_.get_deep(), event);
     }
 
-    template<bool Dry, class Machine, class ParentContext, class Event>
+    template<bool Dry, class ParentContext, class Event>
     bool call_internal_action
     (
-        Machine& mach,
+        machine<MachineConfHolder>& mach,
         ParentContext& /*parent_ctx*/,
         const Event& event
     )
@@ -98,10 +99,10 @@ public:
         return impl_.template call_internal_action<Dry>(mach, ctx_holder_.get_deep(), event);
     }
 
-    template<bool Dry, class Machine, class ParentContext, class Event>
+    template<bool Dry, class ParentContext, class Event>
     bool call_internal_action
     (
-        Machine& mach,
+        machine<MachineConfHolder>& mach,
         ParentContext& /*parent_ctx*/,
         const Event& event
     ) const
@@ -109,10 +110,10 @@ public:
         return impl_.template call_internal_action<Dry>(mach, ctx_holder_.get_deep(), event);
     }
 
-    template<class Machine, class ParentContext, class Event>
+    template<class ParentContext, class Event>
     void exit
     (
-        Machine& mach,
+        machine<MachineConfHolder>& mach,
         ParentContext& /*parent_ctx*/,
         const Event& event
     )
@@ -157,8 +158,8 @@ public:
     }
 
 private:
-    template<class ParentContext, class Machine>
-    void emplace_context(ParentContext& parent_ctx, Machine& mach)
+    template<class ParentContext>
+    void emplace_context(ParentContext& parent_ctx, machine<MachineConfHolder>& mach)
     {
         auto& ctx = ctx_holder_.emplace(mach, parent_ctx);
 

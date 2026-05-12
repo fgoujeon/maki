@@ -55,18 +55,21 @@ namespace pre_processing_hook_ns
         (states::on,  states::off, maki::event<events::button_press>)
     ;
 
-    constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
-        .context_a<context>()
-        .pre_processing_hook_ce<events::button_press>
-        (
-            [](context& ctx, const events::button_press& event)
-            {
-                ctx.out += event.data + "1;";
-            }
-        )
-        .auto_start(false)
-    ;
+    struct machine_conf
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables(transition_table)
+            .context_a<context>()
+            .pre_processing_hook_ce<events::button_press>
+            (
+                [](context& ctx, const events::button_press& event)
+                {
+                    ctx.out += event.data + "1;";
+                }
+            )
+            .auto_start(false)
+        ;
+    };
 
     using machine_t = maki::machine<machine_conf>;
 }

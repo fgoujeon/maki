@@ -7,25 +7,29 @@
 #ifndef MAKI_STATES_HPP
 #define MAKI_STATES_HPP
 
-#include "detail/state_impls/simple_no_context.hpp"
+#include "machine_conf.hpp"
+#include "transition_table.hpp"
 #include "state.hpp"
-#include "state_mold.hpp"
+#include "detail/state_mold_indexes.hpp"
+#include "detail/state_impls/simple_no_context.hpp"
+#include "detail/iseq.hpp"
 
 namespace maki
 {
 
-namespace detail::state_molds
+namespace detail
 {
-    inline constexpr auto null = state_mold{}
-        .pretty_name("");
+    inline constexpr auto dummy_machine_transition_table = transition_table{};
 
-    inline constexpr auto fin = state_mold{};
+    inline constexpr auto dummy_machine_transition_table_index = 0;
+
+    struct dummy_machine_conf_holder
+    {
+        static constexpr auto value = machine_conf{}
+            .transition_tables(dummy_machine_transition_table)
+        ;
+    };
 }
-
-/**
-@brief The state mold of the undefined state.
-*/
-inline constexpr auto undefined = state_mold{};
 
 /**
 @brief Predefined state and pseudostate objects.
@@ -47,7 +51,18 @@ namespace states
     */
     constexpr auto null = state<IMPLEMENTATION_DETAIL>{};
 #else
-    inline constexpr auto null = state<detail::state_impls::simple_no_context<&detail::state_molds::null>>{};
+    inline constexpr auto null = state
+    <
+        detail::state_impls::simple_no_context
+        <
+            detail::dummy_machine_conf_holder,
+            detail::iseq
+            <
+                detail::dummy_machine_transition_table_index,
+                detail::state_mold_indexes::null
+            >
+        >
+    >{};
 #endif
 
 #if MAKI_DETAIL_DOXYGEN
@@ -58,7 +73,18 @@ namespace states
     */
     constexpr auto fin = state<IMPLEMENTATION_DETAIL>{};
 #else
-    inline constexpr auto fin = state<detail::state_impls::simple_no_context<&detail::state_molds::fin>>{};
+    inline constexpr auto fin = state
+    <
+        detail::state_impls::simple_no_context
+        <
+            detail::dummy_machine_conf_holder,
+            detail::iseq
+            <
+                detail::dummy_machine_transition_table_index,
+                detail::state_mold_indexes::fin
+            >
+        >
+    >{};
 #endif
 
 #if MAKI_DETAIL_DOXYGEN
@@ -69,9 +95,18 @@ namespace states
     */
     constexpr auto undefined = state<IMPLEMENTATION_DETAIL>{};
 #else
-    inline constexpr auto undefined =
-        state<detail::state_impls::simple_no_context<&maki::undefined>>{}
-    ;
+    inline constexpr auto undefined = state
+    <
+        detail::state_impls::simple_no_context
+        <
+            detail::dummy_machine_conf_holder,
+            detail::iseq
+            <
+                detail::dummy_machine_transition_table_index,
+                detail::state_mold_indexes::undefined
+            >
+        >
+    >{};
 #endif
 }
 

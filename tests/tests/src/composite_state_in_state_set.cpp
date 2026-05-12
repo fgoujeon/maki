@@ -48,10 +48,13 @@ namespace composite_state_in_state_set_ns
         (any_of_s0_s1,  states::off, maki::event<events::destruction_button_press>)
     ;
 
-    constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
-        .context_a<context>()
-    ;
+    struct machine_conf
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables(transition_table)
+            .context_a<context>()
+        ;
+    };
 
     using machine_t = maki::machine<machine_conf>;
 }

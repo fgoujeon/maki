@@ -35,40 +35,43 @@ namespace double_start_stop_ns
         (states::on,  states::off, maki::event<events::button_press>)
     ;
 
-    constexpr auto machine_conf = maki::machine_conf{}
-        .transition_tables(transition_table)
-        .context_a<context>()
-        .pre_external_transition_hook_crste
-        (
-            [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
-            {
-                //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
+    struct machine_conf
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables(transition_table)
+            .context_a<context>()
+            .pre_external_transition_hook_crste
+            (
+                [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
+                {
+                    //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
 
-                ctx.out += "Transition in main_sm/";
-                ctx.out += region.path().to_string();
-                ctx.out += ": ";
-                ctx.out += source_state.pretty_name();
-                ctx.out += " -> ";
-                ctx.out += target_state.pretty_name();
-                ctx.out += "...;";
-            }
-        )
-        .post_external_transition_hook_crste
-        (
-            [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
-            {
-                //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
+                    ctx.out += "Transition in main_sm/";
+                    ctx.out += region.path().to_string();
+                    ctx.out += ": ";
+                    ctx.out += source_state.pretty_name();
+                    ctx.out += " -> ";
+                    ctx.out += target_state.pretty_name();
+                    ctx.out += "...;";
+                }
+            )
+            .post_external_transition_hook_crste
+            (
+                [](context& ctx, const auto& region, const auto& source_state, const auto& target_state, const auto& /*event*/)
+                {
+                    //REQUIRE(path_constant.value == maki::path<maki::path_element<machine_def, 0>>{});
 
-                ctx.out += "Transition in main_sm/";
-                ctx.out += region.path().to_string();
-                ctx.out += ": ";
-                ctx.out += source_state.pretty_name();
-                ctx.out += " -> ";
-                ctx.out += target_state.pretty_name();
-                ctx.out += ";";
-            }
-        )
-    ;
+                    ctx.out += "Transition in main_sm/";
+                    ctx.out += region.path().to_string();
+                    ctx.out += ": ";
+                    ctx.out += source_state.pretty_name();
+                    ctx.out += " -> ";
+                    ctx.out += target_state.pretty_name();
+                    ctx.out += ";";
+                }
+            )
+        ;
+    };
 
     using machine_t = maki::machine<machine_conf>;
 }

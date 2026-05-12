@@ -4,16 +4,18 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_STATE_IMPLS_SIMPLE_FWD_HPP
-#define MAKI_DETAIL_STATE_IMPLS_SIMPLE_FWD_HPP
+#ifndef MAKI_UNDEFINED_HPP
+#define MAKI_UNDEFINED_HPP
 
-#include "../context_storage.hpp"
+#include "state_mold.hpp"
 
-namespace maki::detail::state_impls
+namespace maki
 {
 
-template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-class simple;
+/**
+@brief The state mold of the undefined state.
+*/
+inline constexpr auto undefined = state_mold{};
 
 } //namespace
 

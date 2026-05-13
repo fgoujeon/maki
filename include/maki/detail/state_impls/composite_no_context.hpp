@@ -127,6 +127,9 @@ template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtx
 class composite_no_context
 {
 public:
+    using machine_conf_holder_type = MachineConfHolder;
+    using state_mold_path = StateMoldPath;
+
     static constexpr const auto& mold = machine_element_at_path<StateMoldPath>(MachineConfHolder::value);
     using mold_type = std::decay_t<decltype(mold)>;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;

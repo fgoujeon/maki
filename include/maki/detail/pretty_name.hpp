@@ -12,6 +12,7 @@
 #ifndef MAKI_DETAIL_PRETTY_NAME_HPP
 #define MAKI_DETAIL_PRETTY_NAME_HPP
 
+#include "machine_element.hpp"
 #include "type_name.hpp"
 
 namespace maki::detail
@@ -20,16 +21,18 @@ namespace maki::detail
 /**
 @brief Gets the pretty name of `maki::state_mold`.
 */
-template<const auto& Mold>
+template<class MachineConfHolder, class StateMoldPath>
 decltype(auto) pretty_name()
 {
-    if constexpr(impl_of(Mold).pretty_name.data() == nullptr)
+    constexpr const auto& stt_mold = machine_element_at_path<StateMoldPath>(MachineConfHolder::value);
+
+    if constexpr(impl_of(stt_mold).pretty_name.data() == nullptr)
     {
-        return detail::decayed_constant_name<Mold>();
+        return detail::decayed_constant_name<stt_mold>();
     }
     else
     {
-        return impl_of(Mold).pretty_name;
+        return impl_of(stt_mold).pretty_name;
     }
 }
 

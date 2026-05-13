@@ -7,7 +7,6 @@
 #ifndef MAKI_DETAIL_PATH_IMPL_HPP
 #define MAKI_DETAIL_PATH_IMPL_HPP
 
-#include "machine_element.hpp"
 #include "iseq.hpp"
 #include "pretty_name.hpp"
 #include <string>
@@ -53,8 +52,7 @@ namespace path_impl_detail
             }
             else
             {
-                constexpr const auto& stt_mold = machine_element_at_path<current_elem_ipath_t>(MachineConfHolder::value);
-                const auto state_pretty_name = detail::pretty_name<stt_mold>();
+                const auto state_pretty_name = detail::pretty_name<MachineConfHolder, current_elem_ipath_t>();
                 const auto str = previous_result.str + std::string{state_pretty_name} + "/";
                 return to_string_left_fold_result<current_elem_ipath_t>{str};
             }

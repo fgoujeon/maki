@@ -52,8 +52,8 @@ namespace pretty_name_ns
     };
 
     constexpr auto transition_table = maki::transition_table{}
-        (maki::ini,   state)
-        (state, maki::null, maki::null)
+        (maki::ini, state)
+        (state,     composite_state, maki::null)
     ;
 
     struct machine_conf
@@ -107,37 +107,45 @@ TEST_CASE("pretty_name")
 
     CHECK
     (
-        maki::detail::pretty_name<default_state_from_global_namespace>() ==
+        maki::detail::decayed_constant_name<default_state_from_global_namespace>() ==
         std::string_view{"default_state_from_global_namespace"}
     );
 
     CHECK
     (
-        maki::detail::pretty_name<pretty_name_ns::state>() ==
+        maki::detail::pretty_name
+        <
+            pretty_name_ns::machine_conf,
+            maki::detail::iseq<0, 0>
+        >() ==
         std::string_view{"my_state"}
     );
 
     CHECK
     (
-        maki::detail::pretty_name<pretty_name_ns::templ<int, double>::inner_state>() ==
+        maki::detail::decayed_constant_name<pretty_name_ns::templ<int, double>::inner_state>() ==
         std::string_view{"inner_state"}
     );
 
     CHECK
     (
-        maki::detail::pretty_name<pretty_name_ns::templ<int, std::string_view>::inner_state_templ<std::string_view>>() ==
+        maki::detail::decayed_constant_name<pretty_name_ns::templ<int, std::string_view>::inner_state_templ<std::string_view>>() ==
         std::string_view{"inner_state_templ"}
     );
 
     CHECK
     (
-        maki::detail::pretty_name<pretty_name_ns::default_state>() ==
+        maki::detail::decayed_constant_name<pretty_name_ns::default_state>() ==
         std::string_view{"default_state"}
     );
 
     CHECK
     (
-        maki::detail::pretty_name<pretty_name_ns::composite_state>() ==
+        maki::detail::pretty_name
+        <
+            pretty_name_ns::machine_conf,
+            maki::detail::iseq<0, 1>
+        >() ==
         std::string_view{"my_composite_state"}
     );
 }

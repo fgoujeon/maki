@@ -36,7 +36,14 @@ namespace transition_table_digest_ns
         (maki::all_states, state0, maki::event<event3>)
     ;
 
-    using digest_t = maki::detail::transition_table_digest<transition_table>;
+    struct machine_conf
+    {
+        static constexpr auto value = maki::machine_conf{}
+            .transition_tables(transition_table)
+        ;
+    };
+
+    using digest_t = maki::detail::transition_table_digest<machine_conf, maki::detail::iseq<0>>;
 
     using expected_unique_target_state_mold_iseq = maki::detail::iseq
     <

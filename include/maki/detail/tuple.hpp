@@ -171,14 +171,26 @@ constexpr bool operator==(const tuple<LhsArgs...>& /*lhs*/, const tuple<RhsArgs.
 tuple_get
 */
 
-template<int Index, class Tuple>
-constexpr auto& tuple_get(Tuple& tpl)
+template<int Index, class... Ts>
+constexpr auto& tuple_get(tuple<Ts...>& tpl)
 {
     return tpl.get(constant<Index>);
 }
 
-template<class T, class Tuple>
-constexpr auto& tuple_get(Tuple& tpl)
+template<int Index, class... Ts>
+constexpr const auto& tuple_get(const tuple<Ts...>& tpl)
+{
+    return tpl.get(constant<Index>);
+}
+
+template<class T, class... Ts>
+constexpr auto& tuple_get(tuple<Ts...>& tpl)
+{
+    return tpl.get(type<T>);
+}
+
+template<class T, class... Ts>
+constexpr const auto& tuple_get(const tuple<Ts...>& tpl)
 {
     return tpl.get(type<T>);
 }

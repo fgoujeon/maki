@@ -51,10 +51,7 @@ namespace region_detail
         struct for_state_set
         {
             static constexpr const auto& trans_table =
-                machine_element_at_path<TransitionTablePath>
-                (
-                    MachineConfHolder::value
-                )
+                machine_element_at_path<TransitionTablePath>(MachineConfHolder::value)
             ;
 
             static constexpr const auto& trans =
@@ -72,10 +69,7 @@ namespace region_detail
                             TransitionTablePath,
                             StateMoldIndex
                         >
-                    >
-                    (
-                        MachineConfHolder::value
-                    )
+                    >(MachineConfHolder::value)
                 ;
 
                 static constexpr bool value = contains(impl_of(trans.source_state_mold), target_state_mold);
@@ -100,7 +94,7 @@ public:
     using transition_table_type = std::decay_t<decltype(trans_table)>;
 
     using transition_table_digest_type =
-        transition_table_digest<trans_table>
+        transition_table_digest<MachineConfHolder, TransitionTablePath>
     ;
 
     using state_mold_iseq_0 =
@@ -262,13 +256,18 @@ public:
     template<const auto& StateMold>
     const auto& state() const
     {
-        constexpr int state_mold_index = index_of_state_mold_v<trans_table, StateMold>;
+        constexpr int state_mold_index = index_of_state_mold_v
+        <
+            MachineConfHolder,
+            TransitionTablePath,
+            StateMold
+        >;
         return state_mold_index_to_state<state_mold_index>();
     }
 
     static const auto& path()
     {
-        static const auto value = maki::path{path_impl<MachineConfHolder::value, TransitionTablePath>{}};
+        static const auto value = maki::path{path_impl<MachineConfHolder, TransitionTablePath>{}};
         return value;
     }
 
@@ -401,6 +400,15 @@ private:
         {
             static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(trans_table));
 
+            static constexpr auto target_state_mold_index =
+                index_of_target_state_mold_v
+                <
+                    MachineConfHolder,
+                    TransitionTablePath,
+                    TransitionIndexConstant::value
+                >
+            ;
+
             if constexpr(is_state_set_v<std::decay_t<decltype(trans.source_state_mold)>>)
             {
                 //List of state molds that belong to the source state set
@@ -420,7 +428,7 @@ private:
                     try_executing_transition_2
                     <
                         Dry,
-                        index_of_state_mold_v<trans_table, trans.target_state_mold>,
+                        target_state_mold_index,
                         TransitionIndexConstant::value,
                         TransitionIndexConstant::value
                     >
@@ -429,17 +437,18 @@ private:
             else
             {
                 static constexpr auto source_state_mold_index =
-                    index_of_state_mold_v
+                    index_of_source_state_mold_v
                     <
-                        trans_table,
-                        trans.source_state_mold
+                        MachineConfHolder,
+                        TransitionTablePath,
+                        TransitionIndexConstant::value
                     >
                 ;
 
                 return try_executing_transition_2
                 <
                     Dry,
-                    index_of_state_mold_v<trans_table, trans.target_state_mold>,
+                    target_state_mold_index,
                     TransitionIndexConstant::value,
                     TransitionIndexConstant::value
                 >::template call<source_state_mold_index>
@@ -742,7 +751,7 @@ private:
         Context& ctx
     )
     {
-        constexpr const auto& active_state_mold = impl_of_t<ActiveState>::mold;
+        static constexpr const auto& active_state_mold = impl_of_t<ActiveState>::mold;
 
         using candidate_transition_index_constant_list = transition_table_filters::by_source_state_and_null_event_t
         <
@@ -762,7 +771,7 @@ private:
     template<const auto& StateMold>
     [[nodiscard]] bool is_active_state_mold() const
     {
-        return active_state_mold_index_ == index_of_state_mold_v<trans_table, StateMold>;
+        return active_state_mold_index_ == index_of_state_mold_v<MachineConfHolder, TransitionTablePath, StateMold>;
     }
 
     template<auto StateSetPtr>
@@ -797,6 +806,7 @@ private:
                     >
                 >(MachineConfHolder::value)
             ;
+
             if constexpr(contains(impl_of(*StateSetPtr), active_state_mold))
             {
                 matches = true;

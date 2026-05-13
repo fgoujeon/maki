@@ -9,8 +9,8 @@
 
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
+#include "machine_element.hpp"
 #include "iseq.hpp"
-#include "../transition_table.hpp"
 #include "../null.hpp"
 #include "tlu/left_fold.hpp"
 #include <type_traits>
@@ -47,16 +47,17 @@ namespace transition_table_digest_detail
         static constexpr auto has_completion_transitions = false;
     };
 
-    template<const auto& TransitionTable>
+    template<class MachineConfHolder, class TransitionTablePath>
     struct add_transition_to_digest_holder
     {
         template<class Digest, int Index>
         struct add_transition_to_digest_impl
         {
-            static constexpr int target_state_mold_index = index_of_state_mold_v
+            static constexpr int target_state_mold_index = index_of_target_state_mold_v
             <
-                TransitionTable,
-                tuple_get<Index>(impl_of(TransitionTable)).target_state_mold
+                MachineConfHolder,
+                TransitionTablePath,
+                Index
             >;
 
             /*
@@ -85,7 +86,19 @@ namespace transition_table_digest_detail
                     Index != 0 &&
                     is_null_v
                     <
-                        std::decay_t<decltype(tuple_get<Index>(impl_of(TransitionTable)).evt)>
+                        std::decay_t
+                        <
+                            decltype
+                            (
+                                tuple_get<Index>
+                                (
+                                    impl_of
+                                    (
+                                        machine_element_at_path<TransitionTablePath>(MachineConfHolder::value)
+                                    )
+                                ).evt
+                            )
+                        >
                     >
                 )
             ;
@@ -100,13 +113,21 @@ namespace transition_table_digest_detail
     };
 }
 
-template<const auto& TransitionTable>
+template<class MachineConfHolder, class TransitionTablePath>
 using transition_table_digest = tlu::left_fold_t
 <
-    make_integer_constant_sequence<int, impl_of(TransitionTable).size>,
+    make_integer_constant_sequence
+    <
+        int,
+        impl_of
+        (
+            machine_element_at_path<TransitionTablePath>(MachineConfHolder::value)
+        ).size
+    >,
     transition_table_digest_detail::add_transition_to_digest_holder
     <
-        TransitionTable
+        MachineConfHolder,
+        TransitionTablePath
     >::template add_transition_to_digest,
     transition_table_digest_detail::initial_digest
 >;

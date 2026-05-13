@@ -11,11 +11,11 @@
 #include "state_impls/simple_fwd.hpp"
 #include "state_impls/composite_no_context_fwd.hpp"
 #include "state_impls/composite_fwd.hpp"
-#include "state_id_traits.hpp"
+#include "state_mold_traits.hpp"
 #include "machine_element.hpp"
 #include "context_storage.hpp"
 
-namespace maki::detail::state_traits
+namespace maki::detail
 {
 
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage, bool HasTransitionTables, bool HasContext>
@@ -55,7 +55,7 @@ struct state_impl
         StateMoldPath,
         ParentCtxStorage,
         impl_of(state_mold).transition_tables.size != 0,
-        state_id_traits::has_context_v<state_mold>
+        state_mold_traits::has_context_v<state_mold>
     >::type;
 };
 

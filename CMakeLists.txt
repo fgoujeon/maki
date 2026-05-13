@@ -52,8 +52,6 @@ target_sources(maki
         include/maki/detail/region_impl.hpp
         include/maki/detail/set.hpp
         include/maki/detail/signature_macros.hpp
-        include/maki/detail/state_id_to_state.hpp
-        include/maki/detail/state_id_traits.hpp
         include/maki/detail/state_impl.hpp
         include/maki/detail/state_impls/composite.hpp
         include/maki/detail/state_impls/composite_fwd.hpp
@@ -65,7 +63,10 @@ target_sources(maki
         include/maki/detail/state_impls/simple_no_context_fwd.hpp
         include/maki/detail/state_mold_impl.hpp
         include/maki/detail/state_mold_indexes.hpp
+        include/maki/detail/state_mold_storage.hpp
+        include/maki/detail/state_mold_traits.hpp
         include/maki/detail/state_molds.hpp
+        include/maki/detail/state_set_fwd.hpp
         include/maki/detail/tlu.hpp
         include/maki/detail/tlu/apply.hpp
         include/maki/detail/tlu/back.hpp

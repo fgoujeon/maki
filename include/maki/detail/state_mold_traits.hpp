@@ -4,12 +4,12 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_STATE_ID_TRAITS_HPP
-#define MAKI_DETAIL_STATE_ID_TRAITS_HPP
+#ifndef MAKI_DETAIL_STATE_MOLD_TRAITS_HPP
+#define MAKI_DETAIL_STATE_MOLD_TRAITS_HPP
 
 #include <type_traits>
 
-namespace maki::detail::state_id_traits
+namespace maki::detail::state_mold_traits
 {
 
 template<const auto& StateMold>

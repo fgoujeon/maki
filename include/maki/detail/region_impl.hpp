@@ -11,10 +11,10 @@
 #include "machine_element.hpp"
 #include "compiler.hpp"
 #include "type_set.hpp"
-#include "state_id_to_state.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
 #include "context_storage.hpp"
+#include "state_impl.hpp"
 #include "tuple.hpp"
 #include "mix.hpp"
 #include "iseq.hpp"
@@ -118,11 +118,14 @@ public:
     template<int... StateMoldIndexes>
     using state_mold_iseq_to_state_mix_t = mix
     <
-        state_traits::state_id_to_state_t
+        maki::state
         <
-            MachineConfHolder,
-            iseq_push_back_t<TransitionTablePath, StateMoldIndexes>,
-            ParentCtxStorage
+            state_impl_t
+            <
+                MachineConfHolder,
+                iseq_push_back_t<TransitionTablePath, StateMoldIndexes>,
+                ParentCtxStorage
+            >
         >...
     >;
 
@@ -160,7 +163,7 @@ public:
     {
         if constexpr(is_state_set_v<std::decay_t<decltype(StateMold)>>)
         {
-            return is_active_state_id_in_set<&StateMold>();
+            return is_active_state_mold_in_set<&StateMold>();
         }
         else
         {
@@ -179,7 +182,7 @@ public:
         if constexpr(type_set_contains_v<deferrable_event_type_set, Event>)
         {
             auto defers = false;
-            with_active_state_id
+            with_active_state_mold
             <
                 state_mold_iseq,
                 state_defers_event<Event>
@@ -225,7 +228,7 @@ public:
     {
         if(!completed())
         {
-            with_active_state_id<state_mold_iseq, exit_2<TargetStateMoldIndex>>
+            with_active_state_mold<state_mold_iseq, exit_2<TargetStateMoldIndex>>
             (
                 *this,
                 mach,
@@ -763,23 +766,23 @@ private:
     }
 
     template<auto StateSetPtr>
-    [[nodiscard]] bool is_active_state_id_in_set() const
+    [[nodiscard]] bool is_active_state_mold_in_set() const
     {
         auto matches = false;
-        with_active_state_id
+        with_active_state_mold
         <
             iseq_push_back_t
             <
                 state_mold_iseq,
                 state_mold_indexes::fin
             >,
-            is_active_state_id_in_set_2<StateSetPtr>
+            is_active_state_mold_in_set_2<StateSetPtr>
         >(matches);
         return matches;
     }
 
     template<auto StateSetPtr>
-    struct is_active_state_id_in_set_2
+    struct is_active_state_mold_in_set_2
     {
         template<int ActiveStateMoldIndex>
         static void call([[maybe_unused]] bool& matches)
@@ -802,17 +805,17 @@ private:
     };
 
     template<class StateMoldIndexSequence, class F, class... Args>
-    void with_active_state_id(Args&&... args) const
+    void with_active_state_mold(Args&&... args) const
     {
         iseq_for_each_or
         <
             StateMoldIndexSequence,
-            with_active_state_id_2<F>
+            with_active_state_mold_2<F>
         >(*this, std::forward<Args>(args)...);
     }
 
     template<class F>
-    struct with_active_state_id_2
+    struct with_active_state_mold_2
     {
         template<int StateMoldIndex, class... Args>
         static bool call(const region_impl& self, Args&&... args)
@@ -857,11 +860,14 @@ private:
         else
         {
             using state_t =
-                state_traits::state_id_to_state_t
+                maki::state
                 <
-                    MachineConfHolder,
-                    iseq_push_back_t<TransitionTablePath, StateMoldIndex>,
-                    ParentCtxStorage
+                    state_impl_t
+                    <
+                        MachineConfHolder,
+                        iseq_push_back_t<TransitionTablePath, StateMoldIndex>,
+                        ParentCtxStorage
+                    >
                 >
             ;
             return get<state_t>(self.states_);

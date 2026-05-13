@@ -31,6 +31,9 @@ template<class MachineConfHolder, class StateMoldPath>
 class simple_no_context
 {
 public:
+    using machine_conf_holder_type = MachineConfHolder;
+    using state_mold_path = StateMoldPath;
+
     static constexpr const auto& mold = machine_element_at_path<StateMoldPath>(MachineConfHolder::value);
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
 

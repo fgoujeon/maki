@@ -20,6 +20,9 @@ template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtx
 class simple
 {
 public:
+    using machine_conf_holder_type = MachineConfHolder;
+    using state_mold_path = StateMoldPath;
+
     static constexpr const auto& mold = machine_element_at_path<StateMoldPath>(MachineConfHolder::value);
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using context_type = typename option_set_type::context_type;

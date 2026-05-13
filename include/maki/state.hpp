@@ -90,7 +90,11 @@ public:
     */
     [[nodiscard]] static std::string_view pretty_name()
     {
-        return detail::pretty_name<Impl::mold>();
+        return detail::pretty_name
+        <
+            typename Impl::machine_conf_holder_type,
+            typename Impl::state_mold_path
+        >();
     }
 
 private:

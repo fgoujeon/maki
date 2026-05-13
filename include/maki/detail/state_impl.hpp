@@ -48,14 +48,14 @@ struct state_impl_helper<MachineConfHolder, StateMoldPath, ParentCtxStorage, tru
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
 struct state_impl
 {
-    static constexpr auto state_id = &machine_element_at_path<StateMoldPath>(MachineConfHolder::value);
+    static constexpr const auto& state_mold = machine_element_at_path<StateMoldPath>(MachineConfHolder::value);
     using type = typename state_impl_helper
     <
         MachineConfHolder,
         StateMoldPath,
         ParentCtxStorage,
-        impl_of(*state_id).transition_tables.size != 0,
-        state_id_traits::has_context_v<state_id>
+        impl_of(state_mold).transition_tables.size != 0,
+        state_id_traits::has_context_v<state_mold>
     >::type;
 };
 

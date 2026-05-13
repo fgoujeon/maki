@@ -12,17 +12,17 @@
 namespace maki::detail::state_id_traits
 {
 
-template<auto Id>
+template<const auto& StateMold>
 struct context
 {
-    using type = typename std::decay_t<decltype(impl_of(*Id))>::context_type;
+    using type = typename std::decay_t<decltype(impl_of(StateMold))>::context_type;
 };
 
-template<auto Id>
-using context_t = typename context<Id>::type;
+template<const auto& StateMold>
+using context_t = typename context<StateMold>::type;
 
-template<auto Id>
-constexpr auto has_context_v = !std::is_void_v<context_t<Id>>;
+template<const auto& StateMold>
+constexpr auto has_context_v = !std::is_void_v<context_t<StateMold>>;
 
 } //namespace
 

@@ -50,7 +50,7 @@ struct machine_element_at_path_operation
         }
         else
         {
-            return *tuple_get<Index>(impl_of(base)).target_state_mold;
+            return tuple_get<Index>(impl_of(base)).target_state_mold;
         }
     }
 };

@@ -7,6 +7,7 @@
 #ifndef MAKI_SET_HPP
 #define MAKI_SET_HPP
 
+#include "state_mold_storage.hpp"
 #include "tuple.hpp"
 #include "equals.hpp"
 
@@ -59,9 +60,9 @@ constexpr auto make_set_excluding(const Elem& elem)
 {
     return detail::predicate_based_set
     {
-        [elem](const auto& elem2)
+        [&elem](const auto& elem2)
         {
-            return !detail::equals(elem, elem2);
+            return !detail::equals(&elem, &elem2);
         }
     };
 }
@@ -103,7 +104,7 @@ elements, because making unions doesn't create deep trees of nested predicates.
 template<class... Elems>
 struct tuple_based_set
 {
-    tuple<Elems...> elems;
+    tuple<state_mold_storage_t<Elems>...> elems;
 };
 
 template<class... Elems>
@@ -112,7 +113,7 @@ tuple_based_set(const tuple<Elems...>&) -> tuple_based_set<Elems...>;
 template<class... Elems>
 constexpr auto make_set_including(const Elems&... elems)
 {
-    return tuple_based_set{make_tuple(elems...)};
+    return tuple_based_set{tuple<state_mold_storage_t<Elems>...>{elems...}};
 }
 
 template<class... Elems, class Elem>
@@ -127,7 +128,7 @@ constexpr bool contains
         set.elems,
         [&elem](const auto&... elems)
         {
-            return (equals(elem, elems) || ...);
+            return (equals(&elem, &elems) || ...);
         }
     );
 }

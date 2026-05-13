@@ -25,11 +25,9 @@ namespace detail
 */
 using null_t = IMPLEMENTATION_DETAIL;
 #else
-/*
-We need an integral type so that we can directly pass `null` as a template
-argument.
-*/
-using null_t = const detail::null_t_impl*;
+struct null_t
+{
+};
 #endif
 
 /**
@@ -42,11 +40,7 @@ Represents either:
 
 Not to be confused with `maki::states::null`.
 */
-#ifdef MAKI_DETAIL_DOXYGEN
 constexpr auto null = null_t{};
-#else
-inline constexpr auto null = null_t{nullptr};
-#endif
 
 namespace detail
 {

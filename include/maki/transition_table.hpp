@@ -20,11 +20,9 @@
 #include "state_mold.hpp"
 #include "ini.hpp"
 #include "fin.hpp"
-#include "undefined.hpp"
 #include "null.hpp"
-#include "detail/state_molds.hpp"
+#include "detail/state_mold_storage.hpp"
 #include "detail/tlu/left_fold.hpp"
-#include "detail/state_mold_indexes.hpp"
 #include "detail/type_set.hpp"
 #include "detail/friendly_impl.hpp"
 #include "detail/tuple.hpp"
@@ -75,8 +73,8 @@ namespace detail
     {
         using event_type = Event;
 
-        SourceStateMold source_state_mold;
-        TargetStateMold target_state_mold;
+        state_mold_storage_t<SourceStateMold> source_state_mold;
+        state_mold_storage_t<TargetStateMold> target_state_mold;
         Event evt;
         action<ActionSignature, ActionCallable> act;
         guard<GuardSignature, GuardCallable> grd;
@@ -100,8 +98,8 @@ namespace detail
     >
     transition
     (
-        SourceStateMold,
-        TargetStateMold,
+        const SourceStateMold&,
+        const TargetStateMold&,
         Event,
         action<ActionSignature, ActionCallable>,
         guard<GuardSignature, GuardCallable>
@@ -147,31 +145,6 @@ namespace detail
     constexpr auto make_transition_table(const tuple<Transitions...>& transitions)
     {
         return transition_table<tuple<Transitions...>>{transitions};
-    }
-
-    template<class T>
-    constexpr decltype(auto) store_state_mold(T&& obj)
-    {
-        return std::forward<T>(obj);
-    }
-
-    //Store a pointer in this case
-    constexpr auto store_state_mold(ini_t /*ini*/)
-    {
-        return &detail::state_molds::null;
-    }
-
-    //Store a pointer in this case
-    constexpr auto store_state_mold(fin_t /*fin*/)
-    {
-        return &detail::state_molds::fin;
-    }
-
-    //Store a pointer in this case
-    template<class OptionSet>
-    constexpr auto store_state_mold(const state_mold<OptionSet>& mold)
-    {
-        return &mold;
     }
 }
 
@@ -317,8 +290,8 @@ public:
             (
                 detail::transition
                 {
-                    detail::store_state_mold(source_state_mold),
-                    detail::store_state_mold(target_state_mold),
+                    source_state_mold,
+                    target_state_mold,
                     evt,
                     detail::to_action(action),
                     detail::to_guard(guard)
@@ -361,45 +334,6 @@ namespace detail
         transition_table_event_type_set_fold_operation_t,
         empty_type_set_t
     >;
-
-    template<const auto& TransitionTable, auto StateMold, int TransitionIndex>
-    constexpr int index_of_state_mold_2()
-    {
-        if constexpr(ptr_equals(StateMold, tuple_get<TransitionIndex>(impl_of(TransitionTable)).target_state_mold))
-        {
-            return TransitionIndex;
-        }
-        else
-        {
-            return index_of_state_mold_2<TransitionTable, StateMold, TransitionIndex + 1>();
-        }
-    }
-
-    template<const auto& TransitionTable, auto StateMold>
-    constexpr int index_of_state_mold()
-    {
-        if constexpr(ptr_equals(StateMold, &maki::undefined))
-        {
-            return state_mold_indexes::undefined;
-        }
-        else if constexpr(ptr_equals(StateMold, null))
-        {
-            return state_mold_indexes::internal;
-        }
-        else if constexpr(ptr_equals(StateMold, &state_molds::fin))
-        {
-            return state_mold_indexes::fin;
-        }
-        else
-        {
-            return index_of_state_mold_2<TransitionTable, StateMold, 0>();
-        }
-    }
-
-    template<const auto& TransitionTable, auto StateMold>
-    constexpr int index_of_state_mold_v =
-        index_of_state_mold<TransitionTable, StateMold>()
-    ;
 }
 
 } //namespace

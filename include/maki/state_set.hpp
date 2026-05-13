@@ -8,6 +8,7 @@
 #define MAKI_STATE_SET_HPP
 
 #include "state_mold.hpp"
+#include "ini.hpp"
 #include "detail/friendly_impl.hpp"
 #include "detail/set.hpp"
 
@@ -108,7 +109,7 @@ constexpr auto operator!(const state_mold<StateMoldImpl>& stt_mold)
 {
     return detail::make_state_set_from_impl
     (
-        detail::make_set_excluding(&stt_mold)
+        detail::make_set_excluding(stt_mold)
     );
 }
 
@@ -144,7 +145,7 @@ constexpr auto operator||
 {
     return detail::make_state_set_from_impl
     (
-        detail::make_set_union(detail::impl_of(stt_set), &stt_mold)
+        detail::make_set_union(detail::impl_of(stt_set), stt_mold)
     );
 }
 
@@ -177,7 +178,7 @@ constexpr auto operator||
 {
     return detail::make_state_set_from_impl
     (
-        detail::make_set_including(&lhs, &rhs)
+        detail::make_set_including(lhs, rhs)
     );
 }
 
@@ -202,15 +203,21 @@ constexpr auto operator&&
 namespace detail
 {
     template<class StateMoldImpl, class StateMoldImpl2>
-    constexpr bool contained_in(const state_mold<StateMoldImpl>& lhs, const state_mold<StateMoldImpl2>* rhs)
+    constexpr bool contained_in(const state_mold<StateMoldImpl>& lhs, const state_mold<StateMoldImpl2>& rhs)
     {
-        return equals(&lhs, rhs);
+        return equals(&lhs, &rhs);
+    }
+
+    template<class StateMoldImpl>
+    constexpr bool contained_in(const state_mold<StateMoldImpl>& /*lhs*/, const ini_t /*rhs*/)
+    {
+        return false;
     }
 
     template<class StateMoldImpl, class... Predicates>
     constexpr bool contained_in(const state_mold<StateMoldImpl>& stt_mold, const state_set<Predicates>&... state_sets)
     {
-        return (contains(impl_of(state_sets), &stt_mold) || ...);
+        return (contains(impl_of(state_sets), stt_mold) || ...);
     }
 
     template<class T>

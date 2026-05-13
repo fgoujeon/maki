@@ -23,7 +23,7 @@ namespace path_impl_detail
         std::string str;
     };
 
-    template<const auto& MachineConf>
+    template<class MachineConfHolder>
     struct to_string_left_fold_operation
     {
         template
@@ -53,7 +53,7 @@ namespace path_impl_detail
             }
             else
             {
-                constexpr const auto& stt_mold = machine_element_at_path<current_elem_ipath_t>(MachineConf);
+                constexpr const auto& stt_mold = machine_element_at_path<current_elem_ipath_t>(MachineConfHolder::value);
                 const auto state_pretty_name = detail::pretty_name<stt_mold>();
                 const auto str = previous_result.str + std::string{state_pretty_name} + "/";
                 return to_string_left_fold_result<current_elem_ipath_t>{str};
@@ -62,7 +62,7 @@ namespace path_impl_detail
     };
 }
 
-template<const auto& MachineConf, class Ipath>
+template<class MachineConfHolder, class Ipath>
 class path_impl
 {
 public:
@@ -74,7 +74,7 @@ public:
             iseq_left_fold
             <
                 Ipath,
-                path_impl_detail::to_string_left_fold_operation<MachineConf>
+                path_impl_detail::to_string_left_fold_operation<MachineConfHolder>
             >
             (
                 path_impl_detail::to_string_left_fold_result<iseq<>>{""}

@@ -128,7 +128,6 @@ class composite_no_context
 {
 public:
     static constexpr const auto& mold = machine_element_at_path<StateMoldPath>(MachineConfHolder::value);
-    static constexpr auto identifier = &mold;
     using mold_type = std::decay_t<decltype(mold)>;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);

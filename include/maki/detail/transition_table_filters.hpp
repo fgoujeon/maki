@@ -88,32 +88,32 @@ using by_event_t = tlu::filter_t
 
 namespace by_source_state_and_null_event_detail
 {
-    template<class TransitionIndexConstant, class TransitionTable, class SourceStateId>
-    constexpr bool matches(const TransitionTable& table, const SourceStateId source_state_id)
+    template<class TransitionIndexConstant, class TransitionTable, class SourceStateMold>
+    constexpr bool matches(const TransitionTable& table, const SourceStateMold& source_state_mold)
     {
         const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(table));
         return
             trans.can_process_completion_event() &&
-            contained_in(*source_state_id, trans.source_state_mold)
+            contained_in(source_state_mold, trans.source_state_mold)
         ;
     }
 
-    template<auto TransitionTablePtr, auto SourceStateId>
+    template<auto TransitionTablePtr, const auto& SourceStateMold>
     struct predicate_holder
     {
         template<class TransitionIndexConstant>
         struct predicate
         {
-            static constexpr bool value = matches<TransitionIndexConstant>(*TransitionTablePtr, SourceStateId);
+            static constexpr bool value = matches<TransitionIndexConstant>(*TransitionTablePtr, SourceStateMold);
         };
     };
 }
 
-template<const auto& TransitionTable, auto SourceStateId>
+template<const auto& TransitionTable, const auto& SourceStateMold>
 using by_source_state_and_null_event_t = tlu::filter_t
 <
     make_integer_constant_sequence<int, impl_of(TransitionTable).size>,
-    by_source_state_and_null_event_detail::predicate_holder<&TransitionTable, SourceStateId>::template predicate
+    by_source_state_and_null_event_detail::predicate_holder<&TransitionTable, SourceStateMold>::template predicate
 >;
 
 } //namespace

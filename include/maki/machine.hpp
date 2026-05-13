@@ -55,7 +55,7 @@ namespace detail
         } \
         catch(...) \
         { \
-            impl_of(conf).exception_handler(*this, std::current_exception()); \
+            detail::impl_of(conf).exception_handler(*this, std::current_exception()); \
         } \
     }
 
@@ -84,7 +84,7 @@ public:
     static constexpr const auto& conf = ConfHolder::value;
 
 #ifndef MAKI_DETAIL_DOXYGEN
-    using option_set_type = std::decay_t<decltype(impl_of(conf))>;
+    using option_set_type = std::decay_t<decltype(detail::impl_of(conf))>;
 #endif
 
 #ifdef MAKI_DETAIL_DOXYGEN
@@ -119,7 +119,7 @@ public:
         ctx_holder_(*this, std::forward<ContextArgs>(ctx_args)...),
         impl_(*this, context())
     {
-        if constexpr(impl_of(conf).auto_start)
+        if constexpr(detail::impl_of(conf).auto_start)
         {
             MAKI_DETAIL_MAYBE_CATCH(start_now())
         }
@@ -388,8 +388,8 @@ private:
         using type = detail::function_queue
         <
             machine&,
-            impl_of(conf).small_event_max_size,
-            impl_of(conf).small_event_max_align
+            detail::impl_of(conf).small_event_max_size,
+            detail::impl_of(conf).small_event_max_align
         >;
     };
 
@@ -401,7 +401,7 @@ private:
 
     using rtc_queue_type = typename std::conditional_t
     <
-        impl_of(conf).run_to_completion,
+        detail::impl_of(conf).run_to_completion,
         real_function_queue_holder,
         empty_holder
     >::template type<>;
@@ -451,7 +451,7 @@ private:
     {
         static_assert
         (
-            impl_of(conf).process_event_now_enabled,
+            detail::impl_of(conf).process_event_now_enabled,
             "`maki::machine_conf::process_event_now_enabled()` hasn't been set to `true`"
         );
         execute_operation_now<detail::machine_operation::process_event>(event);
@@ -460,7 +460,7 @@ private:
     template<detail::machine_operation Operation, class Event>
     void execute_operation(const Event& event)
     {
-        if constexpr(impl_of(conf).run_to_completion)
+        if constexpr(detail::impl_of(conf).run_to_completion)
         {
             if(!executing_operation_) //If call is not recursive
             {
@@ -481,7 +481,7 @@ private:
     template<detail::machine_operation Operation, class Event>
     void execute_operation_now(const Event& event)
     {
-        if constexpr(impl_of(conf).run_to_completion)
+        if constexpr(detail::impl_of(conf).run_to_completion)
         {
             auto grd = executing_operation_guard{*this};
 
@@ -511,7 +511,7 @@ private:
     template<class Event>
     MAKI_NOINLINE void push_event_no_catch(const Event& event)
     {
-        static_assert(impl_of(conf).run_to_completion);
+        static_assert(detail::impl_of(conf).run_to_completion);
         push_event_impl<detail::machine_operation::process_event>(event);
     }
 
@@ -644,8 +644,8 @@ private:
         }
     }
 
-    static constexpr auto pre_processing_hooks = impl_of(conf).pre_processing_hooks;
-    static constexpr auto post_processing_hooks = impl_of(conf).post_processing_hooks;
+    static constexpr auto pre_processing_hooks = detail::impl_of(conf).pre_processing_hooks;
+    static constexpr auto post_processing_hooks = detail::impl_of(conf).post_processing_hooks;
 
     using pre_processing_hook_ptr_constant_list = detail::mix_constant_list_t<pre_processing_hooks>;
     using post_processing_hook_ptr_constant_list = detail::mix_constant_list_t<post_processing_hooks>;
@@ -654,7 +654,7 @@ private:
     <
         context_type,
         detail::context_storage::plain,
-        impl_of(conf).context_sig
+        detail::impl_of(conf).context_sig
     > ctx_holder_;
 
     impl_type impl_;

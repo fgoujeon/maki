@@ -9,7 +9,6 @@
 
 #include "state_mold_ids.hpp"
 #include "machine_conf_tree.hpp"
-#include "compiler.hpp"
 #include "type_set.hpp"
 #include "transition_table_digest.hpp"
 #include "transition_table_filters.hpp"
@@ -319,17 +318,14 @@ private:
     )
     {
         //List the transitions whose event set contains `Event`
-        using candidate_transition_index_constant_list = transition_table_filters::by_event_t
+        using candidate_transition_iseq = transition_table_filters::by_event_t
         <
-#if !MAKI_DETAIL_COMPILER_GCC
-            transition_table_type,
-#else
-            trans_table,
-#endif
+            MachineConfHolder,
+            TransitionTablePath,
             Event
         >;
 
-        constexpr auto must_try_executing_transitions = !tlu::empty_v<candidate_transition_index_constant_list>;
+        constexpr auto must_try_executing_transitions = !iseq_empty_v<candidate_transition_iseq>;
 
         constexpr auto must_try_process_event_in_states = type_set_contains_v
         <
@@ -346,7 +342,7 @@ private:
             */
             return
                 call_active_state_internal_action<Dry>(self, mach, ctx, event) ||
-                try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event)
+                try_executing_transitions<candidate_transition_iseq, Dry>(self, mach, ctx, event)
             ;
         }
         else if constexpr(!must_try_executing_transitions && must_try_process_event_in_states)
@@ -355,7 +351,7 @@ private:
         }
         else if constexpr(must_try_executing_transitions && !must_try_process_event_in_states)
         {
-            return try_executing_transitions<candidate_transition_index_constant_list, Dry>(self, mach, ctx, event);
+            return try_executing_transitions<candidate_transition_iseq, Dry>(self, mach, ctx, event);
         }
         else
         {
@@ -382,31 +378,31 @@ private:
     Try executing one of the transitions at indices
     `TransitionIndexConstantList`.
     */
-    template<class TransitionIndexConstantList, bool Dry = false, class Self, class Machine, class Context, class Event>
+    template<class TransitionIseq, bool Dry = false, class Self, class Machine, class Context, class Event>
     static bool try_executing_transitions(Self& self, Machine& mach, Context& ctx, const Event& event)
     {
-        return tlu::for_each_or
+        return iseq_for_each_or
         <
-            TransitionIndexConstantList,
+            TransitionIseq,
             try_executing_transition<Dry>
         >(self, mach, ctx, event);
     }
 
-    // Try executing the transition at index `TransitionIndexConstant`.
+    // Try executing the transition at index `TransitionIndex`.
     template<bool Dry>
     struct try_executing_transition
     {
-        template<class TransitionIndexConstant, class Self, class Machine, class Context, class Event, class... ExtraArgs>
+        template<int TransitionIndex, class Self, class Machine, class Context, class Event, class... ExtraArgs>
         static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
-            static constexpr const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(trans_table));
+            static constexpr const auto& trans = tuple_get<TransitionIndex>(impl_of(trans_table));
 
             static constexpr auto target_state_mold_id =
                 machine_conf_tree::id_of_target_state_mold_v
                 <
                     MachineConfHolder,
                     TransitionTablePath,
-                    TransitionIndexConstant::value
+                    TransitionIndex
                 >
             ;
 
@@ -417,7 +413,7 @@ private:
                 <
                     MachineConfHolder,
                     TransitionTablePath,
-                    TransitionIndexConstant::value,
+                    TransitionIndex,
                     state_mold_iseq
                 >;
 
@@ -430,8 +426,8 @@ private:
                     <
                         Dry,
                         target_state_mold_id,
-                        TransitionIndexConstant::value,
-                        TransitionIndexConstant::value
+                        TransitionIndex,
+                        TransitionIndex
                     >
                 >(self, mach, ctx, event, extra_args...);
             }
@@ -442,7 +438,7 @@ private:
                     <
                         MachineConfHolder,
                         TransitionTablePath,
-                        TransitionIndexConstant::value
+                        TransitionIndex
                     >
                 ;
 
@@ -450,8 +446,8 @@ private:
                 <
                     Dry,
                     target_state_mold_id,
-                    TransitionIndexConstant::value,
-                    TransitionIndexConstant::value
+                    TransitionIndex,
+                    TransitionIndex
                 >::template call<source_state_mold_id>
                 (
                     self,
@@ -754,17 +750,18 @@ private:
     {
         static constexpr const auto& active_state_mold = impl_of_t<ActiveState>::mold;
 
-        using candidate_transition_index_constant_list = transition_table_filters::by_source_state_and_null_event_t
+        using candidate_transition_iseq = transition_table_filters::by_source_state_and_null_event_t
         <
-            trans_table,
+            MachineConfHolder,
+            TransitionTablePath,
             active_state_mold
         >;
 
-        if constexpr(!tlu::empty_v<candidate_transition_index_constant_list>)
+        if constexpr(!iseq_empty_v<candidate_transition_iseq>)
         {
             if(impl_of(active_state).completed())
             {
-                try_executing_transitions<candidate_transition_index_constant_list>(*this, mach, ctx, null);
+                try_executing_transitions<candidate_transition_iseq>(*this, mach, ctx, null);
             }
         }
     }

@@ -16,6 +16,26 @@ struct iseq{};
 
 
 /*
+linear_iseq_t
+*/
+
+template<int I, int N, int... Is>
+struct linear_iseq_helper
+{
+    using type = typename linear_iseq_helper<I + 1, N, Is..., I>::type;
+};
+
+template<int N, int... Is>
+struct linear_iseq_helper<N, N, Is...>
+{
+    using type = iseq<Is...>;
+};
+
+template<int N>
+using linear_iseq_t = typename linear_iseq_helper<0, N>::type;
+
+
+/*
 iseq_apply_t
 */
 
@@ -47,6 +67,14 @@ struct iseq_size<iseq<Is...>>
 
 template<class Seq>
 constexpr int iseq_size_v = iseq_size<Seq>::value;
+
+
+/*
+iseq_empty_v
+*/
+
+template<class Seq>
+constexpr int iseq_empty_v = (iseq_size_v<Seq> == 0);
 
 
 /*
@@ -235,31 +263,20 @@ iseq_for_each_or
 */
 
 template<class Seq, class F>
-struct iseq_for_each_or_helper
-{
-    template<int... Is>
-    struct inner
-    {
-        template<class... Args>
-        static bool call(Args&... args)
-        {
-            return (F::template call<Is>(args...) || ...);
-        }
-    };
+struct iseq_for_each_or_helper;
 
+template<int... Is, class F>
+struct iseq_for_each_or_helper<iseq<Is...>, F>
+{
     template<class... Args>
-    static bool call(Args&... args)
+    static constexpr bool call(Args&... args)
     {
-        return iseq_apply_t
-        <
-            Seq,
-            inner
-        >::call(args...);
+        return (F::template call<Is>(args...) || ...);
     }
 };
 
 template<class Seq, class F, class... Args>
-bool iseq_for_each_or(Args&... args)
+constexpr bool iseq_for_each_or(Args&... args)
 {
     return iseq_for_each_or_helper<Seq, F>::call(args...);
 }

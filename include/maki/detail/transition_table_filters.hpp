@@ -7,13 +7,12 @@
 #ifndef MAKI_DETAIL_TRANSITION_TABLE_FILTERS_HPP
 #define MAKI_DETAIL_TRANSITION_TABLE_FILTERS_HPP
 
-#include "tlu/filter.hpp"
-#include "tlu/get.hpp"
-#include "compiler.hpp"
+#include "machine_conf_tree.hpp"
+#include "iseq.hpp"
 #include "tuple.hpp"
-#include "integer_constant_sequence.hpp"
 #include "friendly_impl.hpp"
 #include "../transition_table.hpp"
+#include <type_traits>
 
 namespace maki::detail::transition_table_filters
 {
@@ -22,49 +21,30 @@ namespace maki::detail::transition_table_filters
 `by_event_t`
 */
 
-#if !MAKI_DETAIL_COMPILER_GCC
-
-template<class TransitionTable, class Event>
+template<class MachineConfHolder, class TransitionTableIpath, class Event>
 struct by_event_predicate_holder
 {
-    template<class TransitionIndexConstant>
+    template<int TransitionIndex>
     struct predicate
     {
         static constexpr bool make_value()
         {
-            using trans_t = tlu::get_t<impl_of_t<TransitionTable>, TransitionIndexConstant::value>;
-            using trans_event_type_set_t = transition_event_type_set_t<trans_t>;
-            return type_set_contains_v<trans_event_type_set_t, Event>;
-        }
+            constexpr const auto& trans_table =
+                machine_conf_tree::node_at_path_v
+                <
+                    MachineConfHolder,
+                    TransitionTableIpath
+                >
+            ;
 
-        static constexpr bool value = make_value();
-    };
-};
+            constexpr const auto& trans =
+                tuple_get<TransitionIndex>(impl_of(trans_table))
+            ;
 
-template<class TransitionTable, class Event>
-using by_event_t = tlu::filter_t
-<
-    make_integer_constant_sequence<int, impl_of_t<TransitionTable>::size>,
-    by_event_predicate_holder<TransitionTable, Event>::template predicate
->;
-
-#else // if MAKI_DETAIL_COMPILER_GCC
-
-/*
-GCC is twice as slow to build the default path, for no apparent reason.
-*/
-
-template<const auto& TransitionTable, class Event>
-struct by_event_predicate_holder
-{
-    template<class TransitionIndexConstant>
-    struct predicate
-    {
-        static constexpr bool make_value()
-        {
-            const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(TransitionTable));
             using trans_t = std::decay_t<decltype(trans)>;
+
             using trans_event_type_set_t = transition_event_type_set_t<trans_t>;
+
             return type_set_contains_v<trans_event_type_set_t, Event>;
         }
 
@@ -72,14 +52,27 @@ struct by_event_predicate_holder
     };
 };
 
-template<const auto& TransitionTable, class Event>
-using by_event_t = tlu::filter_t
+template<class MachineConfHolder, class TransitionTableIpath, class Event>
+using by_event_t = iseq_filter_t
 <
-    make_integer_constant_sequence<int, impl_of(TransitionTable).size>,
-    by_event_predicate_holder<TransitionTable, Event>::template predicate
+    linear_iseq_t
+    <
+        impl_of
+        (
+            machine_conf_tree::node_at_path_v
+            <
+                MachineConfHolder,
+                TransitionTableIpath
+            >
+        ).size
+    >,
+    by_event_predicate_holder
+    <
+        MachineConfHolder,
+        TransitionTableIpath,
+        Event
+    >::template predicate
 >;
-
-#endif // endif MAKI_DETAIL_COMPILER_GCC
 
 
 /*
@@ -88,32 +81,55 @@ using by_event_t = tlu::filter_t
 
 namespace by_source_state_and_null_event_detail
 {
-    template<class TransitionIndexConstant, class TransitionTable, class SourceStateMold>
+    template<int TransitionIndex, class TransitionTable, class SourceStateMold>
     constexpr bool matches(const TransitionTable& table, const SourceStateMold& source_state_mold)
     {
-        const auto& trans = tuple_get<TransitionIndexConstant::value>(impl_of(table));
+        const auto& trans = tuple_get<TransitionIndex>(impl_of(table));
         return
             trans.can_process_completion_event() &&
             contained_in(source_state_mold, trans.source_state_mold)
         ;
     }
 
-    template<auto TransitionTablePtr, const auto& SourceStateMold>
+    template<class MachineConfHolder, class TransitionTableIpath, const auto& SourceStateMold>
     struct predicate_holder
     {
-        template<class TransitionIndexConstant>
+        template<int TransitionIndex>
         struct predicate
         {
-            static constexpr bool value = matches<TransitionIndexConstant>(*TransitionTablePtr, SourceStateMold);
+            static constexpr bool value = matches<TransitionIndex>
+            (
+                machine_conf_tree::node_at_path_v
+                <
+                    MachineConfHolder,
+                    TransitionTableIpath
+                >,
+                SourceStateMold
+            );
         };
     };
 }
 
-template<const auto& TransitionTable, const auto& SourceStateMold>
-using by_source_state_and_null_event_t = tlu::filter_t
+template<class MachineConfHolder, class TransitionTableIpath, const auto& SourceStateMold>
+using by_source_state_and_null_event_t = iseq_filter_t
 <
-    make_integer_constant_sequence<int, impl_of(TransitionTable).size>,
-    by_source_state_and_null_event_detail::predicate_holder<&TransitionTable, SourceStateMold>::template predicate
+    linear_iseq_t
+    <
+        impl_of
+        (
+            machine_conf_tree::node_at_path_v
+            <
+                MachineConfHolder,
+                TransitionTableIpath
+            >
+        ).size
+    >,
+    by_source_state_and_null_event_detail::predicate_holder
+    <
+        MachineConfHolder,
+        TransitionTableIpath,
+        SourceStateMold
+    >::template predicate
 >;
 
 } //namespace

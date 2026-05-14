@@ -9,7 +9,7 @@
 
 #include "tuple.hpp"
 #include "integer_constant_sequence.hpp"
-#include "machine_element.hpp"
+#include "machine_conf_tree.hpp"
 #include "iseq.hpp"
 #include "../null.hpp"
 #include "tlu/left_fold.hpp"
@@ -35,7 +35,7 @@ For example, the following digest type...:
 ... is equivalent to this type:
     struct digest
     {
-        using unique_target_state_mold_iseq = maki::detail::iseq<0, 1, 2, 3>;
+        using stt_mold_ids = maki::detail::iseq<0, 1, 2, 3>;
     };
 */
 
@@ -43,21 +43,21 @@ namespace transition_table_digest_detail
 {
     struct initial_digest
     {
-        using unique_target_state_mold_iseq = iseq<>;
+        using stt_mold_ids = iseq<>;
         static constexpr auto has_completion_transitions = false;
     };
 
     template<class MachineConfHolder, class TransitionTablePath>
     struct add_transition_to_digest_holder
     {
-        template<class Digest, int Index>
+        template<class Digest, int TransitionIndex>
         struct add_transition_to_digest_impl
         {
-            static constexpr int target_state_mold_index = index_of_target_state_mold_v
+            static constexpr int target_state_mold_id = machine_conf_tree::id_of_target_state_mold_v
             <
                 MachineConfHolder,
                 TransitionTablePath,
-                Index
+                TransitionIndex
             >;
 
             /*
@@ -68,14 +68,14 @@ namespace transition_table_digest_detail
             - it's `undefined`.
             */
             static constexpr auto must_add_target_state =
-                target_state_mold_index == Index
+                target_state_mold_id == TransitionIndex
             ;
 
-            using unique_target_state_mold_iseq =
+            using stt_mold_ids =
                 iseq_push_back_if_t
                 <
-                    typename Digest::unique_target_state_mold_iseq,
-                    Index,
+                    typename Digest::stt_mold_ids,
+                    TransitionIndex,
                     must_add_target_state
                 >
             ;
@@ -83,18 +83,18 @@ namespace transition_table_digest_detail
             static constexpr auto has_completion_transitions =
                 Digest::has_completion_transitions ||
                 (
-                    Index != 0 &&
+                    TransitionIndex != 0 &&
                     is_null_v
                     <
                         std::decay_t
                         <
                             decltype
                             (
-                                tuple_get<Index>
+                                tuple_get<TransitionIndex>
                                 (
                                     impl_of
                                     (
-                                        machine_element_at_path<TransitionTablePath>(MachineConfHolder::value)
+                                        machine_conf_tree::node_at_path_v<MachineConfHolder, TransitionTablePath>
                                     )
                                 ).evt
                             )
@@ -104,11 +104,11 @@ namespace transition_table_digest_detail
             ;
         };
 
-        template<class Digest, class IndexConstant>
+        template<class Digest, class TransitionIndexConstant>
         using add_transition_to_digest = add_transition_to_digest_impl
         <
             Digest,
-            IndexConstant::value
+            TransitionIndexConstant::value
         >;
     };
 }
@@ -121,7 +121,7 @@ using transition_table_digest = tlu::left_fold_t
         int,
         impl_of
         (
-            machine_element_at_path<TransitionTablePath>(MachineConfHolder::value)
+            machine_conf_tree::node_at_path_v<MachineConfHolder, TransitionTablePath>
         ).size
     >,
     transition_table_digest_detail::add_transition_to_digest_holder

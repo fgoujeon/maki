@@ -10,7 +10,7 @@
 #include "machine_conf.hpp"
 #include "transition_table.hpp"
 #include "state.hpp"
-#include "detail/state_mold_indexes.hpp"
+#include "detail/state_mold_ids.hpp"
 #include "detail/state_impls/simple_no_context.hpp"
 #include "detail/iseq.hpp"
 
@@ -59,7 +59,7 @@ namespace states
             detail::iseq
             <
                 detail::dummy_machine_transition_table_index,
-                detail::state_mold_indexes::null
+                detail::state_mold_ids::null
             >
         >
     >{};
@@ -81,7 +81,7 @@ namespace states
             detail::iseq
             <
                 detail::dummy_machine_transition_table_index,
-                detail::state_mold_indexes::fin
+                detail::state_mold_ids::fin
             >
         >
     >{};
@@ -103,7 +103,7 @@ namespace states
             detail::iseq
             <
                 detail::dummy_machine_transition_table_index,
-                detail::state_mold_indexes::undefined
+                detail::state_mold_ids::undefined
             >
         >
     >{};

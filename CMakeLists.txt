@@ -42,7 +42,7 @@ target_sources(maki
         include/maki/detail/integer_constant_sequence.hpp
         include/maki/detail/iseq.hpp
         include/maki/detail/machine_conf_impl.hpp
-        include/maki/detail/machine_element.hpp
+        include/maki/detail/machine_conf_tree.hpp
         include/maki/detail/machine_fwd.hpp
         include/maki/detail/mix.hpp
         include/maki/detail/noinline.hpp
@@ -61,8 +61,8 @@ target_sources(maki
         include/maki/detail/state_impls/simple_fwd.hpp
         include/maki/detail/state_impls/simple_no_context.hpp
         include/maki/detail/state_impls/simple_no_context_fwd.hpp
+        include/maki/detail/state_mold_ids.hpp
         include/maki/detail/state_mold_impl.hpp
-        include/maki/detail/state_mold_indexes.hpp
         include/maki/detail/state_mold_storage.hpp
         include/maki/detail/state_mold_traits.hpp
         include/maki/detail/state_molds.hpp

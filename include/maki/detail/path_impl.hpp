@@ -27,34 +27,34 @@ namespace path_impl_detail
     {
         template
         <
-            int Index,
-            class PreviousResultElemIpath
+            int Id,
+            class PreviousResultNodeIpath
         >
         static constexpr auto call
         (
-            const to_string_left_fold_result<PreviousResultElemIpath>& previous_result
+            const to_string_left_fold_result<PreviousResultNodeIpath>& previous_result
         )
         {
-            using current_elem_ipath_t = iseq_push_back_t
+            using current_node_ipath_t = iseq_push_back_t
             <
-                PreviousResultElemIpath,
-                Index
+                PreviousResultNodeIpath,
+                Id
             >;
 
             constexpr auto is_transition_table_elem =
-                iseq_size_v<current_elem_ipath_t> % 2 == 1
+                iseq_size_v<current_node_ipath_t> % 2 == 1
             ;
 
             if constexpr(is_transition_table_elem)
             {
-                const auto str = previous_result.str + std::to_string(Index) + "/";
-                return to_string_left_fold_result<current_elem_ipath_t>{str};
+                const auto str = previous_result.str + std::to_string(Id) + "/";
+                return to_string_left_fold_result<current_node_ipath_t>{str};
             }
             else
             {
-                const auto state_pretty_name = detail::pretty_name<MachineConfHolder, current_elem_ipath_t>();
+                const auto state_pretty_name = detail::pretty_name<MachineConfHolder, current_node_ipath_t>();
                 const auto str = previous_result.str + std::string{state_pretty_name} + "/";
-                return to_string_left_fold_result<current_elem_ipath_t>{str};
+                return to_string_left_fold_result<current_node_ipath_t>{str};
             }
         }
     };

@@ -7,7 +7,7 @@
 #ifndef MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP
 #define MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP
 
-#include "../machine_element.hpp"
+#include "../machine_conf_tree.hpp"
 #include "../type_set.hpp"
 #include "../event_action.hpp"
 #include "../mix.hpp"
@@ -34,7 +34,7 @@ public:
     using machine_conf_holder_type = MachineConfHolder;
     using state_mold_path = StateMoldPath;
 
-    static constexpr const auto& mold = machine_element_at_path<StateMoldPath>(MachineConfHolder::value);
+    static constexpr const auto& mold = machine_conf_tree::node_at_path_v<MachineConfHolder, StateMoldPath>;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
 
     using event_type_set =

@@ -8,7 +8,7 @@
 #define MAKI_DETAIL_STATE_IMPLS_COMPOSITE_NO_CONTEXT_HPP
 
 #include "simple_no_context.hpp"
-#include "../state_mold_indexes.hpp"
+#include "../state_mold_ids.hpp"
 #include "../type_set.hpp"
 #include "../region_impl.hpp"
 #include "../context_storage.hpp"
@@ -130,7 +130,7 @@ public:
     using machine_conf_holder_type = MachineConfHolder;
     using state_mold_path = StateMoldPath;
 
-    static constexpr const auto& mold = machine_element_at_path<StateMoldPath>(MachineConfHolder::value);
+    static constexpr const auto& mold = machine_conf_tree::node_at_path<StateMoldPath>(MachineConfHolder::value);
     using mold_type = std::decay_t<decltype(mold)>;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);
@@ -230,7 +230,7 @@ public:
     template<class Context, class Event>
     void exit(machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each<region_mix_type, region_exit<state_mold_indexes::null>>
+        tlu::for_each<region_mix_type, region_exit<state_mold_ids::null>>
         (
             *this,
             mach,
@@ -249,7 +249,7 @@ public:
     template<class Context, class Event>
     void exit_to_finals(machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each<region_mix_type, region_exit<state_mold_indexes::fin>>
+        tlu::for_each<region_mix_type, region_exit<state_mold_ids::fin>>
         (
             *this,
             mach,
@@ -363,13 +363,13 @@ private:
         }
     };
 
-    template<int TargetStateMoldIndex>
+    template<int TargetStateMoldId>
     struct region_exit
     {
         template<class Region, class Self, class Context, class Event>
         static void call(Self& self, machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
         {
-            impl_of(get<Region>(self.regions_)).template exit<TargetStateMoldIndex>(mach, ctx, event);
+            impl_of(get<Region>(self.regions_)).template exit<TargetStateMoldId>(mach, ctx, event);
         }
     };
 

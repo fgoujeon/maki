@@ -11,7 +11,6 @@
 #include "machine_conf_tree.hpp"
 #include "iseq.hpp"
 #include "../null.hpp"
-#include "tlu/left_fold.hpp"
 #include <type_traits>
 
 namespace maki::detail

@@ -141,10 +141,10 @@ using iseq_push_front_if_t = typename iseq_push_front_if<Seq, I, Condition>::typ
 
 
 /*
-iseq_left_fold
+iseq_left_fold_fn
 */
 
-namespace iseq_left_fold_detail
+namespace iseq_left_fold_fn_detail
 {
     template<class Operation, int I>
     struct operation_holder
@@ -177,10 +177,85 @@ template
     class Operation,
     class Initial
 >
-constexpr decltype(auto) iseq_left_fold(const Initial& initial)
+constexpr decltype(auto) iseq_left_fold_fn(const Initial& initial)
 {
-    return iseq_left_fold_detail::helper<Seq, Operation>::call(initial);
+    return iseq_left_fold_fn_detail::helper<Seq, Operation>::call(initial);
 }
+
+
+/*
+iseq_left_fold_t
+*/
+
+namespace iseq_left_fold_detail
+{
+    template
+    <
+        template<class, int> class Operation,
+        class InitialTypeList,
+        int... Is
+    >
+    struct fold_on_pack;
+
+    template
+    <
+        template<class, int> class Operation,
+        class InitialTypeList,
+        int I,
+        int... Is
+    >
+    struct fold_on_pack<Operation, InitialTypeList, I, Is...>
+    {
+        using type = typename fold_on_pack
+        <
+            Operation,
+            Operation<InitialTypeList, I>,
+            Is...
+        >::type;
+    };
+
+    template
+    <
+        template<class, int> class Operation,
+        class InitialTypeList
+    >
+    struct fold_on_pack<Operation, InitialTypeList>
+    {
+        using type = InitialTypeList;
+    };
+}
+
+template
+<
+    class Seq,
+    template<class, int> class Operation,
+    class InitialTypeList
+>
+struct iseq_left_fold;
+
+template
+<
+    template<class, int> class Operation,
+    class InitialTypeList,
+    int... Is
+>
+struct iseq_left_fold<iseq<Is...>, Operation, InitialTypeList>
+{
+    using type = typename iseq_left_fold_detail::fold_on_pack
+    <
+        Operation,
+        InitialTypeList,
+        Is...
+    >::type;
+};
+
+template
+<
+    class Seq,
+    template<class, int> class Operation,
+    class InitialTypeList
+>
+using iseq_left_fold_t = typename iseq_left_fold<Seq, Operation, InitialTypeList>::type;
 
 
 /*

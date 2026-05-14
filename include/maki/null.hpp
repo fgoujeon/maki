@@ -12,13 +12,6 @@
 namespace maki
 {
 
-namespace detail
-{
-    struct null_t_impl
-    {
-    };
-}
-
 #ifdef MAKI_DETAIL_DOXYGEN
 /**
 @brief The type of `maki::null`

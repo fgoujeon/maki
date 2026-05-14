@@ -48,7 +48,7 @@ struct state_impl_helper<MachineConfHolder, StateMoldPath, ParentCtxStorage, tru
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
 struct state_impl
 {
-    static constexpr const auto& state_mold = machine_conf_tree::node_at_path<StateMoldPath>(MachineConfHolder::value);
+    static constexpr const auto& state_mold = machine_conf_tree::node_at_path_v<MachineConfHolder, StateMoldPath>;
     using type = typename state_impl_helper
     <
         MachineConfHolder,

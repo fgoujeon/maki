@@ -94,7 +94,7 @@ namespace transition_table_digest_detail
                                 (
                                     impl_of
                                     (
-                                        machine_conf_tree::node_at_path<TransitionTablePath>(MachineConfHolder::value)
+                                        machine_conf_tree::node_at_path_v<MachineConfHolder, TransitionTablePath>
                                     )
                                 ).evt
                             )
@@ -121,7 +121,7 @@ using transition_table_digest = tlu::left_fold_t
         int,
         impl_of
         (
-            machine_conf_tree::node_at_path<TransitionTablePath>(MachineConfHolder::value)
+            machine_conf_tree::node_at_path_v<MachineConfHolder, TransitionTablePath>
         ).size
     >,
     transition_table_digest_detail::add_transition_to_digest_holder

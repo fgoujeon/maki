@@ -24,7 +24,7 @@ namespace maki::detail
 template<class MachineConfHolder, class StateMoldPath>
 decltype(auto) pretty_name()
 {
-    constexpr const auto& stt_mold = machine_conf_tree::node_at_path<StateMoldPath>(MachineConfHolder::value);
+    constexpr const auto& stt_mold = machine_conf_tree::node_at_path_v<MachineConfHolder, StateMoldPath>;
 
     if constexpr(impl_of(stt_mold).pretty_name.data() == nullptr)
     {

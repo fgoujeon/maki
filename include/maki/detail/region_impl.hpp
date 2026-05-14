@@ -51,7 +51,7 @@ namespace region_detail
         struct for_state_set
         {
             static constexpr const auto& trans_table =
-                machine_conf_tree::node_at_path<TransitionTablePath>(MachineConfHolder::value)
+                machine_conf_tree::node_at_path_v<MachineConfHolder, TransitionTablePath>
             ;
 
             static constexpr const auto& trans =
@@ -62,14 +62,15 @@ namespace region_detail
             struct matches
             {
                 static constexpr const auto& target_state_mold =
-                    machine_conf_tree::node_at_path
+                    machine_conf_tree::node_at_path_v
                     <
+                        MachineConfHolder,
                         iseq_push_back_t
                         <
                             TransitionTablePath,
                             StateMoldId
                         >
-                    >(MachineConfHolder::value)
+                    >
                 ;
 
                 static constexpr bool value = contains(impl_of(trans.source_state_mold), target_state_mold);
@@ -89,7 +90,7 @@ template<class MachineConfHolder, class TransitionTablePath, context_storage Par
 class region_impl
 {
 public:
-    static constexpr auto trans_table = machine_conf_tree::node_at_path<TransitionTablePath>(MachineConfHolder::value);
+    static constexpr auto trans_table = machine_conf_tree::node_at_path_v<MachineConfHolder, TransitionTablePath>;
 
     using transition_table_type = std::decay_t<decltype(trans_table)>;
 
@@ -797,14 +798,15 @@ private:
         static void call([[maybe_unused]] bool& matches)
         {
             constexpr const auto& active_state_mold =
-                machine_conf_tree::node_at_path
+                machine_conf_tree::node_at_path_v
                 <
+                    MachineConfHolder,
                     iseq_push_back_t
                     <
                         TransitionTablePath,
                         ActiveStateMoldId
                     >
-                >(MachineConfHolder::value)
+                >
             ;
 
             if constexpr(contains(impl_of(*StateSetPtr), active_state_mold))

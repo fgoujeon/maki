@@ -34,7 +34,7 @@ public:
     using machine_conf_holder_type = MachineConfHolder;
     using state_mold_path = StateMoldPath;
 
-    static constexpr const auto& mold = machine_conf_tree::node_at_path<StateMoldPath>(MachineConfHolder::value);
+    static constexpr const auto& mold = machine_conf_tree::node_at_path_v<MachineConfHolder, StateMoldPath>;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
 
     using event_type_set =

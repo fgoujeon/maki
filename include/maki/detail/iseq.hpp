@@ -16,6 +16,26 @@ struct iseq{};
 
 
 /*
+linear_iseq_t
+*/
+
+template<int I, int N, int... Is>
+struct linear_iseq_helper
+{
+    using type = typename linear_iseq_helper<I + 1, N, Is..., I>::type;
+};
+
+template<int N, int... Is>
+struct linear_iseq_helper<N, N, Is...>
+{
+    using type = iseq<Is...>;
+};
+
+template<int N>
+using linear_iseq_t = typename linear_iseq_helper<0, N>::type;
+
+
+/*
 iseq_apply_t
 */
 
@@ -47,6 +67,14 @@ struct iseq_size<iseq<Is...>>
 
 template<class Seq>
 constexpr int iseq_size_v = iseq_size<Seq>::value;
+
+
+/*
+iseq_empty_v
+*/
+
+template<class Seq>
+constexpr int iseq_empty_v = (iseq_size_v<Seq> == 0);
 
 
 /*
@@ -113,10 +141,10 @@ using iseq_push_front_if_t = typename iseq_push_front_if<Seq, I, Condition>::typ
 
 
 /*
-iseq_left_fold
+iseq_left_fold_fn
 */
 
-namespace iseq_left_fold_detail
+namespace iseq_left_fold_fn_detail
 {
     template<class Operation, int I>
     struct operation_holder
@@ -149,10 +177,85 @@ template
     class Operation,
     class Initial
 >
-constexpr decltype(auto) iseq_left_fold(const Initial& initial)
+constexpr decltype(auto) iseq_left_fold_fn(const Initial& initial)
 {
-    return iseq_left_fold_detail::helper<Seq, Operation>::call(initial);
+    return iseq_left_fold_fn_detail::helper<Seq, Operation>::call(initial);
 }
+
+
+/*
+iseq_left_fold_t
+*/
+
+namespace iseq_left_fold_detail
+{
+    template
+    <
+        template<class, int> class Operation,
+        class InitialTypeList,
+        int... Is
+    >
+    struct fold_on_pack;
+
+    template
+    <
+        template<class, int> class Operation,
+        class InitialTypeList,
+        int I,
+        int... Is
+    >
+    struct fold_on_pack<Operation, InitialTypeList, I, Is...>
+    {
+        using type = typename fold_on_pack
+        <
+            Operation,
+            Operation<InitialTypeList, I>,
+            Is...
+        >::type;
+    };
+
+    template
+    <
+        template<class, int> class Operation,
+        class InitialTypeList
+    >
+    struct fold_on_pack<Operation, InitialTypeList>
+    {
+        using type = InitialTypeList;
+    };
+}
+
+template
+<
+    class Seq,
+    template<class, int> class Operation,
+    class InitialTypeList
+>
+struct iseq_left_fold;
+
+template
+<
+    template<class, int> class Operation,
+    class InitialTypeList,
+    int... Is
+>
+struct iseq_left_fold<iseq<Is...>, Operation, InitialTypeList>
+{
+    using type = typename iseq_left_fold_detail::fold_on_pack
+    <
+        Operation,
+        InitialTypeList,
+        Is...
+    >::type;
+};
+
+template
+<
+    class Seq,
+    template<class, int> class Operation,
+    class InitialTypeList
+>
+using iseq_left_fold_t = typename iseq_left_fold<Seq, Operation, InitialTypeList>::type;
 
 
 /*
@@ -235,31 +338,20 @@ iseq_for_each_or
 */
 
 template<class Seq, class F>
-struct iseq_for_each_or_helper
-{
-    template<int... Is>
-    struct inner
-    {
-        template<class... Args>
-        static bool call(Args&... args)
-        {
-            return (F::template call<Is>(args...) || ...);
-        }
-    };
+struct iseq_for_each_or_helper;
 
+template<int... Is, class F>
+struct iseq_for_each_or_helper<iseq<Is...>, F>
+{
     template<class... Args>
-    static bool call(Args&... args)
+    static constexpr bool call(Args&... args)
     {
-        return iseq_apply_t
-        <
-            Seq,
-            inner
-        >::call(args...);
+        return (F::template call<Is>(args...) || ...);
     }
 };
 
 template<class Seq, class F, class... Args>
-bool iseq_for_each_or(Args&... args)
+constexpr bool iseq_for_each_or(Args&... args)
 {
     return iseq_for_each_or_helper<Seq, F>::call(args...);
 }

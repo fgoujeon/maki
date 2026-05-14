@@ -69,7 +69,7 @@ public:
     [[nodiscard]] std::string to_string() const
     {
         auto str =
-            iseq_left_fold
+            iseq_left_fold_fn
             <
                 Ipath,
                 path_impl_detail::to_string_left_fold_operation<MachineConfHolder>

@@ -39,7 +39,6 @@ target_sources(maki
         include/maki/detail/event_action.hpp
         include/maki/detail/friendly_impl.hpp
         include/maki/detail/function_queue.hpp
-        include/maki/detail/integer_constant_sequence.hpp
         include/maki/detail/iseq.hpp
         include/maki/detail/machine_conf_impl.hpp
         include/maki/detail/machine_conf_tree.hpp
@@ -64,7 +63,6 @@ target_sources(maki
         include/maki/detail/state_mold_ids.hpp
         include/maki/detail/state_mold_impl.hpp
         include/maki/detail/state_mold_storage.hpp
-        include/maki/detail/state_mold_traits.hpp
         include/maki/detail/state_molds.hpp
         include/maki/detail/state_set_fwd.hpp
         include/maki/detail/tlu.hpp

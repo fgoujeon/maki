@@ -8,11 +8,9 @@
 #define MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 
 #include "tuple.hpp"
-#include "integer_constant_sequence.hpp"
 #include "machine_conf_tree.hpp"
 #include "iseq.hpp"
 #include "../null.hpp"
-#include "tlu/left_fold.hpp"
 #include <type_traits>
 
 namespace maki::detail
@@ -51,7 +49,7 @@ namespace transition_table_digest_detail
     struct add_transition_to_digest_holder
     {
         template<class Digest, int TransitionIndex>
-        struct add_transition_to_digest_impl
+        struct add_transition_to_digest
         {
             static constexpr int target_state_mold_id = machine_conf_tree::id_of_target_state_mold_v
             <
@@ -103,22 +101,14 @@ namespace transition_table_digest_detail
                 )
             ;
         };
-
-        template<class Digest, class TransitionIndexConstant>
-        using add_transition_to_digest = add_transition_to_digest_impl
-        <
-            Digest,
-            TransitionIndexConstant::value
-        >;
     };
 }
 
 template<class MachineConfHolder, class TransitionTablePath>
-using transition_table_digest = tlu::left_fold_t
+using transition_table_digest = iseq_left_fold_t
 <
-    make_integer_constant_sequence
+    linear_iseq_t
     <
-        int,
         impl_of
         (
             machine_conf_tree::node_at_path_v<MachineConfHolder, TransitionTablePath>

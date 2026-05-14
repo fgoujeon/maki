@@ -11,9 +11,9 @@
 #include "state_impls/simple_fwd.hpp"
 #include "state_impls/composite_no_context_fwd.hpp"
 #include "state_impls/composite_fwd.hpp"
-#include "state_mold_traits.hpp"
 #include "machine_conf_tree.hpp"
 #include "context_storage.hpp"
+#include <type_traits>
 
 namespace maki::detail
 {
@@ -48,14 +48,17 @@ struct state_impl_helper<MachineConfHolder, StateMoldPath, ParentCtxStorage, tru
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
 struct state_impl
 {
-    static constexpr const auto& state_mold = machine_conf_tree::node_at_path_v<MachineConfHolder, StateMoldPath>;
+    static constexpr const auto& stt_mold = machine_conf_tree::node_at_path_v<MachineConfHolder, StateMoldPath>;
+
+    using context_type = typename std::decay_t<decltype(impl_of(stt_mold))>::context_type;
+
     using type = typename state_impl_helper
     <
         MachineConfHolder,
         StateMoldPath,
         ParentCtxStorage,
-        impl_of(state_mold).transition_tables.size != 0,
-        state_mold_traits::has_context_v<state_mold>
+        impl_of(stt_mold).transition_tables.size != 0,
+        !std::is_void_v<context_type>
     >::type;
 };
 

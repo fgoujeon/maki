@@ -100,7 +100,7 @@ struct node_at_path_operation
 template<class Ipath, class MachineConf>
 constexpr const auto& node_at_path(const MachineConf& mach_conf)
 {
-    return iseq_left_fold<Ipath, node_at_path_operation>(mach_conf);
+    return iseq_left_fold_fn<Ipath, node_at_path_operation>(mach_conf);
 }
 
 template<class MachineConfHolder, class Ipath>

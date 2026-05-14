@@ -21,6 +21,16 @@ using null_t = IMPLEMENTATION_DETAIL;
 struct null_t
 {
 };
+
+constexpr bool operator==(const null_t /*lhs*/, const null_t /*rhs*/)
+{
+    return true;
+}
+
+constexpr bool operator!=(const null_t /*lhs*/, const null_t /*rhs*/)
+{
+    return false;
+}
 #endif
 
 /**

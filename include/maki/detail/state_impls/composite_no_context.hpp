@@ -12,7 +12,6 @@
 #include "../type_set.hpp"
 #include "../region_impl.hpp"
 #include "../context_storage.hpp"
-#include "../integer_constant_sequence.hpp"
 #include "../iseq.hpp"
 #include "../mix.hpp"
 #include "../friendly_impl.hpp"
@@ -22,11 +21,9 @@
 #include "../tlu/for_each_plus.hpp"
 #include "../tlu/for_each.hpp"
 #include "../tlu/get.hpp"
-#include "../tlu/size.hpp"
 #include "../../region.hpp"
 #include "../../context.hpp"
 #include <type_traits>
-#include <utility>
 
 namespace maki::detail::state_impls
 {
@@ -74,7 +71,7 @@ struct region_mix
     MachineConfHolder,
     ParentStateMoldPath,
     ParentCtxStorage,
-    std::integer_sequence<int, RegionIndexes...>
+    iseq<RegionIndexes...>
 >
 {
     using type = mix
@@ -144,16 +141,9 @@ public:
         context_storage::optional
     ;
 
-    using region_index_sequence_type = std::make_integer_sequence
+    using region_index_sequence = linear_iseq_t
     <
-        int,
-        tlu::size_v<transition_table_type_list>
-    >;
-
-    using region_index_constant_sequence = make_integer_constant_sequence
-    <
-        int,
-        tlu::size_v<transition_table_type_list>
+        impl_of(mold).transition_tables.size
     >;
 
     using region_mix_type = typename region_mix
@@ -161,7 +151,7 @@ public:
         MachineConfHolder,
         StateMoldPath,
         ctx_storage,
-        region_index_sequence_type
+        region_index_sequence
     >::type;
 
     using event_type_set = type_set_union_t

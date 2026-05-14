@@ -107,7 +107,7 @@ namespace type_name_detail
             auto template_level = 0;
             for(; current_index >= 0; --current_index)
             {
-                switch(tname[static_cast<sv_size_t>(current_index)])
+                switch(tname[static_cast<sv_size_t>(current_index)]) //NOLINT cppcoreguidelines-pro-bounds-avoid-unchecked-container-access
                 {
                     case '<':
                         --template_level;
@@ -132,7 +132,7 @@ namespace type_name_detail
         {
             for(; current_index >= 1; --current_index)
             {
-                const auto char_before = tname[static_cast<sv_size_t>(current_index - 1)];
+                const auto char_before = tname[static_cast<sv_size_t>(current_index - 1)]; //NOLINT cppcoreguidelines-pro-bounds-avoid-unchecked-container-access
 
                 if(char_before == ':' || char_before == ' ')
                 {

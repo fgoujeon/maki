@@ -39,7 +39,7 @@ What is *not* implemented (yet):
 * optional thread safety with mutexes.
 
 ## Documentation
-You can access the full documentation [here](https://fgoujeon.github.io/maki/doc/v1).
+You can access the full documentation [here](https://fgoujeon.github.io/maki/doc/v2).
 
 ## Example
 The following example is firmware for an RGB lamp. This lamp has a single button and an LED that can emit white, red, green or blue.
@@ -265,14 +265,17 @@ constexpr auto transition_table = maki::transition_table{}
 ;
 
 /*
-We have to define this variable to configure our state machine.
+We have to define this type to configure our state machine.
 Here, we just specify the transition table and the context type, but we can
 configure many other aspects of the state machine.
 */
-constexpr auto machine_conf = maki::machine_conf{}
-    .transition_tables(transition_table)
-    .context_a<context>()
-;
+struct machine_conf
+{
+    static constexpr auto value = maki::machine_conf{}
+        .transition_tables(transition_table)
+        .context_a<context>()
+    ;
+};
 
 /*
 We finally have our configured state machine.

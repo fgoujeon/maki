@@ -526,28 +526,20 @@ private:
         const Event& event
     )
     {
-        using machine_option_set_type = std::decay_t<decltype(impl_of(MachineConfHolder::value))>;
-
-        constexpr auto is_external_transition =
-            TargetStateMoldId != state_mold_ids::internal
-        ;
-
-        auto& source_state = state_mold_id_to_state<SourceStateMoldId>();
-
         /*
         For external transitions, invoke the pre-transition hook, if any.
         */
         if constexpr
         (
-            is_external_transition &&
-            !is_null_v<typename machine_option_set_type::pre_external_transition_hook_type>
+            TargetStateMoldId != state_mold_ids::internal &&
+            !equals(impl_of(MachineConfHolder::value).pre_external_transition_hook, null)
         )
         {
             impl_of(MachineConfHolder::value).pre_external_transition_hook
             (
                 ctx,
                 *pitf_,
-                source_state,
+                state_mold_id_to_state<SourceStateMoldId>(),
                 state_mold_id_to_state<TargetStateMoldId>(),
                 event
             );
@@ -559,7 +551,7 @@ private:
         */
         if constexpr
         (
-            is_external_transition &&
+            TargetStateMoldId != state_mold_ids::internal &&
             TargetStateMoldId != state_mold_ids::null
         )
         {
@@ -570,9 +562,9 @@ private:
         For external transitions, invoke the exit action of the source state, if
         any.
         */
-        if constexpr(is_external_transition)
+        if constexpr(TargetStateMoldId != state_mold_ids::internal)
         {
-            impl_of(source_state).exit
+            impl_of(state_mold_id_to_state<SourceStateMoldId>()).exit
             (
                 mach,
                 ctx,
@@ -598,7 +590,7 @@ private:
         For external transitions, invoke the entry action of the target state,
         if any.
         */
-        if constexpr(is_external_transition)
+        if constexpr(TargetStateMoldId != state_mold_ids::internal)
         {
             auto& target_state = state_mold_id_to_state<TargetStateMoldId>();
 
@@ -615,7 +607,7 @@ private:
         */
         if constexpr
         (
-            is_external_transition &&
+            TargetStateMoldId != state_mold_ids::internal &&
             TargetStateMoldId != state_mold_ids::null
         )
         {
@@ -627,15 +619,15 @@ private:
         */
         if constexpr
         (
-            is_external_transition &&
-            !is_null_v<typename machine_option_set_type::post_external_transition_hook_type>
+            TargetStateMoldId != state_mold_ids::internal &&
+            !equals(impl_of(MachineConfHolder::value).post_external_transition_hook, null)
         )
         {
             impl_of(MachineConfHolder::value).post_external_transition_hook
             (
                 ctx,
                 *pitf_,
-                source_state,
+                state_mold_id_to_state<SourceStateMoldId>(),
                 state_mold_id_to_state<TargetStateMoldId>(),
                 event
             );
@@ -646,9 +638,9 @@ private:
         */
         if constexpr
         (
-            is_external_transition &&
-            transition_table_digest_type::has_completion_transitions &&
-            TargetStateMoldId != state_mold_ids::null
+            TargetStateMoldId != state_mold_ids::internal &&
+            TargetStateMoldId != state_mold_ids::null &&
+            transition_table_digest_type::has_completion_transitions
         )
         {
             try_executing_completion_transitions

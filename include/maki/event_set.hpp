@@ -63,10 +63,9 @@ public:
     }
 
 private:
-    using impl_type = Impl;
+    MAKI_DETAIL_FRIENDLY_IMPL
 
-    template<class T>
-    friend struct detail::impl_of_t_helper;
+    using impl_type = Impl;
 
     template<class Impl2>
     friend constexpr event_set<Impl2> detail::make_event_set_from_impl();

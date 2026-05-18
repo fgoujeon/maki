@@ -104,7 +104,7 @@ elements, because making unions doesn't create deep trees of nested predicates.
 template<class... Elems>
 struct tuple_based_set
 {
-    tuple<state_mold_storage_t<Elems>...> elems;
+    tuple<Elems...> elems;
 };
 
 template<class... Elems>
@@ -140,7 +140,7 @@ constexpr auto make_set_union
     const Elem& elem
 )
 {
-    return tuple_based_set{set.elems.append(elem)};
+    return tuple_based_set{set.elems.template append<state_mold_storage_t<Elem>>(elem)};
 }
 
 

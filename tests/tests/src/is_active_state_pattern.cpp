@@ -33,15 +33,17 @@ namespace is_active_state_set_ns
         EMPTY_STATE(emitting_red)
         EMPTY_STATE(emitting_green)
         EMPTY_STATE(emitting_blue)
+        EMPTY_STATE(emitting_white)
 
         constexpr auto not_emitting_red = !emitting_red;
-        constexpr auto emitting_red_or_green = emitting_red || emitting_green;
+        constexpr auto emitting_red_green_or_white = emitting_red || emitting_green || emitting_white;
 
         constexpr auto on_transition_table = maki::transition_table{}
             (maki::ini,              states::emitting_red)
             (states::emitting_red,   states::emitting_green, maki::event<events::color_button_press>)
             (states::emitting_green, states::emitting_blue,  maki::event<events::color_button_press>)
-            (states::emitting_blue,  states::emitting_red,   maki::event<events::color_button_press>)
+            (states::emitting_blue,  states::emitting_white, maki::event<events::color_button_press>)
+            (states::emitting_white, states::emitting_red,   maki::event<events::color_button_press>)
         ;
 
         constexpr auto on = maki::state_mold{}
@@ -78,25 +80,25 @@ TEST_CASE("is_active_state_set")
     REQUIRE(machine.is<states::off>());
 
     machine.process_event(events::power_button_press{});
-    REQUIRE(!machine.is<states::emitting_red_or_green>());
+    REQUIRE(!machine.is<states::emitting_red_green_or_white>());
     REQUIRE(on_state.is<states::emitting_red>());
-    REQUIRE(on_state.is<states::emitting_red_or_green>());
+    REQUIRE(on_state.is<states::emitting_red_green_or_white>());
     REQUIRE(!on_state.is<states::not_emitting_red>());
 
     machine.process_event(events::color_button_press{});
     REQUIRE(on_state.is<states::emitting_green>());
-    REQUIRE(on_state.is<states::emitting_red_or_green>());
+    REQUIRE(on_state.is<states::emitting_red_green_or_white>());
     REQUIRE(on_state.is<states::not_emitting_red>());
 
     machine.process_event(events::color_button_press{});
     REQUIRE(on_state.is<states::emitting_blue>());
-    REQUIRE(!on_state.is<states::emitting_red_or_green>());
+    REQUIRE(!on_state.is<states::emitting_red_green_or_white>());
     REQUIRE(on_state.is<states::not_emitting_red>());
 
     machine.process_event(events::power_button_press{});
     REQUIRE(machine.is<states::off>());
-    REQUIRE(!machine.is<states::emitting_red_or_green>());
-    REQUIRE(!on_state.is<states::emitting_red_or_green>());
+    REQUIRE(!machine.is<states::emitting_red_green_or_white>());
+    REQUIRE(!on_state.is<states::emitting_red_green_or_white>());
     REQUIRE(on_state.is<states::not_emitting_red>());
 
     machine.process_event(events::power_button_press{});

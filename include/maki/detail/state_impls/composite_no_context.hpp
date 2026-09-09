@@ -4,8 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_STATE_IMPLS_COMPOSITE_NO_CONTEXT_HPP
-#define MAKI_DETAIL_STATE_IMPLS_COMPOSITE_NO_CONTEXT_HPP
+#ifndef MAKI_DETAIL_COMPOSITE_NO_CONTEXT_HPP
+#define MAKI_DETAIL_COMPOSITE_NO_CONTEXT_HPP
 
 #include "simple_no_context.hpp"
 #include "../state_mold_ids.hpp"
@@ -25,6 +25,12 @@
 #include "../../context.hpp"
 #include <type_traits>
 
+#ifdef MAKI_DETAIL_COMPOSITE_NO_CONTEXT_HPP_2
+#include "../aos_async_begin.hpp"
+#else
+#include "../aos_sync_begin.hpp"
+#endif
+
 namespace maki::detail::state_impls
 {
 
@@ -35,10 +41,10 @@ template
     context_storage ParentCtxStorage,
     int Index
 >
-struct region_mix_elem
+struct MAKI_AOS_NAME(region_mix_elem)
 {
     using transition_table_path = iseq_push_back_t<ParentStateMoldPath, Index>;
-    using type = region<region_impl<MachineConfHolder, transition_table_path, ParentCtxStorage>>;
+    using type = region<MAKI_AOS_NAME(region_impl)<MachineConfHolder, transition_table_path, ParentCtxStorage>>;
 };
 
 template
@@ -48,7 +54,7 @@ template
     context_storage ParentCtxStorage,
     int Index
 >
-using region_mix_elem_t = typename region_mix_elem<MachineConfHolder, ParentStateMoldPath, ParentCtxStorage, Index>::type;
+using MAKI_AOS_NAME(region_mix_elem_t) = typename MAKI_AOS_NAME(region_mix_elem)<MachineConfHolder, ParentStateMoldPath, ParentCtxStorage, Index>::type;
 
 template
 <
@@ -57,7 +63,7 @@ template
     context_storage ParentCtxStorage,
     class RegionIndexSequence
 >
-struct region_mix;
+struct MAKI_AOS_NAME(region_mix);
 
 template
 <
@@ -66,7 +72,7 @@ template
     context_storage ParentCtxStorage,
     int... RegionIndexes
 >
-struct region_mix
+struct MAKI_AOS_NAME(region_mix)
 <
     MachineConfHolder,
     ParentStateMoldPath,
@@ -76,7 +82,7 @@ struct region_mix
 {
     using type = mix
     <
-        region_mix_elem_t
+        MAKI_AOS_NAME(region_mix_elem_t)
         <
             MachineConfHolder,
             ParentStateMoldPath,
@@ -87,7 +93,7 @@ struct region_mix
 };
 
 template<class EventTypeSet, class Region>
-using region_type_list_event_type_set_operation =
+using MAKI_AOS_NAME(region_type_list_event_type_set_operation) =
     type_set_union_t
     <
         EventTypeSet,
@@ -96,15 +102,15 @@ using region_type_list_event_type_set_operation =
 ;
 
 template<class RegionTypeList>
-using region_type_list_event_type_set = tlu::left_fold_t
+using MAKI_AOS_NAME(region_type_list_event_type_set) = tlu::left_fold_t
 <
     RegionTypeList,
-    region_type_list_event_type_set_operation,
+    MAKI_AOS_NAME(region_type_list_event_type_set_operation),
     empty_type_set_t
 >;
 
 template<class EventTypeSet, class Region>
-using region_type_list_deferrable_event_type_set_operation =
+using MAKI_AOS_NAME(region_type_list_deferrable_event_type_set_operation) =
     type_set_union_t
     <
         EventTypeSet,
@@ -113,15 +119,15 @@ using region_type_list_deferrable_event_type_set_operation =
 ;
 
 template<class RegionTypeList>
-using region_type_list_deferrable_event_type_set = tlu::left_fold_t
+using MAKI_AOS_NAME(region_type_list_deferrable_event_type_set) = tlu::left_fold_t
 <
     RegionTypeList,
-    region_type_list_deferrable_event_type_set_operation,
+    MAKI_AOS_NAME(region_type_list_deferrable_event_type_set_operation),
     empty_type_set_t
 >;
 
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-class composite_no_context
+class MAKI_AOS_NAME(composite_no_context)
 {
 public:
     using machine_conf_holder_type = MachineConfHolder;
@@ -131,7 +137,7 @@ public:
     using mold_type = std::decay_t<decltype(mold)>;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);
-    using impl_type = simple_no_context<MachineConfHolder, StateMoldPath>;
+    using impl_type = MAKI_AOS_NAME(simple_no_context)<MachineConfHolder, StateMoldPath>;
 
     static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
 
@@ -146,7 +152,7 @@ public:
         impl_of(mold).transition_tables.size
     >;
 
-    using region_mix_type = typename region_mix
+    using region_mix_type = typename MAKI_AOS_NAME(region_mix)
     <
         MachineConfHolder,
         StateMoldPath,
@@ -157,107 +163,110 @@ public:
     using event_type_set = type_set_union_t
     <
         typename impl_type::event_type_set,
-        region_type_list_event_type_set<region_mix_type>
+        MAKI_AOS_NAME(region_type_list_event_type_set)<region_mix_type>
     >;
 
     using deferrable_event_type_set = type_set_union_t
     <
         typename impl_type::deferrable_event_type_set,
-        region_type_list_deferrable_event_type_set<region_mix_type>
+        MAKI_AOS_NAME(region_type_list_deferrable_event_type_set)<region_mix_type>
     >;
 
     template<class Context>
-    composite_no_context(machine<MachineConfHolder>& mach, Context& ctx):
+    MAKI_AOS_NAME(composite_no_context)(MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx):
         regions_(mix_uniform_construct, mach, ctx)
     {
     }
 
-    composite_no_context(const composite_no_context&) = delete;
-    composite_no_context(composite_no_context&&) = delete;
-    composite_no_context& operator=(const composite_no_context&) = delete;
-    composite_no_context& operator=(composite_no_context&&) = delete;
-    ~composite_no_context() = default;
+    MAKI_AOS_NAME(composite_no_context)(const MAKI_AOS_NAME(composite_no_context)&) = delete;
+    MAKI_AOS_NAME(composite_no_context)(MAKI_AOS_NAME(composite_no_context)&&) = delete;
+    MAKI_AOS_NAME(composite_no_context)& operator=(const MAKI_AOS_NAME(composite_no_context)&) = delete;
+    MAKI_AOS_NAME(composite_no_context)& operator=(MAKI_AOS_NAME(composite_no_context)&&) = delete;
+    ~MAKI_AOS_NAME(composite_no_context)() = default;
 
     template<class Context>
     void emplace_contexts_with_parent_lifetime(Context& ctx, machine<MachineConfHolder>& mach)
     {
         tlu::for_each
         <
+            MachineConfHolder,
             region_mix_type,
             region_emplace_contexts_with_parent_lifetime
         >(*this, ctx, mach);
     }
 
-    template<class Context, class Event>
-    void enter(machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+    template<class R, class Context, class Event>
+    R enter(
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        Context& ctx,
+        const Event& event)
     {
-        impl_type::enter(mach, ctx, event);
-        tlu::for_each<region_mix_type, region_enter>(*this, mach, ctx, event);
+        MAKI_AOS_CALL impl_type::template enter<R>(mach, ctx, event);
+        MAKI_AOS_CALL tlu::MAKI_AOS_NAME(for_each)
+        <
+            MachineConfHolder,
+            region_mix_type,
+            region_enter
+        >(*this, mach, ctx, event);
     }
 
     template<bool Dry, class Context, class Event>
-    bool call_internal_action
+    MAKI_AOS_BOOL call_internal_action
     (
-        machine<MachineConfHolder>& mach,
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event
     )
     {
-        return call_internal_action_2<Dry>(*this, mach, ctx, event);
+        MAKI_AOS_RETURN MAKI_AOS_CALL call_internal_action_2<Dry>(*this, mach, ctx, event);
     }
 
     template<bool Dry, class Context, class Event>
-    bool call_internal_action
+    MAKI_AOS_BOOL call_internal_action
     (
-        const machine<MachineConfHolder>& mach,
+        const MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event
     ) const
     {
-        return call_internal_action_2<Dry>(*this, mach, ctx, event);
+        MAKI_AOS_RETURN MAKI_AOS_CALL call_internal_action_2<Dry>(*this, mach, ctx, event);
     }
 
-    template<class Context, class Event>
-    void exit(machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+    template<class R, class Context, class Event>
+    R exit(
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        Context& ctx,
+        const Event& event)
     {
-        tlu::for_each<region_mix_type, region_exit<state_mold_ids::null>>
-        (
-            *this,
-            mach,
-            ctx,
-            event
-        );
-        impl_type::exit
-        (
-            mach,
-            ctx,
-            event
-        );
+        tlu::for_each
+        <
+            MachineConfHolder,
+            region_mix_type,
+            region_exit<state_mold_ids::null>
+        >(*this, mach, ctx, event);
+
+        impl_type::template exit<R>(mach, ctx, event);
     }
 
     // For each region, transition from active state to final state.
-    template<class Context, class Event>
-    void exit_to_finals(machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+    template<class R, class Context, class Event>
+    R exit_to_finals(machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each<region_mix_type, region_exit<state_mold_ids::fin>>
-        (
-            *this,
-            mach,
-            ctx,
-            event
-        );
-        impl_type::exit
-        (
-            mach,
-            ctx,
-            event
-        );
+        tlu::for_each
+        <
+            MachineConfHolder,
+            region_mix_type,
+            region_exit<state_mold_ids::fin>
+        >(*this, mach, ctx, event);
+
+        impl_type::template exit<R>(mach, ctx, event);
     }
 
     void reset_contexts_with_parent_lifetime()
     {
         tlu::for_each
         <
+            MachineConfHolder,
             region_mix_type,
             region_reset_contexts_with_parent_lifetime
         >(*this);
@@ -336,9 +345,9 @@ private:
     struct region_enter
     {
         template<class Region, class Self, class Context, class Event>
-        static void call(Self& self, machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+        static MAKI_AOS_VOID call(Self& self, MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
         {
-            impl_of(get<Region>(self.regions_)).enter(mach, ctx, event);
+            MAKI_AOS_CALL impl_of(get<Region>(self.regions_)).enter(mach, ctx, event);
         }
     };
 
@@ -346,10 +355,10 @@ private:
     struct region_process_event
     {
         template<class Region, class Self, class MachineArg, class Context, class Event>
-        static int call(Self& self, MachineArg& mach, Context& ctx, const Event& event)
+        static MAKI_AOS_INT call(Self& self, MachineArg& mach, Context& ctx, const Event& event)
         {
-            const auto processed = impl_of(get<Region>(self.regions_)).template process_event<Dry>(mach, ctx, event);
-            return static_cast<int>(processed);
+            const auto processed = MAKI_AOS_CALL impl_of(get<Region>(self.regions_)).template process_event<Dry>(mach, ctx, event);
+            MAKI_AOS_RETURN static_cast<int>(processed);
         }
     };
 
@@ -357,9 +366,9 @@ private:
     struct region_exit
     {
         template<class Region, class Self, class Context, class Event>
-        static void call(Self& self, machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+        static MAKI_AOS_VOID call(Self& self, machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
         {
-            impl_of(get<Region>(self.regions_)).template exit<TargetStateMoldId>(mach, ctx, event);
+            MAKI_AOS_CALL impl_of(get<Region>(self.regions_)).template exit<TargetStateMoldId>(mach, ctx, event);
         }
     };
 
@@ -376,14 +385,14 @@ private:
     struct region_defers_event
     {
         template<class Region>
-        static bool call(const composite_no_context& self)
+        static bool call(const MAKI_AOS_NAME(composite_no_context)& self)
         {
             return impl_of(get<Region>(self.regions_)).template defers_event<Event>();
         }
     };
 
     template<bool Dry, class Self, class MachineArg, class Context, class Event>
-    static bool call_internal_action_2
+    static MAKI_AOS_BOOL call_internal_action_2
     (
         Self& self,
         MachineArg& mach,
@@ -406,14 +415,24 @@ private:
                 event
             );
 
-            tlu::for_each<region_mix_type, region_process_event<Dry>>(self, mach, ctx, event);
+            tlu::for_each
+            <
+                MachineConfHolder,
+                region_mix_type,
+                region_process_event<Dry>
+            >(self, mach, ctx, event);
 
-            return true;
+            MAKI_AOS_RETURN true;
         }
         else
         {
-            const auto processed_count = tlu::for_each_plus<region_mix_type, region_process_event<Dry>>(self, mach, ctx, event);
-            return static_cast<bool>(processed_count);
+            const auto processed_count = MAKI_AOS_CALL tlu::MAKI_AOS_NAME(for_each_plus)
+            <
+                MachineConfHolder,
+                region_mix_type,
+                region_process_event<Dry>
+            >(self, mach, ctx, event);
+            MAKI_AOS_RETURN static_cast<bool>(processed_count);
         }
     }
 
@@ -421,5 +440,14 @@ private:
 };
 
 } //namespace
+
+#include "../aos_end.hpp"
+
+// Reinclude a second time
+#ifndef MAKI_DETAIL_COMPOSITE_NO_CONTEXT_HPP_2
+#define MAKI_DETAIL_COMPOSITE_NO_CONTEXT_HPP_2
+#undef MAKI_DETAIL_COMPOSITE_NO_CONTEXT_HPP
+#include "composite_no_context.hpp"
+#endif
 
 #endif

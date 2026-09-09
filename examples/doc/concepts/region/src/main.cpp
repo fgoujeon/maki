@@ -39,7 +39,7 @@ constexpr auto transition_table = maki::transition_table{}
 
 struct machine_conf
 {
-    static constexpr auto conf = maki::machine_conf{}
+    static constexpr auto value = maki::machine_conf{}
         .transition_tables(transition_table)
         .context_a<context>()
     ;

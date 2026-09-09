@@ -26,7 +26,7 @@ target_sources(maki
     INTERFACE
     FILE_SET HEADERS
     BASE_DIRS include
-    FILES 
+    FILES
         include/maki.hpp
         include/maki/action.hpp
         include/maki/context.hpp
@@ -118,9 +118,8 @@ target_sources(maki
         include/maki/undefined.hpp
         include/maki/version.hpp)
 
-target_compile_features(maki INTERFACE cxx_std_17)
-
 if(MAKI_BUILD_TESTS)
+    find_package(Boost REQUIRED COMPONENTS cobalt)
     find_package(Catch2 REQUIRED)
 
     enable_testing()

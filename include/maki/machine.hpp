@@ -15,6 +15,7 @@
 #include "machine_conf.hpp"
 #include "events.hpp"
 #include "null.hpp"
+#include "detail/machine_operation.hpp"
 #include "detail/iseq.hpp"
 #include "detail/state_impls/simple.hpp" //NOLINT misc-include-cleaner
 #include "detail/state_impls/composite.hpp" //NOLINT misc-include-cleaner
@@ -29,29 +30,25 @@
 #include <type_traits>
 #include <exception>
 
+#ifdef MAKI_MACHINE_HPP_2
+#include "detail/aos_async_begin.hpp"
+#else
+#include "detail/aos_sync_begin.hpp"
+#endif
+
 namespace maki
 {
 
-namespace detail
-{
-    enum class machine_operation: char
-    {
-        start,
-        stop,
-        process_event
-    };
-}
-
-#define MAKI_DETAIL_MAYBE_CATCH(statement) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    if constexpr(detail::is_null_v<typename option_set_type::exception_handler_type>) \
+#define MAKI_DETAIL_MAYBE_CATCH(statements) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    if constexpr(detail::is_null_v<typename conf_type::exception_handler_type>) \
     { \
-        statement; \
+        statements \
     } \
     else \
     { \
         try \
         { \
-            statement; \
+            statements \
         } \
         catch(...) \
         { \
@@ -74,17 +71,17 @@ Here is an example of valid state machine definition, where:
 The state machine type itself can then be defined like so:
 @snippet concepts/state-machine/src/main.cpp machine
 */
-template<class ConfHolder>
-class machine
+template<class MachineConfHolder>
+class MAKI_AOS_NAME(machine)
 {
 public:
     /**
     @brief The state machine configuration.
     */
-    static constexpr const auto& conf = ConfHolder::value;
+    static constexpr const auto& conf = MachineConfHolder::value;
 
 #ifndef MAKI_DETAIL_DOXYGEN
-    using option_set_type = std::decay_t<decltype(detail::impl_of(conf))>;
+    using conf_type = std::decay_t<decltype(detail::impl_of(conf))>;
 #endif
 
 #ifdef MAKI_DETAIL_DOXYGEN
@@ -93,7 +90,7 @@ public:
     */
     using context_type = IMPLEMENTATION_DETAIL;
 #else
-    using context_type = typename option_set_type::context_type;
+    using context_type = typename conf_type::context_type;
 #endif
 
     static_assert
@@ -115,21 +112,26 @@ public:
     `maki::machine::start()` is called.
     */
     template<class... ContextArgs>
-    explicit machine(ContextArgs&&... ctx_args):
+    explicit MAKI_AOS_NAME(machine)(ContextArgs&&... ctx_args):
         ctx_holder_(*this, std::forward<ContextArgs>(ctx_args)...),
         impl_(*this, context())
     {
+#if !MAKI_AOS_ASYNC
         if constexpr(detail::impl_of(conf).auto_start)
         {
-            MAKI_DETAIL_MAYBE_CATCH(start_now())
+            MAKI_DETAIL_MAYBE_CATCH
+            (
+                start_now();
+            )
         }
+#endif
     }
 
-    machine(const machine&) = delete;
-    machine(machine&&) = delete;
-    machine& operator=(const machine&) = delete;
-    machine& operator=(machine&&) = delete;
-    ~machine() = default;
+    MAKI_AOS_NAME(machine)(const MAKI_AOS_NAME(machine)&) = delete;
+    MAKI_AOS_NAME(machine)(MAKI_AOS_NAME(machine)&&) = delete;
+    MAKI_AOS_NAME(machine)& operator=(const MAKI_AOS_NAME(machine)&) = delete;
+    MAKI_AOS_NAME(machine)& operator=(MAKI_AOS_NAME(machine)&&) = delete;
+    ~MAKI_AOS_NAME(machine)() = default;
 
     /**
     @brief Returns the context instantiated at construction.
@@ -169,9 +171,12 @@ public:
     unless `maki::machine_conf::auto_start` is set to `false`.
     */
     template<class Event = events::start>
-    void start(const Event& event = {})
+    MAKI_AOS_VOID start(const Event& event = {})
     {
-        MAKI_DETAIL_MAYBE_CATCH(start_no_catch(event))
+        MAKI_DETAIL_MAYBE_CATCH
+        (
+            MAKI_AOS_CALL start_no_catch(event);
+        )
     }
 
     /**
@@ -183,9 +188,12 @@ public:
     the internal `stopped` state.
     */
     template<class Event = events::stop>
-    void stop(const Event& event = {})
+    MAKI_AOS_VOID stop(const Event& event = {})
     {
-        MAKI_DETAIL_MAYBE_CATCH(stop_no_catch(event))
+        MAKI_DETAIL_MAYBE_CATCH
+        (
+            MAKI_AOS_CALL stop_no_catch(event);
+        )
     }
 
     /**
@@ -238,9 +246,12 @@ public:
     @endcode
     */
     template<class Event>
-    void process_event(const Event& event)
+    MAKI_AOS_VOID process_event(const Event& event)
     {
-        MAKI_DETAIL_MAYBE_CATCH(process_event_no_catch(event))
+        MAKI_DETAIL_MAYBE_CATCH
+        (
+            MAKI_AOS_CALL process_event_no_catch(event);
+        )
     }
 
     /**
@@ -248,9 +259,9 @@ public:
     `maki::machine_conf::catch_mx()` is set.
     */
     template<class Event>
-    void process_event_no_catch(const Event& event)
+    MAKI_AOS_VOID process_event_no_catch(const Event& event)
     {
-        execute_operation<detail::machine_operation::process_event>(event);
+        MAKI_AOS_CALL execute_operation<detail::machine_operation::process_event>(event);
     }
 
     /**
@@ -273,9 +284,12 @@ public:
     this function to be available.
     */
     template<class Event>
-    void process_event_now(const Event& event)
+    MAKI_AOS_VOID process_event_now(const Event& event)
     {
-        MAKI_DETAIL_MAYBE_CATCH(process_event_now_no_catch(event))
+        MAKI_DETAIL_MAYBE_CATCH
+        (
+            MAKI_AOS_CALL process_event_now_no_catch(event);
+        )
     }
 
     /**
@@ -308,7 +322,10 @@ public:
     template<class Event>
     MAKI_NOINLINE void push_event(const Event& event)
     {
-        MAKI_DETAIL_MAYBE_CATCH(push_event_no_catch(event))
+        MAKI_DETAIL_MAYBE_CATCH
+        (
+            push_event_no_catch(event);
+        )
     }
 
     /**
@@ -343,9 +360,9 @@ public:
 
 private:
     using impl_type =
-        detail::state_impls::composite_no_context
+        detail::state_impls::MAKI_AOS_NAME(composite_no_context)
         <
-            ConfHolder,
+            MachineConfHolder,
             detail::iseq<>,
             detail::context_storage::plain
         >
@@ -362,7 +379,7 @@ private:
     class executing_operation_guard
     {
     public:
-        executing_operation_guard(machine& self):
+        executing_operation_guard(MAKI_AOS_NAME(machine)& self):
             self_(self)
         {
             self_.executing_operation_ = true;
@@ -379,15 +396,16 @@ private:
         }
 
     private:
-        machine& self_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+        MAKI_AOS_NAME(machine)& self_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
     };
 
     struct real_function_queue_holder
     {
         template<bool = true> //Dummy template for lazy evaluation
-        using type = detail::function_queue
+        using type = detail::MAKI_AOS_NAME(function_queue)
         <
-            machine&,
+            MAKI_AOS_BOOL,
+            MAKI_AOS_NAME(machine)&,
             detail::impl_of(conf).small_event_max_size,
             detail::impl_of(conf).small_event_max_align
         >;
@@ -417,32 +435,32 @@ private:
     struct any_event_visitor
     {
         template<class Event>
-        static bool call(const Event& event, machine& self)
+        static MAKI_AOS_BOOL call(const Event& event, MAKI_AOS_NAME(machine)& self)
         {
-            return self.execute_one_operation<Operation>(event);
+            MAKI_AOS_RETURN MAKI_AOS_CALL self.execute_one_operation<Operation>(event);
         }
     };
 
-    void start_now()
+    MAKI_AOS_VOID start_now()
     {
-        execute_operation_now<detail::machine_operation::start>(events::start{});
+        MAKI_AOS_CALL execute_operation_now<detail::machine_operation::start>(events::start{});
     }
 
     template<class Event>
-    void start_no_catch(const Event& event)
+    MAKI_AOS_VOID start_no_catch(const Event& event)
     {
         if(!running())
         {
-            execute_operation<detail::machine_operation::start>(event);
+            MAKI_AOS_CALL execute_operation<detail::machine_operation::start>(event);
         }
     }
 
     template<class Event>
-    void stop_no_catch(const Event& event)
+    MAKI_AOS_VOID stop_no_catch(const Event& event)
     {
         if(running())
         {
-            execute_operation<detail::machine_operation::stop>(event);
+            MAKI_AOS_CALL execute_operation<detail::machine_operation::stop>(event);
         }
     }
 
@@ -458,13 +476,13 @@ private:
     }
 
     template<detail::machine_operation Operation, class Event>
-    void execute_operation(const Event& event)
+    MAKI_AOS_VOID execute_operation(const Event& event)
     {
         if constexpr(detail::impl_of(conf).run_to_completion)
         {
             if(!executing_operation_) //If call is not recursive
             {
-                execute_operation_now<Operation>(event);
+                MAKI_AOS_CALL execute_operation_now<Operation>(event);
             }
             else
             {
@@ -474,18 +492,18 @@ private:
         }
         else
         {
-            execute_one_operation<Operation>(event);
+            MAKI_AOS_CALL execute_one_operation<Operation>(event);
         }
     }
 
     template<detail::machine_operation Operation, class Event>
-    void execute_operation_now(const Event& event)
+    MAKI_AOS_VOID execute_operation_now(const Event& event)
     {
         if constexpr(detail::impl_of(conf).run_to_completion)
         {
             auto grd = executing_operation_guard{*this};
 
-            execute_one_operation<Operation>(event);
+            MAKI_AOS_CALL execute_one_operation<Operation>(event);
 
             /*
             Process enqueued and deferred events, if any.
@@ -493,18 +511,18 @@ private:
             if several pending events can be processed, they're processed in the
             same order they've been given to the `machine`.
             */
-            try_processing_deferred_operations();
+            MAKI_AOS_CALL try_processing_deferred_operations();
             while (!rtc_queue_.empty())
             {
-                rtc_queue_.invoke_and_pop(*this);
-                try_processing_deferred_operations();
+                MAKI_AOS_CALL rtc_queue_.invoke_and_pop(*this);
+                MAKI_AOS_CALL try_processing_deferred_operations();
             }
         }
         else
         {
-            execute_one_operation<Operation>(event);
+            MAKI_AOS_CALL execute_one_operation<Operation>(event);
 
-            try_processing_deferred_operations();
+            MAKI_AOS_CALL try_processing_deferred_operations();
         }
     }
 
@@ -524,7 +542,7 @@ private:
     /*
     Process all previously deferred events that can now be processed.
     */
-    void try_processing_deferred_operations()
+    MAKI_AOS_VOID try_processing_deferred_operations()
     {
         if constexpr(has_deferrable_events)
         {
@@ -546,24 +564,25 @@ private:
                 processing_count = 0;
                 for (auto i = 0U; i < event_deferral_queue_.size(); ++i) // Inner loop
                 {
-                    processing_count += static_cast<int>(event_deferral_queue_.invoke_and_pop(*this));
+                    const auto processed = MAKI_AOS_CALL event_deferral_queue_.invoke_and_pop(*this);
+                    processing_count += static_cast<int>(processed);
                 }
             }
         }
     }
 
     template<detail::machine_operation Operation, class Event>
-    bool execute_one_operation(const Event& event)
+    MAKI_AOS_BOOL execute_one_operation(const Event& event)
     {
         if constexpr(Operation == detail::machine_operation::start)
         {
-            impl_.enter(*this, context(), event);
-            return true;
+            MAKI_AOS_CALL impl_.template enter<MAKI_AOS_VOID>(*this, context(), event);
+            MAKI_AOS_RETURN true;
         }
         else if constexpr(Operation == detail::machine_operation::stop)
         {
-            impl_.exit_to_finals(*this, context(), event);
-            return true;
+            MAKI_AOS_CALL impl_.template exit_to_finals<MAKI_AOS_VOID>(*this, context(), event);
+            MAKI_AOS_RETURN true;
         }
         else
         {
@@ -591,7 +610,7 @@ private:
                 if(impl_.template defers_event<Event>())
                 {
                     event_deferral_queue_.template push<any_event_visitor<Operation>>(event);
-                    return false;
+                    MAKI_AOS_RETURN false;
                 }
             }
 
@@ -618,7 +637,7 @@ private:
             {
                 if(running())
                 {
-                    const auto processed = impl_.template call_internal_action<false>(*this, context(), event);
+                    const auto processed = MAKI_AOS_CALL impl_.template call_internal_action<false>(*this, context(), event);
 
                     detail::call_matching_event_action<post_processing_hook_ptr_constant_list>
                     (
@@ -637,10 +656,10 @@ private:
                 is stopped.
                 */
 
-                impl_.template call_internal_action<false>(*this, context(), event);
+                MAKI_AOS_CALL impl_.template call_internal_action<false>(*this, context(), event);
             }
 
-            return true;
+            MAKI_AOS_RETURN true;
         }
     }
 
@@ -674,8 +693,15 @@ private:
     event_deferral_queue_type event_deferral_queue_;
 };
 
-#undef MAKI_DETAIL_MAYBE_CATCH
-
 } //namespace
+
+#include "detail/aos_end.hpp"
+
+// Reinclude a second time
+#ifndef MAKI_MACHINE_HPP_2
+#define MAKI_MACHINE_HPP_2
+#undef MAKI_MACHINE_HPP
+#include "machine.hpp"
+#endif
 
 #endif

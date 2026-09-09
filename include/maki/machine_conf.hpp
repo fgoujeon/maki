@@ -15,6 +15,7 @@
 #include "event_set.hpp"
 #include "context.hpp"
 #include "action.hpp"
+#include "detail/co_util.hpp"
 #include "detail/machine_conf_impl.hpp"
 #include "detail/type_set.hpp"
 #include "detail/type.hpp"
@@ -58,13 +59,14 @@ public:
 
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = impl_.auto_start; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = detail::type<typename Impl::context_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_awaitable_template_holder = detail::type<typename Impl::awaitable_template_holder>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = impl_.context_sig; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_processing_hooks = impl_.pre_processing_hooks; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_external_transition_hook = impl_.post_external_transition_hook; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_external_transition_hook = impl_.pre_external_transition_hook; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = detail::type<typename Impl::context_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_handler = impl_.exception_handler; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_external_transition_hook = impl_.post_external_transition_hook; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_processing_hooks = impl_.post_processing_hooks; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_external_transition_hook = impl_.pre_external_transition_hook; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_processing_hooks = impl_.pre_processing_hooks; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_process_event_now_enabled = impl_.process_event_now_enabled; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = impl_.run_to_completion; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_align = impl_.small_event_max_align; \
@@ -77,6 +79,7 @@ public:
         detail::machine_conf_impl \
         < \
             typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
+            typename std::decay_t<decltype(MAKI_DETAIL_ARG_awaitable_template_holder)>::type, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_pre_processing_hooks)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_exception_handler)>, \
             std::decay_t<decltype(MAKI_DETAIL_ARG_pre_external_transition_hook)>, \
@@ -155,6 +158,20 @@ public:
 #define MAKI_DETAIL_ARG_post_external_transition_hook hook
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_post_external_transition_hook
+    }
+
+    template<template<class> class AwaitableTemplate>
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE async() const
+    {
+#ifndef __cpp_impl_coroutine
+        constexpr auto is_false = sizeof(AwaitableTemplate<void>) == 0;
+        static_assert(is_false, "This feature requires C++20 coroutines");
+#endif
+
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
+#define MAKI_DETAIL_ARG_awaitable_template_holder detail::type<detail::co_util::awaitable_template_t<AwaitableTemplate>>
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+#undef MAKI_DETAIL_ARG_awaitable_template_holder
     }
 
     /**

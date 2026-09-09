@@ -10,6 +10,12 @@
 #include <queue>
 #include <cstddef>
 
+#ifdef MAKI_DETAIL_FUNCTION_QUEUE_HPP_2
+#include "aos_async_begin.hpp"
+#else
+#include "aos_sync_begin.hpp"
+#endif
+
 namespace maki::detail
 {
 
@@ -18,11 +24,12 @@ A kind of std::queue<std::function<bool(Arg)>>, optimized for our needs
 */
 template
 <
+    class R,
     class Arg,
     std::size_t StaticStorageSize,
     std::size_t StaticStorageAlignment = alignof(std::max_align_t)
 >
-class function_queue
+class MAKI_AOS_NAME(function_queue)
 {
 public:
     //Push call to FunHolder::call(data, arg)
@@ -48,11 +55,11 @@ public:
         }
     }
 
-    bool invoke_and_pop(Arg arg)
+    R invoke_and_pop(Arg arg)
     {
-        const auto res = queue_.front().call(arg);
+        const auto res = MAKI_AOS_CALL queue_.front().call(arg);
         queue_.pop();
-        return res;
+        MAKI_AOS_RETURN res;
     }
 
     void invoke_and_pop_all(Arg arg)
@@ -75,7 +82,7 @@ public:
     }
 
 private:
-    using call_fn_ptr_t = bool (*)(const void*, Arg);
+    using call_fn_ptr_t = R (*)(const void*, Arg);
     using delete_fn_ptr_t = void (*)(const void*);
 
     /*
@@ -137,9 +144,9 @@ private:
             pdelete_ = pdelete;
         }
 
-        bool call(Arg arg)
+        R call(Arg arg)
         {
-            return pcall_(pdata_, arg);
+            MAKI_AOS_RETURN MAKI_AOS_CALL pcall_(pdata_, arg);
         }
 
     private:
@@ -163,10 +170,10 @@ private:
     }
 
     template<class Data, class FunHolder>
-    static bool call(const void* const pdata, Arg arg)
+    static R call(const void* const pdata, Arg arg)
     {
         const Data& data = *reinterpret_cast<const Data*>(pdata); //NOLINT
-        return FunHolder::call(data, arg);
+        MAKI_AOS_RETURN MAKI_AOS_CALL FunHolder::call(data, arg);
     }
 
     static void dont_delete_data(const void* const /*pdata*/)
@@ -190,5 +197,14 @@ private:
 };
 
 } //namespace
+
+#include "aos_end.hpp"
+
+// Reinclude a second time
+#ifndef MAKI_DETAIL_FUNCTION_QUEUE_HPP_2
+#define MAKI_DETAIL_FUNCTION_QUEUE_HPP_2
+#undef MAKI_DETAIL_FUNCTION_QUEUE_HPP
+#include "function_queue.hpp"
+#endif
 
 #endif

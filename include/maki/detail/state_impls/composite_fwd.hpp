@@ -15,6 +15,9 @@ namespace maki::detail::state_impls
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
 class composite;
 
+template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
+class async_composite;
+
 } //namespace
 
 #endif

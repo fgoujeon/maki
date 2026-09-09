@@ -32,6 +32,7 @@ namespace maki::detail
 template
 <
     class Context = void,
+    class AwaitableTemplateHolder = void,
     class PreProcessingHookTuple = mix<>,
     class ExceptionHandler = null_t,
     class PreExternalTransitionHook = null_t,
@@ -42,6 +43,7 @@ template
 struct machine_conf_impl
 {
     using context_type = Context;
+    using awaitable_template_holder = AwaitableTemplateHolder;
     using exception_handler_type = ExceptionHandler;
     using pre_external_transition_hook_type = PreExternalTransitionHook;
     using post_external_transition_hook_type = PostExternalTransitionHook;

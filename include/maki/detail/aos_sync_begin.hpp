@@ -4,18 +4,10 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_MACHINE_FWD_HPP
-#define MAKI_DETAIL_MACHINE_FWD_HPP
-
-namespace maki
-{
-
-template<class ConfHolder>
-class machine;
-
-template<class ConfHolder>
-class async_machine;
-
-} //namespace
-
-#endif
+#define MAKI_AOS_ASYNC 0
+#define MAKI_AOS_NAME(name) name
+#define MAKI_AOS_CALL
+#define MAKI_AOS_RETURN return
+#define MAKI_AOS_VOID void
+#define MAKI_AOS_BOOL bool
+#define MAKI_AOS_INT int

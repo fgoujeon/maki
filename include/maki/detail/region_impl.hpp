@@ -30,6 +30,12 @@
 #include "../transition_table.hpp"
 #include <type_traits>
 
+#ifdef MAKI_DETAIL_REGION_IMPL_HPP_2
+#include "aos_async_begin.hpp"
+#else
+#include "aos_sync_begin.hpp"
+#endif
+
 namespace maki
 {
     template<class Impl>
@@ -39,7 +45,7 @@ namespace maki
 namespace maki::detail
 {
 
-namespace region_detail
+namespace MAKI_AOS_NAME(region_detail)
 {
     inline constexpr auto null_action_index = -1;
     inline constexpr auto null_guard_index = -1;
@@ -86,7 +92,7 @@ namespace region_detail
 }
 
 template<class MachineConfHolder, class TransitionTablePath, context_storage ParentCtxStorage>
-class region_impl
+class MAKI_AOS_NAME(region_impl)
 {
 public:
     static constexpr auto trans_table = machine_conf_tree::node_at_path_v<MachineConfHolder, TransitionTablePath>;
@@ -114,7 +120,7 @@ public:
     <
         maki::state
         <
-            state_impl_t
+            MAKI_AOS_NAME(state_impl_t)
             <
                 MachineConfHolder,
                 iseq_push_back_t<TransitionTablePath, StateMoldIds>,
@@ -140,17 +146,17 @@ public:
     using deferrable_event_type_set = state_type_list_deferrable_event_type_set_t<state_mix_type>;
 
     template<class Context>
-    region_impl(const region<region_impl>* pitf, machine<MachineConfHolder>& mach, Context& ctx):
+    MAKI_AOS_NAME(region_impl)(const region<MAKI_AOS_NAME(region_impl)>* pitf, MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx):
         pitf_(pitf),
         states_(mix_uniform_construct, mach, ctx)
     {
     }
 
-    region_impl(const region_impl&) = delete;
-    region_impl(region_impl&&) = delete;
-    region_impl& operator=(const region_impl&) = delete;
-    region_impl& operator=(region_impl&&) = delete;
-    ~region_impl() = default;
+    MAKI_AOS_NAME(region_impl)(const MAKI_AOS_NAME(region_impl)&) = delete;
+    MAKI_AOS_NAME(region_impl)(MAKI_AOS_NAME(region_impl)&&) = delete;
+    MAKI_AOS_NAME(region_impl)& operator=(const MAKI_AOS_NAME(region_impl)&) = delete;
+    MAKI_AOS_NAME(region_impl)& operator=(MAKI_AOS_NAME(region_impl)&&) = delete;
+    ~MAKI_AOS_NAME(region_impl)() = default;
 
     template<const auto& StateMold>
     [[nodiscard]] bool is() const
@@ -201,28 +207,23 @@ public:
 
     // Enter the initial state
     template<class Context, class Event>
-    void enter(machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+    MAKI_AOS_VOID enter(MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
     {
-        execute_transition
+        MAKI_AOS_CALL execute_transition
         <
             state_mold_ids::null,
             state_mold_ids::ini,
             0
-        >
-        (
-            mach,
-            ctx,
-            event
-        );
+        >(mach, ctx, event);
     }
 
     // Exit the active state
     template<int TargetStateMoldId, class Context, class Event>
-    void exit(machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+    MAKI_AOS_VOID exit(MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
     {
         if(!completed())
         {
-            with_active_state_mold<state_mold_iseq, exit_2<TargetStateMoldId>>
+            MAKI_AOS_CALL MAKI_AOS_NAME(with_active_state_mold)<state_mold_iseq, exit_2<TargetStateMoldId>>
             (
                 *this,
                 mach,
@@ -242,15 +243,15 @@ public:
     }
 
     template<bool Dry, class Context, class Event>
-    bool process_event(machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+    MAKI_AOS_BOOL process_event(MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
     {
-        return process_event_2<Dry>(*this, mach, ctx, event);
+        MAKI_AOS_RETURN MAKI_AOS_CALL process_event_2<Dry>(*this, mach, ctx, event);
     }
 
     template<bool Dry, class Context, class Event>
-    bool process_event(const machine<MachineConfHolder>& mach, Context& ctx, const Event& event) const
+    MAKI_AOS_BOOL process_event(const MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event) const
     {
-        return process_event_2<Dry>(*this, mach, ctx, event);
+        MAKI_AOS_RETURN MAKI_AOS_CALL process_event_2<Dry>(*this, mach, ctx, event);
     }
 
     template<const auto& StateMold>
@@ -301,7 +302,7 @@ private:
     struct state_defers_event
     {
         template<int StateMoldId>
-        static void call(const region_impl& self, bool& defers)
+        static void call(const MAKI_AOS_NAME(region_impl)& self, bool& defers)
         {
             const auto& stt = self.state_mold_id_to_state<StateMoldId>();
             defers = impl_of(stt).template defers_event<Event>();
@@ -309,7 +310,7 @@ private:
     };
 
     template<bool Dry, class Self, class Machine, class Context, class Event>
-    static bool process_event_2
+    static MAKI_AOS_BOOL process_event_2
     (
         Self& self,
         Machine& mach,
@@ -340,22 +341,22 @@ private:
             Note that nested transitions take precedence over higher-order
             transitions.
             */
-            return
+            MAKI_AOS_RETURN
                 call_active_state_internal_action<Dry>(self, mach, ctx, event) ||
                 try_executing_transitions<candidate_transition_iseq, Dry>(self, mach, ctx, event)
             ;
         }
         else if constexpr(!must_try_executing_transitions && must_try_process_event_in_states)
         {
-            return call_active_state_internal_action<Dry>(self, mach, ctx, event);
+            MAKI_AOS_RETURN call_active_state_internal_action<Dry>(self, mach, ctx, event);
         }
         else if constexpr(must_try_executing_transitions && !must_try_process_event_in_states)
         {
-            return try_executing_transitions<candidate_transition_iseq, Dry>(self, mach, ctx, event);
+            MAKI_AOS_RETURN MAKI_AOS_CALL try_executing_transitions<candidate_transition_iseq, Dry>(self, mach, ctx, event);
         }
         else
         {
-            return false;
+            MAKI_AOS_RETURN false;
         }
     }
 
@@ -363,13 +364,13 @@ private:
     struct exit_2
     {
         template<int ActiveStateMoldId, class Context, class Event>
-        static void call(region_impl& self, machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+        static void call(MAKI_AOS_NAME(region_impl)& self, machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
         {
             self.execute_transition
             <
                 ActiveStateMoldId,
                 TargetStateMoldId,
-                region_detail::null_action_index
+                MAKI_AOS_NAME(region_detail)::null_action_index
             >(mach, ctx, event);
         }
     };
@@ -379,10 +380,11 @@ private:
     `TransitionIndexConstantList`.
     */
     template<class TransitionIseq, bool Dry = false, class Self, class Machine, class Context, class Event>
-    static bool try_executing_transitions(Self& self, Machine& mach, Context& ctx, const Event& event)
+    static MAKI_AOS_BOOL try_executing_transitions(Self& self, Machine& mach, Context& ctx, const Event& event)
     {
-        return iseq_for_each_or
+        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS_NAME(iseq_for_each_or)
         <
+            MAKI_AOS_BOOL,
             TransitionIseq,
             try_executing_transition<Dry>
         >(self, mach, ctx, event);
@@ -393,7 +395,7 @@ private:
     struct try_executing_transition
     {
         template<int TransitionIndex, class Self, class Machine, class Context, class Event, class... ExtraArgs>
-        static bool call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
+        static MAKI_AOS_BOOL call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
             static constexpr const auto& trans = tuple_get<TransitionIndex>(impl_of(trans_table));
 
@@ -409,7 +411,7 @@ private:
             if constexpr(is_state_set_v<std::decay_t<decltype(trans.source_state_mold)>>)
             {
                 //List of state molds that belong to the source state set
-                using matching_state_mold_iseq = region_detail::filter_state_mold_iseq_by_state_set_t
+                using matching_state_mold_iseq = MAKI_AOS_NAME(region_detail)::filter_state_mold_iseq_by_state_set_t
                 <
                     MachineConfHolder,
                     TransitionTablePath,
@@ -419,8 +421,9 @@ private:
 
                 static_assert(iseq_size_v<matching_state_mold_iseq> != 0);
 
-                return iseq_for_each_or
+                MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS_NAME(iseq_for_each_or)
                 <
+                    MAKI_AOS_BOOL,
                     matching_state_mold_iseq,
                     try_executing_transition_2
                     <
@@ -442,7 +445,7 @@ private:
                     >
                 ;
 
-                return try_executing_transition_2
+                MAKI_AOS_RETURN MAKI_AOS_CALL try_executing_transition_2
                 <
                     Dry,
                     target_state_mold_id,
@@ -470,7 +473,7 @@ private:
             class Context,
             class Event
         >
-        static bool call
+        static MAKI_AOS_BOOL call
         (
             Self& self,
             Machine& mach,
@@ -483,23 +486,23 @@ private:
                 //Make sure the transition source state is the active state
                 if(self.active_state_mold_id_ != SourceStateMoldId)
                 {
-                    return false;
+                    MAKI_AOS_RETURN false;
                 }
             }
 
             //Check guard
-            if constexpr(GuardIndex != region_detail::null_guard_index)
+            if constexpr(GuardIndex != MAKI_AOS_NAME(region_detail)::null_guard_index)
             {
                 const auto& guard = tuple_get<GuardIndex>(impl_of(trans_table)).grd;
                 if(!detail::call_guard(guard, ctx, mach, event))
                 {
-                    return false;
+                    MAKI_AOS_RETURN false;
                 }
             }
 
             if constexpr(!Dry)
             {
-                self.template execute_transition
+                MAKI_AOS_CALL self.template execute_transition
                 <
                     SourceStateMoldId,
                     TargetStateMoldId,
@@ -507,7 +510,7 @@ private:
                 >(mach, ctx, event);
             }
 
-            return true;
+            MAKI_AOS_RETURN true;
         }
     };
 
@@ -519,9 +522,9 @@ private:
         class Context,
         class Event
     >
-    void execute_transition
+    MAKI_AOS_VOID execute_transition
     (
-        machine<MachineConfHolder>& mach,
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event
     )
@@ -564,7 +567,7 @@ private:
         */
         if constexpr(TargetStateMoldId != state_mold_ids::internal)
         {
-            impl_of(state_mold_id_to_state<SourceStateMoldId>()).exit
+            MAKI_AOS_CALL impl_of(state_mold_id_to_state<SourceStateMoldId>()).template exit<MAKI_AOS_VOID>
             (
                 mach,
                 ctx,
@@ -575,7 +578,7 @@ private:
         /*
         Invoke the transition action, if any.
         */
-        if constexpr(ActionIndex != region_detail::null_action_index)
+        if constexpr(ActionIndex != MAKI_AOS_NAME(region_detail)::null_action_index)
         {
             detail::call_action
             (
@@ -594,7 +597,7 @@ private:
         {
             auto& target_state = state_mold_id_to_state<TargetStateMoldId>();
 
-            impl_of(target_state).enter
+            MAKI_AOS_CALL impl_of(target_state).template enter<MAKI_AOS_VOID>
             (
                 mach,
                 ctx,
@@ -643,7 +646,7 @@ private:
             transition_table_digest_type::has_completion_transitions
         )
         {
-            try_executing_completion_transitions
+            MAKI_AOS_CALL try_executing_completion_transitions
             (
                 state_mold_id_to_state<TargetStateMoldId>(),
                 mach,
@@ -654,7 +657,7 @@ private:
 
     // Find the active state and call its internal action for `event`.
     template<bool Dry, class Self, class Machine, class Context, class Event>
-    static bool call_active_state_internal_action
+    static MAKI_AOS_BOOL call_active_state_internal_action
     (
         Self& self,
         Machine& mach,
@@ -663,12 +666,13 @@ private:
     )
     {
         auto processed = false;
-        iseq_for_each_or
+        MAKI_AOS_NAME(iseq_for_each_or)
         <
+            MAKI_AOS_BOOL,
             state_mold_iseq_0,
             call_active_state_internal_action_2<Dry>
         >(self, mach, ctx, event, processed);
-        return processed;
+        MAKI_AOS_RETURN processed;
     }
 
     template<bool Dry>
@@ -733,7 +737,7 @@ private:
     };
 
     template<class ActiveState, class Context>
-    void try_executing_completion_transitions
+    MAKI_AOS_VOID try_executing_completion_transitions
     (
         ActiveState& active_state,
         machine<MachineConfHolder>& mach,
@@ -765,10 +769,10 @@ private:
     }
 
     template<auto StateSetPtr>
-    [[nodiscard]] bool is_active_state_mold_in_set() const
+    [[nodiscard]] MAKI_AOS_BOOL is_active_state_mold_in_set() const
     {
         auto matches = false;
-        with_active_state_mold
+        MAKI_AOS_CALL MAKI_AOS_NAME(with_active_state_mold)
         <
             iseq_push_back_t
             <
@@ -810,6 +814,7 @@ private:
     {
         iseq_for_each_or
         <
+            bool,
             StateMoldIseq,
             with_active_state_mold_2<F>
         >(*this, std::forward<Args>(args)...);
@@ -819,7 +824,7 @@ private:
     struct with_active_state_mold_2
     {
         template<int StateMoldId, class... Args>
-        static bool call(const region_impl& self, Args&&... args)
+        static bool call(const MAKI_AOS_NAME(region_impl)& self, Args&&... args)
         {
             if(self.active_state_mold_id_ == StateMoldId)
             {
@@ -829,6 +834,34 @@ private:
             return false;
         }
     };
+
+#if MAKI_AOS_ASYNC
+    template<class StateMoldIseq, class F, class... Args>
+    MAKI_AOS_VOID async_with_active_state_mold(Args&&... args) const
+    {
+        co_await MAKI_AOS_NAME(iseq_for_each_or)
+        <
+            MAKI_AOS_BOOL,
+            StateMoldIseq,
+            async_with_active_state_mold_2<F>
+        >(*this, std::forward<Args>(args)...);
+    }
+
+    template<class F>
+    struct async_with_active_state_mold_2
+    {
+        template<int StateMoldId, class... Args>
+        static MAKI_AOS_BOOL call(const MAKI_AOS_NAME(region_impl)& self, Args&&... args)
+        {
+            if(self.active_state_mold_id_ == StateMoldId)
+            {
+                F::template call<StateMoldId>(std::forward<Args>(args)...);
+                co_return true;
+            }
+            co_return false;
+        }
+    };
+#endif
 
     template<int StateMoldId>
     auto& state_mold_id_to_state()
@@ -848,22 +881,22 @@ private:
     {
         if constexpr(StateMoldId == state_mold_ids::undefined)
         {
-            return states::undefined;
+            return states::MAKI_AOS_NAME(undefined);
         }
         else if constexpr(StateMoldId == state_mold_ids::null)
         {
-            return states::null;
+            return states::MAKI_AOS_NAME(null);
         }
         else if constexpr(StateMoldId == state_mold_ids::fin)
         {
-            return states::fin;
+            return states::MAKI_AOS_NAME(fin);
         }
         else
         {
             using state_t =
                 maki::state
                 <
-                    state_impl_t
+                    MAKI_AOS_NAME(state_impl_t)
                     <
                         MachineConfHolder,
                         iseq_push_back_t<TransitionTablePath, StateMoldId>,
@@ -875,11 +908,20 @@ private:
         }
     }
 
-    const region<region_impl>* pitf_;
+    const region<MAKI_AOS_NAME(region_impl)>* pitf_;
     state_mix_type states_;
     int active_state_mold_id_ = state_mold_ids::fin;
 };
 
 } //namespace
+
+#include "aos_end.hpp"
+
+// Reinclude a second time
+#ifndef MAKI_DETAIL_REGION_IMPL_HPP_2
+#define MAKI_DETAIL_REGION_IMPL_HPP_2
+#undef MAKI_DETAIL_REGION_IMPL_HPP
+#include "region_impl.hpp"
+#endif
 
 #endif

@@ -7,19 +7,25 @@
 #ifndef MAKI_DETAIL_TLU_FOR_EACH_HPP
 #define MAKI_DETAIL_TLU_FOR_EACH_HPP
 
+#ifdef MAKI_DETAIL_TLU_FOR_EACH_HPP_2
+#include "../aos_async_begin.hpp"
+#else
+#include "../aos_sync_begin.hpp"
+#endif
+
 namespace maki::detail::tlu
 {
 
-template<class TList, class F>
-struct for_each_helper;
+template<class MachineConfHolder, class TList, class F>
+struct MAKI_AOS_NAME(for_each_helper);
 
-template<template<class...> class TList, class... Ts, class F>
-struct for_each_helper<TList<Ts...>, F>
+template<class MachineConfHolder, template<class...> class TList, class... Ts, class F>
+struct MAKI_AOS_NAME(for_each_helper)<MachineConfHolder, TList<Ts...>, F>
 {
     template<class... Args>
-    static void call([[maybe_unused]] Args&... args)
+    static MAKI_AOS_VOID call([[maybe_unused]] Args&... args)
     {
-        (F::template call<Ts>(args...), ...);
+        (MAKI_AOS_CALL F::template call<Ts>(args...), ...);
     }
 };
 
@@ -30,12 +36,21 @@ Calls:
     ...
     F::call<TN>(args...);
 */
-template<class TList, class F, class... Args>
-void for_each(Args&... args)
+template<class MachineConfHolder, class TList, class F, class... Args>
+MAKI_AOS_VOID MAKI_AOS_NAME(for_each)(Args&... args)
 {
-    for_each_helper<TList, F>::call(args...);
+    MAKI_AOS_CALL MAKI_AOS_NAME(for_each_helper)<MachineConfHolder, TList, F>::call(args...);
 }
 
 } //namespace
+
+#include "../aos_end.hpp"
+
+// Reinclude a second time
+#ifndef MAKI_DETAIL_TLU_FOR_EACH_HPP_2
+#define MAKI_DETAIL_TLU_FOR_EACH_HPP_2
+#undef MAKI_DETAIL_TLU_FOR_EACH_HPP
+#include "for_each.hpp"
+#endif
 
 #endif

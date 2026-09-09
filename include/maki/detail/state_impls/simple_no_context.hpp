@@ -15,11 +15,17 @@
 #include "../tlu/left_fold.hpp"
 #include <type_traits>
 
+#ifdef MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP_2
+#include "../aos_async_begin.hpp"
+#else
+#include "../aos_sync_begin.hpp"
+#endif
+
 namespace maki::detail::state_impls
 {
 
 template<class EventTypeSet, class EventAction>
-using event_action_event_set_operation =
+using MAKI_AOS_NAME(event_action_event_set_operation) =
     maki::detail::type_set_union_t
     <
         EventTypeSet,
@@ -28,7 +34,7 @@ using event_action_event_set_operation =
 ;
 
 template<class MachineConfHolder, class StateMoldPath>
-class simple_no_context
+class MAKI_AOS_NAME(simple_no_context)
 {
 public:
     using machine_conf_holder_type = MachineConfHolder;
@@ -41,7 +47,7 @@ public:
         tlu::left_fold_t
         <
             typename option_set_type::internal_action_mix_type,
-            event_action_event_set_operation,
+            MAKI_AOS_NAME(event_action_event_set_operation),
             empty_type_set_t
         >
     ;
@@ -51,15 +57,15 @@ public:
     ;
 
     template<class... Args>
-    constexpr simple_no_context(Args&... /*args*/)
+    constexpr MAKI_AOS_NAME(simple_no_context)(Args&... /*args*/)
     {
     }
 
-    simple_no_context(const simple_no_context&) = default;
-    simple_no_context(simple_no_context&&) = default;
-    simple_no_context& operator=(const simple_no_context&) = default;
-    simple_no_context& operator=(simple_no_context&&) = default;
-    ~simple_no_context() = default;
+    MAKI_AOS_NAME(simple_no_context)(const MAKI_AOS_NAME(simple_no_context)&) = default;
+    MAKI_AOS_NAME(simple_no_context)(MAKI_AOS_NAME(simple_no_context)&&) = default;
+    MAKI_AOS_NAME(simple_no_context)& operator=(const MAKI_AOS_NAME(simple_no_context)&) = default;
+    MAKI_AOS_NAME(simple_no_context)& operator=(MAKI_AOS_NAME(simple_no_context)&&) = default;
+    ~MAKI_AOS_NAME(simple_no_context)() = default;
 
     template<class Event>
     [[nodiscard]] static constexpr bool defers_event()
@@ -84,8 +90,8 @@ public:
         // No context to emplace
     }
 
-    template<class Machine, class Context, class Event>
-    static void enter(Machine& mach, Context& ctx, const Event& event)
+    template<class R, class Machine, class Context, class Event>
+    static R enter(Machine& mach, Context& ctx, const Event& event)
     {
         if constexpr(!tlu::empty_v<entry_action_ptr_constant_list>)
         {
@@ -94,7 +100,7 @@ public:
             If at least one entry action is defined, state is required to define
             entry actions for all possible event types.
             */
-            call_matching_event_action<entry_action_ptr_constant_list>
+            MAKI_AOS_CALL call_matching_event_action<entry_action_ptr_constant_list>
             (
                 mach,
                 ctx,
@@ -104,7 +110,7 @@ public:
     }
 
     template<bool Dry, class Machine, class Context, class Event>
-    static bool call_internal_action(Machine& mach, Context& ctx, const Event& event)
+    static MAKI_AOS_BOOL call_internal_action(Machine& mach, Context& ctx, const Event& event)
     {
         /*
         Caller is supposed to check an interal action exists for the given event
@@ -114,7 +120,7 @@ public:
 
         if constexpr(!Dry)
         {
-            call_matching_event_action<internal_action_ptr_constant_list>
+            MAKI_AOS_CALL call_matching_event_action<internal_action_ptr_constant_list>
             (
                 mach,
                 ctx,
@@ -125,8 +131,8 @@ public:
         return true;
     }
 
-    template<class Machine, class Context, class Event>
-    static void exit(Machine& mach, Context& ctx, const Event& event)
+    template<class R, class Machine, class Context, class Event>
+    static R exit(Machine& mach, Context& ctx, const Event& event)
     {
         if constexpr(!tlu::empty_v<exit_action_ptr_constant_list>)
         {
@@ -135,7 +141,7 @@ public:
             If at least one exit action is defined, state is required to define
             entry actions for all possible event types.
             */
-            call_matching_event_action<exit_action_ptr_constant_list>
+            MAKI_AOS_CALL call_matching_event_action<exit_action_ptr_constant_list>
             (
                 mach,
                 ctx,
@@ -167,5 +173,14 @@ private:
 };
 
 } //namespace
+
+#include "../aos_end.hpp"
+
+// Reinclude a second time
+#ifndef MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP_2
+#define MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP_2
+#undef MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP
+#include "simple_no_context.hpp"
+#endif
 
 #endif

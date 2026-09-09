@@ -13,11 +13,17 @@
 #include "../../context.hpp"
 #include <type_traits>
 
+#ifdef MAKI_DETAIL_STATE_IMPLS_SIMPLE_HPP_2
+#include "../aos_async_begin.hpp"
+#else
+#include "../aos_sync_begin.hpp"
+#endif
+
 namespace maki::detail::state_impls
 {
 
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-class simple
+class MAKI_AOS_NAME(simple)
 {
 public:
     using machine_conf_holder_type = MachineConfHolder;
@@ -27,7 +33,7 @@ public:
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using context_type = typename option_set_type::context_type;
 
-    using impl_type = simple_no_context<MachineConfHolder, StateMoldPath>;
+    using impl_type = MAKI_AOS_NAME(simple_no_context)<MachineConfHolder, StateMoldPath>;
 
     using event_type_set = typename impl_type::event_type_set;
 
@@ -38,16 +44,16 @@ public:
     static constexpr auto context_sig = impl_of(mold).context_sig;
 
     template<class... Args>
-    simple(Args&... args):
+    MAKI_AOS_NAME(simple)(Args&... args):
         ctx_holder_(args...)
     {
     }
 
-    simple(const simple&) = delete;
-    simple(simple&&) = delete;
-    simple& operator=(const simple&) = delete;
-    simple& operator=(simple&&) = delete;
-    ~simple() = default;
+    MAKI_AOS_NAME(simple)(const MAKI_AOS_NAME(simple)&) = delete;
+    MAKI_AOS_NAME(simple)(MAKI_AOS_NAME(simple)&&) = delete;
+    MAKI_AOS_NAME(simple)& operator=(const MAKI_AOS_NAME(simple)&) = delete;
+    MAKI_AOS_NAME(simple)& operator=(MAKI_AOS_NAME(simple)&&) = delete;
+    ~MAKI_AOS_NAME(simple)() = default;
 
     auto& context()
     {
@@ -74,15 +80,15 @@ public:
         }
     }
 
-    template<class Machine, class ParentContext, class Event>
-    void enter(Machine& mach, ParentContext& parent_ctx, const Event& event)
+    template<class R, class Machine, class ParentContext, class Event>
+    R enter(Machine& mach, ParentContext& parent_ctx, const Event& event)
     {
         if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
         {
             ctx_holder_.emplace(mach, parent_ctx);
         }
 
-        impl_type::enter(mach, ctx_holder_.get_deep(), event);
+        impl_type::template enter<R>(mach, ctx_holder_.get_deep(), event);
     }
 
     template<bool Dry, class Machine, class ParentContext, class Event>
@@ -91,10 +97,10 @@ public:
         return impl_type::template call_internal_action<Dry>(mach, ctx_holder_.get_deep(), event);
     }
 
-    template<class Machine, class ParentContext, class Event>
-    void exit(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
+    template<class R, class Machine, class ParentContext, class Event>
+    R exit(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        impl_type::exit(mach, ctx_holder_.get_deep(), event);
+        MAKI_AOS_CALL impl_type::template exit<R>(mach, ctx_holder_.get_deep(), event);
 
         if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
         {
@@ -129,5 +135,14 @@ private:
 };
 
 } //namespace
+
+#include "../aos_end.hpp"
+
+// Reinclude a second time
+#ifndef MAKI_DETAIL_STATE_IMPLS_SIMPLE_HPP_2
+#define MAKI_DETAIL_STATE_IMPLS_SIMPLE_HPP_2
+#undef MAKI_DETAIL_STATE_IMPLS_SIMPLE_HPP
+#include "simple.hpp"
+#endif
 
 #endif

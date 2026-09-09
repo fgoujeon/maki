@@ -4,17 +4,18 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_MACHINE_FWD_HPP
-#define MAKI_DETAIL_MACHINE_FWD_HPP
+#ifndef MAKI_DETAIL_MACHINE_OPERATION_HPP
+#define MAKI_DETAIL_MACHINE_OPERATION_HPP
 
-namespace maki
+namespace maki::detail
 {
 
-template<class ConfHolder>
-class machine;
-
-template<class ConfHolder>
-class async_machine;
+enum class machine_operation: char
+{
+    start,
+    stop,
+    process_event
+};
 
 } //namespace
 

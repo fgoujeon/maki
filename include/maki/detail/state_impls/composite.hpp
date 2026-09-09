@@ -17,11 +17,17 @@
 #include "../../context.hpp"
 #include <type_traits>
 
+#ifdef MAKI_DETAIL_STATE_IMPLS_COMPOSITE_HPP_2
+#include "../aos_async_begin.hpp"
+#else
+#include "../aos_sync_begin.hpp"
+#endif
+
 namespace maki::detail::state_impls
 {
 
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-class composite
+class MAKI_AOS_NAME(composite)
 {
 public:
     using machine_conf_holder_type = MachineConfHolder;
@@ -32,22 +38,22 @@ public:
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);
     using context_type = typename option_set_type::context_type;
-    using impl_type = composite_no_context<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
+    using impl_type = MAKI_AOS_NAME(composite_no_context)<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
     using event_type_set = typename impl_type::event_type_set;
     using deferrable_event_type_set = typename impl_type::deferrable_event_type_set;
 
     template<class ParentContext>
-    composite(machine<MachineConfHolder>& mach, ParentContext& parent_ctx):
+    MAKI_AOS_NAME(composite)(MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, ParentContext& parent_ctx):
         ctx_holder_(mach, parent_ctx),
         impl_(mach, context())
     {
     }
 
-    composite(const composite&) = delete;
-    composite(composite&&) = delete;
-    composite& operator=(const composite&) = delete;
-    composite& operator=(composite&&) = delete;
-    ~composite() = default;
+    MAKI_AOS_NAME(composite)(const MAKI_AOS_NAME(composite)&) = delete;
+    MAKI_AOS_NAME(composite)(MAKI_AOS_NAME(composite)&&) = delete;
+    MAKI_AOS_NAME(composite)& operator=(const MAKI_AOS_NAME(composite)&) = delete;
+    MAKI_AOS_NAME(composite)& operator=(MAKI_AOS_NAME(composite)&&) = delete;
+    ~MAKI_AOS_NAME(composite)() = default;
 
     auto& context()
     {
@@ -74,8 +80,8 @@ public:
         }
     }
 
-    template<class ParentContext, class Event>
-    void enter
+    template<class R, class ParentContext, class Event>
+    R enter
     (
         machine<MachineConfHolder>& mach,
         [[maybe_unused]] ParentContext& parent_ctx,
@@ -87,7 +93,7 @@ public:
             emplace_context(parent_ctx, mach);
         }
 
-        impl_.enter(mach, ctx_holder_.get_deep(), event);
+        impl_.template enter<R>(mach, ctx_holder_.get_deep(), event);
     }
 
     template<bool Dry, class ParentContext, class Event>
@@ -112,15 +118,15 @@ public:
         return impl_.template call_internal_action<Dry>(mach, ctx_holder_.get_deep(), event);
     }
 
-    template<class ParentContext, class Event>
-    void exit
+    template<class R, class ParentContext, class Event>
+    R exit
     (
         machine<MachineConfHolder>& mach,
         ParentContext& /*parent_ctx*/,
         const Event& event
     )
     {
-        impl_.exit(mach, ctx_holder_.get_deep(), event);
+        impl_.template exit<R>(mach, ctx_holder_.get_deep(), event);
 
         if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
         {
@@ -198,5 +204,14 @@ private:
 };
 
 } //namespace
+
+#include "../aos_end.hpp"
+
+// Reinclude a second time
+#ifndef MAKI_DETAIL_STATE_IMPLS_COMPOSITE_HPP_2
+#define MAKI_DETAIL_STATE_IMPLS_COMPOSITE_HPP_2
+#undef MAKI_DETAIL_STATE_IMPLS_COMPOSITE_HPP
+#include "composite.hpp"
+#endif
 
 #endif

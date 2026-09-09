@@ -14,16 +14,22 @@
 #include "detail/state_impls/simple_no_context.hpp"
 #include "detail/iseq.hpp"
 
+#ifdef MAKI_STATES_HPP_2
+#include "detail/aos_async_begin.hpp"
+#else
+#include "detail/aos_sync_begin.hpp"
+#endif
+
 namespace maki
 {
 
 namespace detail
 {
-    inline constexpr auto dummy_machine_transition_table = transition_table{};
+    inline constexpr auto MAKI_AOS_NAME(dummy_machine_transition_table) = transition_table{};
 
-    inline constexpr auto dummy_machine_transition_table_index = 0;
+    inline constexpr auto MAKI_AOS_NAME(dummy_machine_transition_table_index) = 0;
 
-    struct dummy_machine_conf_holder
+    struct MAKI_AOS_NAME(dummy_machine_conf_holder)
     {
         static constexpr auto value = machine_conf{}
             .transition_tables(dummy_machine_transition_table)
@@ -49,16 +55,16 @@ namespace states
 
     Not to be confused with `maki::null`.
     */
-    constexpr auto null = state<IMPLEMENTATION_DETAIL>{};
+    constexpr auto MAKI_AOS_NAME(null) = state<IMPLEMENTATION_DETAIL>{};
 #else
-    inline constexpr auto null = state
+    inline constexpr auto MAKI_AOS_NAME(null) = state
     <
-        detail::state_impls::simple_no_context
+        detail::state_impls::MAKI_AOS_NAME(simple_no_context)
         <
-            detail::dummy_machine_conf_holder,
+            detail::MAKI_AOS_NAME(dummy_machine_conf_holder),
             detail::iseq
             <
-                detail::dummy_machine_transition_table_index,
+                detail::MAKI_AOS_NAME(dummy_machine_transition_table_index),
                 detail::state_mold_ids::null
             >
         >
@@ -71,16 +77,16 @@ namespace states
 
     Not to be confused with `maki::fin`.
     */
-    constexpr auto fin = state<IMPLEMENTATION_DETAIL>{};
+    constexpr auto MAKI_AOS_NAME(fin) = state<IMPLEMENTATION_DETAIL>{};
 #else
-    inline constexpr auto fin = state
+    inline constexpr auto MAKI_AOS_NAME(fin) = state
     <
-        detail::state_impls::simple_no_context
+        detail::state_impls::MAKI_AOS_NAME(simple_no_context)
         <
-            detail::dummy_machine_conf_holder,
+            detail::MAKI_AOS_NAME(dummy_machine_conf_holder),
             detail::iseq
             <
-                detail::dummy_machine_transition_table_index,
+                detail::MAKI_AOS_NAME(dummy_machine_transition_table_index),
                 detail::state_mold_ids::fin
             >
         >
@@ -93,16 +99,16 @@ namespace states
 
     Not to be confused with `maki::undefined`.
     */
-    constexpr auto undefined = state<IMPLEMENTATION_DETAIL>{};
+    constexpr auto MAKI_AOS_NAME(undefined) = state<IMPLEMENTATION_DETAIL>{};
 #else
-    inline constexpr auto undefined = state
+    inline constexpr auto MAKI_AOS_NAME(undefined) = state
     <
-        detail::state_impls::simple_no_context
+        detail::state_impls::MAKI_AOS_NAME(simple_no_context)
         <
-            detail::dummy_machine_conf_holder,
+            detail::MAKI_AOS_NAME(dummy_machine_conf_holder),
             detail::iseq
             <
-                detail::dummy_machine_transition_table_index,
+                detail::MAKI_AOS_NAME(dummy_machine_transition_table_index),
                 detail::state_mold_ids::undefined
             >
         >
@@ -111,5 +117,14 @@ namespace states
 }
 
 } //namespace
+
+#include "detail/aos_end.hpp"
+
+// Reinclude a second time
+#ifndef MAKI_STATES_HPP_2
+#define MAKI_STATES_HPP_2
+#undef MAKI_STATES_HPP
+#include "states.hpp"
+#endif
 
 #endif

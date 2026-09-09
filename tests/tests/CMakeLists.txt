@@ -14,6 +14,7 @@ target_link_libraries(
     ${TARGET}
     PRIVATE
         maki
+        Boost::cobalt
 )
 
 if(TARGET Catch2::Catch2WithMain AND NOT MAKI_FORCE_CATCH2_V2) #v3

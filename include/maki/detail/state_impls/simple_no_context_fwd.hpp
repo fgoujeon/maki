@@ -13,6 +13,9 @@ namespace maki::detail::state_impls
 template<class MachineConfHolder, class StateMoldPath>
 class simple_no_context;
 
+template<class MachineConfHolder, class StateMoldPath>
+class async_simple_no_context;
+
 } //namespace
 
 #endif

@@ -15,56 +15,14 @@
 #include "context_storage.hpp"
 #include <type_traits>
 
-namespace maki::detail
-{
+#include "aos_sync_begin.hpp"
+#include "state_impl.inc.hpp"
+#include "aos_end.hpp"
 
-template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage, bool HasTransitionTables, bool HasContext>
-struct state_impl_helper;
-
-template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-struct state_impl_helper<MachineConfHolder, StateMoldPath, ParentCtxStorage, false, false>
-{
-    using type = state_impls::simple_no_context<MachineConfHolder, StateMoldPath>;
-};
-
-template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-struct state_impl_helper<MachineConfHolder, StateMoldPath, ParentCtxStorage, false, true>
-{
-    using type = state_impls::simple<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
-};
-
-template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-struct state_impl_helper<MachineConfHolder, StateMoldPath, ParentCtxStorage, true, false>
-{
-    using type = state_impls::composite_no_context<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
-};
-
-template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-struct state_impl_helper<MachineConfHolder, StateMoldPath, ParentCtxStorage, true, true>
-{
-    using type = state_impls::composite<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
-};
-
-template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-struct state_impl
-{
-    static constexpr const auto& stt_mold = machine_conf_tree::node_at_path_v<MachineConfHolder, StateMoldPath>;
-
-    using context_type = typename std::decay_t<decltype(impl_of(stt_mold))>::context_type;
-
-    using type = typename state_impl_helper
-    <
-        MachineConfHolder,
-        StateMoldPath,
-        ParentCtxStorage,
-        impl_of(stt_mold).transition_tables.size != 0,
-        !std::is_void_v<context_type>
-    >::type;
-};
-
-template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-using state_impl_t = typename state_impl<MachineConfHolder, StateMoldPath, ParentCtxStorage>::type;
-
-} //namespace
+#ifdef __cpp_impl_coroutine
+#include "aos_async_begin.hpp"
+#include "state_impl.inc.hpp"
+#include "aos_end.hpp"
+#endif
 
 #endif

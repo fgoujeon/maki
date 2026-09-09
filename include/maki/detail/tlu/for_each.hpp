@@ -7,35 +7,18 @@
 #ifndef MAKI_DETAIL_TLU_FOR_EACH_HPP
 #define MAKI_DETAIL_TLU_FOR_EACH_HPP
 
-namespace maki::detail::tlu
-{
+#include "../co_util.hpp"
+#include "../friendly_impl.hpp"
+#include <type_traits>
 
-template<class TList, class F>
-struct for_each_helper;
+#include "../aos_sync_begin.hpp"
+#include "for_each.inc.hpp"
+#include "../aos_end.hpp"
 
-template<template<class...> class TList, class... Ts, class F>
-struct for_each_helper<TList<Ts...>, F>
-{
-    template<class... Args>
-    static void call([[maybe_unused]] Args&... args)
-    {
-        (F::template call<Ts>(args...), ...);
-    }
-};
-
-/*
-Calls:
-    F::call<T0>(args...);
-    F::call<T1>(args...);
-    ...
-    F::call<TN>(args...);
-*/
-template<class TList, class F, class... Args>
-void for_each(Args&... args)
-{
-    for_each_helper<TList, F>::call(args...);
-}
-
-} //namespace
+#ifdef __cpp_impl_coroutine
+#include "../aos_async_begin.hpp"
+#include "for_each.inc.hpp"
+#include "../aos_end.hpp"
+#endif
 
 #endif

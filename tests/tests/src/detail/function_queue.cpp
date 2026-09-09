@@ -99,6 +99,7 @@ TEST_CASE("detail::function_queue")
 
         auto small_function_queue = maki::detail::function_queue
         <
+            bool,
             int&,
             sizeof(small_struct)
         >{};
@@ -107,6 +108,7 @@ TEST_CASE("detail::function_queue")
 
         auto big_function_queue = maki::detail::function_queue
         <
+            bool,
             big_array_t&,
             sizeof(big_struct) / 2
         >{};

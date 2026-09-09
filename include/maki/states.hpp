@@ -17,98 +17,15 @@
 namespace maki
 {
 
-namespace detail
-{
-    inline constexpr auto dummy_machine_transition_table = transition_table{};
+#include "detail/aos_sync_begin.hpp"
+#include "detail/states.inc.hpp"
+#include "detail/aos_end.hpp"
 
-    inline constexpr auto dummy_machine_transition_table_index = 0;
-
-    struct dummy_machine_conf_holder
-    {
-        static constexpr auto value = machine_conf{}
-            .transition_tables(dummy_machine_transition_table)
-        ;
-    };
-}
-
-/**
-@brief Predefined state and pseudostate objects.
-*/
-namespace states
-{
-#if MAKI_DETAIL_DOXYGEN
-    /**
-    @brief Dummy state object given to transition hooks.
-
-    It represents either:
-
-    - the source state for transitions from the initial pseudostate;
-    - the target state for transitions that exits the superstate.
-
-    Its pretty name is an empty string.
-
-    Not to be confused with `maki::null`.
-    */
-    constexpr auto null = state<IMPLEMENTATION_DETAIL>{};
-#else
-    inline constexpr auto null = state
-    <
-        detail::state_impls::simple_no_context
-        <
-            detail::dummy_machine_conf_holder,
-            detail::iseq
-            <
-                detail::dummy_machine_transition_table_index,
-                detail::state_mold_ids::null
-            >
-        >
-    >{};
+#ifdef __cpp_impl_coroutine
+#include "detail/aos_async_begin.hpp"
+#include "detail/states.inc.hpp"
+#include "detail/aos_end.hpp"
 #endif
-
-#if MAKI_DETAIL_DOXYGEN
-    /**
-    @brief Dummy final state object given to transition hooks. It represents the final state.
-
-    Not to be confused with `maki::fin`.
-    */
-    constexpr auto fin = state<IMPLEMENTATION_DETAIL>{};
-#else
-    inline constexpr auto fin = state
-    <
-        detail::state_impls::simple_no_context
-        <
-            detail::dummy_machine_conf_holder,
-            detail::iseq
-            <
-                detail::dummy_machine_transition_table_index,
-                detail::state_mold_ids::fin
-            >
-        >
-    >{};
-#endif
-
-#if MAKI_DETAIL_DOXYGEN
-    /**
-    @brief Represents the undefined state.
-
-    Not to be confused with `maki::undefined`.
-    */
-    constexpr auto undefined = state<IMPLEMENTATION_DETAIL>{};
-#else
-    inline constexpr auto undefined = state
-    <
-        detail::state_impls::simple_no_context
-        <
-            detail::dummy_machine_conf_holder,
-            detail::iseq
-            <
-                detail::dummy_machine_transition_table_index,
-                detail::state_mold_ids::undefined
-            >
-        >
-    >{};
-#endif
-}
 
 } //namespace
 

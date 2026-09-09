@@ -13,121 +13,14 @@
 #include "../../context.hpp"
 #include <type_traits>
 
-namespace maki::detail::state_impls
-{
+#include "../aos_sync_begin.hpp"
+#include "simple.inc.hpp"
+#include "../aos_end.hpp"
 
-template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-class simple
-{
-public:
-    using machine_conf_holder_type = MachineConfHolder;
-    using state_mold_path = StateMoldPath;
-
-    static constexpr const auto& mold = machine_conf_tree::node_at_path_v<MachineConfHolder, StateMoldPath>;
-    using option_set_type = std::decay_t<decltype(impl_of(mold))>;
-    using context_type = typename option_set_type::context_type;
-
-    using impl_type = simple_no_context<MachineConfHolder, StateMoldPath>;
-
-    using event_type_set = typename impl_type::event_type_set;
-
-    using deferrable_event_type_set =
-        typename impl_type::deferrable_event_type_set
-    ;
-
-    static constexpr auto context_sig = impl_of(mold).context_sig;
-
-    template<class... Args>
-    simple(Args&... args):
-        ctx_holder_(args...)
-    {
-    }
-
-    simple(const simple&) = delete;
-    simple(simple&&) = delete;
-    simple& operator=(const simple&) = delete;
-    simple& operator=(simple&&) = delete;
-    ~simple() = default;
-
-    auto& context()
-    {
-        return ctx_holder_.get();
-    }
-
-    const auto& context() const
-    {
-        return ctx_holder_.get();
-    }
-
-    template<class Event>
-    [[nodiscard]] static constexpr bool defers_event()
-    {
-        return impl_type::template defers_event<Event>();
-    }
-
-    template<class ParentContext, class Machine>
-    void emplace_contexts_with_parent_lifetime(ParentContext& parent_ctx, Machine& mach)
-    {
-        if constexpr(ctx_lifetime == state_context_lifetime::parent)
-        {
-            ctx_holder_.emplace(mach, parent_ctx);
-        }
-    }
-
-    template<class Machine, class ParentContext, class Event>
-    void enter(Machine& mach, ParentContext& parent_ctx, const Event& event)
-    {
-        if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
-        {
-            ctx_holder_.emplace(mach, parent_ctx);
-        }
-
-        impl_type::enter(mach, ctx_holder_.get_deep(), event);
-    }
-
-    template<bool Dry, class Machine, class ParentContext, class Event>
-    bool call_internal_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
-    {
-        return impl_type::template call_internal_action<Dry>(mach, ctx_holder_.get_deep(), event);
-    }
-
-    template<class Machine, class ParentContext, class Event>
-    void exit(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
-    {
-        impl_type::exit(mach, ctx_holder_.get_deep(), event);
-
-        if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
-        {
-            ctx_holder_.reset();
-        }
-    }
-
-    void reset_contexts_with_parent_lifetime()
-    {
-        if constexpr(ctx_lifetime == state_context_lifetime::parent)
-        {
-            ctx_holder_.reset();
-        }
-    }
-
-    static constexpr bool completed()
-    {
-        // Simple states are always completed.
-        return true;
-    }
-
-private:
-    static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
-
-    static constexpr auto ctx_storage =
-        ctx_lifetime == state_context_lifetime::parent ?
-        ParentCtxStorage :
-        context_storage::optional
-    ;
-
-    context_holder<context_type, ctx_storage, context_sig> ctx_holder_;
-};
-
-} //namespace
+#ifdef __cpp_impl_coroutine
+#include "../aos_async_begin.hpp"
+#include "simple.inc.hpp"
+#include "../aos_end.hpp"
+#endif
 
 #endif

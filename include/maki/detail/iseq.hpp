@@ -337,24 +337,49 @@ void iseq_for_each(Args&... args)
 iseq_for_each_or
 */
 
-template<class Seq, class F>
+template<class R, class Seq, class F>
 struct iseq_for_each_or_helper;
 
-template<int... Is, class F>
-struct iseq_for_each_or_helper<iseq<Is...>, F>
+template<class R, int... Is, class F>
+struct iseq_for_each_or_helper<R, iseq<Is...>, F>
 {
     template<class... Args>
-    static constexpr bool call(Args&... args)
+    static constexpr R call(Args&... args)
     {
         return (F::template call<Is>(args...) || ...);
     }
 };
 
-template<class Seq, class F, class... Args>
+template<class R, class Seq, class F, class... Args>
 constexpr bool iseq_for_each_or(Args&... args)
 {
-    return iseq_for_each_or_helper<Seq, F>::call(args...);
+    return iseq_for_each_or_helper<R, Seq, F>::call(args...);
 }
+
+#ifdef __cpp_impl_coroutine
+/*
+async_iseq_for_each_or
+*/
+
+template<class R, class Seq, class F>
+struct async_iseq_for_each_or_helper;
+
+template<class R, int... Is, class F>
+struct async_iseq_for_each_or_helper<R, iseq<Is...>, F>
+{
+    template<class... Args>
+    static R call(Args&... args)
+    {
+        co_return (co_await F::template call<Is>(args...) || ...);
+    }
+};
+
+template<class R, class Seq, class F, class... Args>
+R async_iseq_for_each_or(Args&... args)
+{
+    co_return co_await async_iseq_for_each_or_helper<R, Seq, F>::call(args...);
+}
+#endif
 
 } //namespace
 

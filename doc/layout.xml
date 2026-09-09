@@ -8,6 +8,7 @@
     <tab type="topics" visible="yes" title="" intro=""/>
     <tab type="usergroup" title="API Reference" url="@ref maki">
       <tab title="action" type="user" url="@ref maki::action"/>
+      <tab title="async_machine" type="user" url="@ref maki::async_machine"/>
       <tab title="event_set" type="user" url="@ref maki::event_set"/>
       <tab title="event_t" type="user" url="@ref maki::event_t"/>
       <tab title="events" type="user" url="@ref maki::events"/>

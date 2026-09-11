@@ -108,12 +108,13 @@ namespace detail
 
     template
     <
+        class R,
         class Action,
         class Context,
         class Machine,
         class Event
     >
-    void call_action
+    R call_action
     (
         const Action& act,
         Context& ctx,
@@ -121,7 +122,7 @@ namespace detail
         const Event& event
     )
     {
-        call_callable<action_signature, Action::signature>
+        call_callable<R, action_signature, Action::signature>
         (
             act.callable,
             ctx,
@@ -129,6 +130,33 @@ namespace detail
             event
         );
     }
+
+#if __cpp_impl_coroutine
+    template
+    <
+        class R,
+        class Action,
+        class Context,
+        class Machine,
+        class Event
+    >
+    R async_call_action
+    (
+        const Action& act,
+        Context& ctx,
+        Machine& mach,
+        const Event& event
+    )
+    {
+        co_await async_call_callable<R, action_signature, Action::signature>
+        (
+            act.callable,
+            ctx,
+            mach,
+            event
+        );
+    }
+#endif
 }
 
 } //namespace

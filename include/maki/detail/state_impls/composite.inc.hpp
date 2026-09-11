@@ -74,7 +74,7 @@ public:
             emplace_context(parent_ctx, mach);
         }
 
-        impl_.template enter<R>(mach, ctx_holder_.get_deep(), event);
+        MAKI_AOS_CALL impl_.template enter<R>(mach, ctx_holder_.get_deep(), event);
     }
 
     template<bool Dry, class ParentContext, class Event>
@@ -107,7 +107,7 @@ public:
         const Event& event
     )
     {
-        impl_.template exit<R>(mach, ctx_holder_.get_deep(), event);
+        MAKI_AOS_CALL impl_.template exit<R>(mach, ctx_holder_.get_deep(), event);
 
         if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
         {

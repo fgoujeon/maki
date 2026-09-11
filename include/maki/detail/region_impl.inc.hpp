@@ -332,9 +332,9 @@ private:
     struct exit_2
     {
         template<int ActiveStateMoldId, class Context, class Event>
-        static void call(MAKI_AOS_NAME(region_impl)& self, machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+        static MAKI_AOS_VOID call(MAKI_AOS_NAME(region_impl)& self, machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
         {
-            self.execute_transition
+            MAKI_AOS_CALL self.execute_transition
             <
                 ActiveStateMoldId,
                 TargetStateMoldId,
@@ -548,7 +548,7 @@ private:
         */
         if constexpr(ActionIndex != MAKI_AOS_NAME(region_detail)::null_action_index)
         {
-            detail::call_action
+            MAKI_AOS_CALL detail::MAKI_AOS_NAME(call_action)<MAKI_AOS_VOID>
             (
                 tuple_get<ActionIndex>(impl_of(trans_table)).act,
                 ctx,
@@ -674,7 +674,7 @@ private:
                     return false;
                 }
 
-                processed = impl_of(state).template call_internal_action<Dry>
+                processed = MAKI_AOS_CALL impl_of(state).template call_internal_action<Dry>
                 (
                     mach,
                     ctx,

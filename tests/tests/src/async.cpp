@@ -9,17 +9,12 @@
 #include <maki.hpp>
 #include "common.hpp"
 #include <boost/cobalt.hpp>
+#include <boost/asio/steady_timer.hpp>
 
 namespace async_ns
 {
     struct context
     {
-        void boop()
-        {
-            i = 0;
-        }
-
-        int i = 0;
     };
 
     namespace events
@@ -29,8 +24,71 @@ namespace async_ns
 
     namespace states
     {
-        EMPTY_STATE(off)
-        EMPTY_STATE(on)
+        constexpr auto off = maki::state_mold{};
+
+        namespace on_ns
+        {
+            boost::cobalt::task<void> co_work(context& ctx);
+
+            struct context
+            {
+                async_ns::context& parent;
+
+                bool co_work_started = false;
+                bool co_work_completed = false;
+                bool co_work_cancelled = false;
+
+                std::optional<boost::cobalt::promise<void>> opt_co_work_promise;
+            };
+
+            boost::cobalt::promise<void> co_work(context& ctx)
+            {
+                ctx.co_work_started = true;
+                auto timer = boost::asio::steady_timer
+                {
+                    co_await boost::asio::this_coro::executor,
+                    std::chrono::steady_clock::now() + std::chrono::seconds(5)
+                };
+                co_await timer.async_wait();
+                ctx.co_work_completed = true;
+            }
+        }
+
+        constexpr auto on = maki::state_mold{}
+            .context_c<on_ns::context>()
+            .entry_action_c
+            (
+                [](on_ns::context& ctx)
+                {
+                    ctx.opt_co_work_promise = on_ns::co_work(ctx);
+                }
+            )
+            .exit_action_c
+            (
+                [](on_ns::context& ctx) -> boost::cobalt::promise<void>
+                {
+                    ctx.opt_co_work_promise->cancel();
+
+                    try
+                    {
+                        co_await *ctx.opt_co_work_promise;
+                    }
+                    catch(const boost::system::system_error& ex)
+                    {
+                        if(ex.code() == boost::asio::error::operation_aborted)
+                        {
+                            ctx.co_work_cancelled = true;
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+
+                    ctx.opt_co_work_promise.reset();
+                }
+            )
+        ;
     }
 
     constexpr auto transition_table = maki::transition_table{}
@@ -59,36 +117,20 @@ namespace async_ns
         REQUIRE(machine.is<states::off>());
 
         co_await machine.process_event(events::button_press{});
-        REQUIRE(machine.is<states::on>());
-        REQUIRE(machine.context().i == 1);
+        //REQUIRE(machine.is<states::on>());
+        REQUIRE(machine.state<states::on>().context().co_work_started);
+        REQUIRE(!machine.state<states::on>().context().co_work_completed);
+        REQUIRE(machine.state<states::on>().context().co_work_cancelled);
 
         co_await machine.process_event(events::button_press{});
         REQUIRE(machine.is<states::off>());
-        REQUIRE(machine.context().i == 0);
-    }
-
-    void test()
-    {
-        auto ioc = boost::asio::io_context{};
-
-        boost::cobalt::spawn
-        (
-            ioc,
-            co_test(),
-            [&ioc](const std::exception_ptr& eptr)
-            {
-                ioc.stop();
-            }
-        );
-
-        ioc.run();
     }
 }
 
 TEST_CASE("async")
 {
     using namespace async_ns;
-    auto thread = std::jthread{&test};
+    boost::cobalt::run(co_test());
 }
 
 #endif

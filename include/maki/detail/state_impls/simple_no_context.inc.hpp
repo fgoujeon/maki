@@ -83,7 +83,7 @@ public:
             If at least one entry action is defined, state is required to define
             entry actions for all possible event types.
             */
-            MAKI_AOS_CALL call_matching_event_action<entry_action_ptr_constant_list>
+            MAKI_AOS_CALL MAKI_AOS_NAME(call_matching_event_action)<MAKI_AOS_VOID, entry_action_ptr_constant_list>
             (
                 mach,
                 ctx,
@@ -103,7 +103,7 @@ public:
 
         if constexpr(!Dry)
         {
-            MAKI_AOS_CALL call_matching_event_action<internal_action_ptr_constant_list>
+            MAKI_AOS_CALL MAKI_AOS_NAME(call_matching_event_action)<MAKI_AOS_VOID, internal_action_ptr_constant_list>
             (
                 mach,
                 ctx,
@@ -124,7 +124,7 @@ public:
             If at least one exit action is defined, state is required to define
             entry actions for all possible event types.
             */
-            MAKI_AOS_CALL call_matching_event_action<exit_action_ptr_constant_list>
+            MAKI_AOS_CALL MAKI_AOS_NAME(call_matching_event_action)<MAKI_AOS_VOID, exit_action_ptr_constant_list>
             (
                 mach,
                 ctx,

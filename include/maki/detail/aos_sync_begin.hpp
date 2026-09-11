@@ -4,6 +4,11 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
+/*
+AOS stands for "Asynchronous Or Synchronous".
+This file defines macros for synchronous code.
+*/
+
 #define MAKI_AOS_ASYNC 0
 #define MAKI_AOS_NAME(name) name
 #define MAKI_AOS_CALL

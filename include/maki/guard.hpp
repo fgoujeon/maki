@@ -66,7 +66,7 @@ namespace detail
         const Event& event
     )
     {
-        return call_callable<guard_signature, Guard::signature>
+        return call_callable<bool, guard_signature, Guard::signature>
         (
             grd.callable,
             ctx,

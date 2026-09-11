@@ -211,28 +211,28 @@ public:
         Context& ctx,
         const Event& event)
     {
-        tlu::for_each
+        MAKI_AOS_CALL tlu::MAKI_AOS_NAME(for_each)
         <
             MachineConfHolder,
             region_mix_type,
             region_exit<state_mold_ids::null>
         >(*this, mach, ctx, event);
 
-        impl_type::template exit<R>(mach, ctx, event);
+        MAKI_AOS_CALL impl_type::template exit<R>(mach, ctx, event);
     }
 
     // For each region, transition from active state to final state.
     template<class R, class Context, class Event>
     R exit_to_finals(machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
     {
-        tlu::for_each
+        MAKI_AOS_CALL tlu::for_each
         <
             MachineConfHolder,
             region_mix_type,
             region_exit<state_mold_ids::fin>
         >(*this, mach, ctx, event);
 
-        impl_type::template exit<R>(mach, ctx, event);
+        MAKI_AOS_CALL impl_type::template exit<R>(mach, ctx, event);
     }
 
     void reset_contexts_with_parent_lifetime()

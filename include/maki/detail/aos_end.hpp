@@ -4,6 +4,11 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
+/*
+AOS stands for "Asynchronous Or Synchronous".
+This file undefines macros for both asynchronous and synchronous code.
+*/
+
 #undef MAKI_AOS_ASYNC
 #undef MAKI_AOS_BOOL
 #undef MAKI_AOS_CALL

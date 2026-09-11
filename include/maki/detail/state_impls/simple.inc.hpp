@@ -73,7 +73,7 @@ public:
             ctx_holder_.emplace(mach, parent_ctx);
         }
 
-        impl_type::template enter<R>(mach, ctx_holder_.get_deep(), event);
+        MAKI_AOS_CALL impl_type::template enter<R>(mach, ctx_holder_.get_deep(), event);
     }
 
     template<bool Dry, class Machine, class ParentContext, class Event>

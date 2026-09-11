@@ -634,7 +634,7 @@ private:
     )
     {
         auto processed = false;
-        MAKI_AOS_NAME(iseq_for_each_or)
+        MAKI_AOS_CALL MAKI_AOS_NAME(iseq_for_each_or)
         <
             MAKI_AOS_BOOL,
             state_mold_iseq_0,
@@ -647,7 +647,7 @@ private:
     struct call_active_state_internal_action_2
     {
         template<int StateMoldId, class Self, class Machine, class Context, class Event>
-        static bool call
+        static MAKI_AOS_BOOL call
         (
             Self& self,
             Machine& mach,
@@ -671,7 +671,7 @@ private:
             {
                 if(StateMoldId != self.active_state_mold_id_)
                 {
-                    return false;
+                    MAKI_AOS_RETURN false;
                 }
 
                 processed = MAKI_AOS_CALL impl_of(state).template call_internal_action<Dry>
@@ -695,11 +695,11 @@ private:
                     );
                 }
 
-                return true;
+                MAKI_AOS_RETURN true;
             }
             else
             {
-                return false;
+                MAKI_AOS_RETURN false;
             }
         }
     };

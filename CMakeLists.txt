@@ -17,6 +17,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 option(MAKI_BUILD_EXAMPLES "Build example executables" OFF)
 option(MAKI_BUILD_TESTS "Build test executable" OFF)
+option(MAKI_BUILD_TESTS_20 "Build C++20 test executable (requires MAKI_BUILD_TESTS)" OFF)
 option(MAKI_FORCE_CATCH2_V2 "Force version 2 of catch2" OFF)
 option(MAKI_INSTALL "Install the library" ON)
 
@@ -26,11 +27,15 @@ target_sources(maki
     INTERFACE
     FILE_SET HEADERS
     BASE_DIRS include
-    FILES
+    FILES 
         include/maki.hpp
         include/maki/action.hpp
         include/maki/context.hpp
+        include/maki/detail/aos_async_begin.hpp
+        include/maki/detail/aos_end.hpp
+        include/maki/detail/aos_sync_begin.hpp
         include/maki/detail/call.hpp
+        include/maki/detail/co_util.hpp
         include/maki/detail/compiler.hpp
         include/maki/detail/constant.hpp
         include/maki/detail/context_holder.hpp
@@ -39,31 +44,41 @@ target_sources(maki
         include/maki/detail/event_action.hpp
         include/maki/detail/friendly_impl.hpp
         include/maki/detail/function_queue.hpp
+        include/maki/detail/function_queue.inc.hpp
         include/maki/detail/iseq.hpp
+        include/maki/detail/machine.inc.hpp
         include/maki/detail/machine_conf_impl.hpp
         include/maki/detail/machine_conf_tree.hpp
         include/maki/detail/machine_fwd.hpp
+        include/maki/detail/machine_operation.hpp
         include/maki/detail/mix.hpp
         include/maki/detail/noinline.hpp
         include/maki/detail/path_impl.hpp
         include/maki/detail/pretty_name.hpp
         include/maki/detail/region_impl.hpp
+        include/maki/detail/region_impl.inc.hpp
         include/maki/detail/set.hpp
         include/maki/detail/signature_macros.hpp
         include/maki/detail/state_impl.hpp
+        include/maki/detail/state_impl.inc.hpp
         include/maki/detail/state_impls/composite.hpp
+        include/maki/detail/state_impls/composite.inc.hpp
         include/maki/detail/state_impls/composite_fwd.hpp
         include/maki/detail/state_impls/composite_no_context.hpp
+        include/maki/detail/state_impls/composite_no_context.inc.hpp
         include/maki/detail/state_impls/composite_no_context_fwd.hpp
         include/maki/detail/state_impls/simple.hpp
+        include/maki/detail/state_impls/simple.inc.hpp
         include/maki/detail/state_impls/simple_fwd.hpp
         include/maki/detail/state_impls/simple_no_context.hpp
+        include/maki/detail/state_impls/simple_no_context.inc.hpp
         include/maki/detail/state_impls/simple_no_context_fwd.hpp
         include/maki/detail/state_mold_ids.hpp
         include/maki/detail/state_mold_impl.hpp
         include/maki/detail/state_mold_storage.hpp
         include/maki/detail/state_molds.hpp
         include/maki/detail/state_set_fwd.hpp
+        include/maki/detail/states.inc.hpp
         include/maki/detail/tlu.hpp
         include/maki/detail/tlu/apply.hpp
         include/maki/detail/tlu/back.hpp
@@ -74,8 +89,10 @@ target_sources(maki
         include/maki/detail/tlu/find.hpp
         include/maki/detail/tlu/find_if.hpp
         include/maki/detail/tlu/for_each.hpp
+        include/maki/detail/tlu/for_each.inc.hpp
         include/maki/detail/tlu/for_each_or.hpp
         include/maki/detail/tlu/for_each_plus.hpp
+        include/maki/detail/tlu/for_each_plus.inc.hpp
         include/maki/detail/tlu/front.hpp
         include/maki/detail/tlu/get.hpp
         include/maki/detail/tlu/intersection.hpp
@@ -118,8 +135,12 @@ target_sources(maki
         include/maki/undefined.hpp
         include/maki/version.hpp)
 
+target_compile_features(maki INTERFACE cxx_std_17)
+
 if(MAKI_BUILD_TESTS)
-    find_package(Boost REQUIRED COMPONENTS cobalt)
+    if(MAKI_BUILD_TESTS_20)
+        find_package(Boost CONFIG REQUIRED cobalt)
+    endif()
     find_package(Catch2 REQUIRED)
 
     enable_testing()

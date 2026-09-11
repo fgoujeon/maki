@@ -4,7 +4,7 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#ifdef __cpp_impl_coroutine
+#ifdef MAKI_BUILD_TESTS_20
 
 #include <maki.hpp>
 #include "common.hpp"

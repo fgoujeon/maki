@@ -17,6 +17,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 option(MAKI_BUILD_EXAMPLES "Build example executables" OFF)
 option(MAKI_BUILD_TESTS "Build test executable" OFF)
+option(MAKI_BUILD_TESTS_20 "Build C++20 test executable (requires MAKI_BUILD_TESTS)" OFF)
 option(MAKI_FORCE_CATCH2_V2 "Force version 2 of catch2" OFF)
 option(MAKI_INSTALL "Install the library" ON)
 
@@ -31,6 +32,9 @@ target_sources(maki
 target_compile_features(maki INTERFACE cxx_std_17)
 
 if(MAKI_BUILD_TESTS)
+    if(MAKI_BUILD_TESTS_20)
+        find_package(Boost CONFIG REQUIRED cobalt)
+    endif()
     find_package(Catch2 REQUIRED)
 
     enable_testing()

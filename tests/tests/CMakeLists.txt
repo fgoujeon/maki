@@ -14,8 +14,20 @@ target_link_libraries(
     ${TARGET}
     PRIVATE
         maki
-        Boost::cobalt
 )
+
+if(MAKI_BUILD_TESTS_20)
+    target_compile_definitions(
+        ${TARGET}
+        PRIVATE
+            MAKI_BUILD_TESTS_20
+    )
+    target_link_libraries(
+        ${TARGET}
+        PRIVATE
+            Boost::cobalt
+    )
+endif()
 
 if(TARGET Catch2::Catch2WithMain AND NOT MAKI_FORCE_CATCH2_V2) #v3
     target_compile_definitions(

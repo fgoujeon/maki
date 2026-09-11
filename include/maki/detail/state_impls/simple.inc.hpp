@@ -65,21 +65,21 @@ public:
         }
     }
 
-    template<class R, class Machine, class ParentContext, class Event>
-    R enter(Machine& mach, ParentContext& parent_ctx, const Event& event)
+    template<class AosVoid, class Machine, class ParentContext, class Event>
+    AosVoid enter(Machine& mach, ParentContext& parent_ctx, const Event& event)
     {
         if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
         {
             ctx_holder_.emplace(mach, parent_ctx);
         }
 
-        MAKI_AOS_CALL impl_type::template MAKI_AOS_NAME(enter)<R>(mach, ctx_holder_.get_deep(), event);
+        MAKI_AOS_CALL impl_type::template MAKI_AOS_NAME(enter)<AosVoid>(mach, ctx_holder_.get_deep(), event);
     }
 
-    template<class R, class Machine, class Context, class Event>
-    R async_enter(Machine& mach, Context& ctx, const Event& event)
+    template<class AsyncVoid, class Machine, class Context, class Event>
+    AsyncVoid async_enter(Machine& mach, Context& ctx, const Event& event)
     {
-        MAKI_AOS_CALL enter<R>(mach, ctx, event);
+        MAKI_AOS_CALL enter<AsyncVoid>(mach, ctx, event);
     }
 
     template<template<class> class AosType, bool Dry, class Machine, class ParentContext, class Event>

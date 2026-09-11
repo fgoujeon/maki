@@ -84,7 +84,7 @@ public:
         // No context to emplace
     }
 
-    template<class R, class Machine, class Context, class Event>
+    template<class Void, class Machine, class Context, class Event>
     static void enter(Machine& mach, Context& ctx, const Event& event)
     {
         if constexpr(!tlu::empty_v<entry_action_ptr_constant_list>)
@@ -104,8 +104,8 @@ public:
     }
 
 #ifdef __cpp_impl_coroutine
-    template<class R, class Machine, class Context, class Event>
-    static R async_enter(Machine& mach, Context& ctx, const Event& event)
+    template<class AsyncVoid, class Machine, class Context, class Event>
+    static AsyncVoid async_enter(Machine& mach, Context& ctx, const Event& event)
     {
         if constexpr(!tlu::empty_v<entry_action_ptr_constant_list>)
         {
@@ -114,7 +114,7 @@ public:
             If at least one entry action is defined, state is required to define
             entry actions for all possible event types.
             */
-            co_await async_call_matching_event_action<R, entry_action_ptr_constant_list>
+            co_await async_call_matching_event_action<AsyncVoid, entry_action_ptr_constant_list>
             (
                 mach,
                 ctx,

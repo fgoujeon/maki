@@ -8,27 +8,6 @@ namespace maki::detail
 {
 
 #if MAKI_AOS_ASYNC
-template<typename Awaitable, typename Promise = void>
-concept awaitable_type = requires (Awaitable aw, std::coroutine_handle<Promise> h)
-{
-    {aw.await_ready()} -> std::convertible_to<bool>;
-    {aw.await_suspend(h)};
-    {aw.await_resume()};
-};
-
-template<typename Awaitable, typename Promise = void>
-concept awaitable =
-    awaitable_type<Awaitable, Promise> ||
-    requires(Awaitable && aw) {
-    {
-        std::forward<Awaitable>(aw).operator co_await()} -> awaitable_type<Promise>;
-    } ||
-    requires(Awaitable && aw)
-    {
-        {operator co_await(std::forward<Awaitable>(aw))} -> awaitable_type<Promise>;
-    }
-;
-
 template
 <
     class R,

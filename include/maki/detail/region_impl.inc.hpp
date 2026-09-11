@@ -327,13 +327,13 @@ private:
             transitions.
             */
             MAKI_AOS_RETURN
-                call_active_state_internal_action<Dry>(self, mach, ctx, event) ||
-                try_executing_transitions<candidate_transition_iseq, Dry>(self, mach, ctx, event)
+                MAKI_AOS_CALL call_active_state_internal_action<Dry>(self, mach, ctx, event) ||
+                MAKI_AOS_CALL try_executing_transitions<candidate_transition_iseq, Dry>(self, mach, ctx, event)
             ;
         }
         else if constexpr(!must_try_executing_transitions && must_try_process_event_in_states)
         {
-            MAKI_AOS_RETURN call_active_state_internal_action<Dry>(self, mach, ctx, event);
+            MAKI_AOS_RETURN MAKI_AOS_CALL call_active_state_internal_action<Dry>(self, mach, ctx, event);
         }
         else if constexpr(must_try_executing_transitions && !must_try_process_event_in_states)
         {
@@ -708,7 +708,7 @@ private:
                     !Dry
                 )
                 {
-                    self.try_executing_completion_transitions
+                    MAKI_AOS_CALL self.try_executing_completion_transitions
                     (
                         state,
                         mach,
@@ -746,7 +746,7 @@ private:
         {
             if(impl_of(active_state).completed())
             {
-                try_executing_transitions<candidate_transition_iseq>(*this, mach, ctx, null);
+                MAKI_AOS_CALL try_executing_transitions<candidate_transition_iseq>(*this, mach, ctx, null);
             }
         }
     }

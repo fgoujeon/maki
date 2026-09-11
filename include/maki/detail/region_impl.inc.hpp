@@ -63,6 +63,10 @@ template<class MachineConfHolder, class TransitionTablePath, context_storage Par
 class MAKI_AOS_NAME(region_impl)
 {
 public:
+    static constexpr const auto& machine_conf = MachineConfHolder::value;
+
+    using machine_conf_type = std::decay_t<decltype(detail::impl_of(machine_conf))>;
+
     static constexpr auto trans_table = machine_conf_tree::node_at_path_v<MachineConfHolder, TransitionTablePath>;
 
     using transition_table_type = std::decay_t<decltype(trans_table)>;
@@ -112,6 +116,11 @@ public:
     >;
 
     using deferrable_event_type_set = state_type_list_deferrable_event_type_set_t<state_mix_type>;
+
+#if MAKI_AOS_ASYNC
+    template<class T>
+    using awaitable_type = detail::co_util::awaitable_t<typename machine_conf_type::awaitable_template_holder, T>;
+#endif
 
     template<class Context>
     MAKI_AOS_NAME(region_impl)(const region<MAKI_AOS_NAME(region_impl)>* pitf, MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx):
@@ -175,7 +184,7 @@ public:
 
     // Enter the initial state
     template<class Context, class Event>
-    MAKI_AOS_VOID enter(MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
+    MAKI_AOS_TYPE(void) enter(MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
     {
         MAKI_AOS_CALL execute_transition
         <
@@ -187,7 +196,7 @@ public:
 
     // Exit the active state
     template<int TargetStateMoldId, class Context, class Event>
-    MAKI_AOS_VOID exit(MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
+    MAKI_AOS_TYPE(void) exit(MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
     {
         if(!completed())
         {
@@ -211,13 +220,13 @@ public:
     }
 
     template<bool Dry, class Context, class Event>
-    MAKI_AOS_BOOL process_event(MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
+    MAKI_AOS_TYPE(bool) process_event(MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
     {
         MAKI_AOS_RETURN MAKI_AOS_CALL process_event_2<Dry>(*this, mach, ctx, event);
     }
 
     template<bool Dry, class Context, class Event>
-    MAKI_AOS_BOOL process_event(const MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event) const
+    MAKI_AOS_TYPE(bool) process_event(const MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event) const
     {
         MAKI_AOS_RETURN MAKI_AOS_CALL process_event_2<Dry>(*this, mach, ctx, event);
     }
@@ -278,7 +287,7 @@ private:
     };
 
     template<bool Dry, class Self, class Machine, class Context, class Event>
-    static MAKI_AOS_BOOL process_event_2
+    static MAKI_AOS_TYPE(bool) process_event_2
     (
         Self& self,
         Machine& mach,
@@ -332,7 +341,7 @@ private:
     struct exit_2
     {
         template<int ActiveStateMoldId, class Context, class Event>
-        static MAKI_AOS_VOID call(MAKI_AOS_NAME(region_impl)& self, machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+        static MAKI_AOS_TYPE(void) call(MAKI_AOS_NAME(region_impl)& self, machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
         {
             MAKI_AOS_CALL self.execute_transition
             <
@@ -348,11 +357,11 @@ private:
     `TransitionIndexConstantList`.
     */
     template<class TransitionIseq, bool Dry = false, class Self, class Machine, class Context, class Event>
-    static MAKI_AOS_BOOL try_executing_transitions(Self& self, Machine& mach, Context& ctx, const Event& event)
+    static MAKI_AOS_TYPE(bool) try_executing_transitions(Self& self, Machine& mach, Context& ctx, const Event& event)
     {
         MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS_NAME(iseq_for_each_or)
         <
-            MAKI_AOS_BOOL,
+            MAKI_AOS_TYPE(bool),
             TransitionIseq,
             try_executing_transition<Dry>
         >(self, mach, ctx, event);
@@ -363,7 +372,7 @@ private:
     struct try_executing_transition
     {
         template<int TransitionIndex, class Self, class Machine, class Context, class Event, class... ExtraArgs>
-        static MAKI_AOS_BOOL call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
+        static MAKI_AOS_TYPE(bool) call(Self& self, Machine& mach, Context& ctx, const Event& event, ExtraArgs&... extra_args)
         {
             static constexpr const auto& trans = tuple_get<TransitionIndex>(impl_of(trans_table));
 
@@ -391,7 +400,7 @@ private:
 
                 MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS_NAME(iseq_for_each_or)
                 <
-                    MAKI_AOS_BOOL,
+                    MAKI_AOS_TYPE(bool),
                     matching_state_mold_iseq,
                     try_executing_transition_2
                     <
@@ -441,7 +450,7 @@ private:
             class Context,
             class Event
         >
-        static MAKI_AOS_BOOL call
+        static MAKI_AOS_TYPE(bool) call
         (
             Self& self,
             Machine& mach,
@@ -490,7 +499,7 @@ private:
         class Context,
         class Event
     >
-    MAKI_AOS_VOID execute_transition
+    MAKI_AOS_TYPE(void) execute_transition
     (
         MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
         Context& ctx,
@@ -535,7 +544,7 @@ private:
         */
         if constexpr(TargetStateMoldId != state_mold_ids::internal)
         {
-            MAKI_AOS_CALL impl_of(state_mold_id_to_state<SourceStateMoldId>()).template exit<MAKI_AOS_VOID>
+            MAKI_AOS_CALL impl_of(state_mold_id_to_state<SourceStateMoldId>()).template exit<MAKI_AOS_TYPE(void)>
             (
                 mach,
                 ctx,
@@ -548,7 +557,7 @@ private:
         */
         if constexpr(ActionIndex != MAKI_AOS_NAME(region_detail)::null_action_index)
         {
-            MAKI_AOS_CALL detail::MAKI_AOS_NAME(call_action)<MAKI_AOS_VOID>
+            MAKI_AOS_CALL detail::MAKI_AOS_NAME(call_action)<MAKI_AOS_TYPE(void)>
             (
                 tuple_get<ActionIndex>(impl_of(trans_table)).act,
                 ctx,
@@ -565,7 +574,7 @@ private:
         {
             auto& target_state = state_mold_id_to_state<TargetStateMoldId>();
 
-            MAKI_AOS_CALL impl_of(target_state).template enter<MAKI_AOS_VOID>
+            MAKI_AOS_CALL impl_of(target_state).template enter<MAKI_AOS_TYPE(void)>
             (
                 mach,
                 ctx,
@@ -625,7 +634,7 @@ private:
 
     // Find the active state and call its internal action for `event`.
     template<bool Dry, class Self, class Machine, class Context, class Event>
-    static MAKI_AOS_BOOL call_active_state_internal_action
+    static MAKI_AOS_TYPE(bool) call_active_state_internal_action
     (
         Self& self,
         Machine& mach,
@@ -636,7 +645,7 @@ private:
         auto processed = false;
         MAKI_AOS_CALL MAKI_AOS_NAME(iseq_for_each_or)
         <
-            MAKI_AOS_BOOL,
+            MAKI_AOS_TYPE(bool),
             state_mold_iseq_0,
             call_active_state_internal_action_2<Dry>
         >(self, mach, ctx, event, processed);
@@ -647,7 +656,7 @@ private:
     struct call_active_state_internal_action_2
     {
         template<int StateMoldId, class Self, class Machine, class Context, class Event>
-        static MAKI_AOS_BOOL call
+        static MAKI_AOS_TYPE(bool) call
         (
             Self& self,
             Machine& mach,
@@ -705,7 +714,7 @@ private:
     };
 
     template<class ActiveState, class Context>
-    MAKI_AOS_VOID try_executing_completion_transitions
+    MAKI_AOS_TYPE(void) try_executing_completion_transitions
     (
         ActiveState& active_state,
         machine<MachineConfHolder>& mach,
@@ -805,11 +814,11 @@ private:
 
 #if MAKI_AOS_ASYNC
     template<class StateMoldIseq, class F, class... Args>
-    MAKI_AOS_VOID async_with_active_state_mold(Args&&... args) const
+    MAKI_AOS_TYPE(void) async_with_active_state_mold(Args&&... args) const
     {
         co_await MAKI_AOS_NAME(iseq_for_each_or)
         <
-            MAKI_AOS_BOOL,
+            MAKI_AOS_TYPE(bool),
             StateMoldIseq,
             async_with_active_state_mold_2<F>
         >(*this, std::forward<Args>(args)...);
@@ -819,7 +828,7 @@ private:
     struct async_with_active_state_mold_2
     {
         template<int StateMoldId, class... Args>
-        static MAKI_AOS_BOOL call(const MAKI_AOS_NAME(region_impl)& self, Args&&... args)
+        static MAKI_AOS_TYPE(bool) call(const MAKI_AOS_NAME(region_impl)& self, Args&&... args)
         {
             if(self.active_state_mold_id_ == StateMoldId)
             {

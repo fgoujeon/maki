@@ -347,7 +347,7 @@ private:
         template<bool = true> //Dummy template for lazy evaluation
         using type = detail::MAKI_AOS_NAME(function_queue)
         <
-            MAKI_AOS_BOOL,
+            MAKI_AOS_TYPE(bool),
             MAKI_AOS_NAME(machine)&,
             detail::impl_of(conf).small_event_max_size,
             detail::impl_of(conf).small_event_max_align
@@ -378,19 +378,19 @@ private:
     struct any_event_visitor
     {
         template<class Event>
-        static MAKI_AOS_BOOL call(const Event& event, MAKI_AOS_NAME(machine)& self)
+        static MAKI_AOS_TYPE(bool) call(const Event& event, MAKI_AOS_NAME(machine)& self)
         {
             MAKI_AOS_RETURN MAKI_AOS_CALL self.execute_one_operation<Operation>(event);
         }
     };
 
-    MAKI_AOS_VOID start_now()
+    MAKI_AOS_TYPE(void) start_now()
     {
         MAKI_AOS_CALL execute_operation_now<detail::machine_operation::start>(events::start{});
     }
 
     template<class Event>
-    MAKI_AOS_VOID start_no_catch(const Event& event)
+    MAKI_AOS_TYPE(void) start_no_catch(const Event& event)
     {
         if(!running())
         {
@@ -399,7 +399,7 @@ private:
     }
 
     template<class Event>
-    MAKI_AOS_VOID stop_no_catch(const Event& event)
+    MAKI_AOS_TYPE(void) stop_no_catch(const Event& event)
     {
         if(running())
         {
@@ -419,7 +419,7 @@ private:
     }
 
     template<detail::machine_operation Operation, class Event>
-    MAKI_AOS_VOID execute_operation(const Event& event)
+    MAKI_AOS_TYPE(void) execute_operation(const Event& event)
     {
         if constexpr(detail::impl_of(conf).run_to_completion)
         {
@@ -440,7 +440,7 @@ private:
     }
 
     template<detail::machine_operation Operation, class Event>
-    MAKI_AOS_VOID execute_operation_now(const Event& event)
+    MAKI_AOS_TYPE(void) execute_operation_now(const Event& event)
     {
         if constexpr(detail::impl_of(conf).run_to_completion)
         {
@@ -485,7 +485,7 @@ private:
     /*
     Process all previously deferred events that can now be processed.
     */
-    MAKI_AOS_VOID try_processing_deferred_operations()
+    MAKI_AOS_TYPE(void) try_processing_deferred_operations()
     {
         if constexpr(has_deferrable_events)
         {
@@ -515,16 +515,16 @@ private:
     }
 
     template<detail::machine_operation Operation, class Event>
-    MAKI_AOS_BOOL execute_one_operation(const Event& event)
+    MAKI_AOS_TYPE(bool) execute_one_operation(const Event& event)
     {
         if constexpr(Operation == detail::machine_operation::start)
         {
-            MAKI_AOS_CALL impl_.template enter<MAKI_AOS_VOID>(*this, context(), event);
+            MAKI_AOS_CALL impl_.template enter<MAKI_AOS_TYPE(void)>(*this, context(), event);
             MAKI_AOS_RETURN true;
         }
         else if constexpr(Operation == detail::machine_operation::stop)
         {
-            MAKI_AOS_CALL impl_.template exit_to_finals<MAKI_AOS_VOID>(*this, context(), event);
+            MAKI_AOS_CALL impl_.template exit_to_finals<MAKI_AOS_TYPE(void)>(*this, context(), event);
             MAKI_AOS_RETURN true;
         }
         else

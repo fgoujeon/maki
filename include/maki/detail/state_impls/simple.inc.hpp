@@ -18,7 +18,7 @@ public:
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using context_type = typename option_set_type::context_type;
 
-    using impl_type = MAKI_AOS_NAME(simple_no_context)<MachineConfHolder, StateMoldPath>;
+    using impl_type = simple_no_context<MachineConfHolder, StateMoldPath>;
 
     using event_type_set = typename impl_type::event_type_set;
 
@@ -73,24 +73,42 @@ public:
             ctx_holder_.emplace(mach, parent_ctx);
         }
 
-        MAKI_AOS_CALL impl_type::template enter<R>(mach, ctx_holder_.get_deep(), event);
+        MAKI_AOS_CALL impl_type::template MAKI_AOS_NAME(enter)<R>(mach, ctx_holder_.get_deep(), event);
     }
 
-    template<bool Dry, class Machine, class ParentContext, class Event>
-    bool call_internal_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
+    template<class R, class Machine, class Context, class Event>
+    R async_enter(Machine& mach, Context& ctx, const Event& event)
     {
-        return impl_type::template call_internal_action<Dry>(mach, ctx_holder_.get_deep(), event);
+        MAKI_AOS_CALL enter<R>(mach, ctx, event);
+    }
+
+    template<template<class> class AosType, bool Dry, class Machine, class ParentContext, class Event>
+    AosType<bool> call_internal_action(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
+    {
+        return impl_type::template call_internal_action<AosType, Dry>(mach, ctx_holder_.get_deep(), event);
+    }
+
+    template<template<class> class AsyncType, bool Dry, class Machine, class ParentContext, class Event>
+    AsyncType<bool> async_call_internal_action(Machine& mach, ParentContext& parent_ctx, const Event& event)
+    {
+        MAKI_AOS_RETURN MAKI_AOS_CALL call_internal_action<AsyncType, Dry>(mach, parent_ctx, event);
     }
 
     template<class R, class Machine, class ParentContext, class Event>
     R exit(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        MAKI_AOS_CALL impl_type::template exit<R>(mach, ctx_holder_.get_deep(), event);
+        MAKI_AOS_CALL impl_type::template MAKI_AOS_NAME(exit)<R>(mach, ctx_holder_.get_deep(), event);
 
         if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
         {
             ctx_holder_.reset();
         }
+    }
+
+    template<class R, class Machine, class Context, class Event>
+    R async_exit(Machine& mach, Context& ctx, const Event& event)
+    {
+        MAKI_AOS_CALL exit<R>(mach, ctx, event);
     }
 
     void reset_contexts_with_parent_lifetime()

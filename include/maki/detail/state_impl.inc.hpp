@@ -13,7 +13,7 @@ struct MAKI_AOS_NAME(state_impl_helper);
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
 struct MAKI_AOS_NAME(state_impl_helper)<MachineConfHolder, StateMoldPath, ParentCtxStorage, false, false>
 {
-    using type = state_impls::MAKI_AOS_NAME(simple_no_context)<MachineConfHolder, StateMoldPath>;
+    using type = state_impls::simple_no_context<MachineConfHolder, StateMoldPath>;
 };
 
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>

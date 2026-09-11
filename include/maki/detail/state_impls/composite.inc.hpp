@@ -77,32 +77,54 @@ public:
         MAKI_AOS_CALL impl_.template enter<R>(mach, ctx_holder_.get_deep(), event);
     }
 
-    template<bool Dry, class ParentContext, class Event>
-    bool call_internal_action
+    template<class R, class Context, class Event>
+    R async_enter(
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        Context& ctx,
+        const Event& event)
+    {
+        MAKI_AOS_CALL enter(mach, ctx, event);
+    }
+
+    template<template<class> class AosType, bool Dry, class ParentContext, class Event>
+    AosType<bool> call_internal_action
     (
-        machine<MachineConfHolder>& mach,
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
         ParentContext& /*parent_ctx*/,
         const Event& event
     )
     {
-        return impl_.template call_internal_action<Dry>(mach, ctx_holder_.get_deep(), event);
+        MAKI_AOS_RETURN MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(call_internal_action)
+        <
+            AosType,
+            Dry
+        >
+        (
+            mach,
+            ctx_holder_.get_deep(),
+            event
+        );
     }
 
-    template<bool Dry, class ParentContext, class Event>
-    bool call_internal_action
-    (
-        machine<MachineConfHolder>& mach,
-        ParentContext& /*parent_ctx*/,
-        const Event& event
-    ) const
+    template<template<class> class AsyncType, bool Dry, class Machine, class Context, class Event>
+    AsyncType<bool> async_call_internal_action(Machine& mach, Context& ctx, const Event& event)
     {
-        return impl_.template call_internal_action<Dry>(mach, ctx_holder_.get_deep(), event);
+        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS_NAME(call_internal_action)
+        <
+            AsyncType,
+            Dry
+        >
+        (
+            mach,
+            ctx_holder_.get_deep(),
+            event
+        );
     }
 
     template<class R, class ParentContext, class Event>
     R exit
     (
-        machine<MachineConfHolder>& mach,
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
         ParentContext& /*parent_ctx*/,
         const Event& event
     )
@@ -113,6 +135,15 @@ public:
         {
             reset_context();
         }
+    }
+
+    template<class R, class Context, class Event>
+    R async_exit(
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        Context& ctx,
+        const Event& event)
+    {
+        MAKI_AOS_CALL exit(mach, ctx, event);
     }
 
     void reset_contexts_with_parent_lifetime()

@@ -110,7 +110,7 @@ public:
     using mold_type = std::decay_t<decltype(mold)>;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);
-    using impl_type = MAKI_AOS_NAME(simple_no_context)<MachineConfHolder, StateMoldPath>;
+    using impl_type = simple_no_context<MachineConfHolder, StateMoldPath>;
 
     static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
 
@@ -174,7 +174,7 @@ public:
         Context& ctx,
         const Event& event)
     {
-        MAKI_AOS_CALL impl_type::template enter<R>(mach, ctx, event);
+        MAKI_AOS_CALL impl_type::template MAKI_AOS_NAME(enter)<R>(mach, ctx, event);
         MAKI_AOS_CALL tlu::MAKI_AOS_NAME(for_each)
         <
             R,
@@ -183,26 +183,65 @@ public:
         >(*this, mach, ctx, event);
     }
 
-    template<bool Dry, class Context, class Event>
-    MAKI_AOS_BOOL call_internal_action
+    template<class R, class Context, class Event>
+    R async_enter(
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        Context& ctx,
+        const Event& event)
+    {
+        MAKI_AOS_CALL enter(mach, ctx, event);
+    }
+
+    template<template<class> class AosType, bool Dry, class Context, class Event>
+    AosType<bool> call_internal_action
     (
         MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event
     )
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL call_internal_action_2<Dry>(*this, mach, ctx, event);
+        MAKI_AOS_RETURN MAKI_AOS_CALL call_internal_action_2<AosType, Dry>(*this, mach, ctx, event);
     }
 
-    template<bool Dry, class Context, class Event>
-    MAKI_AOS_BOOL call_internal_action
+    template<template<class> class AosType, bool Dry, class Context, class Event>
+    AosType<bool> call_internal_action
     (
         const MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event
     ) const
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL call_internal_action_2<Dry>(*this, mach, ctx, event);
+        MAKI_AOS_RETURN MAKI_AOS_CALL call_internal_action_2<AosType, Dry>(*this, mach, ctx, event);
+    }
+
+    template<template<class> class AsyncType, bool Dry, class Machine, class Context, class Event>
+    AsyncType<bool> async_call_internal_action(Machine& mach, Context& ctx, const Event& event)
+    {
+        MAKI_AOS_RETURN MAKI_AOS_CALL call_internal_action
+        <
+            AsyncType,
+            Dry
+        >
+        (
+            mach,
+            ctx,
+            event
+        );
+    }
+
+    template<template<class> class AsyncType, bool Dry, class Machine, class Context, class Event>
+    AsyncType<bool> async_call_internal_action(const Machine& mach, Context& ctx, const Event& event) const
+    {
+        MAKI_AOS_RETURN MAKI_AOS_CALL call_internal_action
+        <
+            AsyncType,
+            Dry
+        >
+        (
+            mach,
+            ctx,
+            event
+        );
     }
 
     template<class R, class Context, class Event>
@@ -219,6 +258,15 @@ public:
         >(*this, mach, ctx, event);
 
         MAKI_AOS_CALL impl_type::template exit<R>(mach, ctx, event);
+    }
+
+    template<class R, class Context, class Event>
+    R async_exit(
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        Context& ctx,
+        const Event& event)
+    {
+        MAKI_AOS_CALL exit(mach, ctx, event);
     }
 
     // For each region, transition from active state to final state.
@@ -364,8 +412,8 @@ private:
         }
     };
 
-    template<bool Dry, class Self, class MachineArg, class Context, class Event>
-    static MAKI_AOS_BOOL call_internal_action_2
+    template<template<class> class AosType, bool Dry, class Self, class MachineArg, class Context, class Event>
+    static AosType<bool> call_internal_action_2
     (
         Self& self,
         MachineArg& mach,
@@ -381,7 +429,11 @@ private:
 
         if constexpr(can_process_event)
         {
-            impl_type::template call_internal_action<Dry>
+            MAKI_AOS_CALL impl_type::template MAKI_AOS_NAME(call_internal_action)
+            <
+                AosType,
+                Dry
+            >
             (
                 mach,
                 ctx,
@@ -390,7 +442,7 @@ private:
 
             MAKI_AOS_CALL tlu::for_each
             <
-                MAKI_AOS_VOID,
+                AosType<void>,
                 region_mix_type,
                 region_process_event<Dry>
             >(self, mach, ctx, event);
@@ -401,7 +453,7 @@ private:
         {
             const auto processed_count = MAKI_AOS_CALL tlu::MAKI_AOS_NAME(for_each_plus)
             <
-                MAKI_AOS_INT,
+                AosType<int>,
                 region_mix_type,
                 region_process_event<Dry>
             >(self, mach, ctx, event);

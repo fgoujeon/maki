@@ -249,7 +249,7 @@ public:
     template<class Event>
     bool check_event(const Event& event) const
     {
-        return impl_.template call_internal_action<true>(*this, context(), event);
+        return impl_.template MAKI_AOS_NAME(call_internal_action)<aos_type, true>(*this, context(), event);
     }
 
     /**
@@ -310,6 +310,14 @@ private:
             detail::context_storage::plain
         >
     ;
+
+#if MAKI_AOS_ASYNC
+    template<class T>
+    using aos_type = awaitable_type<T>;
+#else
+    template<class T>
+    using aos_type = T;
+#endif
 
     using deferrable_event_type_set =
         typename impl_type::deferrable_event_type_set
@@ -580,7 +588,7 @@ private:
             {
                 if(running())
                 {
-                    const auto processed = MAKI_AOS_CALL impl_.template call_internal_action<false>(*this, context(), event);
+                    const auto processed = MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(call_internal_action)<aos_type, false>(*this, context(), event);
 
                     detail::call_matching_event_action<void, post_processing_hook_ptr_constant_list>
                     (
@@ -599,7 +607,7 @@ private:
                 is stopped.
                 */
 
-                MAKI_AOS_CALL impl_.template call_internal_action<false>(*this, context(), event);
+                MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(call_internal_action)<aos_type, false>(*this, context(), event);
             }
 
             MAKI_AOS_RETURN true;

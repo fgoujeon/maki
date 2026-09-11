@@ -250,6 +250,14 @@ public:
     }
 
 private:
+#if MAKI_AOS_ASYNC
+    template<class T>
+    using aos_type = awaitable_type<T>;
+#else
+    template<class T>
+    using aos_type = T;
+#endif
+
     struct state_emplace_contexts_with_parent_lifetime
     {
         template<int StateMoldId, class Self, class Context>
@@ -544,7 +552,7 @@ private:
         */
         if constexpr(TargetStateMoldId != state_mold_ids::internal)
         {
-            MAKI_AOS_CALL impl_of(state_mold_id_to_state<SourceStateMoldId>()).template exit<MAKI_AOS_TYPE(void)>
+            MAKI_AOS_CALL impl_of(state_mold_id_to_state<SourceStateMoldId>()).template MAKI_AOS_NAME(exit)<MAKI_AOS_TYPE(void)>
             (
                 mach,
                 ctx,
@@ -574,7 +582,7 @@ private:
         {
             auto& target_state = state_mold_id_to_state<TargetStateMoldId>();
 
-            MAKI_AOS_CALL impl_of(target_state).template enter<MAKI_AOS_TYPE(void)>
+            MAKI_AOS_CALL impl_of(target_state).template MAKI_AOS_NAME(enter)<MAKI_AOS_TYPE(void)>
             (
                 mach,
                 ctx,
@@ -683,7 +691,11 @@ private:
                     MAKI_AOS_RETURN false;
                 }
 
-                processed = MAKI_AOS_CALL impl_of(state).template call_internal_action<Dry>
+                processed = MAKI_AOS_CALL impl_of(state).template MAKI_AOS_NAME(call_internal_action)
+                <
+                    aos_type,
+                    Dry
+                >
                 (
                     mach,
                     ctx,
@@ -858,15 +870,15 @@ private:
     {
         if constexpr(StateMoldId == state_mold_ids::undefined)
         {
-            return states::MAKI_AOS_NAME(undefined);
+            return states::undefined;
         }
         else if constexpr(StateMoldId == state_mold_ids::null)
         {
-            return states::MAKI_AOS_NAME(null);
+            return states::null;
         }
         else if constexpr(StateMoldId == state_mold_ids::fin)
         {
-            return states::MAKI_AOS_NAME(fin);
+            return states::fin;
         }
         else
         {

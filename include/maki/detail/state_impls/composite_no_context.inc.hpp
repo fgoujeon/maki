@@ -162,7 +162,7 @@ public:
     {
         tlu::for_each
         <
-            MachineConfHolder,
+            void,
             region_mix_type,
             region_emplace_contexts_with_parent_lifetime
         >(*this, ctx, mach);
@@ -177,7 +177,7 @@ public:
         MAKI_AOS_CALL impl_type::template enter<R>(mach, ctx, event);
         MAKI_AOS_CALL tlu::MAKI_AOS_NAME(for_each)
         <
-            MachineConfHolder,
+            R,
             region_mix_type,
             region_enter
         >(*this, mach, ctx, event);
@@ -213,7 +213,7 @@ public:
     {
         MAKI_AOS_CALL tlu::MAKI_AOS_NAME(for_each)
         <
-            MachineConfHolder,
+            R,
             region_mix_type,
             region_exit<state_mold_ids::null>
         >(*this, mach, ctx, event);
@@ -227,7 +227,7 @@ public:
     {
         MAKI_AOS_CALL tlu::for_each
         <
-            MachineConfHolder,
+            R,
             region_mix_type,
             region_exit<state_mold_ids::fin>
         >(*this, mach, ctx, event);
@@ -239,7 +239,7 @@ public:
     {
         tlu::for_each
         <
-            MachineConfHolder,
+            void,
             region_mix_type,
             region_reset_contexts_with_parent_lifetime
         >(*this);
@@ -388,9 +388,9 @@ private:
                 event
             );
 
-            tlu::for_each
+            MAKI_AOS_CALL tlu::for_each
             <
-                MachineConfHolder,
+                MAKI_AOS_VOID,
                 region_mix_type,
                 region_process_event<Dry>
             >(self, mach, ctx, event);
@@ -401,7 +401,7 @@ private:
         {
             const auto processed_count = MAKI_AOS_CALL tlu::MAKI_AOS_NAME(for_each_plus)
             <
-                MachineConfHolder,
+                MAKI_AOS_INT,
                 region_mix_type,
                 region_process_event<Dry>
             >(self, mach, ctx, event);

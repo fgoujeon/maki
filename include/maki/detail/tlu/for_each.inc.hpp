@@ -7,14 +7,14 @@
 namespace maki::detail::tlu
 {
 
-template<class MachineConfHolder, class TList, class F>
+template<class R, class TList, class F>
 struct MAKI_AOS_NAME(for_each_helper);
 
-template<class MachineConfHolder, template<class...> class TList, class... Ts, class F>
-struct MAKI_AOS_NAME(for_each_helper)<MachineConfHolder, TList<Ts...>, F>
+template<class R, template<class...> class TList, class... Ts, class F>
+struct MAKI_AOS_NAME(for_each_helper)<R, TList<Ts...>, F>
 {
     template<class... Args>
-    static MAKI_AOS_VOID call([[maybe_unused]] Args&... args)
+    static R call([[maybe_unused]] Args&... args)
     {
         (MAKI_AOS_CALL F::template call<Ts>(args...), ...);
     }
@@ -27,10 +27,10 @@ Calls:
     ...
     F::call<TN>(args...);
 */
-template<class MachineConfHolder, class TList, class F, class... Args>
-MAKI_AOS_VOID MAKI_AOS_NAME(for_each)(Args&... args)
+template<class R, class TList, class F, class... Args>
+R MAKI_AOS_NAME(for_each)(Args&... args)
 {
-    MAKI_AOS_CALL MAKI_AOS_NAME(for_each_helper)<MachineConfHolder, TList, F>::call(args...);
+    MAKI_AOS_CALL MAKI_AOS_NAME(for_each_helper)<R, TList, F>::call(args...);
 }
 
 } //namespace

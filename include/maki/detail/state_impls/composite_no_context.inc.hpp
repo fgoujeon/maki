@@ -168,18 +168,18 @@ public:
         >(*this, ctx, mach);
     }
 
-    template<class R, class Context, class Event>
-    R enter(
+    template<class AosVoid, class Context, class Event>
+    AosVoid enter(
         MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event)
     {
-        MAKI_AOS_CALL impl_type::template MAKI_AOS_NAME(enter)<R>(mach, ctx, event);
+        MAKI_AOS_CALL impl_type::template MAKI_AOS_NAME(enter)<AosVoid>(mach, ctx, event);
         MAKI_AOS_CALL tlu::MAKI_AOS_NAME(for_each)
         <
-            R,
+            AosVoid,
             region_mix_type,
-            region_enter
+            region_enter<AosVoid>
         >(*this, mach, ctx, event);
     }
 
@@ -244,20 +244,20 @@ public:
         );
     }
 
-    template<class R, class Context, class Event>
-    R exit(
+    template<class AosVoid, class Context, class Event>
+    AosVoid exit(
         MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event)
     {
         MAKI_AOS_CALL tlu::MAKI_AOS_NAME(for_each)
         <
-            R,
+            AosVoid,
             region_mix_type,
-            region_exit<state_mold_ids::null>
+            region_exit<AosVoid, state_mold_ids::null>
         >(*this, mach, ctx, event);
 
-        MAKI_AOS_CALL impl_type::template exit<R>(mach, ctx, event);
+        MAKI_AOS_CALL impl_type::template MAKI_AOS_NAME(exit)<AosVoid>(mach, ctx, event);
     }
 
     template<class R, class Context, class Event>
@@ -270,17 +270,17 @@ public:
     }
 
     // For each region, transition from active state to final state.
-    template<class R, class Context, class Event>
-    R exit_to_finals(machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+    template<class AosVoid, class Context, class Event>
+    AosVoid exit_to_finals(machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
     {
         MAKI_AOS_CALL tlu::for_each
         <
-            R,
+            AosVoid,
             region_mix_type,
-            region_exit<state_mold_ids::fin>
+            region_exit<AosVoid, state_mold_ids::fin>
         >(*this, mach, ctx, event);
 
-        MAKI_AOS_CALL impl_type::template exit<R>(mach, ctx, event);
+        MAKI_AOS_CALL impl_type::template exit<AosVoid>(mach, ctx, event);
     }
 
     void reset_contexts_with_parent_lifetime()
@@ -363,31 +363,32 @@ private:
         }
     };
 
+    template<class AosVoid>
     struct region_enter
     {
         template<class Region, class Self, class Context, class Event>
-        static MAKI_AOS_VOID call(Self& self, MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
+        static AosVoid call(Self& self, MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
         {
             MAKI_AOS_CALL impl_of(get<Region>(self.regions_)).enter(mach, ctx, event);
         }
     };
 
-    template<bool Dry>
+    template<class AosInt, bool Dry>
     struct region_process_event
     {
         template<class Region, class Self, class MachineArg, class Context, class Event>
-        static MAKI_AOS_INT call(Self& self, MachineArg& mach, Context& ctx, const Event& event)
+        static AosInt call(Self& self, MachineArg& mach, Context& ctx, const Event& event)
         {
             const auto processed = MAKI_AOS_CALL impl_of(get<Region>(self.regions_)).template process_event<Dry>(mach, ctx, event);
             MAKI_AOS_RETURN static_cast<int>(processed);
         }
     };
 
-    template<int TargetStateMoldId>
+    template<class AosVoid, int TargetStateMoldId>
     struct region_exit
     {
         template<class Region, class Self, class Context, class Event>
-        static MAKI_AOS_VOID call(Self& self, machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+        static AosVoid call(Self& self, machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
         {
             MAKI_AOS_CALL impl_of(get<Region>(self.regions_)).template exit<TargetStateMoldId>(mach, ctx, event);
         }
@@ -440,11 +441,11 @@ private:
                 event
             );
 
-            MAKI_AOS_CALL tlu::for_each
+            MAKI_AOS_CALL tlu::MAKI_AOS_NAME(for_each)
             <
                 AosType<void>,
                 region_mix_type,
-                region_process_event<Dry>
+                region_process_event<AosType<int>, Dry>
             >(self, mach, ctx, event);
 
             MAKI_AOS_RETURN true;
@@ -455,8 +456,9 @@ private:
             <
                 AosType<int>,
                 region_mix_type,
-                region_process_event<Dry>
+                region_process_event<AosType<int>, Dry>
             >(self, mach, ctx, event);
+
             MAKI_AOS_RETURN static_cast<bool>(processed_count);
         }
     }

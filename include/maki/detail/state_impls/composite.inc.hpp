@@ -109,14 +109,14 @@ public:
     template<template<class> class AsyncType, bool Dry, class Machine, class Context, class Event>
     AsyncType<bool> async_call_internal_action(Machine& mach, Context& ctx, const Event& event)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS_NAME(call_internal_action)
+        MAKI_AOS_RETURN MAKI_AOS_CALL call_internal_action
         <
             AsyncType,
             Dry
         >
         (
             mach,
-            ctx_holder_.get_deep(),
+            ctx,
             event
         );
     }

@@ -10,10 +10,7 @@ This file undefines macros for both asynchronous and synchronous code.
 */
 
 #undef MAKI_AOS_ASYNC
-#undef MAKI_AOS_BOOL
 #undef MAKI_AOS_CALL
-#undef MAKI_AOS_INT
 #undef MAKI_AOS_NAME
 #undef MAKI_AOS_RETURN
 #undef MAKI_AOS_TYPE
-#undef MAKI_AOS_VOID

@@ -14,6 +14,3 @@ This file defines macros for asynchronous code.
 #define MAKI_AOS_CALL co_await
 #define MAKI_AOS_RETURN co_return
 #define MAKI_AOS_TYPE(type) awaitable_type<type>
-#define MAKI_AOS_VOID detail::co_util::awaitable_t<typename std::decay_t<decltype(detail::impl_of(MachineConfHolder::value))>::awaitable_template_holder, void>
-#define MAKI_AOS_BOOL detail::co_util::awaitable_t<typename std::decay_t<decltype(detail::impl_of(MachineConfHolder::value))>::awaitable_template_holder, bool>
-#define MAKI_AOS_INT  detail::co_util::awaitable_t<typename std::decay_t<decltype(detail::impl_of(MachineConfHolder::value))>::awaitable_template_holder, int>

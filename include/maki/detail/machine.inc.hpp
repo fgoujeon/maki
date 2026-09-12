@@ -527,7 +527,7 @@ private:
     {
         if constexpr(Operation == detail::machine_operation::start)
         {
-            MAKI_AOS_CALL impl_.template enter<MAKI_AOS_TYPE(void)>(*this, context(), event);
+            MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(enter)<MAKI_AOS_TYPE(void)>(*this, context(), event);
             MAKI_AOS_RETURN true;
         }
         else if constexpr(Operation == detail::machine_operation::stop)

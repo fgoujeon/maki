@@ -364,13 +364,28 @@ async_iseq_for_each_or
 template<class R, class Seq, class F>
 struct async_iseq_for_each_or_helper;
 
-template<class R, int... Is, class F>
-struct async_iseq_for_each_or_helper<R, iseq<Is...>, F>
+template<class R, class F>
+struct async_iseq_for_each_or_helper<R, iseq<>, F>
+{
+    template<class... Args>
+    static R call(Args&... /*args*/)
+    {
+        co_return false;
+    }
+};
+
+template<class R, int I, int... Is, class F>
+struct async_iseq_for_each_or_helper<R, iseq<I, Is...>, F>
 {
     template<class... Args>
     static R call(Args&... args)
     {
-        co_return (co_await F::template call<Is>(args...) || ...);
+        if(co_await F::template call<I>(args...))
+        {
+            co_return true;
+        }
+
+        co_return co_await async_iseq_for_each_or_helper<R, iseq<Is...>, F>::call(args...);
     }
 };
 

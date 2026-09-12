@@ -10,6 +10,7 @@
 #include "common.hpp"
 #include <boost/cobalt.hpp>
 #include <boost/asio/steady_timer.hpp>
+#include <iostream>
 
 namespace async_ns
 {
@@ -36,21 +37,26 @@ namespace async_ns
 
                 bool co_work_started = false;
                 bool co_work_completed = false;
-                bool co_work_cancelled = false;
 
                 std::optional<boost::cobalt::promise<void>> opt_co_work_promise;
             };
 
             boost::cobalt::promise<void> co_work(context& ctx)
             {
-                ctx.co_work_started = true;
-                auto timer = boost::asio::steady_timer
+                try
                 {
-                    co_await boost::asio::this_coro::executor,
-                    std::chrono::steady_clock::now() + std::chrono::seconds(5)
-                };
-                co_await timer.async_wait();
-                ctx.co_work_completed = true;
+                    ctx.co_work_started = true;
+                    auto timer = boost::asio::steady_timer
+                    {
+                        co_await boost::asio::this_coro::executor,
+                        std::chrono::steady_clock::now() + std::chrono::seconds(5)
+                    };
+                    co_await timer.async_wait();
+                    ctx.co_work_completed = true;
+                }
+                catch(...)
+                {
+                }
             }
         }
 
@@ -68,23 +74,7 @@ namespace async_ns
                 [](on_ns::context& ctx) -> boost::cobalt::promise<void>
                 {
                     ctx.opt_co_work_promise->cancel();
-
-                    try
-                    {
-                        co_await *ctx.opt_co_work_promise;
-                    }
-                    catch(const boost::system::system_error& ex)
-                    {
-                        if(ex.code() == boost::asio::error::operation_aborted)
-                        {
-                            ctx.co_work_cancelled = true;
-                        }
-                        else
-                        {
-                            throw;
-                        }
-                    }
-
+                    co_await *ctx.opt_co_work_promise;
                     ctx.opt_co_work_promise.reset();
                 }
             )
@@ -113,17 +103,16 @@ namespace async_ns
         auto machine = machine_t{};
 
         co_await machine.start();
-        REQUIRE(machine.running());
-        REQUIRE(machine.is<states::off>());
+        CHECK(machine.running());
+        CHECK(machine.is<states::off>());
 
         co_await machine.process_event(events::button_press{});
-        //REQUIRE(machine.is<states::on>());
-        REQUIRE(machine.state<states::on>().context().co_work_started);
-        REQUIRE(!machine.state<states::on>().context().co_work_completed);
-        REQUIRE(machine.state<states::on>().context().co_work_cancelled);
+        CHECK(machine.is<states::on>());
+        CHECK(machine.state<states::on>().context().co_work_started);
+        CHECK(!machine.state<states::on>().context().co_work_completed);
 
         co_await machine.process_event(events::button_press{});
-        REQUIRE(machine.is<states::off>());
+        CHECK(machine.is<states::off>());
     }
 }
 

@@ -114,7 +114,7 @@ public:
     unless `maki::machine_conf::auto_start` is set to `false`.
     */
     template<class Event = events::start>
-    MAKI_AOS_TYPE(void) start(const Event& event = {})
+    MAKI_AOS_TYPE(void) start(const Event MAKI_AOS_REF event = {})
     {
         MAKI_DETAIL_MAYBE_CATCH
         (
@@ -131,7 +131,7 @@ public:
     the internal `stopped` state.
     */
     template<class Event = events::stop>
-    MAKI_AOS_TYPE(void) stop(const Event& event = {})
+    MAKI_AOS_TYPE(void) stop(const Event MAKI_AOS_REF event = {})
     {
         MAKI_DETAIL_MAYBE_CATCH
         (
@@ -189,7 +189,7 @@ public:
     @endcode
     */
     template<class Event>
-    MAKI_AOS_TYPE(void) process_event(const Event& event)
+    MAKI_AOS_TYPE(void) process_event(const Event MAKI_AOS_REF event)
     {
         MAKI_DETAIL_MAYBE_CATCH
         (
@@ -202,7 +202,7 @@ public:
     `maki::machine_conf::catch_mx()` is set.
     */
     template<class Event>
-    MAKI_AOS_TYPE(void) process_event_no_catch(const Event& event)
+    MAKI_AOS_TYPE(void) process_event_no_catch(const Event MAKI_AOS_REF event)
     {
         MAKI_AOS_CALL execute_operation<detail::machine_operation::process_event>(event);
     }
@@ -227,7 +227,7 @@ public:
     this function to be available.
     */
     template<class Event>
-    MAKI_AOS_TYPE(void) process_event_now(const Event& event)
+    MAKI_AOS_TYPE(void) process_event_now(const Event MAKI_AOS_REF event)
     {
         MAKI_DETAIL_MAYBE_CATCH
         (

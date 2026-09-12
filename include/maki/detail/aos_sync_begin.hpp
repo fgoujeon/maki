@@ -10,7 +10,8 @@ This file defines macros for synchronous code.
 */
 
 #define MAKI_AOS_ASYNC 0
-#define MAKI_AOS_NAME(name) name
 #define MAKI_AOS_CALL
+#define MAKI_AOS_NAME(name) name
+#define MAKI_AOS_REF &
 #define MAKI_AOS_RETURN return
 #define MAKI_AOS_TYPE(type) type

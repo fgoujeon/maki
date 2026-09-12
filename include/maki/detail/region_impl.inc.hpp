@@ -119,7 +119,7 @@ public:
 
 #if MAKI_AOS_ASYNC
     template<class T>
-    using awaitable_type = detail::co_util::awaitable_t<typename machine_conf_type::awaitable_template_holder, T>;
+    using awaitable_type = typename machine_conf_type::awaitable_template_holder::template type<T>;
 #endif
 
     template<class Context>

@@ -15,9 +15,9 @@
 #include "event_set.hpp"
 #include "context.hpp"
 #include "action.hpp"
-#include "detail/co_util.hpp"
 #include "detail/machine_conf_impl.hpp"
 #include "detail/type_set.hpp"
+#include "detail/type_template.hpp"
 #include "detail/type.hpp"
 #include "detail/event_action.hpp"
 #include "detail/signature_macros.hpp"
@@ -165,7 +165,7 @@ public:
     {
 #ifdef __cpp_impl_coroutine
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_awaitable_template_holder detail::type<detail::co_util::awaitable_template_t<AwaitableTemplate>>
+#define MAKI_DETAIL_ARG_awaitable_template_holder detail::type<detail::type_template<AwaitableTemplate>>
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_awaitable_template_holder
 #else

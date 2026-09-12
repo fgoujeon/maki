@@ -7,7 +7,7 @@
 #ifndef MAKI_DETAIL_TLU_FOR_EACH_HPP
 #define MAKI_DETAIL_TLU_FOR_EACH_HPP
 
-#include "../co_util.hpp"
+#include "../coroutine.hpp"
 #include "../friendly_impl.hpp"
 #include <type_traits>
 

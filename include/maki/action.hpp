@@ -108,13 +108,13 @@ namespace detail
 
     template
     <
-        class R,
+        class Void,
         class Action,
         class Context,
         class Machine,
         class Event
     >
-    R call_action
+    Void call_action
     (
         const Action& act,
         Context& ctx,
@@ -122,7 +122,7 @@ namespace detail
         const Event& event
     )
     {
-        call_callable<R, action_signature, Action::signature>
+        call_callable<Void, action_signature, Action::signature>
         (
             act.callable,
             ctx,
@@ -134,13 +134,13 @@ namespace detail
 #if __cpp_impl_coroutine
     template
     <
-        class R,
+        class AsyncVoid,
         class Action,
         class Context,
         class Machine,
         class Event
     >
-    R async_call_action
+    AsyncVoid async_call_action
     (
         const Action& act,
         Context& ctx,
@@ -148,7 +148,7 @@ namespace detail
         const Event& event
     )
     {
-        co_await async_call_callable<R, action_signature, Action::signature>
+        co_await async_call_callable<AsyncVoid, action_signature, Action::signature>
         (
             act.callable,
             ctx,

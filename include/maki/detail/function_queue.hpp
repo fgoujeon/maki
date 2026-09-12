@@ -7,7 +7,7 @@
 #ifndef MAKI_DETAIL_FUNCTION_QUEUE_HPP
 #define MAKI_DETAIL_FUNCTION_QUEUE_HPP
 
-#include "co_util.hpp"
+#include "coroutine.hpp"
 #include <queue>
 #include <cstddef>
 #include <cuchar>

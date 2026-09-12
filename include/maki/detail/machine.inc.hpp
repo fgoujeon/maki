@@ -32,7 +32,7 @@ public:
     using awaitable_type = IMPLEMENTATION_DETAIL;
 #else
     template<class T>
-    using awaitable_type = detail::co_util::awaitable_t<typename conf_type::awaitable_template_holder, T>;
+    using awaitable_type = typename conf_type::awaitable_template_holder::template type<T>;
 #endif
 #endif
 

@@ -169,10 +169,12 @@ public:
     }
 
     template<class AosVoid, class Context, class Event>
-    AosVoid enter(
+    AosVoid MAKI_AOS_NAME(enter)
+    (
         MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
         Context& ctx,
-        const Event& event)
+        const Event& event
+    )
     {
         MAKI_AOS_CALL impl_type::template MAKI_AOS_NAME(enter)<AosVoid>(mach, ctx, event);
         MAKI_AOS_CALL tlu::MAKI_AOS_NAME(for_each)
@@ -183,17 +185,8 @@ public:
         >(*this, mach, ctx, event);
     }
 
-    template<class R, class Context, class Event>
-    R async_enter(
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
-        Context& ctx,
-        const Event& event)
-    {
-        MAKI_AOS_CALL enter(mach, ctx, event);
-    }
-
     template<template<class> class AosType, bool Dry, class Context, class Event>
-    AosType<bool> call_internal_action
+    AosType<bool> MAKI_AOS_NAME(call_internal_action)
     (
         MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
         Context& ctx,
@@ -204,7 +197,7 @@ public:
     }
 
     template<template<class> class AosType, bool Dry, class Context, class Event>
-    AosType<bool> call_internal_action
+    AosType<bool> MAKI_AOS_NAME(call_internal_action)
     (
         const MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
         Context& ctx,
@@ -214,41 +207,13 @@ public:
         MAKI_AOS_RETURN MAKI_AOS_CALL call_internal_action_2<AosType, Dry>(*this, mach, ctx, event);
     }
 
-    template<template<class> class AsyncType, bool Dry, class Machine, class Context, class Event>
-    AsyncType<bool> async_call_internal_action(Machine& mach, Context& ctx, const Event& event)
-    {
-        MAKI_AOS_RETURN MAKI_AOS_CALL call_internal_action
-        <
-            AsyncType,
-            Dry
-        >
-        (
-            mach,
-            ctx,
-            event
-        );
-    }
-
-    template<template<class> class AsyncType, bool Dry, class Machine, class Context, class Event>
-    AsyncType<bool> async_call_internal_action(const Machine& mach, Context& ctx, const Event& event) const
-    {
-        MAKI_AOS_RETURN MAKI_AOS_CALL call_internal_action
-        <
-            AsyncType,
-            Dry
-        >
-        (
-            mach,
-            ctx,
-            event
-        );
-    }
-
     template<class AosVoid, class Context, class Event>
-    AosVoid exit(
+    AosVoid MAKI_AOS_NAME(exit)
+    (
         MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
         Context& ctx,
-        const Event& event)
+        const Event& event
+    )
     {
         MAKI_AOS_CALL tlu::MAKI_AOS_NAME(for_each)
         <
@@ -260,27 +225,18 @@ public:
         MAKI_AOS_CALL impl_type::template MAKI_AOS_NAME(exit)<AosVoid>(mach, ctx, event);
     }
 
-    template<class R, class Context, class Event>
-    R async_exit(
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
-        Context& ctx,
-        const Event& event)
-    {
-        MAKI_AOS_CALL exit(mach, ctx, event);
-    }
-
     // For each region, transition from active state to final state.
     template<class AosVoid, class Context, class Event>
     AosVoid exit_to_finals(machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
     {
-        MAKI_AOS_CALL tlu::for_each
+        MAKI_AOS_CALL tlu::MAKI_AOS_NAME(for_each)
         <
             AosVoid,
             region_mix_type,
             region_exit<AosVoid, state_mold_ids::fin>
         >(*this, mach, ctx, event);
 
-        MAKI_AOS_CALL impl_type::template exit<AosVoid>(mach, ctx, event);
+        MAKI_AOS_CALL impl_type::template MAKI_AOS_NAME(exit)<AosVoid>(mach, ctx, event);
     }
 
     void reset_contexts_with_parent_lifetime()

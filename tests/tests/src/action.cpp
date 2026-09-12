@@ -7,67 +7,12 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace action_ns
-{
-    struct context
-    {
-        void boop()
-        {
-            i = 0;
-        }
+#include "aos/begin_sync.inc.hpp"
+#include "action.inc.hpp"
+#include "aos/end.inc.hpp"
 
-        int i = 0;
-    };
-
-    namespace events
-    {
-        struct button_press{};
-    }
-
-    namespace states
-    {
-        EMPTY_STATE(off)
-        EMPTY_STATE(on)
-    }
-
-    namespace actions
-    {
-        constexpr auto beep = maki::action_c([](context& ctx)
-        {
-            ctx.i = 1;
-        });
-    }
-
-    constexpr auto transition_table = maki::transition_table{}
-        (maki::ini,   states::off)
-        (states::off, states::on,  maki::event<events::button_press>, actions::beep)
-        (states::on,  states::off, maki::event<events::button_press>, maki::action_c(&context::boop))
-    ;
-
-    struct machine_conf
-    {
-        static constexpr auto value = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context_a<context>()
-        ;
-    };
-
-    using machine_t = maki::machine<machine_conf>;
-}
-
-TEST_CASE("action")
-{
-    using namespace action_ns;
-
-    auto machine = machine_t{};
-
-    machine.start();
-
-    machine.process_event(events::button_press{});
-    REQUIRE(machine.is<states::on>());
-    REQUIRE(machine.context().i == 1);
-
-    machine.process_event(events::button_press{});
-    REQUIRE(machine.is<states::off>());
-    REQUIRE(machine.context().i == 0);
-}
+#if MAKI_BUILD_TESTS_20
+#include "aos/begin_async.inc.hpp"
+#include "action.inc.hpp"
+#include "aos/end.inc.hpp"
+#endif

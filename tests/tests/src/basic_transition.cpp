@@ -7,56 +7,12 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace basic_transition_ns
-{
-    struct context
-    {
-    };
+#include "aos/begin_sync.inc.hpp"
+#include "basic_transition.inc.hpp"
+#include "aos/end.inc.hpp"
 
-    namespace states
-    {
-        EMPTY_STATE(on)
-        EMPTY_STATE(off)
-    }
-
-    namespace events
-    {
-        struct button_press{};
-    }
-
-    constexpr auto transition_table = maki::transition_table{}
-        (maki::ini,   states::off)
-        (states::off, states::on,  maki::event<events::button_press>)
-        (states::on,  states::off, maki::event<events::button_press>)
-    ;
-
-    struct machine_conf
-    {
-        static constexpr auto value = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context_a<context>()
-            .auto_start(false)
-            .run_to_completion(false)
-        ;
-    };
-
-    using machine_t = maki::machine<machine_conf>;
-}
-
-TEST_CASE("basic_transition")
-{
-    using namespace basic_transition_ns;
-
-    auto machine = machine_t{};
-
-    REQUIRE(!machine.running());
-
-    machine.start();
-    REQUIRE(machine.is<states::off>());
-
-    machine.process_event(events::button_press{});
-    REQUIRE(machine.is<states::on>());
-
-    machine.process_event(events::button_press{});
-    REQUIRE(machine.is<states::off>());
-}
+#if MAKI_BUILD_TESTS_20
+#include "aos/begin_async.inc.hpp"
+#include "basic_transition.inc.hpp"
+#include "aos/end.inc.hpp"
+#endif

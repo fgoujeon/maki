@@ -4,9 +4,10 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#include "common/catch.hpp"
-#include "common/empty_state.hpp"
-
-#if MAKI_BUILD_TESTS_20
-#include <boost/cobalt.hpp>
-#endif
+#undef AOS
+#undef AOS_ASYNC
+#undef AOS_ASYNC_OPTS
+#undef AOS_CALL
+#undef AOS_PROMISE_TYPE
+#undef AOS_TASK_TYPE
+#undef AOS_TEST_CASE

@@ -96,22 +96,22 @@ namespace async_ns
         ;
     };
 
-    using machine_t = maki::async_machine<machine_conf>;
+    using machine_t = maki::machine<machine_conf>;
 
     boost::cobalt::task<void> co_test()
     {
         auto machine = machine_t{};
 
-        co_await machine.start();
+        co_await machine.async_start();
         CHECK(machine.running());
         CHECK(machine.is<states::off>());
 
-        co_await machine.process_event(events::button_press{});
+        co_await machine.async_process_event(events::button_press{});
         CHECK(machine.is<states::on>());
         CHECK(machine.state<states::on>().context().co_work_started);
         CHECK(!machine.state<states::on>().context().co_work_completed);
 
-        co_await machine.process_event(events::button_press{});
+        co_await machine.async_process_event(events::button_press{});
         CHECK(machine.is<states::off>());
     }
 }

@@ -48,7 +48,7 @@ namespace AOS(completion_transition_ns)
         ;
     };
 
-    using machine_t = maki::AOS(machine)<machine_conf>;
+    using machine_t = maki::machine<machine_conf>;
 
     AOS_TASK_TYPE(void) test()
     {
@@ -56,15 +56,15 @@ namespace AOS(completion_transition_ns)
 
         auto machine = machine_t{};
 
-        AOS_CALL machine.start();
+        AOS_CALL machine.AOS(start)();
         REQUIRE(machine.is<states::s0>());
 
-        AOS_CALL machine.process_event(events::go_on{});
+        AOS_CALL machine.AOS(process_event)(events::go_on{});
         REQUIRE(machine.is<states::s2>());
         REQUIRE(machine.context().out == "did something");
 
         machine.context().out.clear();
-        AOS_CALL machine.process_event(events::go_on{});
+        AOS_CALL machine.AOS(process_event)(events::go_on{});
         REQUIRE(machine.is<states::s0>());
     }
 }

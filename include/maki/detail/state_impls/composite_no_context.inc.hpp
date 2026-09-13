@@ -148,7 +148,7 @@ public:
     template<class Context>
     MAKI_AOS_NAME(composite_no_context)
     (
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        machine<MachineConfHolder>& mach,
         Context& ctx
     ):
         regions_(mix_uniform_construct, mach, ctx)
@@ -165,7 +165,7 @@ public:
     void emplace_contexts_with_parent_lifetime
     (
         Context& ctx,
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach
+        machine<MachineConfHolder>& mach
     )
     {
         tlu::for_each
@@ -179,7 +179,7 @@ public:
     template<class AosVoid, class Context, class Event>
     AosVoid MAKI_AOS_NAME(enter)
     (
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        machine<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event
     )
@@ -196,7 +196,7 @@ public:
     template<template<class> class AosType, bool Dry, class Context, class Event>
     AosType<bool> MAKI_AOS_NAME(call_internal_action)
     (
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        machine<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event
     )
@@ -207,7 +207,7 @@ public:
     template<template<class> class AosType, bool Dry, class Context, class Event>
     AosType<bool> MAKI_AOS_NAME(call_internal_action)
     (
-        const MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        const machine<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event
     ) const
@@ -218,7 +218,7 @@ public:
     template<class AosVoid, class Context, class Event>
     AosVoid MAKI_AOS_NAME(exit)
     (
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        machine<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event
     )
@@ -325,7 +325,7 @@ private:
         (
             Self& self,
             Context& ctx,
-            MAKI_AOS_NAME(machine)<MachineConfHolder>& mach
+            machine<MachineConfHolder>& mach
         )
         {
             impl_of(get<Region>(self.regions_)).emplace_contexts_with_parent_lifetime(ctx, mach);
@@ -339,7 +339,7 @@ private:
         static AosVoid call
         (
             Self& self,
-            MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+            machine<MachineConfHolder>& mach,
             Context& ctx,
             const Event& event
         )
@@ -366,7 +366,7 @@ private:
         static AosVoid call
         (
             Self& self,
-            MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+            machine<MachineConfHolder>& mach,
             Context& ctx,
             const Event& event
         )

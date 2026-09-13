@@ -26,7 +26,7 @@ public:
     template<class ParentContext>
     MAKI_AOS_NAME(composite)
     (
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        machine<MachineConfHolder>& mach,
         ParentContext& parent_ctx
     ):
         ctx_holder_(mach, parent_ctx),
@@ -60,7 +60,7 @@ public:
     void emplace_contexts_with_parent_lifetime
     (
         ParentContext& parent_ctx,
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach
+        machine<MachineConfHolder>& mach
     )
     {
         if constexpr(ctx_lifetime == state_context_lifetime::parent)
@@ -72,7 +72,7 @@ public:
     template<class AosVoid, class ParentContext, class Event>
     AosVoid MAKI_AOS_NAME(enter)
     (
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        machine<MachineConfHolder>& mach,
         [[maybe_unused]] ParentContext& parent_ctx,
         const Event& event
     )
@@ -88,7 +88,7 @@ public:
     template<template<class> class AosType, bool Dry, class ParentContext, class Event>
     AosType<bool> MAKI_AOS_NAME(call_internal_action)
     (
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        machine<MachineConfHolder>& mach,
         ParentContext& /*parent_ctx*/,
         const Event& event
     )
@@ -108,7 +108,7 @@ public:
     template<class R, class ParentContext, class Event>
     R MAKI_AOS_NAME(exit)
     (
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        machine<MachineConfHolder>& mach,
         ParentContext& /*parent_ctx*/,
         const Event& event
     )
@@ -157,7 +157,7 @@ private:
     void emplace_context
     (
         ParentContext& parent_ctx,
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach
+        machine<MachineConfHolder>& mach
     )
     {
         auto& ctx = ctx_holder_.emplace(mach, parent_ctx);

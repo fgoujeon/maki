@@ -58,7 +58,7 @@ namespace AOS(composite_state_completion_ns)
         ;
     };
 
-    using machine_t = maki::AOS(machine)<machine_conf>;
+    using machine_t = maki::machine<machine_conf>;
 
     AOS_TASK_TYPE(void) test()
     {
@@ -66,7 +66,7 @@ namespace AOS(composite_state_completion_ns)
         auto& ctx = machine.context();
 
 #if AOS_ASYNC
-        co_await machine.start();
+        co_await machine.async_start();
 #endif
 
         CHECK(machine.is<states::running>());
@@ -74,13 +74,13 @@ namespace AOS(composite_state_completion_ns)
         CHECK(machine.state<states::running>().region<1>().is<states::waiting>());
         CHECK(ctx.i == 0);
 
-        AOS_CALL machine.process_event(events::other_button_press{});
+        AOS_CALL machine.AOS(process_event)(events::other_button_press{});
         CHECK(machine.is<states::running>());
         CHECK(machine.state<states::running>().region<0>().is<states::waiting>());
         CHECK(!machine.state<states::running>().region<1>().is<states::waiting>());
         CHECK(ctx.i == 0);
 
-        AOS_CALL machine.process_event(events::button_press{});
+        AOS_CALL machine.AOS(process_event)(events::button_press{});
         CHECK(!machine.is<states::running>());
         CHECK(ctx.i == 1);
     }

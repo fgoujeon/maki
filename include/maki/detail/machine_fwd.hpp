@@ -13,9 +13,6 @@ namespace maki
 template<class ConfHolder>
 class machine;
 
-template<class ConfHolder>
-class async_machine;
-
 } //namespace
 
 #endif

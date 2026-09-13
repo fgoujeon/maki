@@ -100,24 +100,24 @@ namespace AOS(composite_state_on_xxx_ns)
         ;
     };
 
-    using machine_t = maki::AOS(machine)<machine_conf>;
+    using machine_t = maki::machine<machine_conf>;
 
     AOS_TASK_TYPE(void) test()
     {
         auto machine = machine_t{};
         auto& ctx = machine.context();
 
-        AOS_CALL machine.start();
+        AOS_CALL machine.AOS(start)();
 
-        AOS_CALL machine.process_event(events::button_press{"a"});
+        AOS_CALL machine.AOS(process_event)(events::button_press{"a"});
         REQUIRE(ctx.out == "a1a2");
 
         ctx.out.clear();
-        AOS_CALL machine.process_event(events::internal{"b"});
+        AOS_CALL machine.AOS(process_event)(events::internal{"b"});
         REQUIRE(ctx.out == "b1b2");
 
         ctx.out.clear();
-        AOS_CALL machine.process_event(events::button_press{"c"});
+        AOS_CALL machine.AOS(process_event)(events::button_press{"c"});
         REQUIRE(ctx.out == "c1c2");
     }
 }

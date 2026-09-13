@@ -126,7 +126,7 @@ public:
     MAKI_AOS_NAME(region_impl)
     (
         const region<MAKI_AOS_NAME(region_impl)>* pitf,
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        machine<MachineConfHolder>& mach,
         Context& ctx
     ):
         pitf_(pitf),
@@ -181,7 +181,7 @@ public:
     void emplace_contexts_with_parent_lifetime
     (
         Context& ctx,
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach
+        machine<MachineConfHolder>& mach
     )
     {
         iseq_for_each
@@ -195,7 +195,7 @@ public:
     template<class Context, class Event>
     MAKI_AOS_TYPE(void) enter
     (
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        machine<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event
     )
@@ -212,7 +212,7 @@ public:
     template<int TargetStateMoldId, class Context, class Event>
     MAKI_AOS_TYPE(void) exit
     (
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        machine<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event
     )
@@ -241,7 +241,7 @@ public:
     template<bool Dry, class Context, class Event>
     MAKI_AOS_TYPE(bool) process_event
     (
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        machine<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event
     )
@@ -252,7 +252,7 @@ public:
     template<bool Dry, class Context, class Event>
     MAKI_AOS_TYPE(bool) process_event
     (
-        const MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        const machine<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event
     ) const
@@ -294,7 +294,7 @@ private:
         (
             Self& self,
             Context& ctx,
-            MAKI_AOS_NAME(machine)<MachineConfHolder>& mach
+            machine<MachineConfHolder>& mach
         )
         {
             auto& stt = static_state_mold_id_to_state<StateMoldId>(self);
@@ -381,7 +381,7 @@ private:
         static MAKI_AOS_TYPE(void) call
         (
             MAKI_AOS_NAME(region_impl)& self,
-            MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+            machine<MachineConfHolder>& mach,
             Context& ctx,
             const Event& event
         )
@@ -544,7 +544,7 @@ private:
     >
     MAKI_AOS_TYPE(void) execute_transition
     (
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        machine<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event
     )
@@ -764,7 +764,7 @@ private:
     MAKI_AOS_TYPE(void) try_executing_completion_transitions
     (
         ActiveState& active_state,
-        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        machine<MachineConfHolder>& mach,
         Context& ctx
     )
     {

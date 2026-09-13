@@ -96,7 +96,7 @@ namespace AOS(composite_state_context_ns)
         ;
     };
 
-    using machine_t = maki::AOS(machine)<machine_conf>;
+    using machine_t = maki::machine<machine_conf>;
 
     AOS_TASK_TYPE(void) test()
     {
@@ -105,27 +105,27 @@ namespace AOS(composite_state_context_ns)
         const auto& on_state = machine.state<states::on>();
 
 #if AOS_ASYNC
-        co_await machine.start();
+        co_await machine.async_start();
 #endif
 
-        AOS_CALL machine.process_event(events::power_button_press{});
+        AOS_CALL machine.AOS(process_event)(events::power_button_press{});
         REQUIRE(on_state.is<states::on_ns::emitting_red>());
 
-        AOS_CALL machine.process_event(events::color_button_press{});
+        AOS_CALL machine.AOS(process_event)(events::color_button_press{});
         REQUIRE(on_state.is<states::on_ns::emitting_green>());
 
-        AOS_CALL machine.process_event(events::color_button_press{});
+        AOS_CALL machine.AOS(process_event)(events::color_button_press{});
         REQUIRE(on_state.is<states::on_ns::emitting_blue>());
 
-        AOS_CALL machine.process_event(events::color_button_press{});
+        AOS_CALL machine.AOS(process_event)(events::color_button_press{});
         REQUIRE(on_state.is<states::on_ns::emitting_red>());
 
-        AOS_CALL machine.process_event(events::power_button_press{});
+        AOS_CALL machine.AOS(process_event)(events::power_button_press{});
         REQUIRE(machine.is<states::off>());
 
         REQUIRE(ctx.out == "2");
 
-        AOS_CALL machine.process_event(events::power_button_press{});
+        AOS_CALL machine.AOS(process_event)(events::power_button_press{});
         REQUIRE(machine.is<states::on>());
     }
 }

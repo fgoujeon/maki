@@ -50,19 +50,19 @@ namespace AOS(action_ns)
         ;
     };
 
-    using machine_t = maki::AOS(machine)<machine_conf>;
+    using machine_t = maki::machine<machine_conf>;
 
     AOS_TASK_TYPE(void) test()
     {
         auto machine = machine_t{};
 
-        AOS_CALL machine.start();
+        AOS_CALL machine.AOS(start)();
 
-        AOS_CALL machine.process_event(events::button_press{});
+        AOS_CALL machine.AOS(process_event)(events::button_press{});
         REQUIRE(machine.is<states::on>());
         REQUIRE(machine.context().i == 1);
 
-        AOS_CALL machine.process_event(events::button_press{});
+        AOS_CALL machine.AOS(process_event)(events::button_press{});
         REQUIRE(machine.is<states::off>());
         REQUIRE(machine.context().i == 0);
     }

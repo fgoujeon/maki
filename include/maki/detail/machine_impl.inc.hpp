@@ -4,299 +4,181 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
+namespace maki::detail
+{
+
+#define MAKI_DETAIL_MAYBE_CATCH(statements) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    if constexpr(detail::is_null_v<typename conf_type::exception_handler_type>) \
+    { \
+        statements \
+    } \
+    else \
+    { \
+        try \
+        { \
+            statements \
+        } \
+        catch(...) \
+        { \
+            detail::impl_of(conf).exception_handler(mach, std::current_exception()); \
+        } \
+    }
+
+template<class MachineConfHolder>
+class MAKI_AOS_NAME(machine_impl)
+{
 public:
-    /**
-    @brief The state machine configuration.
-    */
     static constexpr const auto& conf = MachineConfHolder::value;
 
-#ifndef MAKI_DETAIL_DOXYGEN
     using conf_type = std::decay_t<decltype(detail::impl_of(conf))>;
-#endif
 
-#ifdef MAKI_DETAIL_DOXYGEN
-    /**
-    @brief The context type given to `maki::machine_conf::context_a()` or its variants.
-    */
-    using context_type = IMPLEMENTATION_DETAIL;
-#else
     using context_type = typename conf_type::context_type;
-#endif
 
 #if MAKI_AOS_ASYNC
-#ifdef MAKI_DETAIL_DOXYGEN
-    /**
-    @brief The awaitable type template given to `maki::machine_conf::async()`.
-    */
-    template<class T>
-    using awaitable_type = IMPLEMENTATION_DETAIL;
-#else
     template<class T>
     using awaitable_type = typename conf_type::awaitable_template_holder::template type<T>;
+#else
+    template<class T>
+    using awaitable_type = T;
 #endif
-#endif
 
-    static_assert
-    (
-        detail::is_machine_conf_v<std::decay_t<decltype(conf)>>,
-        "Given `Conf` must be an instance of `maki::machine_conf`"
-    );
+    template<class T>
+    using aos_type = awaitable_type<T>;
 
-    /**
-    @brief The constructor.
-    @param ctx_args the arguments to be forwarded to the constructor of the root
-    context
-
-    The constructor first instantiates all the contexts defined in the state
-    machine, starting with the root context (i.e. the context specified in the
-    `maki::machine_conf` object).
-
-    Finally, unless `maki::machine_conf::auto_start()` is set to `false`,
-    `maki::machine::start()` is called.
-    */
     template<class... ContextArgs>
-    explicit MAKI_AOS_NAME(machine)(ContextArgs&&... ctx_args):
-        ctx_holder_(*this, std::forward<ContextArgs>(ctx_args)...),
-        impl_(*this, context())
+    MAKI_AOS_NAME(machine_impl)
+    (
+        machine<MachineConfHolder>& mach,
+        ContextArgs&&... ctx_args
+    ):
+        ctx_holder_(mach, std::forward<ContextArgs>(ctx_args)...),
+        impl_(mach, ctx_holder_.get())
     {
 #if !MAKI_AOS_ASYNC
         if constexpr(detail::impl_of(conf).auto_start)
         {
             MAKI_DETAIL_MAYBE_CATCH
             (
-                start_now();
+                start_now(mach);
             )
         }
 #endif
     }
 
-    MAKI_AOS_NAME(machine)(const MAKI_AOS_NAME(machine)&) = delete;
-    MAKI_AOS_NAME(machine)(MAKI_AOS_NAME(machine)&&) = delete;
-    MAKI_AOS_NAME(machine)& operator=(const MAKI_AOS_NAME(machine)&) = delete;
-    MAKI_AOS_NAME(machine)& operator=(MAKI_AOS_NAME(machine)&&) = delete;
-    ~MAKI_AOS_NAME(machine)() = default;
-
-    /**
-    @brief Returns the context instantiated at construction.
-    */
     context_type& context()
     {
         return ctx_holder_.get();
     }
 
-    /**
-    @brief Returns the context instantiated at construction.
-    */
     const context_type& context() const
     {
         return ctx_holder_.get();
     }
 
-    /**
-    @brief Returns whether the region of the state machine is running.
-    This function can only be called if the state machine contains only one
-    region.
-    */
     [[nodiscard]] bool running() const
     {
         return !impl_.completed();
     }
 
-    /**
-    @brief Starts the state machine
-    @param event the event to be passed to the invoked actions, mainly the
-    entry action of the initial state(s)
-
-    Concretely, if the machine is not already running, exits
-    the internal `stopped` state and enters the initial state.
-
-    Reminder: There's no need to call this function after the construction,
-    unless `maki::machine_conf::auto_start` is set to `false`.
-    */
     template<class Event = events::start>
-    MAKI_AOS_TYPE(void) start(const Event MAKI_AOS_REF event = {})
+    MAKI_AOS_TYPE(void) start
+    (
+        machine<MachineConfHolder>& mach,
+        const Event MAKI_AOS_REF event = {}
+    )
     {
         MAKI_DETAIL_MAYBE_CATCH
         (
-            MAKI_AOS_CALL start_no_catch(event);
+            MAKI_AOS_CALL start_no_catch(mach, event);
         )
     }
 
-    /**
-    @brief Stops the state machine
-    @param event the event to be passed to the invoked actions, mainly the
-    exit action of the active state(s)
-
-    Concretely, if the machine is running, exits the active state and enters
-    the internal `stopped` state.
-    */
     template<class Event = events::stop>
-    MAKI_AOS_TYPE(void) stop(const Event MAKI_AOS_REF event = {})
+    MAKI_AOS_TYPE(void) stop
+    (
+        machine<MachineConfHolder>& mach,
+        const Event MAKI_AOS_REF event = {}
+    )
     {
         MAKI_DETAIL_MAYBE_CATCH
         (
-            MAKI_AOS_CALL stop_no_catch(event);
+            MAKI_AOS_CALL stop_no_catch(mach, event);
         )
     }
 
-    /**
-    @brief Processes the given event
-    @param event the event to be processed
-
-    It's hard to describe all the things this function does, as it is the point
-    of the whole library, but let's try to list the basic stuff with the
-    following pseudocode:
-    @code
-    //Run-to-completion: Don't let potential recursive calls interrupt the
-    //current processing.
-    if(processing_event)
-    {
-        push_event(event);
-        return;
-    }
-
-    //Process the event.
-    FOR_EACH_REGION()
-    {
-        //Process event in active state.
-        const bool processed = CALL_ACTIVE_STATE_INTERNAL_ACTION();
-
-        if(!processed)
-        {
-            //Process event in transition table.
-            FOR_EACH_TRANSITION_IN_REGION_TRANSITION_TABLE()
-            {
-                if
-                (
-                    IS_ACTIVE_STATE(source_state) &&
-                    SAME_TYPE(Event, event_type) &&
-                    GUARD() == true
-                )
-                {
-                    SET_ACTIVE_STATE(maki::undefined);
-                    CALL_EXIT_ACTION(source_state);
-                    CALL_TRANSITION_ACTION();
-                    CALL_ENTRY_ACTION(target_state);
-                    SET_ACTIVE_STATE(target_state);
-                    break;
-                }
-            }
-        }
-    }
-
-    //Run-to-completion: Process pending events the same way
-    process_pending_events();
-    @endcode
-    */
     template<class Event>
-    MAKI_AOS_TYPE(void) process_event(const Event MAKI_AOS_REF event)
+    MAKI_AOS_TYPE(void) process_event
+    (
+        machine<MachineConfHolder>& mach,
+        const Event MAKI_AOS_REF event
+    )
     {
         MAKI_DETAIL_MAYBE_CATCH
         (
-            MAKI_AOS_CALL process_event_no_catch(event);
+            MAKI_AOS_CALL process_event_no_catch(mach, event);
         )
     }
 
-    /**
-    @brief Like `process_event()`, but doesn't catch exceptions, even if
-    `maki::machine_conf::catch_mx()` is set.
-    */
     template<class Event>
-    MAKI_AOS_TYPE(void) process_event_no_catch(const Event MAKI_AOS_REF event)
+    MAKI_AOS_TYPE(void) process_event_no_catch
+    (
+        machine<MachineConfHolder>& mach,
+        const Event MAKI_AOS_REF event
+    )
     {
-        MAKI_AOS_CALL execute_operation<detail::machine_operation::process_event>(event);
+        MAKI_AOS_CALL execute_operation<detail::machine_operation::process_event>(mach, event);
     }
 
-    /**
-    @brief Like `maki::machine::process_event()`, but doesn't check if an event
-    is being processed.
-    @param event the event to be processed
-
-    <b>USE WITH CAUTION!</b>
-
-    You can call this function if you're **absolutely** sure that you're not
-    calling this function while `maki::machine::process_event()` is being
-    called. Otherwise, <b>run-to-completion will be broken</b>.
-
-    Compared to `maki::machine::process_event()`, this function is:
-    - faster to build, because the `maki::machine::push_event()` function
-    template won't be instantiated;
-    - faster to run, because an `if` statement is skipped.
-
-    `maki::machine_conf::process_event_now_enabled()` must be set to `true` for
-    this function to be available.
-    */
     template<class Event>
-    MAKI_AOS_TYPE(void) process_event_now(const Event MAKI_AOS_REF event)
+    MAKI_AOS_TYPE(void) process_event_now
+    (
+        machine<MachineConfHolder>& mach,
+        const Event MAKI_AOS_REF event
+    )
     {
         MAKI_DETAIL_MAYBE_CATCH
         (
-            MAKI_AOS_CALL process_event_now_no_catch(event);
+            MAKI_AOS_CALL process_event_now_no_catch(mach, event);
         )
     }
 
 #if !MAKI_AOS_ASYNC
-    /**
-    @brief Checks whether calling `process_event(event)` would cause a state
-    transition or a call to any action.
-    @param event the event to be checked
-
-    This function is useful for checking whether an event is valid or not,
-    given the current state of the state machine and guard checks against the
-    event itself.
-
-    Note: Run-to-completion mechanism is bypassed and exceptions are not caught.
-    */
     template<class Event>
-    bool check_event(const Event& event) const
+    bool check_event
+    (
+        const machine<MachineConfHolder>& mach,
+        const Event& event
+    ) const
     {
-        return impl_.template MAKI_AOS_NAME(call_internal_action)<aos_type, true>(*this, context(), event);
+        return impl_.template MAKI_AOS_NAME(call_internal_action)<aos_type, true>(mach, context(), event);
     }
 #endif
 
-    /**
-    @brief Enqueues event for later processing
-    @param event the event to be processed
-
-    You can call this function instead of doing a recursive call to @ref
-    process_event().
-
-    This function is slightly faster than @ref process_event(), but if you're
-    not sure what you're doing, just call @ref process_event() instead.
-    */
     template<class Event>
-    MAKI_NOINLINE void push_event(const Event& event)
+    MAKI_NOINLINE void push_event
+    (
+        machine<MachineConfHolder>& mach,
+        const Event& event
+    )
     {
         MAKI_DETAIL_MAYBE_CATCH
         (
-            push_event_no_catch(event);
+            push_event_no_catch(mach, event);
         )
     }
 
-    /**
-    @brief Returns the `maki::region` object at index `Index`.
-    */
     template<int Index>
     [[nodiscard]] const auto& region() const
     {
         return impl_.template region<Index>();
     }
 
-    /**
-    @brief Returns the `maki::state` object created by `StateMold` (of type
-    `maki::state_mold`). Only valid if machine is only made of one region.
-    */
     template<const auto& StateMold>
     [[nodiscard]] const auto& state() const
     {
         return impl_.template state<StateMold>();
     }
 
-    /**
-    @brief Returns whether the state created by `StateMold` is active in the
-    region of the state machine. Only valid if machine is only made of one
-    region.
-    */
     template<const auto& StateMold>
     [[nodiscard]] bool is() const
     {
@@ -313,14 +195,6 @@ private:
         >
     ;
 
-#if MAKI_AOS_ASYNC
-    template<class T>
-    using aos_type = awaitable_type<T>;
-#else
-    template<class T>
-    using aos_type = T;
-#endif
-
     using deferrable_event_type_set =
         typename impl_type::deferrable_event_type_set
     ;
@@ -332,7 +206,7 @@ private:
     class executing_operation_guard
     {
     public:
-        executing_operation_guard(MAKI_AOS_NAME(machine)& self):
+        executing_operation_guard(MAKI_AOS_NAME(machine_impl)& self):
             self_(self)
         {
             self_.executing_operation_ = true;
@@ -349,7 +223,7 @@ private:
         }
 
     private:
-        MAKI_AOS_NAME(machine)& self_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+        MAKI_AOS_NAME(machine_impl)& self_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
     };
 
     struct real_function_queue_holder
@@ -358,7 +232,7 @@ private:
         using type = detail::MAKI_AOS_NAME(function_queue)
         <
             MAKI_AOS_TYPE(bool),
-            MAKI_AOS_NAME(machine)&,
+            machine<MachineConfHolder>&,
             detail::impl_of(conf).small_event_max_size,
             detail::impl_of(conf).small_event_max_align
         >;
@@ -388,54 +262,78 @@ private:
     struct any_event_visitor
     {
         template<class Event>
-        static MAKI_AOS_TYPE(bool) call(const Event& event, MAKI_AOS_NAME(machine)& self)
+        static MAKI_AOS_TYPE(bool) call
+        (
+            const Event& event,
+            machine<MachineConfHolder>& mach
+        )
         {
-            MAKI_AOS_RETURN MAKI_AOS_CALL self.execute_one_operation<Operation>(event);
+            MAKI_AOS_RETURN MAKI_AOS_CALL impl_of(mach).template execute_one_operation<Operation>(mach, event);
         }
     };
 
-    MAKI_AOS_TYPE(void) start_now()
+    MAKI_AOS_TYPE(void) start_now(machine<MachineConfHolder>& mach)
     {
-        MAKI_AOS_CALL execute_operation_now<detail::machine_operation::start>(events::start{});
+        MAKI_AOS_CALL execute_operation_now<detail::machine_operation::start>
+        (
+            mach,
+            events::start{}
+        );
     }
 
     template<class Event>
-    MAKI_AOS_TYPE(void) start_no_catch(const Event& event)
+    MAKI_AOS_TYPE(void) start_no_catch
+    (
+        machine<MachineConfHolder>& mach,
+        const Event& event
+    )
     {
         if(!running())
         {
-            MAKI_AOS_CALL execute_operation<detail::machine_operation::start>(event);
+            MAKI_AOS_CALL execute_operation<detail::machine_operation::start>(mach, event);
         }
     }
 
     template<class Event>
-    MAKI_AOS_TYPE(void) stop_no_catch(const Event& event)
+    MAKI_AOS_TYPE(void) stop_no_catch
+    (
+        machine<MachineConfHolder>& mach,
+        const Event& event
+    )
     {
         if(running())
         {
-            MAKI_AOS_CALL execute_operation<detail::machine_operation::stop>(event);
+            MAKI_AOS_CALL execute_operation<detail::machine_operation::stop>(mach, event);
         }
     }
 
     template<class Event>
-    void process_event_now_no_catch(const Event& event)
+    void process_event_now_no_catch
+    (
+        machine<MachineConfHolder>& mach,
+        const Event& event
+    )
     {
         static_assert
         (
             detail::impl_of(conf).process_event_now_enabled,
             "`maki::machine_conf::process_event_now_enabled()` hasn't been set to `true`"
         );
-        execute_operation_now<detail::machine_operation::process_event>(event);
+        execute_operation_now<detail::machine_operation::process_event>(mach, event);
     }
 
     template<detail::machine_operation Operation, class Event>
-    MAKI_AOS_TYPE(void) execute_operation(const Event& event)
+    MAKI_AOS_TYPE(void) execute_operation
+    (
+        machine<MachineConfHolder>& mach,
+        const Event& event
+    )
     {
         if constexpr(detail::impl_of(conf).run_to_completion)
         {
             if(!executing_operation_) //If call is not recursive
             {
-                MAKI_AOS_CALL execute_operation_now<Operation>(event);
+                MAKI_AOS_CALL execute_operation_now<Operation>(mach, event);
             }
             else
             {
@@ -445,18 +343,22 @@ private:
         }
         else
         {
-            MAKI_AOS_CALL execute_one_operation<Operation>(event);
+            MAKI_AOS_CALL execute_one_operation<Operation>(mach, event);
         }
     }
 
     template<detail::machine_operation Operation, class Event>
-    MAKI_AOS_TYPE(void) execute_operation_now(const Event& event)
+    MAKI_AOS_TYPE(void) execute_operation_now
+    (
+        machine<MachineConfHolder>& mach,
+        const Event& event
+    )
     {
         if constexpr(detail::impl_of(conf).run_to_completion)
         {
             auto grd = executing_operation_guard{*this};
 
-            MAKI_AOS_CALL execute_one_operation<Operation>(event);
+            MAKI_AOS_CALL execute_one_operation<Operation>(mach, event);
 
             /*
             Process enqueued and deferred events, if any.
@@ -464,18 +366,18 @@ private:
             if several pending events can be processed, they're processed in the
             same order they've been given to the `machine`.
             */
-            MAKI_AOS_CALL try_processing_deferred_operations();
+            MAKI_AOS_CALL try_processing_deferred_operations(mach);
             while (!rtc_queue_.empty())
             {
-                MAKI_AOS_CALL rtc_queue_.invoke_and_pop(*this);
-                MAKI_AOS_CALL try_processing_deferred_operations();
+                MAKI_AOS_CALL rtc_queue_.invoke_and_pop(mach);
+                MAKI_AOS_CALL try_processing_deferred_operations(mach);
             }
         }
         else
         {
-            MAKI_AOS_CALL execute_one_operation<Operation>(event);
+            MAKI_AOS_CALL execute_one_operation<Operation>(mach, event);
 
-            MAKI_AOS_CALL try_processing_deferred_operations();
+            MAKI_AOS_CALL try_processing_deferred_operations(mach);
         }
     }
 
@@ -495,7 +397,10 @@ private:
     /*
     Process all previously deferred events that can now be processed.
     */
-    MAKI_AOS_TYPE(void) try_processing_deferred_operations()
+    MAKI_AOS_TYPE(void) try_processing_deferred_operations
+    (
+        machine<MachineConfHolder>& mach
+    )
     {
         if constexpr(has_deferrable_events)
         {
@@ -517,7 +422,7 @@ private:
                 processing_count = 0;
                 for (auto i = 0U; i < event_deferral_queue_.size(); ++i) // Inner loop
                 {
-                    const auto processed = MAKI_AOS_CALL event_deferral_queue_.invoke_and_pop(*this);
+                    const auto processed = MAKI_AOS_CALL event_deferral_queue_.invoke_and_pop(mach);
                     processing_count += static_cast<int>(processed);
                 }
             }
@@ -525,16 +430,30 @@ private:
     }
 
     template<detail::machine_operation Operation, class Event>
-    MAKI_AOS_TYPE(bool) execute_one_operation(const Event& event)
+    MAKI_AOS_TYPE(bool) execute_one_operation
+    (
+        machine<MachineConfHolder>& mach,
+        const Event& event
+    )
     {
         if constexpr(Operation == detail::machine_operation::start)
         {
-            MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(enter)<MAKI_AOS_TYPE(void)>(*this, context(), event);
+            MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(enter)<MAKI_AOS_TYPE(void)>
+            (
+                mach,
+                ctx_holder_.get(),
+                event
+            );
             MAKI_AOS_RETURN true;
         }
         else if constexpr(Operation == detail::machine_operation::stop)
         {
-            MAKI_AOS_CALL impl_.template exit_to_finals<MAKI_AOS_TYPE(void)>(*this, context(), event);
+            MAKI_AOS_CALL impl_.template exit_to_finals<MAKI_AOS_TYPE(void)>
+            (
+                mach,
+                context(),
+                event
+            );
             MAKI_AOS_RETURN true;
         }
         else
@@ -574,7 +493,7 @@ private:
                 {
                     detail::call_matching_event_action<void, pre_processing_hook_ptr_constant_list>
                     (
-                        *this,
+                        mach,
                         context(),
                         event
                     );
@@ -590,11 +509,11 @@ private:
             {
                 if(running())
                 {
-                    const auto processed = MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(call_internal_action)<aos_type, false>(*this, context(), event);
+                    const auto processed = MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(call_internal_action)<aos_type, false>(mach, context(), event);
 
                     detail::call_matching_event_action<void, post_processing_hook_ptr_constant_list>
                     (
-                        *this,
+                        mach,
                         context(),
                         event,
                         processed
@@ -609,7 +528,7 @@ private:
                 is stopped.
                 */
 
-                MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(call_internal_action)<aos_type, false>(*this, context(), event);
+                MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(call_internal_action)<aos_type, false>(mach, context(), event);
             }
 
             MAKI_AOS_RETURN true;
@@ -644,3 +563,8 @@ private:
     mechanism.
     */
     event_deferral_queue_type event_deferral_queue_;
+};
+
+#undef MAKI_DETAIL_MAYBE_CATCH
+
+} //namespace

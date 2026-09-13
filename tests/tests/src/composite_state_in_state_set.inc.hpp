@@ -4,10 +4,7 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#include <maki.hpp>
-#include "common.hpp"
-
-namespace composite_state_in_state_set_ns
+namespace AOS(composite_state_in_state_set_ns)
 {
     struct context
     {
@@ -53,33 +50,34 @@ namespace composite_state_in_state_set_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_ASYNC_OPTS
         ;
     };
 
-    using machine_t = maki::machine<machine_conf>;
+    using machine_t = maki::AOS(machine)<machine_conf>;
+
+    AOS_TASK_TYPE(void) test()
+    {
+        auto machine = machine_t{};
+
+        AOS_CALL machine.start();
+        REQUIRE(machine.is<states::off>());
+
+        AOS_CALL machine.process_event(events::button_press{});
+        REQUIRE(machine.is<states::s0>());
+
+        AOS_CALL machine.process_event(events::off_button_press{});
+        REQUIRE(machine.is<states::s0>());
+
+        AOS_CALL machine.process_event(events::button_press{});
+        REQUIRE(machine.is<states::s1>());
+
+        AOS_CALL machine.process_event(events::off_button_press{});
+        REQUIRE(machine.is<states::s1>());
+
+        AOS_CALL machine.process_event(events::destruction_button_press{});
+        REQUIRE(machine.is<states::off>());
+    }
 }
 
-TEST_CASE("composite_state_in_state_set")
-{
-    using namespace composite_state_in_state_set_ns;
-
-    auto machine = machine_t{};
-
-    machine.start();
-    REQUIRE(machine.is<states::off>());
-
-    machine.process_event(events::button_press{});
-    REQUIRE(machine.is<states::s0>());
-
-    machine.process_event(events::off_button_press{});
-    REQUIRE(machine.is<states::s0>());
-
-    machine.process_event(events::button_press{});
-    REQUIRE(machine.is<states::s1>());
-
-    machine.process_event(events::off_button_press{});
-    REQUIRE(machine.is<states::s1>());
-
-    machine.process_event(events::destruction_button_press{});
-    REQUIRE(machine.is<states::off>());
-}
+AOS_TEST_CASE(composite_state_in_state_set)

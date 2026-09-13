@@ -9,3 +9,8 @@
 #include "basic_transition.inc.hpp"
 #include "completion_transition.inc.hpp"
 #include "composite_state.inc.hpp"
+#include "composite_state_completion.inc.hpp"
+#include "composite_state_context.inc.hpp"
+#include "composite_state_in_state_set.inc.hpp"
+#include "composite_state_on_xxx.inc.hpp"
+#include "composite_state_with_activation_lifetime.inc.hpp"

@@ -4,11 +4,7 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#include <maki.hpp>
-#include "common.hpp"
-#include <string>
-
-namespace composite_state_on_xxx_ns
+namespace AOS(composite_state_on_xxx_ns)
 {
     struct context
     {
@@ -100,29 +96,30 @@ namespace composite_state_on_xxx_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_ASYNC_OPTS
         ;
     };
 
-    using machine_t = maki::machine<machine_conf>;
+    using machine_t = maki::AOS(machine)<machine_conf>;
+
+    AOS_TASK_TYPE(void) test()
+    {
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
+
+        AOS_CALL machine.start();
+
+        AOS_CALL machine.process_event(events::button_press{"a"});
+        REQUIRE(ctx.out == "a1a2");
+
+        ctx.out.clear();
+        AOS_CALL machine.process_event(events::internal{"b"});
+        REQUIRE(ctx.out == "b1b2");
+
+        ctx.out.clear();
+        AOS_CALL machine.process_event(events::button_press{"c"});
+        REQUIRE(ctx.out == "c1c2");
+    }
 }
 
-TEST_CASE("composite_state_on_xxx")
-{
-    using namespace composite_state_on_xxx_ns;
-
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
-
-    machine.start();
-
-    machine.process_event(events::button_press{"a"});
-    REQUIRE(ctx.out == "a1a2");
-
-    ctx.out.clear();
-    machine.process_event(events::internal{"b"});
-    REQUIRE(ctx.out == "b1b2");
-
-    ctx.out.clear();
-    machine.process_event(events::button_press{"c"});
-    REQUIRE(ctx.out == "c1c2");
-}
+AOS_TEST_CASE(composite_state_on_xxx)

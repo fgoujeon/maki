@@ -123,7 +123,12 @@ public:
 #endif
 
     template<class Context>
-    MAKI_AOS_NAME(region_impl)(const region<MAKI_AOS_NAME(region_impl)>* pitf, MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx):
+    MAKI_AOS_NAME(region_impl)
+    (
+        const region<MAKI_AOS_NAME(region_impl)>* pitf,
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        Context& ctx
+    ):
         pitf_(pitf),
         states_(mix_uniform_construct, mach, ctx)
     {
@@ -173,7 +178,11 @@ public:
     }
 
     template<class Context>
-    void emplace_contexts_with_parent_lifetime(Context& ctx, machine<MachineConfHolder>& mach)
+    void emplace_contexts_with_parent_lifetime
+    (
+        Context& ctx,
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach
+    )
     {
         iseq_for_each
         <
@@ -184,7 +193,12 @@ public:
 
     // Enter the initial state
     template<class Context, class Event>
-    MAKI_AOS_TYPE(void) enter(MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
+    MAKI_AOS_TYPE(void) enter
+    (
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        Context& ctx,
+        const Event& event
+    )
     {
         MAKI_AOS_CALL execute_transition
         <
@@ -196,7 +210,12 @@ public:
 
     // Exit the active state
     template<int TargetStateMoldId, class Context, class Event>
-    MAKI_AOS_TYPE(void) exit(MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
+    MAKI_AOS_TYPE(void) exit
+    (
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        Context& ctx,
+        const Event& event
+    )
     {
         if(!completed())
         {
@@ -220,13 +239,23 @@ public:
     }
 
     template<bool Dry, class Context, class Event>
-    MAKI_AOS_TYPE(bool) process_event(MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
+    MAKI_AOS_TYPE(bool) process_event
+    (
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        Context& ctx,
+        const Event& event
+    )
     {
         MAKI_AOS_RETURN MAKI_AOS_CALL process_event_2<Dry>(*this, mach, ctx, event);
     }
 
     template<bool Dry, class Context, class Event>
-    MAKI_AOS_TYPE(bool) process_event(const MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event) const
+    MAKI_AOS_TYPE(bool) process_event
+    (
+        const MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        Context& ctx,
+        const Event& event
+    ) const
     {
         MAKI_AOS_RETURN MAKI_AOS_CALL process_event_2<Dry>(*this, mach, ctx, event);
     }
@@ -265,7 +294,7 @@ private:
         (
             Self& self,
             Context& ctx,
-            machine<MachineConfHolder>& mach
+            MAKI_AOS_NAME(machine)<MachineConfHolder>& mach
         )
         {
             auto& stt = static_state_mold_id_to_state<StateMoldId>(self);

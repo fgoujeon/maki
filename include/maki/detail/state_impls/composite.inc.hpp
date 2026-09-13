@@ -24,7 +24,11 @@ public:
     using deferrable_event_type_set = typename impl_type::deferrable_event_type_set;
 
     template<class ParentContext>
-    MAKI_AOS_NAME(composite)(MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, ParentContext& parent_ctx):
+    MAKI_AOS_NAME(composite)
+    (
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        ParentContext& parent_ctx
+    ):
         ctx_holder_(mach, parent_ctx),
         impl_(mach, context())
     {
@@ -53,7 +57,11 @@ public:
     }
 
     template<class ParentContext>
-    void emplace_contexts_with_parent_lifetime(ParentContext& parent_ctx, machine<MachineConfHolder>& mach)
+    void emplace_contexts_with_parent_lifetime
+    (
+        ParentContext& parent_ctx,
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach
+    )
     {
         if constexpr(ctx_lifetime == state_context_lifetime::parent)
         {
@@ -61,10 +69,10 @@ public:
         }
     }
 
-    template<class R, class ParentContext, class Event>
-    R MAKI_AOS_NAME(enter)
+    template<class AosVoid, class ParentContext, class Event>
+    AosVoid MAKI_AOS_NAME(enter)
     (
-        machine<MachineConfHolder>& mach,
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
         [[maybe_unused]] ParentContext& parent_ctx,
         const Event& event
     )
@@ -74,7 +82,7 @@ public:
             emplace_context(parent_ctx, mach);
         }
 
-        MAKI_AOS_CALL impl_.template enter<R>(mach, ctx_holder_.get_deep(), event);
+        MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(enter)<AosVoid>(mach, ctx_holder_.get_deep(), event);
     }
 
     template<template<class> class AosType, bool Dry, class ParentContext, class Event>
@@ -105,7 +113,7 @@ public:
         const Event& event
     )
     {
-        MAKI_AOS_CALL impl_.template exit<R>(mach, ctx_holder_.get_deep(), event);
+        MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(exit)<R>(mach, ctx_holder_.get_deep(), event);
 
         if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
         {
@@ -146,7 +154,11 @@ public:
 
 private:
     template<class ParentContext>
-    void emplace_context(ParentContext& parent_ctx, machine<MachineConfHolder>& mach)
+    void emplace_context
+    (
+        ParentContext& parent_ctx,
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach
+    )
     {
         auto& ctx = ctx_holder_.emplace(mach, parent_ctx);
 

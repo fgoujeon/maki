@@ -146,7 +146,11 @@ public:
     >;
 
     template<class Context>
-    MAKI_AOS_NAME(composite_no_context)(MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx):
+    MAKI_AOS_NAME(composite_no_context)
+    (
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+        Context& ctx
+    ):
         regions_(mix_uniform_construct, mach, ctx)
     {
     }
@@ -158,7 +162,11 @@ public:
     ~MAKI_AOS_NAME(composite_no_context)() = default;
 
     template<class Context>
-    void emplace_contexts_with_parent_lifetime(Context& ctx, machine<MachineConfHolder>& mach)
+    void emplace_contexts_with_parent_lifetime
+    (
+        Context& ctx,
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach
+    )
     {
         tlu::for_each
         <
@@ -313,7 +321,12 @@ private:
     struct region_emplace_contexts_with_parent_lifetime
     {
         template<class Region, class Self, class Context>
-        static void call(Self& self, Context& ctx, machine<MachineConfHolder>& mach)
+        static void call
+        (
+            Self& self,
+            Context& ctx,
+            MAKI_AOS_NAME(machine)<MachineConfHolder>& mach
+        )
         {
             impl_of(get<Region>(self.regions_)).emplace_contexts_with_parent_lifetime(ctx, mach);
         }
@@ -323,7 +336,13 @@ private:
     struct region_enter
     {
         template<class Region, class Self, class Context, class Event>
-        static AosVoid call(Self& self, MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
+        static AosVoid call
+        (
+            Self& self,
+            MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+            Context& ctx,
+            const Event& event
+        )
         {
             MAKI_AOS_CALL impl_of(get<Region>(self.regions_)).enter(mach, ctx, event);
         }
@@ -344,7 +363,13 @@ private:
     struct region_exit
     {
         template<class Region, class Self, class Context, class Event>
-        static AosVoid call(Self& self, MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
+        static AosVoid call
+        (
+            Self& self,
+            MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+            Context& ctx,
+            const Event& event
+        )
         {
             MAKI_AOS_CALL impl_of(get<Region>(self.regions_)).template exit<TargetStateMoldId>(mach, ctx, event);
         }

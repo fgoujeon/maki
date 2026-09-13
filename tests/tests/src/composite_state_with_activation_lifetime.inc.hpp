@@ -4,10 +4,7 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#include <maki.hpp>
-#include "common.hpp"
-
-namespace composite_state_with_activation_lifetime_ns
+namespace AOS(composite_state_with_activation_lifetime_ns)
 {
     struct context
     {
@@ -29,7 +26,7 @@ namespace composite_state_with_activation_lifetime_ns
         {
             struct context
             {
-                using parent_context_type = composite_state_with_activation_lifetime_ns::context;
+                using parent_context_type = AOS(composite_state_with_activation_lifetime_ns)::context;
 
                 context(parent_context_type& parent):
                     i(*parent.pi)
@@ -149,63 +146,64 @@ namespace composite_state_with_activation_lifetime_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_ASYNC_OPTS
         ;
     };
 
-    using machine_t = maki::machine<machine_conf>;
+    using machine_t = maki::AOS(machine)<machine_conf>;
+
+    AOS_TASK_TYPE(void) test()
+    {
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
+
+        AOS_CALL machine.start();
+
+        ctx.pi = std::make_unique<int>(42);
+
+        AOS_CALL machine.process_event(events::button_press{});
+        REQUIRE(machine.is<states::on>());
+        REQUIRE(machine.state<states::on>().is<states::on_ns::emitting_red>());
+        REQUIRE(*ctx.pi == 42);
+        REQUIRE(machine.state<states::on>().context().has_value());
+        REQUIRE(machine.state<states::on>().context()->i == 42);
+
+        AOS_CALL machine.process_event(events::color_button_press{});
+        REQUIRE(machine.is<states::on>());
+        REQUIRE(machine.state<states::on>().is<states::on_ns::emitting_green>());
+        REQUIRE(*ctx.pi == 43);
+        REQUIRE(machine.state<states::on>().context().has_value());
+        REQUIRE(machine.state<states::on>().context()->i == 43);
+        REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_green>().context().has_value());
+        REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_green>().context()->i == 43);
+        REQUIRE(!machine.state<states::on>().substate<states::on_ns::emitting_blue>().context().has_value());
+
+        AOS_CALL machine.process_event(events::color_button_press{});
+        REQUIRE(machine.is<states::on>());
+        REQUIRE(machine.state<states::on>().is<states::on_ns::emitting_blue>());
+        REQUIRE(*ctx.pi == 44);
+        REQUIRE(machine.state<states::on>().context().has_value());
+        REQUIRE(machine.state<states::on>().context()->i == 44);
+        REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_green>().context().has_value());
+        REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_blue>().context().has_value());
+        REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_blue>().context()->i == 44);
+
+        AOS_CALL machine.process_event(events::color_button_press{});
+        REQUIRE(machine.is<states::on>());
+        REQUIRE(machine.state<states::on>().is<states::on_ns::emitting_yellow>());
+        REQUIRE(*ctx.pi == 45);
+        REQUIRE(machine.state<states::on>().context().has_value());
+        REQUIRE(machine.state<states::on>().context()->i == 45);
+        REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_green>().context().has_value());
+        REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_yellow>().context().has_value());
+        REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_yellow>().context()->i == 45);
+
+        AOS_CALL machine.process_event(events::button_press{});
+        REQUIRE(machine.is<states::off>());
+        REQUIRE(!machine.state<states::on>().context().has_value());
+        REQUIRE(!machine.state<states::on>().substate<states::on_ns::emitting_green>().context().has_value());
+        REQUIRE(!machine.state<states::on>().substate<states::on_ns::emitting_blue>().context().has_value());
+    }
 }
 
-TEST_CASE("composite_state_with_activation_lifetime")
-{
-    using namespace composite_state_with_activation_lifetime_ns;
-
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
-
-    machine.start();
-
-    ctx.pi = std::make_unique<int>(42);
-
-    machine.process_event(events::button_press{});
-    REQUIRE(machine.is<states::on>());
-    REQUIRE(machine.state<states::on>().is<states::on_ns::emitting_red>());
-    REQUIRE(*ctx.pi == 42);
-    REQUIRE(machine.state<states::on>().context().has_value());
-    REQUIRE(machine.state<states::on>().context()->i == 42);
-
-    machine.process_event(events::color_button_press{});
-    REQUIRE(machine.is<states::on>());
-    REQUIRE(machine.state<states::on>().is<states::on_ns::emitting_green>());
-    REQUIRE(*ctx.pi == 43);
-    REQUIRE(machine.state<states::on>().context().has_value());
-    REQUIRE(machine.state<states::on>().context()->i == 43);
-    REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_green>().context().has_value());
-    REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_green>().context()->i == 43);
-    REQUIRE(!machine.state<states::on>().substate<states::on_ns::emitting_blue>().context().has_value());
-
-    machine.process_event(events::color_button_press{});
-    REQUIRE(machine.is<states::on>());
-    REQUIRE(machine.state<states::on>().is<states::on_ns::emitting_blue>());
-    REQUIRE(*ctx.pi == 44);
-    REQUIRE(machine.state<states::on>().context().has_value());
-    REQUIRE(machine.state<states::on>().context()->i == 44);
-    REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_green>().context().has_value());
-    REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_blue>().context().has_value());
-    REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_blue>().context()->i == 44);
-
-    machine.process_event(events::color_button_press{});
-    REQUIRE(machine.is<states::on>());
-    REQUIRE(machine.state<states::on>().is<states::on_ns::emitting_yellow>());
-    REQUIRE(*ctx.pi == 45);
-    REQUIRE(machine.state<states::on>().context().has_value());
-    REQUIRE(machine.state<states::on>().context()->i == 45);
-    REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_green>().context().has_value());
-    REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_yellow>().context().has_value());
-    REQUIRE(machine.state<states::on>().substate<states::on_ns::emitting_yellow>().context()->i == 45);
-
-    machine.process_event(events::button_press{});
-    REQUIRE(machine.is<states::off>());
-    REQUIRE(!machine.state<states::on>().context().has_value());
-    REQUIRE(!machine.state<states::on>().substate<states::on_ns::emitting_green>().context().has_value());
-    REQUIRE(!machine.state<states::on>().substate<states::on_ns::emitting_blue>().context().has_value());
-}
+AOS_TEST_CASE(composite_state_with_activation_lifetime)

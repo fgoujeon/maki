@@ -349,7 +349,13 @@ private:
     struct exit_2
     {
         template<int ActiveStateMoldId, class Context, class Event>
-        static MAKI_AOS_TYPE(void) call(MAKI_AOS_NAME(region_impl)& self, machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+        static MAKI_AOS_TYPE(void) call
+        (
+            MAKI_AOS_NAME(region_impl)& self,
+            MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
+            Context& ctx,
+            const Event& event
+        )
         {
             MAKI_AOS_CALL self.execute_transition
             <
@@ -729,7 +735,7 @@ private:
     MAKI_AOS_TYPE(void) try_executing_completion_transitions
     (
         ActiveState& active_state,
-        machine<MachineConfHolder>& mach,
+        MAKI_AOS_NAME(machine)<MachineConfHolder>& mach,
         Context& ctx
     )
     {
@@ -826,9 +832,9 @@ private:
 
 #if MAKI_AOS_ASYNC
     template<class StateMoldIseq, class F, class... Args>
-    MAKI_AOS_TYPE(void) async_with_active_state_mold(Args&&... args) const
+    awaitable_type<void> async_with_active_state_mold(Args&&... args) const
     {
-        co_await MAKI_AOS_NAME(iseq_for_each_or)
+        co_await async_iseq_for_each_or
         <
             MAKI_AOS_TYPE(bool),
             StateMoldIseq,
@@ -840,11 +846,11 @@ private:
     struct async_with_active_state_mold_2
     {
         template<int StateMoldId, class... Args>
-        static MAKI_AOS_TYPE(bool) call(const MAKI_AOS_NAME(region_impl)& self, Args&&... args)
+        static awaitable_type<bool> call(const MAKI_AOS_NAME(region_impl)& self, Args&&... args)
         {
             if(self.active_state_mold_id_ == StateMoldId)
             {
-                F::template call<StateMoldId>(std::forward<Args>(args)...);
+                co_await F::template call<StateMoldId>(std::forward<Args>(args)...);
                 co_return true;
             }
             co_return false;

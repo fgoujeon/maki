@@ -4,10 +4,7 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#include <maki.hpp>
-#include "common.hpp"
-
-namespace completion_transition_ns
+namespace AOS(completion_transition_ns)
 {
     struct context
     {
@@ -47,26 +44,29 @@ namespace completion_transition_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_ASYNC_OPTS
         ;
     };
 
-    using machine_t = maki::machine<machine_conf>;
+    using machine_t = maki::AOS(machine)<machine_conf>;
+
+    AOS_TASK_TYPE(void) test()
+    {
+        using namespace completion_transition_ns;
+
+        auto machine = machine_t{};
+
+        AOS_CALL machine.start();
+        REQUIRE(machine.is<states::s0>());
+
+        AOS_CALL machine.process_event(events::go_on{});
+        REQUIRE(machine.is<states::s2>());
+        REQUIRE(machine.context().out == "did something");
+
+        machine.context().out.clear();
+        AOS_CALL machine.process_event(events::go_on{});
+        REQUIRE(machine.is<states::s0>());
+    }
 }
 
-TEST_CASE("completion transition")
-{
-    using namespace completion_transition_ns;
-
-    auto machine = machine_t{};
-
-    machine.start();
-    REQUIRE(machine.is<states::s0>());
-
-    machine.process_event(events::go_on{});
-    REQUIRE(machine.is<states::s2>());
-    REQUIRE(machine.context().out == "did something");
-
-    machine.context().out.clear();
-    machine.process_event(events::go_on{});
-    REQUIRE(machine.is<states::s0>());
-}
+AOS_TEST_CASE(completion_transition)

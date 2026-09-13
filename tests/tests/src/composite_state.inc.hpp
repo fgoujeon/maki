@@ -4,10 +4,7 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#include <maki.hpp>
-#include "common.hpp"
-
-namespace composite_state_ns
+namespace AOS(composite_state_ns)
 {
     enum class led_color
     {
@@ -110,43 +107,44 @@ namespace composite_state_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_ASYNC_OPTS
         ;
     };
 
-    using machine_t = maki::machine<machine_conf>;
+    using machine_t = maki::AOS(machine)<machine_conf>;
+
+    AOS_TASK_TYPE(void) test()
+    {
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
+        const auto& on_state = machine.state<states::on>();
+
+        AOS_CALL machine.start();
+
+        REQUIRE(machine.is<states::off>());
+        REQUIRE(ctx.current_led_color == led_color::off);
+
+        AOS_CALL machine.process_event(events::power_button_press{});
+        REQUIRE(machine.is<states::on>());
+        REQUIRE(on_state.is<states::emitting_red>());
+        REQUIRE(ctx.current_led_color == led_color::red);
+
+        AOS_CALL machine.process_event(events::color_button_press{});
+        REQUIRE(machine.is<states::on>());
+        REQUIRE(ctx.current_led_color == led_color::green);
+
+        AOS_CALL machine.process_event(events::color_button_press{});
+        REQUIRE(machine.is<states::on>());
+        REQUIRE(ctx.current_led_color == led_color::blue);
+
+        AOS_CALL machine.process_event(events::power_button_press{});
+        REQUIRE(machine.is<states::off>());
+        REQUIRE(ctx.current_led_color == led_color::off);
+
+        AOS_CALL machine.process_event(events::power_button_press{});
+        REQUIRE(machine.is<states::on>());
+        REQUIRE(ctx.current_led_color == led_color::red);
+    }
 }
 
-TEST_CASE("composite_state")
-{
-    using namespace composite_state_ns;
-
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
-    const auto& on_state = machine.state<states::on>();
-
-    machine.start();
-
-    REQUIRE(machine.is<states::off>());
-    REQUIRE(ctx.current_led_color == led_color::off);
-
-    machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is<states::on>());
-    REQUIRE(on_state.is<states::emitting_red>());
-    REQUIRE(ctx.current_led_color == led_color::red);
-
-    machine.process_event(events::color_button_press{});
-    REQUIRE(machine.is<states::on>());
-    REQUIRE(ctx.current_led_color == led_color::green);
-
-    machine.process_event(events::color_button_press{});
-    REQUIRE(machine.is<states::on>());
-    REQUIRE(ctx.current_led_color == led_color::blue);
-
-    machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is<states::off>());
-    REQUIRE(ctx.current_led_color == led_color::off);
-
-    machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is<states::on>());
-    REQUIRE(ctx.current_led_color == led_color::red);
-}
+AOS_TEST_CASE(composite_state)

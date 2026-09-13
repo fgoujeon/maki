@@ -4,15 +4,8 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#include <maki.hpp>
-#include "common.hpp"
-
-#include "aos/begin_sync.inc.hpp"
 #include "action.inc.hpp"
-#include "aos/end.inc.hpp"
-
-#if MAKI_BUILD_TESTS_20
-#include "aos/begin_async.inc.hpp"
-#include "action.inc.hpp"
-#include "aos/end.inc.hpp"
-#endif
+#include "any_state.inc.hpp"
+#include "basic_transition.inc.hpp"
+#include "completion_transition.inc.hpp"
+#include "composite_state.inc.hpp"

@@ -4,10 +4,7 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#include <maki.hpp>
-#include "common.hpp"
-
-namespace any_state_ns
+namespace AOS(any_state_ns)
 {
     struct context{};
 
@@ -38,26 +35,27 @@ namespace any_state_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_ASYNC_OPTS
         ;
     };
 
-    using machine_t = maki::machine<machine_conf>;
+    using machine_t = maki::AOS(machine)<machine_conf>;
+
+    AOS_TASK_TYPE(void) test()
+    {
+        auto machine = machine_t{};
+
+        AOS_CALL machine.start();
+
+        AOS_CALL machine.process_event(events::stop_button_press{});
+        AOS_CALL machine.process_event(events::error{});
+        REQUIRE(machine.is<states::failed>());
+
+        AOS_CALL machine.process_event(events::stop_button_press{});
+        AOS_CALL machine.process_event(events::start_button_press{});
+        AOS_CALL machine.process_event(events::error{});
+        REQUIRE(machine.is<states::failed>());
+    }
 }
 
-TEST_CASE("any state")
-{
-    using namespace any_state_ns;
-
-    auto machine = machine_t{};
-
-    machine.start();
-
-    machine.process_event(events::stop_button_press{});
-    machine.process_event(events::error{});
-    REQUIRE(machine.is<states::failed>());
-
-    machine.process_event(events::stop_button_press{});
-    machine.process_event(events::start_button_press{});
-    machine.process_event(events::error{});
-    REQUIRE(machine.is<states::failed>());
-}
+AOS_TEST_CASE(any_state)

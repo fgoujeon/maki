@@ -235,6 +235,7 @@ public:
         )
     }
 
+#if !MAKI_AOS_ASYNC
     /**
     @brief Checks whether calling `process_event(event)` would cause a state
     transition or a call to any action.
@@ -251,6 +252,7 @@ public:
     {
         return impl_.template MAKI_AOS_NAME(call_internal_action)<aos_type, true>(*this, context(), event);
     }
+#endif
 
     /**
     @brief Enqueues event for later processing

@@ -8,3 +8,16 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
 #endif
+
+#include <maki.hpp>
+#include "common.hpp"
+
+#include "aos/begin_sync.inc.hpp"
+#include "aos_tests.inc.hpp"
+#include "aos/end.inc.hpp"
+
+#if MAKI_BUILD_TESTS_20
+#include "aos/begin_async.inc.hpp"
+#include "aos_tests.inc.hpp"
+#include "aos/end.inc.hpp"
+#endif

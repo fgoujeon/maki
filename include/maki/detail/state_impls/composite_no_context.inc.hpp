@@ -344,7 +344,7 @@ private:
     struct region_exit
     {
         template<class Region, class Self, class Context, class Event>
-        static AosVoid call(Self& self, machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+        static AosVoid call(Self& self, MAKI_AOS_NAME(machine)<MachineConfHolder>& mach, Context& ctx, const Event& event)
         {
             MAKI_AOS_CALL impl_of(get<Region>(self.regions_)).template exit<TargetStateMoldId>(mach, ctx, event);
         }

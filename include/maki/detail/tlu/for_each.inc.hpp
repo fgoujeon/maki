@@ -7,14 +7,14 @@
 namespace maki::detail::tlu
 {
 
-template<class R, class TList, class F>
+template<class AosVoid, class TList, class F>
 struct MAKI_AOS_NAME(for_each_helper);
 
-template<class R, template<class...> class TList, class... Ts, class F>
-struct MAKI_AOS_NAME(for_each_helper)<R, TList<Ts...>, F>
+template<class AosVoid, template<class...> class TList, class... Ts, class F>
+struct MAKI_AOS_NAME(for_each_helper)<AosVoid, TList<Ts...>, F>
 {
     template<class... Args>
-    static R call([[maybe_unused]] Args&... args)
+    static AosVoid call([[maybe_unused]] Args&... args)
     {
         (MAKI_AOS_CALL F::template call<Ts>(args...), ...);
     }
@@ -27,10 +27,10 @@ Calls:
     ...
     F::call<TN>(args...);
 */
-template<class R, class TList, class F, class... Args>
-R MAKI_AOS_NAME(for_each)(Args&... args)
+template<class AosVoid, class TList, class F, class... Args>
+AosVoid MAKI_AOS_NAME(for_each)(Args&... args)
 {
-    MAKI_AOS_CALL MAKI_AOS_NAME(for_each_helper)<R, TList, F>::call(args...);
+    MAKI_AOS_CALL MAKI_AOS_NAME(for_each_helper)<AosVoid, TList, F>::call(args...);
 }
 
 } //namespace

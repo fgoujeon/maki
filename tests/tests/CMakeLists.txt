@@ -11,6 +11,9 @@ file(GLOB_RECURSE AOS_FILES *.aos.hpp)
 
 # Generate `.cpp` files for async-or-sync test cases
 set(GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+set(GENERATED_DIR_TEMP "${CMAKE_CURRENT_BINARY_DIR}/generated-temp")
+file(MAKE_DIRECTORY "${GENERATED_DIR}")
+file(MAKE_DIRECTORY "${GENERATED_DIR_TEMP}")
 unset(GENERATED_FILES)
 foreach(AOS_FILE ${AOS_FILES})
     file(RELATIVE_PATH AOS_FILE_REL "${CMAKE_CURRENT_LIST_DIR}/src" "${AOS_FILE}")
@@ -18,7 +21,7 @@ foreach(AOS_FILE ${AOS_FILES})
 
     # Use an intermediate file to avoid overwriting identical content and cause
     # a useless rebuild.
-    set(TEMP_FILE "${CMAKE_CURRENT_BINARY_DIR}/generated-temp/temp.cpp")
+    set(TEMP_FILE "${GENERATED_DIR_TEMP}/temp.cpp")
 
     set(GENERATED_SYNC_CPP_FILE "${GENERATED_DIR}/${AOS_FILE_REL}.cpp")
     file(

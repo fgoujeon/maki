@@ -35,7 +35,7 @@ foreach(AOS_FILE ${AOS_FILES})
     file(
         WRITE
         "${TEMP_FILE}"
-        "#include <src/aos/async.hpp>\n#include <src/${AOS_FILE_REL}>")
+        "#ifdef MAKI_BUILD_TESTS_20\n#include <src/aos/async.hpp>\n#include <src/${AOS_FILE_REL}>\n#endif")
     file(COPY_FILE "${TEMP_FILE}" "${GENERATED_ASYNC_CPP_FILE}" ONLY_IF_DIFFERENT)
     list(APPEND GENERATED_FILES "${GENERATED_ASYNC_CPP_FILE}")
 endforeach()

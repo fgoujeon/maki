@@ -4,10 +4,7 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#include <maki.hpp>
-#include "common.hpp"
-
-namespace context_lifetime_deep_apa_ns
+namespace AOS(context_lifetime_deep_apa_ns)
 {
     struct context
     {
@@ -125,32 +122,31 @@ namespace context_lifetime_deep_apa_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_ASYNC_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("context_lifetime_deep_apa")
-{
-    using namespace context_lifetime_deep_apa_ns;
+    AOS_TEST(context_lifetime_deep_apa)
+    {
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
 
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
+        AOS_CALL machine.AOS(start)();
+        REQUIRE(ctx.context_1_constructor_called == 1);
+        REQUIRE(ctx.context_1_destructor_called == 0);
+        REQUIRE(ctx.context_2_constructor_called == 1);
+        REQUIRE(ctx.context_2_destructor_called == 0);
+        REQUIRE(ctx.context_3_constructor_called == 1);
+        REQUIRE(ctx.context_3_destructor_called == 0);
 
-    machine.start();
-    REQUIRE(ctx.context_1_constructor_called == 1);
-    REQUIRE(ctx.context_1_destructor_called == 0);
-    REQUIRE(ctx.context_2_constructor_called == 1);
-    REQUIRE(ctx.context_2_destructor_called == 0);
-    REQUIRE(ctx.context_3_constructor_called == 1);
-    REQUIRE(ctx.context_3_destructor_called == 0);
-
-    machine.process_event(out_event{});
-    REQUIRE(ctx.context_1_constructor_called == 1);
-    REQUIRE(ctx.context_1_destructor_called == 1);
-    REQUIRE(ctx.context_2_constructor_called == 1);
-    REQUIRE(ctx.context_2_destructor_called == 1);
-    REQUIRE(ctx.context_3_constructor_called == 1);
-    REQUIRE(ctx.context_3_destructor_called == 1);
+        AOS_CALL machine.AOS(process_event)(out_event{});
+        REQUIRE(ctx.context_1_constructor_called == 1);
+        REQUIRE(ctx.context_1_destructor_called == 1);
+        REQUIRE(ctx.context_2_constructor_called == 1);
+        REQUIRE(ctx.context_2_destructor_called == 1);
+        REQUIRE(ctx.context_3_constructor_called == 1);
+        REQUIRE(ctx.context_3_destructor_called == 1);
+    }
 }

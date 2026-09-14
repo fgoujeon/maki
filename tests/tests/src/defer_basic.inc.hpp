@@ -4,10 +4,7 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#include <maki.hpp>
-#include "common.hpp"
-
-namespace defer_basic_ns
+namespace AOS(defer_basic_ns)
 {
     struct context
     {
@@ -43,23 +40,22 @@ namespace defer_basic_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_ASYNC_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("defer_basic")
-{
-    using namespace defer_basic_ns;
+    AOS_TEST(defer_basic)
+    {
+        auto machine = machine_t{};
 
-    auto machine = machine_t{};
+        AOS_CALL machine.AOS(start)();
 
-    machine.start();
+        AOS_CALL machine.AOS(process_event)(events::button_press{});
+        REQUIRE(!machine.context().button_pressed);
 
-    machine.process_event(events::button_press{});
-    REQUIRE(!machine.context().button_pressed);
-
-    machine.process_event(events::end_of_init{});
-    REQUIRE(machine.context().button_pressed);
+        AOS_CALL machine.AOS(process_event)(events::end_of_init{});
+        REQUIRE(machine.context().button_pressed);
+    }
 }

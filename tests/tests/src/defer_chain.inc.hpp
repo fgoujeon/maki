@@ -4,10 +4,7 @@
 //https://www.boost.org/LICENSEaÉBPUPÉB b"()_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#include <maki.hpp>
-#include "common.hpp"
-
-namespace defer_chain_ns
+namespace AOS(defer_chain_ns)
 {
     struct context
     {
@@ -47,22 +44,21 @@ namespace defer_chain_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_ASYNC_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("defer_chain")
-{
-    using namespace defer_chain_ns;
+    AOS_TEST(defer_chain)
+    {
+        auto machine = machine_t{};
 
-    auto machine = machine_t{};
+        AOS_CALL machine.AOS(start)();
 
-    machine.start();
-
-    machine.process_event(events::e1{});
-    machine.process_event(events::e2{});
-    machine.process_event(events::e3{});
-    REQUIRE(machine.is<states::s4>());
+        AOS_CALL machine.AOS(process_event)(events::e1{});
+        AOS_CALL machine.AOS(process_event)(events::e2{});
+        AOS_CALL machine.AOS(process_event)(events::e3{});
+        REQUIRE(machine.is<states::s4>());
+    }
 }

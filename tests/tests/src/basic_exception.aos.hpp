@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace basic_exception_ns
+namespace AOS(basic_exception_ns)
 {
     struct context
     {
@@ -83,23 +83,26 @@ namespace basic_exception_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("basic_exception")
-{
-    using namespace basic_exception_ns;
+    AOS_TEST_CASE("basic_exception")
+    {
+        auto machine = machine_t{};
 
-    auto machine = machine_t{};
+#if AOS_ASYNC
+        co_await machine.async_start();
+#endif
 
-    REQUIRE(machine.is<states::off>());
-    REQUIRE(machine.context().out == "off::on_entry;");
+        REQUIRE(machine.is<states::off>());
+        REQUIRE(machine.context().out == "off::on_entry;");
 
-    machine.context().out.clear();
-    CHECK_THROWS(machine.process_event(events::button_press{}));
-    REQUIRE(machine.is<maki::undefined>());
-    REQUIRE(machine.context().out == "off::on_exit;");
+        machine.context().out.clear();
+        CHECK_THROWS(AOS_CALL machine.AOS(process_event)(events::button_press{}));
+        REQUIRE(machine.is<maki::undefined>());
+        REQUIRE(machine.context().out == "off::on_exit;");
+    }
 }

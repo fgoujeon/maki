@@ -41,7 +41,7 @@ namespace AOS(any_state_ns)
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TASK_TYPE(void) test()
+    AOS_TEST(any_state)
     {
         auto machine = machine_t{};
 
@@ -57,5 +57,3 @@ namespace AOS(any_state_ns)
         REQUIRE(machine.is<states::failed>());
     }
 }
-
-AOS_TEST_CASE(any_state)

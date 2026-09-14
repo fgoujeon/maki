@@ -60,7 +60,7 @@ namespace AOS(composite_state_completion_ns)
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TASK_TYPE(void) test()
+    AOS_TEST(composite_state_completion)
     {
         auto machine = machine_t{};
         auto& ctx = machine.context();
@@ -85,5 +85,3 @@ namespace AOS(composite_state_completion_ns)
         CHECK(ctx.i == 1);
     }
 }
-
-AOS_TEST_CASE(composite_state_completion)

@@ -52,7 +52,7 @@ namespace AOS(action_ns)
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TASK_TYPE(void) test()
+    AOS_TEST(action)
     {
         auto machine = machine_t{};
 
@@ -67,5 +67,3 @@ namespace AOS(action_ns)
         REQUIRE(machine.context().i == 0);
     }
 }
-
-AOS_TEST_CASE(action)

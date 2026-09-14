@@ -8,12 +8,14 @@
 #define AOS_ASYNC 1
 #define AOS_ASYNC_OPTS .async<boost::cobalt::promise>()
 #define AOS_CALL co_await
-#define AOS_PROMISE_TYPE(type) boost::cobalt::promise<type>
 #define AOS_RETURN co_return
-#define AOS_TASK_TYPE(type) boost::cobalt::task<type>
 
-#define AOS_TEST_CASE(name) \
+#define AOS_TEST(name) \
+    boost::cobalt::task<void> test(); \
+ \
     TEST_CASE("async_" #name) \
     { \
-        boost::cobalt::run(async_##name##_ns::test()); \
-    }
+        boost::cobalt::run(test()); \
+    } \
+ \
+    boost::cobalt::task<void> test()

@@ -50,10 +50,8 @@ namespace AOS(completion_transition_ns)
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TASK_TYPE(void) test()
+    AOS_TEST(completion_transition)
     {
-        using namespace completion_transition_ns;
-
         auto machine = machine_t{};
 
         AOS_CALL machine.AOS(start)();
@@ -68,5 +66,3 @@ namespace AOS(completion_transition_ns)
         REQUIRE(machine.is<states::s0>());
     }
 }
-
-AOS_TEST_CASE(completion_transition)

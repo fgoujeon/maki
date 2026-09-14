@@ -76,7 +76,7 @@ namespace AOS(context_construction_ns)
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TASK_TYPE(void) test()
+    AOS_TEST(context_construction)
     {
         auto machine = machine_t{};
         auto& ctx = machine.context();
@@ -86,5 +86,3 @@ namespace AOS(context_construction_ns)
         AOS_RETURN;
     }
 }
-
-AOS_TEST_CASE(context_construction)

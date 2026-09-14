@@ -40,7 +40,7 @@ namespace AOS(machine_ref_ns)
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TASK_TYPE(void) test()
+    AOS_TEST(machine_ref)
     {
         using machine_ref_t =
 #if AOS_ASYNC
@@ -66,5 +66,3 @@ namespace AOS(machine_ref_ns)
         REQUIRE(machine.is<states::off>());
     }
 }
-
-AOS_TEST_CASE(machine_ref)

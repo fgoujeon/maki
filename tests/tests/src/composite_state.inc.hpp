@@ -113,7 +113,7 @@ namespace AOS(composite_state_ns)
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TASK_TYPE(void) test()
+    AOS_TEST(composite_state)
     {
         auto machine = machine_t{};
         auto& ctx = machine.context();
@@ -146,5 +146,3 @@ namespace AOS(composite_state_ns)
         REQUIRE(ctx.current_led_color == led_color::red);
     }
 }
-
-AOS_TEST_CASE(composite_state)

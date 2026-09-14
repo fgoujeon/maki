@@ -4,9 +4,6 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#include <maki.hpp>
-#include "common.hpp"
-
 namespace AOS(composite_state_context_ns)
 {
     enum class led_color
@@ -98,7 +95,7 @@ namespace AOS(composite_state_context_ns)
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TASK_TYPE(void) test()
+    AOS_TEST(composite_state_context)
     {
         auto machine = machine_t{};
         auto& ctx = machine.context();
@@ -129,5 +126,3 @@ namespace AOS(composite_state_context_ns)
         REQUIRE(machine.is<states::on>());
     }
 }
-
-AOS_TEST_CASE(composite_state_context)

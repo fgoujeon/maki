@@ -40,7 +40,7 @@ namespace AOS(basic_transition_ns)
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TASK_TYPE(void) test()
+    AOS_TEST(basic_transition)
     {
         auto machine = machine_t{};
 
@@ -57,4 +57,3 @@ namespace AOS(basic_transition_ns)
     }
 }
 
-AOS_TEST_CASE(basic_transition)

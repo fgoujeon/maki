@@ -102,7 +102,7 @@ namespace AOS(composite_state_on_xxx_ns)
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TASK_TYPE(void) test()
+    AOS_TEST(composite_state_on_xxx)
     {
         auto machine = machine_t{};
         auto& ctx = machine.context();
@@ -121,5 +121,3 @@ namespace AOS(composite_state_on_xxx_ns)
         REQUIRE(ctx.out == "c1c2");
     }
 }
-
-AOS_TEST_CASE(composite_state_on_xxx)

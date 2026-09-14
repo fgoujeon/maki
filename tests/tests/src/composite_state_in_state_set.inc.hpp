@@ -56,7 +56,7 @@ namespace AOS(composite_state_in_state_set_ns)
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TASK_TYPE(void) test()
+    AOS_TEST(composite_state_in_state_set)
     {
         auto machine = machine_t{};
 
@@ -79,5 +79,3 @@ namespace AOS(composite_state_in_state_set_ns)
         REQUIRE(machine.is<states::off>());
     }
 }
-
-AOS_TEST_CASE(composite_state_in_state_set)

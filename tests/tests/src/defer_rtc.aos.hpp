@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace AOS(defer_rtc_ns)
 {
     struct context
     {

@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace AOS(nullary_member_functions_ns)
 {
     struct context
     {

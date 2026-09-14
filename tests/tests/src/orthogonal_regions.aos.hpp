@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace AOS(orthogonal_regions_ns)
 {
     struct context
     {

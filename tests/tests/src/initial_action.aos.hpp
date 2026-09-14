@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace AOS(initial_action_ns)
 {
     struct context
     {

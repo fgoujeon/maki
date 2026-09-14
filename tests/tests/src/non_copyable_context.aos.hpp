@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <memory>
 
-namespace
+namespace AOS(non_copyable_context_ns)
 {
     struct context
     {

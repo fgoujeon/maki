@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace AOS(guard_ns)
 {
     struct context
     {

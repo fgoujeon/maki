@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace AOS(recursive_process_event_ns)
 {
     struct context
     {

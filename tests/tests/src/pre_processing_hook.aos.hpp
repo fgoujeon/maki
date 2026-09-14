@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace AOS(pre_processing_hook_ns)
 {
     struct context
     {

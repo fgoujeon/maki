@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace AOS(on_event_signatures)
 {
     struct context
     {

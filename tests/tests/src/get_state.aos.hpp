@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace AOS(get_state_ns)
 {
     enum class led_color
     {

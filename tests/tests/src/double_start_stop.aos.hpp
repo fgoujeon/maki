@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace AOS(double_start_stop_ns)
 {
     namespace events
     {

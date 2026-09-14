@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace AOS(on_entry_event_exit_ns)
 {
     struct context
     {

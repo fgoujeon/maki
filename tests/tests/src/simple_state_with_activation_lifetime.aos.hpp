@@ -6,8 +6,9 @@
 
 #include <maki.hpp>
 #include "common.hpp"
+#include <memory>
 
-namespace
+namespace AOS(simple_state_with_activation_lifetime)
 {
     struct context
     {

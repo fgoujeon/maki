@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace
+namespace AOS(internal_transition_in_transition_table_ns)
 {
     struct context
     {

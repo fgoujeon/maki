@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace
+namespace AOS(post_processing_hook_ns)
 {
     enum class led_color
     {

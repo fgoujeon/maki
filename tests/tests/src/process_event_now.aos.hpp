@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace process_event_now_ns
+namespace
 {
     struct context
     {
@@ -78,10 +78,10 @@ namespace process_event_now_ns
     namespace actions
     {
         template<class Event>
-        constexpr auto process_event_now = maki::action_m([](auto& mach)
+        constexpr auto process_event_now = maki::action_m([](auto& mach) -> AOS_VOID
         {
             // Shouldn't have any effect as the active state is `undefined`.
-            mach.process_event_now(Event{});
+            AOS_CALL mach.AOS(process_event_now)(Event{});
         });
 
         constexpr auto& process_s1_to_s2 = process_event_now<events::s1_to_s2_request>;
@@ -101,28 +101,27 @@ namespace process_event_now_ns
             .transition_tables(transition_table)
             .context_a<context>()
             .process_event_now_enabled(true)
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("process_event_now")
-{
-    using namespace process_event_now_ns;
+    AOS_TEST_CASE("process_event_now")
+    {
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
 
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
+        AOS_CALL machine.AOS(start)();
+        REQUIRE(ctx.output == "s0::on_entry;");
 
-    machine.start();
-    REQUIRE(ctx.output == "s0::on_entry;");
-
-    ctx.output.clear();
-    machine.process_event_now(events::s0_to_s1_request{});
-    REQUIRE
-    (
-        ctx.output ==
-            "s0::on_exit;"
-            "s1::on_entry;"
-    );
+        ctx.output.clear();
+        AOS_CALL machine.AOS(process_event_now)(events::s0_to_s1_request{});
+        REQUIRE
+        (
+            ctx.output ==
+                "s0::on_exit;"
+                "s1::on_entry;"
+        );
+    }
 }

@@ -308,7 +308,7 @@ private:
     }
 
     template<class Event>
-    void process_event_now_no_catch
+    MAKI_AOS_TYPE(void) process_event_now_no_catch
     (
         machine<MachineConfHolder>& mach,
         const Event& event
@@ -319,7 +319,7 @@ private:
             detail::impl_of(conf).process_event_now_enabled,
             "`maki::machine_conf::process_event_now_enabled()` hasn't been set to `true`"
         );
-        execute_operation_now<detail::machine_operation::process_event>(mach, event);
+        MAKI_AOS_CALL execute_operation_now<detail::machine_operation::process_event>(mach, event);
     }
 
     template<detail::machine_operation Operation, class Event>

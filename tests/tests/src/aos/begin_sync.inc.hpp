@@ -9,6 +9,7 @@
 #define AOS_ASYNC_OPTS
 #define AOS_CALL
 #define AOS_PROMISE_TYPE(type) type
+#define AOS_RETURN return
 #define AOS_TASK_TYPE(type) type
 
 #define AOS_TEST_CASE(name) \

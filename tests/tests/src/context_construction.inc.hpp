@@ -4,10 +4,7 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-#include <maki.hpp>
-#include "common.hpp"
-
-namespace context_construction_ns
+namespace AOS(context_construction_ns)
 {
     namespace events
     {
@@ -15,11 +12,20 @@ namespace context_construction_ns
         struct color_button_press{};
     }
 
+#if AOS_ASYNC
+    using machine_ref_t = maki::any_async_machine_ref_e
+    <
+        boost::cobalt::promise,
+        events::power_button_press,
+        events::color_button_press
+    >;
+#else
     using machine_ref_t = maki::machine_ref_e
     <
         events::power_button_press,
         events::color_button_press
     >;
+#endif
 
     struct context
     {
@@ -64,18 +70,21 @@ namespace context_construction_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_am<context>()
+            AOS_ASYNC_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
+
+    AOS_TASK_TYPE(void) test()
+    {
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
+
+        REQUIRE(ctx.i == 42);
+
+        AOS_RETURN;
+    }
 }
 
-TEST_CASE("context_construction")
-{
-    using namespace context_construction_ns;
-
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
-
-    REQUIRE(ctx.i == 42);
-}
+AOS_TEST_CASE(context_construction)

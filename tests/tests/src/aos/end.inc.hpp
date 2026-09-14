@@ -9,5 +9,6 @@
 #undef AOS_ASYNC_OPTS
 #undef AOS_CALL
 #undef AOS_PROMISE_TYPE
+#undef AOS_RETURN
 #undef AOS_TASK_TYPE
 #undef AOS_TEST_CASE

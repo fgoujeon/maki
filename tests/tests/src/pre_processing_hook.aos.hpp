@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace pre_processing_hook_ns
+namespace
 {
     struct context
     {
@@ -68,34 +68,33 @@ namespace pre_processing_hook_ns
                 }
             )
             .auto_start(false)
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("pre_processing_hook")
-{
-    using namespace pre_processing_hook_ns;
+    AOS_TEST_CASE("pre_processing_hook")
+    {
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
 
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
+        //Nothing should happen before `start()` is called.
+        ctx.out.clear();
+        AOS_CALL machine.AOS(process_event)(events::button_press{"a"});
+        REQUIRE(!machine.running());
+        REQUIRE(ctx.out == "");
 
-    //Nothing should happen before `start()` is called.
-    ctx.out.clear();
-    machine.process_event(events::button_press{"a"});
-    REQUIRE(!machine.running());
-    REQUIRE(ctx.out == "");
+        AOS_CALL machine.AOS(start)();
 
-    machine.start();
+        ctx.out.clear();
+        AOS_CALL machine.AOS(process_event)(events::button_press{"a"});
+        REQUIRE(machine.is<states::on>());
+        REQUIRE(ctx.out == "a1;");
 
-    ctx.out.clear();
-    machine.process_event(events::button_press{"a"});
-    REQUIRE(machine.is<states::on>());
-    REQUIRE(ctx.out == "a1;");
-
-    ctx.out.clear();
-    machine.process_event(events::alert_button_press{});
-    REQUIRE(machine.is<states::on>());
-    REQUIRE(ctx.out == "beep;");
+        ctx.out.clear();
+        AOS_CALL machine.AOS(process_event)(events::alert_button_press{});
+        REQUIRE(machine.is<states::on>());
+        REQUIRE(ctx.out == "beep;");
+    }
 }

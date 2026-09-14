@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace orthogonal_regions_ns
+namespace
 {
     struct context
     {
@@ -86,33 +86,32 @@ namespace orthogonal_regions_ns
                     ctx.out += "after_transition[" + region.path().to_string() + "];";
                 }
             )
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("orthogonal_regions")
-{
-    using namespace orthogonal_regions_ns;
+    AOS_TEST_CASE("orthogonal_regions")
+    {
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
+        const auto& region0 = machine.region<0>();
+        const auto& region1 = machine.region<1>();
 
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
-    const auto& region0 = machine.region<0>();
-    const auto& region1 = machine.region<1>();
+        AOS_CALL machine.AOS(start)();
+        REQUIRE(region0.is<states::off0>());
+        REQUIRE(region1.is<states::off1>());
+        REQUIRE(ctx.out == "before_transition[0];after_transition[0];before_transition[1];after_transition[1];");
 
-    machine.start();
-    REQUIRE(region0.is<states::off0>());
-    REQUIRE(region1.is<states::off1>());
-    REQUIRE(ctx.out == "before_transition[0];after_transition[0];before_transition[1];after_transition[1];");
+        ctx.out.clear();
+        AOS_CALL machine.AOS(process_event)(events::button_press{});
+        REQUIRE(region0.is<states::on0>());
+        REQUIRE(region1.is<states::on1>());
+        REQUIRE(ctx.out == "before_transition[0];after_transition[0];before_transition[1];after_transition[1];");
 
-    ctx.out.clear();
-    machine.process_event(events::button_press{});
-    REQUIRE(region0.is<states::on0>());
-    REQUIRE(region1.is<states::on1>());
-    REQUIRE(ctx.out == "before_transition[0];after_transition[0];before_transition[1];after_transition[1];");
-
-    ctx.out.clear();
-    machine.process_event(events::exception_request{});
-    REQUIRE(ctx.out == "on_exception:exception;");
+        ctx.out.clear();
+        AOS_CALL machine.AOS(process_event)(events::exception_request{});
+        REQUIRE(ctx.out == "on_exception:exception;");
+    }
 }

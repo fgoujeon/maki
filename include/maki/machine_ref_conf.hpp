@@ -12,6 +12,7 @@
 #ifndef MAKI_MACHINE_REF_CONF_HPP
 #define MAKI_MACHINE_REF_CONF_HPP
 
+#include "detail/type_template.hpp"
 #include "detail/type_list.hpp"
 
 namespace maki
@@ -23,7 +24,11 @@ namespace maki
 */
 template<IMPLEMENTATION_DETAIL>
 #else
-template<class EventTypeList = detail::type_list_t<>>
+template
+<
+    class AwaitableTemplateHolder = void,
+    class EventTypeList = detail::type_list_t<>
+>
 #endif
 struct machine_ref_conf
 {
@@ -39,6 +44,21 @@ struct machine_ref_conf
 
     machine_ref_conf& operator=(machine_ref_conf&&) = delete;
 
+    template<template<class> class AwaitableTemplate>
+    [[nodiscard]] constexpr auto async() const
+    {
+#ifdef __cpp_impl_coroutine
+        return machine_ref_conf
+        <
+            detail::type_template<AwaitableTemplate>,
+            EventTypeList
+        >{};
+#else
+        constexpr auto is_false = sizeof(AwaitableTemplate<void>) == 0;
+        static_assert(is_false, "This feature requires C++20 coroutines");
+#endif
+    }
+
     /**
     @brief Sets the event types that can be passed to
     `maki::machine_ref::process_event()`.
@@ -46,12 +66,17 @@ struct machine_ref_conf
     template<class... Events>
     [[nodiscard]] constexpr auto events() const
     {
-        return machine_ref_conf<detail::type_list_t<Events...>>{};
+        return machine_ref_conf
+        <
+            AwaitableTemplateHolder,
+            detail::type_list_t<Events...>
+        >{};
     }
 
 #if MAKI_DETAIL_DOXYGEN
 private:
 #endif
+    using awaitable_template_holder = AwaitableTemplateHolder;
     using event_type_list = EventTypeList;
 };
 

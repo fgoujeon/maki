@@ -14,3 +14,4 @@
 #include "composite_state_in_state_set.inc.hpp"
 #include "composite_state_on_xxx.inc.hpp"
 #include "composite_state_with_activation_lifetime.inc.hpp"
+#include "machine_ref.inc.hpp"

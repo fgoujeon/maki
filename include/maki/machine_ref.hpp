@@ -23,49 +23,77 @@ namespace maki
 
 namespace detail
 {
-    template<class... Events>
-    class machine_ref_event_impl;
+    template<class AosVoid, class... Events>
+    class any_machine_ref_impl;
 
-    template<class Event, class... Events>
-    class machine_ref_event_impl<Event, Events...>: machine_ref_event_impl<Events...>
+    template<class AosVoid, class Event, class... Events>
+    class any_machine_ref_impl<AosVoid, Event, Events...>: any_machine_ref_impl<AosVoid, Events...>
     {
     public:
         template<class MachineConfHolder>
-        machine_ref_event_impl(machine<MachineConfHolder>& mach):
-            machine_ref_event_impl<Events...>{mach},
-            pprocess_event_
-            {
-                [](void* const vpsm, const Event& evt)
-                {
-                    using machine_t = machine<MachineConfHolder>;
-                    const auto psm = reinterpret_cast<machine_t*>(vpsm); //NOLINT
-                    psm->process_event(evt);
-                }
-            }
+        any_machine_ref_impl(machine<MachineConfHolder>& mach):
+            any_machine_ref_impl<AosVoid, Events...>{mach},
+            pprocess_event_{make_process_event_fn<MachineConfHolder>()}
         {
         }
 
-        using machine_ref_event_impl<Events...>::process_event;
+        using any_machine_ref_impl<AosVoid, Events...>::process_event;
 
         void process_event(const Event& evt) const
         {
-            (*pprocess_event_)(get_vpsm(), evt);
+            (*pprocess_event_)(get_vpmach(), evt);
         }
 
+#ifdef __cpp_impl_coroutine
+        using any_machine_ref_impl<AosVoid, Events...>::async_process_event;
+
+        AosVoid async_process_event(const Event& evt) const
+        {
+            co_await (*pprocess_event_)(get_vpmach(), evt);
+        }
+#endif
+
     protected:
-        using machine_ref_event_impl<Events...>::get_vpsm;
+        using any_machine_ref_impl<AosVoid, Events...>::get_vpmach;
 
     private:
-        void(*pprocess_event_)(void*, const Event&) = nullptr;
+        template<class MachineConfHolder>
+        static constexpr auto make_process_event_fn()
+        {
+#ifdef __cpp_impl_coroutine
+            if constexpr(std::is_void_v<AosVoid>)
+            {
+#endif
+                return [](void* const vpmach, const Event& evt)
+                {
+                    using machine_t = machine<MachineConfHolder>;
+                    const auto psm = reinterpret_cast<machine_t*>(vpmach); //NOLINT
+                    psm->process_event(evt);
+                };
+#ifdef __cpp_impl_coroutine
+            }
+            else
+            {
+                return [](void* const vpmach, const Event& evt) -> AosVoid
+                {
+                    using machine_t = machine<MachineConfHolder>;
+                    const auto psm = reinterpret_cast<machine_t*>(vpmach); //NOLINT
+                    co_await psm->async_process_event(evt);
+                };
+            }
+#endif
+        }
+
+        AosVoid(*pprocess_event_)(void*, const Event&) = nullptr;
     };
 
-    template<>
-    class machine_ref_event_impl<>
+    template<class AosVoid>
+    class any_machine_ref_impl<AosVoid>
     {
     public:
         template<class MachineConfHolder>
-        machine_ref_event_impl(machine<MachineConfHolder>& mach):
-            vpsm_(&mach)
+        any_machine_ref_impl(machine<MachineConfHolder>& mach):
+            vpmach_(&mach)
         {
         }
 
@@ -73,14 +101,27 @@ namespace detail
         {
         }
 
-    protected:
-        [[nodiscard]] void* get_vpsm() const
+#ifdef __cpp_impl_coroutine
+        AosVoid async_process_event() const
         {
-            return vpsm_;
+        }
+#endif
+
+    protected:
+        [[nodiscard]] void* get_vpmach() const
+        {
+            return vpmach_;
         }
 
     private:
-        void* vpsm_ = nullptr;
+        void* vpmach_ = nullptr; //Pointer to `machine<...>`
+    };
+
+    template<class AosVoid>
+    struct any_machine_ref_impl_holder
+    {
+        template<class... Events>
+        using type = any_machine_ref_impl<AosVoid, Events...>;
     };
 }
 
@@ -93,6 +134,39 @@ template<const auto& Conf>
 class machine_ref
 {
 public:
+    using conf_type = std::decay_t<decltype(Conf)>;
+
+#if !MAKI_DETAIL_DOXYGEN
+    static constexpr auto sync = std::is_void_v<typename conf_type::awaitable_template_holder>;
+#endif
+
+#ifdef __cpp_impl_coroutine
+#if MAKI_DETAIL_DOXYGEN
+    template<class T>
+    using awaitable_type = IMPLEMENTATION_DETAIL;
+#else
+    struct sync_awaitable_type_holder
+    {
+        template<class T>
+        using type = T;
+    };
+
+    struct async_awaitable_type_holder
+    {
+        template<class T>
+        using type = typename conf_type::awaitable_template_holder::template type<T>;
+    };
+
+    template<class T>
+    using awaitable_type = std::conditional_t
+    <
+        sync,
+        sync_awaitable_type_holder,
+        async_awaitable_type_holder
+    >::template type<T>;
+#endif
+#endif
+
     template<class MachineConfHolder>
     machine_ref(machine<MachineConfHolder>& mach):
         impl_{mach}
@@ -108,6 +182,7 @@ public:
     template<class Event>
     void process_event(const Event& evt) const
     {
+        static_assert(sync, "Only available in synchronous mode");
         static_assert
         (
             detail::tlu::contains_v
@@ -120,17 +195,45 @@ public:
         impl_.process_event(evt);
     }
 
-private:
-    using event_type_list = typename std::decay_t<decltype(Conf)>::event_type_list;
+#ifdef __cpp_impl_coroutine
+    template<class Event>
+    awaitable_type<void> async_process_event(const Event& evt) const
+    {
+        static_assert(!sync, "Only available in asynchronous mode");
+        static_assert
+        (
+            detail::tlu::contains_v
+            <
+                event_type_list,
+                Event
+            >,
+            "Given event type must be part of the type list given to `events()`"
+        );
+        co_await impl_.async_process_event(evt);
+    }
+#endif
 
-    using event_impl_type = detail::tlu::apply_t
+private:
+    using event_type_list = typename conf_type::event_type_list;
+
+#ifndef __cpp_impl_coroutine
+    template<class T>
+    using awaitable_type = T;
+#endif
+
+    using impl_type = detail::tlu::apply_t
     <
         event_type_list,
-        detail::machine_ref_event_impl
+        detail::any_machine_ref_impl_holder<awaitable_type<void>>::template type
     >;
 
-    event_impl_type impl_;
+    impl_type impl_;
 };
+
+
+/*
+machine_ref_e
+*/
 
 template<class... Events>
 inline constexpr auto machine_ref_e_conf = machine_ref_conf{}
@@ -144,6 +247,27 @@ types
 */
 template<class... Events>
 using machine_ref_e = machine_ref<machine_ref_e_conf<Events...>>;
+
+
+/*
+async_machine_ref_e
+*/
+
+template<template<class> class AwaitableTemplate, class... Events>
+inline constexpr auto any_async_machine_ref_e_conf = machine_ref_conf{}
+    .async<AwaitableTemplate>()
+    .template events<Events...>()
+;
+
+template<template<class> class AwaitableTemplate, class... Events>
+using any_async_machine_ref_e = machine_ref
+<
+    any_async_machine_ref_e_conf
+    <
+        AwaitableTemplate,
+        Events...
+    >
+>;
 
 } //namespace
 

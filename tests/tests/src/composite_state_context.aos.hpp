@@ -92,13 +92,13 @@ namespace AOS(composite_state_context_ns)
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
-            AOS_ASYNC_OPTS
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TEST(composite_state_context)
+    AOS_TEST_CASE("composite_state_context")
     {
         auto machine = machine_t{};
         auto& ctx = machine.context();

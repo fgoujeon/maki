@@ -37,13 +37,13 @@ namespace AOS(basic_transition_ns)
             .context_a<context>()
             .auto_start(false)
             .run_to_completion(false)
-            AOS_ASYNC_OPTS
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TEST(basic_transition)
+    AOS_TEST_CASE("basic_transition")
     {
         auto machine = machine_t{};
 

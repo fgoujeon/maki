@@ -73,13 +73,13 @@ namespace AOS(context_construction_ns)
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_am<context>()
-            AOS_ASYNC_OPTS
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TEST(context_construction)
+    AOS_TEST_CASE("context_construction")
     {
         auto machine = machine_t{};
         auto& ctx = machine.context();

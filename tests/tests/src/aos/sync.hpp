@@ -6,11 +6,11 @@
 
 #define AOS(name) name
 #define AOS_ASYNC 0
-#define AOS_ASYNC_OPTS
+#define AOS_MACHINE_OPTS
 #define AOS_CALL
 #define AOS_RETURN return
 
 #define AOS_VOID void
 
-#define AOS_TEST(name) \
-    TEST_CASE(#name)
+#define AOS_TEST_CASE(name) \
+    TEST_CASE(name)

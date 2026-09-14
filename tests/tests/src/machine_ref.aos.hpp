@@ -37,13 +37,13 @@ namespace AOS(machine_ref_ns)
             .transition_tables(transition_table)
             .context_a<context>()
             .run_to_completion(false)
-            AOS_ASYNC_OPTS
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TEST(machine_ref)
+    AOS_TEST_CASE("machine_ref")
     {
         using machine_ref_t =
 #if AOS_ASYNC

@@ -6,16 +6,16 @@
 
 #define AOS(name) async_##name
 #define AOS_ASYNC 1
-#define AOS_ASYNC_OPTS .async<boost::cobalt::promise>()
+#define AOS_MACHINE_OPTS .async<boost::cobalt::promise>()
 #define AOS_CALL co_await
 #define AOS_RETURN co_return
 
 #define AOS_VOID boost::cobalt::promise<void>
 
-#define AOS_TEST(name) \
+#define AOS_TEST_CASE(name) \
     boost::cobalt::task<void> test(); \
  \
-    TEST_CASE("async_" #name) \
+    TEST_CASE("async_" name) \
     { \
         boost::cobalt::run(test()); \
     } \

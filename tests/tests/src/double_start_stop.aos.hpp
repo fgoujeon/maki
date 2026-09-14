@@ -70,13 +70,13 @@ namespace
                     ctx.out += ";";
                 }
             )
-            AOS_ASYNC_OPTS
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TEST(double_start_stop)
+    AOS_TEST_CASE("double_start_stop")
     {
         auto out = std::string{};
         auto machine = machine_t{out};

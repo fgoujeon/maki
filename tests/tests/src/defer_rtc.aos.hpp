@@ -78,13 +78,13 @@ namespace
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
-            AOS_ASYNC_OPTS
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TEST(defer_rtc)
+    AOS_TEST_CASE("defer_rtc")
     {
         auto machine = machine_t{};
 

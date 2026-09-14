@@ -47,13 +47,13 @@ namespace AOS(defer_chain_ns)
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
-            AOS_ASYNC_OPTS
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TEST(defer_chain)
+    AOS_TEST_CASE("defer_chain")
     {
         auto machine = machine_t{};
 

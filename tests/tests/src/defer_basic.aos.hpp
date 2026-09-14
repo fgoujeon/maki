@@ -43,13 +43,13 @@ namespace AOS(defer_basic_ns)
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
-            AOS_ASYNC_OPTS
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TEST(defer_basic)
+    AOS_TEST_CASE("defer_basic")
     {
         auto machine = machine_t{};
 

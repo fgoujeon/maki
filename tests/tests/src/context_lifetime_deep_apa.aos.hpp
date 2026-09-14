@@ -4,7 +4,10 @@
 //https://www.boost.org/LICENSE_1_0.txt)
 //Official repository: https://github.com/fgoujeon/maki
 
-namespace AOS(context_lifetime_deep_app_ns)
+#include <maki.hpp>
+#include "common.hpp"
+
+namespace AOS(context_lifetime_deep_apa_ns)
 {
     struct context
     {
@@ -88,6 +91,7 @@ namespace AOS(context_lifetime_deep_app_ns)
 
     constexpr auto state_3 = maki::state_mold{}
         .context_c<context_3>()
+        .context_lifetime(maki::state_context_lifetime::state_activity)
     ;
 
     constexpr auto transition_table_2 = maki::transition_table{}
@@ -127,7 +131,7 @@ namespace AOS(context_lifetime_deep_app_ns)
 
     using machine_t = maki::machine<machine_conf>;
 
-    AOS_TEST(context_lifetime_deep_app)
+    AOS_TEST(context_lifetime_deep_apa)
     {
         auto machine = machine_t{};
         auto& ctx = machine.context();

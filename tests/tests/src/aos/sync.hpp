@@ -10,5 +10,7 @@
 #define AOS_CALL
 #define AOS_RETURN return
 
+#define AOS_VOID void
+
 #define AOS_TEST(name) \
     TEST_CASE(#name)

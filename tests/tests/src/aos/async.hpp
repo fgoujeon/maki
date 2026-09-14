@@ -10,6 +10,8 @@
 #define AOS_CALL co_await
 #define AOS_RETURN co_return
 
+#define AOS_VOID boost::cobalt::promise<void>
+
 #define AOS_TEST(name) \
     boost::cobalt::task<void> test(); \
  \

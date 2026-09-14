@@ -6,9 +6,40 @@
 
 set(TARGET maki-test)
 
-file(GLOB_RECURSE SOURCE_FILES *)
-source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${SOURCE_FILES})
-add_executable(${TARGET} ${SOURCE_FILES})
+file(GLOB_RECURSE CPP_FILES *.cpp)
+file(GLOB_RECURSE AOS_FILES *.aos.hpp)
+
+# Generate `.cpp` files for async-or-sync test cases
+set(GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+unset(GENERATED_FILES)
+foreach(AOS_FILE ${AOS_FILES})
+    file(RELATIVE_PATH AOS_FILE_REL "${CMAKE_CURRENT_LIST_DIR}/src" "${AOS_FILE}")
+    #message(STATUS ${AOS_FILE_REL})
+
+    set(GENERATED_SYNC_CPP_FILE "${GENERATED_DIR}/${AOS_FILE_REL}.cpp")
+    file(
+        WRITE
+        "${GENERATED_SYNC_CPP_FILE}"
+        "#include <src/aos/sync.hpp>\n#include <src/${AOS_FILE_REL}>")
+    list(APPEND GENERATED_FILES "${GENERATED_SYNC_CPP_FILE}")
+
+    set(GENERATED_ASYNC_CPP_FILE "${GENERATED_DIR}/async_${AOS_FILE_REL}.cpp")
+    file(
+        WRITE
+        "${GENERATED_ASYNC_CPP_FILE}"
+        "#include <src/aos/async.hpp>\n#include <src/${AOS_FILE_REL}>")
+    list(APPEND GENERATED_FILES "${GENERATED_ASYNC_CPP_FILE}")
+endforeach()
+
+source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${CPP_FILES})
+source_group(TREE ${GENERATED_DIR} FILES ${GENERATED_FILES})
+add_executable(${TARGET} ${CPP_FILES} ${GENERATED_FILES})
+
+target_include_directories(
+    ${TARGET}
+    PRIVATE
+        . # To allow `#include <src/...>
+)
 
 target_link_libraries(
     ${TARGET}

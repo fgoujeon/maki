@@ -7,7 +7,7 @@
 #include "common.hpp"
 #include <maki.hpp>
 
-namespace small_event_requirements_ns
+namespace AOS(small_event_requirements)
 {
     enum class new_operator_type
     {
@@ -56,9 +56,9 @@ namespace small_event_requirements_ns
     constexpr auto state = maki::state_mold{};
 
     template<class Event>
-    inline constexpr auto process_event = maki::action_m([](auto& machine)
+    inline constexpr auto process_event = maki::action_m([](auto& machine) -> AOS_VOID
     {
-        machine.process_event(Event{});
+        AOS_CALL machine.AOS(process_event)(Event{});
     });
 
     constexpr auto transition_table = maki::transition_table{}
@@ -75,6 +75,7 @@ namespace small_event_requirements_ns
             .context_a<context>()
             .small_event_max_size(SmallEventMaxSize)
             .small_event_max_align(SmallEventMaxAlign)
+            AOS_MACHINE_OPTS
         ;
     };
 
@@ -82,7 +83,7 @@ namespace small_event_requirements_ns
     using machine_t = maki::machine<machine_conf<SmallEventMaxSize, SmallEventMaxAlign>>;
 
     template<size_t SmallEventMaxSize, size_t SmallEventMaxAlign>
-    void test
+    AOS_VOID test
     (
         const new_operator_type expected_new_operator_type_for_small_event,
         const new_operator_type expected_new_operator_type_for_big_event
@@ -90,42 +91,52 @@ namespace small_event_requirements_ns
     {
         auto machine = machine_t<SmallEventMaxSize, SmallEventMaxAlign>{};
 
-        machine.start();
+        AOS_CALL machine.AOS(start)();
 
-        machine.process_event(event_processing_request<small_event>{});
+        AOS_CALL machine.AOS(process_event)(event_processing_request<small_event>{});
         REQUIRE(called_new_operator_type == expected_new_operator_type_for_small_event);
 
-        machine.process_event(event_processing_request<big_event>{});
+        AOS_CALL machine.AOS(process_event)(event_processing_request<big_event>{});
         REQUIRE(called_new_operator_type == expected_new_operator_type_for_big_event);
     }
-}
 
-TEST_CASE("small_event_requirements<1, 1>")
-{
-    using namespace small_event_requirements_ns;
-    test<1, 1>(new_operator_type::plain, new_operator_type::plain);
-}
+    namespace small_event_requirements_1_1
+    {
+        AOS_TEST_CASE("small_event_requirements<1, 1>")
+        {
+            AOS_CALL test<1, 1>(new_operator_type::plain, new_operator_type::plain);
+        }
+    }
 
-TEST_CASE("small_event_requirements<1, small>")
-{
-    using namespace small_event_requirements_ns;
-    test<1, alignof(small_event)>(new_operator_type::plain, new_operator_type::plain);
-}
+    namespace small_event_requirements_1_small
+    {
+        AOS_TEST_CASE("small_event_requirements<1, small>")
+        {
+            AOS_CALL test<1, alignof(small_event)>(new_operator_type::plain, new_operator_type::plain);
+        }
+    }
 
-TEST_CASE("small_event_requirements<small, 1>")
-{
-    using namespace small_event_requirements_ns;
-    test<sizeof(small_event), 1>(new_operator_type::plain, new_operator_type::plain);
-}
+    namespace small_event_requirements_small_1
+    {
+        AOS_TEST_CASE("small_event_requirements<small, 1>")
+        {
+            AOS_CALL test<sizeof(small_event), 1>(new_operator_type::plain, new_operator_type::plain);
+        }
+    }
 
-TEST_CASE("small_event_requirements<small, small>")
-{
-    using namespace small_event_requirements_ns;
-    test<sizeof(small_event), alignof(small_event)>(new_operator_type::placement, new_operator_type::plain);
-}
+    namespace small_event_requirements_small_small
+    {
+        AOS_TEST_CASE("small_event_requirements<small, small>")
+        {
+            AOS_CALL test<sizeof(small_event), alignof(small_event)>(new_operator_type::placement, new_operator_type::plain);
+        }
+    }
 
-TEST_CASE("small_event_requirements<big, big>")
-{
-    using namespace small_event_requirements_ns;
-    test<sizeof(big_event), alignof(big_event)>(new_operator_type::placement, new_operator_type::placement);
+    namespace small_event_requirements_big_big
+    {
+        AOS_TEST_CASE("small_event_requirements<big, big>")
+        {
+            AOS_CALL test<sizeof(big_event), alignof(big_event)>(new_operator_type::placement, new_operator_type::placement);
+        }
+    }
 }

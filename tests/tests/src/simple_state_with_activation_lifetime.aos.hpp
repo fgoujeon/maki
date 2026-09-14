@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace simple_state_with_activation_lifetime_ns
+namespace
 {
     struct context
     {
@@ -50,28 +50,27 @@ namespace simple_state_with_activation_lifetime_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("simple_state_with_activation_lifetime")
-{
-    using namespace simple_state_with_activation_lifetime_ns;
+    AOS_TEST_CASE("simple_state_with_activation_lifetime")
+    {
+        auto machine = machine_t{};
 
-    auto machine = machine_t{};
+        AOS_CALL machine.AOS(start)();
 
-    machine.start();
+        machine.context().pi = std::make_unique<int>(42);
 
-    machine.context().pi = std::make_unique<int>(42);
+        AOS_CALL machine.AOS(process_event)(events::button_press{});
+        REQUIRE(machine.is<states::on>());
+        REQUIRE(machine.state<states::on>().context().has_value());
+        REQUIRE(machine.state<states::on>().context()->i == 42);
 
-    machine.process_event(events::button_press{});
-    REQUIRE(machine.is<states::on>());
-    REQUIRE(machine.state<states::on>().context().has_value());
-    REQUIRE(machine.state<states::on>().context()->i == 42);
-
-    machine.process_event(events::button_press{});
-    REQUIRE(machine.is<states::off>());
-    REQUIRE(!machine.state<states::on>().context().has_value());
+        AOS_CALL machine.AOS(process_event)(events::button_press{});
+        REQUIRE(machine.is<states::off>());
+        REQUIRE(!machine.state<states::on>().context().has_value());
+    }
 }

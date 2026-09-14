@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace state_data_machine_ns
+namespace AOS(state_data_machine_ns)
 {
     struct context
     {
@@ -52,25 +52,28 @@ namespace state_data_machine_ns
                     data.counter += event.n;
                 }
             )
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("state_data_machine")
-{
-    using namespace state_data_machine_ns;
+    AOS_TEST_CASE("state_data_machine")
+    {
+        auto machine = machine_t{};
+        int& counter = machine.context().counter;
 
-    auto machine = machine_t{};
-    int& counter = machine.context().counter;
+#if AOS_ASYNC
+        co_await machine.async_start();
+#endif
 
-    machine.process_event(events::button_press{});
-    REQUIRE(counter == 0);
+        AOS_CALL machine.AOS(process_event)(events::button_press{});
+        REQUIRE(counter == 0);
 
-    machine.process_event(events::accumulate_request{1});
-    REQUIRE(counter == 1);
+        AOS_CALL machine.AOS(process_event)(events::accumulate_request{1});
+        REQUIRE(counter == 1);
 
-    machine.process_event(events::accumulate_request{2});
-    REQUIRE(counter == 3);
+        AOS_CALL machine.AOS(process_event)(events::accumulate_request{2});
+        REQUIRE(counter == 3);
+    }
 }

@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace external_transition_hook_set
+namespace AOS(external_transition_hook_set)
 {
     namespace events
     {
@@ -86,59 +86,58 @@ namespace external_transition_hook_set
                 }
             )
             .auto_start(false)
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("external_transition_hook_set")
-{
-    using namespace external_transition_hook_set;
+    AOS_TEST_CASE("external_transition_hook_set")
+    {
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
+        const auto& region0 = machine.region<0>();
+        const auto& region1 = machine.region<1>();
+        const auto& state_on1 = region1.state<states::on1>();
 
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
-    const auto& region0 = machine.region<0>();
-    const auto& region1 = machine.region<1>();
-    const auto& state_on1 = region1.state<states::on1>();
+        AOS_CALL machine.AOS(start)(events::button_press{0});
+        REQUIRE(region0.is<states::off0>());
+        REQUIRE(region1.is<states::off1>());
+        REQUIRE
+        (
+            ctx.out ==
+            "Transition in main_sm/0:  -> off0...;0;"
+            "0;Transition in main_sm/0:  -> off0;"
+            "Transition in main_sm/1:  -> off1...;0;"
+            "0;Transition in main_sm/1:  -> off1;"
+        );
 
-    machine.start(events::button_press{0});
-    REQUIRE(region0.is<states::off0>());
-    REQUIRE(region1.is<states::off1>());
-    REQUIRE
-    (
-        ctx.out ==
-        "Transition in main_sm/0:  -> off0...;0;"
-        "0;Transition in main_sm/0:  -> off0;"
-        "Transition in main_sm/1:  -> off1...;0;"
-        "0;Transition in main_sm/1:  -> off1;"
-    );
+        ctx.out.clear();
+        AOS_CALL machine.AOS(process_event)(events::button_press{1});
+        REQUIRE(region0.is<states::on0>());
+        REQUIRE(region1.is<states::on1>());
+        REQUIRE(state_on1.is<states::off0>());
+        REQUIRE
+        (
+            ctx.out ==
+            "Transition in main_sm/0: off0 -> on0...;1;"
+            "1;Transition in main_sm/0: off0 -> on0;"
+            "Transition in main_sm/1: off1 -> on_1...;1;"
+            "Transition in main_sm/1/on_1/0:  -> off0...;1;"
+            "1;Transition in main_sm/1/on_1/0:  -> off0;"
+            "1;Transition in main_sm/1: off1 -> on_1;"
+        );
 
-    ctx.out.clear();
-    machine.process_event(events::button_press{1});
-    REQUIRE(region0.is<states::on0>());
-    REQUIRE(region1.is<states::on1>());
-    REQUIRE(state_on1.is<states::off0>());
-    REQUIRE
-    (
-        ctx.out ==
-        "Transition in main_sm/0: off0 -> on0...;1;"
-        "1;Transition in main_sm/0: off0 -> on0;"
-        "Transition in main_sm/1: off1 -> on_1...;1;"
-        "Transition in main_sm/1/on_1/0:  -> off0...;1;"
-        "1;Transition in main_sm/1/on_1/0:  -> off0;"
-        "1;Transition in main_sm/1: off1 -> on_1;"
-    );
-
-    ctx.out.clear();
-    machine.process_event(events::button_press{2});
-    REQUIRE(region0.is<states::on0>());
-    REQUIRE(region1.is<states::on1>());
-    REQUIRE(state_on1.is<states::on0>());
-    REQUIRE
-    (
-        ctx.out ==
-        "Transition in main_sm/1/on_1/0: off0 -> on0...;2;"
-        "2;Transition in main_sm/1/on_1/0: off0 -> on0;"
-    );
+        ctx.out.clear();
+        AOS_CALL machine.AOS(process_event)(events::button_press{2});
+        REQUIRE(region0.is<states::on0>());
+        REQUIRE(region1.is<states::on1>());
+        REQUIRE(state_on1.is<states::on0>());
+        REQUIRE
+        (
+            ctx.out ==
+            "Transition in main_sm/1/on_1/0: off0 -> on0...;2;"
+            "2;Transition in main_sm/1/on_1/0: off0 -> on0;"
+        );
+    }
 }

@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace start_stop_ns
+namespace
 {
     struct context
     {
@@ -69,28 +69,27 @@ namespace start_stop_ns
             .transition_tables(transition_table)
             .context_a<context>()
             .auto_start(false)
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("start_stop")
-{
-    using namespace start_stop_ns;
+    AOS_TEST_CASE("start_stop")
+    {
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
 
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
+        REQUIRE(!machine.running());
+        REQUIRE(ctx.out == "");
 
-    REQUIRE(!machine.running());
-    REQUIRE(ctx.out == "");
+        AOS_CALL machine.AOS(start)();
+        REQUIRE(machine.is<states::s1>());
+        REQUIRE(ctx.out == "s0::on_entry;s0::on_exit;s1::on_entry;");
 
-    machine.start();
-    REQUIRE(machine.is<states::s1>());
-    REQUIRE(ctx.out == "s0::on_entry;s0::on_exit;s1::on_entry;");
-
-    ctx.out.clear();
-    machine.stop();
-    REQUIRE(!machine.running());
-    REQUIRE(ctx.out == "s1::on_exit;");
+        ctx.out.clear();
+        AOS_CALL machine.AOS(stop)();
+        REQUIRE(!machine.running());
+        REQUIRE(ctx.out == "s1::on_exit;");
+    }
 }

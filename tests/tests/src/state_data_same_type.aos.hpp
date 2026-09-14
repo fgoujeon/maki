@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace state_data_same_type_ns
+namespace AOS(state_data_same_type_ns)
 {
     struct context
     {
@@ -57,37 +57,40 @@ namespace state_data_same_type_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("state_data_same_type")
-{
-    using namespace state_data_same_type_ns;
+    AOS_TEST_CASE("state_data_same_type")
+    {
+        auto machine = machine_t{};
+        const auto& off_state = machine.state<states::off>();
+        const auto& on_state = machine.state<states::on>();
 
-    auto machine = machine_t{};
-    const auto& off_state = machine.state<states::off>();
-    const auto& on_state = machine.state<states::on>();
+        auto& off_counter = off_state.context().counter;
+        auto& on_counter = on_state.context().counter;
 
-    auto& off_counter = off_state.context().counter;
-    auto& on_counter = on_state.context().counter;
+#if AOS_ASYNC
+        co_await machine.async_start();
+#endif
 
-    REQUIRE(off_counter == 0);
-    REQUIRE(on_counter == 0);
+        REQUIRE(off_counter == 0);
+        REQUIRE(on_counter == 0);
 
-    machine.process_event(events::accumulate_request{1});
-    REQUIRE(off_counter == 1);
-    REQUIRE(on_counter == 0);
+        AOS_CALL machine.AOS(process_event)(events::accumulate_request{1});
+        REQUIRE(off_counter == 1);
+        REQUIRE(on_counter == 0);
 
-    machine.process_event(events::button_press{});
-    REQUIRE(off_counter == 1);
-    REQUIRE(on_counter == 0);
+        AOS_CALL machine.AOS(process_event)(events::button_press{});
+        REQUIRE(off_counter == 1);
+        REQUIRE(on_counter == 0);
 
-    machine.process_event(events::accumulate_request{1});
-    REQUIRE(on_counter == 1);
+        AOS_CALL machine.AOS(process_event)(events::accumulate_request{1});
+        REQUIRE(on_counter == 1);
 
-    machine.process_event(events::accumulate_request{2});
-    REQUIRE(on_counter == 3);
+        AOS_CALL machine.AOS(process_event)(events::accumulate_request{2});
+        REQUIRE(on_counter == 3);
+    }
 }

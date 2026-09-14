@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace transition_from_stopped_any_state_ns
+namespace AOS(transition_from_stopped_any_state_ns)
 {
     struct context{};
 
@@ -31,23 +31,22 @@ namespace transition_from_stopped_any_state_ns
             .transition_tables(transition_table)
             .context_a<context>()
             .auto_start(false)
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("transition_from_stopped_any_state")
-{
-    using namespace transition_from_stopped_any_state_ns;
+    AOS_TEST_CASE("transition_from_stopped_any_state")
+    {
+        auto machine = machine_t{};
+        REQUIRE(!machine.running());
 
-    auto machine = machine_t{};
-    REQUIRE(!machine.running());
-
-    /*
-    We don't want to execute the transition from `all_states` to `running` in
-    this case.
-    */
-    machine.process_event(some_event{});
-    REQUIRE(!machine.running());
+        /*
+        We don't want to execute the transition from `all_states` to `running` in
+        this case.
+        */
+        AOS_CALL machine.AOS(process_event)(some_event{});
+        REQUIRE(!machine.running());
+    }
 }

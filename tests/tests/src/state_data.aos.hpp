@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace state_data_composite_state_ns
+namespace AOS(state_data_ns)
 {
     struct context
     {
@@ -26,13 +26,6 @@ namespace state_data_composite_state_ns
     namespace states
     {
         EMPTY_STATE(off)
-        EMPTY_STATE(on0)
-        EMPTY_STATE(on1)
-
-        constexpr auto on_transition_table = maki::transition_table{}
-            (maki::ini,   states::on0)
-            (states::on0, states::on1, maki::null)
-        ;
 
         struct on_data
         {
@@ -46,7 +39,6 @@ namespace state_data_composite_state_ns
 
         constexpr auto on = maki::state_mold{}
             .context_v<on_data>()
-            .transition_tables(on_transition_table)
             .internal_action_ce<events::accumulate_request>
             (
                 [](on_data& self, const events::accumulate_request& event)
@@ -59,7 +51,7 @@ namespace state_data_composite_state_ns
 
     constexpr auto transition_table = maki::transition_table{}
         (maki::ini,   states::off)
-        (states::off, states::on, maki::event<events::button_press>)
+        (states::off, states::on,  maki::event<events::button_press>)
         (states::on,  states::off, maki::event<events::button_press>)
     ;
 
@@ -68,26 +60,29 @@ namespace state_data_composite_state_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("state_data_composite_state")
-{
-    using namespace state_data_composite_state_ns;
+    AOS_TEST_CASE("state_data")
+    {
+        auto machine = machine_t{};
+        const auto& on_state = machine.state<states::on>();
+        auto& counter = on_state.context().counter;
 
-    auto machine = machine_t{};
-    const auto& on_state = machine.state<states::on>();
-    auto& counter = on_state.context().counter;
+#if AOS_ASYNC
+        co_await machine.async_start();
+#endif
 
-    machine.process_event(events::button_press{});
-    REQUIRE(counter == 0);
+        AOS_CALL machine.AOS(process_event)(events::button_press{});
+        REQUIRE(counter == 0);
 
-    machine.process_event(events::accumulate_request{1});
-    REQUIRE(counter == 1);
+        AOS_CALL machine.AOS(process_event)(events::accumulate_request{1});
+        REQUIRE(counter == 1);
 
-    machine.process_event(events::accumulate_request{2});
-    REQUIRE(counter == 3);
+        AOS_CALL machine.AOS(process_event)(events::accumulate_request{2});
+        REQUIRE(counter == 3);
+    }
 }

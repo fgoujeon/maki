@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace recursive_process_event_ns
+namespace
 {
     struct context
     {
@@ -77,20 +77,32 @@ namespace recursive_process_event_ns
 
     namespace actions
     {
+#if AOS_ASYNC
+        using machine_ref_s1_to_s2 = maki::any_async_machine_ref_e<boost::cobalt::promise, events::s1_to_s2_request>;
+#else
+        using machine_ref_s1_to_s2 = maki::machine_ref_e<events::s1_to_s2_request>;
+#endif
+
+#if AOS_ASYNC
+        using machine_ref_s2_to_s0 = maki::any_async_machine_ref_e<boost::cobalt::promise, events::s2_to_s0_request>;
+#else
+        using machine_ref_s2_to_s0 = maki::machine_ref_e<events::s2_to_s0_request>;
+#endif
+
         constexpr auto s0_to_s1 = maki::action_m([]
         (
-            maki::machine_ref_e<events::s1_to_s2_request> mach
-        )
+            machine_ref_s1_to_s2 mach
+        ) -> AOS_VOID
         {
-            mach.process_event(events::s1_to_s2_request{});
+            AOS_CALL mach.AOS(process_event)(events::s1_to_s2_request{});
         });
 
         constexpr auto s1_to_s2 = maki::action_m([]
         (
-            maki::machine_ref_e<events::s2_to_s0_request> mach
-        )
+            machine_ref_s2_to_s0 mach
+        ) -> AOS_VOID
         {
-            mach.process_event(events::s2_to_s0_request{});
+            AOS_CALL mach.AOS(process_event)(events::s2_to_s0_request{});
         });
     }
 
@@ -106,33 +118,32 @@ namespace recursive_process_event_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("recursive_process_event")
-{
-    using namespace recursive_process_event_ns;
+    AOS_TEST_CASE("recursive_process_event")
+    {
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
 
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
+        AOS_CALL machine.AOS(start)();
+        REQUIRE(ctx.output == "s0::on_entry;");
 
-    machine.start();
-    REQUIRE(ctx.output == "s0::on_entry;");
-
-    //Indirectly process s1_to_s2_request and s2_to_s0_request
-    ctx.output.clear();
-    machine.process_event(events::s0_to_s1_request{});
-    REQUIRE
-    (
-        ctx.output ==
-            "s0::on_exit;"
-            "s1::on_entry;"
-            "s1::on_exit;"
-            "s2::on_entry;"
-            "s2::on_exit;"
-            "s0::on_entry;"
-    );
+        //Indirectly process s1_to_s2_request and s2_to_s0_request
+        ctx.output.clear();
+        AOS_CALL machine.AOS(process_event)(events::s0_to_s1_request{});
+        REQUIRE
+        (
+            ctx.output ==
+                "s0::on_exit;"
+                "s1::on_entry;"
+                "s1::on_exit;"
+                "s2::on_entry;"
+                "s2::on_exit;"
+                "s0::on_entry;"
+        );
+    }
 }

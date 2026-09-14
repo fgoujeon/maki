@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace internal_transition_in_transition_table_ns
+namespace
 {
     struct context
     {
@@ -78,27 +78,26 @@ namespace internal_transition_in_transition_table_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("internal_transition_in_transition_table")
-{
-    using namespace internal_transition_in_transition_table_ns;
+    AOS_TEST_CASE("internal_transition_in_transition_table")
+    {
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
 
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
+        AOS_CALL machine.AOS(start)();
+        REQUIRE(ctx.out == "idle::on_entry;");
 
-    machine.start();
-    REQUIRE(ctx.out == "idle::on_entry;");
+        ctx.out.clear();
+        AOS_CALL machine.AOS(process_event)(events::power_button_press{});
+        REQUIRE(ctx.out == "idle::on_exit;running::on_entry;");
 
-    ctx.out.clear();
-    machine.process_event(events::power_button_press{});
-    REQUIRE(ctx.out == "idle::on_exit;running::on_entry;");
-
-    ctx.out.clear();
-    machine.process_event(events::beep_button_press{});
-    REQUIRE(ctx.out == "beep;");
+        ctx.out.clear();
+        AOS_CALL machine.AOS(process_event)(events::beep_button_press{});
+        REQUIRE(ctx.out == "beep;");
+    }
 }

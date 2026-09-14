@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace guard_ns
+namespace
 {
     struct context
     {
@@ -58,24 +58,23 @@ namespace guard_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("guard")
-{
-    using namespace guard_ns;
+    AOS_TEST_CASE("guard")
+    {
+        auto machine = machine_t{};
 
-    auto machine = machine_t{};
+        AOS_CALL machine.AOS(start)();
 
-    machine.start();
+        AOS_CALL machine.AOS(process_event)(events::button_press{});
+        REQUIRE(machine.is<states::off>());
 
-    machine.process_event(events::button_press{});
-    REQUIRE(machine.is<states::off>());
-
-    machine.context().has_power = true;
-    machine.process_event(events::button_press{true});
-    REQUIRE(machine.is<states::on>());
+        machine.context().has_power = true;
+        AOS_CALL machine.AOS(process_event)(events::button_press{true});
+        REQUIRE(machine.is<states::on>());
+    }
 }

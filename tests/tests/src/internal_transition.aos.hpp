@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace internal_transition_ns
+namespace
 {
     struct context
     {
@@ -64,27 +64,26 @@ namespace internal_transition_ns
             .transition_tables(transition_table)
             .context_a<context>()
             .run_to_completion(false)
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("internal transition")
-{
-    using namespace internal_transition_ns;
-
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
-
-    machine.start();
-
-    for(auto i = 0; i < 10; ++i)
+    AOS_TEST_CASE("internal transition")
     {
-        machine.process_event(events::next_state{});
-    }
-    REQUIRE(machine.is<states::benchmarking>());
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
 
-    machine.process_event(events::internal_transition{});
-    REQUIRE(ctx.side_effect == 1);
+        AOS_CALL machine.AOS(start)();
+
+        for(auto i = 0; i < 10; ++i)
+        {
+            AOS_CALL machine.AOS(process_event)(events::next_state{});
+        }
+        REQUIRE(machine.is<states::benchmarking>());
+
+        AOS_CALL machine.AOS(process_event)(events::internal_transition{});
+        REQUIRE(ctx.side_effect == 1);
+    }
 }

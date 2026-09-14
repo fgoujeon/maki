@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace initial_composite_state_ns
+namespace
 {
     enum class led_color
     {
@@ -92,33 +92,32 @@ namespace initial_composite_state_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("initial_composite_state")
-{
-    using namespace initial_composite_state_ns;
+    AOS_TEST_CASE("initial_composite_state")
+    {
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
 
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
+        AOS_CALL machine.AOS(start)();
+        REQUIRE(machine.is<states::on>());
+        REQUIRE(machine.state<states::on>().is<states::emitting_red>());
+        REQUIRE(ctx.current_led_color == led_color::red);
 
-    machine.start();
-    REQUIRE(machine.is<states::on>());
-    REQUIRE(machine.state<states::on>().is<states::emitting_red>());
-    REQUIRE(ctx.current_led_color == led_color::red);
+        AOS_CALL machine.AOS(process_event)(events::color_button_press{});
+        REQUIRE(machine.is<states::on>());
+        REQUIRE(ctx.current_led_color == led_color::green);
 
-    machine.process_event(events::color_button_press{});
-    REQUIRE(machine.is<states::on>());
-    REQUIRE(ctx.current_led_color == led_color::green);
+        AOS_CALL machine.AOS(process_event)(events::color_button_press{});
+        REQUIRE(machine.is<states::on>());
+        REQUIRE(ctx.current_led_color == led_color::blue);
 
-    machine.process_event(events::color_button_press{});
-    REQUIRE(machine.is<states::on>());
-    REQUIRE(ctx.current_led_color == led_color::blue);
-
-    machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is<states::off>());
-    REQUIRE(ctx.current_led_color == led_color::off);
+        AOS_CALL machine.AOS(process_event)(events::power_button_press{});
+        REQUIRE(machine.is<states::off>());
+        REQUIRE(ctx.current_led_color == led_color::off);
+    }
 }

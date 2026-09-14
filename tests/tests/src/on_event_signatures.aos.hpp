@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace on_event_signatures_ns
+namespace
 {
     struct context
     {
@@ -34,6 +34,14 @@ namespace on_event_signatures_ns
 
     namespace states
     {
+        using machine_ref_t =
+#if AOS_ASYNC
+            maki::any_async_machine_ref_e<boost::cobalt::promise, events::unused>
+#else
+            maki::machine_ref_e<events::unused>
+#endif
+        ;
+
         constexpr auto state0 = maki::state_mold{}
             .internal_action_ce<events::event1>
             (
@@ -44,7 +52,7 @@ namespace on_event_signatures_ns
             )
             .internal_action_cme<events::event2>
             (
-                [](context& ctx, maki::machine_ref_e<events::unused> /*mach*/, const events::event2& event)
+                [](context& ctx, machine_ref_t /*mach*/, const events::event2& event)
                 {
                     ctx.out = "on_event_cme " + event.value;
                 }
@@ -62,24 +70,27 @@ namespace on_event_signatures_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("on_event_signatures")
-{
-    using namespace on_event_signatures_ns;
+    AOS_TEST_CASE("on_event_signatures")
+    {
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
 
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
+#if AOS_ASYNC
+        co_await machine.async_start();
+#endif
 
-    ctx.out.clear();
-    machine.process_event(events::event1{"1"});
-    REQUIRE(ctx.out == "on_event_ce 1");
+        ctx.out.clear();
+        AOS_CALL machine.AOS(process_event)(events::event1{"1"});
+        REQUIRE(ctx.out == "on_event_ce 1");
 
-    ctx.out.clear();
-    machine.process_event(events::event2{"2"});
-    REQUIRE(ctx.out == "on_event_cme 2");
+        ctx.out.clear();
+        AOS_CALL machine.AOS(process_event)(events::event2{"2"});
+        REQUIRE(ctx.out == "on_event_cme 2");
+    }
 }

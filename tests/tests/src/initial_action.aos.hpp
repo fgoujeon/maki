@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace initial_action
+namespace
 {
     struct context
     {
@@ -33,7 +33,7 @@ namespace initial_action
     }
 
     constexpr auto transition_table = maki::transition_table{}
-        (maki::ini,  states::off, maki::null, actions::beep)
+        (maki::ini, states::off, maki::null, actions::beep)
     ;
 
     struct machine_conf
@@ -42,22 +42,21 @@ namespace initial_action
             .transition_tables(transition_table)
             .context_a<context>()
             .auto_start(false)
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("initial_action")
-{
-    using namespace initial_action;
+    AOS_TEST_CASE("initial_action")
+    {
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
 
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
+        CHECK(ctx.count == 0);
 
-    CHECK(ctx.count == 0);
-
-    machine.start();
-    CHECK(machine.is<states::off>());
-    CHECK(ctx.count == 1);
+        AOS_CALL machine.AOS(start)();
+        CHECK(machine.is<states::off>());
+        CHECK(ctx.count == 1);
+    }
 }

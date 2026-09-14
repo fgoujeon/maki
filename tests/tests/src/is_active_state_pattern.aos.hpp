@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace is_active_state_set_ns
+namespace
 {
     enum class led_color
     {
@@ -62,45 +62,44 @@ namespace is_active_state_set_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("is_active_state_set")
-{
-    using namespace is_active_state_set_ns;
+    AOS_TEST_CASE("is_active_state_set")
+    {
+        auto machine = machine_t{};
+        const auto& on_state = machine.state<states::on>();
 
-    auto machine = machine_t{};
-    const auto& on_state = machine.state<states::on>();
+        AOS_CALL machine.AOS(start)();
 
-    machine.start();
+        REQUIRE(machine.is<states::off>());
 
-    REQUIRE(machine.is<states::off>());
+        AOS_CALL machine.AOS(process_event)(events::power_button_press{});
+        REQUIRE(!machine.is<states::emitting_red_green_or_white>());
+        REQUIRE(on_state.is<states::emitting_red>());
+        REQUIRE(on_state.is<states::emitting_red_green_or_white>());
+        REQUIRE(!on_state.is<states::not_emitting_red>());
 
-    machine.process_event(events::power_button_press{});
-    REQUIRE(!machine.is<states::emitting_red_green_or_white>());
-    REQUIRE(on_state.is<states::emitting_red>());
-    REQUIRE(on_state.is<states::emitting_red_green_or_white>());
-    REQUIRE(!on_state.is<states::not_emitting_red>());
+        AOS_CALL machine.AOS(process_event)(events::color_button_press{});
+        REQUIRE(on_state.is<states::emitting_green>());
+        REQUIRE(on_state.is<states::emitting_red_green_or_white>());
+        REQUIRE(on_state.is<states::not_emitting_red>());
 
-    machine.process_event(events::color_button_press{});
-    REQUIRE(on_state.is<states::emitting_green>());
-    REQUIRE(on_state.is<states::emitting_red_green_or_white>());
-    REQUIRE(on_state.is<states::not_emitting_red>());
+        AOS_CALL machine.AOS(process_event)(events::color_button_press{});
+        REQUIRE(on_state.is<states::emitting_blue>());
+        REQUIRE(!on_state.is<states::emitting_red_green_or_white>());
+        REQUIRE(on_state.is<states::not_emitting_red>());
 
-    machine.process_event(events::color_button_press{});
-    REQUIRE(on_state.is<states::emitting_blue>());
-    REQUIRE(!on_state.is<states::emitting_red_green_or_white>());
-    REQUIRE(on_state.is<states::not_emitting_red>());
+        AOS_CALL machine.AOS(process_event)(events::power_button_press{});
+        REQUIRE(machine.is<states::off>());
+        REQUIRE(!machine.is<states::emitting_red_green_or_white>());
+        REQUIRE(!on_state.is<states::emitting_red_green_or_white>());
+        REQUIRE(on_state.is<states::not_emitting_red>());
 
-    machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is<states::off>());
-    REQUIRE(!machine.is<states::emitting_red_green_or_white>());
-    REQUIRE(!on_state.is<states::emitting_red_green_or_white>());
-    REQUIRE(on_state.is<states::not_emitting_red>());
-
-    machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is<states::on>());
+        AOS_CALL machine.AOS(process_event)(events::power_button_press{});
+        REQUIRE(machine.is<states::on>());
+    }
 }

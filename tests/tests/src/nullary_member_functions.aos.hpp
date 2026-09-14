@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace nullary_member_functions_ns
+namespace
 {
     struct context
     {
@@ -102,34 +102,33 @@ namespace nullary_member_functions_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("nullary_member_functions")
-{
-    using namespace nullary_member_functions_ns;
+    AOS_TEST_CASE("nullary_member_functions")
+    {
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
 
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
+        AOS_CALL machine.AOS(start)();
 
-    machine.start();
+        ctx.out.clear();
+        AOS_CALL machine.AOS(process_event)(events::e1{});
+        REQUIRE(ctx.out == "check(e1);execute(e1);on_entry(e1);");
 
-    ctx.out.clear();
-    machine.process_event(events::e1{});
-    REQUIRE(ctx.out == "check(e1);execute(e1);on_entry(e1);");
+        ctx.out.clear();
+        AOS_CALL machine.AOS(process_event)(events::e1{});
+        REQUIRE(ctx.out == "check(e1);on_exit(e1);execute(e1);");
 
-    ctx.out.clear();
-    machine.process_event(events::e1{});
-    REQUIRE(ctx.out == "check(e1);on_exit(e1);execute(e1);");
+        ctx.out.clear();
+        AOS_CALL machine.AOS(process_event)(events::e2{});
+        REQUIRE(ctx.out == "check();execute();on_entry();");
 
-    ctx.out.clear();
-    machine.process_event(events::e2{});
-    REQUIRE(ctx.out == "check();execute();on_entry();");
-
-    ctx.out.clear();
-    machine.process_event(events::e2{});
-    REQUIRE(ctx.out == "check();on_exit();execute();");
+        ctx.out.clear();
+        AOS_CALL machine.AOS(process_event)(events::e2{});
+        REQUIRE(ctx.out == "check();on_exit();execute();");
+    }
 }

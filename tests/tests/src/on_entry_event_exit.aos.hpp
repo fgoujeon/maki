@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace on_entry_event_exit_ns
+namespace
 {
     struct context
     {
@@ -88,53 +88,52 @@ namespace on_entry_event_exit_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("entry_action_event_exit")
-{
-    using namespace on_entry_event_exit_ns;
+    AOS_TEST_CASE("entry_action_event_exit")
+    {
+        auto machine = machine_t{};
+        auto& ctx = machine.context();
 
-    auto machine = machine_t{};
-    auto& ctx = machine.context();
+        AOS_CALL machine.AOS(start)();
 
-    machine.start();
+        REQUIRE(machine.is<states::idle>());
+        REQUIRE(ctx.hello == "");
+        REQUIRE(ctx.dog == "");
+        REQUIRE(ctx.goodbye == "");
 
-    REQUIRE(machine.is<states::idle>());
-    REQUIRE(ctx.hello == "");
-    REQUIRE(ctx.dog == "");
-    REQUIRE(ctx.goodbye == "");
+        AOS_CALL machine.AOS(process_event)(events::next_language_request{});
+        REQUIRE(machine.is<states::english>());
+        REQUIRE(ctx.hello == "hello");
+        REQUIRE(ctx.dog == "");
+        REQUIRE(ctx.goodbye == "");
 
-    machine.process_event(events::next_language_request{});
-    REQUIRE(machine.is<states::english>());
-    REQUIRE(ctx.hello == "hello");
-    REQUIRE(ctx.dog == "");
-    REQUIRE(ctx.goodbye == "");
+        AOS_CALL machine.AOS(process_event)(events::say_dog{});
+        REQUIRE(machine.is<states::english>());
+        REQUIRE(ctx.hello == "hello");
+        REQUIRE(ctx.dog == "dog");
+        REQUIRE(ctx.goodbye == "");
 
-    machine.process_event(events::say_dog{});
-    REQUIRE(machine.is<states::english>());
-    REQUIRE(ctx.hello == "hello");
-    REQUIRE(ctx.dog == "dog");
-    REQUIRE(ctx.goodbye == "");
+        AOS_CALL machine.AOS(process_event)(events::next_language_request{});
+        REQUIRE(machine.is<states::french>());
+        REQUIRE(ctx.hello == "bonjour");
+        REQUIRE(ctx.dog == "dog");
+        REQUIRE(ctx.goodbye == "goodbye");
 
-    machine.process_event(events::next_language_request{});
-    REQUIRE(machine.is<states::french>());
-    REQUIRE(ctx.hello == "bonjour");
-    REQUIRE(ctx.dog == "dog");
-    REQUIRE(ctx.goodbye == "goodbye");
+        AOS_CALL machine.AOS(process_event)(events::say_dog{});
+        REQUIRE(machine.is<states::french>());
+        REQUIRE(ctx.hello == "bonjour");
+        REQUIRE(ctx.dog == "chien");
+        REQUIRE(ctx.goodbye == "goodbye");
 
-    machine.process_event(events::say_dog{});
-    REQUIRE(machine.is<states::french>());
-    REQUIRE(ctx.hello == "bonjour");
-    REQUIRE(ctx.dog == "chien");
-    REQUIRE(ctx.goodbye == "goodbye");
-
-    machine.process_event(events::next_language_request{});
-    REQUIRE(machine.is<states::idle>());
-    REQUIRE(ctx.hello == "bonjour");
-    REQUIRE(ctx.dog == "chien");
-    REQUIRE(ctx.goodbye == "au revoir");
+        AOS_CALL machine.AOS(process_event)(events::next_language_request{});
+        REQUIRE(machine.is<states::idle>());
+        REQUIRE(ctx.hello == "bonjour");
+        REQUIRE(ctx.dog == "chien");
+        REQUIRE(ctx.goodbye == "au revoir");
+    }
 }

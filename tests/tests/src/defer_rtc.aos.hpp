@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace defer_rtc_ns
+namespace
 {
     struct context
     {
@@ -51,17 +51,19 @@ namespace defer_rtc_ns
     namespace actions
     {
         constexpr auto emit_e2_e3_e4 = maki::action_m(
-            [](auto& mach)
+            [](auto& mach) -> AOS_VOID
             {
-                mach.process_event(events::e2{});
-                mach.process_event(events::e3{});
-                mach.process_event(events::e4{});
+                AOS_CALL mach.AOS(process_event)(events::e2{});
+                AOS_CALL mach.AOS(process_event)(events::e3{});
+                AOS_CALL mach.AOS(process_event)(events::e4{});
+                AOS_RETURN;
             });
 
         constexpr auto emit_e5 = maki::action_m(
-            [](auto& mach)
+            [](auto& mach) -> AOS_VOID
             {
-                mach.process_event(events::e5{});
+                AOS_CALL mach.AOS(process_event)(events::e5{});
+                AOS_RETURN;
             });
     }
 
@@ -76,20 +78,19 @@ namespace defer_rtc_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_ASYNC_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("defer_rtc")
-{
-    using namespace defer_rtc_ns;
+    AOS_TEST(defer_rtc)
+    {
+        auto machine = machine_t{};
 
-    auto machine = machine_t{};
+        AOS_CALL machine.AOS(start)();
 
-    machine.start();
-
-    machine.process_event(events::e1{});
-    REQUIRE(machine.context().events_processed_by_c == "e2e4e5");
+        AOS_CALL machine.AOS(process_event)(events::e1{});
+        REQUIRE(machine.context().events_processed_by_c == "e2e4e5");
+    }
 }

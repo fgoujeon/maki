@@ -16,18 +16,24 @@ foreach(AOS_FILE ${AOS_FILES})
     file(RELATIVE_PATH AOS_FILE_REL "${CMAKE_CURRENT_LIST_DIR}/src" "${AOS_FILE}")
     #message(STATUS ${AOS_FILE_REL})
 
+    # Use an intermediate file to avoid overwriting identical content and cause
+    # a useless rebuild.
+    set(TEMP_FILE "${CMAKE_CURRENT_BINARY_DIR}/generated-temp/temp.cpp")
+
     set(GENERATED_SYNC_CPP_FILE "${GENERATED_DIR}/${AOS_FILE_REL}.cpp")
     file(
         WRITE
-        "${GENERATED_SYNC_CPP_FILE}"
+        "${TEMP_FILE}"
         "#include <src/aos/sync.hpp>\n#include <src/${AOS_FILE_REL}>")
+    file(COPY_FILE "${TEMP_FILE}" "${GENERATED_SYNC_CPP_FILE}" ONLY_IF_DIFFERENT)
     list(APPEND GENERATED_FILES "${GENERATED_SYNC_CPP_FILE}")
 
     set(GENERATED_ASYNC_CPP_FILE "${GENERATED_DIR}/async_${AOS_FILE_REL}.cpp")
     file(
         WRITE
-        "${GENERATED_ASYNC_CPP_FILE}"
+        "${TEMP_FILE}"
         "#include <src/aos/async.hpp>\n#include <src/${AOS_FILE_REL}>")
+    file(COPY_FILE "${TEMP_FILE}" "${GENERATED_ASYNC_CPP_FILE}" ONLY_IF_DIFFERENT)
     list(APPEND GENERATED_FILES "${GENERATED_ASYNC_CPP_FILE}")
 endforeach()
 

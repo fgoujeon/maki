@@ -7,7 +7,7 @@
 #include <maki.hpp>
 #include "common.hpp"
 
-namespace event_set_ns
+namespace
 {
     struct context
     {
@@ -45,29 +45,32 @@ namespace event_set_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(make_sm_transition_table())
             .context_a<context>()
+            AOS_ASYNC_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("event_set")
-{
-    using namespace event_set_ns;
+    AOS_TEST(event_set)
+    {
+        auto machine = machine_t{};
 
-    auto machine = machine_t{};
+#if AOS_ASYNC
+        co_await machine.async_start();
+#endif
 
-    REQUIRE(machine.is<states::off>());
+        REQUIRE(machine.is<states::off>());
 
-    machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is<states::on>());
+        AOS_CALL machine.AOS(process_event)(events::power_button_press{});
+        REQUIRE(machine.is<states::on>());
 
-    machine.process_event(events::power_button_press{});
-    REQUIRE(machine.is<states::off>());
+        AOS_CALL machine.AOS(process_event)(events::power_button_press{});
+        REQUIRE(machine.is<states::off>());
 
-    machine.process_event(events::alert_button_press{});
-    REQUIRE(machine.is<states::on>());
+        AOS_CALL machine.AOS(process_event)(events::alert_button_press{});
+        REQUIRE(machine.is<states::on>());
 
-    machine.process_event(events::alert_button_press{});
-    REQUIRE(machine.is<states::on>());
+        AOS_CALL machine.AOS(process_event)(events::alert_button_press{});
+        REQUIRE(machine.is<states::on>());
+    }
 }

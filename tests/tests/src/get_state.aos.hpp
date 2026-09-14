@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace get_state_ns
+namespace
 {
     enum class led_color
     {
@@ -141,24 +141,25 @@ namespace get_state_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_ASYNC_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("state")
-{
-    using namespace get_state_ns;
+    AOS_TEST(state)
+    {
+        auto machine = machine_t{};
+        const auto& on_state = machine.state<states::on>();
+        const auto& emitting_red_state = on_state.substate<states::emitting_red>();
+        const auto& emitting_green_state = on_state.substate<states::emitting_green>();
+        const auto& emitting_blue_state = on_state.substate<states::emitting_blue>();
 
-    auto machine = machine_t{};
-    const auto& on_state = machine.state<states::on>();
-    const auto& emitting_red_state = on_state.substate<states::emitting_red>();
-    const auto& emitting_green_state = on_state.substate<states::emitting_green>();
-    const auto& emitting_blue_state = on_state.substate<states::emitting_blue>();
+        REQUIRE(emitting_red_state.context().color == led_color::red);
+        REQUIRE(emitting_green_state.context().color == led_color::green);
+        REQUIRE(emitting_blue_state.context().color == led_color::blue);
+        REQUIRE(on_state.context().is_on_state);
 
-    REQUIRE(emitting_red_state.context().color == led_color::red);
-    REQUIRE(emitting_green_state.context().color == led_color::green);
-    REQUIRE(emitting_blue_state.context().color == led_color::blue);
-    REQUIRE(on_state.context().is_on_state);
+        AOS_RETURN;
+    }
 }

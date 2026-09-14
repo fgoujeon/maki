@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace empty_state_ns
+namespace
 {
     struct context
     {
@@ -46,17 +46,16 @@ namespace empty_state_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_ASYNC_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("empty_state")
-{
-    using namespace empty_state_ns;
+    AOS_TEST(empty_state)
+    {
+        auto machine = machine_t{};
 
-    auto machine = machine_t{};
-
-    machine.process_event(events::event{});
+        AOS_CALL machine.AOS(process_event)(events::event{});
+    }
 }

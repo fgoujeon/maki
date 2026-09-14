@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace double_start_stop_ns
+namespace
 {
     namespace events
     {
@@ -70,42 +70,41 @@ namespace double_start_stop_ns
                     ctx.out += ";";
                 }
             )
+            AOS_ASYNC_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
-}
 
-TEST_CASE("double_start_stop")
-{
-    using namespace double_start_stop_ns;
+    AOS_TEST(double_start_stop)
+    {
+        auto out = std::string{};
+        auto machine = machine_t{out};
 
-    auto out = std::string{};
-    auto machine = machine_t{out};
+        AOS_CALL machine.AOS(start)();
+        AOS_CALL machine.AOS(start)();
 
-    machine.start();
-    machine.start();
+        REQUIRE(machine.is<states::off>());
+        REQUIRE
+        (
+            out ==
+            "Transition in main_sm/0:  -> off...;"
+            "Transition in main_sm/0:  -> off;"
+        );
 
-    REQUIRE(machine.is<states::off>());
-    REQUIRE
-    (
-        out ==
-        "Transition in main_sm/0:  -> off...;"
-        "Transition in main_sm/0:  -> off;"
-    );
+        out.clear();
+        AOS_CALL machine.AOS(stop)();
+        REQUIRE(!machine.running());
+        REQUIRE
+        (
+            out ==
+            "Transition in main_sm/0: off -> fin...;"
+            "Transition in main_sm/0: off -> fin;"
+        );
 
-    out.clear();
-    machine.stop();
-    REQUIRE(!machine.running());
-    REQUIRE
-    (
-        out ==
-        "Transition in main_sm/0: off -> fin...;"
-        "Transition in main_sm/0: off -> fin;"
-    );
-
-    out.clear();
-    machine.stop();
-    REQUIRE(!machine.running());
-    REQUIRE(out == "");
+        out.clear();
+        AOS_CALL machine.AOS(stop)();
+        REQUIRE(!machine.running());
+        REQUIRE(out == "");
+    }
 }

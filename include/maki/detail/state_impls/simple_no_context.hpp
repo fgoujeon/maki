@@ -128,7 +128,7 @@ public:
     static bool call_internal_action(Machine& mach, Context& ctx, const Event& event)
     {
         /*
-        Caller is supposed to check an interal action exists for the given event
+        Caller is supposed to check an internal action exists for the given event
         type before calling this function.
         */
         static_assert(!tlu::empty_v<internal_action_ptr_constant_list>);
@@ -151,7 +151,7 @@ public:
     static AsyncType<bool> async_call_internal_action(Machine& mach, Context& ctx, const Event& event)
     {
         /*
-        Caller is supposed to check an interal action exists for the given event
+        Caller is supposed to check an internal action exists for the given event
         type before calling this function.
         */
         static_assert(!tlu::empty_v<internal_action_ptr_constant_list>);

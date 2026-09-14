@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace internal_transition_in_transition_table_ns
+namespace AOS(internal_transition_in_transition_table_ns)
 {
     struct context
     {
@@ -48,33 +48,38 @@ namespace internal_transition_in_transition_table_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            AOS_MACHINE_OPTS
         ;
     };
 
     using machine_t = maki::machine<machine_conf>;
 }
 
-TEST_CASE("transition_priority")
+AOS_TEST_CASE("transition_priority")
 {
-    using namespace internal_transition_in_transition_table_ns;
+    using namespace AOS(internal_transition_in_transition_table_ns);
 
     auto machine = machine_t{};
     auto& ctx = machine.context();
 
-    REQUIRE(machine.is<states::idle>());
+#if AOS_ASYNC
+    co_await machine.async_start();
+#endif
+
+    CHECK(machine.is<states::idle>());
 
     ctx.out.clear();
-    machine.process_event(events::should_trigger_transition_in_state{});
-    REQUIRE(machine.is<states::idle>());
-    REQUIRE(ctx.out == "idle::internal_action;");
+    AOS_CALL machine.AOS(process_event)(events::should_trigger_transition_in_state{});
+    CHECK(machine.is<states::idle>());
+    CHECK(ctx.out == "idle::internal_action;");
 
     ctx.out.clear();
-    machine.process_event(events::should_trigger_transition_in_tt{});
-    REQUIRE(machine.is<states::running>());
-    REQUIRE(ctx.out == "");
+    AOS_CALL machine.AOS(process_event)(events::should_trigger_transition_in_tt{});
+    CHECK(machine.is<states::running>());
+    CHECK(ctx.out == "");
 
     ctx.out.clear();
-    machine.process_event(events::should_trigger_transition_in_tt{});
-    REQUIRE(machine.is<states::idle>());
-    REQUIRE(ctx.out == "");
+    AOS_CALL machine.AOS(process_event)(events::should_trigger_transition_in_tt{});
+    CHECK(machine.is<states::idle>());
+    CHECK(ctx.out == "");
 }

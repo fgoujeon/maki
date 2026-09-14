@@ -79,13 +79,13 @@ public:
     template<template<class> class AosType, bool Dry, class Machine, class ParentContext, class Event>
     AosType<bool> MAKI_AOS_NAME(call_internal_action)(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        return impl_type::template call_internal_action<AosType, Dry>(mach, ctx_holder_.get_deep(), event);
+        MAKI_AOS_RETURN MAKI_AOS_CALL impl_type::template MAKI_AOS_NAME(call_internal_action)<AosType, Dry>(mach, ctx_holder_.get_deep(), event);
     }
 
-    template<class R, class Machine, class ParentContext, class Event>
-    R MAKI_AOS_NAME(exit)(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
+    template<class AosVoid, class Machine, class ParentContext, class Event>
+    AosVoid MAKI_AOS_NAME(exit)(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        MAKI_AOS_CALL impl_type::template MAKI_AOS_NAME(exit)<R>(mach, ctx_holder_.get_deep(), event);
+        MAKI_AOS_CALL impl_type::template MAKI_AOS_NAME(exit)<AosVoid>(mach, ctx_holder_.get_deep(), event);
 
         if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
         {

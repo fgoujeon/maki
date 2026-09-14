@@ -355,10 +355,14 @@ private:
             Note that nested transitions take precedence over higher-order
             transitions.
             */
-            MAKI_AOS_RETURN
-                MAKI_AOS_CALL call_active_state_internal_action<Dry>(self, mach, ctx, event) ||
-                MAKI_AOS_CALL try_executing_transitions<candidate_transition_iseq, Dry>(self, mach, ctx, event)
-            ;
+
+            const auto processed = MAKI_AOS_CALL call_active_state_internal_action<Dry>(self, mach, ctx, event);
+            if (processed)
+            {
+                MAKI_AOS_RETURN true;
+            }
+
+            MAKI_AOS_RETURN MAKI_AOS_CALL try_executing_transitions<candidate_transition_iseq, Dry>(self, mach, ctx, event);
         }
         else if constexpr(!must_try_executing_transitions && must_try_process_event_in_states)
         {

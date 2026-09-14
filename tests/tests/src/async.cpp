@@ -92,6 +92,7 @@ namespace async_ns
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table)
             .context_a<context>()
+            .auto_start(false)
             .async<boost::cobalt::promise>()
         ;
     };

@@ -5,9 +5,15 @@
 //Official repository: https://github.com/fgoujeon/maki
 
 #define AOS(name) async_##name
+
 #define AOS_ASYNC 1
-#define AOS_MACHINE_OPTS .async<boost::cobalt::promise>()
+
+#define AOS_MACHINE_OPTS \
+    .async<boost::cobalt::promise>() \
+    .auto_start(false)
+
 #define AOS_CALL co_await
+
 #define AOS_RETURN co_return
 
 #define AOS_VOID boost::cobalt::promise<void>

@@ -101,7 +101,13 @@ public:
     static_assert
     (
         detail::is_machine_conf_v<std::decay_t<decltype(conf)>>,
-        "Given `Conf` must be an instance of `maki::machine_conf`"
+        "Type of given `MachineConfHolder::value` must be an instance of `maki::machine_conf`"
+    );
+
+    static_assert
+    (
+        !(detail::impl_of(conf).auto_start && !sync),
+        "Auto-start must be disabled in asynchronous mode"
     );
 
     /**

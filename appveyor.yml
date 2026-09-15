@@ -11,6 +11,12 @@ image:
 
 environment:
   matrix:
+    - PLATFORM: x64
+      VCPKG_ARCH: x64-windows
+      CXX_STANDARD: 20
+      MAKI_BUILD_TESTS_20: 1
+      CONFIGURATION: Release
+
     - PLATFORM: Win32
       VCPKG_ARCH: x86-windows
       CXX_STANDARD: 17
@@ -21,12 +27,6 @@ environment:
       VCPKG_ARCH: x64-windows
       CXX_STANDARD: 17
       MAKI_BUILD_TESTS_20: 0
-      CONFIGURATION: Release
-
-    - PLATFORM: x64
-      VCPKG_ARCH: x64-windows
-      CXX_STANDARD: 20
-      MAKI_BUILD_TESTS_20: 1
       CONFIGURATION: Release
 
 install:

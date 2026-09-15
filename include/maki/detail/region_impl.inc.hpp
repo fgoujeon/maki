@@ -200,7 +200,7 @@ public:
         const Event& event
     )
     {
-        MAKI_AOS_CALL execute_transition
+        return execute_transition
         <
             state_mold_ids::null,
             state_mold_ids::ini,
@@ -246,7 +246,7 @@ public:
         const Event& event
     )
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL process_event_2<Dry>(*this, mach, ctx, event);
+        return process_event_2<Dry>(*this, mach, ctx, event);
     }
 
     template<bool Dry, class Context, class Event>
@@ -257,7 +257,7 @@ public:
         const Event& event
     ) const
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL process_event_2<Dry>(*this, mach, ctx, event);
+        return process_event_2<Dry>(*this, mach, ctx, event);
     }
 
     template<const auto& StateMold>
@@ -390,7 +390,7 @@ private:
             const Event& event
         )
         {
-            MAKI_AOS_CALL self.execute_transition
+            return self.execute_transition
             <
                 ActiveStateMoldId,
                 TargetStateMoldId,
@@ -406,7 +406,7 @@ private:
     template<class TransitionIseq, bool Dry = false, class Self, class Machine, class Context, class Event>
     static MAKI_AOS_TYPE(bool) try_executing_transitions(Self& self, Machine& mach, Context& ctx, const Event& event)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(iseq_for_each_or)
+        return MAKI_AOS(iseq_for_each_or)
         <
             MAKI_AOS_TYPE(bool),
             TransitionIseq,
@@ -445,7 +445,7 @@ private:
 
                 static_assert(iseq_size_v<matching_state_mold_iseq> != 0);
 
-                MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(iseq_for_each_or)
+                return MAKI_AOS(iseq_for_each_or)
                 <
                     MAKI_AOS_TYPE(bool),
                     matching_state_mold_iseq,
@@ -469,7 +469,7 @@ private:
                     >
                 ;
 
-                MAKI_AOS_RETURN MAKI_AOS_CALL try_executing_transition_2
+                return try_executing_transition_2
                 <
                     Dry,
                     target_state_mold_id,

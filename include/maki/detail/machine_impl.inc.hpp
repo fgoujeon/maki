@@ -126,7 +126,7 @@ public:
         const Event& event
     )
     {
-        MAKI_AOS_CALL execute_operation<detail::machine_operation::process_event>(mach, event);
+        return execute_operation<detail::machine_operation::process_event>(mach, event);
     }
 
     template<class Event>
@@ -268,13 +268,13 @@ private:
             machine<MachineConfHolder>& mach
         )
         {
-            MAKI_AOS_RETURN MAKI_AOS_CALL impl_of(mach).template execute_one_operation<Operation>(mach, event);
+            return impl_of(mach).template execute_one_operation<Operation>(mach, event);
         }
     };
 
     MAKI_AOS_TYPE(void) start_now(machine<MachineConfHolder>& mach)
     {
-        MAKI_AOS_CALL execute_operation_now<detail::machine_operation::start>
+        return execute_operation_now<detail::machine_operation::start>
         (
             mach,
             events::start{}
@@ -319,7 +319,7 @@ private:
             detail::impl_of(conf).process_event_now_enabled,
             "`maki::machine_conf::process_event_now_enabled()` hasn't been set to `true`"
         );
-        MAKI_AOS_CALL execute_operation_now<detail::machine_operation::process_event>(mach, event);
+        return execute_operation_now<detail::machine_operation::process_event>(mach, event);
     }
 
     template<detail::machine_operation Operation, class Event>

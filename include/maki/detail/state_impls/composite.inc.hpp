@@ -82,7 +82,7 @@ public:
             emplace_context(parent_ctx, mach);
         }
 
-        MAKI_AOS_CALL impl_.template MAKI_AOS(enter)<AosVoid>(mach, ctx_holder_.get_deep(), event);
+        return impl_.template MAKI_AOS(enter)<AosVoid>(mach, ctx_holder_.get_deep(), event);
     }
 
     template<template<class> class AosType, bool Dry, class ParentContext, class Event>
@@ -93,7 +93,7 @@ public:
         const Event& event
     )
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL impl_.template MAKI_AOS(call_internal_action)
+        return impl_.template MAKI_AOS(call_internal_action)
         <
             AosType,
             Dry

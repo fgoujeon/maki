@@ -201,7 +201,7 @@ public:
         const Event& event
     )
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL call_internal_action_2<AosType, Dry>(*this, mach, ctx, event);
+        return call_internal_action_2<AosType, Dry>(*this, mach, ctx, event);
     }
 
     template<template<class> class AosType, bool Dry, class Context, class Event>
@@ -212,7 +212,7 @@ public:
         const Event& event
     ) const
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL call_internal_action_2<AosType, Dry>(*this, mach, ctx, event);
+        return call_internal_action_2<AosType, Dry>(*this, mach, ctx, event);
     }
 
     template<class AosVoid, class Context, class Event>
@@ -344,7 +344,7 @@ private:
             const Event& event
         )
         {
-            MAKI_AOS_CALL impl_of(get<Region>(self.regions_)).enter(mach, ctx, event);
+            return impl_of(get<Region>(self.regions_)).enter(mach, ctx, event);
         }
     };
 
@@ -371,7 +371,7 @@ private:
             const Event& event
         )
         {
-            MAKI_AOS_CALL impl_of(get<Region>(self.regions_)).template exit<TargetStateMoldId>(mach, ctx, event);
+            return impl_of(get<Region>(self.regions_)).template exit<TargetStateMoldId>(mach, ctx, event);
         }
     };
 

@@ -10,11 +10,11 @@ namespace maki::detail
 #if MAKI_AOS_ASYNC
 template
 <
-    class R,
+    class AsyncResult,
     class Callable,
     class... Args
 >
-R async_call_callable_2
+AsyncResult async_call_callable_2
 (
     Callable& callable,
     Args&&... args
@@ -22,13 +22,20 @@ R async_call_callable_2
 {
     using callable_return_type = std::invoke_result_t<Callable, Args...>;
 
-    if constexpr(std::is_same_v<callable_return_type, R>)
+    if constexpr(std::is_same_v<callable_return_type, AsyncResult>)
     {
-        co_return co_await std::invoke(callable, std::forward<Args>(args)...);
+        return std::invoke(callable, std::forward<Args>(args)...);
     }
     else
     {
-        co_return std::invoke(callable, std::forward<Args>(args)...);
+        /*
+        Wrap the callable into a coroutine so that we can return `AsyncResult`
+        in all cases.
+        */
+        return [&]() -> AsyncResult
+        {
+            co_return std::invoke(callable, std::forward<Args>(args)...);
+        }();
     }
 }
 #else
@@ -77,35 +84,35 @@ R MAKI_AOS(call_callable)
 {
     if constexpr(Sig == Signature::v)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(call_callable_2)<R>(callable, std::forward<ExtraArgs>(extra_args)...);
+        return MAKI_AOS(call_callable_2)<R>(callable, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::c)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(call_callable_2)<R>(callable, ctx, std::forward<ExtraArgs>(extra_args)...);
+        return MAKI_AOS(call_callable_2)<R>(callable, ctx, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::cm)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(call_callable_2)<R>(callable, ctx, mach, std::forward<ExtraArgs>(extra_args)...);
+        return MAKI_AOS(call_callable_2)<R>(callable, ctx, mach, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::cme)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(call_callable_2)<R>(callable, ctx, mach, event, std::forward<ExtraArgs>(extra_args)...);
+        return MAKI_AOS(call_callable_2)<R>(callable, ctx, mach, event, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::ce)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(call_callable_2)<R>(callable, ctx, event, std::forward<ExtraArgs>(extra_args)...);
+        return MAKI_AOS(call_callable_2)<R>(callable, ctx, event, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::m)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(call_callable_2)<R>(callable, mach, std::forward<ExtraArgs>(extra_args)...);
+        return MAKI_AOS(call_callable_2)<R>(callable, mach, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::me)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(call_callable_2)<R>(callable, mach, event, std::forward<ExtraArgs>(extra_args)...);
+        return MAKI_AOS(call_callable_2)<R>(callable, mach, event, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::e)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(call_callable_2)<R>(callable, event, std::forward<ExtraArgs>(extra_args)...);
+        return MAKI_AOS(call_callable_2)<R>(callable, event, std::forward<ExtraArgs>(extra_args)...);
     }
     else
     {

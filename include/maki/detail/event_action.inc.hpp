@@ -24,7 +24,7 @@ R MAKI_AOS(call_event_action)
     [[maybe_unused]] ExtraArgs&&... extra_args
 )
 {
-    MAKI_AOS_CALL MAKI_AOS(call_callable)<R, action_signature, EventActionPtr->sig>
+    return MAKI_AOS(call_callable)<R, action_signature, EventActionPtr->sig>
     (
         EventActionPtr->action,
         ctx,
@@ -57,7 +57,7 @@ R MAKI_AOS(call_matching_event_action)
         event_action_traits::for_event<Event>::template has_containing_event_set
     >;
 
-    MAKI_AOS_CALL MAKI_AOS(call_event_action)<R, matching_action_constant_t::value>
+    return MAKI_AOS(call_event_action)<R, matching_action_constant_t::value>
     (
         mach,
         ctx,

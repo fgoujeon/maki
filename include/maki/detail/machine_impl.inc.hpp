@@ -427,6 +427,8 @@ private:
                 }
             }
         }
+
+        MAKI_AOS_RETURN;
     }
 
     template<detail::machine_operation Operation, class Event>

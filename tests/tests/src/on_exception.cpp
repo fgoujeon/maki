@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <string>
 
-namespace AOS(on_exception_ns)
+namespace on_exception_ns
 {
     struct context
     {
@@ -99,7 +99,6 @@ namespace AOS(on_exception_ns)
         static constexpr auto value = maki::machine_conf{}
             .transition_tables(transition_table_default)
             .context_a<context>()
-            AOS_MACHINE_OPTS
         ;
     };
 
@@ -124,12 +123,11 @@ namespace AOS(on_exception_ns)
             .context_a<context>()
             .catch_mx
             (
-                [](auto& mach, const std::exception_ptr& eptr) -> AOS_VOID
+                [](auto& mach, const std::exception_ptr& eptr)
                 {
-                    AOS_CALL mach.AOS(process_event)(events::exception{eptr});
+                    mach.process_event(events::exception{eptr});
                 }
             )
-            AOS_MACHINE_OPTS
         ;
     };
 
@@ -154,18 +152,17 @@ namespace AOS(on_exception_ns)
             .context_a<context>()
             .catch_mx
             (
-                [](auto& mach, const std::exception_ptr& eptr) -> AOS_VOID
+                [](auto& mach, const std::exception_ptr& eptr)
                 {
                     try
                     {
-                        AOS_CALL mach.AOS(process_event_no_catch)(events::exception{eptr});
+                        mach.process_event_no_catch(events::exception{eptr});
                     }
                     catch(...)
                     {
                     }
                 }
             )
-            AOS_MACHINE_OPTS
         ;
     };
 
@@ -173,54 +170,45 @@ namespace AOS(on_exception_ns)
 
 
     template<class Mach>
-    AOS_VOID test_with_catch()
+    void test_with_catch()
     {
         auto machine = Mach{};
         auto& ctx = machine.context();
 
-        AOS_CALL machine.AOS(start)();
+        machine.start();
         ctx.out.clear();
 
-        AOS_CALL machine.AOS(process_event)(events::button_press{});
+        machine.process_event(events::button_press{});
         CHECK(machine.template is<maki::undefined>());
         CHECK(ctx.out == "off::on_exit;on::on_entry;test;");
     }
 }
 
-namespace AOS(exception_default)
+TEST_CASE("exception_default")
 {
-    AOS_TEST_CASE("exception_default")
+    using namespace on_exception_ns;
+
     {
-        using namespace AOS(on_exception_ns);
+        auto machine = sm_default_t{};
+        auto& ctx = machine.context();
 
-        {
-            auto machine = sm_default_t{};
-            auto& ctx = machine.context();
+        machine.start();
+        ctx.out.clear();
 
-            AOS_CALL machine.AOS(start)();
-            ctx.out.clear();
-
-            CHECK_THROWS(AOS_CALL machine.AOS(process_event)(events::button_press{}));
-            CHECK(machine.is<maki::undefined>());
-            CHECK(ctx.out == "off::on_exit;on::on_entry;");
-        }
+        CHECK_THROWS(machine.process_event(events::button_press{}));
+        CHECK(machine.is<maki::undefined>());
+        CHECK(ctx.out == "off::on_exit;on::on_entry;");
     }
 }
 
-namespace AOS(exception_with_trans)
+TEST_CASE("exception_with_trans")
 {
-    AOS_TEST_CASE("exception_with_trans")
-    {
-        using namespace AOS(on_exception_ns);
-        AOS_CALL test_with_catch<sm_with_trans_t>();
-    }
+    using namespace on_exception_ns;
+    test_with_catch<sm_with_trans_t>();
 }
 
-namespace AOS(exception_with_all)
+TEST_CASE("exception_with_all")
 {
-    AOS_TEST_CASE("exception_with_all")
-    {
-        using namespace AOS(on_exception_ns);
-        AOS_CALL test_with_catch<sm_with_all_t>();
-    }
+    using namespace on_exception_ns;
+    test_with_catch<sm_with_all_t>();
 }

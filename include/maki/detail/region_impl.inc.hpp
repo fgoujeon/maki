@@ -788,6 +788,8 @@ private:
                 MAKI_AOS_CALL try_executing_transitions<candidate_transition_iseq>(*this, mach, ctx, null);
             }
         }
+
+        MAKI_AOS_RETURN;
     }
 
     template<const auto& StateMold>

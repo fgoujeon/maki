@@ -9,23 +9,43 @@ version: 1.0.{build}
 image:
   - Visual Studio 2022
 
-platform:
-  - Win32
-  - x64
+environment:
+  matrix:
+    - PLATFORM: Win32
+      VCPKG_ARCH: x86-windows
+      CXX_STANDARD: 17
+      MAKI_BUILD_TESTS_20: 0
+      CONFIGURATION: Debug
 
-configuration:
-  - Release
-  - Debug
+    - PLATFORM: x64
+      VCPKG_ARCH: x64-windows
+      CXX_STANDARD: 17
+      MAKI_BUILD_TESTS_20: 0
+      CONFIGURATION: Release
+
+    - PLATFORM: x64
+      VCPKG_ARCH: x64-windows
+      CXX_STANDARD: 20
+      MAKI_BUILD_TESTS_20: 1
+      CONFIGURATION: Release
 
 install:
-  - vcpkg install catch2:x64-windows
-  - vcpkg install catch2:x86-windows
+  - vcpkg install catch2:%VCPKG_ARCH%
+  - vcpkg install boost-cobalt:%VCPKG_ARCH%
 
-before_build:
-  - cmake -DCMAKE_CXX_FLAGS="/std:c++17 /EHsc /W4 /permissive- /WX" -DMAKI_BUILD_TESTS=1 -DMAKI_BUILD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake -A%PLATFORM% .
-
-build:
-  project: $(APPVEYOR_BUILD_FOLDER)\$(APPVEYOR_PROJECT_NAME).sln
+build_script:
+  - cmake ^
+      -S . ^
+      -B build ^
+      -A %PLATFORM% ^
+      -DCMAKE_CXX_STANDARD=%CXX_STANDARD% ^
+      -DCMAKE_CXX_STANDARD_REQUIRED=ON ^
+      -DMAKI_BUILD_TESTS=1 ^
+      -DMAKI_BUILD_TESTS_20=%MAKI_BUILD_TESTS_20% ^
+      -DMAKI_BUILD_EXAMPLES=1 ^
+      -DCMAKE_CXX_FLAGS="/EHsc /W4 /permissive- /WX" ^
+      -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake
+  - cmake --build build --config %CONFIGURATION%
 
 test_script:
-  - ctest --verbose -C %CONFIGURATION%
+  - ctest --test-dir build --verbose -C %CONFIGURATION% --output-on-failure

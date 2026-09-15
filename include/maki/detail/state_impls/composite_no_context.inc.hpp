@@ -185,6 +185,7 @@ public:
     )
     {
         MAKI_AOS_CALL impl_type::template MAKI_AOS(enter)<AosVoid>(mach, ctx, event);
+
         MAKI_AOS_CALL tlu::MAKI_AOS(for_each)
         <
             AosVoid,

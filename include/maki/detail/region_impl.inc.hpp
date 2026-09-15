@@ -355,27 +355,47 @@ private:
             Note that nested transitions take precedence over higher-order
             transitions.
             */
-
-            const auto processed = MAKI_AOS_CALL call_active_state_internal_action<Dry>(self, mach, ctx, event);
-            if (processed)
-            {
-                MAKI_AOS_RETURN true;
-            }
-
-            MAKI_AOS_RETURN MAKI_AOS_CALL try_executing_transitions<candidate_transition_iseq, Dry>(self, mach, ctx, event);
+            return process_event_2_conflict<Dry, candidate_transition_iseq>(self, mach, ctx, event);
         }
         else if constexpr(!must_try_executing_transitions && must_try_process_event_in_states)
         {
-            MAKI_AOS_RETURN MAKI_AOS_CALL call_active_state_internal_action<Dry>(self, mach, ctx, event);
+            return call_active_state_internal_action<Dry>(self, mach, ctx, event);
         }
         else if constexpr(must_try_executing_transitions && !must_try_process_event_in_states)
         {
-            MAKI_AOS_RETURN MAKI_AOS_CALL try_executing_transitions<candidate_transition_iseq, Dry>(self, mach, ctx, event);
+            return try_executing_transitions<candidate_transition_iseq, Dry>(self, mach, ctx, event);
         }
         else
         {
-            MAKI_AOS_RETURN false;
+#if MAKI_AOS_ASYNC
+            return
+                []() -> MAKI_AOS_TYPE(bool)
+                {
+                    co_return false;
+                }()
+            ;
+#else
+            return false;
+#endif
         }
+    }
+
+    template<bool Dry, class CandidateTransitionIseq, class Self, class Machine, class Context, class Event>
+    static MAKI_AOS_TYPE(bool) process_event_2_conflict
+    (
+        Self& self,
+        Machine& mach,
+        Context& ctx,
+        const Event& event
+    )
+    {
+        const auto processed = MAKI_AOS_CALL call_active_state_internal_action<Dry>(self, mach, ctx, event);
+        if (processed)
+        {
+            MAKI_AOS_RETURN true;
+        }
+
+        MAKI_AOS_RETURN MAKI_AOS_CALL try_executing_transitions<CandidateTransitionIseq, Dry>(self, mach, ctx, event);
     }
 
     template<int TargetStateMoldId>

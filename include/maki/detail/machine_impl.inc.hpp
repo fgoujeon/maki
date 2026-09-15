@@ -84,7 +84,7 @@ public:
     MAKI_AOS_TYPE(void) start
     (
         machine<MachineConfHolder>& mach,
-        const Event MAKI_AOS_REF event = {}
+        const Event& event = {}
     )
     {
         MAKI_DETAIL_MAYBE_CATCH
@@ -97,7 +97,7 @@ public:
     MAKI_AOS_TYPE(void) stop
     (
         machine<MachineConfHolder>& mach,
-        const Event MAKI_AOS_REF event = {}
+        const Event& event = {}
     )
     {
         MAKI_DETAIL_MAYBE_CATCH
@@ -110,7 +110,7 @@ public:
     MAKI_AOS_TYPE(void) process_event
     (
         machine<MachineConfHolder>& mach,
-        const Event MAKI_AOS_REF event
+        const Event& event
     )
     {
         MAKI_DETAIL_MAYBE_CATCH
@@ -123,7 +123,7 @@ public:
     MAKI_AOS_TYPE(void) process_event_no_catch
     (
         machine<MachineConfHolder>& mach,
-        const Event MAKI_AOS_REF event
+        const Event& event
     )
     {
         MAKI_AOS_CALL execute_operation<detail::machine_operation::process_event>(mach, event);
@@ -133,7 +133,7 @@ public:
     MAKI_AOS_TYPE(void) process_event_now
     (
         machine<MachineConfHolder>& mach,
-        const Event MAKI_AOS_REF event
+        const Event& event
     )
     {
         MAKI_DETAIL_MAYBE_CATCH

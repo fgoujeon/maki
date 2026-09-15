@@ -121,6 +121,8 @@ public:
                 event
             );
         }
+
+        co_return;
     }
 #endif
 
@@ -207,6 +209,8 @@ public:
                 event
             );
         }
+
+        co_return;
     }
 #endif
 

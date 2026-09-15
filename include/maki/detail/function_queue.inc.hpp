@@ -134,7 +134,7 @@ private:
 
         R call(Arg arg)
         {
-            MAKI_AOS_RETURN MAKI_AOS_CALL pcall_(pdata_, arg);
+            return pcall_(pdata_, arg);
         }
 
     private:
@@ -161,7 +161,7 @@ private:
     static R call(const void* const pdata, Arg arg)
     {
         const Data& data = *reinterpret_cast<const Data*>(pdata); //NOLINT
-        MAKI_AOS_RETURN MAKI_AOS_CALL FunHolder::call(data, arg);
+        return FunHolder::call(data, arg);
     }
 
     static void dont_delete_data(const void* const /*pdata*/)

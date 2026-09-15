@@ -32,7 +32,7 @@ Calls:
 template<class R, class TList, class F, class... Args>
 R MAKI_AOS(for_each_plus)(Args&... args)
 {
-    MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(for_each_plus_helper)<R, TList, F>::call(args...);
+    return MAKI_AOS(for_each_plus_helper)<R, TList, F>::call(args...);
 }
 
 } //namespace

@@ -73,13 +73,13 @@ public:
             ctx_holder_.emplace(mach, parent_ctx);
         }
 
-        MAKI_AOS_CALL impl_type::template MAKI_AOS(enter)<AosVoid>(mach, ctx_holder_.get_deep(), event);
+        return impl_type::template MAKI_AOS(enter)<AosVoid>(mach, ctx_holder_.get_deep(), event);
     }
 
     template<template<class> class AosType, bool Dry, class Machine, class ParentContext, class Event>
     AosType<bool> MAKI_AOS(call_internal_action)(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL impl_type::template MAKI_AOS(call_internal_action)<AosType, Dry>(mach, ctx_holder_.get_deep(), event);
+        return impl_type::template MAKI_AOS(call_internal_action)<AosType, Dry>(mach, ctx_holder_.get_deep(), event);
     }
 
     template<class AosVoid, class Machine, class ParentContext, class Event>

@@ -30,7 +30,7 @@ Calls:
 template<class AosVoid, class TList, class F, class... Args>
 AosVoid MAKI_AOS(for_each)(Args&... args)
 {
-    MAKI_AOS_CALL MAKI_AOS(for_each_helper)<AosVoid, TList, F>::call(args...);
+    return MAKI_AOS(for_each_helper)<AosVoid, TList, F>::call(args...);
 }
 
 } //namespace

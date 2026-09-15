@@ -148,7 +148,7 @@ namespace detail
         const Event& event
     )
     {
-        co_await async_call_callable<AsyncVoid, action_signature, Action::signature>
+        return async_call_callable<AsyncVoid, action_signature, Action::signature>
         (
             act.callable,
             ctx,

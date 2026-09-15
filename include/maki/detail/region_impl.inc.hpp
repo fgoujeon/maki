@@ -13,7 +13,7 @@ namespace maki
 namespace maki::detail
 {
 
-namespace MAKI_AOS_NAME(region_detail)
+namespace MAKI_AOS(region_detail)
 {
     inline constexpr auto null_action_index = -1;
     inline constexpr auto null_guard_index = -1;
@@ -60,7 +60,7 @@ namespace MAKI_AOS_NAME(region_detail)
 }
 
 template<class MachineConfHolder, class TransitionTablePath, context_storage ParentCtxStorage>
-class MAKI_AOS_NAME(region_impl)
+class MAKI_AOS(region_impl)
 {
 public:
     static constexpr const auto& machine_conf = MachineConfHolder::value;
@@ -92,7 +92,7 @@ public:
     <
         maki::state
         <
-            MAKI_AOS_NAME(state_impl_t)
+            MAKI_AOS(state_impl_t)
             <
                 MachineConfHolder,
                 iseq_push_back_t<TransitionTablePath, StateMoldIds>,
@@ -123,9 +123,9 @@ public:
 #endif
 
     template<class Context>
-    MAKI_AOS_NAME(region_impl)
+    MAKI_AOS(region_impl)
     (
-        const region<MAKI_AOS_NAME(region_impl)>* pitf,
+        const region<MAKI_AOS(region_impl)>* pitf,
         machine<MachineConfHolder>& mach,
         Context& ctx
     ):
@@ -134,11 +134,11 @@ public:
     {
     }
 
-    MAKI_AOS_NAME(region_impl)(const MAKI_AOS_NAME(region_impl)&) = delete;
-    MAKI_AOS_NAME(region_impl)(MAKI_AOS_NAME(region_impl)&&) = delete;
-    MAKI_AOS_NAME(region_impl)& operator=(const MAKI_AOS_NAME(region_impl)&) = delete;
-    MAKI_AOS_NAME(region_impl)& operator=(MAKI_AOS_NAME(region_impl)&&) = delete;
-    ~MAKI_AOS_NAME(region_impl)() = default;
+    MAKI_AOS(region_impl)(const MAKI_AOS(region_impl)&) = delete;
+    MAKI_AOS(region_impl)(MAKI_AOS(region_impl)&&) = delete;
+    MAKI_AOS(region_impl)& operator=(const MAKI_AOS(region_impl)&) = delete;
+    MAKI_AOS(region_impl)& operator=(MAKI_AOS(region_impl)&&) = delete;
+    ~MAKI_AOS(region_impl)() = default;
 
     template<const auto& StateMold>
     [[nodiscard]] bool is() const
@@ -219,7 +219,7 @@ public:
     {
         if(!completed())
         {
-            MAKI_AOS_CALL MAKI_AOS_NAME(with_active_state_mold)<state_mold_iseq, exit_2<TargetStateMoldId>>
+            MAKI_AOS_CALL MAKI_AOS(with_active_state_mold)<state_mold_iseq, exit_2<TargetStateMoldId>>
             (
                 *this,
                 mach,
@@ -316,7 +316,7 @@ private:
     struct state_defers_event
     {
         template<int StateMoldId>
-        static void call(const MAKI_AOS_NAME(region_impl)& self, bool& defers)
+        static void call(const MAKI_AOS(region_impl)& self, bool& defers)
         {
             const auto& stt = self.state_mold_id_to_state<StateMoldId>();
             defers = impl_of(stt).template defers_event<Event>();
@@ -384,7 +384,7 @@ private:
         template<int ActiveStateMoldId, class Context, class Event>
         static MAKI_AOS_TYPE(void) call
         (
-            MAKI_AOS_NAME(region_impl)& self,
+            MAKI_AOS(region_impl)& self,
             machine<MachineConfHolder>& mach,
             Context& ctx,
             const Event& event
@@ -394,7 +394,7 @@ private:
             <
                 ActiveStateMoldId,
                 TargetStateMoldId,
-                MAKI_AOS_NAME(region_detail)::null_action_index
+                MAKI_AOS(region_detail)::null_action_index
             >(mach, ctx, event);
         }
     };
@@ -406,7 +406,7 @@ private:
     template<class TransitionIseq, bool Dry = false, class Self, class Machine, class Context, class Event>
     static MAKI_AOS_TYPE(bool) try_executing_transitions(Self& self, Machine& mach, Context& ctx, const Event& event)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS_NAME(iseq_for_each_or)
+        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(iseq_for_each_or)
         <
             MAKI_AOS_TYPE(bool),
             TransitionIseq,
@@ -435,7 +435,7 @@ private:
             if constexpr(is_state_set_v<std::decay_t<decltype(trans.source_state_mold)>>)
             {
                 //List of state molds that belong to the source state set
-                using matching_state_mold_iseq = MAKI_AOS_NAME(region_detail)::filter_state_mold_iseq_by_state_set_t
+                using matching_state_mold_iseq = MAKI_AOS(region_detail)::filter_state_mold_iseq_by_state_set_t
                 <
                     MachineConfHolder,
                     TransitionTablePath,
@@ -445,7 +445,7 @@ private:
 
                 static_assert(iseq_size_v<matching_state_mold_iseq> != 0);
 
-                MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS_NAME(iseq_for_each_or)
+                MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(iseq_for_each_or)
                 <
                     MAKI_AOS_TYPE(bool),
                     matching_state_mold_iseq,
@@ -515,7 +515,7 @@ private:
             }
 
             //Check guard
-            if constexpr(GuardIndex != MAKI_AOS_NAME(region_detail)::null_guard_index)
+            if constexpr(GuardIndex != MAKI_AOS(region_detail)::null_guard_index)
             {
                 const auto& guard = tuple_get<GuardIndex>(impl_of(trans_table)).grd;
                 if(!detail::call_guard(guard, ctx, mach, event))
@@ -591,7 +591,7 @@ private:
         */
         if constexpr(TargetStateMoldId != state_mold_ids::internal)
         {
-            MAKI_AOS_CALL impl_of(state_mold_id_to_state<SourceStateMoldId>()).template MAKI_AOS_NAME(exit)<MAKI_AOS_TYPE(void)>
+            MAKI_AOS_CALL impl_of(state_mold_id_to_state<SourceStateMoldId>()).template MAKI_AOS(exit)<MAKI_AOS_TYPE(void)>
             (
                 mach,
                 ctx,
@@ -602,9 +602,9 @@ private:
         /*
         Invoke the transition action, if any.
         */
-        if constexpr(ActionIndex != MAKI_AOS_NAME(region_detail)::null_action_index)
+        if constexpr(ActionIndex != MAKI_AOS(region_detail)::null_action_index)
         {
-            MAKI_AOS_CALL detail::MAKI_AOS_NAME(call_action)<MAKI_AOS_TYPE(void)>
+            MAKI_AOS_CALL detail::MAKI_AOS(call_action)<MAKI_AOS_TYPE(void)>
             (
                 tuple_get<ActionIndex>(impl_of(trans_table)).act,
                 ctx,
@@ -621,7 +621,7 @@ private:
         {
             auto& target_state = state_mold_id_to_state<TargetStateMoldId>();
 
-            MAKI_AOS_CALL impl_of(target_state).template MAKI_AOS_NAME(enter)<MAKI_AOS_TYPE(void)>
+            MAKI_AOS_CALL impl_of(target_state).template MAKI_AOS(enter)<MAKI_AOS_TYPE(void)>
             (
                 mach,
                 ctx,
@@ -690,7 +690,7 @@ private:
     )
     {
         auto processed = false;
-        MAKI_AOS_CALL MAKI_AOS_NAME(iseq_for_each_or)
+        MAKI_AOS_CALL MAKI_AOS(iseq_for_each_or)
         <
             MAKI_AOS_TYPE(bool),
             state_mold_iseq_0,
@@ -730,7 +730,7 @@ private:
                     MAKI_AOS_RETURN false;
                 }
 
-                processed = MAKI_AOS_CALL impl_of(state).template MAKI_AOS_NAME(call_internal_action)
+                processed = MAKI_AOS_CALL impl_of(state).template MAKI_AOS(call_internal_action)
                 <
                     aos_type,
                     Dry
@@ -852,7 +852,7 @@ private:
     struct with_active_state_mold_2
     {
         template<int StateMoldId, class... Args>
-        static bool call(const MAKI_AOS_NAME(region_impl)& self, Args&&... args)
+        static bool call(const MAKI_AOS(region_impl)& self, Args&&... args)
         {
             if(self.active_state_mold_id_ == StateMoldId)
             {
@@ -879,7 +879,7 @@ private:
     struct async_with_active_state_mold_2
     {
         template<int StateMoldId, class... Args>
-        static awaitable_type<bool> call(const MAKI_AOS_NAME(region_impl)& self, Args&&... args)
+        static awaitable_type<bool> call(const MAKI_AOS(region_impl)& self, Args&&... args)
         {
             if(self.active_state_mold_id_ == StateMoldId)
             {
@@ -924,7 +924,7 @@ private:
             using state_t =
                 maki::state
                 <
-                    MAKI_AOS_NAME(state_impl_t)
+                    MAKI_AOS(state_impl_t)
                     <
                         MachineConfHolder,
                         iseq_push_back_t<TransitionTablePath, StateMoldId>,
@@ -936,7 +936,7 @@ private:
         }
     }
 
-    const region<MAKI_AOS_NAME(region_impl)>* pitf_;
+    const region<MAKI_AOS(region_impl)>* pitf_;
     state_mix_type states_;
     int active_state_mold_id_ = state_mold_ids::fin;
 };

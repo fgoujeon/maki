@@ -8,40 +8,40 @@ namespace maki::detail
 {
 
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage, bool HasTransitionTables, bool HasContext>
-struct MAKI_AOS_NAME(state_impl_helper);
+struct MAKI_AOS(state_impl_helper);
 
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-struct MAKI_AOS_NAME(state_impl_helper)<MachineConfHolder, StateMoldPath, ParentCtxStorage, false, false>
+struct MAKI_AOS(state_impl_helper)<MachineConfHolder, StateMoldPath, ParentCtxStorage, false, false>
 {
     using type = state_impls::simple_no_context<MachineConfHolder, StateMoldPath>;
 };
 
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-struct MAKI_AOS_NAME(state_impl_helper)<MachineConfHolder, StateMoldPath, ParentCtxStorage, false, true>
+struct MAKI_AOS(state_impl_helper)<MachineConfHolder, StateMoldPath, ParentCtxStorage, false, true>
 {
-    using type = state_impls::MAKI_AOS_NAME(simple)<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
+    using type = state_impls::MAKI_AOS(simple)<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
 };
 
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-struct MAKI_AOS_NAME(state_impl_helper)<MachineConfHolder, StateMoldPath, ParentCtxStorage, true, false>
+struct MAKI_AOS(state_impl_helper)<MachineConfHolder, StateMoldPath, ParentCtxStorage, true, false>
 {
-    using type = state_impls::MAKI_AOS_NAME(composite_no_context)<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
+    using type = state_impls::MAKI_AOS(composite_no_context)<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
 };
 
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-struct MAKI_AOS_NAME(state_impl_helper)<MachineConfHolder, StateMoldPath, ParentCtxStorage, true, true>
+struct MAKI_AOS(state_impl_helper)<MachineConfHolder, StateMoldPath, ParentCtxStorage, true, true>
 {
-    using type = state_impls::MAKI_AOS_NAME(composite)<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
+    using type = state_impls::MAKI_AOS(composite)<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
 };
 
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-struct MAKI_AOS_NAME(state_impl)
+struct MAKI_AOS(state_impl)
 {
     static constexpr const auto& stt_mold = machine_conf_tree::node_at_path_v<MachineConfHolder, StateMoldPath>;
 
     using context_type = typename std::decay_t<decltype(impl_of(stt_mold))>::context_type;
 
-    using type = typename MAKI_AOS_NAME(state_impl_helper)
+    using type = typename MAKI_AOS(state_impl_helper)
     <
         MachineConfHolder,
         StateMoldPath,
@@ -52,7 +52,7 @@ struct MAKI_AOS_NAME(state_impl)
 };
 
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-using MAKI_AOS_NAME(state_impl_t) = typename MAKI_AOS_NAME(state_impl)
+using MAKI_AOS(state_impl_t) = typename MAKI_AOS(state_impl)
 <
     MachineConfHolder,
     StateMoldPath,

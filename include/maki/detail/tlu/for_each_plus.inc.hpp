@@ -8,10 +8,10 @@ namespace maki::detail::tlu
 {
 
 template<class R, class TList, class F>
-struct MAKI_AOS_NAME(for_each_plus_helper);
+struct MAKI_AOS(for_each_plus_helper);
 
 template<class R, template<class...> class TList, class... Ts, class F>
-struct MAKI_AOS_NAME(for_each_plus_helper)<R, TList<Ts...>, F>
+struct MAKI_AOS(for_each_plus_helper)<R, TList<Ts...>, F>
 {
     template<class... Args>
     static R call([[maybe_unused]] Args&... args)
@@ -30,9 +30,9 @@ Calls:
     ;
 */
 template<class R, class TList, class F, class... Args>
-R MAKI_AOS_NAME(for_each_plus)(Args&... args)
+R MAKI_AOS(for_each_plus)(Args&... args)
 {
-    MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS_NAME(for_each_plus_helper)<R, TList, F>::call(args...);
+    MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(for_each_plus_helper)<R, TList, F>::call(args...);
 }
 
 } //namespace

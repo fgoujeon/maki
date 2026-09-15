@@ -66,7 +66,7 @@ template
     class Event,
     class... ExtraArgs
 >
-R MAKI_AOS_NAME(call_callable)
+R MAKI_AOS(call_callable)
 (
     Callable& callable,
     [[maybe_unused]] Context& ctx,
@@ -77,35 +77,35 @@ R MAKI_AOS_NAME(call_callable)
 {
     if constexpr(Sig == Signature::v)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS_NAME(call_callable_2)<R>(callable, std::forward<ExtraArgs>(extra_args)...);
+        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(call_callable_2)<R>(callable, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::c)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS_NAME(call_callable_2)<R>(callable, ctx, std::forward<ExtraArgs>(extra_args)...);
+        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(call_callable_2)<R>(callable, ctx, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::cm)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS_NAME(call_callable_2)<R>(callable, ctx, mach, std::forward<ExtraArgs>(extra_args)...);
+        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(call_callable_2)<R>(callable, ctx, mach, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::cme)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS_NAME(call_callable_2)<R>(callable, ctx, mach, event, std::forward<ExtraArgs>(extra_args)...);
+        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(call_callable_2)<R>(callable, ctx, mach, event, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::ce)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS_NAME(call_callable_2)<R>(callable, ctx, event, std::forward<ExtraArgs>(extra_args)...);
+        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(call_callable_2)<R>(callable, ctx, event, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::m)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS_NAME(call_callable_2)<R>(callable, mach, std::forward<ExtraArgs>(extra_args)...);
+        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(call_callable_2)<R>(callable, mach, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::me)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS_NAME(call_callable_2)<R>(callable, mach, event, std::forward<ExtraArgs>(extra_args)...);
+        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(call_callable_2)<R>(callable, mach, event, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::e)
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS_NAME(call_callable_2)<R>(callable, event, std::forward<ExtraArgs>(extra_args)...);
+        MAKI_AOS_RETURN MAKI_AOS_CALL MAKI_AOS(call_callable_2)<R>(callable, event, std::forward<ExtraArgs>(extra_args)...);
     }
     else
     {

@@ -25,7 +25,7 @@ namespace maki::detail
     }
 
 template<class MachineConfHolder>
-class MAKI_AOS_NAME(machine_impl)
+class MAKI_AOS(machine_impl)
 {
 public:
     static constexpr const auto& conf = MachineConfHolder::value;
@@ -46,7 +46,7 @@ public:
     using aos_type = awaitable_type<T>;
 
     template<class... ContextArgs>
-    MAKI_AOS_NAME(machine_impl)
+    MAKI_AOS(machine_impl)
     (
         machine<MachineConfHolder>& mach,
         ContextArgs&&... ctx_args
@@ -150,7 +150,7 @@ public:
         const Event& event
     ) const
     {
-        return impl_.template MAKI_AOS_NAME(call_internal_action)<aos_type, true>(mach, context(), event);
+        return impl_.template MAKI_AOS(call_internal_action)<aos_type, true>(mach, context(), event);
     }
 #endif
 
@@ -187,7 +187,7 @@ public:
 
 private:
     using impl_type =
-        detail::state_impls::MAKI_AOS_NAME(composite_no_context)
+        detail::state_impls::MAKI_AOS(composite_no_context)
         <
             MachineConfHolder,
             detail::iseq<>,
@@ -206,7 +206,7 @@ private:
     class executing_operation_guard
     {
     public:
-        executing_operation_guard(MAKI_AOS_NAME(machine_impl)& self):
+        executing_operation_guard(MAKI_AOS(machine_impl)& self):
             self_(self)
         {
             self_.executing_operation_ = true;
@@ -223,13 +223,13 @@ private:
         }
 
     private:
-        MAKI_AOS_NAME(machine_impl)& self_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+        MAKI_AOS(machine_impl)& self_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
     };
 
     struct real_function_queue_holder
     {
         template<bool = true> //Dummy template for lazy evaluation
-        using type = detail::MAKI_AOS_NAME(function_queue)
+        using type = detail::MAKI_AOS(function_queue)
         <
             MAKI_AOS_TYPE(bool),
             machine<MachineConfHolder>&,
@@ -438,7 +438,7 @@ private:
     {
         if constexpr(Operation == detail::machine_operation::start)
         {
-            MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(enter)<MAKI_AOS_TYPE(void)>
+            MAKI_AOS_CALL impl_.template MAKI_AOS(enter)<MAKI_AOS_TYPE(void)>
             (
                 mach,
                 ctx_holder_.get(),
@@ -509,7 +509,7 @@ private:
             {
                 if(running())
                 {
-                    const auto processed = MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(call_internal_action)<aos_type, false>(mach, context(), event);
+                    const auto processed = MAKI_AOS_CALL impl_.template MAKI_AOS(call_internal_action)<aos_type, false>(mach, context(), event);
 
                     detail::call_matching_event_action<void, post_processing_hook_ptr_constant_list>
                     (
@@ -528,7 +528,7 @@ private:
                 is stopped.
                 */
 
-                MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(call_internal_action)<aos_type, false>(mach, context(), event);
+                MAKI_AOS_CALL impl_.template MAKI_AOS(call_internal_action)<aos_type, false>(mach, context(), event);
             }
 
             MAKI_AOS_RETURN true;

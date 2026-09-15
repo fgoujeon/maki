@@ -16,7 +16,7 @@ template
     class Event,
     class... ExtraArgs
 >
-R MAKI_AOS_NAME(call_event_action)
+R MAKI_AOS(call_event_action)
 (
     [[maybe_unused]] Machine& mach,
     [[maybe_unused]] Context& ctx,
@@ -24,7 +24,7 @@ R MAKI_AOS_NAME(call_event_action)
     [[maybe_unused]] ExtraArgs&&... extra_args
 )
 {
-    MAKI_AOS_CALL MAKI_AOS_NAME(call_callable)<R, action_signature, EventActionPtr->sig>
+    MAKI_AOS_CALL MAKI_AOS(call_callable)<R, action_signature, EventActionPtr->sig>
     (
         EventActionPtr->action,
         ctx,
@@ -43,7 +43,7 @@ template
     class Event,
     class... ExtraArgs
 >
-R MAKI_AOS_NAME(call_matching_event_action)
+R MAKI_AOS(call_matching_event_action)
 (
     Machine& mach,
     Context& ctx,
@@ -57,7 +57,7 @@ R MAKI_AOS_NAME(call_matching_event_action)
         event_action_traits::for_event<Event>::template has_containing_event_set
     >;
 
-    MAKI_AOS_CALL MAKI_AOS_NAME(call_event_action)<R, matching_action_constant_t::value>
+    MAKI_AOS_CALL MAKI_AOS(call_event_action)<R, matching_action_constant_t::value>
     (
         mach,
         ctx,

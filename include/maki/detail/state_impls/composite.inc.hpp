@@ -8,7 +8,7 @@ namespace maki::detail::state_impls
 {
 
 template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
-class MAKI_AOS_NAME(composite)
+class MAKI_AOS(composite)
 {
 public:
     using machine_conf_holder_type = MachineConfHolder;
@@ -19,12 +19,12 @@ public:
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using transition_table_type_list = decltype(impl_of(mold).transition_tables);
     using context_type = typename option_set_type::context_type;
-    using impl_type = MAKI_AOS_NAME(composite_no_context)<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
+    using impl_type = MAKI_AOS(composite_no_context)<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
     using event_type_set = typename impl_type::event_type_set;
     using deferrable_event_type_set = typename impl_type::deferrable_event_type_set;
 
     template<class ParentContext>
-    MAKI_AOS_NAME(composite)
+    MAKI_AOS(composite)
     (
         machine<MachineConfHolder>& mach,
         ParentContext& parent_ctx
@@ -34,11 +34,11 @@ public:
     {
     }
 
-    MAKI_AOS_NAME(composite)(const MAKI_AOS_NAME(composite)&) = delete;
-    MAKI_AOS_NAME(composite)(MAKI_AOS_NAME(composite)&&) = delete;
-    MAKI_AOS_NAME(composite)& operator=(const MAKI_AOS_NAME(composite)&) = delete;
-    MAKI_AOS_NAME(composite)& operator=(MAKI_AOS_NAME(composite)&&) = delete;
-    ~MAKI_AOS_NAME(composite)() = default;
+    MAKI_AOS(composite)(const MAKI_AOS(composite)&) = delete;
+    MAKI_AOS(composite)(MAKI_AOS(composite)&&) = delete;
+    MAKI_AOS(composite)& operator=(const MAKI_AOS(composite)&) = delete;
+    MAKI_AOS(composite)& operator=(MAKI_AOS(composite)&&) = delete;
+    ~MAKI_AOS(composite)() = default;
 
     auto& context()
     {
@@ -70,7 +70,7 @@ public:
     }
 
     template<class AosVoid, class ParentContext, class Event>
-    AosVoid MAKI_AOS_NAME(enter)
+    AosVoid MAKI_AOS(enter)
     (
         machine<MachineConfHolder>& mach,
         [[maybe_unused]] ParentContext& parent_ctx,
@@ -82,18 +82,18 @@ public:
             emplace_context(parent_ctx, mach);
         }
 
-        MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(enter)<AosVoid>(mach, ctx_holder_.get_deep(), event);
+        MAKI_AOS_CALL impl_.template MAKI_AOS(enter)<AosVoid>(mach, ctx_holder_.get_deep(), event);
     }
 
     template<template<class> class AosType, bool Dry, class ParentContext, class Event>
-    AosType<bool> MAKI_AOS_NAME(call_internal_action)
+    AosType<bool> MAKI_AOS(call_internal_action)
     (
         machine<MachineConfHolder>& mach,
         ParentContext& /*parent_ctx*/,
         const Event& event
     )
     {
-        MAKI_AOS_RETURN MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(call_internal_action)
+        MAKI_AOS_RETURN MAKI_AOS_CALL impl_.template MAKI_AOS(call_internal_action)
         <
             AosType,
             Dry
@@ -106,14 +106,14 @@ public:
     }
 
     template<class R, class ParentContext, class Event>
-    R MAKI_AOS_NAME(exit)
+    R MAKI_AOS(exit)
     (
         machine<MachineConfHolder>& mach,
         ParentContext& /*parent_ctx*/,
         const Event& event
     )
     {
-        MAKI_AOS_CALL impl_.template MAKI_AOS_NAME(exit)<R>(mach, ctx_holder_.get_deep(), event);
+        MAKI_AOS_CALL impl_.template MAKI_AOS(exit)<R>(mach, ctx_holder_.get_deep(), event);
 
         if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
         {

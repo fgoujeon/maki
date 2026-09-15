@@ -17,7 +17,7 @@ template
     std::size_t StaticStorageSize,
     std::size_t StaticStorageAlignment = alignof(std::max_align_t)
 >
-class MAKI_AOS_NAME(function_queue)
+class MAKI_AOS(function_queue)
 {
 public:
     //Push call to FunHolder::call(data, arg)

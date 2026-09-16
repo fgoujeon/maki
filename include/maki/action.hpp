@@ -122,7 +122,7 @@ namespace detail
         const Event& event
     )
     {
-        call_callable<Void, action_signature, Action::signature>
+        call_callable<false, Void, action_signature, Action::signature>
         (
             act.callable,
             ctx,
@@ -148,7 +148,7 @@ namespace detail
         const Event& event
     )
     {
-        return async_call_callable<AsyncVoid, action_signature, Action::signature>
+        return call_callable<true, AsyncVoid, action_signature, Action::signature>
         (
             act.callable,
             ctx,

@@ -24,7 +24,7 @@ R MAKI_AOS(call_event_action)
     [[maybe_unused]] ExtraArgs&&... extra_args
 )
 {
-    return MAKI_AOS(call_callable)<R, action_signature, EventActionPtr->sig>
+    return call_callable<MAKI_AOS_ASYNC, R, action_signature, EventActionPtr->sig>
     (
         EventActionPtr->action,
         ctx,

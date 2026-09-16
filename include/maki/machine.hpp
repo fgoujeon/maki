@@ -361,7 +361,7 @@ public:
     template<class Event>
     MAKI_NOINLINE void push_event(const Event& event)
     {
-        impl_.push_event(event);
+        impl_.push_event(*this, event);
     }
 
     /**

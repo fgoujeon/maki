@@ -163,7 +163,7 @@ public:
     {
         MAKI_DETAIL_MAYBE_CATCH
         (
-            push_event_no_catch(mach, event);
+            push_event_no_catch(event);
         )
     }
 

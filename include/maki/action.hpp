@@ -108,13 +108,12 @@ namespace detail
 
     template
     <
-        class Void,
         class Action,
         class Context,
         class Machine,
         class Event
     >
-    Void call_action
+    auto call_action
     (
         const Action& act,
         Context& ctx,
@@ -122,7 +121,7 @@ namespace detail
         const Event& event
     )
     {
-        call_callable<action_signature, Action::signature>
+        return call_callable<action_signature, Action::signature>
         (
             act.callable,
             ctx,
@@ -130,46 +129,6 @@ namespace detail
             event
         );
     }
-
-#if __cpp_impl_coroutine
-    template
-    <
-        class AsyncVoid,
-        class Action,
-        class Context,
-        class Machine,
-        class Event
-    >
-    AsyncVoid async_call_action
-    (
-        const Action& act,
-        Context& ctx,
-        Machine& mach,
-        const Event& event
-    )
-    {
-        if constexpr(awaitable<decltype(call_callable<action_signature, Action::signature> ( act.callable, ctx, mach, event))>)
-        {
-            co_await call_callable<action_signature, Action::signature>
-            (
-                act.callable,
-                ctx,
-                mach,
-                event
-            );
-        }
-        else
-        {
-            call_callable<action_signature, Action::signature>
-            (
-                act.callable,
-                ctx,
-                mach,
-                event
-            );
-        }
-    }
-#endif
 }
 
 } //namespace

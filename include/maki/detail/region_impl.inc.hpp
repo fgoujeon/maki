@@ -624,13 +624,41 @@ private:
         */
         if constexpr(ActionIndex != MAKI_AOS(region_detail)::null_action_index)
         {
-            MAKI_AOS_CALL detail::MAKI_AOS(call_action)<MAKI_AOS_TYPE(void)>
+            if constexpr
             (
-                tuple_get<ActionIndex>(impl_of(trans_table)).act,
-                ctx,
-                mach,
-                event
-            );
+                detail::awaitable
+                <
+                    decltype
+                    (
+                        detail::call_action
+                        (
+                            tuple_get<ActionIndex>(impl_of(trans_table)).act,
+                            ctx,
+                            mach,
+                            event
+                        )
+                    )
+                >
+            )
+            {
+                MAKI_AOS_CALL detail::call_action
+                (
+                    tuple_get<ActionIndex>(impl_of(trans_table)).act,
+                    ctx,
+                    mach,
+                    event
+                );
+            }
+            else
+            {
+                detail::call_action
+                (
+                    tuple_get<ActionIndex>(impl_of(trans_table)).act,
+                    ctx,
+                    mach,
+                    event
+                );
+            }
         }
 
         /*

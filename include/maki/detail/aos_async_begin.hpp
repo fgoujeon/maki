@@ -14,3 +14,13 @@ This file defines macros for asynchronous code.
 #define MAKI_AOS(name) async_##name
 #define MAKI_AOS_RETURN co_return
 #define MAKI_AOS_TYPE(type) awaitable_type<type>
+
+#define MAKI_AOS_CALL_2(statement) \
+    if constexpr(detail::awaitable<decltype(statement)>) \
+    { \
+        co_await statement; \
+    } \
+    else \
+    { \
+        statement; \
+    }

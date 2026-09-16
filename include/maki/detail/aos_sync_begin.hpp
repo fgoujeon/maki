@@ -14,3 +14,6 @@ This file defines macros for synchronous code.
 #define MAKI_AOS(name) name
 #define MAKI_AOS_RETURN return
 #define MAKI_AOS_TYPE(type) type
+
+#define MAKI_AOS_CALL_2(statement) \
+    statement;

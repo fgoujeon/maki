@@ -9,8 +9,9 @@ AOS stands for "Asynchronous Or Synchronous".
 This file undefines macros for both asynchronous and synchronous code.
 */
 
+#undef MAKI_AOS
 #undef MAKI_AOS_ASYNC
 #undef MAKI_AOS_CALL
-#undef MAKI_AOS
+#undef MAKI_AOS_CALL_2
 #undef MAKI_AOS_RETURN
 #undef MAKI_AOS_TYPE

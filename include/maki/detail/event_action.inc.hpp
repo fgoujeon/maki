@@ -9,14 +9,13 @@ namespace maki::detail
 
 template
 <
-    class R,
     auto EventActionPtr,
     class Machine,
     class Context,
     class Event,
     class... ExtraArgs
 >
-R MAKI_AOS(call_event_action)
+auto MAKI_AOS(call_event_action)
 (
     [[maybe_unused]] Machine& mach,
     [[maybe_unused]] Context& ctx,
@@ -24,7 +23,7 @@ R MAKI_AOS(call_event_action)
     [[maybe_unused]] ExtraArgs&&... extra_args
 )
 {
-    return call_callable<MAKI_AOS_ASYNC, R, action_signature, EventActionPtr->sig>
+    return call_callable<action_signature, EventActionPtr->sig>
     (
         EventActionPtr->action,
         ctx,
@@ -36,14 +35,13 @@ R MAKI_AOS(call_event_action)
 
 template
 <
-    class R,
     class ActionConstantList,
     class Machine,
     class Context,
     class Event,
     class... ExtraArgs
 >
-R MAKI_AOS(call_matching_event_action)
+auto MAKI_AOS(call_matching_event_action)
 (
     Machine& mach,
     Context& ctx,
@@ -57,7 +55,7 @@ R MAKI_AOS(call_matching_event_action)
         event_action_traits::for_event<Event>::template has_containing_event_set
     >;
 
-    return MAKI_AOS(call_event_action)<R, matching_action_constant_t::value>
+    return MAKI_AOS(call_event_action)<matching_action_constant_t::value>
     (
         mach,
         ctx,

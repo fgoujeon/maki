@@ -493,7 +493,7 @@ private:
             {
                 if(running())
                 {
-                    detail::call_matching_event_action<void, pre_processing_hook_ptr_constant_list>
+                    detail::call_matching_event_action<pre_processing_hook_ptr_constant_list>
                     (
                         mach,
                         context(),
@@ -513,7 +513,7 @@ private:
                 {
                     const auto processed = MAKI_AOS_CALL impl_.template MAKI_AOS(call_internal_action)<aos_type, false>(mach, context(), event);
 
-                    detail::call_matching_event_action<void, post_processing_hook_ptr_constant_list>
+                    detail::call_matching_event_action<post_processing_hook_ptr_constant_list>
                     (
                         mach,
                         context(),

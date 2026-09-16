@@ -122,7 +122,7 @@ namespace detail
         const Event& event
     )
     {
-        call_callable<false, Void, action_signature, Action::signature>
+        call_callable<action_signature, Action::signature>
         (
             act.callable,
             ctx,
@@ -148,13 +148,26 @@ namespace detail
         const Event& event
     )
     {
-        return call_callable<true, AsyncVoid, action_signature, Action::signature>
-        (
-            act.callable,
-            ctx,
-            mach,
-            event
-        );
+        if constexpr(awaitable<decltype(call_callable<action_signature, Action::signature> ( act.callable, ctx, mach, event))>)
+        {
+            co_await call_callable<action_signature, Action::signature>
+            (
+                act.callable,
+                ctx,
+                mach,
+                event
+            );
+        }
+        else
+        {
+            call_callable<action_signature, Action::signature>
+            (
+                act.callable,
+                ctx,
+                mach,
+                event
+            );
+        }
     }
 #endif
 }

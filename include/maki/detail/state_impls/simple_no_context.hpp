@@ -94,7 +94,7 @@ public:
             If at least one entry action is defined, state is required to define
             entry actions for all possible event types.
             */
-            call_matching_event_action<void, entry_action_ptr_constant_list>
+            call_matching_event_action<entry_action_ptr_constant_list>
             (
                 mach,
                 ctx,
@@ -114,12 +114,24 @@ public:
             If at least one entry action is defined, state is required to define
             entry actions for all possible event types.
             */
-            co_await async_call_matching_event_action<AsyncVoid, entry_action_ptr_constant_list>
-            (
-                mach,
-                ctx,
-                event
-            );
+            if constexpr(awaitable<decltype(call_matching_event_action<entry_action_ptr_constant_list>(mach, ctx, event))>)
+            {
+                co_await call_matching_event_action<entry_action_ptr_constant_list>
+                (
+                    mach,
+                    ctx,
+                    event
+                );
+            }
+            else
+            {
+                call_matching_event_action<entry_action_ptr_constant_list>
+                (
+                    mach,
+                    ctx,
+                    event
+                );
+            }
         }
 
         co_return;
@@ -137,7 +149,7 @@ public:
 
         if constexpr(!Dry)
         {
-            call_matching_event_action<void, internal_action_ptr_constant_list>
+            call_matching_event_action<internal_action_ptr_constant_list>
             (
                 mach,
                 ctx,
@@ -160,12 +172,24 @@ public:
 
         if constexpr(!Dry)
         {
-            co_await async_call_matching_event_action<AsyncType<void>, internal_action_ptr_constant_list>
-            (
-                mach,
-                ctx,
-                event
-            );
+            if constexpr(awaitable<decltype(call_matching_event_action<internal_action_ptr_constant_list>(mach, ctx, event))>)
+            {
+                co_await call_matching_event_action<internal_action_ptr_constant_list>
+                (
+                    mach,
+                    ctx,
+                    event
+                );
+            }
+            else
+            {
+                call_matching_event_action<internal_action_ptr_constant_list>
+                (
+                    mach,
+                    ctx,
+                    event
+                );
+            }
         }
 
         co_return true;
@@ -182,7 +206,7 @@ public:
             If at least one exit action is defined, state is required to define
             entry actions for all possible event types.
             */
-            call_matching_event_action<void, exit_action_ptr_constant_list>
+            call_matching_event_action<exit_action_ptr_constant_list>
             (
                 mach,
                 ctx,
@@ -202,12 +226,24 @@ public:
             If at least one exit action is defined, state is required to define
             entry actions for all possible event types.
             */
-            co_await async_call_matching_event_action<R, exit_action_ptr_constant_list>
-            (
-                mach,
-                ctx,
-                event
-            );
+            if constexpr(awaitable<decltype(call_matching_event_action<exit_action_ptr_constant_list>(mach, ctx, event))>)
+            {
+                co_await call_matching_event_action<exit_action_ptr_constant_list>
+                (
+                    mach,
+                    ctx,
+                    event
+                );
+            }
+            else
+            {
+                call_matching_event_action<exit_action_ptr_constant_list>
+                (
+                    mach,
+                    ctx,
+                    event
+                );
+            }
         }
 
         co_return;

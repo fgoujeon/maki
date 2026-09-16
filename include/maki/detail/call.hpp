@@ -16,56 +16,28 @@ namespace maki::detail
 
 template
 <
-    bool Async,
-    class R,
     class Callable,
     class... Args
 >
-R call_callable_2
+auto call_callable_2
 (
     Callable& callable,
     Args&&... args
 )
 {
-#if __cpp_impl_coroutine
-    if constexpr(Async)
+    using callable_return_type = std::invoke_result_t<Callable, Args...>;
+    if constexpr(std::is_void_v<callable_return_type>)
     {
-        using callable_return_type = std::invoke_result_t<Callable, Args...>;
-
-        if constexpr(std::is_same_v<callable_return_type, R>)
-        {
-            return std::invoke(callable, std::forward<Args>(args)...);
-        }
-        else
-        {
-            /*
-            Wrap the callable into a coroutine so that we can return `R`
-            in all cases.
-            */
-            return [&]() -> R
-            {
-                co_return std::invoke(callable, std::forward<Args>(args)...);
-            }();
-        }
+        std::invoke(callable, std::forward<Args>(args)...);
     }
     else
-#endif
     {
-        if constexpr(std::is_void_v<R>)
-        {
-            std::invoke(callable, std::forward<Args>(args)...);
-        }
-        else
-        {
-            return std::invoke(callable, std::forward<Args>(args)...);
-        }
+        return std::invoke(callable, std::forward<Args>(args)...);
     }
 }
 
 template
 <
-    bool Async,
-    class R,
     class Signature,
     Signature Sig,
     class Callable,
@@ -74,7 +46,7 @@ template
     class Event,
     class... ExtraArgs
 >
-R call_callable
+auto call_callable
 (
     Callable& callable,
     [[maybe_unused]] Context& ctx,
@@ -85,35 +57,35 @@ R call_callable
 {
     if constexpr(Sig == Signature::v)
     {
-        return call_callable_2<Async, R>(callable, std::forward<ExtraArgs>(extra_args)...);
+        return call_callable_2(callable, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::c)
     {
-        return call_callable_2<Async, R>(callable, ctx, std::forward<ExtraArgs>(extra_args)...);
+        return call_callable_2(callable, ctx, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::cm)
     {
-        return call_callable_2<Async, R>(callable, ctx, mach, std::forward<ExtraArgs>(extra_args)...);
+        return call_callable_2(callable, ctx, mach, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::cme)
     {
-        return call_callable_2<Async, R>(callable, ctx, mach, event, std::forward<ExtraArgs>(extra_args)...);
+        return call_callable_2(callable, ctx, mach, event, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::ce)
     {
-        return call_callable_2<Async, R>(callable, ctx, event, std::forward<ExtraArgs>(extra_args)...);
+        return call_callable_2(callable, ctx, event, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::m)
     {
-        return call_callable_2<Async, R>(callable, mach, std::forward<ExtraArgs>(extra_args)...);
+        return call_callable_2(callable, mach, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::me)
     {
-        return call_callable_2<Async, R>(callable, mach, event, std::forward<ExtraArgs>(extra_args)...);
+        return call_callable_2(callable, mach, event, std::forward<ExtraArgs>(extra_args)...);
     }
     else if constexpr(Sig == Signature::e)
     {
-        return call_callable_2<Async, R>(callable, event, std::forward<ExtraArgs>(extra_args)...);
+        return call_callable_2(callable, event, std::forward<ExtraArgs>(extra_args)...);
     }
     else
     {

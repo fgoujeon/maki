@@ -1,8 +1,8 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 /**
 @file
@@ -12,38 +12,40 @@
 #ifndef MAKI_MACHINE_HPP
 #define MAKI_MACHINE_HPP
 
-#include "machine_conf.hpp"
-#include "events.hpp"
-#include "null.hpp"
-#include "detail/iseq.hpp"
-#include "detail/state_impls/simple.hpp" //NOLINT misc-include-cleaner
-#include "detail/state_impls/composite.hpp" //NOLINT misc-include-cleaner
-#include "detail/state_impls/composite_no_context.hpp"
 #include "detail/context_holder.hpp"
 #include "detail/context_storage.hpp"
 #include "detail/event_action.hpp"
-#include "detail/noinline.hpp"
 #include "detail/function_queue.hpp"
+#include "detail/iseq.hpp"
 #include "detail/mix.hpp"
+#include "detail/noinline.hpp"
+#include "detail/state_impls/composite.hpp" //NOLINT misc-include-cleaner
+#include "detail/state_impls/composite_no_context.hpp"
+#include "detail/state_impls/simple.hpp" //NOLINT misc-include-cleaner
 #include "detail/tlu/contains_if.hpp"
-#include <type_traits>
+#include "events.hpp"
+#include "machine_conf.hpp"
+#include "null.hpp"
 #include <exception>
+#include <type_traits>
 
 namespace maki
 {
 
 namespace detail
 {
-    enum class machine_operation: char
+    enum class machine_operation : char
     {
         start,
         stop,
         process_event
     };
-}
+} // namespace detail
 
-#define MAKI_DETAIL_MAYBE_CATCH(statement) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    if constexpr(detail::is_null_v<typename option_set_type::exception_handler_type>) \
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define MAKI_DETAIL_MAYBE_CATCH(statement) \
+    if constexpr (detail::is_null_v< \
+                      typename option_set_type::exception_handler_type>) \
     { \
         statement; \
     } \
@@ -53,9 +55,11 @@ namespace detail
         { \
             statement; \
         } \
-        catch(...) \
+        catch (...) \
         { \
-            detail::impl_of(conf).exception_handler(*this, std::current_exception()); \
+            detail::impl_of(conf).exception_handler( \
+                *this, \
+                std::current_exception()); \
         } \
     }
 
@@ -89,18 +93,17 @@ public:
 
 #ifdef MAKI_DETAIL_DOXYGEN
     /**
-    @brief The context type given to `maki::machine_conf::context_a()` or its variants.
+    @brief The context type given to `maki::machine_conf::context_a()` or its
+    variants.
     */
     using context_type = IMPLEMENTATION_DETAIL;
 #else
     using context_type = typename option_set_type::context_type;
 #endif
 
-    static_assert
-    (
+    static_assert(
         detail::is_machine_conf_v<std::decay_t<decltype(conf)>>,
-        "Given `Conf` must be an instance of `maki::machine_conf`"
-    );
+        "Given `Conf` must be an instance of `maki::machine_conf`");
 
     /**
     @brief The constructor.
@@ -119,7 +122,7 @@ public:
         ctx_holder_(*this, std::forward<ContextArgs>(ctx_args)...),
         impl_(*this, context())
     {
-        if constexpr(detail::impl_of(conf).auto_start)
+        if constexpr (detail::impl_of(conf).auto_start)
         {
             MAKI_DETAIL_MAYBE_CATCH(start_now())
         }
@@ -292,7 +295,10 @@ public:
     template<class Event>
     bool check_event(const Event& event) const
     {
-        return impl_.template call_internal_action<true>(*this, context(), event);
+        return impl_.template call_internal_action<true>(
+            *this,
+            context(),
+            event);
     }
 
     /**
@@ -342,36 +348,31 @@ public:
     }
 
 private:
-    using impl_type =
-        detail::state_impls::composite_no_context
-        <
-            ConfHolder,
-            detail::iseq<>,
-            detail::context_storage::plain
-        >
-    ;
+    using impl_type = detail::state_impls::composite_no_context<
+        ConfHolder,
+        detail::iseq<>,
+        detail::context_storage::plain>;
 
     using deferrable_event_type_set =
-        typename impl_type::deferrable_event_type_set
-    ;
+        typename impl_type::deferrable_event_type_set;
 
     static constexpr bool has_deferrable_events =
-        !detail::type_set_empty_v<deferrable_event_type_set>
-    ;
+        !detail::type_set_empty_v<deferrable_event_type_set>;
 
     class executing_operation_guard
     {
     public:
-        executing_operation_guard(machine& self):
-            self_(self)
+        executing_operation_guard(machine& self): self_(self)
         {
             self_.executing_operation_ = true;
         }
 
         executing_operation_guard(const executing_operation_guard&) = delete;
         executing_operation_guard(executing_operation_guard&&) = delete;
-        executing_operation_guard& operator=(const executing_operation_guard&) = delete;
-        executing_operation_guard& operator=(executing_operation_guard&&) = delete;
+        executing_operation_guard& operator=(
+            const executing_operation_guard&) = delete;
+        executing_operation_guard& operator=(
+            executing_operation_guard&&) = delete;
 
         ~executing_operation_guard()
         {
@@ -379,39 +380,36 @@ private:
         }
 
     private:
-        machine& self_; //NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+        machine&
+            self_; // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
     };
 
     struct real_function_queue_holder
     {
-        template<bool = true> //Dummy template for lazy evaluation
-        using type = detail::function_queue
-        <
+        template<bool = true> // Dummy template for lazy evaluation
+        using type = detail::function_queue<
             machine&,
             detail::impl_of(conf).small_event_max_size,
-            detail::impl_of(conf).small_event_max_align
-        >;
+            detail::impl_of(conf).small_event_max_align>;
     };
 
     struct empty_holder
     {
-        template<bool = true> //Dummy template for lazy evaluation
-        struct type{};
+        template<bool = true> // Dummy template for lazy evaluation
+        struct type
+        {
+        };
     };
 
-    using rtc_queue_type = typename std::conditional_t
-    <
+    using rtc_queue_type = typename std::conditional_t<
         detail::impl_of(conf).run_to_completion,
         real_function_queue_holder,
-        empty_holder
-    >::template type<>;
+        empty_holder>::template type<>;
 
-    using event_deferral_queue_type = typename std::conditional_t
-    <
+    using event_deferral_queue_type = typename std::conditional_t<
         has_deferrable_events,
         real_function_queue_holder,
-        empty_holder
-    >::template type<>;
+        empty_holder>::template type<>;
 
     template<detail::machine_operation Operation>
     struct any_event_visitor
@@ -425,13 +423,14 @@ private:
 
     void start_now()
     {
-        execute_operation_now<detail::machine_operation::start>(events::start{});
+        execute_operation_now<detail::machine_operation::start>(
+            events::start{});
     }
 
     template<class Event>
     void start_no_catch(const Event& event)
     {
-        if(!running())
+        if (!running())
         {
             execute_operation<detail::machine_operation::start>(event);
         }
@@ -440,7 +439,7 @@ private:
     template<class Event>
     void stop_no_catch(const Event& event)
     {
-        if(running())
+        if (running())
         {
             execute_operation<detail::machine_operation::stop>(event);
         }
@@ -449,26 +448,25 @@ private:
     template<class Event>
     void process_event_now_no_catch(const Event& event)
     {
-        static_assert
-        (
+        static_assert(
             detail::impl_of(conf).process_event_now_enabled,
-            "`maki::machine_conf::process_event_now_enabled()` hasn't been set to `true`"
-        );
+            "`maki::machine_conf::process_event_now_enabled()` hasn't been set "
+            "to `true`");
         execute_operation_now<detail::machine_operation::process_event>(event);
     }
 
     template<detail::machine_operation Operation, class Event>
     void execute_operation(const Event& event)
     {
-        if constexpr(detail::impl_of(conf).run_to_completion)
+        if constexpr (detail::impl_of(conf).run_to_completion)
         {
-            if(!executing_operation_) //If call is not recursive
+            if (!executing_operation_) // If call is not recursive
             {
                 execute_operation_now<Operation>(event);
             }
             else
             {
-                //Push event to RTC queue in case of recursive call
+                // Push event to RTC queue in case of recursive call
                 push_event_impl<Operation>(event);
             }
         }
@@ -481,7 +479,7 @@ private:
     template<detail::machine_operation Operation, class Event>
     void execute_operation_now(const Event& event)
     {
-        if constexpr(detail::impl_of(conf).run_to_completion)
+        if constexpr (detail::impl_of(conf).run_to_completion)
         {
             auto grd = executing_operation_guard{*this};
 
@@ -526,14 +524,14 @@ private:
     */
     void try_processing_deferred_operations()
     {
-        if constexpr(has_deferrable_events)
+        if constexpr (has_deferrable_events)
         {
             /*
             The inner loop tries to process every deferred event once.
 
-            The outer loop executes the inner loop as many times as necessary, that
-            is, until `event_deferral_queue_` only contains events that are still
-            deferred by any of the currently active states.
+            The outer loop executes the inner loop as many times as necessary,
+            that is, until `event_deferral_queue_` only contains events that are
+            still deferred by any of the currently active states.
 
             These two levels are necessary, as processing a previously deferred
             event can change the active states and allow other events of
@@ -544,9 +542,11 @@ private:
             while (processing_count != 0) // Outer loop
             {
                 processing_count = 0;
-                for (auto i = 0U; i < event_deferral_queue_.size(); ++i) // Inner loop
+                for (auto i = 0U; i < event_deferral_queue_.size();
+                    ++i) // Inner loop
                 {
-                    processing_count += static_cast<int>(event_deferral_queue_.invoke_and_pop(*this));
+                    processing_count += static_cast<int>(
+                        event_deferral_queue_.invoke_and_pop(*this));
                 }
             }
         }
@@ -555,57 +555,54 @@ private:
     template<detail::machine_operation Operation, class Event>
     bool execute_one_operation(const Event& event)
     {
-        if constexpr(Operation == detail::machine_operation::start)
+        if constexpr (Operation == detail::machine_operation::start)
         {
             impl_.enter(*this, context(), event);
             return true;
         }
-        else if constexpr(Operation == detail::machine_operation::stop)
+        else if constexpr (Operation == detail::machine_operation::stop)
         {
             impl_.exit_to_finals(*this, context(), event);
             return true;
         }
         else
         {
-            constexpr auto is_deferrable_event = detail::type_set_contains_v
-            <
-                deferrable_event_type_set,
-                Event
-            >;
+            constexpr auto is_deferrable_event =
+                detail::type_set_contains_v<deferrable_event_type_set, Event>;
 
-            constexpr auto has_matching_pre_processing_hook = detail::tlu::contains_if_v
-            <
-                pre_processing_hook_ptr_constant_list,
-                detail::event_action_traits::for_event<Event>::template has_containing_event_set
-            >;
+            constexpr auto has_matching_pre_processing_hook =
+                detail::tlu::contains_if_v<
+                    pre_processing_hook_ptr_constant_list,
+                    detail::event_action_traits::for_event<
+                        Event>::template has_containing_event_set>;
 
-            constexpr auto has_matching_post_processing_hook = detail::tlu::contains_if_v
-            <
-                post_processing_hook_ptr_constant_list,
-                detail::event_action_traits::for_event<Event>::template has_containing_event_set
-            >;
+            constexpr auto has_matching_post_processing_hook =
+                detail::tlu::contains_if_v<
+                    post_processing_hook_ptr_constant_list,
+                    detail::event_action_traits::for_event<
+                        Event>::template has_containing_event_set>;
 
             // Defer the event if required by any of the active states
-            if constexpr(is_deferrable_event)
+            if constexpr (is_deferrable_event)
             {
-                if(impl_.template defers_event<Event>())
+                if (impl_.template defers_event<Event>())
                 {
-                    event_deferral_queue_.template push<any_event_visitor<Operation>>(event);
+                    event_deferral_queue_
+                        .template push<any_event_visitor<Operation>>(event);
                     return false;
                 }
             }
 
-            //If running, execute pre-processing hook for `Event`, if any.
-            if constexpr(has_matching_pre_processing_hook)
+            // If running, execute pre-processing hook for `Event`, if any.
+            if constexpr (has_matching_pre_processing_hook)
             {
-                if(running())
+                if (running())
                 {
-                    detail::call_matching_event_action<pre_processing_hook_ptr_constant_list>
-                    (
+                    detail::call_matching_event_action<
+                        pre_processing_hook_ptr_constant_list>(
                         *this,
                         context(),
-                        event
-                    );
+                        event);
                 }
             }
 
@@ -614,19 +611,22 @@ private:
             - process the event;
             - execute the post-processing hook for `Event`, if any.
             */
-            if constexpr(has_matching_post_processing_hook)
+            if constexpr (has_matching_post_processing_hook)
             {
-                if(running())
+                if (running())
                 {
-                    const auto processed = impl_.template call_internal_action<false>(*this, context(), event);
+                    const auto processed =
+                        impl_.template call_internal_action<false>(
+                            *this,
+                            context(),
+                            event);
 
-                    detail::call_matching_event_action<post_processing_hook_ptr_constant_list>
-                    (
+                    detail::call_matching_event_action<
+                        post_processing_hook_ptr_constant_list>(
                         *this,
                         context(),
                         event,
-                        processed
-                    );
+                        processed);
                 }
             }
             else
@@ -637,25 +637,31 @@ private:
                 is stopped.
                 */
 
-                impl_.template call_internal_action<false>(*this, context(), event);
+                impl_.template call_internal_action<false>(
+                    *this,
+                    context(),
+                    event);
             }
 
             return true;
         }
     }
 
-    static constexpr auto pre_processing_hooks = detail::impl_of(conf).pre_processing_hooks;
-    static constexpr auto post_processing_hooks = detail::impl_of(conf).post_processing_hooks;
+    static constexpr auto pre_processing_hooks =
+        detail::impl_of(conf).pre_processing_hooks;
+    static constexpr auto post_processing_hooks =
+        detail::impl_of(conf).post_processing_hooks;
 
-    using pre_processing_hook_ptr_constant_list = detail::mix_constant_list_t<pre_processing_hooks>;
-    using post_processing_hook_ptr_constant_list = detail::mix_constant_list_t<post_processing_hooks>;
+    using pre_processing_hook_ptr_constant_list =
+        detail::mix_constant_list_t<pre_processing_hooks>;
+    using post_processing_hook_ptr_constant_list =
+        detail::mix_constant_list_t<post_processing_hooks>;
 
-    detail::context_holder
-    <
+    detail::context_holder<
         context_type,
         detail::context_storage::plain,
-        detail::impl_of(conf).context_sig
-    > ctx_holder_;
+        detail::impl_of(conf).context_sig>
+        ctx_holder_;
 
     impl_type impl_;
 
@@ -676,6 +682,6 @@ private:
 
 #undef MAKI_DETAIL_MAYBE_CATCH
 
-} //namespace
+} // namespace maki
 
 #endif

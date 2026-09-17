@@ -1,8 +1,8 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_DETAIL_TYPE_NAME_HPP
 #define MAKI_DETAIL_TYPE_NAME_HPP
@@ -37,17 +37,11 @@ namespace type_name_detail
     {
         const auto int_name = std::string_view{"int"};
         const auto int_function_name = function_name<int>();
-        const auto prefix_size = static_cast<int>(int_function_name.find(int_name));
-        const auto suffix_size =
-            static_cast<int>(int_function_name.size()) -
-            prefix_size -
-            static_cast<int>(int_name.size())
-        ;
-        return type_name_format
-        {
-            prefix_size,
-            suffix_size
-        };
+        const auto prefix_size =
+            static_cast<int>(int_function_name.find(int_name));
+        const auto suffix_size = static_cast<int>(int_function_name.size()) -
+            prefix_size - static_cast<int>(int_name.size());
+        return type_name_format{prefix_size, suffix_size};
     }
 
     inline type_name_format cached_type_name_format()
@@ -61,11 +55,10 @@ namespace type_name_detail
     {
         const auto& format = cached_type_name_format();
         const auto fn_name = function_name<T>();
-        return fn_name.substr
-        (
+        return fn_name.substr(
             static_cast<sv_size_t>(format.prefix_size),
-            fn_name.size() - static_cast<sv_size_t>(format.prefix_size) - static_cast<sv_size_t>(format.suffix_size)
-        );
+            fn_name.size() - static_cast<sv_size_t>(format.prefix_size) -
+                static_cast<sv_size_t>(format.suffix_size));
     }
 
     template<const auto& Value>
@@ -73,13 +66,12 @@ namespace type_name_detail
     {
         using type = cref_constant_t<Value>;
         const auto raw_name = type_name_detail::type_name<type>();
-        const auto raw_name_prefix = std::string_view{"maki::detail::cref_constant_t<"};
+        const auto raw_name_prefix =
+            std::string_view{"maki::detail::cref_constant_t<"};
         const auto raw_name_suffix = std::string_view{">"};
-        return raw_name.substr
-        (
+        return raw_name.substr(
             raw_name_prefix.size(),
-            raw_name.size() - raw_name_prefix.size() - raw_name_suffix.size()
-        );
+            raw_name.size() - raw_name_prefix.size() - raw_name_suffix.size());
     }
 
     /*
@@ -101,40 +93,44 @@ namespace type_name_detail
     {
         auto current_index = static_cast<int>(tname.size() - 1);
 
-        //Find end index
+        // NOLINTBEGIN
+        // cppcoreguidelines-pro-bounds-avoid-unchecked-container-access
+
+        // Find end index
         const auto end_index = [&]
         {
             auto template_level = 0;
-            for(; current_index >= 0; --current_index)
+            for (; current_index >= 0; --current_index)
             {
-                switch(tname[static_cast<sv_size_t>(current_index)]) //NOLINT cppcoreguidelines-pro-bounds-avoid-unchecked-container-access
+                switch (tname[static_cast<sv_size_t>(current_index)])
                 {
-                    case '<':
-                        --template_level;
-                        break;
-                    case '>':
-                        ++template_level;
-                        break;
-                    case ' ':
-                        break;
-                    default:
-                        if(template_level == 0)
-                        {
-                            return static_cast<sv_size_t>(current_index);
-                        }
+                case '<':
+                    --template_level;
+                    break;
+                case '>':
+                    ++template_level;
+                    break;
+                case ' ':
+                    break;
+                default:
+                    if (template_level == 0)
+                    {
+                        return static_cast<sv_size_t>(current_index);
+                    }
                 }
             }
             return sv_size_t{0};
         }();
 
-        //Find start index
+        // Find start index
         const auto start_index = [&]
         {
-            for(; current_index >= 1; --current_index)
+            for (; current_index >= 1; --current_index)
             {
-                const auto char_before = tname[static_cast<sv_size_t>(current_index - 1)]; //NOLINT cppcoreguidelines-pro-bounds-avoid-unchecked-container-access
+                const auto char_before =
+                    tname[static_cast<sv_size_t>(current_index - 1)];
 
-                if(char_before == ':' || char_before == ' ')
+                if (char_before == ':' || char_before == ' ')
                 {
                     return static_cast<sv_size_t>(current_index);
                 }
@@ -142,13 +138,12 @@ namespace type_name_detail
             return sv_size_t{0};
         }();
 
-        return tname.substr
-        (
-            start_index,
-            end_index - start_index + 1
-        );
+        // NOLINTEND
+        // cppcoreguidelines-pro-bounds-avoid-unchecked-container-access
+
+        return tname.substr(start_index, end_index - start_index + 1);
     }
-}
+} // namespace type_name_detail
 
 template<class T>
 std::string_view type_name()
@@ -160,10 +155,8 @@ std::string_view type_name()
 template<class T>
 std::string_view decayed_type_name()
 {
-    static const auto name = type_name_detail::decay_name
-    (
-        type_name_detail::type_name<T>()
-    );
+    static const auto name =
+        type_name_detail::decay_name(type_name_detail::type_name<T>());
     return name;
 }
 
@@ -177,13 +170,11 @@ std::string_view constant_name()
 template<const auto& Value>
 std::string_view decayed_constant_name()
 {
-    static const auto name = type_name_detail::decay_name
-    (
-        type_name_detail::constant_name<Value>()
-    );
+    static const auto name =
+        type_name_detail::decay_name(type_name_detail::constant_name<Value>());
     return name;
 }
 
-} //namespace
+} // namespace maki::detail
 
 #endif

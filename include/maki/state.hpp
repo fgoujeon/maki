@@ -1,16 +1,16 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_REGION_STATE_HPP
 #define MAKI_REGION_STATE_HPP
 
-#include "detail/type_set.hpp"
-#include "detail/pretty_name.hpp"
 #include "detail/friendly_impl.hpp"
+#include "detail/pretty_name.hpp"
 #include "detail/tlu/left_fold.hpp"
+#include "detail/type_set.hpp"
 #include <string_view>
 #include <utility>
 
@@ -29,8 +29,7 @@ class state
 public:
 #ifndef MAKI_DETAIL_DOXYGEN
     template<class... Args>
-    constexpr state(Args&&... args):
-        impl_(std::forward<Args>(args)...)
+    constexpr state(Args&&... args): impl_(std::forward<Args>(args)...)
     {
     }
 #endif
@@ -90,11 +89,9 @@ public:
     */
     [[nodiscard]] static std::string_view pretty_name()
     {
-        return detail::pretty_name
-        <
+        return detail::pretty_name<
             typename Impl::machine_conf_holder_type,
-            typename Impl::state_mold_path
-        >();
+            typename Impl::state_mold_path>();
     }
 
 private:
@@ -108,36 +105,29 @@ private:
 namespace detail
 {
     template<class EventTypeSet, class State>
-    using state_type_list_event_type_set_operation_t = type_set_union_t
-    <
+    using state_type_list_event_type_set_operation_t = type_set_union_t<
         EventTypeSet,
-        typename impl_of_t<State>::event_type_set
-    >;
+        typename impl_of_t<State>::event_type_set>;
 
     template<class StateTypeList>
-    using state_type_list_event_type_set_t = tlu::left_fold_t
-    <
+    using state_type_list_event_type_set_t = tlu::left_fold_t<
         StateTypeList,
         state_type_list_event_type_set_operation_t,
-        empty_type_set_t
-    >;
+        empty_type_set_t>;
 
     template<class EventTypeSet, class State>
-    using state_type_list_deferrable_event_type_set_operation_t = type_set_union_t
-    <
-        EventTypeSet,
-        typename impl_of_t<State>::deferrable_event_type_set
-    >;
+    using state_type_list_deferrable_event_type_set_operation_t =
+        type_set_union_t<
+            EventTypeSet,
+            typename impl_of_t<State>::deferrable_event_type_set>;
 
     template<class StateTypeList>
-    using state_type_list_deferrable_event_type_set_t = tlu::left_fold_t
-    <
+    using state_type_list_deferrable_event_type_set_t = tlu::left_fold_t<
         StateTypeList,
         state_type_list_deferrable_event_type_set_operation_t,
-        empty_type_set_t
-    >;
-}
+        empty_type_set_t>;
+} // namespace detail
 
-} //namespace
+} // namespace maki
 
 #endif

@@ -1,8 +1,8 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 /**
 @file
@@ -12,18 +12,18 @@
 #ifndef MAKI_MACHINE_CONF_HPP
 #define MAKI_MACHINE_CONF_HPP
 
-#include "event_set.hpp"
-#include "context.hpp"
 #include "action.hpp"
-#include "detail/machine_conf_impl.hpp"
-#include "detail/type_set.hpp"
-#include "detail/type.hpp"
+#include "context.hpp"
 #include "detail/event_action.hpp"
-#include "detail/signature_macros.hpp"
 #include "detail/friendly_impl.hpp"
+#include "detail/machine_conf_impl.hpp"
+#include "detail/signature_macros.hpp"
 #include "detail/tuple.hpp"
-#include <type_traits>
+#include "detail/type.hpp"
+#include "detail/type_set.hpp"
+#include "event_set.hpp"
 #include <cstdlib>
+#include <type_traits>
 
 namespace maki
 {
@@ -58,34 +58,41 @@ public:
 
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = impl_.auto_start; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = detail::type<typename Impl::context_type>; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = impl_.context_sig; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_processing_hooks = impl_.pre_processing_hooks; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_external_transition_hook = impl_.post_external_transition_hook; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_external_transition_hook = impl_.pre_external_transition_hook; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_handler = impl_.exception_handler; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_processing_hooks = impl_.post_processing_hooks; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_process_event_now_enabled = impl_.process_event_now_enabled; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = impl_.run_to_completion; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_align = impl_.small_event_max_align; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_size = impl_.small_event_max_size; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = impl_.transition_tables;
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = \
+        detail::type<typename Impl::context_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = \
+        impl_.context_sig; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_processing_hooks = \
+        impl_.pre_processing_hooks; \
+    [[maybe_unused]] const auto \
+        MAKI_DETAIL_ARG_post_external_transition_hook = \
+            impl_.post_external_transition_hook; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_external_transition_hook = \
+        impl_.pre_external_transition_hook; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_handler = \
+        impl_.exception_handler; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_processing_hooks = \
+        impl_.post_processing_hooks; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_process_event_now_enabled = \
+        impl_.process_event_now_enabled; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = \
+        impl_.run_to_completion; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_align = \
+        impl_.small_event_max_align; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_size = \
+        impl_.small_event_max_size; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = \
+        impl_.transition_tables;
 
 #define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    return machine_conf \
-    < \
-        detail::machine_conf_impl \
-        < \
-            typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_pre_processing_hooks)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_exception_handler)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_pre_external_transition_hook)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_post_external_transition_hook)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_post_processing_hooks)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)> \
-        > \
-    > \
-    { \
+    return machine_conf<detail::machine_conf_impl< \
+        typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_pre_processing_hooks)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_exception_handler)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_pre_external_transition_hook)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_post_external_transition_hook)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_post_processing_hooks)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)>>>{ \
         MAKI_DETAIL_ARG_auto_start, \
         MAKI_DETAIL_ARG_context_sig, \
         MAKI_DETAIL_ARG_pre_processing_hooks, \
@@ -97,15 +104,16 @@ public:
         MAKI_DETAIL_ARG_run_to_completion, \
         MAKI_DETAIL_ARG_small_event_max_align, \
         MAKI_DETAIL_ARG_small_event_max_size, \
-        MAKI_DETAIL_ARG_transition_tables \
-    };
+        MAKI_DETAIL_ARG_transition_tables};
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Sets the type of the context (see @ref maki::machine_context_signature "signatures"). \
+    @brief Sets the type of the context (see @ref \
+    maki::machine_context_signature "signatures"). \
     */ \
     template<class Context> \
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE context_##signature() const \
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE \
+    context_##signature() const \
     { \
         return context<Context, machine_context_signature::signature>(); \
     }
@@ -119,20 +127,27 @@ public:
     part of `event_types`. \
     */ \
     template<class EventSetImpl, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_processing_hook_##signature(const event_set<EventSetImpl>& /*event_types*/, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE \
+    pre_processing_hook_##signature( \
+        const event_set<EventSetImpl>& /*event_types*/, \
+        const Action& action) const \
     { \
-        return pre_processing_hook<EventSetImpl, action_signature::signature>(action); \
+        return pre_processing_hook<EventSetImpl, action_signature::signature>( \
+            action); \
     } \
- \
+\
     /** \
     @brief Adds a hook (see @ref maki::action_signature "signatures") to be \
     called whenever `maki::machine` is about to process an event of type \
     `Event`. \
     */ \
     template<class Event, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_processing_hook_##signature(const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE \
+    pre_processing_hook_##signature(const Action& action) const \
     { \
-        return pre_processing_hook<detail::type_set_item<Event>, action_signature::signature>(action); \
+        return pre_processing_hook< \
+            detail::type_set_item<Event>, \
+            action_signature::signature>(action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -149,7 +164,8 @@ public:
     @snippet misc/external-transition-hook/src/main.cpp post
     */
     template<class Hook>
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_external_transition_hook_crste(const Hook& hook) const
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE
+    post_external_transition_hook_crste(const Hook& hook) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_post_external_transition_hook hook
@@ -161,7 +177,8 @@ public:
     @brief Specifies whether the constructor of `maki::machine` must call
     `maki::machine::start()`.
     */
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE auto_start(const bool value) const
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE auto_start(
+        const bool value) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_auto_start value
@@ -181,7 +198,8 @@ public:
     @snippet misc/external-transition-hook/src/main.cpp pre
     */
     template<class Hook>
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE pre_external_transition_hook_crste(const Hook& hook) const
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE
+    pre_external_transition_hook_crste(const Hook& hook) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_pre_external_transition_hook hook
@@ -198,7 +216,8 @@ public:
 
     Disable it at your own risk!
     */
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE run_to_completion(const bool value) const
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE
+    run_to_completion(const bool value) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_run_to_completion value
@@ -210,7 +229,8 @@ public:
     @brief Specifies whether the unsafe function
     `maki::machine::process_event_now()` can be called.
     */
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE process_event_now_enabled(const bool value) const
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE
+    process_event_now_enabled(const bool value) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_process_event_now_enabled value
@@ -239,7 +259,8 @@ public:
     If this action isn't set, `maki::machine` doesn't catch any exception.
     */
     template<class Callable>
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE catch_mx(const Callable& callable) const
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE catch_mx(
+        const Callable& callable) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_exception_handler callable
@@ -268,11 +289,13 @@ public:
     @code
     constexpr auto conf = maki::machine_conf{}
         //...
-        .post_processing_hook_mep<some_event_type>([](auto& mach, const some_event_type& event, const bool processed)
+        .post_processing_hook_mep<some_event_type>([](auto& mach, const
+    some_event_type& event, const bool processed)
         {
             //...
         })
-        .post_processing_hook_mep<some_other_event_type>([](auto& mach, const some_other_event_type& event, const bool processed)
+        .post_processing_hook_mep<some_other_event_type>([](auto& mach, const
+    some_other_event_type& event, const bool processed)
         {
             //...
         })
@@ -280,13 +303,15 @@ public:
     @endcode
     */
     template<class EventSetImpl, class Action>
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_processing_hook_mep(const event_set<EventSetImpl>& /*event_types*/, const Action& action) const
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE
+    post_processing_hook_mep(
+        const event_set<EventSetImpl>& /*event_types*/,
+        const Action& action) const
     {
-        const auto new_post_processing_hooks = append
-        (
+        const auto new_post_processing_hooks = append(
             impl_.post_processing_hooks,
-            detail::make_event_action<action_signature::me, EventSetImpl>(action)
-        );
+            detail::make_event_action<action_signature::me, EventSetImpl>(
+                action));
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_post_processing_hooks new_post_processing_hooks
@@ -315,11 +340,13 @@ public:
     @code
     constexpr auto conf = maki::machine_conf{}
         //...
-        .post_processing_hook_mep<some_event_type>([](auto& mach, const some_event_type& event, const bool processed)
+        .post_processing_hook_mep<some_event_type>([](auto& mach, const
+    some_event_type& event, const bool processed)
         {
             //...
         })
-        .post_processing_hook_mep<some_other_event_type>([](auto& mach, const some_other_event_type& event, const bool processed)
+        .post_processing_hook_mep<some_other_event_type>([](auto& mach, const
+    some_other_event_type& event, const bool processed)
         {
             //...
         })
@@ -327,7 +354,8 @@ public:
     @endcode
     */
     template<class Event, class Action>
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE post_processing_hook_mep(const Action& action) const
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE
+    post_processing_hook_mep(const Action& action) const
     {
         return post_processing_hook_mep(event_set{event<Event>}, action);
     }
@@ -337,7 +365,8 @@ public:
     run-to-completion event queue to enable small object optimization (and thus
     avoid an extra memory allocation).
     */
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE small_event_max_align(const std::size_t value) const
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE
+    small_event_max_align(const std::size_t value) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_small_event_max_align value
@@ -350,7 +379,8 @@ public:
     queue to enable small object optimization (and thus avoid an extra memory
     allocation).
     */
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE small_event_max_size(const std::size_t value) const
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE
+    small_event_max_size(const std::size_t value) const
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_small_event_max_size value
@@ -364,7 +394,8 @@ public:
 
     Being a safety option, it will be enabled by default.
     */
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE thread_safe(const bool /*enabled*/) const
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE thread_safe(
+        const bool /*enabled*/) const
     {
         return *this;
     }
@@ -374,7 +405,8 @@ public:
     table is created.
     */
     template<class... TransitionTables>
-    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE transition_tables(const TransitionTables&... tables) const
+    [[nodiscard]] constexpr MAKI_DETAIL_MACHINE_CONF_RETURN_TYPE
+    transition_tables(const TransitionTables&... tables) const
     {
         const auto tpl = detail::tuple<TransitionTables...>{tables...};
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
@@ -392,8 +424,7 @@ private:
     friend class machine_conf;
 
     template<class... Args>
-    constexpr machine_conf(Args&&... args):
-        impl_{std::forward<Args>(args)...}
+    constexpr machine_conf(Args&&... args): impl_{std::forward<Args>(args)...}
     {
     }
 
@@ -411,11 +442,9 @@ private:
     template<class EventTypeSet, action_signature Sig, class Hook>
     [[nodiscard]] constexpr auto pre_processing_hook(const Hook& hook) const
     {
-        const auto new_pre_processing_hooks = append
-        (
+        const auto new_pre_processing_hooks = append(
             impl_.pre_processing_hooks,
-            detail::make_event_action<Sig, EventTypeSet>(hook)
-        );
+            detail::make_event_action<Sig, EventTypeSet>(hook));
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_pre_processing_hooks new_pre_processing_hooks
@@ -453,8 +482,8 @@ namespace detail
 
     template<class T>
     constexpr auto is_machine_conf_v = is_machine_conf<T>::value;
-}
+} // namespace detail
 
-} //namespace
+} // namespace maki
 
 #endif

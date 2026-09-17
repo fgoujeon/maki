@@ -1,8 +1,8 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 /**
 @file
@@ -14,15 +14,15 @@
 
 #include "action.hpp"
 #include "context.hpp"
-#include "event_set.hpp"
-#include "detail/state_mold_impl.hpp"
-#include "detail/type_set.hpp"
-#include "detail/type.hpp"
 #include "detail/event_action.hpp"
-#include "detail/signature_macros.hpp"
-#include "detail/tuple.hpp"
 #include "detail/friendly_impl.hpp"
+#include "detail/signature_macros.hpp"
+#include "detail/state_mold_impl.hpp"
 #include "detail/tlu.hpp"
+#include "detail/tuple.hpp"
+#include "detail/type.hpp"
+#include "detail/type_set.hpp"
+#include "event_set.hpp"
 #include <string_view>
 #include <type_traits>
 
@@ -57,45 +57,50 @@ public:
     state_mold& operator=(state_mold&&) = delete;
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = detail::type<typename Impl::context_type>; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = impl_.context_sig; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_lifetime = impl_.context_lifetime; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = impl_.entry_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = impl_.internal_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = impl_.exit_actions; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = impl_.pretty_name; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = impl_.transition_tables; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_deferred_event_type_set_type = detail::type<typename Impl::deferred_event_type_set>;
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = \
+        detail::type<typename Impl::context_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = \
+        impl_.context_sig; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_lifetime = \
+        impl_.context_lifetime; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_entry_actions = \
+        impl_.entry_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_internal_actions = \
+        impl_.internal_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exit_actions = \
+        impl_.exit_actions; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pretty_name_view = \
+        impl_.pretty_name; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = \
+        impl_.transition_tables; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_deferred_event_type_set_type = \
+        detail::type<typename Impl::deferred_event_type_set>;
 
 #define MAKI_DETAIL_MAKE_STATE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    return state_mold \
-    < \
-        detail::state_mold_impl \
-        < \
-            typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
-            std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)>, \
-            typename std::decay_t<decltype(MAKI_DETAIL_ARG_deferred_event_type_set_type)>::type \
-        > \
-    > \
-    { \
+    return state_mold<detail::state_mold_impl< \
+        typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_internal_actions)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_exit_actions)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)>, \
+        typename std::decay_t< \
+            decltype(MAKI_DETAIL_ARG_deferred_event_type_set_type)>::type>>{ \
         MAKI_DETAIL_ARG_context_sig, \
         MAKI_DETAIL_ARG_context_lifetime, \
         MAKI_DETAIL_ARG_entry_actions, \
         MAKI_DETAIL_ARG_internal_actions, \
         MAKI_DETAIL_ARG_exit_actions, \
         MAKI_DETAIL_ARG_pretty_name_view, \
-        MAKI_DETAIL_ARG_transition_tables \
-    };
+        MAKI_DETAIL_ARG_transition_tables};
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Sets the type of the context (see @ref maki::state_context_signature "signatures"). \
+    @brief Sets the type of the context (see @ref \
+    maki::state_context_signature "signatures"). \
     */ \
     template<class Context> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE context_##signature() const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE \
+    context_##signature() const \
     { \
         return context<Context, state_context_signature::signature>(); \
     }
@@ -106,11 +111,11 @@ public:
     @brief Sets the lifetime of the context.
     @note Available since Maki 1.1.0.
     */
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE context_lifetime(const state_context_lifetime value) const
-    {
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE context_lifetime(
+        const state_context_lifetime value) const {
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_context_lifetime value
-        MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
+            MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_context_lifetime
     }
 
@@ -120,29 +125,39 @@ public:
     to be called for any event type in `event_types`. \
     */ \
     template<class EventSetImpl, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const event_set<EventSetImpl>& /*event_types*/, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE \
+    entry_action_##signature( \
+        const event_set<EventSetImpl>& /*event_types*/, \
+        const Action& action) const \
     { \
-        return entry_action<action_signature::signature, EventSetImpl>(action); \
+        return entry_action<action_signature::signature, EventSetImpl>( \
+            action); \
     } \
- \
+\
     /** \
     @brief Adds an entry action (see @ref maki::action_signature "signatures") \
     to be called for the event type `Event`. \
     */ \
     template<class Event, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE \
+    entry_action_##signature(const Action& action) const \
     { \
-        return entry_action<action_signature::signature, detail::type_set_item<Event>>(action); \
+        return entry_action< \
+            action_signature::signature, \
+            detail::type_set_item<Event>>(action); \
     } \
- \
+\
     /** \
     @brief Adds an entry action (see @ref maki::action_signature "signatures") \
     to be called whatever the event type. \
     */ \
     template<class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE entry_action_##signature(const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE \
+    entry_action_##signature(const Action& action) const \
     { \
-        return entry_action<action_signature::signature, detail::universal_type_set_t>(action); \
+        return entry_action< \
+            action_signature::signature, \
+            detail::universal_type_set_t>(action); \
     }
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
@@ -153,25 +168,32 @@ public:
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @brief Adds an internal action (see @ref maki::action_signature "signatures") \
-    to be called for any event type in `event_types`. \
+    @brief Adds an internal action (see @ref maki::action_signature \
+    "signatures") to be called for any event type in `event_types`. \
     */ \
     template<class EventSetImpl, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const event_set<EventSetImpl>& /*event_types*/, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE \
+    internal_action_##signature( \
+        const event_set<EventSetImpl>& /*event_types*/, \
+        const Action& action) const \
     { \
-        return internal_action<action_signature::signature, EventSetImpl>(action); \
+        return internal_action<action_signature::signature, EventSetImpl>( \
+            action); \
     } \
- \
+\
     /** \
-    @brief Adds an internal action (see @ref maki::action_signature "signatures") \
-    to be called for the event type `Event`. \
+    @brief Adds an internal action (see @ref maki::action_signature \
+    "signatures") to be called for the event type `Event`. \
     */ \
     template<class Event, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE internal_action_##signature(const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE \
+    internal_action_##signature(const Action& action) const \
     { \
-        return internal_action<action_signature::signature, detail::type_set_item<Event>>(action); \
+        return internal_action< \
+            action_signature::signature, \
+            detail::type_set_item<Event>>(action); \
     }
-    MAKI_DETAIL_ACTION_SIGNATURES
+        MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
@@ -180,37 +202,47 @@ public:
     to be called for any event type in `event_types`. \
     */ \
     template<class EventSetImpl, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const event_set<EventSetImpl>& /*event_types*/, const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE \
+    exit_action_##signature( \
+        const event_set<EventSetImpl>& /*event_types*/, \
+        const Action& action) const \
     { \
         return exit_action<action_signature::signature, EventSetImpl>(action); \
     } \
- \
+\
     /** \
     @brief Adds an exit action (see @ref maki::action_signature "signatures") \
     to be called for the event type `Event`. \
     */ \
     template<class Event, class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE \
+    exit_action_##signature(const Action& action) const \
     { \
-        return exit_action<action_signature::signature, detail::type_set_item<Event>>(action); \
+        return exit_action< \
+            action_signature::signature, \
+            detail::type_set_item<Event>>(action); \
     } \
- \
+\
     /** \
     @brief Adds an exit action (see @ref maki::action_signature "signatures") \
     to be called whatever the event type. \
     */ \
     template<class Action> \
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE exit_action_##signature(const Action& action) const \
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE \
+    exit_action_##signature(const Action& action) const \
     { \
-        return exit_action<action_signature::signature, detail::universal_type_set_t>(action); \
+        return exit_action< \
+            action_signature::signature, \
+            detail::universal_type_set_t>(action); \
     }
-    MAKI_DETAIL_ACTION_SIGNATURES
+        MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 
-    /**
-    @brief Forces the value returned by `maki::state::pretty_name()`.
-    */
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE pretty_name(const std::string_view value) const
+        /**
+        @brief Forces the value returned by `maki::state::pretty_name()`.
+        */
+        [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE
+        pretty_name(const std::string_view value) const
     {
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_pretty_name_view value
@@ -223,7 +255,8 @@ public:
     table is created.
     */
     template<class... TransitionTables>
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE transition_tables(const TransitionTables&... tables) const
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE
+    transition_tables(const TransitionTables&... tables) const
     {
         const auto tpl = detail::tuple<TransitionTables...>{tables...};
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
@@ -239,37 +272,33 @@ public:
     template<class Event>
     [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE defer() const
     {
-        using new_deferred_event_type_set =
-            detail::type_set_union_t
-            <
-                typename impl_type::deferred_event_type_set,
-                detail::type_set_item<Event>
-            >
-        ;
+        using new_deferred_event_type_set = detail::type_set_union_t<
+            typename impl_type::deferred_event_type_set,
+            detail::type_set_item<Event>>;
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_deferred_event_type_set_type detail::type<new_deferred_event_type_set>
+#define MAKI_DETAIL_ARG_deferred_event_type_set_type \
+    detail::type<new_deferred_event_type_set>
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_deferred_event_type_set_type
     }
 
     /**
-    @brief Add `events` to the set of @ref event-deferral "deferred event" types.
+    @brief Add `events` to the set of @ref event-deferral "deferred event"
+    types.
     @note Available since Maki 1.2.0.
     */
     template<class EventSetImpl>
-    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE defer(const event_set<EventSetImpl>& /*events*/) const
+    [[nodiscard]] constexpr MAKI_DETAIL_STATE_CONF_RETURN_TYPE defer(
+        const event_set<EventSetImpl>& /*events*/) const
     {
-        using new_deferred_event_type_set =
-            detail::type_set_union_t
-            <
-                typename impl_type::deferred_event_type_set,
-                EventSetImpl
-            >
-        ;
+        using new_deferred_event_type_set = detail::type_set_union_t<
+            typename impl_type::deferred_event_type_set,
+            EventSetImpl>;
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
-#define MAKI_DETAIL_ARG_deferred_event_type_set_type detail::type<new_deferred_event_type_set>
+#define MAKI_DETAIL_ARG_deferred_event_type_set_type \
+    detail::type<new_deferred_event_type_set>
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_END
 #undef MAKI_DETAIL_ARG_deferred_event_type_set_type
     }
@@ -283,8 +312,7 @@ private:
     friend class state_mold;
 
     template<class... Args>
-    constexpr state_mold(Args&&... args):
-        impl_{std::forward<Args>(args)...}
+    constexpr state_mold(Args&&... args): impl_{std::forward<Args>(args)...}
     {
     }
 
@@ -302,11 +330,9 @@ private:
     template<action_signature Sig, class EventTypeSet, class Action>
     [[nodiscard]] constexpr auto entry_action(const Action& action) const
     {
-        const auto new_entry_actions = append
-        (
+        const auto new_entry_actions = append(
             impl_.entry_actions,
-            detail::make_event_action<Sig, EventTypeSet>(action)
-        );
+            detail::make_event_action<Sig, EventTypeSet>(action));
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_entry_actions new_entry_actions
@@ -317,11 +343,9 @@ private:
     template<action_signature Sig, class EventTypeSet, class Action>
     [[nodiscard]] constexpr auto internal_action(const Action& action) const
     {
-        const auto new_internal_actions = append
-        (
+        const auto new_internal_actions = append(
             impl_.internal_actions,
-            detail::make_event_action<Sig, EventTypeSet>(action)
-        );
+            detail::make_event_action<Sig, EventTypeSet>(action));
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_internal_actions new_internal_actions
@@ -332,11 +356,9 @@ private:
     template<action_signature Sig, class EventTypeSet, class Action>
     [[nodiscard]] constexpr auto exit_action(const Action& action) const
     {
-        const auto new_exit_actions = append
-        (
+        const auto new_exit_actions = append(
             impl_.exit_actions,
-            detail::make_event_action<Sig, EventTypeSet>(action)
-        );
+            detail::make_event_action<Sig, EventTypeSet>(action));
 
         MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_exit_actions new_exit_actions
@@ -374,8 +396,8 @@ namespace detail
 
     template<class T>
     constexpr bool is_state_mold_v = is_state_mold<T>::value;
-}
+} // namespace detail
 
-} //namespace
+} // namespace maki
 
 #endif

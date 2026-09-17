@@ -1,8 +1,8 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 /**
 @file
@@ -24,9 +24,10 @@ namespace maki::detail
 template<class MachineConfHolder, class StateMoldPath>
 decltype(auto) pretty_name()
 {
-    constexpr const auto& stt_mold = machine_conf_tree::node_at_path_v<MachineConfHolder, StateMoldPath>;
+    constexpr const auto& stt_mold =
+        machine_conf_tree::node_at_path_v<MachineConfHolder, StateMoldPath>;
 
-    if constexpr(impl_of(stt_mold).pretty_name.data() == nullptr)
+    if constexpr (impl_of(stt_mold).pretty_name.data() == nullptr)
     {
         return detail::decayed_constant_name<stt_mold>();
     }
@@ -36,6 +37,6 @@ decltype(auto) pretty_name()
     }
 }
 
-} //namespace
+} // namespace maki::detail
 
 #endif

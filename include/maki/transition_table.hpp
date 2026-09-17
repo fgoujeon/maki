@@ -1,8 +1,8 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 /**
 @file
@@ -13,19 +13,19 @@
 #define MAKI_TRANSITION_TABLE_HPP
 
 #include "action.hpp"
-#include "guard.hpp"
-#include "event_set.hpp"
-#include "event.hpp"
-#include "state_set.hpp"
-#include "state_mold.hpp"
-#include "ini.hpp"
-#include "fin.hpp"
-#include "null.hpp"
+#include "detail/friendly_impl.hpp"
 #include "detail/state_mold_storage.hpp"
 #include "detail/tlu/left_fold.hpp"
-#include "detail/type_set.hpp"
-#include "detail/friendly_impl.hpp"
 #include "detail/tuple.hpp"
+#include "detail/type_set.hpp"
+#include "event.hpp"
+#include "event_set.hpp"
+#include "fin.hpp"
+#include "guard.hpp"
+#include "ini.hpp"
+#include "null.hpp"
+#include "state_mold.hpp"
+#include "state_set.hpp"
 
 namespace maki
 {
@@ -45,8 +45,9 @@ To define a transition table, you have to instantiate an empty
 constexpr auto transition_table = maki::transition_table{}
     //source,    target, event,                     action,        guard
     (maki::ini,  off)
-    (off,        on,     maki::event<button_press>, turn_light_on, has_enough_power)
-    (on,         off,    maki::event<button_press>, turn_light_off)
+    (off,        on,     maki::event<button_press>, turn_light_on,
+has_enough_power) (on,         off,    maki::event<button_press>,
+turn_light_off)
 ;
 ```
 */
@@ -59,16 +60,14 @@ class transition_table;
 
 namespace detail
 {
-    template
-    <
+    template<
         class SourceStateMold,
         class TargetStateMold,
         class Event,
         action_signature ActionSignature,
         class ActionCallable,
         guard_signature GuardSignature,
-        class GuardCallable
-    >
+        class GuardCallable>
     struct transition
     {
         using event_type = Event;
@@ -86,33 +85,28 @@ namespace detail
         }
     };
 
-    template
-    <
+    template<
         class SourceStateMold,
         class TargetStateMold,
         class Event,
         action_signature ActionSignature,
         class ActionCallable,
         guard_signature GuardSignature,
-        class GuardCallable
-    >
-    transition
-    (
+        class GuardCallable>
+    transition(
         const SourceStateMold&,
         const TargetStateMold&,
         Event,
         action<ActionSignature, ActionCallable>,
-        guard<GuardSignature, GuardCallable>
-    ) -> transition
-    <
-        SourceStateMold,
-        TargetStateMold,
-        Event,
-        ActionSignature,
-        ActionCallable,
-        GuardSignature,
-        GuardCallable
-    >;
+        guard<GuardSignature, GuardCallable>)
+        -> transition<
+            SourceStateMold,
+            TargetStateMold,
+            Event,
+            ActionSignature,
+            ActionCallable,
+            GuardSignature,
+            GuardCallable>;
 
     template<class TransitionEvent>
     struct transition_event_event_type_set;
@@ -136,17 +130,20 @@ namespace detail
     };
 
     template<class TransitionEvent>
-    using transition_event_event_type_set_t = typename transition_event_event_type_set<TransitionEvent>::type;
+    using transition_event_event_type_set_t =
+        typename transition_event_event_type_set<TransitionEvent>::type;
 
     template<class Transition>
-    using transition_event_type_set_t = transition_event_event_type_set_t<typename Transition::event_type>;
+    using transition_event_type_set_t =
+        transition_event_event_type_set_t<typename Transition::event_type>;
 
     template<class... Transitions>
-    constexpr auto make_transition_table(const tuple<Transitions...>& transitions)
+    constexpr auto make_transition_table(
+        const tuple<Transitions...>& transitions)
     {
         return transition_table<tuple<Transitions...>>{transitions};
     }
-}
+} // namespace detail
 
 template<class Impl>
 class transition_table
@@ -182,122 +179,113 @@ public:
     /**
     @brief Creates a new `transition_table` with an additional transition.
 
-    @param source_state_mold the mold of the active state (or states, plural, if it's a @ref state-set "state set") from which the transition can occur
-    @param target_state_mold the mold of the state that becomes active after the transition occurs
-    @param evt the event type (or types, plural, if it's an @ref event-set "event type set") that can cause the transition to occur
-    @param action the `maki::action` invoked when the transition occurs, or `maki::null`
-    @param guard the `maki::guard` that must return `true` for the transition to occur, or `maki::null`
+    @param source_state_mold the mold of the active state (or states, plural, if
+    it's a @ref state-set "state set") from which the transition can occur
+    @param target_state_mold the mold of the state that becomes active after the
+    transition occurs
+    @param evt the event type (or types, plural, if it's an @ref event-set
+    "event type set") that can cause the transition to occur
+    @param action the `maki::action` invoked when the transition occurs, or
+    `maki::null`
+    @param guard the `maki::guard` that must return `true` for the transition to
+    occur, or `maki::null`
     */
-    template
-    <
+    template<
         class Source,
         class Target,
         class Event = null_t,
         class ActionOrNull = null_t,
-        class GuardOrNull = null_t
-    >
-    constexpr auto operator()
-    (
+        class GuardOrNull = null_t>
+    constexpr auto operator()(
         const Source& source_state_mold,
         const Target& target_state_mold,
         const Event& evt = null,
         const ActionOrNull& action = null,
-        const GuardOrNull& guard = null
-    )
+        const GuardOrNull& guard = null)
     {
-        //Check source
-        if constexpr(Impl::size == 0)
+        // Check source
+        if constexpr (Impl::size == 0)
         {
-            static_assert
-            (
+            static_assert(
                 detail::is_ini_v<Source>,
-                "Source (1st argument) of first transition must be `maki::ini`. (Note: Composite state regions without initial pseudostate are not implemented yet.)"
-            );
+                "Source (1st argument) of first transition must be "
+                "`maki::ini`. (Note: Composite state regions without initial "
+                "pseudostate are not implemented yet.)");
         }
         else
         {
-            static_assert
-            (
-                detail::is_state_mold_v<Source> || detail::is_state_set_v<Source>,
-                "Source (1st argument) must be an instance of `maki::state_mold` or an instance of `maki::state_set`"
-            );
+            static_assert(
+                detail::is_state_mold_v<Source> ||
+                    detail::is_state_set_v<Source>,
+                "Source (1st argument) must be an instance of "
+                "`maki::state_mold` or an instance of `maki::state_set`");
         }
 
-        //Check target
-        if constexpr(detail::is_ini_v<Source>)
+        // Check target
+        if constexpr (detail::is_ini_v<Source>)
         {
-            static_assert
-            (
+            static_assert(
                 detail::is_state_mold_v<Target>,
-                "Target (2nd argument) of transition from initial pseudostate must be an instance of `maki::state_mold`."
-            );
+                "Target (2nd argument) of transition from initial pseudostate "
+                "must be an instance of `maki::state_mold`.");
         }
         else
         {
-            static_assert
-            (
-                detail::is_state_mold_v<Target> || detail::is_null_v<Target> || detail::is_fin_v<Target>,
-                "Target (2nd argument) must be an instance of `maki::state_mold`, `maki::null` or `maki::fin`."
-            );
+            static_assert(
+                detail::is_state_mold_v<Target> || detail::is_null_v<Target> ||
+                    detail::is_fin_v<Target>,
+                "Target (2nd argument) must be an instance of "
+                "`maki::state_mold`, `maki::null` or `maki::fin`.");
         }
 
-        //Check event
-        if constexpr(detail::is_ini_v<Source>)
+        // Check event
+        if constexpr (detail::is_ini_v<Source>)
         {
-            static_assert
-            (
+            static_assert(
                 detail::is_null_v<Event>,
-                "Event (3rd argument) of transition from initial pseudostate must be `maki::null`"
-            );
+                "Event (3rd argument) of transition from initial pseudostate "
+                "must be `maki::null`");
         }
         else
         {
-            static_assert
-            (
-                detail::is_event_v<Event> || detail::is_event_set_v<Event> || detail::is_null_v<Event>,
-                "Event (3rd argument) must be an instance of `maki::event_t`, an instance of `maki::event_set`, or `maki::null`"
-            );
+            static_assert(
+                detail::is_event_v<Event> || detail::is_event_set_v<Event> ||
+                    detail::is_null_v<Event>,
+                "Event (3rd argument) must be an instance of `maki::event_t`, "
+                "an instance of `maki::event_set`, or `maki::null`");
         }
 
-        //Check action
-        static_assert
-        (
-            detail::is_action_v<ActionOrNull> || detail::is_null_v<ActionOrNull>,
-            "Action (4th argument) must be an instance of `maki::action` or `maki::null`."
-        );
+        // Check action
+        static_assert(
+            detail::is_action_v<ActionOrNull> ||
+                detail::is_null_v<ActionOrNull>,
+            "Action (4th argument) must be an instance of `maki::action` or "
+            "`maki::null`.");
 
-        //Check guard
-        if constexpr(detail::is_ini_v<Source>)
+        // Check guard
+        if constexpr (detail::is_ini_v<Source>)
         {
-            static_assert
-            (
+            static_assert(
                 detail::is_null_v<GuardOrNull>,
-                "Guard (5th argument) of transition from initial pseudostate must be `maki::null`."
-            );
+                "Guard (5th argument) of transition from initial pseudostate "
+                "must be `maki::null`.");
         }
         else
         {
-            static_assert
-            (
-                detail::is_guard_v<GuardOrNull> || detail::is_null_v<GuardOrNull>,
-                "Guard (5th argument) must be an instance of `maki::guard` or `maki::null`."
-            );
+            static_assert(
+                detail::is_guard_v<GuardOrNull> ||
+                    detail::is_null_v<GuardOrNull>,
+                "Guard (5th argument) must be an instance of `maki::guard` or "
+                "`maki::null`.");
         }
 
-        return detail::make_transition_table
-        (
-            impl_.append
-            (
-                detail::transition
-                {
-                    source_state_mold,
-                    target_state_mold,
-                    evt,
-                    detail::to_action(action),
-                    detail::to_guard(guard)
-                }
-            )
-        );
+        return detail::make_transition_table(impl_.append(
+            detail::transition{
+                source_state_mold,
+                target_state_mold,
+                evt,
+                detail::to_action(action),
+                detail::to_guard(guard)}));
     }
 
 private:
@@ -307,11 +295,11 @@ private:
 
 #ifndef MAKI_DETAIL_DOXYGEN
     template<class... Transitions>
-    friend constexpr auto detail::make_transition_table(const detail::tuple<Transitions...>&);
+    friend constexpr auto detail::make_transition_table(
+        const detail::tuple<Transitions...>&);
 #endif
 
-    constexpr explicit transition_table(const Impl& impl):
-        impl_{impl}
+    constexpr explicit transition_table(const Impl& impl): impl_{impl}
     {
     }
 
@@ -321,21 +309,16 @@ private:
 namespace detail
 {
     template<class EventTypeSet, class Transition>
-    using transition_table_event_type_set_fold_operation_t = type_set_union_t
-    <
-        EventTypeSet,
-        transition_event_type_set_t<Transition>
-    >;
+    using transition_table_event_type_set_fold_operation_t =
+        type_set_union_t<EventTypeSet, transition_event_type_set_t<Transition>>;
 
     template<class TransitionTable>
-    using transition_table_event_type_set_t = tlu::left_fold_t
-    <
+    using transition_table_event_type_set_t = tlu::left_fold_t<
         impl_of_t<TransitionTable>,
         transition_table_event_type_set_fold_operation_t,
-        empty_type_set_t
-    >;
-}
+        empty_type_set_t>;
+} // namespace detail
 
-} //namespace
+} // namespace maki
 
 #endif

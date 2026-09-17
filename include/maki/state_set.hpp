@@ -1,16 +1,16 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_STATE_SET_HPP
 #define MAKI_STATE_SET_HPP
 
-#include "state_mold.hpp"
-#include "ini.hpp"
 #include "detail/friendly_impl.hpp"
 #include "detail/set.hpp"
+#include "ini.hpp"
+#include "state_mold.hpp"
 
 namespace maki
 {
@@ -29,7 +29,7 @@ namespace detail
     {
         return state_set<Impl>{impl};
     }
-}
+} // namespace detail
 
 template<class Impl>
 class state_set
@@ -51,8 +51,7 @@ private:
     template<class Impl2>
     friend constexpr auto detail::make_state_set_from_impl(const Impl2&);
 
-    explicit constexpr state_set(const Impl& impl):
-        impl_(impl)
+    explicit constexpr state_set(const Impl& impl): impl_(impl)
     {
     }
 
@@ -66,10 +65,8 @@ private:
 */
 inline constexpr auto all_states = IMPLEMENTATION_DETAIL;
 #else
-inline constexpr auto all_states = detail::make_state_set_from_impl
-(
-    detail::make_set_including_all()
-);
+inline constexpr auto all_states =
+    detail::make_state_set_from_impl(detail::make_set_including_all());
 #endif
 
 #ifdef MAKI_DETAIL_DOXYGEN
@@ -79,10 +76,8 @@ inline constexpr auto all_states = detail::make_state_set_from_impl
 */
 inline constexpr auto no_state = IMPLEMENTATION_DETAIL;
 #else
-inline constexpr auto no_state = detail::make_state_set_from_impl
-(
-    detail::make_set_excluding_all()
-);
+inline constexpr auto no_state =
+    detail::make_state_set_from_impl(detail::make_set_excluding_all());
 #endif
 
 /**
@@ -93,10 +88,8 @@ contained in `stt_set`.
 template<class Impl>
 constexpr auto operator!(const state_set<Impl>& stt_set)
 {
-    return detail::make_state_set_from_impl
-    (
-        detail::inverse_set(detail::impl_of(stt_set))
-    );
+    return detail::make_state_set_from_impl(
+        detail::inverse_set(detail::impl_of(stt_set)));
 }
 
 /**
@@ -107,10 +100,8 @@ created by `stt_mold`.
 template<class StateMoldImpl>
 constexpr auto operator!(const state_mold<StateMoldImpl>& stt_mold)
 {
-    return detail::make_state_set_from_impl
-    (
-        detail::make_set_excluding(stt_mold)
-    );
+    return detail::make_state_set_from_impl(
+        detail::make_set_excluding(stt_mold));
 }
 
 /**
@@ -119,16 +110,12 @@ constexpr auto operator!(const state_mold<StateMoldImpl>& stt_mold)
 `rhs`.
 */
 template<class LhsImpl, class RhsImpl>
-constexpr auto operator||
-(
+constexpr auto operator||(
     const state_set<LhsImpl>& lhs,
-    const state_set<RhsImpl>& rhs
-)
+    const state_set<RhsImpl>& rhs)
 {
-    return detail::make_state_set_from_impl
-    (
-        detail::make_set_union(detail::impl_of(lhs), detail::impl_of(rhs))
-    );
+    return detail::make_state_set_from_impl(
+        detail::make_set_union(detail::impl_of(lhs), detail::impl_of(rhs)));
 }
 
 /**
@@ -137,16 +124,12 @@ constexpr auto operator||
 the ones created by `stt_mold`.
 */
 template<class StateSetImpl, class StateMoldImpl>
-constexpr auto operator||
-(
+constexpr auto operator||(
     const state_set<StateSetImpl>& stt_set,
-    const state_mold<StateMoldImpl>& stt_mold
-)
+    const state_mold<StateMoldImpl>& stt_mold)
 {
-    return detail::make_state_set_from_impl
-    (
-        detail::make_set_union(detail::impl_of(stt_set), stt_mold)
-    );
+    return detail::make_state_set_from_impl(
+        detail::make_set_union(detail::impl_of(stt_set), stt_mold));
 }
 
 /**
@@ -155,11 +138,9 @@ constexpr auto operator||
 the ones created by `stt_mold`.
 */
 template<class StateMoldImpl, class StateSetImpl>
-constexpr auto operator||
-(
+constexpr auto operator||(
     const state_mold<StateMoldImpl>& stt_mold,
-    const state_set<StateSetImpl>& stt_set
-)
+    const state_set<StateSetImpl>& stt_set)
 {
     return stt_set || stt_mold;
 }
@@ -170,16 +151,12 @@ constexpr auto operator||
 and `rhs`.
 */
 template<class LhsStateMoldImpl, class RhsStateMoldImpl>
-constexpr auto operator||
-(
+constexpr auto operator||(
     const state_mold<LhsStateMoldImpl>& lhs,
-    const state_mold<RhsStateMoldImpl>& rhs
-)
+    const state_mold<RhsStateMoldImpl>& rhs)
 {
-    return detail::make_state_set_from_impl
-    (
-        detail::make_set_including(lhs, rhs)
-    );
+    return detail::make_state_set_from_impl(
+        detail::make_set_including(lhs, rhs));
 }
 
 /**
@@ -188,34 +165,37 @@ constexpr auto operator||
 `lhs` and `rhs`.
 */
 template<class LhsImpl, class RhsImpl>
-constexpr auto operator&&
-(
+constexpr auto operator&&(
     const state_set<LhsImpl>& lhs,
-    const state_set<RhsImpl>& rhs
-)
+    const state_set<RhsImpl>& rhs)
 {
-    return detail::make_state_set_from_impl
-    (
-        detail::make_set_intersection(detail::impl_of(lhs) && detail::impl_of(rhs))
-    );
+    return detail::make_state_set_from_impl(
+        detail::make_set_intersection(
+            detail::impl_of(lhs) && detail::impl_of(rhs)));
 }
 
 namespace detail
 {
     template<class StateMoldImpl, class StateMoldImpl2>
-    constexpr bool contained_in(const state_mold<StateMoldImpl>& lhs, const state_mold<StateMoldImpl2>& rhs)
+    constexpr bool contained_in(
+        const state_mold<StateMoldImpl>& lhs,
+        const state_mold<StateMoldImpl2>& rhs)
     {
         return equals(&lhs, &rhs);
     }
 
     template<class StateMoldImpl>
-    constexpr bool contained_in(const state_mold<StateMoldImpl>& /*lhs*/, const ini_t /*rhs*/)
+    constexpr bool contained_in(
+        const state_mold<StateMoldImpl>& /*lhs*/,
+        const ini_t /*rhs*/)
     {
         return false;
     }
 
     template<class StateMoldImpl, class... Predicates>
-    constexpr bool contained_in(const state_mold<StateMoldImpl>& stt_mold, const state_set<Predicates>&... state_sets)
+    constexpr bool contained_in(
+        const state_mold<StateMoldImpl>& stt_mold,
+        const state_set<Predicates>&... state_sets)
     {
         return (contains(impl_of(state_sets), stt_mold) || ...);
     }
@@ -234,8 +214,8 @@ namespace detail
 
     template<class T>
     constexpr auto is_state_set_v = is_state_set<T>::value;
-}
+} // namespace detail
 
-} //namespace
+} // namespace maki
 
 #endif

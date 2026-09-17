@@ -1,8 +1,8 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 /**
 @file
@@ -12,10 +12,10 @@
 #ifndef MAKI_MACHINE_CONF_IMPL_HPP
 #define MAKI_MACHINE_CONF_IMPL_HPP
 
-#include "mix.hpp"
-#include "type_set.hpp"
 #include "../context.hpp"
 #include "../null.hpp"
+#include "mix.hpp"
+#include "type_set.hpp"
 #include <cstdlib>
 
 namespace maki
@@ -24,21 +24,19 @@ namespace maki
 inline constexpr auto machine_conf_default_small_event_max_align = 8;
 inline constexpr auto machine_conf_default_small_event_max_size = 16;
 
-} //namespace
+} // namespace maki
 
 namespace maki::detail
 {
 
-template
-<
+template<
     class Context = void,
     class PreProcessingHookTuple = mix<>,
     class ExceptionHandler = null_t,
     class PreExternalTransitionHook = null_t,
     class PostExternalTransitionHook = null_t,
     class PostProcessingHookTuple = mix<>,
-    class TransitionTableTuple = mix<>
->
+    class TransitionTableTuple = mix<>>
 struct machine_conf_impl
 {
     using context_type = Context;
@@ -59,8 +57,10 @@ struct machine_conf_impl
     PostProcessingHookTuple post_processing_hooks;
     bool process_event_now_enabled = false;
     bool run_to_completion = true;
-    std::size_t small_event_max_align = machine_conf_default_small_event_max_align;
-    std::size_t small_event_max_size = machine_conf_default_small_event_max_size;
+    std::size_t small_event_max_align =
+        machine_conf_default_small_event_max_align;
+    std::size_t small_event_max_size =
+        machine_conf_default_small_event_max_size;
     TransitionTableTuple transition_tables;
 
     static constexpr auto context_lifetime = state_context_lifetime::parent;
@@ -69,6 +69,6 @@ struct machine_conf_impl
     static constexpr auto internal_actions = mix<>{};
 };
 
-} //namespace
+} // namespace maki::detail
 
 #endif

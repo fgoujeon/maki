@@ -1,8 +1,8 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 /**
 @file
@@ -12,8 +12,8 @@
 #ifndef MAKI_ACTION_HPP
 #define MAKI_ACTION_HPP
 
-#include "detail/signature_macros.hpp"
 #include "detail/call.hpp"
+#include "detail/signature_macros.hpp"
 #include "null.hpp"
 
 namespace maki
@@ -22,7 +22,7 @@ namespace maki
 /**
 @brief The set of arguments taken by an action callable.
 */
-enum class action_signature: char
+enum class action_signature : char
 {
     ///`void action()`
     v,
@@ -64,12 +64,13 @@ struct action
 
 #define MAKI_DETAIL_X(name) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
-    @relates action
-    @brief Makes a `maki::action` with the indicated signature and given  \
+    @relates action \
+    @brief Makes a `maki::action` with the indicated signature and given \
     callable. \
     */ \
     template<class Callable> \
-    constexpr action<action_signature::name, Callable> action_##name(const Callable& callable) \
+    constexpr action<action_signature::name, Callable> action_##name( \
+        const Callable& callable) \
     { \
         return {callable}; \
     }
@@ -78,7 +79,7 @@ MAKI_DETAIL_ACTION_SIGNATURES
 
 namespace detail
 {
-    inline constexpr auto null_action = action_v([]{});
+    inline constexpr auto null_action = action_v([] {});
 
     template<action_signature Sig, class Callable>
     constexpr const auto& to_action(const action<Sig, Callable>& act)
@@ -106,31 +107,21 @@ namespace detail
     template<class T>
     constexpr bool is_action_v = is_action<T>::value;
 
-    template
-    <
-        class Action,
-        class Context,
-        class Machine,
-        class Event
-    >
-    void call_action
-    (
+    template<class Action, class Context, class Machine, class Event>
+    void call_action(
         const Action& act,
         Context& ctx,
         Machine& mach,
-        const Event& event
-    )
+        const Event& event)
     {
-        call_callable<action_signature, Action::signature>
-        (
+        call_callable<action_signature, Action::signature>(
             act.callable,
             ctx,
             mach,
-            event
-        );
+            event);
     }
-}
+} // namespace detail
 
-} //namespace
+} // namespace maki
 
 #endif

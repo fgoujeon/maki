@@ -1,8 +1,8 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_STATE_MOLD_IMPL_HPP
 #define MAKI_STATE_MOLD_IMPL_HPP
@@ -15,15 +15,13 @@
 namespace maki::detail
 {
 
-template
-<
+template<
     class Context = void,
     class EntryActionTuple = mix<>,
     class InternalActionTuple = mix<>,
     class ExitActionTuple = mix<>,
     class TransitionTableTuple = mix<>,
-    class DeferredEventTypeSet = empty_type_set_t
->
+    class DeferredEventTypeSet = empty_type_set_t>
 struct state_mold_impl
 {
     using context_type = Context;
@@ -39,6 +37,6 @@ struct state_mold_impl
     TransitionTableTuple transition_tables;
 };
 
-} //namespace
+} // namespace maki::detail
 
 #endif

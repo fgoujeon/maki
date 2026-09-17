@@ -1,8 +1,8 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_DETAIL_CALL_MEMBER_HPP
 #define MAKI_DETAIL_CALL_MEMBER_HPP
@@ -14,56 +14,78 @@
 namespace maki::detail
 {
 
-template
-<
+template<
     class Signature,
     Signature Sig,
     class Callable,
     class Context,
     class Machine,
     class Event,
-    class... ExtraArgs
->
-auto call_callable
-(
+    class... ExtraArgs>
+auto call_callable(
     Callable& callable,
     [[maybe_unused]] Context& ctx,
     [[maybe_unused]] Machine& mach,
     [[maybe_unused]] const Event& event,
-    [[maybe_unused]] ExtraArgs&&... extra_args
-)
+    [[maybe_unused]] ExtraArgs&&... extra_args)
 {
-    if constexpr(Sig == Signature::v)
+    if constexpr (Sig == Signature::v)
     {
         return std::invoke(callable, std::forward<ExtraArgs>(extra_args)...);
     }
-    else if constexpr(Sig == Signature::c)
+    else if constexpr (Sig == Signature::c)
     {
-        return std::invoke(callable, ctx, std::forward<ExtraArgs>(extra_args)...);
+        return std::invoke(
+            callable,
+            ctx,
+            std::forward<ExtraArgs>(extra_args)...);
     }
-    else if constexpr(Sig == Signature::cm)
+    else if constexpr (Sig == Signature::cm)
     {
-        return std::invoke(callable, ctx, mach, std::forward<ExtraArgs>(extra_args)...);
+        return std::invoke(
+            callable,
+            ctx,
+            mach,
+            std::forward<ExtraArgs>(extra_args)...);
     }
-    else if constexpr(Sig == Signature::cme)
+    else if constexpr (Sig == Signature::cme)
     {
-        return std::invoke(callable, ctx, mach, event, std::forward<ExtraArgs>(extra_args)...);
+        return std::invoke(
+            callable,
+            ctx,
+            mach,
+            event,
+            std::forward<ExtraArgs>(extra_args)...);
     }
-    else if constexpr(Sig == Signature::ce)
+    else if constexpr (Sig == Signature::ce)
     {
-        return std::invoke(callable, ctx, event, std::forward<ExtraArgs>(extra_args)...);
+        return std::invoke(
+            callable,
+            ctx,
+            event,
+            std::forward<ExtraArgs>(extra_args)...);
     }
-    else if constexpr(Sig == Signature::m)
+    else if constexpr (Sig == Signature::m)
     {
-        return std::invoke(callable, mach, std::forward<ExtraArgs>(extra_args)...);
+        return std::invoke(
+            callable,
+            mach,
+            std::forward<ExtraArgs>(extra_args)...);
     }
-    else if constexpr(Sig == Signature::me)
+    else if constexpr (Sig == Signature::me)
     {
-        return std::invoke(callable, mach, event, std::forward<ExtraArgs>(extra_args)...);
+        return std::invoke(
+            callable,
+            mach,
+            event,
+            std::forward<ExtraArgs>(extra_args)...);
     }
-    else if constexpr(Sig == Signature::e)
+    else if constexpr (Sig == Signature::e)
     {
-        return std::invoke(callable, event, std::forward<ExtraArgs>(extra_args)...);
+        return std::invoke(
+            callable,
+            event,
+            std::forward<ExtraArgs>(extra_args)...);
     }
     else
     {
@@ -72,6 +94,6 @@ auto call_callable
     }
 }
 
-} //namespace
+} // namespace maki::detail
 
 #endif

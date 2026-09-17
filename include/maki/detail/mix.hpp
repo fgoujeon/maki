@@ -1,8 +1,8 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_DETAIL_MIX_HPP
 #define MAKI_DETAIL_MIX_HPP
@@ -14,10 +14,14 @@
 namespace maki::detail
 {
 
-struct mix_uniform_construct_t{};
+struct mix_uniform_construct_t
+{
+};
 constexpr mix_uniform_construct_t mix_uniform_construct;
 
-struct mix_distributed_construct_t{};
+struct mix_distributed_construct_t
+{
+};
 constexpr mix_distributed_construct_t mix_distributed_construct;
 
 /*
@@ -34,8 +38,7 @@ struct mix: Ts...
     }
 
     template<class Arg0>
-    constexpr mix(mix_uniform_construct_t /*tag*/, Arg0& arg0):
-        Ts{arg0}...
+    constexpr mix(mix_uniform_construct_t /*tag*/, Arg0& arg0): Ts{arg0}...
     {
     }
 
@@ -51,12 +54,10 @@ struct mix: Ts...
 template<class... Ts, class U>
 constexpr auto append(const mix<Ts...>& imix, const U& elem)
 {
-    return mix<Ts..., U>
-    {
+    return mix<Ts..., U>{
         mix_distributed_construct,
         static_cast<const Ts&>(imix)...,
-        elem
-    };
+        elem};
 }
 
 template<class T, class... Ts>
@@ -95,13 +96,9 @@ struct mix_constant_list_helper<mix<Ts...>>
 };
 
 template<const auto& Mix>
-using mix_constant_list_t =
-    typename mix_constant_list_helper
-    <
-        std::decay_t<decltype(Mix)>
-    >::template type<Mix>
-;
+using mix_constant_list_t = typename mix_constant_list_helper<
+    std::decay_t<decltype(Mix)>>::template type<Mix>;
 
-} //namespace
+} // namespace maki::detail
 
 #endif

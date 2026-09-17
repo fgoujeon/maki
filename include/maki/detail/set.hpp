@@ -1,15 +1,15 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_SET_HPP
 #define MAKI_SET_HPP
 
+#include "equals.hpp"
 #include "state_mold_storage.hpp"
 #include "tuple.hpp"
-#include "equals.hpp"
 
 namespace maki::detail
 {
@@ -35,62 +35,38 @@ predicate_based_set(const Predicate&) -> predicate_based_set<Predicate>;
 
 constexpr auto make_set_including_all()
 {
-    return detail::predicate_based_set
-    {
-        [](const auto& /*elem*/)
-        {
-            return true;
-        }
-    };
+    return detail::predicate_based_set{
+        [](const auto& /*elem*/) { return true; }};
 }
 
 constexpr auto make_set_excluding_all()
 {
-    return detail::predicate_based_set
-    {
-        [](const auto& /*elem*/)
-        {
-            return false;
-        }
-    };
+    return detail::predicate_based_set{
+        [](const auto& /*elem*/) { return false; }};
 }
 
 template<class Elem>
 constexpr auto make_set_excluding(const Elem& elem)
 {
-    return detail::predicate_based_set
-    {
-        [&elem](const auto& elem2)
-        {
-            return !detail::equals(&elem, &elem2);
-        }
-    };
+    return detail::predicate_based_set{
+        [&elem](const auto& elem2) { return !detail::equals(&elem, &elem2); }};
 }
 
 template<class Predicate, class Elem>
-constexpr bool contains
-(
+constexpr bool contains(
     const predicate_based_set<Predicate>& set,
-    const Elem& elem
-)
+    const Elem& elem)
 {
     return set.predicate(elem);
 }
 
 template<class Predicate, class Elem>
-constexpr auto make_set_union
-(
+constexpr auto make_set_union(
     const predicate_based_set<Predicate>& set,
-    const Elem& elem
-)
+    const Elem& elem)
 {
-    return predicate_based_set
-    {
-        [set, elem](const auto& elem2)
-        {
-            return contains(set, elem2) || equals(elem, elem2);
-        }
-    };
+    return predicate_based_set{[set, elem](const auto& elem2)
+        { return contains(set, elem2) || equals(elem, elem2); }};
 }
 
 
@@ -117,30 +93,21 @@ constexpr auto make_set_including(const Elems&... elems)
 }
 
 template<class... Elems, class Elem>
-constexpr bool contains
-(
-    const tuple_based_set<Elems...>& set,
-    const Elem& elem
-)
+constexpr bool contains(const tuple_based_set<Elems...>& set, const Elem& elem)
 {
-    return tuple_apply
-    (
+    return tuple_apply(
         set.elems,
         [&elem](const auto&... elems)
-        {
-            return (equals(&elem, &elems) || ...);
-        }
-    );
+        { return (equals(&elem, &elems) || ...); });
 }
 
 template<class... Elems, class Elem>
-constexpr auto make_set_union
-(
+constexpr auto make_set_union(
     const tuple_based_set<Elems...>& set,
-    const Elem& elem
-)
+    const Elem& elem)
 {
-    return tuple_based_set{set.elems.template append<state_mold_storage_t<Elem>>(elem)};
+    return tuple_based_set{
+        set.elems.template append<state_mold_storage_t<Elem>>(elem)};
 }
 
 
@@ -153,39 +120,24 @@ Fall back to `predicate_based_set` when composing sets of different types.
 template<class Lhs, class Rhs>
 constexpr auto make_set_union(const Lhs& lhs, const Rhs& rhs)
 {
-    return predicate_based_set
-    {
-        [lhs, rhs](const auto& elem)
-        {
-            return contains(lhs, elem) || contains(rhs, elem);
-        }
-    };
+    return predicate_based_set{[lhs, rhs](const auto& elem)
+        { return contains(lhs, elem) || contains(rhs, elem); }};
 }
 
 template<class Lhs, class Rhs>
 constexpr auto make_set_intersection(const Lhs& lhs, const Rhs& rhs)
 {
-    return predicate_based_set
-    {
-        [lhs, rhs](const auto& elem)
-        {
-            return contains(lhs, elem) && contains(rhs, elem);
-        }
-    };
+    return predicate_based_set{[lhs, rhs](const auto& elem)
+        { return contains(lhs, elem) && contains(rhs, elem); }};
 }
 
 template<class Set>
 constexpr auto inverse_set(const Set& set)
 {
-    return predicate_based_set
-    {
-        [set](const auto& elem)
-        {
-            return !contains(set, elem);
-        }
-    };
+    return predicate_based_set{
+        [set](const auto& elem) { return !contains(set, elem); }};
 }
 
-} //namespace
+} // namespace maki::detail
 
 #endif

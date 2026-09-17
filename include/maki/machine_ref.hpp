@@ -1,8 +1,8 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 /**
 @file
@@ -12,10 +12,10 @@
 #ifndef MAKI_MACHINE_REF_HPP
 #define MAKI_MACHINE_REF_HPP
 
-#include "machine_ref_conf.hpp"
-#include "machine.hpp"
 #include "detail/tlu/apply.hpp"
 #include "detail/tlu/contains.hpp"
+#include "machine.hpp"
+#include "machine_ref_conf.hpp"
 #include <type_traits>
 
 namespace maki
@@ -27,21 +27,20 @@ namespace detail
     class machine_ref_event_impl;
 
     template<class Event, class... Events>
-    class machine_ref_event_impl<Event, Events...>: machine_ref_event_impl<Events...>
+    class machine_ref_event_impl<Event, Events...>
+        : machine_ref_event_impl<Events...>
     {
     public:
         template<class MachineConfHolder>
         machine_ref_event_impl(machine<MachineConfHolder>& mach):
             machine_ref_event_impl<Events...>{mach},
-            pprocess_event_
-            {
-                [](void* const vpsm, const Event& evt)
+            pprocess_event_{[](void* const vpsm, const Event& evt)
                 {
                     using machine_t = machine<MachineConfHolder>;
-                    const auto psm = reinterpret_cast<machine_t*>(vpsm); //NOLINT
+                    const auto psm =
+                        reinterpret_cast<machine_t*>(vpsm); // NOLINT
                     psm->process_event(evt);
-                }
-            }
+                }}
         {
         }
 
@@ -56,7 +55,7 @@ namespace detail
         using machine_ref_event_impl<Events...>::get_vpsm;
 
     private:
-        void(*pprocess_event_)(void*, const Event&) = nullptr;
+        void (*pprocess_event_)(void*, const Event&) = nullptr;
     };
 
     template<>
@@ -64,8 +63,7 @@ namespace detail
     {
     public:
         template<class MachineConfHolder>
-        machine_ref_event_impl(machine<MachineConfHolder>& mach):
-            vpsm_(&mach)
+        machine_ref_event_impl(machine<MachineConfHolder>& mach): vpsm_(&mach)
         {
         }
 
@@ -82,7 +80,7 @@ namespace detail
     private:
         void* vpsm_ = nullptr;
     };
-}
+} // namespace detail
 
 /**
 @brief A type-erasing container for a reference to a @ref machine of any type.
@@ -94,8 +92,7 @@ class machine_ref
 {
 public:
     template<class MachineConfHolder>
-    machine_ref(machine<MachineConfHolder>& mach):
-        impl_{mach}
+    machine_ref(machine<MachineConfHolder>& mach): impl_{mach}
     {
     }
 
@@ -108,34 +105,26 @@ public:
     template<class Event>
     void process_event(const Event& evt) const
     {
-        static_assert
-        (
-            detail::tlu::contains_v
-            <
-                event_type_list,
-                Event
-            >,
-            "Given event type must be part of the type list given to `events()`"
-        );
+        static_assert(
+            detail::tlu::contains_v<event_type_list, Event>,
+            "Given event type must be part of the type list given to "
+            "`events()`");
         impl_.process_event(evt);
     }
 
 private:
-    using event_type_list = typename std::decay_t<decltype(Conf)>::event_type_list;
+    using event_type_list =
+        typename std::decay_t<decltype(Conf)>::event_type_list;
 
-    using event_impl_type = detail::tlu::apply_t
-    <
-        event_type_list,
-        detail::machine_ref_event_impl
-    >;
+    using event_impl_type =
+        detail::tlu::apply_t<event_type_list, detail::machine_ref_event_impl>;
 
     event_impl_type impl_;
 };
 
 template<class... Events>
-inline constexpr auto machine_ref_e_conf = machine_ref_conf{}
-    .events<Events...>()
-;
+inline constexpr auto machine_ref_e_conf =
+    machine_ref_conf{}.events<Events...>();
 
 /**
 @relates machine_ref
@@ -145,6 +134,6 @@ types
 template<class... Events>
 using machine_ref_e = machine_ref<machine_ref_e_conf<Events...>>;
 
-} //namespace
+} // namespace maki
 
 #endif

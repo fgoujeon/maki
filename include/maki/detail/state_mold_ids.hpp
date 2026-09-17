@@ -1,8 +1,8 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_DETAIL_STATE_MOLD_INDEXES_HPP
 #define MAKI_DETAIL_STATE_MOLD_INDEXES_HPP
@@ -40,6 +40,6 @@ transition in a transition table.
 */
 inline constexpr auto ini = 0;
 
-} //namespace
+} // namespace maki::detail::state_mold_ids
 
 #endif

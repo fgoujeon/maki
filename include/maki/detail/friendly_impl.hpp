@@ -1,8 +1,8 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_DETAIL_FRIENDLY_IMPL_HPP
 #define MAKI_DETAIL_FRIENDLY_IMPL_HPP
@@ -34,10 +34,10 @@ functions to access `impl_type` and `impl_`.
 #define MAKI_DETAIL_FRIENDLY_IMPL \
     template<class T> \
     friend struct detail::impl_of_t_helper; \
- \
+\
     template<class T> \
     friend constexpr auto& detail::impl_of(T&); \
- \
+\
     template<class T> \
     friend constexpr const auto& detail::impl_of(const T&);
 
@@ -65,6 +65,6 @@ constexpr const auto& impl_of(const T& obj)
     return obj.impl_;
 }
 
-} //namespace
+} // namespace maki::detail
 
 #endif

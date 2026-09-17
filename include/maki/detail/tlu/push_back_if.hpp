@@ -1,8 +1,8 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_DETAIL_TLU_PUSH_BACK_IF_HPP
 #define MAKI_DETAIL_TLU_PUSH_BACK_IF_HPP
@@ -16,8 +16,9 @@ is true.
 
 In this example...:
     using typelist = tuple<char, short, int>;
-    using typelist2 = push_back_if_t<typelist, long, contains_v<typelist, long>>;
-    using typelist3 = push_back_if_t<typelist, short, contains_v<typelist, short>>;
+    using typelist2 = push_back_if_t<typelist, long, contains_v<typelist,
+long>>; using typelist3 = push_back_if_t<typelist, short, contains_v<typelist,
+short>>;
 
 ... typelist2 is an alias of tuple<char, short, int, long> and
 typelist3 is an alias of tuple<char, short, int>.
@@ -37,6 +38,6 @@ struct push_back_if<TList<Ts...>, U, true>
 template<class TList, class U, bool Condition>
 using push_back_if_t = typename push_back_if<TList, U, Condition>::type;
 
-} //namespace
+} // namespace maki::detail::tlu
 
 #endif

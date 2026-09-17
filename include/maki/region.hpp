@@ -1,8 +1,8 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_REGION_HPP
 #define MAKI_REGION_HPP
@@ -25,8 +25,7 @@ class region
 public:
 #ifndef MAKI_DETAIL_DOXYGEN
     template<class... Args>
-    region(Args&&... args):
-        impl_(this, std::forward<Args>(args)...)
+    region(Args&&... args): impl_(this, std::forward<Args>(args)...)
     {
     }
 #endif
@@ -76,6 +75,6 @@ private:
     impl_type impl_;
 };
 
-} //namespace
+} // namespace maki
 
 #endif

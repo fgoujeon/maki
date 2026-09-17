@@ -1,23 +1,23 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_DETAIL_MACHINE_CONF_TREE_HPP
 #define MAKI_DETAIL_MACHINE_CONF_TREE_HPP
 
-#include "../transition_table.hpp"
-#include "../machine_conf.hpp"
-#include "../state_mold.hpp"
-#include "../undefined.hpp"
-#include "../null.hpp"
 #include "../fin.hpp"
+#include "../machine_conf.hpp"
+#include "../null.hpp"
+#include "../state_mold.hpp"
+#include "../transition_table.hpp"
+#include "../undefined.hpp"
 #include "equals.hpp"
-#include "state_molds.hpp"
-#include "state_mold_ids.hpp"
-#include "tuple.hpp"
 #include "iseq.hpp"
+#include "state_mold_ids.hpp"
+#include "state_molds.hpp"
+#include "tuple.hpp"
 
 /*
 A `machine_conf` can be seen as the root of a tree:
@@ -76,17 +76,18 @@ struct node_at_path_operation
     }
 
     template<int Id, class TransitionTableImpl>
-    static constexpr const auto& call(const transition_table<TransitionTableImpl>& base)
+    static constexpr const auto& call(
+        const transition_table<TransitionTableImpl>& base)
     {
-        if constexpr(Id == state_mold_ids::null)
+        if constexpr (Id == state_mold_ids::null)
         {
             return state_molds::null;
         }
-        else if constexpr(Id == state_mold_ids::undefined)
+        else if constexpr (Id == state_mold_ids::undefined)
         {
             return undefined;
         }
-        else if constexpr(Id == state_mold_ids::fin)
+        else if constexpr (Id == state_mold_ids::fin)
         {
             return state_molds::fin;
         }
@@ -105,120 +106,136 @@ constexpr const auto& node_at_path(const MachineConf& mach_conf)
 
 template<class MachineConfHolder, class Ipath>
 constexpr const auto& node_at_path_v =
-    node_at_path<Ipath>(MachineConfHolder::value)
-;
+    node_at_path<Ipath>(MachineConfHolder::value);
 
 
 /*
 `id_of_state_mold_v`
 */
 
-template<class MachineConfHolder, class TransitionTablePath, const auto& StateMold, int TransitionIndex>
+template<
+    class MachineConfHolder,
+    class TransitionTablePath,
+    const auto& StateMold,
+    int TransitionIndex>
 constexpr int id_of_state_mold_2()
 {
-    constexpr const auto& target_state_mold =
-        machine_conf_tree::node_at_path_v
-        <
-            MachineConfHolder,
-            iseq_push_back_t
-            <
-                TransitionTablePath,
-                TransitionIndex
-            >
-        >
-    ;
+    constexpr const auto& target_state_mold = machine_conf_tree::node_at_path_v<
+        MachineConfHolder,
+        iseq_push_back_t<TransitionTablePath, TransitionIndex>>;
 
-    if constexpr(ptr_equals(&StateMold, &target_state_mold))
+    if constexpr (ptr_equals(&StateMold, &target_state_mold))
     {
         return TransitionIndex;
     }
     else
     {
-        return id_of_state_mold_2<MachineConfHolder, TransitionTablePath, StateMold, TransitionIndex + 1>();
+        return id_of_state_mold_2<
+            MachineConfHolder,
+            TransitionTablePath,
+            StateMold,
+            TransitionIndex + 1>();
     }
 }
 
-template<class MachineConfHolder, class TransitionTablePath, const auto& StateMold>
+template<
+    class MachineConfHolder,
+    class TransitionTablePath,
+    const auto& StateMold>
 constexpr int id_of_state_mold()
 {
-    if constexpr(ptr_equals(&StateMold, &maki::undefined))
+    if constexpr (ptr_equals(&StateMold, &maki::undefined))
     {
         return state_mold_ids::undefined;
     }
-    else if constexpr(ptr_equals(&StateMold, &null))
+    else if constexpr (ptr_equals(&StateMold, &null))
     {
         return state_mold_ids::internal;
     }
-    else if constexpr(ptr_equals(&StateMold, &fin))
+    else if constexpr (ptr_equals(&StateMold, &fin))
     {
         return state_mold_ids::fin;
     }
     else
     {
-        return id_of_state_mold_2<MachineConfHolder, TransitionTablePath, StateMold, 0>();
+        return id_of_state_mold_2<
+            MachineConfHolder,
+            TransitionTablePath,
+            StateMold,
+            0>();
     }
 }
 
 /*
 The ID of `StateMold` in the `transition_table` at `TransitionTablePath`.
 */
-template<class MachineConfHolder, class TransitionTablePath, const auto& StateMold>
+template<
+    class MachineConfHolder,
+    class TransitionTablePath,
+    const auto& StateMold>
 constexpr int id_of_state_mold_v =
-    id_of_state_mold<MachineConfHolder, TransitionTablePath, StateMold>()
-;
+    id_of_state_mold<MachineConfHolder, TransitionTablePath, StateMold>();
 
 
 /*
 `id_of_source_state_mold_v`
 */
 
-template<class MachineConfHolder, class TransitionTablePath, int TransitionIndex, int CandidateIndex>
+template<
+    class MachineConfHolder,
+    class TransitionTablePath,
+    int TransitionIndex,
+    int CandidateIndex>
 constexpr int id_of_source_state_mold_2()
 {
-    constexpr const auto& trans_table =
-        machine_conf_tree::node_at_path_v<MachineConfHolder, TransitionTablePath>
-    ;
+    constexpr const auto& trans_table = machine_conf_tree::
+        node_at_path_v<MachineConfHolder, TransitionTablePath>;
 
-    constexpr const auto& source_state_mold = tuple_get<TransitionIndex>(impl_of(trans_table)).source_state_mold;
+    constexpr const auto& source_state_mold =
+        tuple_get<TransitionIndex>(impl_of(trans_table)).source_state_mold;
 
     constexpr const auto& candidate_source_state_mold =
-        machine_conf_tree::node_at_path_v
-        <
+        machine_conf_tree::node_at_path_v<
             MachineConfHolder,
-            iseq_push_back_t
-            <
-                TransitionTablePath,
-                CandidateIndex
-            >
-        >
-    ;
+            iseq_push_back_t<TransitionTablePath, CandidateIndex>>;
 
-    if constexpr(ptr_equals(&source_state_mold, &candidate_source_state_mold))
+    if constexpr (ptr_equals(&source_state_mold, &candidate_source_state_mold))
     {
         return CandidateIndex;
     }
     else
     {
-        return id_of_source_state_mold_2<MachineConfHolder, TransitionTablePath, TransitionIndex, CandidateIndex + 1>();
+        return id_of_source_state_mold_2<
+            MachineConfHolder,
+            TransitionTablePath,
+            TransitionIndex,
+            CandidateIndex + 1>();
     }
 }
 
-template<class MachineConfHolder, class TransitionTablePath, int TransitionIndex>
+template<
+    class MachineConfHolder,
+    class TransitionTablePath,
+    int TransitionIndex>
 constexpr int id_of_source_state_mold()
 {
-    constexpr const auto& trans_table =
-        machine_conf_tree::node_at_path_v<MachineConfHolder, TransitionTablePath>
-    ;
+    constexpr const auto& trans_table = machine_conf_tree::
+        node_at_path_v<MachineConfHolder, TransitionTablePath>;
 
-    constexpr const auto& source_state_mold = tuple_get<TransitionIndex>(impl_of(trans_table)).source_state_mold;
+    constexpr const auto& source_state_mold =
+        tuple_get<TransitionIndex>(impl_of(trans_table)).source_state_mold;
 
-    if constexpr(ptr_equals(&source_state_mold, &maki::undefined))
+    if constexpr (ptr_equals(&source_state_mold, &maki::undefined))
     {
         return state_mold_ids::undefined;
     }
     else
     {
-        return id_of_source_state_mold_2<MachineConfHolder, TransitionTablePath, TransitionIndex, 0>();
+        return id_of_source_state_mold_2<
+            MachineConfHolder,
+            TransitionTablePath,
+            TransitionIndex,
+            0>();
     }
 }
 
@@ -226,83 +243,79 @@ constexpr int id_of_source_state_mold()
 The ID of the source `state_mold` of the transition at `TransitionIndex` of the
 `transition_table` at `TransitionTablePath`.
 */
-template<class MachineConfHolder, class TransitionTablePath, int TransitionIndex>
-constexpr int id_of_source_state_mold_v =
-    id_of_source_state_mold<MachineConfHolder, TransitionTablePath, TransitionIndex>()
-;
+template<
+    class MachineConfHolder,
+    class TransitionTablePath,
+    int TransitionIndex>
+constexpr int id_of_source_state_mold_v = id_of_source_state_mold<
+    MachineConfHolder,
+    TransitionTablePath,
+    TransitionIndex>();
 
 
 /*
 `id_of_target_state_mold_v`
 */
 
-template<class MachineConfHolder, class TransitionTablePath, int TransitionIndex, int CandidateIndex>
+template<
+    class MachineConfHolder,
+    class TransitionTablePath,
+    int TransitionIndex,
+    int CandidateIndex>
 constexpr int id_of_target_state_mold_2()
 {
-    constexpr const auto& target_state_mold =
-        machine_conf_tree::node_at_path_v
-        <
-            MachineConfHolder,
-            iseq_push_back_t
-            <
-                TransitionTablePath,
-                TransitionIndex
-            >
-        >
-    ;
+    constexpr const auto& target_state_mold = machine_conf_tree::node_at_path_v<
+        MachineConfHolder,
+        iseq_push_back_t<TransitionTablePath, TransitionIndex>>;
 
     constexpr const auto& candidate_target_state_mold =
-        machine_conf_tree::node_at_path_v
-        <
+        machine_conf_tree::node_at_path_v<
             MachineConfHolder,
-            iseq_push_back_t
-            <
-                TransitionTablePath,
-                CandidateIndex
-            >
-        >
-    ;
+            iseq_push_back_t<TransitionTablePath, CandidateIndex>>;
 
-    if constexpr(ptr_equals(&target_state_mold, &candidate_target_state_mold))
+    if constexpr (ptr_equals(&target_state_mold, &candidate_target_state_mold))
     {
         return CandidateIndex;
     }
     else
     {
-        return id_of_target_state_mold_2<MachineConfHolder, TransitionTablePath, TransitionIndex, CandidateIndex + 1>();
+        return id_of_target_state_mold_2<
+            MachineConfHolder,
+            TransitionTablePath,
+            TransitionIndex,
+            CandidateIndex + 1>();
     }
 }
 
-template<class MachineConfHolder, class TransitionTablePath, int TransitionIndex>
+template<
+    class MachineConfHolder,
+    class TransitionTablePath,
+    int TransitionIndex>
 constexpr int id_of_target_state_mold()
 {
-    constexpr const auto& target_state_mold =
-        machine_conf_tree::node_at_path_v
-        <
-            MachineConfHolder,
-            iseq_push_back_t
-            <
-                TransitionTablePath,
-                TransitionIndex
-            >
-        >
-    ;
+    constexpr const auto& target_state_mold = machine_conf_tree::node_at_path_v<
+        MachineConfHolder,
+        iseq_push_back_t<TransitionTablePath, TransitionIndex>>;
 
-    if constexpr(ptr_equals(&target_state_mold, &maki::undefined))
+    if constexpr (ptr_equals(&target_state_mold, &maki::undefined))
     {
         return state_mold_ids::undefined;
     }
-    else if constexpr(ptr_equals(&target_state_mold, &null))
+    else if constexpr (ptr_equals(&target_state_mold, &null))
     {
         return state_mold_ids::internal;
     }
-    else if constexpr(ptr_equals(&target_state_mold, &fin))
+    else if constexpr (ptr_equals(&target_state_mold, &fin))
     {
         return state_mold_ids::fin;
     }
     else
     {
-        return id_of_target_state_mold_2<MachineConfHolder, TransitionTablePath, TransitionIndex, 0>();
+        return id_of_target_state_mold_2<
+            MachineConfHolder,
+            TransitionTablePath,
+            TransitionIndex,
+            0>();
     }
 }
 
@@ -310,11 +323,15 @@ constexpr int id_of_target_state_mold()
 The ID of the target `state_mold` of the transition at `TransitionIndex` of the
 `transition_table` at `TransitionTablePath`.
 */
-template<class MachineConfHolder, class TransitionTablePath, int TransitionIndex>
-constexpr int id_of_target_state_mold_v =
-    id_of_target_state_mold<MachineConfHolder, TransitionTablePath, TransitionIndex>()
-;
+template<
+    class MachineConfHolder,
+    class TransitionTablePath,
+    int TransitionIndex>
+constexpr int id_of_target_state_mold_v = id_of_target_state_mold<
+    MachineConfHolder,
+    TransitionTablePath,
+    TransitionIndex>();
 
-} //namespace
+} // namespace maki::detail::machine_conf_tree
 
 #endif

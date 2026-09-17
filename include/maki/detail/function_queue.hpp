@@ -1,14 +1,14 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_DETAIL_FUNCTION_QUEUE_HPP
 #define MAKI_DETAIL_FUNCTION_QUEUE_HPP
 
-#include <queue>
 #include <cstddef>
+#include <queue>
 
 namespace maki::detail
 {
@@ -16,22 +16,21 @@ namespace maki::detail
 /*
 A kind of std::queue<std::function<bool(Arg)>>, optimized for our needs
 */
-template
-<
+template<
     class Arg,
     std::size_t StaticStorageSize,
-    std::size_t StaticStorageAlignment = alignof(std::max_align_t)
->
+    std::size_t StaticStorageAlignment = alignof(std::max_align_t)>
 class function_queue
 {
 public:
-    //Push call to FunHolder::call(data, arg)
+    // Push call to FunHolder::call(data, arg)
     template<class FunHolder, class Data>
     void push(const Data& data)
     {
-        if constexpr(std::is_nothrow_copy_constructible_v<Data>)
+        if constexpr (std::is_nothrow_copy_constructible_v<Data>)
         {
-            queue_.emplace(&call<Data, FunHolder>, &delete_data<Data>).set_data(data);
+            queue_.emplace(&call<Data, FunHolder>, &delete_data<Data>)
+                .set_data(data);
         }
         else
         {
@@ -57,7 +56,7 @@ public:
 
     void invoke_and_pop_all(Arg arg)
     {
-        while(!queue_.empty())
+        while (!queue_.empty())
         {
             queue_.front().call(arg);
             queue_.pop();
@@ -87,23 +86,17 @@ private:
     */
     struct data_container
     {
-        //To be called when Data copy constructor can throw
-        data_container //NOLINT
-        (
-            const call_fn_ptr_t pcall_
-        ):
-            pcall_(pcall_)
+        // To be called when Data copy constructor can throw
+        // NOLINTNEXTLINE
+        data_container(const call_fn_ptr_t pcall_): pcall_(pcall_)
         {
         }
 
-        //To be called when Data copy constructor cannot throw
-        data_container //NOLINT
-        (
+        // To be called when Data copy constructor cannot throw
+        // NOLINTNEXTLINE
+        data_container(
             const call_fn_ptr_t pcall_,
-            const delete_fn_ptr_t pdelete_
-        ):
-            pcall_(pcall_),
-            pdelete_(pdelete_)
+            const delete_fn_ptr_t pdelete_): pcall_(pcall_), pdelete_(pdelete_)
         {
         }
 
@@ -121,14 +114,14 @@ private:
         template<class Data>
         void set_data(const Data& data)
         {
-            //Copy data into the data_container
-            if constexpr(suitable_for_static_storage<Data>())
+            // Copy data into the data_container
+            if constexpr (suitable_for_static_storage<Data>())
             {
-                pdata_ = new(static_storage_) Data{data}; //NOLINT
+                pdata_ = new (static_storage_) Data{data}; // NOLINT
             }
             else
             {
-                pdata_ = new Data{data}; //NOLINT
+                pdata_ = new Data{data}; // NOLINT
             }
         }
 
@@ -143,12 +136,15 @@ private:
         }
 
     private:
-        //Storage for small object optimization, properly aligned for an object
-        //whose alignment requirement is less than or equal to
-        //StaticStorageAlignment
-        alignas(StaticStorageAlignment) char static_storage_[StaticStorageSize]; //NOLINT
+        /*
+        Storage for small object optimization, properly aligned for an object
+        whose alignment requirement is less than or equal to
+        StaticStorageAlignment
+        */
+        // NOLINTNEXTLINE
+        alignas(StaticStorageAlignment) char static_storage_[StaticStorageSize];
 
-        void* pdata_; //NOLINT
+        void* pdata_; // NOLINT
         call_fn_ptr_t pcall_ = nullptr;
         delete_fn_ptr_t pdelete_ = &dont_delete_data;
     };
@@ -156,16 +152,14 @@ private:
     template<class Data>
     static constexpr bool suitable_for_static_storage()
     {
-        return
-            sizeof(Data) <= StaticStorageSize &&
-            alignof(Data) <= StaticStorageAlignment
-        ;
+        return sizeof(Data) <= StaticStorageSize &&
+            alignof(Data) <= StaticStorageAlignment;
     }
 
     template<class Data, class FunHolder>
     static bool call(const void* const pdata, Arg arg)
     {
-        const Data& data = *reinterpret_cast<const Data*>(pdata); //NOLINT
+        const Data& data = *reinterpret_cast<const Data*>(pdata); // NOLINT
         return FunHolder::call(data, arg);
     }
 
@@ -176,19 +170,19 @@ private:
     template<class Data>
     static void delete_data(const void* const pdata)
     {
-        if constexpr(suitable_for_static_storage<Data>())
+        if constexpr (suitable_for_static_storage<Data>())
         {
-            reinterpret_cast<const Data*>(pdata)->~Data(); //NOLINT
+            reinterpret_cast<const Data*>(pdata)->~Data(); // NOLINT
         }
         else
         {
-            delete reinterpret_cast<const Data*>(pdata); //NOLINT
+            delete reinterpret_cast<const Data*>(pdata); // NOLINT
         }
     }
 
     std::queue<data_container> queue_;
 };
 
-} //namespace
+} // namespace maki::detail
 
 #endif

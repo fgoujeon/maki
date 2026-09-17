@@ -1,45 +1,53 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_DETAIL_STATE_IMPLS_COMPOSITE_HPP
 #define MAKI_DETAIL_STATE_IMPLS_COMPOSITE_HPP
 
-#include "composite_no_context.hpp"
-#include "../machine_fwd.hpp"
-#include "../machine_conf_tree.hpp"
+#include "../../context.hpp"
+#include "../../state_mold.hpp"
 #include "../context_holder.hpp"
 #include "../context_storage.hpp"
+#include "../machine_conf_tree.hpp"
+#include "../machine_fwd.hpp"
 #include "../tlu.hpp"
-#include "../../state_mold.hpp"
-#include "../../context.hpp"
+#include "composite_no_context.hpp"
 #include <type_traits>
 
 namespace maki::detail::state_impls
 {
 
-template<class MachineConfHolder, class StateMoldPath, context_storage ParentCtxStorage>
+template<
+    class MachineConfHolder,
+    class StateMoldPath,
+    context_storage ParentCtxStorage>
 class composite
 {
 public:
     using machine_conf_holder_type = MachineConfHolder;
     using state_mold_path = StateMoldPath;
 
-    static constexpr const auto& mold = machine_conf_tree::node_at_path_v<MachineConfHolder, StateMoldPath>;
+    static constexpr const auto& mold =
+        machine_conf_tree::node_at_path_v<MachineConfHolder, StateMoldPath>;
     using mold_type = std::decay_t<decltype(mold)>;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
-    using transition_table_type_list = decltype(impl_of(mold).transition_tables);
+    using transition_table_type_list =
+        decltype(impl_of(mold).transition_tables);
     using context_type = typename option_set_type::context_type;
-    using impl_type = composite_no_context<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
+    using impl_type = composite_no_context<
+        MachineConfHolder,
+        StateMoldPath,
+        ParentCtxStorage>;
     using event_type_set = typename impl_type::event_type_set;
-    using deferrable_event_type_set = typename impl_type::deferrable_event_type_set;
+    using deferrable_event_type_set =
+        typename impl_type::deferrable_event_type_set;
 
     template<class ParentContext>
     composite(machine<MachineConfHolder>& mach, ParentContext& parent_ctx):
-        ctx_holder_(mach, parent_ctx),
-        impl_(mach, context())
+        ctx_holder_(mach, parent_ctx), impl_(mach, context())
     {
     }
 
@@ -66,23 +74,23 @@ public:
     }
 
     template<class ParentContext>
-    void emplace_contexts_with_parent_lifetime(ParentContext& parent_ctx, machine<MachineConfHolder>& mach)
+    void emplace_contexts_with_parent_lifetime(
+        ParentContext& parent_ctx,
+        machine<MachineConfHolder>& mach)
     {
-        if constexpr(ctx_lifetime == state_context_lifetime::parent)
+        if constexpr (ctx_lifetime == state_context_lifetime::parent)
         {
             emplace_context(parent_ctx, mach);
         }
     }
 
     template<class ParentContext, class Event>
-    void enter
-    (
+    void enter(
         machine<MachineConfHolder>& mach,
         [[maybe_unused]] ParentContext& parent_ctx,
-        const Event& event
-    )
+        const Event& event)
     {
-        if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
+        if constexpr (ctx_lifetime == state_context_lifetime::state_activity)
         {
             emplace_context(parent_ctx, mach);
         }
@@ -91,38 +99,38 @@ public:
     }
 
     template<bool Dry, class ParentContext, class Event>
-    bool call_internal_action
-    (
+    bool call_internal_action(
         machine<MachineConfHolder>& mach,
         ParentContext& /*parent_ctx*/,
-        const Event& event
-    )
+        const Event& event)
     {
-        return impl_.template call_internal_action<Dry>(mach, ctx_holder_.get_deep(), event);
+        return impl_.template call_internal_action<Dry>(
+            mach,
+            ctx_holder_.get_deep(),
+            event);
     }
 
     template<bool Dry, class ParentContext, class Event>
-    bool call_internal_action
-    (
+    bool call_internal_action(
         machine<MachineConfHolder>& mach,
         ParentContext& /*parent_ctx*/,
-        const Event& event
-    ) const
+        const Event& event) const
     {
-        return impl_.template call_internal_action<Dry>(mach, ctx_holder_.get_deep(), event);
+        return impl_.template call_internal_action<Dry>(
+            mach,
+            ctx_holder_.get_deep(),
+            event);
     }
 
     template<class ParentContext, class Event>
-    void exit
-    (
+    void exit(
         machine<MachineConfHolder>& mach,
         ParentContext& /*parent_ctx*/,
-        const Event& event
-    )
+        const Event& event)
     {
         impl_.exit(mach, ctx_holder_.get_deep(), event);
 
-        if constexpr(ctx_lifetime == state_context_lifetime::state_activity)
+        if constexpr (ctx_lifetime == state_context_lifetime::state_activity)
         {
             reset_context();
         }
@@ -130,7 +138,7 @@ public:
 
     void reset_contexts_with_parent_lifetime()
     {
-        if constexpr(ctx_lifetime == state_context_lifetime::parent)
+        if constexpr (ctx_lifetime == state_context_lifetime::parent)
         {
             reset_context();
         }
@@ -161,7 +169,9 @@ public:
 
 private:
     template<class ParentContext>
-    void emplace_context(ParentContext& parent_ctx, machine<MachineConfHolder>& mach)
+    void emplace_context(
+        ParentContext& parent_ctx,
+        machine<MachineConfHolder>& mach)
     {
         auto& ctx = ctx_holder_.emplace(mach, parent_ctx);
 
@@ -186,10 +196,9 @@ private:
     static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
 
     static constexpr auto ctx_storage =
-        ctx_lifetime == state_context_lifetime::parent ?
-        ParentCtxStorage :
-        context_storage::optional
-    ;
+        ctx_lifetime == state_context_lifetime::parent
+        ? ParentCtxStorage
+        : context_storage::optional;
 
     static constexpr auto ctx_sig = impl_of(mold).context_sig;
 
@@ -197,6 +206,6 @@ private:
     impl_type impl_;
 };
 
-} //namespace
+} // namespace maki::detail::state_impls
 
 #endif

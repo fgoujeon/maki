@@ -1,16 +1,16 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_DETAIL_CONTEXT_HOLDER_HPP
 #define MAKI_DETAIL_CONTEXT_HOLDER_HPP
 
 #include "../context.hpp"
 #include "context_storage.hpp"
-#include <type_traits>
 #include <optional>
+#include <type_traits>
 #include <utility>
 
 namespace maki::detail
@@ -20,96 +20,93 @@ template<class T, context_storage Storage, auto Signature>
 class context_holder
 {
 public:
-    using storage_type = std::conditional_t
-    <
-        Storage == context_storage::plain,
-        T,
-        std::optional<T>
-    >;
+    using storage_type = std::
+        conditional_t<Storage == context_storage::plain, T, std::optional<T>>;
 
-    template
-    <
+    template<
         class Machine,
         class... Args,
         auto Strg = Storage,
         auto Sig = Signature,
-        std::enable_if_t<Strg == context_storage::plain && Sig == machine_context_signature::a, bool> = true
-    >
+        std::enable_if_t<
+            Strg == context_storage::plain &&
+                Sig == machine_context_signature::a,
+            bool> = true>
     context_holder(Machine& /*mach*/, Args&&... args):
         ctx_{std::forward<Args>(args)...}
     {
     }
 
-    template
-    <
+    template<
         class Machine,
         class... Args,
         auto Strg = Storage,
         auto Sig = Signature,
-        std::enable_if_t<Strg == context_storage::plain && Sig == machine_context_signature::am, bool> = true
-    >
+        std::enable_if_t<
+            Strg == context_storage::plain &&
+                Sig == machine_context_signature::am,
+            bool> = true>
     context_holder(Machine& mach, Args&&... args):
         ctx_{std::forward<Args>(args)..., mach}
     {
     }
 
-    template
-    <
+    template<
         class Machine,
         class ParentContext,
         auto Strg = Storage,
         auto Sig = Signature,
-        std::enable_if_t<Strg == context_storage::plain && Sig == state_context_signature::c, bool> = true
-    >
+        std::enable_if_t<
+            Strg == context_storage::plain && Sig == state_context_signature::c,
+            bool> = true>
     context_holder(Machine& /*mach*/, ParentContext& parent_ctx):
         ctx_{parent_ctx}
     {
     }
 
-    template
-    <
+    template<
         class Machine,
         class ParentContext,
         auto Strg = Storage,
         auto Sig = Signature,
-        std::enable_if_t<Strg == context_storage::plain && Sig == state_context_signature::cm, bool> = true
-    >
+        std::enable_if_t<
+            Strg == context_storage::plain &&
+                Sig == state_context_signature::cm,
+            bool> = true>
     context_holder(Machine& mach, ParentContext& parent_ctx):
         ctx_{parent_ctx, mach}
     {
     }
 
-    template
-    <
+    template<
         class Machine,
         class ParentContext,
         auto Strg = Storage,
         auto Sig = Signature,
-        std::enable_if_t<Strg == context_storage::plain && Sig == state_context_signature::m, bool> = true
-    >
-    context_holder(Machine& mach, ParentContext& /*parent_ctx*/):
-        ctx_{mach}
+        std::enable_if_t<
+            Strg == context_storage::plain && Sig == state_context_signature::m,
+            bool> = true>
+    context_holder(Machine& mach, ParentContext& /*parent_ctx*/): ctx_{mach}
     {
     }
 
-    template
-    <
+    template<
         class Machine,
         class ParentContext,
         auto Strg = Storage,
         auto Sig = Signature,
-        std::enable_if_t<Strg == context_storage::optional || Sig == state_context_signature::v, bool> = true
-    >
+        std::enable_if_t<
+            Strg == context_storage::optional ||
+                Sig == state_context_signature::v,
+            bool> = true>
     context_holder(Machine& /*mach*/, ParentContext& /*parent_ctx*/)
     {
     }
 
     template<class Machine, class ParentContext>
-    T& emplace
-    (
+    T& emplace(
         [[maybe_unused]] Machine& mach,
-        [[maybe_unused]] ParentContext& parent_ctx
-    )
+        [[maybe_unused]] ParentContext& parent_ctx)
     {
         if constexpr (Signature == state_context_signature::c)
         {
@@ -172,6 +169,6 @@ private:
     storage_type ctx_;
 };
 
-} //namespace
+} // namespace maki::detail
 
 #endif

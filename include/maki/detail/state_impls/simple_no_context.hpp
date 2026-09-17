@@ -1,31 +1,26 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP
 #define MAKI_DETAIL_STATE_IMPLS_SIMPLE_NO_CONTEXT_HPP
 
-#include "../machine_conf_tree.hpp"
-#include "../type_set.hpp"
 #include "../event_action.hpp"
+#include "../machine_conf_tree.hpp"
 #include "../mix.hpp"
 #include "../tlu/empty.hpp"
 #include "../tlu/left_fold.hpp"
+#include "../type_set.hpp"
 #include <type_traits>
 
 namespace maki::detail::state_impls
 {
 
 template<class EventTypeSet, class EventAction>
-using event_action_event_set_operation =
-    maki::detail::type_set_union_t
-    <
-        EventTypeSet,
-        typename EventAction::event_type_set
-    >
-;
+using event_action_event_set_operation = maki::detail::
+    type_set_union_t<EventTypeSet, typename EventAction::event_type_set>;
 
 template<class MachineConfHolder, class StateMoldPath>
 class simple_no_context
@@ -34,21 +29,17 @@ public:
     using machine_conf_holder_type = MachineConfHolder;
     using state_mold_path = StateMoldPath;
 
-    static constexpr const auto& mold = machine_conf_tree::node_at_path_v<MachineConfHolder, StateMoldPath>;
+    static constexpr const auto& mold =
+        machine_conf_tree::node_at_path_v<MachineConfHolder, StateMoldPath>;
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
 
-    using event_type_set =
-        tlu::left_fold_t
-        <
-            typename option_set_type::internal_action_mix_type,
-            event_action_event_set_operation,
-            empty_type_set_t
-        >
-    ;
+    using event_type_set = tlu::left_fold_t<
+        typename option_set_type::internal_action_mix_type,
+        event_action_event_set_operation,
+        empty_type_set_t>;
 
     using deferrable_event_type_set =
-        typename option_set_type::deferred_event_type_set
-    ;
+        typename option_set_type::deferred_event_type_set;
 
     template<class... Args>
     constexpr simple_no_context(Args&... /*args*/)
@@ -64,13 +55,9 @@ public:
     template<class Event>
     [[nodiscard]] static constexpr bool defers_event()
     {
-        if constexpr(type_set_contains_v<deferrable_event_type_set, Event>)
+        if constexpr (type_set_contains_v<deferrable_event_type_set, Event>)
         {
-            return type_set_contains_v
-            <
-                deferrable_event_type_set,
-                Event
-            >;
+            return type_set_contains_v<deferrable_event_type_set, Event>;
         }
         else
         {
@@ -79,7 +66,9 @@ public:
     }
 
     template<class ParentContext, class Machine>
-    static constexpr void emplace_contexts_with_parent_lifetime(ParentContext& /*parent_ctx*/, Machine& /*mach*/)
+    static constexpr void emplace_contexts_with_parent_lifetime(
+        ParentContext& /*parent_ctx*/,
+        Machine& /*mach*/)
     {
         // No context to emplace
     }
@@ -87,24 +76,23 @@ public:
     template<class Machine, class Context, class Event>
     static void enter(Machine& mach, Context& ctx, const Event& event)
     {
-        if constexpr(!tlu::empty_v<entry_action_ptr_constant_list>)
+        if constexpr (!tlu::empty_v<entry_action_ptr_constant_list>)
         {
             /*
             Execute entry action.
             If at least one entry action is defined, state is required to define
             entry actions for all possible event types.
             */
-            call_matching_event_action<entry_action_ptr_constant_list>
-            (
+            call_matching_event_action<entry_action_ptr_constant_list>(
                 mach,
                 ctx,
-                event
-            );
+                event);
         }
     }
 
     template<bool Dry, class Machine, class Context, class Event>
-    static bool call_internal_action(Machine& mach, Context& ctx, const Event& event)
+    static bool
+    call_internal_action(Machine& mach, Context& ctx, const Event& event)
     {
         /*
         Caller is supposed to check an interal action exists for the given event
@@ -112,14 +100,12 @@ public:
         */
         static_assert(!tlu::empty_v<internal_action_ptr_constant_list>);
 
-        if constexpr(!Dry)
+        if constexpr (!Dry)
         {
-            call_matching_event_action<internal_action_ptr_constant_list>
-            (
+            call_matching_event_action<internal_action_ptr_constant_list>(
                 mach,
                 ctx,
-                event
-            );
+                event);
         }
 
         return true;
@@ -128,19 +114,17 @@ public:
     template<class Machine, class Context, class Event>
     static void exit(Machine& mach, Context& ctx, const Event& event)
     {
-        if constexpr(!tlu::empty_v<exit_action_ptr_constant_list>)
+        if constexpr (!tlu::empty_v<exit_action_ptr_constant_list>)
         {
             /*
             Execute exit action.
             If at least one exit action is defined, state is required to define
             entry actions for all possible event types.
             */
-            call_matching_event_action<exit_action_ptr_constant_list>
-            (
+            call_matching_event_action<exit_action_ptr_constant_list>(
                 mach,
                 ctx,
-                event
-            );
+                event);
         }
     }
 
@@ -160,12 +144,13 @@ private:
     using entry_action_ptr_constant_list = mix_constant_list_t<entry_actions>;
 
     static constexpr auto internal_actions = impl_of(mold).internal_actions;
-    using internal_action_ptr_constant_list = mix_constant_list_t<internal_actions>;
+    using internal_action_ptr_constant_list =
+        mix_constant_list_t<internal_actions>;
 
     static constexpr auto exit_actions = impl_of(mold).exit_actions;
     using exit_action_ptr_constant_list = mix_constant_list_t<exit_actions>;
 };
 
-} //namespace
+} // namespace maki::detail::state_impls
 
 #endif

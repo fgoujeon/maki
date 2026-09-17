@@ -1,14 +1,14 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_DETAIL_TUPLE_HPP
 #define MAKI_DETAIL_TUPLE_HPP
 
-#include "tlu.hpp"
 #include "constant.hpp"
+#include "tlu.hpp"
 #include "type.hpp"
 #include <utility>
 
@@ -66,8 +66,8 @@ template<class IndexSequence, class... Ts>
 class tuple_base;
 
 template<int... Indexes, class... Ts>
-class tuple_base<std::integer_sequence<int, Indexes...>, Ts...>:
-    private tuple_element<Indexes, Ts>...
+class tuple_base<std::integer_sequence<int, Indexes...>, Ts...>
+    : private tuple_element<Indexes, Ts>...
 {
 public:
     constexpr tuple_base() = default;
@@ -110,10 +110,12 @@ A minimal std::tuple-like container.
 Using this instead of std::tuple improves build time.
 */
 template<class... Ts>
-class tuple: public tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>
+class tuple
+    : public tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>
 {
 public:
-    using base_t = tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>;
+    using base_t =
+        tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>;
 
     using base_t::base_t;
     using base_t::get;
@@ -134,11 +136,14 @@ template<int Index, int... Indexes>
 struct tuple_equality_impl<std::integer_sequence<int, Index, Indexes...>>
 {
     template<class... Args>
-    static constexpr bool call(const tuple<Args...>& lhs, const tuple<Args...>& rhs)
+    static constexpr bool call(
+        const tuple<Args...>& lhs,
+        const tuple<Args...>& rhs)
     {
-        return
-            lhs.get(constant<Index>) == rhs.get(constant<Index>) &&
-            tuple_equality_impl<std::integer_sequence<int, Indexes...>>::call(lhs, rhs);
+        return lhs.get(constant<Index>) == rhs.get(constant<Index>) &&
+            tuple_equality_impl<std::integer_sequence<int, Indexes...>>::call(
+                lhs,
+                rhs);
         ;
     }
 };
@@ -147,7 +152,9 @@ template<>
 struct tuple_equality_impl<std::integer_sequence<int>>
 {
     template<class... Args>
-    static constexpr bool call(const tuple<Args...>& /*lhs*/, const tuple<Args...>& /*rhs*/)
+    static constexpr bool call(
+        const tuple<Args...>& /*lhs*/,
+        const tuple<Args...>& /*rhs*/)
     {
         return true;
     }
@@ -156,12 +163,15 @@ struct tuple_equality_impl<std::integer_sequence<int>>
 template<class... Args>
 constexpr bool operator==(const tuple<Args...>& lhs, const tuple<Args...>& rhs)
 {
-    using impl_t = tuple_equality_impl<std::make_integer_sequence<int, static_cast<int>(sizeof...(Args))>>;
+    using impl_t = tuple_equality_impl<
+        std::make_integer_sequence<int, static_cast<int>(sizeof...(Args))>>;
     return impl_t::call(lhs, rhs);
 }
 
 template<class... LhsArgs, class... RhsArgs>
-constexpr bool operator==(const tuple<LhsArgs...>& /*lhs*/, const tuple<RhsArgs...>& /*rhs*/)
+constexpr bool operator==(
+    const tuple<LhsArgs...>& /*lhs*/,
+    const tuple<RhsArgs...>& /*rhs*/)
 {
     return false;
 }
@@ -213,23 +223,28 @@ struct tuple_apply_impl<std::integer_sequence<int, Indexes...>>
     }
 
     template<class Tuple, class F, class... ExtraArgs>
-    static constexpr auto call(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
+    static constexpr auto
+    call(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
     {
-        return fun(std::forward<ExtraArgs>(extra_args)..., tuple_get<Indexes>(tpl)...);
+        return fun(
+            std::forward<ExtraArgs>(extra_args)...,
+            tuple_get<Indexes>(tpl)...);
     }
 };
 
 template<class Tuple, class F>
 constexpr auto tuple_apply(Tuple& tpl, const F& fun)
 {
-    using impl_t = tuple_apply_impl<std::make_integer_sequence<int, Tuple::size>>;
+    using impl_t =
+        tuple_apply_impl<std::make_integer_sequence<int, Tuple::size>>;
     return impl_t::call(tpl, fun);
 }
 
 template<class Tuple, class F, class... ExtraArgs>
 constexpr auto tuple_apply(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
 {
-    using impl_t = tuple_apply_impl<std::make_integer_sequence<int, Tuple::size>>;
+    using impl_t =
+        tuple_apply_impl<std::make_integer_sequence<int, Tuple::size>>;
     return impl_t::call(tpl, fun, std::forward<ExtraArgs>(extra_args)...);
 }
 
@@ -241,16 +256,11 @@ tuple_tail
 template<class Tuple>
 constexpr auto tuple_tail(Tuple& tpl)
 {
-    return tuple_apply
-    (
+    return tuple_apply(
         tpl,
-        [](const auto&... elems)
-        {
-            return make_tuple(elems...);
-        }
-    );
+        [](const auto&... elems) { return make_tuple(elems...); });
 }
 
-} //namespace
+} // namespace maki::detail
 
 #endif

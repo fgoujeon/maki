@@ -1,8 +1,8 @@
-//Copyright Florian Goujeon 2021 - 2026.
-//Distributed under the Boost Software License, Version 1.0.
-//(See accompanying file LICENSE or copy at
-//https://www.boost.org/LICENSE_1_0.txt)
-//Official repository: https://github.com/fgoujeon/maki
+// Copyright Florian Goujeon 2021 - 2026.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// https://www.boost.org/LICENSE_1_0.txt)
+// Official repository: https://github.com/fgoujeon/maki
 
 #ifndef MAKI_DETAIL_ISEQ_HPP
 #define MAKI_DETAIL_ISEQ_HPP
@@ -12,7 +12,9 @@ namespace maki::detail
 
 // A sequence of `int`s encoded into a type
 template<int... Is>
-struct iseq{};
+struct iseq
+{
+};
 
 
 /*
@@ -137,7 +139,8 @@ struct iseq_push_front_if<iseq<Is...>, I, true>
 };
 
 template<class Seq, int I, bool Condition>
-using iseq_push_front_if_t = typename iseq_push_front_if<Seq, I, Condition>::type;
+using iseq_push_front_if_t =
+    typename iseq_push_front_if<Seq, I, Condition>::type;
 
 
 /*
@@ -152,7 +155,9 @@ namespace iseq_left_fold_fn_detail
     };
 
     template<class Lhs, class Operation, int I>
-    constexpr decltype(auto) operator+(const Lhs& lhs, const operation_holder<Operation, I>& /*rhs*/)
+    constexpr decltype(auto) operator+(
+        const Lhs& lhs,
+        const operation_holder<Operation, I>& /*rhs*/)
     {
         return Operation::template call<I>(lhs);
     }
@@ -169,14 +174,9 @@ namespace iseq_left_fold_fn_detail
             return (initial + ... + operation_holder<Operation, Is>{});
         }
     };
-}
+} // namespace iseq_left_fold_fn_detail
 
-template
-<
-    class Seq,
-    class Operation,
-    class Initial
->
+template<class Seq, class Operation, class Initial>
 constexpr decltype(auto) iseq_left_fold_fn(const Initial& initial)
 {
     return iseq_left_fold_fn_detail::helper<Seq, Operation>::call(initial);
@@ -189,106 +189,64 @@ iseq_left_fold_t
 
 namespace iseq_left_fold_detail
 {
-    template
-    <
+    template<
         template<class, int> class Operation,
         class InitialTypeList,
-        int... Is
-    >
+        int... Is>
     struct fold_on_pack;
 
-    template
-    <
+    template<
         template<class, int> class Operation,
         class InitialTypeList,
         int I,
-        int... Is
-    >
+        int... Is>
     struct fold_on_pack<Operation, InitialTypeList, I, Is...>
     {
-        using type = typename fold_on_pack
-        <
+        using type = typename fold_on_pack<
             Operation,
             Operation<InitialTypeList, I>,
-            Is...
-        >::type;
+            Is...>::type;
     };
 
-    template
-    <
-        template<class, int> class Operation,
-        class InitialTypeList
-    >
+    template<template<class, int> class Operation, class InitialTypeList>
     struct fold_on_pack<Operation, InitialTypeList>
     {
         using type = InitialTypeList;
     };
-}
+} // namespace iseq_left_fold_detail
 
-template
-<
-    class Seq,
-    template<class, int> class Operation,
-    class InitialTypeList
->
+template<class Seq, template<class, int> class Operation, class InitialTypeList>
 struct iseq_left_fold;
 
-template
-<
-    template<class, int> class Operation,
-    class InitialTypeList,
-    int... Is
->
+template<template<class, int> class Operation, class InitialTypeList, int... Is>
 struct iseq_left_fold<iseq<Is...>, Operation, InitialTypeList>
 {
-    using type = typename iseq_left_fold_detail::fold_on_pack
-    <
-        Operation,
-        InitialTypeList,
-        Is...
-    >::type;
+    using type = typename iseq_left_fold_detail::
+        fold_on_pack<Operation, InitialTypeList, Is...>::type;
 };
 
-template
-<
-    class Seq,
-    template<class, int> class Operation,
-    class InitialTypeList
->
-using iseq_left_fold_t = typename iseq_left_fold<Seq, Operation, InitialTypeList>::type;
+template<class Seq, template<class, int> class Operation, class InitialTypeList>
+using iseq_left_fold_t =
+    typename iseq_left_fold<Seq, Operation, InitialTypeList>::type;
 
 
 /*
 iseq_filter
 */
 
-template
-<
-    class Seq,
-    template<int> class Predicate
->
+template<class Seq, template<int> class Predicate>
 struct iseq_filter;
 
-template
-<
-    int I,
-    int... Is,
-    template<int> class Predicate
->
+template<int I, int... Is, template<int> class Predicate>
 struct iseq_filter<iseq<I, Is...>, Predicate>
 {
-    using type = iseq_push_front_if_t
-    <
+    using type = iseq_push_front_if_t<
         typename iseq_filter<iseq<Is...>, Predicate>::type,
         I,
-        Predicate<I>::value
-    >;
+        Predicate<I>::value>;
 };
 
-template
-<
-    template<int> class Predicate
->
+template<template<int> class Predicate>
 struct iseq_filter<iseq<>, Predicate>
 {
     using type = iseq<>;
@@ -318,11 +276,7 @@ struct iseq_for_each_helper
     template<class... Args>
     static void call(Args&... args)
     {
-        return iseq_apply_t
-        <
-            Seq,
-            inner
-        >::call(args...);
+        return iseq_apply_t<Seq, inner>::call(args...);
     }
 };
 
@@ -356,6 +310,6 @@ constexpr bool iseq_for_each_or(Args&... args)
     return iseq_for_each_or_helper<Seq, F>::call(args...);
 }
 
-} //namespace
+} // namespace maki::detail
 
 #endif

@@ -154,10 +154,18 @@ public:
         region_index_sequence
     >::type;
 
+    // Events of interest to the substates
+    using substates_event_type_set =
+        region_type_list_event_type_set<region_mix_type>
+    ;
+
+    // Events of interest to the internal actions
+    using internal_actions_event_type_set = typename impl_type::event_type_set;
+
     using event_type_set = type_set_union_t
     <
-        typename impl_type::event_type_set,
-        region_type_list_event_type_set<region_mix_type>
+        internal_actions_event_type_set,
+        substates_event_type_set
     >;
 
     using deferrable_event_type_set = type_set_union_t
@@ -227,12 +235,8 @@ public:
             ctx,
             event
         );
-        impl_type::exit
-        (
-            mach,
-            ctx,
-            event
-        );
+
+        impl_type::exit(mach, ctx, event);
     }
 
     // For each region, transition from active state to final state.
@@ -246,12 +250,8 @@ public:
             ctx,
             event
         );
-        impl_type::exit
-        (
-            mach,
-            ctx,
-            event
-        );
+
+        impl_type::exit(mach, ctx, event);
     }
 
     void reset_contexts_with_parent_lifetime()
@@ -391,30 +391,67 @@ private:
         const Event& event
     )
     {
-        constexpr auto can_process_event = type_set_contains_v
+        constexpr auto can_process_event_in_substates = type_set_contains_v
         <
-            typename impl_type::event_type_set,
+            substates_event_type_set,
             Event
         >;
 
-        if constexpr(can_process_event)
+        constexpr auto can_process_event_in_internal_actions = type_set_contains_v
+        <
+            internal_actions_event_type_set,
+            Event
+        >;
+
+        if constexpr(can_process_event_in_substates && !can_process_event_in_internal_actions)
         {
-            impl_type::template call_internal_action<Dry>
+            return process_event_in_substates<Dry>(self, mach, ctx, event);
+        }
+        else if constexpr(!can_process_event_in_substates && can_process_event_in_internal_actions)
+        {
+            return impl_type::template call_internal_action<Dry>
             (
                 mach,
                 ctx,
                 event
             );
-
-            tlu::for_each<region_mix_type, region_process_event<Dry>>(self, mach, ctx, event);
-
-            return true;
+        }
+        else if constexpr(can_process_event_in_substates && can_process_event_in_internal_actions)
+        {
+            // Substates take priority as they're deeper in the hierarchy.
+            return
+                process_event_in_substates<Dry>(self, mach, ctx, event) ||
+                impl_type::template call_internal_action<Dry>
+                (
+                    mach,
+                    ctx,
+                    event
+                )
+            ;
         }
         else
         {
-            const auto processed_count = tlu::for_each_plus<region_mix_type, region_process_event<Dry>>(self, mach, ctx, event);
-            return static_cast<bool>(processed_count);
+            return false;
         }
+    }
+
+    template<bool Dry, class Self, class MachineArg, class Context, class Event>
+    static bool process_event_in_substates
+    (
+        Self& self,
+        MachineArg& mach,
+        Context& ctx,
+        const Event& event
+    )
+    {
+        const auto processed_count =
+            tlu::for_each_plus
+            <
+                region_mix_type,
+                region_process_event<Dry>
+            >(self, mach, ctx, event)
+        ;
+        return static_cast<bool>(processed_count);
     }
 
     region_mix_type regions_;

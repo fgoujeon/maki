@@ -120,7 +120,7 @@ TEST_CASE("composite_state_on_xxx")
 
     ctx.out.clear();
     machine.process_event(events::internal{"b"});
-    REQUIRE(ctx.out == "b1b2");
+    REQUIRE(ctx.out == "b2");
 
     ctx.out.clear();
     machine.process_event(events::button_press{"c"});

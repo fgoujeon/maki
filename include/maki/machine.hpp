@@ -295,10 +295,7 @@ public:
     template<class Event>
     bool check_event(const Event& event) const
     {
-        return impl_.template call_internal_action<true>(
-            *this,
-            context(),
-            event);
+        return impl_.check_event(*this, context(), event);
     }
 
     /**
@@ -616,10 +613,7 @@ private:
                 if (running())
                 {
                     const auto processed =
-                        impl_.template call_internal_action<false>(
-                            *this,
-                            context(),
-                            event);
+                        impl_.call_internal_action(*this, context(), event);
 
                     detail::call_matching_event_action<
                         post_processing_hook_ptr_constant_list>(
@@ -637,10 +631,7 @@ private:
                 is stopped.
                 */
 
-                impl_.template call_internal_action<false>(
-                    *this,
-                    context(),
-                    event);
+                impl_.call_internal_action(*this, context(), event);
             }
 
             return true;

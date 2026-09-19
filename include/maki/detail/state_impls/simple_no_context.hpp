@@ -90,7 +90,7 @@ public:
         }
     }
 
-    template<bool Dry, class Machine, class Context, class Event>
+    template<class Machine, class Context, class Event>
     static bool
     call_internal_action(Machine& mach, Context& ctx, const Event& event)
     {
@@ -100,13 +100,23 @@ public:
         */
         static_assert(!tlu::empty_v<internal_action_ptr_constant_list>);
 
-        if constexpr (!Dry)
-        {
-            call_matching_event_action<internal_action_ptr_constant_list>(
-                mach,
-                ctx,
-                event);
-        }
+        call_matching_event_action<internal_action_ptr_constant_list>(
+            mach,
+            ctx,
+            event);
+
+        return true;
+    }
+
+    template<class Machine, class Context, class Event>
+    static bool
+    check_event(Machine& /*mach*/, Context& /*ctx*/, const Event& /*event*/)
+    {
+        /*
+        Caller is supposed to check an interal action exists for the given event
+        type before calling this function.
+        */
+        static_assert(!tlu::empty_v<internal_action_ptr_constant_list>);
 
         return true;
     }

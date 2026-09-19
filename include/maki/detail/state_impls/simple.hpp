@@ -89,16 +89,25 @@ public:
         impl_type::enter(mach, ctx_holder_.get_deep(), event);
     }
 
-    template<bool Dry, class Machine, class ParentContext, class Event>
+    template<class Machine, class ParentContext, class Event>
     bool call_internal_action(
         Machine& mach,
         ParentContext& /*parent_ctx*/,
         const Event& event)
     {
-        return impl_type::template call_internal_action<Dry>(
+        return impl_type::call_internal_action(
             mach,
             ctx_holder_.get_deep(),
             event);
+    }
+
+    template<class Machine, class ParentContext, class Event>
+    bool check_event(
+        Machine& mach,
+        ParentContext& /*parent_ctx*/,
+        const Event& event) const
+    {
+        return impl_type::check_event(mach, ctx_holder_.get_deep(), event);
     }
 
     template<class Machine, class ParentContext, class Event>

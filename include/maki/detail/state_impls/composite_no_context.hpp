@@ -178,22 +178,22 @@ public:
         tlu::for_each<region_mix_type, region_enter>(*this, mach, ctx, event);
     }
 
-    template<bool Dry, class Context, class Event>
+    template<class Context, class Event>
     bool call_internal_action(
         machine<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event)
     {
-        return call_internal_action_2<Dry>(*this, mach, ctx, event);
+        return call_internal_action_2<false>(*this, mach, ctx, event);
     }
 
-    template<bool Dry, class Context, class Event>
-    bool call_internal_action(
+    template<class Context, class Event>
+    bool check_event(
         const machine<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event) const
     {
-        return call_internal_action_2<Dry>(*this, mach, ctx, event);
+        return call_internal_action_2<true>(*this, mach, ctx, event);
     }
 
     template<class Context, class Event>
@@ -385,17 +385,14 @@ private:
         else if constexpr (!can_process_event_in_substates &&
             can_process_event_in_internal_actions)
         {
-            return impl_type::template call_internal_action<Dry>(
-                mach,
-                ctx,
-                event);
+            return process_event_in_internal_actions<Dry>(mach, ctx, event);
         }
         else if constexpr (can_process_event_in_substates &&
             can_process_event_in_internal_actions)
         {
             // Substates take priority as they're deeper in the hierarchy.
             return process_event_in_substates<Dry>(self, mach, ctx, event) ||
-                impl_type::template call_internal_action<Dry>(mach, ctx, event);
+                process_event_in_internal_actions<Dry>(mach, ctx, event);
         }
         else
         {
@@ -417,6 +414,22 @@ private:
                 ctx,
                 event);
         return static_cast<bool>(processed_count);
+    }
+
+    template<bool Dry, class MachineArg, class Context, class Event>
+    static bool process_event_in_internal_actions(
+        MachineArg& mach,
+        Context& ctx,
+        const Event& event)
+    {
+        if constexpr (Dry)
+        {
+            return impl_type::check_event(mach, ctx, event);
+        }
+        else
+        {
+            return impl_type::call_internal_action(mach, ctx, event);
+        }
     }
 
     region_mix_type regions_;

@@ -98,28 +98,22 @@ public:
         impl_.enter(mach, ctx_holder_.get_deep(), event);
     }
 
-    template<bool Dry, class ParentContext, class Event>
+    template<class ParentContext, class Event>
     bool call_internal_action(
         machine<MachineConfHolder>& mach,
         ParentContext& /*parent_ctx*/,
         const Event& event)
     {
-        return impl_.template call_internal_action<Dry>(
-            mach,
-            ctx_holder_.get_deep(),
-            event);
+        return impl_.call_internal_action(mach, ctx_holder_.get_deep(), event);
     }
 
-    template<bool Dry, class ParentContext, class Event>
-    bool call_internal_action(
+    template<class ParentContext, class Event>
+    bool check_event(
         machine<MachineConfHolder>& mach,
         ParentContext& /*parent_ctx*/,
         const Event& event) const
     {
-        return impl_.template call_internal_action<Dry>(
-            mach,
-            ctx_holder_.get_deep(),
-            event);
+        return impl_.check_event(mach, ctx_holder_.get_deep(), event);
     }
 
     template<class ParentContext, class Event>

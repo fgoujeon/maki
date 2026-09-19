@@ -660,10 +660,15 @@ private:
                     return false;
                 }
 
-                processed = impl_of(state).template call_internal_action<Dry>(
-                    mach,
-                    ctx,
-                    event);
+                if constexpr (Dry)
+                {
+                    processed = impl_of(state).check_event(mach, ctx, event);
+                }
+                else
+                {
+                    processed =
+                        impl_of(state).call_internal_action(mach, ctx, event);
+                }
 
                 if constexpr (transition_table_digest_type::
                                   has_completion_transitions &&

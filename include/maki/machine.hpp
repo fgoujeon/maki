@@ -613,7 +613,7 @@ private:
                 if (running())
                 {
                     const auto processed =
-                        impl_.call_internal_action(*this, context(), event);
+                        impl_.process_event(*this, context(), event);
 
                     detail::call_matching_event_action<
                         post_processing_hook_ptr_constant_list>(
@@ -631,7 +631,7 @@ private:
                 is stopped.
                 */
 
-                impl_.call_internal_action(*this, context(), event);
+                impl_.process_event(*this, context(), event);
             }
 
             return true;

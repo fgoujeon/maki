@@ -308,11 +308,7 @@ private:
             Note that nested transitions take precedence over higher-order
             transitions.
             */
-            return call_active_state_internal_action<Dry>(
-                       self,
-                       mach,
-                       ctx,
-                       event) ||
+            return process_event_in_active_state<Dry>(self, mach, ctx, event) ||
                 try_executing_transitions<candidate_transition_iseq, Dry>(
                     self,
                     mach,
@@ -322,11 +318,7 @@ private:
         else if constexpr (!must_try_executing_transitions &&
             must_try_process_event_in_states)
         {
-            return call_active_state_internal_action<Dry>(
-                self,
-                mach,
-                ctx,
-                event);
+            return process_event_in_active_state<Dry>(self, mach, ctx, event);
         }
         else if constexpr (must_try_executing_transitions &&
             !must_try_process_event_in_states)
@@ -612,7 +604,7 @@ private:
 
     // Find the active state and call its internal action for `event`.
     template<bool Dry, class Self, class Machine, class Context, class Event>
-    static bool call_active_state_internal_action(
+    static bool process_event_in_active_state(
         Self& self,
         Machine& mach,
         Context& ctx,
@@ -621,7 +613,7 @@ private:
         auto processed = false;
         iseq_for_each_or<
             state_mold_iseq_0,
-            call_active_state_internal_action_2<Dry>>(
+            process_event_in_active_state_2<Dry>>(
             self,
             mach,
             ctx,
@@ -631,7 +623,7 @@ private:
     }
 
     template<bool Dry>
-    struct call_active_state_internal_action_2
+    struct process_event_in_active_state_2
     {
         template<
             int StateMoldId,
@@ -666,8 +658,7 @@ private:
                 }
                 else
                 {
-                    processed =
-                        impl_of(state).call_internal_action(mach, ctx, event);
+                    processed = impl_of(state).process_event(mach, ctx, event);
                 }
 
                 if constexpr (transition_table_digest_type::

@@ -91,8 +91,7 @@ public:
     }
 
     template<class Machine, class Context, class Event>
-    static bool
-    call_internal_action(Machine& mach, Context& ctx, const Event& event)
+    static bool process_event(Machine& mach, Context& ctx, const Event& event)
     {
         /*
         Caller is supposed to check an interal action exists for the given event

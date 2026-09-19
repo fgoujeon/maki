@@ -99,12 +99,12 @@ public:
     }
 
     template<class ParentContext, class Event>
-    bool call_internal_action(
+    bool process_event(
         machine<MachineConfHolder>& mach,
         ParentContext& /*parent_ctx*/,
         const Event& event)
     {
-        return impl_.call_internal_action(mach, ctx_holder_.get_deep(), event);
+        return impl_.process_event(mach, ctx_holder_.get_deep(), event);
     }
 
     template<class ParentContext, class Event>

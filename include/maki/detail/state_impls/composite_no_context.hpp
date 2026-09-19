@@ -179,7 +179,7 @@ public:
     }
 
     template<class Context, class Event>
-    bool call_internal_action(
+    bool process_event(
         machine<MachineConfHolder>& mach,
         Context& ctx,
         const Event& event)
@@ -428,7 +428,7 @@ private:
         }
         else
         {
-            return impl_type::call_internal_action(mach, ctx, event);
+            return impl_type::process_event(mach, ctx, event);
         }
     }
 

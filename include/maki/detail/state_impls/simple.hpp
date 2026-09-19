@@ -90,15 +90,12 @@ public:
     }
 
     template<class Machine, class ParentContext, class Event>
-    bool call_internal_action(
+    bool process_event(
         Machine& mach,
         ParentContext& /*parent_ctx*/,
         const Event& event)
     {
-        return impl_type::call_internal_action(
-            mach,
-            ctx_holder_.get_deep(),
-            event);
+        return impl_type::process_event(mach, ctx_holder_.get_deep(), event);
     }
 
     template<class Machine, class ParentContext, class Event>

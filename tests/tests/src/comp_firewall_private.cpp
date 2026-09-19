@@ -80,10 +80,6 @@ namespace comp_firewall_ns
         on_ns::machine_t machine;
     };
 
-    constexpr auto private_on = maki::state_mold{}
-        .context_c<on_ns::context>()
-    ;
-
     on_forwarder::on_forwarder(machine_ref /*mach*/, comp_firewall_ns::context& parent_ctx):
         pimpl_(std::make_unique<impl>(parent_ctx))
     {
@@ -91,7 +87,7 @@ namespace comp_firewall_ns
 
     on_forwarder::~on_forwarder() = default;
 
-    void on_forwarder::enter_2(const events::power_button_press& event)
+    void on_forwarder::enter_2(const events::power_button_press& /*event*/)
     {
         pimpl_->machine.start();
     }
@@ -101,7 +97,7 @@ namespace comp_firewall_ns
         return pimpl_->machine.process_event_now(event);
     }
 
-    void on_forwarder::exit_2(const events::power_button_press& event)
+    void on_forwarder::exit_2(const events::power_button_press& /*event*/)
     {
         pimpl_->machine.stop();
     }

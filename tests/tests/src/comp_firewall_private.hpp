@@ -32,8 +32,8 @@ namespace comp_firewall_ns
 
         template<class ParentContext, class Event>
         void enter(
-            const machine_ref mach,
-            ParentContext& parent_ctx,
+            const machine_ref /*mach*/,
+            ParentContext& /*parent_ctx*/,
             const Event& event)
         {
             enter_2(event);
@@ -41,8 +41,8 @@ namespace comp_firewall_ns
 
         template<class ParentContext, class Event>
         bool process_event(
-            const machine_ref mach,
-            ParentContext& parent_ctx,
+            const machine_ref /*mach*/,
+            ParentContext& /*parent_ctx*/,
             const Event& event)
         {
             return process_event_2(event);
@@ -50,8 +50,8 @@ namespace comp_firewall_ns
 
         template<class ParentContext, class Event>
         void exit(
-            const machine_ref mach,
-            ParentContext& parent_ctx,
+            const machine_ref /*mach*/,
+            ParentContext& /*parent_ctx*/,
             const Event& event)
         {
             exit_2(event);

@@ -25,6 +25,7 @@
 #include "ini.hpp"
 #include "null.hpp"
 #include "state_mold.hpp"
+#include "state_firewall_mold.hpp"
 #include "state_set.hpp"
 
 namespace maki
@@ -216,6 +217,7 @@ public:
         {
             static_assert(
                 detail::is_state_mold_v<Source> ||
+                    detail::is_state_firewall_mold_v<Source> ||
                     detail::is_state_set_v<Source>,
                 "Source (1st argument) must be an instance of "
                 "`maki::state_mold` or an instance of `maki::state_set`");
@@ -232,7 +234,9 @@ public:
         else
         {
             static_assert(
-                detail::is_state_mold_v<Target> || detail::is_null_v<Target> ||
+                detail::is_state_mold_v<Target> ||
+                    detail::is_state_firewall_mold_v<Target> ||
+                    detail::is_null_v<Target> ||
                     detail::is_fin_v<Target>,
                 "Target (2nd argument) must be an instance of "
                 "`maki::state_mold`, `maki::null` or `maki::fin`.");

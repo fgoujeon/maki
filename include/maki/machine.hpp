@@ -22,6 +22,7 @@
 #include "detail/state_impls/composite.hpp" //NOLINT misc-include-cleaner
 #include "detail/state_impls/composite_no_context.hpp"
 #include "detail/state_impls/simple.hpp" //NOLINT misc-include-cleaner
+#include "detail/state_impls/forwarder.hpp" //NOLINT misc-include-cleaner
 #include "detail/tlu/contains_if.hpp"
 #include "events.hpp"
 #include "machine_conf.hpp"

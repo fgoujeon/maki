@@ -37,6 +37,30 @@ struct state_mold_impl
     TransitionTableTuple transition_tables;
 };
 
+template<
+    class Context,
+    class EntryActionTuple,
+    class InternalActionTuple,
+    class ExitActionTuple,
+    class TransitionTableTuple,
+    class DeferredEventTypeSet>
+constexpr bool is_composite(const state_mold_impl<Context, EntryActionTuple, InternalActionTuple, ExitActionTuple, TransitionTableTuple, DeferredEventTypeSet>& impl)
+{
+    return impl.transition_tables.size != 0;
+}
+
+template<
+    class Context,
+    class EntryActionTuple,
+    class InternalActionTuple,
+    class ExitActionTuple,
+    class TransitionTableTuple,
+    class DeferredEventTypeSet>
+constexpr bool is_forwarder(const state_mold_impl<Context, EntryActionTuple, InternalActionTuple, ExitActionTuple, TransitionTableTuple, DeferredEventTypeSet>& /*impl*/)
+{
+    return false;
+}
+
 } // namespace maki::detail
 
 #endif

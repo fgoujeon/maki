@@ -9,6 +9,7 @@
 
 #include "context_storage.hpp"
 #include "machine_conf_tree.hpp"
+#include "state_impls/forwarder_fwd.hpp"
 #include "state_impls/composite_fwd.hpp"
 #include "state_impls/composite_no_context_fwd.hpp"
 #include "state_impls/simple_fwd.hpp"
@@ -23,6 +24,7 @@ template<
     class StateMoldPath,
     context_storage ParentCtxStorage,
     bool HasTransitionTables,
+    bool IsForwarder,
     bool HasContext>
 struct state_impl_helper;
 
@@ -34,6 +36,7 @@ struct state_impl_helper<
     MachineConfHolder,
     StateMoldPath,
     ParentCtxStorage,
+    false,
     false,
     false>
 {
@@ -50,6 +53,7 @@ struct state_impl_helper<
     StateMoldPath,
     ParentCtxStorage,
     false,
+    false,
     true>
 {
     using type =
@@ -65,6 +69,7 @@ struct state_impl_helper<
     StateMoldPath,
     ParentCtxStorage,
     true,
+    false,
     false>
 {
     using type = state_impls::composite_no_context<
@@ -82,10 +87,29 @@ struct state_impl_helper<
     StateMoldPath,
     ParentCtxStorage,
     true,
+    false,
     true>
 {
     using type = state_impls::
         composite<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
+};
+
+template<
+    class MachineConfHolder,
+    class StateMoldPath,
+    context_storage ParentCtxStorage,
+    bool HasTransitionTables,
+    bool HasContext>
+struct state_impl_helper<
+    MachineConfHolder,
+    StateMoldPath,
+    ParentCtxStorage,
+    HasTransitionTables,
+    true,
+    HasContext>
+{
+    using type = state_impls::
+        forwarder<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
 };
 
 template<
@@ -104,7 +128,8 @@ struct state_impl
         MachineConfHolder,
         StateMoldPath,
         ParentCtxStorage,
-        impl_of(stt_mold).transition_tables.size != 0,
+        is_composite(impl_of(stt_mold)),
+        is_forwarder(impl_of(stt_mold)),
         !std::is_void_v<context_type>>::type;
 };
 

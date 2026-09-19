@@ -22,7 +22,7 @@ namespace comp_firewall_ns
                 })
         ;
 
-        constexpr auto on = maki::state_firewall_mold{}
+        constexpr auto on = maki::forwarder_state_mold{}
             .forwarder<on_forwarder>()
         ;
     }

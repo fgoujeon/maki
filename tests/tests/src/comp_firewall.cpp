@@ -14,7 +14,13 @@ namespace comp_firewall_ns
 {
     namespace states
     {
-        EMPTY_STATE(off)
+        constexpr auto off = maki::state_mold{}
+            .entry_action_c(
+                [](context& ctx)
+                {
+                    ctx.current_led_color = led_color::off;
+                })
+        ;
 
         constexpr auto on = maki::state_firewall_mold{}
             .forwarder<on_forwarder>()
@@ -43,6 +49,23 @@ TEST_CASE("comp_firewall")
     using namespace comp_firewall_ns;
 
     auto machine = machine_t{};
+    auto& ctx = machine.context();
 
     machine.process_event(events::power_button_press{});
+    REQUIRE(ctx.current_led_color == led_color::red);
+
+    machine.process_event(events::color_button_press{});
+    REQUIRE(ctx.current_led_color == led_color::green);
+
+    machine.process_event(events::color_button_press{});
+    REQUIRE(ctx.current_led_color == led_color::blue);
+
+    machine.process_event(events::color_button_press{});
+    REQUIRE(ctx.current_led_color == led_color::red);
+
+    machine.process_event(events::power_button_press{});
+    REQUIRE(ctx.current_led_color == led_color::off);
+
+    machine.process_event(events::power_button_press{});
+    REQUIRE(ctx.current_led_color == led_color::red);
 }

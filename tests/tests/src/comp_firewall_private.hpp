@@ -13,33 +13,22 @@
 
 namespace comp_firewall_ns
 {
-    namespace on_ns
-    {
-        struct context;
-    }
-
     class on_forwarder
     {
     public:
-        using context_type = on_ns::context;
-
         using machine_ref = maki::machine_ref_e<
             events::power_button_press,
             events::color_button_press>;
 
         static constexpr auto event_type_set =
-            maki::event<events::power_button_press> ||
+            maki::no_event ||
             maki::event<events::color_button_press>;
 
         static constexpr auto deferrable_event_type_set = maki::no_event;
 
-        on_forwarder();
+        on_forwarder(machine_ref mach, comp_firewall_ns::context& parent_ctx);
 
         ~on_forwarder();
-
-        on_ns::context& context();
-
-        const on_ns::context& context() const;
 
         template<class ParentContext, class Event>
         void enter(
@@ -47,7 +36,7 @@ namespace comp_firewall_ns
             ParentContext& parent_ctx,
             const Event& event)
         {
-            enter_2(mach, event);
+            enter_2(event);
         }
 
         template<class ParentContext, class Event>
@@ -56,7 +45,7 @@ namespace comp_firewall_ns
             ParentContext& parent_ctx,
             const Event& event)
         {
-            return process_event_2(mach, event);
+            return process_event_2(event);
         }
 
         template<class ParentContext, class Event>
@@ -65,27 +54,18 @@ namespace comp_firewall_ns
             ParentContext& parent_ctx,
             const Event& event)
         {
-            exit_2(mach, event);
+            exit_2(event);
         }
 
     private:
-        void enter_2(
-            const machine_ref mach,
-            const events::power_button_press& event);
+        void enter_2(const events::power_button_press& event);
 
-        bool process_event_2(
-            const machine_ref mach,
-            const events::power_button_press& event);
+        bool process_event_2(const events::color_button_press& event);
 
-        bool process_event_2(
-            const machine_ref mach,
-            const events::color_button_press& event);
+        void exit_2(const events::power_button_press& event);
 
-        void exit_2(
-            const machine_ref mach,
-            const events::power_button_press& event);
-
-        std::unique_ptr<on_ns::context> pctx_;
+        struct impl;
+        std::unique_ptr<impl> pimpl_;
     };
 }
 

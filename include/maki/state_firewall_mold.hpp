@@ -8,7 +8,6 @@
 #define MAKI_STATE_FIREWALL_MOLD_HPP
 
 #include "detail/friendly_impl.hpp"
-#include <type_traits>
 #include <utility>
 
 namespace maki
@@ -33,11 +32,8 @@ namespace detail
             using type = typename Forwarder::context_type;
         };
 
-        using context_type =
-            typename std::conditional_t<
-                std::is_void_v<Forwarder>,
-                void_context_type_holder,
-                forwarder_context_type_holder>::template type<>;
+        // Whatever
+        using context_type = void;
     };
 
     template<class Forwarder>

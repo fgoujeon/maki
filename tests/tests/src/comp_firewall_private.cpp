@@ -14,53 +14,95 @@ namespace comp_firewall_ns
 {
     namespace on_ns
     {
-        struct context{};
+        struct context
+        {
+            comp_firewall_ns::context& parent;
+        };
+
+        constexpr auto emitting_red = maki::state_mold{}
+            .entry_action_c
+            (
+                [](context& ctx)
+                {
+                    ctx.parent.current_led_color = led_color::red;
+                }
+            )
+        ;
+
+        constexpr auto emitting_green = maki::state_mold{}
+            .entry_action_c
+            (
+                [](context& ctx)
+                {
+                    ctx.parent.current_led_color = led_color::green;
+                }
+            )
+        ;
+
+        constexpr auto emitting_blue = maki::state_mold{}
+            .entry_action_c
+            (
+                [](context& ctx)
+                {
+                    ctx.parent.current_led_color = led_color::blue;
+                }
+            )
+        ;
+
+        constexpr auto transition_table = maki::transition_table{}
+            (maki::ini,      emitting_red)
+            (emitting_red,   emitting_green, maki::event<events::color_button_press>)
+            (emitting_green, emitting_blue,  maki::event<events::color_button_press>)
+            (emitting_blue,  emitting_red,   maki::event<events::color_button_press>)
+        ;
+
+        struct machine_conf
+        {
+            static constexpr auto value = maki::machine_conf{}
+                .auto_start(false)
+                .transition_tables(on_ns::transition_table)
+                .context_a<on_ns::context>()
+                .run_to_completion(false)
+                .process_event_now_enabled(true)
+            ;
+        };
+
+        using machine_t = maki::machine<on_ns::machine_conf>;
     }
+
+    struct on_forwarder::impl
+    {
+        impl(context& parent_ctx):
+            machine(parent_ctx)
+        {
+        }
+
+        on_ns::machine_t machine;
+    };
 
     constexpr auto private_on = maki::state_mold{}
         .context_c<on_ns::context>()
     ;
 
-    on_forwarder::on_forwarder():
-        pctx_(std::make_unique<on_ns::context>())
+    on_forwarder::on_forwarder(machine_ref /*mach*/, comp_firewall_ns::context& parent_ctx):
+        pimpl_(std::make_unique<impl>(parent_ctx))
     {
     }
 
     on_forwarder::~on_forwarder() = default;
 
-    on_ns::context& on_forwarder::context()
+    void on_forwarder::enter_2(const events::power_button_press& event)
     {
-        return *pctx_;
+        pimpl_->machine.start();
     }
 
-    const on_ns::context& on_forwarder::context() const
+    bool on_forwarder::process_event_2(const events::color_button_press& event)
     {
-        return *pctx_;
+        return pimpl_->machine.process_event_now(event);
     }
 
-    void on_forwarder::enter_2(
-        const machine_ref mach,
-        const events::power_button_press& event)
+    void on_forwarder::exit_2(const events::power_button_press& event)
     {
-    }
-
-    bool on_forwarder::process_event_2(
-        const machine_ref mach,
-        const events::power_button_press& event)
-    {
-        return true;
-    }
-
-    bool on_forwarder::process_event_2(
-        const machine_ref mach,
-        const events::color_button_press& event)
-    {
-        return true;
-    }
-
-    void on_forwarder::exit_2(
-        const machine_ref mach,
-        const events::power_button_press& event)
-    {
+        pimpl_->machine.stop();
     }
 }

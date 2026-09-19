@@ -277,9 +277,10 @@ public:
     this function to be available.
     */
     template<class Event>
-    void process_event_now(const Event& event)
+    bool process_event_now(const Event& event)
     {
-        MAKI_DETAIL_MAYBE_CATCH(process_event_now_no_catch(event))
+        MAKI_DETAIL_MAYBE_CATCH(return process_event_now_no_catch(event))
+        return false;
     }
 
     /**
@@ -444,13 +445,13 @@ private:
     }
 
     template<class Event>
-    void process_event_now_no_catch(const Event& event)
+    bool process_event_now_no_catch(const Event& event)
     {
         static_assert(
             detail::impl_of(conf).process_event_now_enabled,
             "`maki::machine_conf::process_event_now_enabled()` hasn't been set "
             "to `true`");
-        execute_operation_now<detail::machine_operation::process_event>(event);
+        return execute_operation_now<detail::machine_operation::process_event>(event);
     }
 
     template<detail::machine_operation Operation, class Event>
@@ -475,13 +476,13 @@ private:
     }
 
     template<detail::machine_operation Operation, class Event>
-    void execute_operation_now(const Event& event)
+    bool execute_operation_now(const Event& event)
     {
         if constexpr (detail::impl_of(conf).run_to_completion)
         {
             auto grd = executing_operation_guard{*this};
 
-            execute_one_operation<Operation>(event);
+            const auto processed = execute_one_operation<Operation>(event);
 
             /*
             Process enqueued and deferred events, if any.
@@ -495,12 +496,16 @@ private:
                 rtc_queue_.invoke_and_pop(*this);
                 try_processing_deferred_operations();
             }
+
+            return processed;
         }
         else
         {
-            execute_one_operation<Operation>(event);
+            const auto processed = execute_one_operation<Operation>(event);
 
             try_processing_deferred_operations();
+
+            return processed;
         }
     }
 

@@ -39,8 +39,8 @@ public:
         impl_of_t<decltype(forwarder_type::deferrable_event_type_set)>;
 
     template<class ParentContext>
-    forwarder(machine<MachineConfHolder>& /*mach*/, ParentContext& /*parent_ctx*/):
-        impl_()
+    forwarder(machine<MachineConfHolder>& mach, ParentContext& parent_ctx):
+        impl_(mach, parent_ctx)
     {
     }
 
@@ -67,7 +67,7 @@ public:
     template<class ParentContext, class Event>
     void enter(
         machine<MachineConfHolder>& mach,
-        [[maybe_unused]] ParentContext& parent_ctx,
+        ParentContext& parent_ctx,
         const Event& event)
     {
         impl_.enter(mach, parent_ctx, event);

@@ -17,15 +17,18 @@ namespace comp_firewall_ns
         blue
     };
 
-    struct context
-    {
-        led_color current_led_color = led_color::off;
-    };
-
     namespace events
     {
         struct power_button_press{};
         struct color_button_press{};
+    }
+
+    namespace machine_ns
+    {
+        struct context
+        {
+            led_color current_led_color = led_color::off;
+        };
     }
 }
 

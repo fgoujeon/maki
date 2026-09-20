@@ -5,18 +5,18 @@
 //Official repository: https://github.com/fgoujeon/maki
 
 #include <maki.hpp>
-#include "comp_firewall_private.hpp"
+#include "comp_firewall_on.hpp"
 #include "comp_firewall_common.hpp"
 #include "common.hpp"
 #include <string>
 
 namespace comp_firewall_ns
 {
-    namespace on_ns
+    namespace machine_ns::on_ns
     {
         struct context
         {
-            comp_firewall_ns::context& parent;
+            machine_ns::context& parent;
         };
 
         constexpr auto emitting_red = maki::state_mold{}
@@ -68,37 +68,46 @@ namespace comp_firewall_ns
         };
 
         using machine_t = maki::machine<on_ns::machine_conf>;
-    }
 
-    struct on_forwarder::impl
-    {
-        impl(context& parent_ctx):
-            machine(parent_ctx)
+        struct forwarder::impl
+        {
+            impl(machine_ns::context& parent_ctx):
+                machine(parent_ctx)
+            {
+            }
+
+            on_ns::machine_t machine;
+        };
+
+        forwarder::forwarder(machine_ref_type /*mach*/, machine_ns::context& parent_ctx):
+            pimpl_(std::make_unique<impl>(parent_ctx))
         {
         }
 
-        on_ns::machine_t machine;
-    };
+        forwarder::~forwarder() = default;
 
-    on_forwarder::on_forwarder(machine_ref /*mach*/, comp_firewall_ns::context& parent_ctx):
-        pimpl_(std::make_unique<impl>(parent_ctx))
-    {
-    }
+        void forwarder::enter(
+            context_param_type /*parent_ctx*/,
+            machine_ref_type /*mach*/,
+            const events::power_button_press& /*event*/)
+        {
+            pimpl_->machine.start();
+        }
 
-    on_forwarder::~on_forwarder() = default;
+        bool forwarder::process_event(
+            context_param_type /*parent_ctx*/,
+            machine_ref_type /*mach*/,
+            const events::color_button_press& event)
+        {
+            return pimpl_->machine.process_event_now(event);
+        }
 
-    void on_forwarder::enter_2(const events::power_button_press& /*event*/)
-    {
-        pimpl_->machine.start();
-    }
-
-    bool on_forwarder::process_event_2(const events::color_button_press& event)
-    {
-        return pimpl_->machine.process_event_now(event);
-    }
-
-    void on_forwarder::exit_2(const events::power_button_press& /*event*/)
-    {
-        pimpl_->machine.stop();
+        void forwarder::exit(
+            context_param_type /*parent_ctx*/,
+            machine_ref_type /*mach*/,
+            const events::power_button_press& /*event*/)
+        {
+            pimpl_->machine.stop();
+        }
     }
 }

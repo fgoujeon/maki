@@ -5,14 +5,14 @@
 //Official repository: https://github.com/fgoujeon/maki
 
 #include <maki.hpp>
-#include "comp_firewall_private.hpp"
+#include "comp_firewall_on.hpp"
 #include "comp_firewall_common.hpp"
 #include "common.hpp"
 #include <string>
 
 namespace comp_firewall_ns
 {
-    namespace states
+    namespace machine_ns
     {
         constexpr auto off = maki::state_mold{}
             .entry_action_c(
@@ -22,26 +22,22 @@ namespace comp_firewall_ns
                 })
         ;
 
-        constexpr auto on = maki::forwarder_state_mold{}
-            .forwarder<on_forwarder>()
+        constexpr auto transition_table = maki::transition_table{}
+            (maki::ini, off)
+            (off,       on,  maki::event<events::power_button_press>)
+            (on,        off, maki::event<events::power_button_press>)
         ;
+
+        struct conf
+        {
+            static constexpr auto value = maki::machine_conf{}
+                .transition_tables(transition_table)
+                .context_a<context>()
+            ;
+        };
     }
 
-    constexpr auto transition_table = maki::transition_table{}
-        (maki::ini,   states::off)
-        (states::off, states::on,  maki::event<events::power_button_press>)
-        (states::on,  states::off, maki::event<events::power_button_press>)
-    ;
-
-    struct machine_conf
-    {
-        static constexpr auto value = maki::machine_conf{}
-            .transition_tables(transition_table)
-            .context_a<context>()
-        ;
-    };
-
-    using machine_t = maki::machine<machine_conf>;
+    using machine_t = maki::machine<machine_ns::conf>;
 }
 
 TEST_CASE("comp_firewall")

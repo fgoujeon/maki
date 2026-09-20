@@ -61,7 +61,9 @@ public:
         ParentContext& parent_ctx,
         machine<MachineConfHolder>& mach)
     {
-        impl_.emplace_contexts_with_parent_lifetime(parent_ctx, mach);
+        impl_.emplace_contexts_with_parent_lifetime(
+            context_param_type{parent_ctx},
+            machine_ref_type{mach});
     }
 
     template<class ParentContext, class Event>
@@ -70,7 +72,10 @@ public:
         ParentContext& parent_ctx,
         const Event& event)
     {
-        impl_.enter(mach, parent_ctx, event);
+        impl_.enter(
+            context_param_type{parent_ctx},
+            machine_ref_type{mach},
+            event);
     }
 
     template<class ParentContext, class Event>
@@ -79,7 +84,10 @@ public:
         ParentContext& parent_ctx,
         const Event& event)
     {
-        return impl_.process_event(mach, parent_ctx, event);
+        return impl_.process_event(
+            context_param_type{parent_ctx},
+            machine_ref_type{mach},
+            event);
     }
 
     template<class ParentContext, class Event>
@@ -88,7 +96,10 @@ public:
         ParentContext& parent_ctx,
         const Event& event) const
     {
-        return impl_.check_event(mach, parent_ctx, event);
+        return impl_.check_event(
+            context_param_type{parent_ctx},
+            machine_ref_type{mach},
+            event);
     }
 
     template<class ParentContext, class Event>
@@ -97,7 +108,10 @@ public:
         ParentContext& parent_ctx,
         const Event& event)
     {
-        impl_.exit(mach, parent_ctx, event);
+        impl_.exit(
+            context_param_type{parent_ctx},
+            machine_ref_type{mach},
+            event);
     }
 
     void reset_contexts_with_parent_lifetime()
@@ -129,6 +143,9 @@ public:
 //    }
 
 private:
+    using context_param_type = typename forwarder_type::context_param_type;
+    using machine_ref_type = typename forwarder_type::machine_ref_type;
+
     forwarder_type impl_;
 };
 

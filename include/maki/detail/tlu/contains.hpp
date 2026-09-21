@@ -7,6 +7,8 @@
 #ifndef MAKI_DETAIL_TLU_CONTAINS_HPP
 #define MAKI_DETAIL_TLU_CONTAINS_HPP
 
+#include <type_traits>
+
 namespace maki::detail::tlu
 {
 
@@ -21,41 +23,13 @@ In this example...:
 ... contains_int == true.
 */
 
-namespace contains_detail
-{
-    template<class U, class... Ts>
-    struct contains_in_type_pack;
-
-    // terminal case
-    template<class U>
-    struct contains_in_type_pack<U>
-    {
-        static constexpr bool value = false;
-    };
-
-    // U == T
-    template<class U, class... Ts>
-    struct contains_in_type_pack<U, U, Ts...>
-    {
-        static constexpr bool value = true;
-    };
-
-    // U != T
-    template<class U, class T, class... Ts>
-    struct contains_in_type_pack<U, T, Ts...>
-    {
-        static constexpr bool value = contains_in_type_pack<U, Ts...>::value;
-    };
-} // namespace contains_detail
-
 template<class TList, class U>
 struct contains;
 
 template<template<class...> class TList, class... Ts, class U>
 struct contains<TList<Ts...>, U>
 {
-    static constexpr bool value =
-        contains_detail::contains_in_type_pack<U, Ts...>::value;
+    static constexpr bool value = (std::is_same_v<Ts, U> || ...);
 };
 
 template<class TList, class U>

@@ -21,27 +21,6 @@ In this example...:
 ... contains_if_int == true.
 */
 
-namespace contains_if_detail
-{
-    template<template<class> class Predicate, class... Ts>
-    struct contains_if_in_type_pack;
-
-    // terminal case
-    template<template<class> class Predicate>
-    struct contains_if_in_type_pack<Predicate>
-    {
-        static constexpr bool value = false;
-    };
-
-    // Predicate != T
-    template<template<class> class Predicate, class T, class... Ts>
-    struct contains_if_in_type_pack<Predicate, T, Ts...>
-    {
-        static constexpr bool value = Predicate<T>::value ||
-            contains_if_in_type_pack<Predicate, Ts...>::value;
-    };
-} // namespace contains_if_detail
-
 template<class TList, template<class> class Predicate>
 struct contains_if;
 
@@ -51,8 +30,7 @@ template<
     template<class> class Predicate>
 struct contains_if<TList<Ts...>, Predicate>
 {
-    static constexpr bool value =
-        contains_if_detail::contains_if_in_type_pack<Predicate, Ts...>::value;
+    static constexpr bool value = (Predicate<Ts>::value || ...);
 };
 
 template<class TList, template<class> class Predicate>

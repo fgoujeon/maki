@@ -15,12 +15,10 @@ A type list is an instance of a type template of this form:
 */
 
 #include "tlu/apply.hpp" //NOLINT misc-include-cleaner
-#include "tlu/back.hpp" //NOLINT misc-include-cleaner
 #include "tlu/contains.hpp" //NOLINT misc-include-cleaner
 #include "tlu/contains_if.hpp" //NOLINT misc-include-cleaner
 #include "tlu/empty.hpp" //NOLINT misc-include-cleaner
 #include "tlu/filter.hpp" //NOLINT misc-include-cleaner
-#include "tlu/find.hpp" //NOLINT misc-include-cleaner
 #include "tlu/find_if.hpp" //NOLINT misc-include-cleaner
 #include "tlu/for_each.hpp" //NOLINT misc-include-cleaner
 #include "tlu/for_each_or.hpp" //NOLINT misc-include-cleaner
@@ -31,5 +29,4 @@ A type list is an instance of a type template of this form:
 #include "tlu/push_back.hpp" //NOLINT misc-include-cleaner
 #include "tlu/push_back_if.hpp" //NOLINT misc-include-cleaner
 #include "tlu/push_back_unique.hpp" //NOLINT misc-include-cleaner
-#include "tlu/push_front.hpp" //NOLINT misc-include-cleaner
 #include "tlu/size.hpp" //NOLINT misc-include-cleaner

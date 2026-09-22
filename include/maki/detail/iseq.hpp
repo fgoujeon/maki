@@ -7,6 +7,9 @@
 #ifndef MAKI_DETAIL_ISEQ_HPP
 #define MAKI_DETAIL_ISEQ_HPP
 
+#include "type_list.hpp"
+#include <type_traits>
+
 namespace maki::detail
 {
 
@@ -231,25 +234,225 @@ using iseq_left_fold_t =
 
 
 /*
+iseq_list_apply
+*/
+
+template<class SeqList, template<class...> class F>
+struct iseq_list_apply;
+
+template<
+    template<class...> class SeqList,
+    class... Seqs,
+    template<class...> class F>
+struct iseq_list_apply<SeqList<Seqs...>, F>
+{
+    using type = F<Seqs...>;
+};
+
+template<class SeqList, template<class...> class F>
+using iseq_list_apply_t = typename iseq_list_apply<SeqList, F>::type;
+
+
+/*
+iseqs_flatten
+
+Implementation is manually unrolled for lists of up to 10 `iseq`s to divide the
+number of template instantiations by 10 for long lists.
+*/
+
+template<class... Seqs>
+struct iseqs_flatten;
+
+template<int... I0s>
+struct iseqs_flatten<iseq<I0s...>>
+{
+    using type = iseq<I0s...>;
+};
+
+template<int... I0s, int... I1s>
+struct iseqs_flatten<iseq<I0s...>, iseq<I1s...>>
+{
+    using type = iseq<I0s..., I1s...>;
+};
+
+template<int... I0s, int... I1s, int... I2s>
+struct iseqs_flatten<iseq<I0s...>, iseq<I1s...>, iseq<I2s...>>
+{
+    using type = iseq<I0s..., I1s..., I2s...>;
+};
+
+template<int... I0s, int... I1s, int... I2s, int... I3s>
+struct iseqs_flatten<iseq<I0s...>, iseq<I1s...>, iseq<I2s...>, iseq<I3s...>>
+{
+    using type = iseq<I0s..., I1s..., I2s..., I3s...>;
+};
+
+template<int... I0s, int... I1s, int... I2s, int... I3s, int... I4s>
+struct iseqs_flatten<
+    iseq<I0s...>,
+    iseq<I1s...>,
+    iseq<I2s...>,
+    iseq<I3s...>,
+    iseq<I4s...>>
+{
+    using type = iseq<I0s..., I1s..., I2s..., I3s..., I4s...>;
+};
+
+template<int... I0s, int... I1s, int... I2s, int... I3s, int... I4s, int... I5s>
+struct iseqs_flatten<
+    iseq<I0s...>,
+    iseq<I1s...>,
+    iseq<I2s...>,
+    iseq<I3s...>,
+    iseq<I4s...>,
+    iseq<I5s...>>
+{
+    using type = iseq<I0s..., I1s..., I2s..., I3s..., I4s..., I5s...>;
+};
+
+template<
+    int... I0s,
+    int... I1s,
+    int... I2s,
+    int... I3s,
+    int... I4s,
+    int... I5s,
+    int... I6s>
+struct iseqs_flatten<
+    iseq<I0s...>,
+    iseq<I1s...>,
+    iseq<I2s...>,
+    iseq<I3s...>,
+    iseq<I4s...>,
+    iseq<I5s...>,
+    iseq<I6s...>>
+{
+    using type = iseq<I0s..., I1s..., I2s..., I3s..., I4s..., I5s..., I6s...>;
+};
+
+template<
+    int... I0s,
+    int... I1s,
+    int... I2s,
+    int... I3s,
+    int... I4s,
+    int... I5s,
+    int... I6s,
+    int... I7s>
+struct iseqs_flatten<
+    iseq<I0s...>,
+    iseq<I1s...>,
+    iseq<I2s...>,
+    iseq<I3s...>,
+    iseq<I4s...>,
+    iseq<I5s...>,
+    iseq<I6s...>,
+    iseq<I7s...>>
+{
+    using type =
+        iseq<I0s..., I1s..., I2s..., I3s..., I4s..., I5s..., I6s..., I7s...>;
+};
+
+template<
+    int... I0s,
+    int... I1s,
+    int... I2s,
+    int... I3s,
+    int... I4s,
+    int... I5s,
+    int... I6s,
+    int... I7s,
+    int... I8s>
+struct iseqs_flatten<
+    iseq<I0s...>,
+    iseq<I1s...>,
+    iseq<I2s...>,
+    iseq<I3s...>,
+    iseq<I4s...>,
+    iseq<I5s...>,
+    iseq<I6s...>,
+    iseq<I7s...>,
+    iseq<I8s...>>
+{
+    using type = iseq<
+        I0s...,
+        I1s...,
+        I2s...,
+        I3s...,
+        I4s...,
+        I5s...,
+        I6s...,
+        I7s...,
+        I8s...>;
+};
+
+template<
+    int... I0s,
+    int... I1s,
+    int... I2s,
+    int... I3s,
+    int... I4s,
+    int... I5s,
+    int... I6s,
+    int... I7s,
+    int... I8s,
+    int... I9s,
+    class... Seqs>
+struct iseqs_flatten<
+    iseq<I0s...>,
+    iseq<I1s...>,
+    iseq<I2s...>,
+    iseq<I3s...>,
+    iseq<I4s...>,
+    iseq<I5s...>,
+    iseq<I6s...>,
+    iseq<I7s...>,
+    iseq<I8s...>,
+    iseq<I9s...>,
+    Seqs...>
+{
+    using type = typename iseqs_flatten<
+        iseq<
+            I0s...,
+            I1s...,
+            I2s...,
+            I3s...,
+            I4s...,
+            I5s...,
+            I6s...,
+            I7s...,
+            I8s...,
+            I9s...>,
+        Seqs...>::type;
+};
+
+template<class... Seqs>
+using iseqs_flatten_t = typename iseqs_flatten<Seqs...>::type;
+
+
+/*
 iseq_filter
 */
 
 template<class Seq, template<int> class Predicate>
 struct iseq_filter;
 
-template<int I, int... Is, template<int> class Predicate>
-struct iseq_filter<iseq<I, Is...>, Predicate>
+template<int... Is, template<int> class Predicate>
+struct iseq_filter<iseq<Is...>, Predicate>
 {
-    using type = iseq_push_front_if_t<
-        typename iseq_filter<iseq<Is...>, Predicate>::type,
-        I,
-        Predicate<I>::value>;
-};
+    /*
+    Make a type list containing one `iseq` per integer.
+    Each `iseq` contains either:
+    - the current integer if `Predicate<I>::value` is true;
+    - nothing otherwise.
+    */
+    using iseqs = type_list_t<
+        std::conditional_t<Predicate<Is>::value, iseq<Is>, iseq<>>...>;
 
-template<template<int> class Predicate>
-struct iseq_filter<iseq<>, Predicate>
-{
-    using type = iseq<>;
+    /*
+    Flatten the type list into a single `iseq`.
+    */
+    using type = iseq_list_apply_t<iseqs, iseqs_flatten_t>;
 };
 
 template<class Seq, template<int> class Predicate>

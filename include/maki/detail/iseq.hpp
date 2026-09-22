@@ -257,8 +257,8 @@ using iseq_list_apply_t = typename iseq_list_apply<SeqList, F>::type;
 /*
 iseqs_flatten
 
-Implementation is manually unrolled for lists of up to 10 `iseq`s to divide the
-number of template instantiations by 10 for long lists.
+Implementation is manually unrolled for lists of up to 10 `iseq`s to reduce the
+number of template instantiations.
 */
 
 template<class... Seqs>

@@ -18,7 +18,7 @@ namespace maki::detail::tlu
 provided it's not already in `TList`.
 */
 template<class TList, class UList>
-using push_back_all_unique_t = left_fold_t<UList, push_back_unique_t, TList>;
+using push_back_all_unique_t = left_fold_t<TList, push_back_unique_t, UList>;
 
 } // namespace maki::detail::tlu
 

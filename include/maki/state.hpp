@@ -111,9 +111,9 @@ namespace detail
 
     template<class StateTypeList>
     using state_type_list_event_type_set_t = tlu::left_fold_t<
-        StateTypeList,
+        empty_type_set_t,
         state_type_list_event_type_set_operation_t,
-        empty_type_set_t>;
+        StateTypeList>;
 
     template<class EventTypeSet, class State>
     using state_type_list_deferrable_event_type_set_operation_t =
@@ -123,9 +123,9 @@ namespace detail
 
     template<class StateTypeList>
     using state_type_list_deferrable_event_type_set_t = tlu::left_fold_t<
-        StateTypeList,
+        empty_type_set_t,
         state_type_list_deferrable_event_type_set_operation_t,
-        empty_type_set_t>;
+        StateTypeList>;
 } // namespace detail
 
 } // namespace maki

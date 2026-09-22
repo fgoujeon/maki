@@ -684,7 +684,7 @@ private:
         Context& ctx)
     {
         static constexpr const auto& active_state_mold =
-            impl_of_t<ActiveState>::mold;
+            impl_of_t<std::decay_t<ActiveState>>::mold;
 
         using candidate_transition_iseq =
             transition_table_filters::by_source_state_and_null_event_t<

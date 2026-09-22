@@ -7,6 +7,7 @@
 #ifndef MAKI_DETAIL_ISEQ_HPP
 #define MAKI_DETAIL_ISEQ_HPP
 
+#include "pp/enum.hpp" // NOLINT misc-include-cleaner
 #include "type_list.hpp"
 #include <type_traits>
 
@@ -263,168 +264,47 @@ number of template instantiations by 10 for long lists.
 template<class... Seqs>
 struct iseqs_flatten;
 
-template<int... I0s>
-struct iseqs_flatten<iseq<I0s...>>
-{
-    using type = iseq<I0s...>;
-};
+// NOLINTBEGIN cppcoreguidelines-macro-usage
 
-template<int... I0s, int... I1s>
-struct iseqs_flatten<iseq<I0s...>, iseq<I1s...>>
-{
-    using type = iseq<I0s..., I1s...>;
-};
+#define MAKI_DETAIL_INT_TPL_PARAM(index) int... I##index##s
+#define MAKI_DETAIL_INT_TPL_ARG(index) I##index##s...
+#define MAKI_DETAIL_ISEQ_TPL_ARG(index) iseq<I##index##s...>
 
-template<int... I0s, int... I1s, int... I2s>
-struct iseqs_flatten<iseq<I0s...>, iseq<I1s...>, iseq<I2s...>>
-{
-    using type = iseq<I0s..., I1s..., I2s...>;
-};
+#define MAKI_DETAIL_ISEQS_FLATTEN_SPE(size) \
+    template<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_INT_TPL_PARAM)> \
+    struct iseqs_flatten<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_ISEQ_TPL_ARG)> \
+    { \
+        using type = iseq<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_INT_TPL_ARG)>; \
+    };
 
-template<int... I0s, int... I1s, int... I2s, int... I3s>
-struct iseqs_flatten<iseq<I0s...>, iseq<I1s...>, iseq<I2s...>, iseq<I3s...>>
-{
-    using type = iseq<I0s..., I1s..., I2s..., I3s...>;
-};
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(1)
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(2)
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(3)
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(4)
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(5)
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(6)
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(7)
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(8)
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(9)
 
-template<int... I0s, int... I1s, int... I2s, int... I3s, int... I4s>
-struct iseqs_flatten<
-    iseq<I0s...>,
-    iseq<I1s...>,
-    iseq<I2s...>,
-    iseq<I3s...>,
-    iseq<I4s...>>
-{
-    using type = iseq<I0s..., I1s..., I2s..., I3s..., I4s...>;
-};
+#undef MAKI_DETAIL_ISEQS_FLATTEN_SPE
 
-template<int... I0s, int... I1s, int... I2s, int... I3s, int... I4s, int... I5s>
-struct iseqs_flatten<
-    iseq<I0s...>,
-    iseq<I1s...>,
-    iseq<I2s...>,
-    iseq<I3s...>,
-    iseq<I4s...>,
-    iseq<I5s...>>
-{
-    using type = iseq<I0s..., I1s..., I2s..., I3s..., I4s..., I5s...>;
-};
+#define MAKI_DETAIL_ISEQS_FLATTEN_SPE(size) \
+    template<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_INT_TPL_PARAM), class... Seqs> \
+    struct iseqs_flatten<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_ISEQ_TPL_ARG), Seqs...> \
+    { \
+        using type = typename iseqs_flatten<iseq<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_INT_TPL_ARG)>, Seqs...>::type; \
+    };
 
-template<
-    int... I0s,
-    int... I1s,
-    int... I2s,
-    int... I3s,
-    int... I4s,
-    int... I5s,
-    int... I6s>
-struct iseqs_flatten<
-    iseq<I0s...>,
-    iseq<I1s...>,
-    iseq<I2s...>,
-    iseq<I3s...>,
-    iseq<I4s...>,
-    iseq<I5s...>,
-    iseq<I6s...>>
-{
-    using type = iseq<I0s..., I1s..., I2s..., I3s..., I4s..., I5s..., I6s...>;
-};
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(10)
 
-template<
-    int... I0s,
-    int... I1s,
-    int... I2s,
-    int... I3s,
-    int... I4s,
-    int... I5s,
-    int... I6s,
-    int... I7s>
-struct iseqs_flatten<
-    iseq<I0s...>,
-    iseq<I1s...>,
-    iseq<I2s...>,
-    iseq<I3s...>,
-    iseq<I4s...>,
-    iseq<I5s...>,
-    iseq<I6s...>,
-    iseq<I7s...>>
-{
-    using type =
-        iseq<I0s..., I1s..., I2s..., I3s..., I4s..., I5s..., I6s..., I7s...>;
-};
+#undef MAKI_DETAIL_ISEQS_FLATTEN_SPE
 
-template<
-    int... I0s,
-    int... I1s,
-    int... I2s,
-    int... I3s,
-    int... I4s,
-    int... I5s,
-    int... I6s,
-    int... I7s,
-    int... I8s>
-struct iseqs_flatten<
-    iseq<I0s...>,
-    iseq<I1s...>,
-    iseq<I2s...>,
-    iseq<I3s...>,
-    iseq<I4s...>,
-    iseq<I5s...>,
-    iseq<I6s...>,
-    iseq<I7s...>,
-    iseq<I8s...>>
-{
-    using type = iseq<
-        I0s...,
-        I1s...,
-        I2s...,
-        I3s...,
-        I4s...,
-        I5s...,
-        I6s...,
-        I7s...,
-        I8s...>;
-};
+#undef MAKI_DETAIL_INT_TPL_PARAM
+#undef MAKI_DETAIL_INT_TPL_ARG
+#undef MAKI_DETAIL_ISEQ_TPL_ARG
 
-template<
-    int... I0s,
-    int... I1s,
-    int... I2s,
-    int... I3s,
-    int... I4s,
-    int... I5s,
-    int... I6s,
-    int... I7s,
-    int... I8s,
-    int... I9s,
-    class... Seqs>
-struct iseqs_flatten<
-    iseq<I0s...>,
-    iseq<I1s...>,
-    iseq<I2s...>,
-    iseq<I3s...>,
-    iseq<I4s...>,
-    iseq<I5s...>,
-    iseq<I6s...>,
-    iseq<I7s...>,
-    iseq<I8s...>,
-    iseq<I9s...>,
-    Seqs...>
-{
-    using type = typename iseqs_flatten<
-        iseq<
-            I0s...,
-            I1s...,
-            I2s...,
-            I3s...,
-            I4s...,
-            I5s...,
-            I6s...,
-            I7s...,
-            I8s...,
-            I9s...>,
-        Seqs...>::type;
-};
+// NOLINTEND cppcoreguidelines-macro-usage
 
 template<class... Seqs>
 using iseqs_flatten_t = typename iseqs_flatten<Seqs...>::type;

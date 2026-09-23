@@ -78,7 +78,7 @@ struct guard
     Callable callable;
 };
 
-#define MAKI_DETAIL_X(name) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_X(name) \
     /** \
     @relates guard \
     @brief Makes a `maki::guard` with the indicated signature and given \

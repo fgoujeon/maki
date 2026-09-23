@@ -56,7 +56,7 @@ public:
 
     state_mold& operator=(state_mold&&) = delete;
 
-#define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_MAKE_STATE_CONF_COPY_BEGIN \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = \
         detail::type<typename Impl::context_type>; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = \
@@ -76,7 +76,7 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_deferred_event_type_set_type = \
         detail::type<typename Impl::deferred_event_type_set>;
 
-#define MAKI_DETAIL_MAKE_STATE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_MAKE_STATE_CONF_COPY_END \
     return state_mold<detail::state_mold_impl< \
         typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_entry_actions)>, \
@@ -93,7 +93,7 @@ public:
         MAKI_DETAIL_ARG_pretty_name_view, \
         MAKI_DETAIL_ARG_transition_tables};
 
-#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_X(signature) \
     /** \
     @brief Sets the type of the context (see @ref \
     maki::state_context_signature "signatures"). \
@@ -119,7 +119,7 @@ public:
 #undef MAKI_DETAIL_ARG_context_lifetime
     }
 
-#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_X(signature) \
     /** \
     @brief Adds an entry action (see @ref maki::action_signature "signatures") \
     to be called for any event type in `event_types`. \
@@ -162,11 +162,10 @@ public:
     MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 
-#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    MAKI_DETAIL_ACTION_SIGNATURES
+#define MAKI_DETAIL_X(signature) MAKI_DETAIL_ACTION_SIGNATURES
 #undef MAKI_DETAIL_X
 
-#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_X(signature) \
     /** \
     @brief Adds an internal action (see @ref maki::action_signature \
     "signatures") to be called for any event type in `event_types`. \

@@ -28,8 +28,6 @@ namespace left_fold_detail
         using type = V;
     };
 
-    // NOLINTBEGIN cppcoreguidelines-macro-usage
-
 #define MAKI_DETAIL_TYPE_TPL_PARAM(index) class T##index
 #define MAKI_DETAIL_TYPE_TPL_ARG(index) T##index
 #define MAKI_DETAIL_TYPE_ANGLE(index) T##index >
@@ -88,8 +86,6 @@ namespace left_fold_detail
 #undef MAKI_DETAIL_TYPE_TPL_ARG
 #undef MAKI_DETAIL_TYPE_ANGLE
 #undef MAKI_DETAIL_F_ANGLE
-
-    // NOLINTEND cppcoreguidelines-macro-usage
 
 } // namespace left_fold_detail
 

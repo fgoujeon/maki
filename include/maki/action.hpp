@@ -62,7 +62,7 @@ struct action
     Callable callable;
 };
 
-#define MAKI_DETAIL_X(name) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_X(name) \
     /** \
     @relates action \
     @brief Makes a `maki::action` with the indicated signature and given \

@@ -264,8 +264,6 @@ number of template instantiations.
 template<class... Seqs>
 struct iseqs_flatten;
 
-// NOLINTBEGIN cppcoreguidelines-macro-usage
-
 #define MAKI_DETAIL_INT_TPL_PARAM(index) int... I##index##s
 #define MAKI_DETAIL_INT_TPL_ARG(index) I##index##s...
 #define MAKI_DETAIL_ISEQ_TPL_ARG(index) iseq<I##index##s...>
@@ -310,8 +308,6 @@ MAKI_DETAIL_ISEQS_FLATTEN_SPE(10)
 #undef MAKI_DETAIL_INT_TPL_PARAM
 #undef MAKI_DETAIL_INT_TPL_ARG
 #undef MAKI_DETAIL_ISEQ_TPL_ARG
-
-// NOLINTEND cppcoreguidelines-macro-usage
 
 template<class... Seqs>
 using iseqs_flatten_t = typename iseqs_flatten<Seqs...>::type;

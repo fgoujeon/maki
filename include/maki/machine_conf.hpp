@@ -56,7 +56,7 @@ public:
 
     machine_conf& operator=(machine_conf&&) = delete;
 
-#define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = impl_.auto_start; \
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = \
         detail::type<typename Impl::context_type>; \
@@ -84,7 +84,7 @@ public:
     [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = \
         impl_.transition_tables;
 
-#define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END \
     return machine_conf<detail::machine_conf_impl< \
         typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
         std::decay_t<decltype(MAKI_DETAIL_ARG_pre_processing_hooks)>, \
@@ -106,7 +106,7 @@ public:
         MAKI_DETAIL_ARG_small_event_max_size, \
         MAKI_DETAIL_ARG_transition_tables};
 
-#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_X(signature) \
     /** \
     @brief Sets the type of the context (see @ref \
     maki::machine_context_signature "signatures"). \
@@ -120,7 +120,7 @@ public:
     MAKI_DETAIL_MACHINE_CONTEXT_CONSTRUCTOR_SIGNATURES
 #undef MAKI_DETAIL_X
 
-#define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+#define MAKI_DETAIL_X(signature) \
     /** \
     @brief Adds a hook (see @ref maki::action_signature "signatures") to be \
     called whenever `maki::machine` is about to process an event whose type is \

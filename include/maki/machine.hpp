@@ -42,7 +42,6 @@ namespace detail
     };
 } // namespace detail
 
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define MAKI_DETAIL_MAYBE_CATCH(statement) \
     if constexpr (detail::is_null_v< \
                       typename option_set_type::exception_handler_type>) \

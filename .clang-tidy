@@ -350,7 +350,7 @@ CheckOptions:
   - key:             bugprone-argument-comment.CommentCharacterLiterals
     value:           '0'
   - key:             cppcoreguidelines-macro-usage.AllowedRegexp
-    value:           '^DEBUG_*'
+    value:           '^MAKI_DETAIL_*'
   - key:             readability-suspicious-call-argument.LevenshteinSimilarAbove
     value:           '66'
   - key:             cppcoreguidelines-narrowing-conversions.PedanticMode

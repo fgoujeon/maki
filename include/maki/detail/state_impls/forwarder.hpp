@@ -34,9 +34,9 @@ public:
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using forwarder_type = typename option_set_type::forwarder_type;
     using context_type = typename option_set_type::context_type;
-    using event_type_set = impl_of_t<decltype(forwarder_type::event_type_set)>;
+    using event_type_set = impl_of_t<std::decay_t<decltype(forwarder_type::event_type_set)>>;
     using deferrable_event_type_set =
-        impl_of_t<decltype(forwarder_type::deferrable_event_type_set)>;
+        impl_of_t<std::decay_t<decltype(forwarder_type::deferrable_event_type_set)>>;
 
     template<class ParentContext>
     forwarder(machine<MachineConfHolder>& mach, ParentContext& parent_ctx):

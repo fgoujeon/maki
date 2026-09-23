@@ -17,7 +17,7 @@ namespace comp_firewall_ns
     {
         namespace on_ns
         {
-            class forwarder
+            class firewall
             {
             public:
                 struct context_param_type
@@ -41,9 +41,9 @@ namespace comp_firewall_ns
 
                 static constexpr auto deferrable_event_type_set = maki::no_event;
 
-                forwarder(machine_ref_type mach, machine_ns::context& parent_ctx);
+                firewall(machine_ref_type mach, machine_ns::context& parent_ctx);
 
-                ~forwarder();
+                ~firewall();
 
                 void enter(
                     context_param_type parent_ctx,
@@ -66,8 +66,8 @@ namespace comp_firewall_ns
             };
         }
 
-        constexpr auto on = maki::forwarder_state_mold{}
-            .forwarder<on_ns::forwarder>()
+        constexpr auto on = maki::firewall_state_mold{}
+            .firewall<on_ns::firewall>()
         ;
     }
 }

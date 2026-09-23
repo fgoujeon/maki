@@ -25,7 +25,7 @@
 #include "ini.hpp"
 #include "null.hpp"
 #include "state_mold.hpp"
-#include "forwarder_state_mold.hpp"
+#include "firewall_state_mold.hpp"
 #include "state_set.hpp"
 
 namespace maki

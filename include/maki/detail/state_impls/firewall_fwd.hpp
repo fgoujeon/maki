@@ -4,8 +4,8 @@
 // https://www.boost.org/LICENSE_1_0.txt)
 // Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_STATE_IMPLS_FORWARDER_FWD_HPP
-#define MAKI_DETAIL_STATE_IMPLS_FORWARDER_FWD_HPP
+#ifndef MAKI_DETAIL_STATE_IMPLS_FIREWALL_FWD_HPP
+#define MAKI_DETAIL_STATE_IMPLS_FIREWALL_FWD_HPP
 
 #include "../context_storage.hpp"
 
@@ -16,7 +16,7 @@ template<
     class MachineConfHolder,
     class StateMoldPath,
     context_storage ParentCtxStorage>
-class forwarder;
+class firewall;
 
 } // namespace maki::detail::state_impls
 

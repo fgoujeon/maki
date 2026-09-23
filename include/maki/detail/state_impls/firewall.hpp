@@ -4,8 +4,8 @@
 // https://www.boost.org/LICENSE_1_0.txt)
 // Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_STATE_IMPLS_FORWARDER_HPP
-#define MAKI_DETAIL_STATE_IMPLS_FORWARDER_HPP
+#ifndef MAKI_DETAIL_STATE_IMPLS_FIREWALL_HPP
+#define MAKI_DETAIL_STATE_IMPLS_FIREWALL_HPP
 
 #include "../../state_mold.hpp"
 #include "../context_storage.hpp"
@@ -22,7 +22,7 @@ template<
     class MachineConfHolder,
     class StateMoldPath,
     context_storage ParentCtxStorage>
-class forwarder
+class firewall
 {
 public:
     using machine_conf_holder_type = MachineConfHolder;
@@ -40,16 +40,16 @@ public:
         std::decay_t<decltype(forwarder_type::deferrable_event_type_set)>>;
 
     template<class ParentContext>
-    forwarder(machine<MachineConfHolder>& mach, ParentContext& parent_ctx):
+    firewall(machine<MachineConfHolder>& mach, ParentContext& parent_ctx):
         impl_(mach, parent_ctx)
     {
     }
 
-    forwarder(const forwarder&) = delete;
-    forwarder(forwarder&&) = delete;
-    forwarder& operator=(const forwarder&) = delete;
-    forwarder& operator=(forwarder&&) = delete;
-    ~forwarder() = default;
+    firewall(const firewall&) = delete;
+    firewall(firewall&&) = delete;
+    firewall& operator=(const firewall&) = delete;
+    firewall& operator=(firewall&&) = delete;
+    ~firewall() = default;
 
     template<class Event>
     [[nodiscard]] bool defers_event() const

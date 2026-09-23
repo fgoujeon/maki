@@ -4,8 +4,8 @@
 // https://www.boost.org/LICENSE_1_0.txt)
 // Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_FORWARDER_STATE_MOLD_HPP
-#define MAKI_FORWARDER_STATE_MOLD_HPP
+#ifndef MAKI_FIREWALL_STATE_MOLD_HPP
+#define MAKI_FIREWALL_STATE_MOLD_HPP
 
 #include "detail/friendly_impl.hpp"
 #include <utility>
@@ -52,26 +52,26 @@ namespace detail
 } // namespace detail
 
 template<class Impl>
-class forwarder_state_mold
+class firewall_state_mold
 {
 public:
-    constexpr forwarder_state_mold() = default;
+    constexpr firewall_state_mold() = default;
 
-    forwarder_state_mold(const forwarder_state_mold&) = delete;
+    firewall_state_mold(const firewall_state_mold&) = delete;
 
-    forwarder_state_mold(forwarder_state_mold&&) = delete;
+    firewall_state_mold(firewall_state_mold&&) = delete;
 
-    ~forwarder_state_mold() = default;
+    ~firewall_state_mold() = default;
 
-    forwarder_state_mold& operator=(const forwarder_state_mold&) = delete;
+    firewall_state_mold& operator=(const firewall_state_mold&) = delete;
 
-    forwarder_state_mold& operator=(forwarder_state_mold&&) = delete;
+    firewall_state_mold& operator=(firewall_state_mold&&) = delete;
 
     template<class Forwarder>
-    constexpr auto forwarder()
+    constexpr auto firewall()
     {
         using impl_t = detail::state_firewall_mold_impl<Forwarder>;
-        return forwarder_state_mold<impl_t>{};
+        return firewall_state_mold<impl_t>{};
     }
 
 private:
@@ -80,10 +80,10 @@ private:
     using impl_type = Impl;
 
     template<class Impl2>
-    friend class forwarder_state_mold;
+    friend class firewall_state_mold;
 
     template<class... Args>
-    constexpr forwarder_state_mold(Args&&... args):
+    constexpr firewall_state_mold(Args&&... args):
         impl_{std::forward<Args>(args)...}
     {
     }
@@ -94,10 +94,10 @@ private:
 #undef MAKI_DETAIL_STATE_CONF_RETURN_TYPE
 
 #ifdef MAKI_DETAIL_DOXYGEN
-forwarder_state_mold() -> forwarder_state_mold<IMPLEMENTATION_DETAIL>;
+firewall_state_mold() -> firewall_state_mold<IMPLEMENTATION_DETAIL>;
 #else
-forwarder_state_mold()
-    -> forwarder_state_mold<detail::state_firewall_mold_impl<>>;
+firewall_state_mold()
+    -> firewall_state_mold<detail::state_firewall_mold_impl<>>;
 #endif
 
 namespace detail
@@ -109,7 +109,7 @@ namespace detail
     };
 
     template<class OptionSet>
-    struct is_state_firewall_mold<forwarder_state_mold<OptionSet>>
+    struct is_state_firewall_mold<firewall_state_mold<OptionSet>>
     {
         static constexpr auto value = true;
     };

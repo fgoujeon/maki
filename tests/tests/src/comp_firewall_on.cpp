@@ -66,7 +66,7 @@ namespace comp_firewall_ns
 
         using firewalled_on = maki::firewalled_state<on_conf>;
 
-        struct forwarder::impl
+        struct firewall::impl
         {
             impl(machine_ns::context& parent_ctx):
                 state(parent_ctx)
@@ -76,14 +76,14 @@ namespace comp_firewall_ns
             on_ns::firewalled_on state;
         };
 
-        forwarder::forwarder(machine_ref_type /*mach*/, machine_ns::context& parent_ctx):
+        firewall::firewall(machine_ref_type /*mach*/, machine_ns::context& parent_ctx):
             pimpl_(std::make_unique<impl>(parent_ctx))
         {
         }
 
-        forwarder::~forwarder() = default;
+        firewall::~firewall() = default;
 
-        void forwarder::enter(
+        void firewall::enter(
             context_param_type /*parent_ctx*/,
             machine_ref_type /*mach*/,
             const events::power_button_press& event)
@@ -91,7 +91,7 @@ namespace comp_firewall_ns
             maki::detail::impl_of(pimpl_->state).enter(pimpl_->state, pimpl_->state.context(), event);
         }
 
-        bool forwarder::process_event(
+        bool firewall::process_event(
             context_param_type /*parent_ctx*/,
             machine_ref_type /*mach*/,
             const events::color_button_press& event)
@@ -99,7 +99,7 @@ namespace comp_firewall_ns
             return maki::detail::impl_of(pimpl_->state).process_event(pimpl_->state, pimpl_->state.context(), event);
         }
 
-        void forwarder::exit(
+        void firewall::exit(
             context_param_type /*parent_ctx*/,
             machine_ref_type /*mach*/,
             const events::power_button_press& event)

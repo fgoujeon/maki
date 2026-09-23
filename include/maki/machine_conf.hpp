@@ -56,56 +56,6 @@ public:
 
     machine_conf& operator=(machine_conf&&) = delete;
 
-#define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = impl_.auto_start; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = \
-        detail::type<typename Impl::context_type>; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = \
-        impl_.context_sig; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_processing_hooks = \
-        impl_.pre_processing_hooks; \
-    [[maybe_unused]] const auto \
-        MAKI_DETAIL_ARG_post_external_transition_hook = \
-            impl_.post_external_transition_hook; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_external_transition_hook = \
-        impl_.pre_external_transition_hook; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_handler = \
-        impl_.exception_handler; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_processing_hooks = \
-        impl_.post_processing_hooks; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_process_event_now_enabled = \
-        impl_.process_event_now_enabled; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = \
-        impl_.run_to_completion; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_align = \
-        impl_.small_event_max_align; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_size = \
-        impl_.small_event_max_size; \
-    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = \
-        impl_.transition_tables;
-
-#define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    return machine_conf<detail::machine_conf_impl< \
-        typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_pre_processing_hooks)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_exception_handler)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_pre_external_transition_hook)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_post_external_transition_hook)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_post_processing_hooks)>, \
-        std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)>>>{ \
-        MAKI_DETAIL_ARG_auto_start, \
-        MAKI_DETAIL_ARG_context_sig, \
-        MAKI_DETAIL_ARG_pre_processing_hooks, \
-        MAKI_DETAIL_ARG_post_external_transition_hook, \
-        MAKI_DETAIL_ARG_pre_external_transition_hook, \
-        MAKI_DETAIL_ARG_exception_handler, \
-        MAKI_DETAIL_ARG_post_processing_hooks, \
-        MAKI_DETAIL_ARG_process_event_now_enabled, \
-        MAKI_DETAIL_ARG_run_to_completion, \
-        MAKI_DETAIL_ARG_small_event_max_align, \
-        MAKI_DETAIL_ARG_small_event_max_size, \
-        MAKI_DETAIL_ARG_transition_tables};
-
 #define MAKI_DETAIL_X(signature) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
     /** \
     @brief Sets the type of the context (see @ref \
@@ -169,7 +119,7 @@ public:
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_post_external_transition_hook hook
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END(machine_conf)
 #undef MAKI_DETAIL_ARG_post_external_transition_hook
     }
 
@@ -182,7 +132,7 @@ public:
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_auto_start value
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END(machine_conf)
 #undef MAKI_DETAIL_ARG_auto_start
     }
 
@@ -203,7 +153,7 @@ public:
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_pre_external_transition_hook hook
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END(machine_conf)
 #undef MAKI_DETAIL_ARG_pre_external_transition_hook
     }
 
@@ -221,7 +171,7 @@ public:
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_run_to_completion value
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END(machine_conf)
 #undef MAKI_DETAIL_ARG_run_to_completion
     }
 
@@ -234,7 +184,7 @@ public:
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_process_event_now_enabled value
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END(machine_conf)
 #undef MAKI_DETAIL_ARG_process_event_now_enabled
     }
 
@@ -264,7 +214,7 @@ public:
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_exception_handler callable
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END(machine_conf)
 #undef MAKI_DETAIL_ARG_exception_handler
     }
 
@@ -315,7 +265,7 @@ public:
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_post_processing_hooks new_post_processing_hooks
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END(machine_conf)
 #undef MAKI_DETAIL_ARG_post_processing_hooks
     }
 
@@ -370,7 +320,7 @@ public:
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_small_event_max_align value
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END(machine_conf)
 #undef MAKI_DETAIL_ARG_small_event_max_align
     }
 
@@ -384,7 +334,7 @@ public:
     {
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_small_event_max_size value
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END(machine_conf)
 #undef MAKI_DETAIL_ARG_small_event_max_size
     }
 
@@ -411,7 +361,7 @@ public:
         const auto tpl = detail::tuple<TransitionTables...>{tables...};
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_transition_tables tpl
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END(machine_conf)
 #undef MAKI_DETAIL_ARG_transition_tables
     }
 
@@ -434,7 +384,7 @@ private:
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_context_type detail::type<Context2>
 #define MAKI_DETAIL_ARG_context_sig ContextSig
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END(machine_conf)
 #undef MAKI_DETAIL_ARG_context_type
 #undef MAKI_DETAIL_ARG_context_sig
     }
@@ -448,12 +398,9 @@ private:
 
         MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 #define MAKI_DETAIL_ARG_pre_processing_hooks new_pre_processing_hooks
-        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
+        MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END(machine_conf)
 #undef MAKI_DETAIL_ARG_pre_processing_hooks
     }
-
-#undef MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END
-#undef MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN
 
     impl_type impl_;
 };

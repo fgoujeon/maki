@@ -37,17 +37,19 @@ namespace detail
     };
 
     template<class Forwarder>
-    constexpr bool is_composite(const state_firewall_mold_impl<Forwarder>& /*impl*/)
+    constexpr bool is_composite(
+        const state_firewall_mold_impl<Forwarder>& /*impl*/)
     {
         return true;
     }
 
     template<class Forwarder>
-    constexpr bool is_forwarder(const state_firewall_mold_impl<Forwarder>& /*impl*/)
+    constexpr bool is_forwarder(
+        const state_firewall_mold_impl<Forwarder>& /*impl*/)
     {
         return true;
     }
-}
+} // namespace detail
 
 template<class Impl>
 class forwarder_state_mold
@@ -81,7 +83,8 @@ private:
     friend class forwarder_state_mold;
 
     template<class... Args>
-    constexpr forwarder_state_mold(Args&&... args): impl_{std::forward<Args>(args)...}
+    constexpr forwarder_state_mold(Args&&... args):
+        impl_{std::forward<Args>(args)...}
     {
     }
 
@@ -93,7 +96,8 @@ private:
 #ifdef MAKI_DETAIL_DOXYGEN
 forwarder_state_mold() -> forwarder_state_mold<IMPLEMENTATION_DETAIL>;
 #else
-forwarder_state_mold() -> forwarder_state_mold<detail::state_firewall_mold_impl<>>;
+forwarder_state_mold()
+    -> forwarder_state_mold<detail::state_firewall_mold_impl<>>;
 #endif
 
 namespace detail

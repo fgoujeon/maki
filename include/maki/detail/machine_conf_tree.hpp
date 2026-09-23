@@ -8,6 +8,7 @@
 #define MAKI_DETAIL_MACHINE_CONF_TREE_HPP
 
 #include "../fin.hpp"
+#include "../firewalled_state_conf.hpp"
 #include "../machine_conf.hpp"
 #include "../null.hpp"
 #include "../state_mold.hpp"
@@ -65,6 +66,13 @@ struct node_at_path_operation
 {
     template<int Id, class MachineConfImpl>
     static constexpr const auto& call(const machine_conf<MachineConfImpl>& base)
+    {
+        return tuple_get<Id>(impl_of(base).transition_tables);
+    }
+
+    template<int Id, class MachineConfImpl>
+    static constexpr const auto& call(
+        const firewalled_state_conf<MachineConfImpl>& base)
     {
         return tuple_get<Id>(impl_of(base).transition_tables);
     }

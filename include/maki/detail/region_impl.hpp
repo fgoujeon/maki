@@ -19,7 +19,6 @@
 #include "friendly_impl.hpp"
 #include "iseq.hpp"
 #include "machine_conf_tree.hpp"
-#include "machine_fwd.hpp"
 #include "mix.hpp"
 #include "path_impl.hpp"
 #include "state_impl.hpp"
@@ -126,11 +125,9 @@ public:
     using deferrable_event_type_set =
         state_type_list_deferrable_event_type_set_t<state_mix_type>;
 
-    template<class Context>
-    region_impl(
-        const region<region_impl>* pitf,
-        machine<MachineConfHolder>& mach,
-        Context& ctx): pitf_(pitf), states_(mix_uniform_construct, mach, ctx)
+    template<class Machine, class Context>
+    region_impl(const region<region_impl>* pitf, Machine& mach, Context& ctx):
+        pitf_(pitf), states_(mix_uniform_construct, mach, ctx)
     {
     }
 
@@ -175,10 +172,8 @@ public:
         }
     }
 
-    template<class Context>
-    void emplace_contexts_with_parent_lifetime(
-        Context& ctx,
-        machine<MachineConfHolder>& mach)
+    template<class Machine, class Context>
+    void emplace_contexts_with_parent_lifetime(Context& ctx, Machine& mach)
     {
         iseq_for_each<
             state_mold_iseq_0,
@@ -186,9 +181,8 @@ public:
     }
 
     // Enter the initial state
-    template<class Context, class Event>
-    void
-    enter(machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+    template<class Machine, class Context, class Event>
+    void enter(Machine& mach, Context& ctx, const Event& event)
     {
         execute_transition<state_mold_ids::null, state_mold_ids::ini, 0>(
             mach,
@@ -197,9 +191,8 @@ public:
     }
 
     // Exit the active state
-    template<int TargetStateMoldId, class Context, class Event>
-    void
-    exit(machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+    template<int TargetStateMoldId, class Machine, class Context, class Event>
+    void exit(Machine& mach, Context& ctx, const Event& event)
     {
         if (!completed())
         {
@@ -218,20 +211,15 @@ public:
             state_reset_contexts_with_parent_lifetime>(*this);
     }
 
-    template<bool Dry, class Context, class Event>
-    bool process_event(
-        machine<MachineConfHolder>& mach,
-        Context& ctx,
-        const Event& event)
+    template<bool Dry, class Machine, class Context, class Event>
+    bool process_event(Machine& mach, Context& ctx, const Event& event)
     {
         return process_event_2<Dry>(*this, mach, ctx, event);
     }
 
-    template<bool Dry, class Context, class Event>
-    bool process_event(
-        const machine<MachineConfHolder>& mach,
-        Context& ctx,
-        const Event& event) const
+    template<bool Dry, class Machine, class Context, class Event>
+    bool
+    process_event(const Machine& mach, Context& ctx, const Event& event) const
     {
         return process_event_2<Dry>(*this, mach, ctx, event);
     }
@@ -256,9 +244,8 @@ public:
 private:
     struct state_emplace_contexts_with_parent_lifetime
     {
-        template<int StateMoldId, class Self, class Context>
-        static void
-        call(Self& self, Context& ctx, machine<MachineConfHolder>& mach)
+        template<int StateMoldId, class Self, class Context, class Machine>
+        static void call(Self& self, Context& ctx, Machine& mach)
         {
             auto& stt = static_state_mold_id_to_state<StateMoldId>(self);
             impl_of(stt).emplace_contexts_with_parent_lifetime(ctx, mach);
@@ -338,12 +325,13 @@ private:
     template<int TargetStateMoldId>
     struct exit_2
     {
-        template<int ActiveStateMoldId, class Context, class Event>
-        static void call(
-            region_impl& self,
-            machine<MachineConfHolder>& mach,
-            Context& ctx,
-            const Event& event)
+        template<
+            int ActiveStateMoldId,
+            class Machine,
+            class Context,
+            class Event>
+        static void
+        call(region_impl& self, Machine& mach, Context& ctx, const Event& event)
         {
             self.execute_transition<
                 ActiveStateMoldId,
@@ -495,12 +483,10 @@ private:
         int SourceStateMoldId,
         int TargetStateMoldId,
         int ActionIndex,
+        class Machine,
         class Context,
         class Event>
-    void execute_transition(
-        machine<MachineConfHolder>& mach,
-        Context& ctx,
-        const Event& event)
+    void execute_transition(Machine& mach, Context& ctx, const Event& event)
     {
         /*
         For external transitions, invoke the pre-transition hook, if any.
@@ -677,10 +663,10 @@ private:
         }
     };
 
-    template<class ActiveState, class Context>
+    template<class ActiveState, class Machine, class Context>
     void try_executing_completion_transitions(
         ActiveState& active_state,
-        machine<MachineConfHolder>& mach,
+        Machine& mach,
         Context& ctx)
     {
         static constexpr const auto& active_state_mold =

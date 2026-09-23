@@ -56,27 +56,24 @@ namespace comp_firewall_ns
             (emitting_blue,  emitting_red,   maki::event<events::color_button_press>)
         ;
 
-        struct machine_conf
+        struct on_conf
         {
-            static constexpr auto value = maki::machine_conf{}
-                .auto_start(false)
-                .transition_tables(on_ns::transition_table)
+            static constexpr auto value = maki::firewalled_state_conf{}
                 .context_a<on_ns::context>()
-                .run_to_completion(false)
-                .process_event_now_enabled(true)
+                .transition_tables(on_ns::transition_table)
             ;
         };
 
-        using machine_t = maki::machine<on_ns::machine_conf>;
+        using firewalled_on = maki::firewalled_state<on_conf>;
 
         struct forwarder::impl
         {
             impl(machine_ns::context& parent_ctx):
-                machine(parent_ctx)
+                state(parent_ctx)
             {
             }
 
-            on_ns::machine_t machine;
+            on_ns::firewalled_on state;
         };
 
         forwarder::forwarder(machine_ref_type /*mach*/, machine_ns::context& parent_ctx):
@@ -89,9 +86,9 @@ namespace comp_firewall_ns
         void forwarder::enter(
             context_param_type /*parent_ctx*/,
             machine_ref_type /*mach*/,
-            const events::power_button_press& /*event*/)
+            const events::power_button_press& event)
         {
-            pimpl_->machine.start();
+            maki::detail::impl_of(pimpl_->state).enter(pimpl_->state, pimpl_->state.context(), event);
         }
 
         bool forwarder::process_event(
@@ -99,15 +96,15 @@ namespace comp_firewall_ns
             machine_ref_type /*mach*/,
             const events::color_button_press& event)
         {
-            return pimpl_->machine.process_event_now(event);
+            return maki::detail::impl_of(pimpl_->state).process_event(pimpl_->state, pimpl_->state.context(), event);
         }
 
         void forwarder::exit(
             context_param_type /*parent_ctx*/,
             machine_ref_type /*mach*/,
-            const events::power_button_press& /*event*/)
+            const events::power_button_press& event)
         {
-            pimpl_->machine.stop();
+            maki::detail::impl_of(pimpl_->state).exit(pimpl_->state, pimpl_->state.context(), event);
         }
     }
 }

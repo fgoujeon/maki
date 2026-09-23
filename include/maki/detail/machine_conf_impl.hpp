@@ -18,6 +18,57 @@
 #include "type_set.hpp"
 #include <cstdlib>
 
+#define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_BEGIN /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_auto_start = impl_.auto_start; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_type = \
+        detail::type<typename Impl::context_type>; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_context_sig = \
+        impl_.context_sig; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_processing_hooks = \
+        impl_.pre_processing_hooks; \
+    [[maybe_unused]] const auto \
+        MAKI_DETAIL_ARG_post_external_transition_hook = \
+            impl_.post_external_transition_hook; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_pre_external_transition_hook = \
+        impl_.pre_external_transition_hook; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_exception_handler = \
+        impl_.exception_handler; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_post_processing_hooks = \
+        impl_.post_processing_hooks; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_process_event_now_enabled = \
+        impl_.process_event_now_enabled; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_run_to_completion = \
+        impl_.run_to_completion; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_align = \
+        impl_.small_event_max_align; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_small_event_max_size = \
+        impl_.small_event_max_size; \
+    [[maybe_unused]] const auto MAKI_DETAIL_ARG_transition_tables = \
+        impl_.transition_tables;
+
+#define MAKI_DETAIL_MAKE_MACHINE_CONF_COPY_END( \
+    template_name) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    return template_name<detail::machine_conf_impl< \
+        typename std::decay_t<decltype(MAKI_DETAIL_ARG_context_type)>::type, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_pre_processing_hooks)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_exception_handler)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_pre_external_transition_hook)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_post_external_transition_hook)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_post_processing_hooks)>, \
+        std::decay_t<decltype(MAKI_DETAIL_ARG_transition_tables)>>>{ \
+        MAKI_DETAIL_ARG_auto_start, \
+        MAKI_DETAIL_ARG_context_sig, \
+        MAKI_DETAIL_ARG_pre_processing_hooks, \
+        MAKI_DETAIL_ARG_post_external_transition_hook, \
+        MAKI_DETAIL_ARG_pre_external_transition_hook, \
+        MAKI_DETAIL_ARG_exception_handler, \
+        MAKI_DETAIL_ARG_post_processing_hooks, \
+        MAKI_DETAIL_ARG_process_event_now_enabled, \
+        MAKI_DETAIL_ARG_run_to_completion, \
+        MAKI_DETAIL_ARG_small_event_max_align, \
+        MAKI_DETAIL_ARG_small_event_max_size, \
+        MAKI_DETAIL_ARG_transition_tables};
+
 namespace maki
 {
 

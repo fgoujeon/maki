@@ -9,10 +9,10 @@
 
 #include "../../state_mold.hpp"
 #include "../context_storage.hpp"
+#include "../friendly_impl.hpp"
 #include "../machine_conf_tree.hpp"
 #include "../machine_fwd.hpp"
 #include "../tlu.hpp"
-#include "../friendly_impl.hpp"
 #include <type_traits>
 
 namespace maki::detail::state_impls
@@ -34,9 +34,10 @@ public:
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
     using forwarder_type = typename option_set_type::forwarder_type;
     using context_type = typename option_set_type::context_type;
-    using event_type_set = impl_of_t<std::decay_t<decltype(forwarder_type::event_type_set)>>;
-    using deferrable_event_type_set =
-        impl_of_t<std::decay_t<decltype(forwarder_type::deferrable_event_type_set)>>;
+    using event_type_set =
+        impl_of_t<std::decay_t<decltype(forwarder_type::event_type_set)>>;
+    using deferrable_event_type_set = impl_of_t<
+        std::decay_t<decltype(forwarder_type::deferrable_event_type_set)>>;
 
     template<class ParentContext>
     forwarder(machine<MachineConfHolder>& mach, ParentContext& parent_ctx):
@@ -119,28 +120,28 @@ public:
         impl_.reset_contexts_with_parent_lifetime();
     }
 
-//    template<int Index>
-//    [[nodiscard]] const auto& region() const
-//    {
-//        return impl_.template region<Index>();
-//    }
-//
-//    template<const auto& StateMold>
-//    [[nodiscard]] const auto& state() const
-//    {
-//        return impl_.template state<StateMold>();
-//    }
-//
-//    template<const auto& StateMold>
-//    [[nodiscard]] bool is() const
-//    {
-//        return impl_.template is<StateMold>();
-//    }
-//
-//    [[nodiscard]] bool completed() const
-//    {
-//        return impl_.completed();
-//    }
+    //    template<int Index>
+    //    [[nodiscard]] const auto& region() const
+    //    {
+    //        return impl_.template region<Index>();
+    //    }
+    //
+    //    template<const auto& StateMold>
+    //    [[nodiscard]] const auto& state() const
+    //    {
+    //        return impl_.template state<StateMold>();
+    //    }
+    //
+    //    template<const auto& StateMold>
+    //    [[nodiscard]] bool is() const
+    //    {
+    //        return impl_.template is<StateMold>();
+    //    }
+    //
+    //    [[nodiscard]] bool completed() const
+    //    {
+    //        return impl_.completed();
+    //    }
 
 private:
     using context_param_type = typename forwarder_type::context_param_type;

@@ -7,66 +7,104 @@
 #ifndef MAKI_DETAIL_TLU_LEFT_FOLD_HPP
 #define MAKI_DETAIL_TLU_LEFT_FOLD_HPP
 
+#include "../pp/enum.hpp" // NOLINT misc-include-cleaner
+#include "../pp/for.hpp" // NOLINT misc-include-cleaner
+
 namespace maki::detail::tlu
 {
 
 namespace left_fold_detail
 {
+    /*
+    Implementation is manually unrolled for lists of up to 10 types to reduce
+    the number of template instantiations.
+    */
     template<
-        template<class, class> class Operation,
-        class InitialTypeList,
+        class V,
+        template<class, class> class F,
         class... Ts>
-    struct fold_on_pack;
+    struct fold_impl;
 
-    template<
-        template<class, class> class Operation,
-        class InitialTypeList,
-        class T,
-        class... Ts>
-    struct fold_on_pack<Operation, InitialTypeList, T, Ts...>
+    template<class V, template<class, class> class F>
+    struct fold_impl<V, F>
     {
-        using type = typename fold_on_pack<
-            Operation,
-            Operation<InitialTypeList, T>,
-            Ts...>::type;
+        using type = V;
     };
 
-    template<template<class, class> class Operation, class InitialTypeList>
-    struct fold_on_pack<Operation, InitialTypeList>
-    {
-        using type = InitialTypeList;
+// NOLINTBEGIN cppcoreguidelines-macro-usage
+
+#define MAKI_DETAIL_TYPE_TPL_PARAM(index) class T##index
+#define MAKI_DETAIL_TYPE_TPL_ARG(index) T##index
+#define MAKI_DETAIL_TYPE_ANGLE(index) T##index>
+#define MAKI_DETAIL_F_ANGLE(index) F<
+
+#define MAKI_DETAIL_FOLD_SPE(size) \
+    template<class V, template<class, class> class F, MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_TYPE_TPL_PARAM)> \
+    struct fold_impl<V, F, MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_TYPE_TPL_ARG)> \
+    { \
+        using type = MAKI_DETAIL_PP_FOR_##size(MAKI_DETAIL_F_ANGLE) V, MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_TYPE_ANGLE); \
     };
+
+MAKI_DETAIL_FOLD_SPE(1)
+MAKI_DETAIL_FOLD_SPE(2)
+MAKI_DETAIL_FOLD_SPE(3)
+MAKI_DETAIL_FOLD_SPE(4)
+MAKI_DETAIL_FOLD_SPE(5)
+MAKI_DETAIL_FOLD_SPE(6)
+MAKI_DETAIL_FOLD_SPE(7)
+MAKI_DETAIL_FOLD_SPE(8)
+MAKI_DETAIL_FOLD_SPE(9)
+
+#undef MAKI_DETAIL_FOLD_SPE
+
+#define MAKI_DETAIL_FOLD_SPE(size) \
+    template<class V, template<class, class> class F, MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_TYPE_TPL_PARAM), class... Ts> \
+    struct fold_impl<V, F, MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_TYPE_TPL_ARG), Ts...> \
+    { \
+        using type = typename fold_impl< \
+            MAKI_DETAIL_PP_FOR_##size(MAKI_DETAIL_F_ANGLE) V, MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_TYPE_ANGLE), \
+            F, \
+            Ts...>::type; \
+    };
+
+MAKI_DETAIL_FOLD_SPE(10)
+
+#undef MAKI_DETAIL_FOLD_SPE
+
+#undef MAKI_DETAIL_TYPE_TPL_PARAM
+#undef MAKI_DETAIL_TYPE_TPL_ARG
+#undef MAKI_DETAIL_TYPE_ANGLE
+#undef MAKI_DETAIL_F_ANGLE
+
+// NOLINTEND cppcoreguidelines-macro-usage
+
 } // namespace left_fold_detail
 
 /*
 left_fold applies a left fold on the given type list.
-
-Operation must be a metafunction whose parameters are:
-- a type list;
-- a type.
 */
 template<
-    class TList,
+    class Initial,
     template<class, class> class Operation,
-    class InitialTypeList>
+    class TList>
 struct left_fold;
 
 template<
-    template<class...> class TList,
+    class Initial,
     template<class, class> class Operation,
-    class InitialTypeList,
+    template<class...> class TList,
     class... Ts>
-struct left_fold<TList<Ts...>, Operation, InitialTypeList>
+struct left_fold<Initial, Operation, TList<Ts...>>
 {
     using type = typename left_fold_detail::
-        fold_on_pack<Operation, InitialTypeList, Ts...>::type;
+        fold_impl<Initial, Operation, Ts...>::type;
 };
 
 template<
-    class TList,
+    class Initial,
     template<class, class> class Operation,
-    class InitialTypeList>
-using left_fold_t = typename left_fold<TList, Operation, InitialTypeList>::type;
+    class TList>
+using left_fold_t = typename left_fold<Initial, Operation, TList>::type;
 
 } // namespace maki::detail::tlu
 

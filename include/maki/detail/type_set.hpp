@@ -146,6 +146,15 @@ struct type_set_union<type_set_inclusion_list<Lhss...>, type_set_item<Rhs>>
     using type = tlu::push_back_unique_t<type_set_inclusion_list<Lhss...>, Rhs>;
 };
 
+// Optimization of frequent case
+template<class... Rhss>
+struct type_set_union<
+    type_set_inclusion_list<>,
+    type_set_inclusion_list<Rhss...>>
+{
+    using type = type_set_inclusion_list<Rhss...>;
+};
+
 template<class... Lhss, class... Rhss>
 struct type_set_union<
     type_set_inclusion_list<Lhss...>,

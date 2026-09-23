@@ -33,9 +33,6 @@ functions to access `impl_type` and `impl_`.
 
 #define MAKI_DETAIL_FRIENDLY_IMPL \
     template<class T> \
-    friend struct detail::impl_of_t_helper; \
-\
-    template<class T> \
     friend constexpr auto& detail::impl_of(T&); \
 \
     template<class T> \
@@ -45,9 +42,12 @@ namespace maki::detail
 {
 
 template<class T>
-struct impl_of_t_helper
+struct impl_of_t_helper;
+
+template<template<class> class Tpl, class T>
+struct impl_of_t_helper<Tpl<T>>
 {
-    using type = typename T::impl_type;
+    using type = T;
 };
 
 template<class T>

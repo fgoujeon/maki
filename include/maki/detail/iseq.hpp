@@ -7,6 +7,10 @@
 #ifndef MAKI_DETAIL_ISEQ_HPP
 #define MAKI_DETAIL_ISEQ_HPP
 
+#include "pp/enum.hpp" // NOLINT misc-include-cleaner
+#include "type_list.hpp"
+#include <type_traits>
+
 namespace maki::detail
 {
 
@@ -231,25 +235,104 @@ using iseq_left_fold_t =
 
 
 /*
+iseq_list_apply
+*/
+
+template<class SeqList, template<class...> class F>
+struct iseq_list_apply;
+
+template<
+    template<class...> class SeqList,
+    class... Seqs,
+    template<class...> class F>
+struct iseq_list_apply<SeqList<Seqs...>, F>
+{
+    using type = F<Seqs...>;
+};
+
+template<class SeqList, template<class...> class F>
+using iseq_list_apply_t = typename iseq_list_apply<SeqList, F>::type;
+
+
+/*
+iseqs_flatten
+
+Implementation is manually unrolled for lists of up to 10 `iseq`s to reduce the
+number of template instantiations.
+*/
+
+template<class... Seqs>
+struct iseqs_flatten;
+
+// NOLINTBEGIN cppcoreguidelines-macro-usage
+
+#define MAKI_DETAIL_INT_TPL_PARAM(index) int... I##index##s
+#define MAKI_DETAIL_INT_TPL_ARG(index) I##index##s...
+#define MAKI_DETAIL_ISEQ_TPL_ARG(index) iseq<I##index##s...>
+
+#define MAKI_DETAIL_ISEQS_FLATTEN_SPE(size) \
+    template<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_INT_TPL_PARAM)> \
+    struct iseqs_flatten<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_ISEQ_TPL_ARG)> \
+    { \
+        using type = iseq<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_INT_TPL_ARG)>; \
+    };
+
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(1)
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(2)
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(3)
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(4)
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(5)
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(6)
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(7)
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(8)
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(9)
+
+#undef MAKI_DETAIL_ISEQS_FLATTEN_SPE
+
+#define MAKI_DETAIL_ISEQS_FLATTEN_SPE(size) \
+    template<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_INT_TPL_PARAM), class... Seqs> \
+    struct iseqs_flatten<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_ISEQ_TPL_ARG), Seqs...> \
+    { \
+        using type = typename iseqs_flatten<iseq<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_INT_TPL_ARG)>, Seqs...>::type; \
+    };
+
+MAKI_DETAIL_ISEQS_FLATTEN_SPE(10)
+
+#undef MAKI_DETAIL_ISEQS_FLATTEN_SPE
+
+#undef MAKI_DETAIL_INT_TPL_PARAM
+#undef MAKI_DETAIL_INT_TPL_ARG
+#undef MAKI_DETAIL_ISEQ_TPL_ARG
+
+// NOLINTEND cppcoreguidelines-macro-usage
+
+template<class... Seqs>
+using iseqs_flatten_t = typename iseqs_flatten<Seqs...>::type;
+
+
+/*
 iseq_filter
 */
 
 template<class Seq, template<int> class Predicate>
 struct iseq_filter;
 
-template<int I, int... Is, template<int> class Predicate>
-struct iseq_filter<iseq<I, Is...>, Predicate>
+template<int... Is, template<int> class Predicate>
+struct iseq_filter<iseq<Is...>, Predicate>
 {
-    using type = iseq_push_front_if_t<
-        typename iseq_filter<iseq<Is...>, Predicate>::type,
-        I,
-        Predicate<I>::value>;
-};
+    /*
+    Make a type list containing one `iseq` per integer.
+    Each `iseq` contains either:
+    - the current integer if `Predicate<I>::value` is true;
+    - nothing otherwise.
+    */
+    using iseqs = type_list_t<
+        std::conditional_t<Predicate<Is>::value, iseq<Is>, iseq<>>...>;
 
-template<template<int> class Predicate>
-struct iseq_filter<iseq<>, Predicate>
-{
-    using type = iseq<>;
+    /*
+    Flatten the type list into a single `iseq`.
+    */
+    using type = iseq_list_apply_t<iseqs, iseqs_flatten_t>;
 };
 
 template<class Seq, template<int> class Predicate>

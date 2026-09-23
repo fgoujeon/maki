@@ -14,17 +14,14 @@ namespace comp_firewall_ns
 {
     namespace machine_ns::on_ns
     {
-        struct context
-        {
-            machine_ns::context& parent;
-        };
+        using context = firewall::context_param_type;
 
         constexpr auto emitting_red = maki::state_mold{}
             .entry_action_c
             (
                 [](context& ctx)
                 {
-                    ctx.parent.current_led_color = led_color::red;
+                    ctx.current_led_color = led_color::red;
                 }
             )
         ;
@@ -34,7 +31,7 @@ namespace comp_firewall_ns
             (
                 [](context& ctx)
                 {
-                    ctx.parent.current_led_color = led_color::green;
+                    ctx.current_led_color = led_color::green;
                 }
             )
         ;
@@ -44,7 +41,7 @@ namespace comp_firewall_ns
             (
                 [](context& ctx)
                 {
-                    ctx.parent.current_led_color = led_color::blue;
+                    ctx.current_led_color = led_color::blue;
                 }
             )
         ;
@@ -59,7 +56,6 @@ namespace comp_firewall_ns
         struct on_conf
         {
             static constexpr auto value = maki::firewalled_state_conf{}
-                .context_a<on_ns::context>()
                 .transition_tables(on_ns::transition_table)
             ;
         };
@@ -68,43 +64,43 @@ namespace comp_firewall_ns
 
         struct firewall::impl
         {
-            impl(machine_ns::context& parent_ctx):
-                state(parent_ctx)
+            impl(machine_ref_type mach, machine_ns::context& parent_ctx):
+                state(mach, parent_ctx)
             {
             }
 
             on_ns::firewalled_on state;
         };
 
-        firewall::firewall(machine_ref_type /*mach*/, machine_ns::context& parent_ctx):
-            pimpl_(std::make_unique<impl>(parent_ctx))
+        firewall::firewall(machine_ref_type mach, machine_ns::context& parent_ctx):
+            pimpl_(std::make_unique<impl>(mach, parent_ctx))
         {
         }
 
         firewall::~firewall() = default;
 
         void firewall::enter(
-            context_param_type /*parent_ctx*/,
-            machine_ref_type /*mach*/,
+            context_param_type parent_ctx,
+            machine_ref_type mach,
             const events::power_button_press& event)
         {
-            maki::detail::impl_of(pimpl_->state).enter(pimpl_->state, pimpl_->state.context(), event);
+            maki::detail::impl_of(pimpl_->state).enter(mach, parent_ctx, event);
         }
 
         bool firewall::process_event(
-            context_param_type /*parent_ctx*/,
-            machine_ref_type /*mach*/,
+            context_param_type parent_ctx,
+            machine_ref_type mach,
             const events::color_button_press& event)
         {
-            return maki::detail::impl_of(pimpl_->state).process_event(pimpl_->state, pimpl_->state.context(), event);
+            return maki::detail::impl_of(pimpl_->state).process_event(mach, parent_ctx, event);
         }
 
         void firewall::exit(
-            context_param_type /*parent_ctx*/,
-            machine_ref_type /*mach*/,
+            context_param_type parent_ctx,
+            machine_ref_type mach,
             const events::power_button_press& event)
         {
-            maki::detail::impl_of(pimpl_->state).exit(pimpl_->state, pimpl_->state.context(), event);
+            maki::detail::impl_of(pimpl_->state).exit(mach, parent_ctx, event);
         }
     }
 }

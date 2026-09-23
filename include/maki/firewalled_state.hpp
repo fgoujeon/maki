@@ -7,7 +7,6 @@
 #ifndef MAKI_FIREWALLED_STATE_HPP
 #define MAKI_FIREWALLED_STATE_HPP
 
-#include "detail/context_holder.hpp"
 #include "detail/context_storage.hpp"
 #include "detail/friendly_impl.hpp"
 #include "detail/iseq.hpp"
@@ -21,10 +20,9 @@ template<class ConfHolder>
 class firewalled_state
 {
 public:
-    template<class... ContextArgs>
-    explicit firewalled_state(ContextArgs&&... ctx_args):
-        ctx_holder_(*this, std::forward<ContextArgs>(ctx_args)...),
-        impl_(*this, ctx_holder_.get())
+    template<class Machine, class ParentContext>
+    explicit firewalled_state(Machine& mach, ParentContext& parent_ctx):
+        impl_(mach, parent_ctx)
     {
     }
 
@@ -34,30 +32,13 @@ public:
     firewalled_state& operator=(const firewalled_state&) = delete;
     firewalled_state& operator=(firewalled_state&&) = delete;
 
-    auto& context()
-    {
-        return ctx_holder_.get();
-    }
-
 private:
     MAKI_DETAIL_FRIENDLY_IMPL
-
-    static constexpr const auto& conf = ConfHolder::value;
-
-    using conf_detail_type = std::decay_t<decltype(detail::impl_of(conf))>;
-
-    using context_type = typename conf_detail_type::context_type;
 
     using impl_type = detail::state_impls::composite_no_context<
         ConfHolder,
         detail::iseq<>,
         detail::context_storage::plain>;
-
-    detail::context_holder<
-        context_type,
-        detail::context_storage::plain,
-        detail::impl_of(conf).context_sig>
-        ctx_holder_;
 
     impl_type impl_;
 };

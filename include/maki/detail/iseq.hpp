@@ -274,7 +274,8 @@ struct iseqs_flatten;
     template<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_INT_TPL_PARAM)> \
     struct iseqs_flatten<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_ISEQ_TPL_ARG)> \
     { \
-        using type = iseq<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_INT_TPL_ARG)>; \
+        using type = \
+            iseq<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_INT_TPL_ARG)>; \
     };
 
 MAKI_DETAIL_ISEQS_FLATTEN_SPE(1)
@@ -290,10 +291,16 @@ MAKI_DETAIL_ISEQS_FLATTEN_SPE(9)
 #undef MAKI_DETAIL_ISEQS_FLATTEN_SPE
 
 #define MAKI_DETAIL_ISEQS_FLATTEN_SPE(size) \
-    template<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_INT_TPL_PARAM), class... Seqs> \
-    struct iseqs_flatten<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_ISEQ_TPL_ARG), Seqs...> \
+    template< \
+        MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_INT_TPL_PARAM), \
+        class... Seqs> \
+    struct iseqs_flatten< \
+        MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_ISEQ_TPL_ARG), \
+        Seqs...> \
     { \
-        using type = typename iseqs_flatten<iseq<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_INT_TPL_ARG)>, Seqs...>::type; \
+        using type = typename iseqs_flatten< \
+            iseq<MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_INT_TPL_ARG)>, \
+            Seqs...>::type; \
     };
 
 MAKI_DETAIL_ISEQS_FLATTEN_SPE(10)

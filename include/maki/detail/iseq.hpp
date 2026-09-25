@@ -84,6 +84,23 @@ constexpr int iseq_empty_v = (iseq_size_v<Seq> == 0);
 
 
 /*
+iseq_contains_if
+*/
+
+template<class Seq, template<int> class Predicate>
+struct iseq_contains_if;
+
+template<int... Is, template<int> class Predicate>
+struct iseq_contains_if<iseq<Is...>, Predicate>
+{
+    static constexpr bool value = (Predicate<Is>::value || ...);
+};
+
+template<class Seq, template<int> class Predicate>
+constexpr bool iseq_contains_if_v = iseq_contains_if<Seq, Predicate>::value;
+
+
+/*
 iseq_push_back_t
 */
 

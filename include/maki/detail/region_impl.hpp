@@ -254,6 +254,8 @@ public:
     }
 
 private:
+    using transition_index_sequence = linear_iseq_t<impl_of_t<transition_table_type>::size>;
+
     struct state_emplace_contexts_with_parent_lifetime
     {
         template<int StateMoldId, class Self, class Context>
@@ -290,12 +292,14 @@ private:
     static bool
     process_event_2(Self& self, Machine& mach, Context& ctx, const Event& event)
     {
-        // List the transitions whose event set contains `Event`
-        using candidate_transition_iseq = transition_table_filters::
-            by_event_t<MachineConfHolder, TransitionTablePath, Event>;
+        using predicate_holder_type = transition_table_filters::by_event_predicate_holder<
+            MachineConfHolder,
+            TransitionTablePath,
+            Event>;
 
-        constexpr auto must_try_executing_transitions =
-            !iseq_empty_v<candidate_transition_iseq>;
+        constexpr auto must_try_executing_transitions = iseq_contains_if_v<
+            transition_index_sequence,
+            predicate_holder_type::template predicate>;
 
         constexpr auto must_try_process_event_in_states =
             type_set_contains_v<states_event_type_set, Event>;
@@ -309,7 +313,7 @@ private:
             transitions.
             */
             return process_event_in_active_state<Dry>(self, mach, ctx, event) ||
-                try_executing_transitions<candidate_transition_iseq, Dry>(
+                try_executing_transitions<predicate_holder_type::template predicate, Dry>(
                     self,
                     mach,
                     ctx,
@@ -323,7 +327,7 @@ private:
         else if constexpr (must_try_executing_transitions &&
             !must_try_process_event_in_states)
         {
-            return try_executing_transitions<candidate_transition_iseq, Dry>(
+            return try_executing_transitions<predicate_holder_type::template predicate, Dry>(
                 self,
                 mach,
                 ctx,
@@ -357,7 +361,7 @@ private:
     `TransitionIndexConstantList`.
     */
     template<
-        class TransitionIseq,
+        template<int> class Predicate,
         bool Dry = false,
         class Self,
         class Machine,
@@ -369,7 +373,7 @@ private:
         Context& ctx,
         const Event& event)
     {
-        return iseq_for_each_or<TransitionIseq, try_executing_transition<Dry>>(
+        return iseq_for_each_or<transition_index_sequence, try_executing_transition<Predicate, Dry>>(
             self,
             mach,
             ctx,
@@ -377,7 +381,7 @@ private:
     }
 
     // Try executing the transition at index `TransitionIndex`.
-    template<bool Dry>
+    template<template<int> class Predicate, bool Dry>
     struct try_executing_transition
     {
         template<
@@ -394,55 +398,62 @@ private:
             const Event& event,
             ExtraArgs&... extra_args)
         {
-            static constexpr const auto& trans =
-                tuple_get<TransitionIndex>(impl_of(trans_table));
-
-            static constexpr auto target_state_mold_id =
-                machine_conf_tree::id_of_target_state_mold_v<
-                    MachineConfHolder,
-                    TransitionTablePath,
-                    TransitionIndex>;
-
-            if constexpr (is_state_set_v<
-                              std::decay_t<decltype(trans.source_state_mold)>>)
+            if constexpr (Predicate<TransitionIndex>::value)
             {
-                // List of state molds that belong to the source state set
-                using matching_state_mold_iseq =
-                    region_detail::filter_state_mold_iseq_by_state_set_t<
-                        MachineConfHolder,
-                        TransitionTablePath,
-                        TransitionIndex,
-                        state_mold_iseq>;
+                static constexpr const auto& trans =
+                    tuple_get<TransitionIndex>(impl_of(trans_table));
 
-                static_assert(iseq_size_v<matching_state_mold_iseq> != 0);
-
-                return iseq_for_each_or<
-                    matching_state_mold_iseq,
-                    try_executing_transition_2<
-                        Dry,
-                        target_state_mold_id,
-                        TransitionIndex,
-                        TransitionIndex>>(
-                    self,
-                    mach,
-                    ctx,
-                    event,
-                    extra_args...);
-            }
-            else
-            {
-                static constexpr auto source_state_mold_id =
-                    machine_conf_tree::id_of_source_state_mold_v<
+                static constexpr auto target_state_mold_id =
+                    machine_conf_tree::id_of_target_state_mold_v<
                         MachineConfHolder,
                         TransitionTablePath,
                         TransitionIndex>;
 
-                return try_executing_transition_2<
-                    Dry,
-                    target_state_mold_id,
-                    TransitionIndex,
-                    TransitionIndex>::
-                    template call<source_state_mold_id>(self, mach, ctx, event);
+                if constexpr (is_state_set_v<
+                                std::decay_t<decltype(trans.source_state_mold)>>)
+                {
+                    // List of state molds that belong to the source state set
+                    using matching_state_mold_iseq =
+                        region_detail::filter_state_mold_iseq_by_state_set_t<
+                            MachineConfHolder,
+                            TransitionTablePath,
+                            TransitionIndex,
+                            state_mold_iseq>;
+
+                    static_assert(iseq_size_v<matching_state_mold_iseq> != 0);
+
+                    return iseq_for_each_or<
+                        matching_state_mold_iseq,
+                        try_executing_transition_2<
+                            Dry,
+                            target_state_mold_id,
+                            TransitionIndex,
+                            TransitionIndex>>(
+                        self,
+                        mach,
+                        ctx,
+                        event,
+                        extra_args...);
+                }
+                else
+                {
+                    static constexpr auto source_state_mold_id =
+                        machine_conf_tree::id_of_source_state_mold_v<
+                            MachineConfHolder,
+                            TransitionTablePath,
+                            TransitionIndex>;
+
+                    return try_executing_transition_2<
+                        Dry,
+                        target_state_mold_id,
+                        TransitionIndex,
+                        TransitionIndex>::
+                        template call<source_state_mold_id>(self, mach, ctx, event);
+                }
+            }
+            else
+            {
+                return false;
             }
         }
     };
@@ -686,22 +697,18 @@ private:
         static constexpr const auto& active_state_mold =
             impl_of_t<std::decay_t<ActiveState>>::mold;
 
-        using candidate_transition_iseq =
-            transition_table_filters::by_source_state_and_null_event_t<
+        using predicate_holder_type = transition_table_filters::by_source_state_and_null_event_detail::predicate_holder<
                 MachineConfHolder,
                 TransitionTablePath,
                 active_state_mold>;
 
-        if constexpr (!iseq_empty_v<candidate_transition_iseq>)
+        if (impl_of(active_state).completed())
         {
-            if (impl_of(active_state).completed())
-            {
-                try_executing_transitions<candidate_transition_iseq>(
-                    *this,
-                    mach,
-                    ctx,
-                    null);
-            }
+            try_executing_transitions<predicate_holder_type::template predicate>(
+                *this,
+                mach,
+                ctx,
+                null);
         }
     }
 

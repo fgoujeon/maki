@@ -512,7 +512,7 @@ private:
         {
             impl_of(MachineConfHolder::value)
                 .pre_external_transition_hook(
-                    ctx,
+                    mach.context(),
                     *pitf_,
                     state_mold_id_to_state<SourceStateMoldId>(),
                     state_mold_id_to_state<TargetStateMoldId>(),
@@ -581,7 +581,7 @@ private:
         {
             impl_of(MachineConfHolder::value)
                 .post_external_transition_hook(
-                    ctx,
+                    mach.context(),
                     *pitf_,
                     state_mold_id_to_state<SourceStateMoldId>(),
                     state_mold_id_to_state<TargetStateMoldId>(),

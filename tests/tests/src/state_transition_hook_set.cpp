@@ -34,7 +34,16 @@ namespace external_transition_hook_set
             (states::off0, states::on0, maki::event<events::button_press>)
         ;
 
+        /*
+        A dummy context to make sure transition hooks always receives the
+        machine context.
+        */
+        struct on_context
+        {
+        };
+
         constexpr auto on1 = maki::state_mold{}
+            .context_v<on_context>()
             .transition_tables(on1_transition_table)
             .pretty_name("on_1")
         ;

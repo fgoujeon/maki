@@ -29,8 +29,8 @@ TEST_CASE("detail::tlu::left_fold")
 
     using result_t = maki::detail::tlu::left_fold_t
     <
-        std::tuple<double>,
         push_back_twice,
+        std::tuple<double>,
         type_list_t
     >;
 

@@ -117,7 +117,7 @@ private:
         typename std::decay_t<decltype(Conf)>::event_type_list;
 
     using event_impl_type =
-        detail::tlu::apply_t<event_type_list, detail::machine_ref_event_impl>;
+        detail::tlu::apply_t<detail::machine_ref_event_impl, event_type_list>;
 
     event_impl_type impl_;
 };

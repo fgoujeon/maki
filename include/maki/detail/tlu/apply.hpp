@@ -11,24 +11,23 @@ namespace maki::detail::tlu
 {
 
 /*
-apply_t<TList, Target> is an alias of Target<Ts...>, where Ts are the types of
-TList.
+`apply_t<Target, some_template<Ts...>>` is an alias of `Target<Ts...>`.
 */
 
-template<class TList, template<class...> class Target>
+template<template<class...> class Target, class TList>
 struct apply;
 
 template<
-    template<class...> class Target,
     template<class...> class TList,
-    class... Ts>
-struct apply<TList<Ts...>, Target>
+    class... Ts,
+    template<class...> class Target>
+struct apply<Target, TList<Ts...>>
 {
     using type = Target<Ts...>;
 };
 
-template<class TList, template<class...> class Target>
-using apply_t = typename apply<TList, Target>::type;
+template<template<class...> class Target, class TList>
+using apply_t = typename apply<Target, TList>::type;
 
 } // namespace maki::detail::tlu
 

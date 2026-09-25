@@ -193,65 +193,60 @@ iseq_left_fold_t
 
 namespace iseq_left_fold_detail
 {
-    template<
-        template<class, int> class Operation,
-        class InitialTypeList,
-        int... Is>
+    template<template<class, int> class Operation, class Initial, int... Is>
     struct fold_on_pack;
 
     template<
         template<class, int> class Operation,
-        class InitialTypeList,
+        class Initial,
         int I,
         int... Is>
-    struct fold_on_pack<Operation, InitialTypeList, I, Is...>
+    struct fold_on_pack<Operation, Initial, I, Is...>
     {
-        using type = typename fold_on_pack<
-            Operation,
-            Operation<InitialTypeList, I>,
-            Is...>::type;
+        using type =
+            typename fold_on_pack<Operation, Operation<Initial, I>, Is...>::
+                type;
     };
 
-    template<template<class, int> class Operation, class InitialTypeList>
-    struct fold_on_pack<Operation, InitialTypeList>
+    template<template<class, int> class Operation, class Initial>
+    struct fold_on_pack<Operation, Initial>
     {
-        using type = InitialTypeList;
+        using type = Initial;
     };
 } // namespace iseq_left_fold_detail
 
-template<class Seq, template<class, int> class Operation, class InitialTypeList>
+template<template<class, int> class Operation, class Initial, class Seq>
 struct iseq_left_fold;
 
-template<template<class, int> class Operation, class InitialTypeList, int... Is>
-struct iseq_left_fold<iseq<Is...>, Operation, InitialTypeList>
+template<template<class, int> class Operation, class Initial, int... Is>
+struct iseq_left_fold<Operation, Initial, iseq<Is...>>
 {
     using type = typename iseq_left_fold_detail::
-        fold_on_pack<Operation, InitialTypeList, Is...>::type;
+        fold_on_pack<Operation, Initial, Is...>::type;
 };
 
-template<class Seq, template<class, int> class Operation, class InitialTypeList>
-using iseq_left_fold_t =
-    typename iseq_left_fold<Seq, Operation, InitialTypeList>::type;
+template<template<class, int> class Operation, class Initial, class Seq>
+using iseq_left_fold_t = typename iseq_left_fold<Operation, Initial, Seq>::type;
 
 
 /*
 iseq_list_apply
 */
 
-template<class SeqList, template<class...> class F>
+template<template<class...> class F, class SeqList>
 struct iseq_list_apply;
 
 template<
+    template<class...> class F,
     template<class...> class SeqList,
-    class... Seqs,
-    template<class...> class F>
-struct iseq_list_apply<SeqList<Seqs...>, F>
+    class... Seqs>
+struct iseq_list_apply<F, SeqList<Seqs...>>
 {
     using type = F<Seqs...>;
 };
 
-template<class SeqList, template<class...> class F>
-using iseq_list_apply_t = typename iseq_list_apply<SeqList, F>::type;
+template<template<class...> class F, class SeqList>
+using iseq_list_apply_t = typename iseq_list_apply<F, SeqList>::type;
 
 
 /*
@@ -335,7 +330,7 @@ struct iseq_filter<iseq<Is...>, Predicate>
     /*
     Flatten the type list into a single `iseq`.
     */
-    using type = iseq_list_apply_t<iseqs, iseqs_flatten_t>;
+    using type = iseq_list_apply_t<iseqs_flatten_t, iseqs>;
 };
 
 template<class Seq, template<int> class Predicate>

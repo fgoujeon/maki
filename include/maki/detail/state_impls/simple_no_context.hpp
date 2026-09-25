@@ -34,8 +34,8 @@ public:
     using option_set_type = std::decay_t<decltype(impl_of(mold))>;
 
     using event_type_set = tlu::left_fold_t<
-        empty_type_set_t,
         event_action_event_set_operation,
+        empty_type_set_t,
         typename option_set_type::internal_action_mix_type>;
 
     using deferrable_event_type_set =

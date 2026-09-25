@@ -87,14 +87,14 @@ namespace transition_table_digest_detail
 
 template<class MachineConfHolder, class TransitionTablePath>
 using transition_table_digest = iseq_left_fold_t<
-    linear_iseq_t<impl_of(
-        machine_conf_tree::
-            node_at_path_v<MachineConfHolder, TransitionTablePath>)
-            .size>,
     transition_table_digest_detail::add_transition_to_digest_holder<
         MachineConfHolder,
         TransitionTablePath>::template add_transition_to_digest,
-    transition_table_digest_detail::initial_digest>;
+    transition_table_digest_detail::initial_digest,
+    linear_iseq_t<impl_of(
+        machine_conf_tree::
+            node_at_path_v<MachineConfHolder, TransitionTablePath>)
+            .size>>;
 
 } // namespace maki::detail
 

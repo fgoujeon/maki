@@ -19,11 +19,11 @@ namespace left_fold_detail
     Implementation is manually unrolled for lists of up to 10 types to reduce
     the number of template instantiations.
     */
-    template<class V, template<class, class> class F, class... Ts>
+    template<template<class, class> class F, class V, class... Ts>
     struct fold_impl;
 
-    template<class V, template<class, class> class F>
-    struct fold_impl<V, F>
+    template<template<class, class> class F, class V>
+    struct fold_impl<F, V>
     {
         using type = V;
     };
@@ -35,12 +35,12 @@ namespace left_fold_detail
 
 #define MAKI_DETAIL_FOLD_SPE(size) \
     template< \
-        class V, \
         template<class, class> class F, \
+        class V, \
         MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_TYPE_TPL_PARAM)> \
     struct fold_impl< \
-        V, \
         F, \
+        V, \
         MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_TYPE_TPL_ARG)> \
     { \
         using type = MAKI_DETAIL_PP_FOR_##size(MAKI_DETAIL_F_ANGLE) V, \
@@ -61,20 +61,20 @@ namespace left_fold_detail
 
 #define MAKI_DETAIL_FOLD_SPE(size) \
     template< \
-        class V, \
         template<class, class> class F, \
+        class V, \
         MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_TYPE_TPL_PARAM), \
         class... Ts> \
     struct fold_impl< \
-        V, \
         F, \
+        V, \
         MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_TYPE_TPL_ARG), \
         Ts...> \
     { \
         using type = typename fold_impl< \
+            F, \
             MAKI_DETAIL_PP_FOR_##size(MAKI_DETAIL_F_ANGLE) V, \
             MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_TYPE_ANGLE), \
-            F, \
             Ts...>::type; \
     };
 
@@ -92,22 +92,22 @@ namespace left_fold_detail
 /*
 left_fold applies a left fold on the given type list.
 */
-template<class Initial, template<class, class> class Operation, class TList>
+template<template<class, class> class Operation, class Initial, class TList>
 struct left_fold;
 
 template<
-    class Initial,
     template<class, class> class Operation,
+    class Initial,
     template<class...> class TList,
     class... Ts>
-struct left_fold<Initial, Operation, TList<Ts...>>
+struct left_fold<Operation, Initial, TList<Ts...>>
 {
     using type =
-        typename left_fold_detail::fold_impl<Initial, Operation, Ts...>::type;
+        typename left_fold_detail::fold_impl<Operation, Initial, Ts...>::type;
 };
 
-template<class Initial, template<class, class> class Operation, class TList>
-using left_fold_t = typename left_fold<Initial, Operation, TList>::type;
+template<template<class, class> class Operation, class Initial, class TList>
+using left_fold_t = typename left_fold<Operation, Initial, TList>::type;
 
 } // namespace maki::detail::tlu
 

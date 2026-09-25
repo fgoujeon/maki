@@ -84,8 +84,8 @@ using region_type_list_event_type_set_operation =
 
 template<class RegionTypeList>
 using region_type_list_event_type_set = tlu::left_fold_t<
-    empty_type_set_t,
     region_type_list_event_type_set_operation,
+    empty_type_set_t,
     RegionTypeList>;
 
 template<class EventTypeSet, class Region>
@@ -95,8 +95,8 @@ using region_type_list_deferrable_event_type_set_operation = type_set_union_t<
 
 template<class RegionTypeList>
 using region_type_list_deferrable_event_type_set = tlu::left_fold_t<
-    empty_type_set_t,
     region_type_list_deferrable_event_type_set_operation,
+    empty_type_set_t,
     RegionTypeList>;
 
 template<
@@ -270,7 +270,7 @@ public:
 
     [[nodiscard]] bool completed() const
     {
-        return tlu::apply_t<region_mix_type, all_regions_completed>::call(
+        return tlu::apply_t<all_regions_completed, region_mix_type>::call(
             *this);
     }
 

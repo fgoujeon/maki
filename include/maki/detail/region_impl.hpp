@@ -382,14 +382,9 @@ private:
             class Self,
             class Machine,
             class Context,
-            class Event,
-            class... ExtraArgs>
-        static bool call(
-            Self& self,
-            Machine& mach,
-            Context& ctx,
-            const Event& event,
-            ExtraArgs&... extra_args)
+            class Event>
+        static bool
+        call(Self& self, Machine& mach, Context& ctx, const Event& event)
         {
             if constexpr (Predicate<TransitionIndex>::value)
             {
@@ -421,12 +416,7 @@ private:
                             Dry,
                             target_state_mold_id,
                             TransitionIndex,
-                            TransitionIndex>>(
-                        self,
-                        mach,
-                        ctx,
-                        event,
-                        extra_args...);
+                            TransitionIndex>>(self, mach, ctx, event);
                 }
                 else
                 {

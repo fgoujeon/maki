@@ -27,22 +27,14 @@ struct by_event_predicate_holder
     template<int TransitionIndex>
     struct predicate
     {
-        static constexpr bool make_value()
-        {
-            constexpr const auto& trans_table = machine_conf_tree::
-                node_at_path_v<MachineConfHolder, TransitionTableIpath>;
+        using trans_table_type = machine_conf_tree::
+            node_at_path_t<MachineConfHolder, TransitionTableIpath>;
 
-            constexpr const auto& trans =
-                tuple_get<TransitionIndex>(impl_of(trans_table));
+        using trans_type = tlu::get_t<impl_of_t<trans_table_type>, TransitionIndex>;
 
-            using trans_t = std::decay_t<decltype(trans)>;
+        using trans_event_type_set_type = transition_event_type_set_t<trans_type>;
 
-            using trans_event_type_set_t = transition_event_type_set_t<trans_t>;
-
-            return type_set_contains_v<trans_event_type_set_t, Event>;
-        }
-
-        static constexpr bool value = make_value();
+        static constexpr bool value = type_set_contains_v<trans_event_type_set_type, Event>;
     };
 };
 

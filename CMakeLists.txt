@@ -8,7 +8,7 @@
 
 cmake_minimum_required(VERSION 3.23)
 
-project(maki VERSION 2.0.1 LANGUAGES CXX)
+project(maki VERSION 2.0.2 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
@@ -46,6 +46,8 @@ target_sources(maki
         include/maki/detail/mix.hpp
         include/maki/detail/noinline.hpp
         include/maki/detail/path_impl.hpp
+        include/maki/detail/pp/enum.hpp
+        include/maki/detail/pp/for.hpp
         include/maki/detail/pretty_name.hpp
         include/maki/detail/region_impl.hpp
         include/maki/detail/set.hpp
@@ -66,12 +68,10 @@ target_sources(maki
         include/maki/detail/state_set_fwd.hpp
         include/maki/detail/tlu.hpp
         include/maki/detail/tlu/apply.hpp
-        include/maki/detail/tlu/back.hpp
         include/maki/detail/tlu/contains.hpp
         include/maki/detail/tlu/contains_if.hpp
         include/maki/detail/tlu/empty.hpp
         include/maki/detail/tlu/filter.hpp
-        include/maki/detail/tlu/find.hpp
         include/maki/detail/tlu/find_if.hpp
         include/maki/detail/tlu/for_each.hpp
         include/maki/detail/tlu/for_each_or.hpp
@@ -85,7 +85,6 @@ target_sources(maki
         include/maki/detail/tlu/push_back_all_unique.hpp
         include/maki/detail/tlu/push_back_if.hpp
         include/maki/detail/tlu/push_back_unique.hpp
-        include/maki/detail/tlu/push_front.hpp
         include/maki/detail/tlu/push_front_if.hpp
         include/maki/detail/tlu/remove.hpp
         include/maki/detail/tlu/remove_all.hpp

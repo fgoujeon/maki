@@ -25,7 +25,7 @@
 #include "state_impl.hpp"
 #include "state_mold_ids.hpp"
 #include "transition_table_digest.hpp"
-#include "transition_table_filters.hpp"
+#include "transition_table_predicates.hpp"
 #include "tuple.hpp"
 #include "type_set.hpp"
 #include <type_traits>
@@ -254,7 +254,8 @@ public:
     }
 
 private:
-    using transition_index_sequence = linear_iseq_t<impl_of_t<transition_table_type>::size>;
+    using transition_index_sequence =
+        linear_iseq_t<impl_of_t<transition_table_type>::size>;
 
     struct state_emplace_contexts_with_parent_lifetime
     {
@@ -292,10 +293,8 @@ private:
     static bool
     process_event_2(Self& self, Machine& mach, Context& ctx, const Event& event)
     {
-        using predicate_holder_type = transition_table_filters::by_event_predicate_holder<
-            MachineConfHolder,
-            TransitionTablePath,
-            Event>;
+        using predicate_holder_type = transition_table_predicates::
+            has_event<MachineConfHolder, TransitionTablePath, Event>;
 
         constexpr auto must_try_executing_transitions = iseq_contains_if_v<
             transition_index_sequence,
@@ -313,11 +312,9 @@ private:
             transitions.
             */
             return process_event_in_active_state<Dry>(self, mach, ctx, event) ||
-                try_executing_transitions<predicate_holder_type::template predicate, Dry>(
-                    self,
-                    mach,
-                    ctx,
-                    event);
+                try_executing_transitions<
+                    predicate_holder_type::template predicate,
+                    Dry>(self, mach, ctx, event);
         }
         else if constexpr (!must_try_executing_transitions &&
             must_try_process_event_in_states)
@@ -327,11 +324,9 @@ private:
         else if constexpr (must_try_executing_transitions &&
             !must_try_process_event_in_states)
         {
-            return try_executing_transitions<predicate_holder_type::template predicate, Dry>(
-                self,
-                mach,
-                ctx,
-                event);
+            return try_executing_transitions<
+                predicate_holder_type::template predicate,
+                Dry>(self, mach, ctx, event);
         }
         else
         {
@@ -373,11 +368,9 @@ private:
         Context& ctx,
         const Event& event)
     {
-        return iseq_for_each_or<transition_index_sequence, try_executing_transition<Predicate, Dry>>(
-            self,
-            mach,
-            ctx,
-            event);
+        return iseq_for_each_or<
+            transition_index_sequence,
+            try_executing_transition<Predicate, Dry>>(self, mach, ctx, event);
     }
 
     // Try executing the transition at index `TransitionIndex`.
@@ -409,8 +402,8 @@ private:
                         TransitionTablePath,
                         TransitionIndex>;
 
-                if constexpr (is_state_set_v<
-                                std::decay_t<decltype(trans.source_state_mold)>>)
+                if constexpr (is_state_set_v<std::decay_t<
+                                  decltype(trans.source_state_mold)>>)
                 {
                     // List of state molds that belong to the source state set
                     using matching_state_mold_iseq =
@@ -448,7 +441,11 @@ private:
                         target_state_mold_id,
                         TransitionIndex,
                         TransitionIndex>::
-                        template call<source_state_mold_id>(self, mach, ctx, event);
+                        template call<source_state_mold_id>(
+                            self,
+                            mach,
+                            ctx,
+                            event);
                 }
             }
             else
@@ -697,14 +694,16 @@ private:
         static constexpr const auto& active_state_mold =
             impl_of_t<std::decay_t<ActiveState>>::mold;
 
-        using predicate_holder_type = transition_table_filters::by_source_state_and_null_event_detail::predicate_holder<
+        using predicate_holder_type =
+            transition_table_predicates::has_source_state_and_null_event<
                 MachineConfHolder,
                 TransitionTablePath,
                 active_state_mold>;
 
         if (impl_of(active_state).completed())
         {
-            try_executing_transitions<predicate_holder_type::template predicate>(
+            try_executing_transitions<
+                predicate_holder_type::template predicate>(
                 *this,
                 mach,
                 ctx,

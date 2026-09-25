@@ -109,7 +109,8 @@ constexpr const auto& node_at_path_v =
     node_at_path<Ipath>(MachineConfHolder::value);
 
 template<class MachineConfHolder, class Ipath>
-using node_at_path_t = std::decay_t<decltype(node_at_path_v<MachineConfHolder, Ipath>)>;
+using node_at_path_t =
+    std::decay_t<decltype(node_at_path_v<MachineConfHolder, Ipath>)>;
 
 
 /*

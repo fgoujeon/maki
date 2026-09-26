@@ -102,7 +102,8 @@ using region_type_list_deferrable_event_type_set = tlu::left_fold_t<
 template<
     class MachineConfHolder,
     class StateMoldPath,
-    context_storage ParentCtxStorage>
+    context_storage ParentCtxStorage,
+    int TransitionTableCount>
 class composite_no_context
 {
 public:
@@ -433,6 +434,238 @@ private:
     }
 
     region_mix_type regions_;
+};
+
+// Specialization for one region, to avoid `mix` machinery.
+template<
+    class MachineConfHolder,
+    class StateMoldPath,
+    context_storage ParentCtxStorage>
+class composite_no_context<
+    MachineConfHolder,
+    StateMoldPath,
+    ParentCtxStorage,
+    1>
+{
+public:
+    using machine_conf_holder_type = MachineConfHolder;
+    using state_mold_path = StateMoldPath;
+
+    static constexpr const auto& mold =
+        machine_conf_tree::node_at_path_v<MachineConfHolder, StateMoldPath>;
+    using mold_type = std::decay_t<decltype(mold)>;
+    using option_set_type = std::decay_t<decltype(impl_of(mold))>;
+    using transition_table_type_list =
+        decltype(impl_of(mold).transition_tables);
+    using impl_type = simple_no_context<MachineConfHolder, StateMoldPath>;
+
+    static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
+
+    static constexpr auto ctx_storage =
+        ctx_lifetime == state_context_lifetime::parent
+        ? ParentCtxStorage
+        : context_storage::optional;
+
+    using region_impl_type = region_impl<
+        MachineConfHolder,
+        iseq_push_back_t<StateMoldPath, 0>,
+        ctx_storage>;
+
+    // Events of interest to the substates
+    using substates_event_type_set = typename region_impl_type::event_type_set;
+
+    // Events of interest to the internal actions
+    using internal_actions_event_type_set = typename impl_type::event_type_set;
+
+    using event_type_set = type_set_union_t<
+        internal_actions_event_type_set,
+        substates_event_type_set>;
+
+    using deferrable_event_type_set =
+        typename region_impl_type::deferrable_event_type_set;
+
+    template<class Context>
+    composite_no_context(machine<MachineConfHolder>& mach, Context& ctx):
+        region_(mach, ctx)
+    {
+    }
+
+    composite_no_context(const composite_no_context&) = delete;
+    composite_no_context(composite_no_context&&) = delete;
+    composite_no_context& operator=(const composite_no_context&) = delete;
+    composite_no_context& operator=(composite_no_context&&) = delete;
+    ~composite_no_context() = default;
+
+    template<class Context>
+    void emplace_contexts_with_parent_lifetime(
+        Context& ctx,
+        machine<MachineConfHolder>& mach)
+    {
+        impl_of(region_).emplace_contexts_with_parent_lifetime(ctx, mach);
+    }
+
+    template<class Context, class Event>
+    void
+    enter(machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+    {
+        impl_type::enter(mach, ctx, event);
+        impl_of(region_).enter(mach, ctx, event);
+    }
+
+    template<class Context, class Event>
+    bool process_event(
+        machine<MachineConfHolder>& mach,
+        Context& ctx,
+        const Event& event)
+    {
+        return call_internal_action_2<false>(*this, mach, ctx, event);
+    }
+
+    template<class Context, class Event>
+    bool check_event(
+        const machine<MachineConfHolder>& mach,
+        Context& ctx,
+        const Event& event) const
+    {
+        return call_internal_action_2<true>(*this, mach, ctx, event);
+    }
+
+    template<class Context, class Event>
+    void
+    exit(machine<MachineConfHolder>& mach, Context& ctx, const Event& event)
+    {
+        impl_of(region_).template exit<state_mold_ids::null>(mach, ctx, event);
+        impl_type::exit(mach, ctx, event);
+    }
+
+    // For each region, transition from active state to final state.
+    template<class Context, class Event>
+    void exit_to_finals(
+        machine<MachineConfHolder>& mach,
+        Context& ctx,
+        const Event& event)
+    {
+        impl_of(region_).template exit<state_mold_ids::fin>(mach, ctx, event);
+        impl_type::exit(mach, ctx, event);
+    }
+
+    void reset_contexts_with_parent_lifetime()
+    {
+        impl_of(region_).reset_contexts_with_parent_lifetime();
+    }
+
+    template<class Event>
+    [[nodiscard]] bool defers_event() const
+    {
+        if constexpr (type_set_contains_v<deferrable_event_type_set, Event>)
+        {
+            return impl_of(region_).template defers_event<Event>();
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    template<int Index>
+    [[nodiscard]] const auto& region() const
+    {
+        static_assert(Index == 0);
+        return region_;
+    }
+
+    template<const auto& StateMold>
+    [[nodiscard]] const auto& state() const
+    {
+        return impl_of(region_).template state<StateMold>();
+    }
+
+    template<const auto& StateMold>
+    [[nodiscard]] bool is() const
+    {
+        return impl_of(region_).template is<StateMold>();
+    }
+
+    [[nodiscard]] bool completed() const
+    {
+        return impl_of(region_).completed();
+    }
+
+private:
+    template<bool Dry>
+    struct region_process_event
+    {
+        template<
+            class Region,
+            class Self,
+            class MachineArg,
+            class Context,
+            class Event>
+        static int
+        call(Self& self, MachineArg& mach, Context& ctx, const Event& event)
+        {
+            const auto processed =
+                impl_of(get<Region>(self.regions_))
+                    .template process_event<Dry>(mach, ctx, event);
+            return static_cast<int>(processed);
+        }
+    };
+
+    template<bool Dry, class Self, class MachineArg, class Context, class Event>
+    static bool call_internal_action_2(
+        Self& self,
+        MachineArg& mach,
+        Context& ctx,
+        const Event& event)
+    {
+        constexpr auto can_process_event_in_substates =
+            type_set_contains_v<substates_event_type_set, Event>;
+
+        constexpr auto can_process_event_in_internal_actions =
+            type_set_contains_v<internal_actions_event_type_set, Event>;
+
+        if constexpr (can_process_event_in_substates &&
+            !can_process_event_in_internal_actions)
+        {
+            return impl_of(self.region_)
+                .template process_event<Dry>(mach, ctx, event);
+        }
+        else if constexpr (!can_process_event_in_substates &&
+            can_process_event_in_internal_actions)
+        {
+            return process_event_in_internal_actions<Dry>(mach, ctx, event);
+        }
+        else if constexpr (can_process_event_in_substates &&
+            can_process_event_in_internal_actions)
+        {
+            // Substates take priority as they're deeper in the hierarchy.
+            return impl_of(self.region_)
+                       .template process_event<Dry>(mach, ctx, event) ||
+                process_event_in_internal_actions<Dry>(mach, ctx, event);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    template<bool Dry, class MachineArg, class Context, class Event>
+    static bool process_event_in_internal_actions(
+        MachineArg& mach,
+        Context& ctx,
+        const Event& event)
+    {
+        if constexpr (Dry)
+        {
+            return impl_type::check_event(mach, ctx, event);
+        }
+        else
+        {
+            return impl_type::process_event(mach, ctx, event);
+        }
+    }
+
+    maki::region<region_impl_type> region_;
 };
 
 } // namespace maki::detail::state_impls

@@ -40,7 +40,8 @@ public:
     using impl_type = composite_no_context<
         MachineConfHolder,
         StateMoldPath,
-        ParentCtxStorage>;
+        ParentCtxStorage,
+        option_set_type::transition_table_tuple_type::size>;
     using event_type_set = typename impl_type::event_type_set;
     using deferrable_event_type_set =
         typename impl_type::deferrable_event_type_set;

@@ -18,6 +18,7 @@
 #include "state_mold_ids.hpp"
 #include "state_molds.hpp"
 #include "tuple.hpp"
+#include <type_traits>
 
 /*
 A `machine_conf` can be seen as the root of a tree:

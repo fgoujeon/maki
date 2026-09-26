@@ -93,10 +93,11 @@ template<
 class region_impl
 {
 public:
-    static constexpr auto trans_table = machine_conf_tree::
+    static constexpr const auto& trans_table = machine_conf_tree::
         node_at_path_v<MachineConfHolder, TransitionTablePath>;
 
-    using transition_table_type = std::decay_t<decltype(trans_table)>;
+    using transition_table_type = machine_conf_tree::
+        node_at_path_t<MachineConfHolder, TransitionTablePath>;
 
     using transition_table_digest_type =
         transition_table_digest<MachineConfHolder, TransitionTablePath>;

@@ -22,7 +22,7 @@ template<
     class MachineConfHolder,
     class StateMoldPath,
     context_storage ParentCtxStorage,
-    bool HasTransitionTables,
+    int TransitionTableCount,
     bool HasContext>
 struct state_impl_helper;
 
@@ -34,7 +34,7 @@ struct state_impl_helper<
     MachineConfHolder,
     StateMoldPath,
     ParentCtxStorage,
-    false,
+    0,
     false>
 {
     using type =
@@ -49,7 +49,7 @@ struct state_impl_helper<
     MachineConfHolder,
     StateMoldPath,
     ParentCtxStorage,
-    false,
+    0,
     true>
 {
     using type =
@@ -59,29 +59,32 @@ struct state_impl_helper<
 template<
     class MachineConfHolder,
     class StateMoldPath,
-    context_storage ParentCtxStorage>
+    context_storage ParentCtxStorage,
+    int TransitionTableCount>
 struct state_impl_helper<
     MachineConfHolder,
     StateMoldPath,
     ParentCtxStorage,
-    true,
+    TransitionTableCount,
     false>
 {
     using type = state_impls::composite_no_context<
         MachineConfHolder,
         StateMoldPath,
-        ParentCtxStorage>;
+        ParentCtxStorage,
+        TransitionTableCount>;
 };
 
 template<
     class MachineConfHolder,
     class StateMoldPath,
-    context_storage ParentCtxStorage>
+    context_storage ParentCtxStorage,
+    int TransitionTableCount>
 struct state_impl_helper<
     MachineConfHolder,
     StateMoldPath,
     ParentCtxStorage,
-    true,
+    TransitionTableCount,
     true>
 {
     using type = state_impls::
@@ -104,7 +107,7 @@ struct state_impl
         MachineConfHolder,
         StateMoldPath,
         ParentCtxStorage,
-        impl_of(stt_mold).transition_tables.size != 0,
+        impl_of(stt_mold).transition_tables.size,
         !std::is_void_v<context_type>>::type;
 };
 

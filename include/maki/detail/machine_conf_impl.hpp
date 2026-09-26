@@ -47,6 +47,7 @@ struct machine_conf_impl
     using post_processing_hook_tuple_type = PostProcessingHookTuple;
     using internal_action_mix_type = mix<>;
     using deferred_event_type_set = empty_type_set_t;
+    using transition_table_tuple_type = TransitionTableTuple;
 
     bool auto_start = true;
     machine_context_signature context_sig = machine_context_signature::a;

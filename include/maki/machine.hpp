@@ -347,7 +347,8 @@ private:
     using impl_type = detail::state_impls::composite_no_context<
         ConfHolder,
         detail::iseq<>,
-        detail::context_storage::plain>;
+        detail::context_storage::plain,
+        option_set_type::transition_table_tuple_type::size>;
 
     using deferrable_event_type_set =
         typename impl_type::deferrable_event_type_set;

@@ -9,10 +9,9 @@
 
 #include "../transition_table.hpp"
 #include "friendly_impl.hpp"
-#include "iseq.hpp"
 #include "machine_conf_tree.hpp"
+#include "tlu/get.hpp"
 #include "tuple.hpp"
-#include <type_traits>
 
 namespace maki::detail::transition_table_predicates
 {

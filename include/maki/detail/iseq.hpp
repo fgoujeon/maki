@@ -101,6 +101,51 @@ constexpr bool iseq_contains_if_v = iseq_contains_if<Seq, Predicate>::value;
 
 
 /*
+iseq_find_if
+*/
+
+namespace iseq_find_if_detail
+{
+    struct found_and_index
+    {
+        bool found = false;
+        int index = 0;
+    };
+
+    constexpr found_and_index operator||(
+        const found_and_index& lhs,
+        const found_and_index& rhs)
+    {
+        if (lhs.found)
+        {
+            return lhs;
+        }
+        return found_and_index{lhs.found || rhs.found, rhs.index};
+    }
+} // namespace iseq_find_if_detail
+
+template<class Seq, template<int> class Predicate>
+struct iseq_find_if;
+
+template<int... Is, template<int> class Predicate>
+struct iseq_find_if<iseq<Is...>, Predicate>
+{
+    static constexpr auto outcome =
+        ((Predicate<Is>::value
+                 ? iseq_find_if_detail::found_and_index{true, Is}
+                 : iseq_find_if_detail::found_and_index{false, 0}) ||
+            ...);
+
+    static_assert(outcome.found);
+
+    static constexpr int value = outcome.index;
+};
+
+template<class Seq, template<int> class Predicate>
+constexpr int iseq_find_if_v = iseq_find_if<Seq, Predicate>::value;
+
+
+/*
 iseq_push_back_t
 */
 

@@ -265,32 +265,26 @@ constexpr int id_of_source_state_mold_v = id_of_source_state_mold<
 template<
     class MachineConfHolder,
     class TransitionTablePath,
-    int TransitionIndex,
-    int CandidateIndex>
-constexpr int id_of_target_state_mold_2()
+    int TransitionIndex>
+struct is_id_of_target_state_mold
 {
-    constexpr const auto& target_state_mold = machine_conf_tree::node_at_path_v<
-        MachineConfHolder,
-        iseq_push_back_t<TransitionTablePath, TransitionIndex>>;
-
-    constexpr const auto& candidate_target_state_mold =
-        machine_conf_tree::node_at_path_v<
-            MachineConfHolder,
-            iseq_push_back_t<TransitionTablePath, CandidateIndex>>;
-
-    if constexpr (ptr_equals(&target_state_mold, &candidate_target_state_mold))
+    template<int CandidateId>
+    struct inner
     {
-        return CandidateIndex;
-    }
-    else
-    {
-        return id_of_target_state_mold_2<
-            MachineConfHolder,
-            TransitionTablePath,
-            TransitionIndex,
-            CandidateIndex + 1>();
-    }
-}
+        static constexpr const auto& target_state_mold =
+            machine_conf_tree::node_at_path_v<
+                MachineConfHolder,
+                iseq_push_back_t<TransitionTablePath, TransitionIndex>>;
+
+        static constexpr const auto& candidate_target_state_mold =
+            machine_conf_tree::node_at_path_v<
+                MachineConfHolder,
+                iseq_push_back_t<TransitionTablePath, CandidateId>>;
+
+        static constexpr bool value =
+            ptr_equals(&target_state_mold, &candidate_target_state_mold);
+    };
+};
 
 template<
     class MachineConfHolder,
@@ -298,6 +292,9 @@ template<
     int TransitionIndex>
 constexpr int id_of_target_state_mold()
 {
+    using transition_table_type =
+        node_at_path_t<MachineConfHolder, TransitionTablePath>;
+
     constexpr const auto& target_state_mold = machine_conf_tree::node_at_path_v<
         MachineConfHolder,
         iseq_push_back_t<TransitionTablePath, TransitionIndex>>;
@@ -316,11 +313,12 @@ constexpr int id_of_target_state_mold()
     }
     else
     {
-        return id_of_target_state_mold_2<
-            MachineConfHolder,
-            TransitionTablePath,
-            TransitionIndex,
-            0>();
+        return iseq_find_if_v<
+            linear_iseq_t<impl_of_t<transition_table_type>::size>,
+            is_id_of_target_state_mold<
+                MachineConfHolder,
+                TransitionTablePath,
+                TransitionIndex>::template inner>;
     }
 }
 

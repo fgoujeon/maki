@@ -10,6 +10,7 @@
 #include "../../context.hpp"
 #include "../../region.hpp"
 #include "../context_storage.hpp"
+#include "../context_tree.hpp"
 #include "../friendly_impl.hpp"
 #include "../iseq.hpp"
 #include "../machine_fwd.hpp"
@@ -149,9 +150,10 @@ public:
         typename impl_type::deferrable_event_type_set,
         region_type_list_deferrable_event_type_set<region_mix_type>>;
 
-    template<class Context>
-    composite_no_context(machine<MachineConfHolder>& mach, Context& ctx):
-        regions_(mix_uniform_construct, mach, ctx)
+    composite_no_context(
+        machine<MachineConfHolder>& mach,
+        context_tree<MachineConfHolder>& ctx_tree):
+        ctx_tree_(ctx_tree), regions_(mix_uniform_construct, mach, ctx_tree)
     {
     }
 
@@ -160,6 +162,16 @@ public:
     composite_no_context& operator=(const composite_no_context&) = delete;
     composite_no_context& operator=(composite_no_context&&) = delete;
     ~composite_no_context() = default;
+
+    auto& context()
+    {
+        return ctx_tree_.template context_at<StateMoldPath>();
+    }
+
+    const auto& context() const
+    {
+        return ctx_tree_.template context_at<StateMoldPath>();
+    }
 
     template<class Context>
     void emplace_contexts_with_parent_lifetime(
@@ -433,6 +445,7 @@ private:
         }
     }
 
+    context_tree<MachineConfHolder>& ctx_tree_;
     region_mix_type regions_;
 };
 
@@ -484,9 +497,10 @@ public:
     using deferrable_event_type_set =
         typename region_impl_type::deferrable_event_type_set;
 
-    template<class Context>
-    composite_no_context(machine<MachineConfHolder>& mach, Context& ctx):
-        region_(mach, ctx)
+    composite_no_context(
+        machine<MachineConfHolder>& mach,
+        context_tree<MachineConfHolder>& ctx_tree):
+        ctx_tree_(ctx_tree), region_(mach, ctx_tree)
     {
     }
 
@@ -495,6 +509,16 @@ public:
     composite_no_context& operator=(const composite_no_context&) = delete;
     composite_no_context& operator=(composite_no_context&&) = delete;
     ~composite_no_context() = default;
+
+    auto& context()
+    {
+        return ctx_tree_.template context_at<StateMoldPath>();
+    }
+
+    const auto& context() const
+    {
+        return ctx_tree_.template context_at<StateMoldPath>();
+    }
 
     template<class Context>
     void emplace_contexts_with_parent_lifetime(
@@ -665,6 +689,7 @@ private:
         }
     }
 
+    context_tree<MachineConfHolder>& ctx_tree_;
     maki::region<region_impl_type> region_;
 };
 

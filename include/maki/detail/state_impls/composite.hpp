@@ -9,8 +9,8 @@
 
 #include "../../context.hpp"
 #include "../../state_mold.hpp"
-#include "../context_holder.hpp"
 #include "../context_storage.hpp"
+#include "../context_tree.hpp"
 #include "../machine_conf_tree.hpp"
 #include "../machine_fwd.hpp"
 #include "../tlu.hpp"
@@ -46,9 +46,10 @@ public:
     using deferrable_event_type_set =
         typename impl_type::deferrable_event_type_set;
 
-    template<class ParentContext>
-    composite(machine<MachineConfHolder>& mach, ParentContext& parent_ctx):
-        ctx_holder_(mach, parent_ctx), impl_(mach, context())
+    composite(
+        machine<MachineConfHolder>& mach,
+        context_tree<MachineConfHolder>& ctx_tree):
+        ctx_tree_(ctx_tree), impl_(mach, ctx_tree)
     {
     }
 
@@ -60,12 +61,12 @@ public:
 
     auto& context()
     {
-        return ctx_holder_.get();
+        return ctx_tree_.template context_at<StateMoldPath>();
     }
 
     const auto& context() const
     {
-        return ctx_holder_.get();
+        return ctx_tree_.template context_at<StateMoldPath>();
     }
 
     template<class Event>
@@ -96,7 +97,10 @@ public:
             emplace_context(parent_ctx, mach);
         }
 
-        impl_.enter(mach, ctx_holder_.get_deep(), event);
+        impl_.enter(
+            mach,
+            ctx_tree_.template context_holder_at<StateMoldPath>().get_deep(),
+            event);
     }
 
     template<class ParentContext, class Event>
@@ -105,7 +109,10 @@ public:
         ParentContext& /*parent_ctx*/,
         const Event& event)
     {
-        return impl_.process_event(mach, ctx_holder_.get_deep(), event);
+        return impl_.process_event(
+            mach,
+            ctx_tree_.template context_holder_at<StateMoldPath>().get_deep(),
+            event);
     }
 
     template<class ParentContext, class Event>
@@ -114,7 +121,10 @@ public:
         ParentContext& /*parent_ctx*/,
         const Event& event) const
     {
-        return impl_.check_event(mach, ctx_holder_.get_deep(), event);
+        return impl_.check_event(
+            mach,
+            ctx_tree_.template context_holder_at<StateMoldPath>().get_deep(),
+            event);
     }
 
     template<class ParentContext, class Event>
@@ -123,7 +133,10 @@ public:
         ParentContext& /*parent_ctx*/,
         const Event& event)
     {
-        impl_.exit(mach, ctx_holder_.get_deep(), event);
+        impl_.exit(
+            mach,
+            ctx_tree_.template context_holder_at<StateMoldPath>().get_deep(),
+            event);
 
         if constexpr (ctx_lifetime == state_context_lifetime::state_activity)
         {
@@ -168,7 +181,10 @@ private:
         ParentContext& parent_ctx,
         machine<MachineConfHolder>& mach)
     {
-        auto& ctx = ctx_holder_.emplace(mach, parent_ctx);
+        auto& ctx =
+            ctx_tree_.template context_holder_at<StateMoldPath>().emplace(
+                mach,
+                parent_ctx);
 
         /*
         Also emplace contexts of substates, which depend on the context we just
@@ -185,7 +201,7 @@ private:
         */
         impl_.reset_contexts_with_parent_lifetime();
 
-        ctx_holder_.reset();
+        ctx_tree_.template context_holder_at<StateMoldPath>().reset();
     }
 
     static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
@@ -197,7 +213,7 @@ private:
 
     static constexpr auto ctx_sig = impl_of(mold).context_sig;
 
-    context_holder<context_type, ctx_storage, ctx_sig> ctx_holder_;
+    context_tree<MachineConfHolder>& ctx_tree_;
     impl_type impl_;
 };
 

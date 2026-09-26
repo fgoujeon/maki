@@ -12,8 +12,8 @@
 #ifndef MAKI_MACHINE_HPP
 #define MAKI_MACHINE_HPP
 
-#include "detail/context_holder.hpp"
 #include "detail/context_storage.hpp"
+#include "detail/context_tree.hpp"
 #include "detail/event_action.hpp"
 #include "detail/function_queue.hpp"
 #include "detail/iseq.hpp"
@@ -118,8 +118,8 @@ public:
     */
     template<class... ContextArgs>
     explicit machine(ContextArgs&&... ctx_args):
-        ctx_holder_(*this, std::forward<ContextArgs>(ctx_args)...),
-        impl_(*this, context())
+        ctx_tree_(*this, std::forward<ContextArgs>(ctx_args)...),
+        impl_(*this, ctx_tree_)
     {
         if constexpr (detail::impl_of(conf).auto_start)
         {
@@ -138,7 +138,7 @@ public:
     */
     context_type& context()
     {
-        return ctx_holder_.get();
+        return impl_.context();
     }
 
     /**
@@ -146,7 +146,7 @@ public:
     */
     const context_type& context() const
     {
-        return ctx_holder_.get();
+        return impl_.context();
     }
 
     /**
@@ -648,11 +648,7 @@ private:
     using post_processing_hook_ptr_constant_list =
         detail::mix_constant_list_t<post_processing_hooks>;
 
-    detail::context_holder<
-        context_type,
-        detail::context_storage::plain,
-        detail::impl_of(conf).context_sig>
-        ctx_holder_;
+    detail::context_tree<ConfHolder> ctx_tree_;
 
     impl_type impl_;
 

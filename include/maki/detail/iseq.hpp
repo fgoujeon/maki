@@ -101,6 +101,30 @@ constexpr bool iseq_contains_if_v = iseq_contains_if<Seq, Predicate>::value;
 
 
 /*
+iseq_starts_with
+*/
+
+template<class Seq, class Seq2>
+struct iseq_starts_with;
+
+template<int I, int... Is, int J, int... Js>
+struct iseq_starts_with<iseq<I, Is...>, iseq<J, Js...>>
+{
+    static constexpr bool value =
+        (I == J) && iseq_starts_with<iseq<Is...>, iseq<Js...>>::value;
+};
+
+template<int... Is>
+struct iseq_starts_with<iseq<Is...>, iseq<>>
+{
+    static constexpr bool value = true;
+};
+
+template<class Seq, class Seq2>
+constexpr bool iseq_starts_with_v = iseq_starts_with<Seq, Seq2>::value;
+
+
+/*
 iseq_push_back_t
 */
 

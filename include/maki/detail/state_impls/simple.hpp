@@ -8,8 +8,9 @@
 #define MAKI_DETAIL_STATE_IMPLS_SIMPLE_HPP
 
 #include "../../context.hpp"
-#include "../context_holder.hpp"
 #include "../context_storage.hpp"
+#include "../context_tree.hpp"
+#include "../machine_fwd.hpp"
 #include "simple_no_context.hpp"
 #include <type_traits>
 
@@ -41,7 +42,9 @@ public:
     static constexpr auto context_sig = impl_of(mold).context_sig;
 
     template<class... Args>
-    simple(Args&... args): ctx_holder_(args...)
+    simple(
+        machine<MachineConfHolder>& /*mach*/,
+        context_tree<MachineConfHolder>& ctx_tree): ctx_tree_(ctx_tree)
     {
     }
 
@@ -53,12 +56,12 @@ public:
 
     auto& context()
     {
-        return ctx_holder_.get();
+        return ctx_tree_.template context_at<StateMoldPath>();
     }
 
     const auto& context() const
     {
-        return ctx_holder_.get();
+        return ctx_tree_.template context_at<StateMoldPath>();
     }
 
     template<class Event>
@@ -74,7 +77,9 @@ public:
     {
         if constexpr (ctx_lifetime == state_context_lifetime::parent)
         {
-            ctx_holder_.emplace(mach, parent_ctx);
+            ctx_tree_.template context_holder_at<StateMoldPath>().emplace(
+                mach,
+                parent_ctx);
         }
     }
 
@@ -83,10 +88,15 @@ public:
     {
         if constexpr (ctx_lifetime == state_context_lifetime::state_activity)
         {
-            ctx_holder_.emplace(mach, parent_ctx);
+            ctx_tree_.template context_holder_at<StateMoldPath>().emplace(
+                mach,
+                parent_ctx);
         }
 
-        impl_type::enter(mach, ctx_holder_.get_deep(), event);
+        impl_type::enter(
+            mach,
+            ctx_tree_.template context_holder_at<StateMoldPath>().get_deep(),
+            event);
     }
 
     template<class Machine, class ParentContext, class Event>
@@ -95,7 +105,10 @@ public:
         ParentContext& /*parent_ctx*/,
         const Event& event)
     {
-        return impl_type::process_event(mach, ctx_holder_.get_deep(), event);
+        return impl_type::process_event(
+            mach,
+            ctx_tree_.template context_holder_at<StateMoldPath>().get_deep(),
+            event);
     }
 
     template<class Machine, class ParentContext, class Event>
@@ -104,17 +117,23 @@ public:
         ParentContext& /*parent_ctx*/,
         const Event& event) const
     {
-        return impl_type::check_event(mach, ctx_holder_.get_deep(), event);
+        return impl_type::check_event(
+            mach,
+            ctx_tree_.template context_holder_at<StateMoldPath>().get_deep(),
+            event);
     }
 
     template<class Machine, class ParentContext, class Event>
     void exit(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
-        impl_type::exit(mach, ctx_holder_.get_deep(), event);
+        impl_type::exit(
+            mach,
+            ctx_tree_.template context_holder_at<StateMoldPath>().get_deep(),
+            event);
 
         if constexpr (ctx_lifetime == state_context_lifetime::state_activity)
         {
-            ctx_holder_.reset();
+            ctx_tree_.template context_holder_at<StateMoldPath>().reset();
         }
     }
 
@@ -122,7 +141,7 @@ public:
     {
         if constexpr (ctx_lifetime == state_context_lifetime::parent)
         {
-            ctx_holder_.reset();
+            ctx_tree_.template context_holder_at<StateMoldPath>().reset();
         }
     }
 
@@ -140,7 +159,7 @@ private:
         ? ParentCtxStorage
         : context_storage::optional;
 
-    context_holder<context_type, ctx_storage, context_sig> ctx_holder_;
+    context_tree<MachineConfHolder>& ctx_tree_;
 };
 
 } // namespace maki::detail::state_impls

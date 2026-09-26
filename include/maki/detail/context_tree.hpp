@@ -132,57 +132,120 @@ public:
     {
     }
 
+    auto& context()
+    {
+        return ctx_holder_.get_deep();
+    }
+
+    const auto& context() const
+    {
+        return ctx_holder_.get_deep();
+    }
+
+    auto& opt_context()
+    {
+        return ctx_holder_.get();
+    }
+
+    const auto& opt_context() const
+    {
+        return ctx_holder_.get();
+    }
+
     template<class StateMoldPath2>
-    auto& context_holder_at()
+    auto& node_at()
     {
         if constexpr (std::is_same_v<StateMoldPath, StateMoldPath2>)
         {
-            return ctx_holder_;
+            return *this;
         }
         else
         {
-            using child_t = tlu::find_if_t<
-                child_types,
-                context_tree_detail::node_has_state_mold_path_starting_with<
-                    StateMoldPath2>::template inner>;
-            return get<child_t>(children_)
-                .template context_holder_at<StateMoldPath2>();
+            return child_toward<StateMoldPath2>().template node_at<StateMoldPath2>();
         }
     }
 
     template<class StateMoldPath2>
-    auto& context_at()
+    const auto& node_at() const
     {
         if constexpr (std::is_same_v<StateMoldPath, StateMoldPath2>)
         {
-            return ctx_holder_.get();
+            return *this;
         }
         else
         {
-            using child_t = tlu::find_if_t<
-                child_types,
-                context_tree_detail::node_has_state_mold_path_starting_with<
-                    StateMoldPath2>::template inner>;
-            return get<child_t>(children_)
-                .template context_at<StateMoldPath2>();
+            return child_toward<StateMoldPath2>().template node_at<StateMoldPath2>();
+        }
+    }
+
+    template<class ParentContext>
+    void emplace_context(
+        machine<MachineConfHolder>& mach,
+        ParentContext& parent_ctx)
+    {
+        auto& ctx = ctx_holder_.emplace(mach, parent_ctx);
+
+        /*
+        Also emplace subcontexts with parent lifetime, which depend on the context we just emplaced.
+        */
+        tlu::apply_t<children_emplace_context_with_parent_lifetime, child_types>::call(*this, mach, ctx);
+    }
+
+    template<class ParentContext>
+    void emplace_context_with_parent_lifetime(
+        machine<MachineConfHolder>& mach,
+        ParentContext& parent_ctx)
+    {
+        if constexpr (ctx_lifetime == state_context_lifetime::parent)
+        {
+            emplace_context(mach, parent_ctx);
+        }
+    }
+
+    template<class StateMoldPath2, class ParentContext>
+    void emplace_context_at(
+        machine<MachineConfHolder>& mach,
+        ParentContext& parent_ctx)
+    {
+        if constexpr (std::is_same_v<StateMoldPath, StateMoldPath2>)
+        {
+            emplace_context(mach, parent_ctx);
+        }
+        else
+        {
+            child_toward<StateMoldPath2>().template emplace_context_at<StateMoldPath2>(mach, ctx_holder_.get_deep());
+        }
+    }
+
+    void reset_context()
+    {
+        /*
+        First reset subcontexts with parent lifetime, which depend on the context we're about to
+        reset.
+        */
+        tlu::apply_t<children_reset_context_with_parent_lifetime, child_types>::call(*this);
+
+        ctx_holder_.reset();
+    }
+
+    void reset_context_with_parent_lifetime()
+    {
+        if constexpr (ctx_lifetime == state_context_lifetime::parent)
+        {
+            reset_context();
         }
     }
 
     template<class StateMoldPath2>
-    const auto& context_at() const
+    void reset_context_at()
     {
         if constexpr (std::is_same_v<StateMoldPath, StateMoldPath2>)
         {
-            return ctx_holder_.get();
+            reset_context();
         }
         else
         {
-            using child_t = tlu::find_if_t<
-                child_types,
-                context_tree_detail::node_has_state_mold_path_starting_with<
-                    StateMoldPath2>::template inner>;
-            return get<child_t>(children_)
-                .template context_at<StateMoldPath2>();
+            child_toward<StateMoldPath2>().template reset_context_at<StateMoldPath2>();
         }
     }
 
@@ -194,8 +257,10 @@ private:
 
     using context_type = typename state_mold_impl_type::context_type;
 
+    static constexpr auto ctx_lifetime = impl_of(state_mold).context_lifetime;
+
     static constexpr auto ctx_storage =
-        impl_of(state_mold).context_lifetime == state_context_lifetime::parent
+        ctx_lifetime == state_context_lifetime::parent
         ? ParentStorage
         : context_storage::optional;
 
@@ -219,14 +284,108 @@ private:
 
     using children_mix = tlu::apply_t<mix, child_types>;
 
+    template<class... Child>
+    struct children_emplace_context_with_parent_lifetime
+    {
+        static void call(
+            context_tree_node& self,
+            machine<MachineConfHolder>& mach,
+            context_type& ctx)
+        {
+            (get<Child>(self.children_).emplace_context_with_parent_lifetime(mach, ctx), ...);
+        }
+    };
+
+    template<class... Child>
+    struct children_reset_context_with_parent_lifetime
+    {
+        static void call(context_tree_node& self)
+        {
+            (get<Child>(self.children_).reset_context_with_parent_lifetime(), ...);
+        }
+    };
+
+    template<class StateMoldPath2>
+    auto& child_toward()
+    {
+        using child_t = tlu::find_if_t<
+            child_types,
+            context_tree_detail::node_has_state_mold_path_starting_with<
+                StateMoldPath2>::template inner>;
+        return get<child_t>(children_);
+    }
+
+    template<class StateMoldPath2>
+    const auto& child_toward() const
+    {
+        using child_t = tlu::find_if_t<
+            child_types,
+            context_tree_detail::node_has_state_mold_path_starting_with<
+                StateMoldPath2>::template inner>;
+        return get<child_t>(children_);
+    }
+
     context_holder<context_type, ctx_storage, ctx_sig> ctx_holder_;
 
     children_mix children_;
 };
 
 template<class MachineConfHolder>
-using context_tree =
-    context_tree_node<MachineConfHolder, iseq<>, context_storage::plain>;
+class context_tree
+{
+public:
+    template<class... Args>
+    context_tree(machine<MachineConfHolder>& mach, Args&&... args):
+        mach_(mach),
+        impl_(mach, std::forward<Args>(args)...)
+    {
+    }
+
+    context_tree(const context_tree&) = delete;
+    context_tree(context_tree&&) = delete;
+    context_tree& operator=(const context_tree&) = delete;
+    context_tree& operator=(context_tree&&) = delete;
+
+    template<class StateMoldPath>
+    auto& context_at()
+    {
+        return impl_.template node_at<StateMoldPath>().context();
+    }
+
+    template<class StateMoldPath>
+    const auto& context_at() const
+    {
+        return impl_.template node_at<StateMoldPath>().context();
+    }
+
+    template<class StateMoldPath>
+    auto& opt_context_at()
+    {
+        return impl_.template node_at<StateMoldPath>().opt_context();
+    }
+
+    template<class StateMoldPath>
+    const auto& opt_context_at() const
+    {
+        return impl_.template node_at<StateMoldPath>().opt_context();
+    }
+
+    template<class StateMoldPath>
+    void emplace_context_at()
+    {
+        impl_.template emplace_context_at<StateMoldPath>(mach_, impl_.context());
+    }
+
+    template<class StateMoldPath>
+    void reset_context_at()
+    {
+        impl_.template reset_context_at<StateMoldPath>();
+    }
+
+private:
+    machine<MachineConfHolder>& mach_;
+    context_tree_node<MachineConfHolder, iseq<>, context_storage::plain> impl_;
+};
 
 } // namespace maki::detail
 

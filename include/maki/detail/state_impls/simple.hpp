@@ -49,12 +49,12 @@ public:
 
     auto& context()
     {
-        return ctx_tree_.template context_at<StateMoldPath>();
+        return ctx_tree_.template opt_context_at<StateMoldPath>();
     }
 
     const auto& context() const
     {
-        return ctx_tree_.template context_at<StateMoldPath>();
+        return ctx_tree_.template opt_context_at<StateMoldPath>();
     }
 
     template<class Event>
@@ -63,32 +63,17 @@ public:
         return impl_type::template defers_event<Event>();
     }
 
-    template<class ParentContext, class Machine>
-    void emplace_contexts_with_parent_lifetime(
-        ParentContext& parent_ctx,
-        Machine& mach)
-    {
-        if constexpr (ctx_lifetime == state_context_lifetime::parent)
-        {
-            ctx_tree_.template context_holder_at<StateMoldPath>().emplace(
-                mach,
-                parent_ctx);
-        }
-    }
-
     template<class Machine, class ParentContext, class Event>
-    void enter(Machine& mach, ParentContext& parent_ctx, const Event& event)
+    void enter(Machine& mach, ParentContext& /*parent_ctx*/, const Event& event)
     {
         if constexpr (ctx_lifetime == state_context_lifetime::state_activity)
         {
-            ctx_tree_.template context_holder_at<StateMoldPath>().emplace(
-                mach,
-                parent_ctx);
+            ctx_tree_.template emplace_context_at<StateMoldPath>();
         }
 
         impl_type::enter(
             mach,
-            ctx_tree_.template context_holder_at<StateMoldPath>().get_deep(),
+            ctx_tree_.template context_at<StateMoldPath>(),
             event);
     }
 
@@ -100,7 +85,7 @@ public:
     {
         return impl_type::process_event(
             mach,
-            ctx_tree_.template context_holder_at<StateMoldPath>().get_deep(),
+            ctx_tree_.template context_at<StateMoldPath>(),
             event);
     }
 
@@ -112,7 +97,7 @@ public:
     {
         return impl_type::check_event(
             mach,
-            ctx_tree_.template context_holder_at<StateMoldPath>().get_deep(),
+            ctx_tree_.template context_at<StateMoldPath>(),
             event);
     }
 
@@ -121,20 +106,12 @@ public:
     {
         impl_type::exit(
             mach,
-            ctx_tree_.template context_holder_at<StateMoldPath>().get_deep(),
+            ctx_tree_.template context_at<StateMoldPath>(),
             event);
 
         if constexpr (ctx_lifetime == state_context_lifetime::state_activity)
         {
-            ctx_tree_.template context_holder_at<StateMoldPath>().reset();
-        }
-    }
-
-    void reset_contexts_with_parent_lifetime()
-    {
-        if constexpr (ctx_lifetime == state_context_lifetime::parent)
-        {
-            ctx_tree_.template context_holder_at<StateMoldPath>().reset();
+            ctx_tree_.template reset_context_at<StateMoldPath>();
         }
     }
 

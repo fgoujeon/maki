@@ -170,16 +170,6 @@ public:
         }
     }
 
-    template<class Context>
-    void emplace_contexts_with_parent_lifetime(
-        Context& ctx,
-        machine<MachineConfHolder>& mach)
-    {
-        iseq_for_each<
-            state_mold_iseq_0,
-            state_emplace_contexts_with_parent_lifetime>(*this, ctx, mach);
-    }
-
     // Enter the initial state
     template<class Context, class Event>
     void
@@ -204,13 +194,6 @@ public:
                 ctx,
                 event);
         }
-    }
-
-    void reset_contexts_with_parent_lifetime()
-    {
-        iseq_for_each<
-            state_mold_iseq_0,
-            state_reset_contexts_with_parent_lifetime>(*this);
     }
 
     template<bool Dry, class Context, class Event>
@@ -251,27 +234,6 @@ public:
 private:
     using transition_index_sequence =
         linear_iseq_t<impl_of_t<transition_table_type>::size>;
-
-    struct state_emplace_contexts_with_parent_lifetime
-    {
-        template<int StateMoldId, class Self, class Context>
-        static void
-        call(Self& self, Context& ctx, machine<MachineConfHolder>& mach)
-        {
-            auto& stt = static_state_mold_id_to_state<StateMoldId>(self);
-            impl_of(stt).emplace_contexts_with_parent_lifetime(ctx, mach);
-        }
-    };
-
-    struct state_reset_contexts_with_parent_lifetime
-    {
-        template<int StateMoldId, class Self>
-        static void call(Self& self)
-        {
-            auto& stt = static_state_mold_id_to_state<StateMoldId>(self);
-            impl_of(stt).reset_contexts_with_parent_lifetime();
-        }
-    };
 
     template<class Event>
     struct state_defers_event

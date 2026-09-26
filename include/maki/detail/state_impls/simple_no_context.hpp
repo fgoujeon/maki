@@ -65,14 +65,6 @@ public:
         }
     }
 
-    template<class ParentContext, class Machine>
-    static constexpr void emplace_contexts_with_parent_lifetime(
-        ParentContext& /*parent_ctx*/,
-        Machine& /*mach*/)
-    {
-        // No context to emplace
-    }
-
     template<class Machine, class Context, class Event>
     static void enter(Machine& mach, Context& ctx, const Event& event)
     {
@@ -135,11 +127,6 @@ public:
                 ctx,
                 event);
         }
-    }
-
-    static constexpr void reset_contexts_with_parent_lifetime()
-    {
-        // No context to reset
     }
 
     static constexpr bool completed()

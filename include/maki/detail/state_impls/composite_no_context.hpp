@@ -134,22 +134,12 @@ public:
 
     auto& context()
     {
-        return ctx_tree_.template context_at<StateMoldPath>();
+        return ctx_tree_.template opt_context_at<StateMoldPath>();
     }
 
     const auto& context() const
     {
-        return ctx_tree_.template context_at<StateMoldPath>();
-    }
-
-    template<class Context>
-    void emplace_contexts_with_parent_lifetime(
-        Context& ctx,
-        machine<MachineConfHolder>& mach)
-    {
-        tlu::for_each<
-            region_mix_type,
-            region_emplace_contexts_with_parent_lifetime>(*this, ctx, mach);
+        return ctx_tree_.template opt_context_at<StateMoldPath>();
     }
 
     template<class Context, class Event>
@@ -207,13 +197,6 @@ public:
         impl_type::exit(mach, ctx, event);
     }
 
-    void reset_contexts_with_parent_lifetime()
-    {
-        tlu::for_each<
-            region_mix_type,
-            region_reset_contexts_with_parent_lifetime>(*this);
-    }
-
     template<class Event>
     [[nodiscard]] bool defers_event() const
     {
@@ -267,17 +250,6 @@ private:
         }
     };
 
-    struct region_emplace_contexts_with_parent_lifetime
-    {
-        template<class Region, class Self, class Context>
-        static void
-        call(Self& self, Context& ctx, machine<MachineConfHolder>& mach)
-        {
-            impl_of(get<Region>(self.regions_))
-                .emplace_contexts_with_parent_lifetime(ctx, mach);
-        }
-    };
-
     struct region_enter
     {
         template<class Region, class Self, class Context, class Event>
@@ -322,16 +294,6 @@ private:
         {
             impl_of(get<Region>(self.regions_))
                 .template exit<TargetStateMoldId>(mach, ctx, event);
-        }
-    };
-
-    struct region_reset_contexts_with_parent_lifetime
-    {
-        template<class Region, class Self>
-        static void call(Self& self)
-        {
-            impl_of(get<Region>(self.regions_))
-                .reset_contexts_with_parent_lifetime();
         }
     };
 
@@ -463,20 +425,12 @@ public:
 
     auto& context()
     {
-        return ctx_tree_.template context_at<StateMoldPath>();
+        return ctx_tree_.template opt_context_at<StateMoldPath>();
     }
 
     const auto& context() const
     {
-        return ctx_tree_.template context_at<StateMoldPath>();
-    }
-
-    template<class Context>
-    void emplace_contexts_with_parent_lifetime(
-        Context& ctx,
-        machine<MachineConfHolder>& mach)
-    {
-        impl_of(region_).emplace_contexts_with_parent_lifetime(ctx, mach);
+        return ctx_tree_.template opt_context_at<StateMoldPath>();
     }
 
     template<class Context, class Event>
@@ -522,11 +476,6 @@ public:
     {
         impl_of(region_).template exit<state_mold_ids::fin>(mach, ctx, event);
         impl_type::exit(mach, ctx, event);
-    }
-
-    void reset_contexts_with_parent_lifetime()
-    {
-        impl_of(region_).reset_contexts_with_parent_lifetime();
     }
 
     template<class Event>

@@ -12,11 +12,7 @@
 namespace maki::detail::state_impls
 {
 
-template<
-    class MachineConfHolder,
-    class StateMoldPath,
-    context_storage ParentCtxStorage,
-    int TransitionTableCount>
+template<class MachineConfHolder, class StateMoldPath, int TransitionTableCount>
 class composite_no_context;
 
 } // namespace maki::detail::state_impls

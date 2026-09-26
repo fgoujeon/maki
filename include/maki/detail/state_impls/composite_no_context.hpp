@@ -29,53 +29,36 @@
 namespace maki::detail::state_impls
 {
 
-template<
-    class MachineConfHolder,
-    class ParentStateMoldPath,
-    context_storage ParentCtxStorage,
-    int Index>
+template<class MachineConfHolder, class ParentStateMoldPath, int Index>
 struct region_mix_elem
 {
     using transition_table_path = iseq_push_back_t<ParentStateMoldPath, Index>;
-    using type = region<region_impl<
-        MachineConfHolder,
-        transition_table_path,
-        ParentCtxStorage>>;
+    using type = region<region_impl<MachineConfHolder, transition_table_path>>;
 };
 
-template<
-    class MachineConfHolder,
-    class ParentStateMoldPath,
-    context_storage ParentCtxStorage,
-    int Index>
-using region_mix_elem_t = typename region_mix_elem<
-    MachineConfHolder,
-    ParentStateMoldPath,
-    ParentCtxStorage,
-    Index>::type;
+template<class MachineConfHolder, class ParentStateMoldPath, int Index>
+using region_mix_elem_t =
+    typename region_mix_elem<MachineConfHolder, ParentStateMoldPath, Index>::
+        type;
 
 template<
     class MachineConfHolder,
     class ParentStateMoldPath,
-    context_storage ParentCtxStorage,
     class RegionIndexSequence>
 struct region_mix;
 
 template<
     class MachineConfHolder,
     class ParentStateMoldPath,
-    context_storage ParentCtxStorage,
     int... RegionIndexes>
 struct region_mix<
     MachineConfHolder,
     ParentStateMoldPath,
-    ParentCtxStorage,
     iseq<RegionIndexes...>>
 {
     using type = mix<region_mix_elem_t<
         MachineConfHolder,
         ParentStateMoldPath,
-        ParentCtxStorage,
         RegionIndexes>...>;
 };
 
@@ -100,11 +83,7 @@ using region_type_list_deferrable_event_type_set = tlu::left_fold_t<
     empty_type_set_t,
     RegionTypeList>;
 
-template<
-    class MachineConfHolder,
-    class StateMoldPath,
-    context_storage ParentCtxStorage,
-    int TransitionTableCount>
+template<class MachineConfHolder, class StateMoldPath, int TransitionTableCount>
 class composite_no_context
 {
 public:
@@ -119,20 +98,12 @@ public:
         decltype(impl_of(mold).transition_tables);
     using impl_type = simple_no_context<MachineConfHolder, StateMoldPath>;
 
-    static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
-
-    static constexpr auto ctx_storage =
-        ctx_lifetime == state_context_lifetime::parent
-        ? ParentCtxStorage
-        : context_storage::optional;
-
     using region_index_sequence =
         linear_iseq_t<impl_of(mold).transition_tables.size>;
 
     using region_mix_type = typename region_mix<
         MachineConfHolder,
         StateMoldPath,
-        ctx_storage,
         region_index_sequence>::type;
 
     // Events of interest to the substates
@@ -150,10 +121,8 @@ public:
         typename impl_type::deferrable_event_type_set,
         region_type_list_deferrable_event_type_set<region_mix_type>>;
 
-    composite_no_context(
-        machine<MachineConfHolder>& mach,
-        context_tree<MachineConfHolder>& ctx_tree):
-        ctx_tree_(ctx_tree), regions_(mix_uniform_construct, mach, ctx_tree)
+    composite_no_context(context_tree<MachineConfHolder>& ctx_tree):
+        ctx_tree_(ctx_tree), regions_(mix_uniform_construct, ctx_tree)
     {
     }
 
@@ -450,15 +419,8 @@ private:
 };
 
 // Specialization for one region, to avoid `mix` machinery.
-template<
-    class MachineConfHolder,
-    class StateMoldPath,
-    context_storage ParentCtxStorage>
-class composite_no_context<
-    MachineConfHolder,
-    StateMoldPath,
-    ParentCtxStorage,
-    1>
+template<class MachineConfHolder, class StateMoldPath>
+class composite_no_context<MachineConfHolder, StateMoldPath, 1>
 {
 public:
     using machine_conf_holder_type = MachineConfHolder;
@@ -472,17 +434,8 @@ public:
         decltype(impl_of(mold).transition_tables);
     using impl_type = simple_no_context<MachineConfHolder, StateMoldPath>;
 
-    static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
-
-    static constexpr auto ctx_storage =
-        ctx_lifetime == state_context_lifetime::parent
-        ? ParentCtxStorage
-        : context_storage::optional;
-
-    using region_impl_type = region_impl<
-        MachineConfHolder,
-        iseq_push_back_t<StateMoldPath, 0>,
-        ctx_storage>;
+    using region_impl_type =
+        region_impl<MachineConfHolder, iseq_push_back_t<StateMoldPath, 0>>;
 
     // Events of interest to the substates
     using substates_event_type_set = typename region_impl_type::event_type_set;
@@ -497,10 +450,8 @@ public:
     using deferrable_event_type_set =
         typename region_impl_type::deferrable_event_type_set;
 
-    composite_no_context(
-        machine<MachineConfHolder>& mach,
-        context_tree<MachineConfHolder>& ctx_tree):
-        ctx_tree_(ctx_tree), region_(mach, ctx_tree)
+    composite_no_context(context_tree<MachineConfHolder>& ctx_tree):
+        ctx_tree_(ctx_tree), region_(ctx_tree)
     {
     }
 

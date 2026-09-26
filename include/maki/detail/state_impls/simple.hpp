@@ -17,10 +17,7 @@
 namespace maki::detail::state_impls
 {
 
-template<
-    class MachineConfHolder,
-    class StateMoldPath,
-    context_storage ParentCtxStorage>
+template<class MachineConfHolder, class StateMoldPath>
 class simple
 {
 public:
@@ -39,12 +36,8 @@ public:
     using deferrable_event_type_set =
         typename impl_type::deferrable_event_type_set;
 
-    static constexpr auto context_sig = impl_of(mold).context_sig;
-
     template<class... Args>
-    simple(
-        machine<MachineConfHolder>& /*mach*/,
-        context_tree<MachineConfHolder>& ctx_tree): ctx_tree_(ctx_tree)
+    simple(context_tree<MachineConfHolder>& ctx_tree): ctx_tree_(ctx_tree)
     {
     }
 
@@ -153,11 +146,6 @@ public:
 
 private:
     static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
-
-    static constexpr auto ctx_storage =
-        ctx_lifetime == state_context_lifetime::parent
-        ? ParentCtxStorage
-        : context_storage::optional;
 
     context_tree<MachineConfHolder>& ctx_tree_;
 };

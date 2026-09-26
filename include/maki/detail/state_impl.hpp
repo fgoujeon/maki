@@ -21,80 +21,47 @@ namespace maki::detail
 template<
     class MachineConfHolder,
     class StateMoldPath,
-    context_storage ParentCtxStorage,
     int TransitionTableCount,
     bool HasContext>
 struct state_impl_helper;
 
-template<
-    class MachineConfHolder,
-    class StateMoldPath,
-    context_storage ParentCtxStorage>
-struct state_impl_helper<
-    MachineConfHolder,
-    StateMoldPath,
-    ParentCtxStorage,
-    0,
-    false>
+template<class MachineConfHolder, class StateMoldPath>
+struct state_impl_helper<MachineConfHolder, StateMoldPath, 0, false>
 {
     using type =
         state_impls::simple_no_context<MachineConfHolder, StateMoldPath>;
 };
 
-template<
-    class MachineConfHolder,
-    class StateMoldPath,
-    context_storage ParentCtxStorage>
-struct state_impl_helper<
-    MachineConfHolder,
-    StateMoldPath,
-    ParentCtxStorage,
-    0,
-    true>
+template<class MachineConfHolder, class StateMoldPath>
+struct state_impl_helper<MachineConfHolder, StateMoldPath, 0, true>
 {
-    using type =
-        state_impls::simple<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
+    using type = state_impls::simple<MachineConfHolder, StateMoldPath>;
 };
 
-template<
-    class MachineConfHolder,
-    class StateMoldPath,
-    context_storage ParentCtxStorage,
-    int TransitionTableCount>
+template<class MachineConfHolder, class StateMoldPath, int TransitionTableCount>
 struct state_impl_helper<
     MachineConfHolder,
     StateMoldPath,
-    ParentCtxStorage,
     TransitionTableCount,
     false>
 {
     using type = state_impls::composite_no_context<
         MachineConfHolder,
         StateMoldPath,
-        ParentCtxStorage,
         TransitionTableCount>;
 };
 
-template<
-    class MachineConfHolder,
-    class StateMoldPath,
-    context_storage ParentCtxStorage,
-    int TransitionTableCount>
+template<class MachineConfHolder, class StateMoldPath, int TransitionTableCount>
 struct state_impl_helper<
     MachineConfHolder,
     StateMoldPath,
-    ParentCtxStorage,
     TransitionTableCount,
     true>
 {
-    using type = state_impls::
-        composite<MachineConfHolder, StateMoldPath, ParentCtxStorage>;
+    using type = state_impls::composite<MachineConfHolder, StateMoldPath>;
 };
 
-template<
-    class MachineConfHolder,
-    class StateMoldPath,
-    context_storage ParentCtxStorage>
+template<class MachineConfHolder, class StateMoldPath>
 struct state_impl
 {
     static constexpr const auto& stt_mold =
@@ -106,18 +73,13 @@ struct state_impl
     using type = typename state_impl_helper<
         MachineConfHolder,
         StateMoldPath,
-        ParentCtxStorage,
         impl_of(stt_mold).transition_tables.size,
         !std::is_void_v<context_type>>::type;
 };
 
-template<
-    class MachineConfHolder,
-    class StateMoldPath,
-    context_storage ParentCtxStorage>
+template<class MachineConfHolder, class StateMoldPath>
 using state_impl_t =
-    typename state_impl<MachineConfHolder, StateMoldPath, ParentCtxStorage>::
-        type;
+    typename state_impl<MachineConfHolder, StateMoldPath>::type;
 
 } // namespace maki::detail
 

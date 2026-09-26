@@ -86,10 +86,7 @@ namespace region_detail
             TransitionIndex>::template matches>;
 } // namespace region_detail
 
-template<
-    class MachineConfHolder,
-    class TransitionTablePath,
-    context_storage ParentCtxStorage>
+template<class MachineConfHolder, class TransitionTablePath>
 class region_impl
 {
 public:
@@ -111,8 +108,7 @@ public:
     template<int... StateMoldIds>
     using state_mold_iseq_to_state_mix_t = mix<maki::state<state_impl_t<
         MachineConfHolder,
-        iseq_push_back_t<TransitionTablePath, StateMoldIds>,
-        ParentCtxStorage>>...>;
+        iseq_push_back_t<TransitionTablePath, StateMoldIds>>>...>;
 
     using state_mix_type =
         iseq_apply_t<state_mold_iseq_0, state_mold_iseq_to_state_mix_t>;
@@ -128,10 +124,8 @@ public:
         state_type_list_deferrable_event_type_set_t<state_mix_type>;
 
     template<class Context>
-    region_impl(
-        const region<region_impl>* pitf,
-        machine<MachineConfHolder>& mach,
-        Context& ctx): pitf_(pitf), states_(mix_uniform_construct, mach, ctx)
+    region_impl(const region<region_impl>* pitf, Context& ctx):
+        pitf_(pitf), states_(mix_uniform_construct, ctx)
     {
     }
 
@@ -795,8 +789,7 @@ private:
         {
             using state_t = maki::state<state_impl_t<
                 MachineConfHolder,
-                iseq_push_back_t<TransitionTablePath, StateMoldId>,
-                ParentCtxStorage>>;
+                iseq_push_back_t<TransitionTablePath, StateMoldId>>>;
             return get<state_t>(self.states_);
         }
     }

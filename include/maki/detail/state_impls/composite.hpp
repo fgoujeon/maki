@@ -20,10 +20,7 @@
 namespace maki::detail::state_impls
 {
 
-template<
-    class MachineConfHolder,
-    class StateMoldPath,
-    context_storage ParentCtxStorage>
+template<class MachineConfHolder, class StateMoldPath>
 class composite
 {
 public:
@@ -40,16 +37,13 @@ public:
     using impl_type = composite_no_context<
         MachineConfHolder,
         StateMoldPath,
-        ParentCtxStorage,
         option_set_type::transition_table_tuple_type::size>;
     using event_type_set = typename impl_type::event_type_set;
     using deferrable_event_type_set =
         typename impl_type::deferrable_event_type_set;
 
-    composite(
-        machine<MachineConfHolder>& mach,
-        context_tree<MachineConfHolder>& ctx_tree):
-        ctx_tree_(ctx_tree), impl_(mach, ctx_tree)
+    composite(context_tree<MachineConfHolder>& ctx_tree):
+        ctx_tree_(ctx_tree), impl_(ctx_tree)
     {
     }
 
@@ -205,13 +199,6 @@ private:
     }
 
     static constexpr auto ctx_lifetime = impl_of(mold).context_lifetime;
-
-    static constexpr auto ctx_storage =
-        ctx_lifetime == state_context_lifetime::parent
-        ? ParentCtxStorage
-        : context_storage::optional;
-
-    static constexpr auto ctx_sig = impl_of(mold).context_sig;
 
     context_tree<MachineConfHolder>& ctx_tree_;
     impl_type impl_;

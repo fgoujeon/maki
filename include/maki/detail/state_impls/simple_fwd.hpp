@@ -12,10 +12,7 @@
 namespace maki::detail::state_impls
 {
 
-template<
-    class MachineConfHolder,
-    class StateMoldPath,
-    context_storage ParentCtxStorage>
+template<class MachineConfHolder, class StateMoldPath>
 class simple;
 
 } // namespace maki::detail::state_impls

@@ -119,7 +119,7 @@ public:
     template<class... ContextArgs>
     explicit machine(ContextArgs&&... ctx_args):
         ctx_tree_(*this, std::forward<ContextArgs>(ctx_args)...),
-        impl_(*this, ctx_tree_)
+        impl_(ctx_tree_)
     {
         if constexpr (detail::impl_of(conf).auto_start)
         {
@@ -347,7 +347,6 @@ private:
     using impl_type = detail::state_impls::composite_no_context<
         ConfHolder,
         detail::iseq<>,
-        detail::context_storage::plain,
         option_set_type::transition_table_tuple_type::size>;
 
     using deferrable_event_type_set =

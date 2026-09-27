@@ -8,6 +8,7 @@
 #define MAKI_DETAIL_ISEQ_HPP
 
 #include "pp/enum.hpp" // NOLINT misc-include-cleaner
+#include "pp/for.hpp" // NOLINT misc-include-cleaner
 #include "type_list.hpp"
 #include <type_traits>
 
@@ -210,26 +211,86 @@ iseq_left_fold_t
 
 namespace iseq_left_fold_detail
 {
-    template<template<class, int> class Operation, class Initial, int... Is>
+    template<template<class, int> class F, class V, int... Is>
     struct fold_on_pack;
 
+    template<template<class, int> class F, class V>
+    struct fold_on_pack<F, V>
+    {
+        using type = V;
+    };
+
     template<
-        template<class, int> class Operation,
-        class Initial,
+        template<class, int> class F,
+        class V,
         int I,
         int... Is>
-    struct fold_on_pack<Operation, Initial, I, Is...>
+    struct fold_on_pack<F, V, I, Is...>
     {
         using type =
-            typename fold_on_pack<Operation, Operation<Initial, I>, Is...>::
+            typename fold_on_pack<F, F<V, I>, Is...>::
                 type;
     };
 
-    template<template<class, int> class Operation, class Initial>
-    struct fold_on_pack<Operation, Initial>
-    {
-        using type = Initial;
+#define MAKI_DETAIL_TYPE_TPL_PARAM(index) int I##index
+#define MAKI_DETAIL_TYPE_TPL_ARG(index) I##index
+#define MAKI_DETAIL_TYPE_ANGLE(index) I##index >
+#define MAKI_DETAIL_F_ANGLE(index) F <
+
+#define MAKI_DETAIL_FOLD_SPE(size) \
+    template< \
+        template<class, int> class F, \
+        class V, \
+        MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_TYPE_TPL_PARAM)> \
+    struct fold_on_pack< \
+        F, \
+        V, \
+        MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_TYPE_TPL_ARG)> \
+    { \
+        using type = MAKI_DETAIL_PP_FOR_##size(MAKI_DETAIL_F_ANGLE) V, \
+              MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_TYPE_ANGLE); \
     };
+
+    MAKI_DETAIL_FOLD_SPE(1)
+    MAKI_DETAIL_FOLD_SPE(2)
+    MAKI_DETAIL_FOLD_SPE(3)
+    MAKI_DETAIL_FOLD_SPE(4)
+    MAKI_DETAIL_FOLD_SPE(5)
+    MAKI_DETAIL_FOLD_SPE(6)
+    MAKI_DETAIL_FOLD_SPE(7)
+    MAKI_DETAIL_FOLD_SPE(8)
+    MAKI_DETAIL_FOLD_SPE(9)
+
+#undef MAKI_DETAIL_FOLD_SPE
+
+#define MAKI_DETAIL_FOLD_SPE(size) \
+    template< \
+        template<class, int> class F, \
+        class V, \
+        MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_TYPE_TPL_PARAM), \
+        int... Is> \
+    struct fold_on_pack< \
+        F, \
+        V, \
+        MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_TYPE_TPL_ARG), \
+        Is...> \
+    { \
+        using type = typename fold_on_pack< \
+            F, \
+            MAKI_DETAIL_PP_FOR_##size(MAKI_DETAIL_F_ANGLE) V, \
+            MAKI_DETAIL_PP_ENUM_##size(MAKI_DETAIL_TYPE_ANGLE), \
+            Is...>::type; \
+    };
+
+    MAKI_DETAIL_FOLD_SPE(10)
+
+#undef MAKI_DETAIL_FOLD_SPE
+
+#undef MAKI_DETAIL_TYPE_TPL_PARAM
+#undef MAKI_DETAIL_TYPE_TPL_ARG
+#undef MAKI_DETAIL_TYPE_ANGLE
+#undef MAKI_DETAIL_F_ANGLE
+
 } // namespace iseq_left_fold_detail
 
 template<template<class, int> class Operation, class Initial, class Seq>

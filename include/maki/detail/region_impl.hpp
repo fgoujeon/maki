@@ -24,7 +24,7 @@
 #include "path_impl.hpp"
 #include "state_impl.hpp"
 #include "state_mold_ids.hpp"
-#include "transition_table_digest.hpp"
+#include "transition_table_traits.hpp"
 #include "transition_traits.hpp"
 #include "tuple.hpp"
 #include "type_set.hpp"
@@ -99,11 +99,8 @@ public:
     using transition_table_type = machine_conf_tree::
         node_at_path_t<MachineConfHolder, TransitionTablePath>;
 
-    using transition_table_digest_type =
-        transition_table_digest<MachineConfHolder, TransitionTablePath>;
-
-    using state_mold_iseq_0 =
-        typename transition_table_digest_type::stt_mold_ids;
+    using state_mold_iseq_0 = transition_table_traits::
+        state_mold_ids<MachineConfHolder, TransitionTablePath>;
 
     using state_mold_iseq =
         iseq_push_back_t<state_mold_iseq_0, state_mold_ids::undefined>;
@@ -257,6 +254,9 @@ public:
 private:
     using transition_index_sequence =
         linear_iseq_t<impl_of_t<transition_table_type>::size>;
+
+    static constexpr bool has_completion_transitions = transition_table_traits::
+        has_completion_transitions<MachineConfHolder, TransitionTablePath>;
 
     struct state_emplace_contexts_with_parent_lifetime
     {
@@ -592,7 +592,7 @@ private:
         */
         if constexpr (TargetStateMoldId != state_mold_ids::internal &&
             TargetStateMoldId != state_mold_ids::null &&
-            transition_table_digest_type::has_completion_transitions)
+            has_completion_transitions)
         {
             try_executing_completion_transitions(
                 state_mold_id_to_state<TargetStateMoldId>(),
@@ -660,9 +660,7 @@ private:
                     processed = impl_of(state).process_event(mach, ctx, event);
                 }
 
-                if constexpr (transition_table_digest_type::
-                                  has_completion_transitions &&
-                    !Dry)
+                if constexpr (has_completion_transitions && !Dry)
                 {
                     self.try_executing_completion_transitions(state, mach, ctx);
                 }

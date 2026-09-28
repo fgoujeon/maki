@@ -43,7 +43,7 @@ namespace transition_table_digest_ns
         ;
     };
 
-    using digest_t = maki::detail::transition_table_digest<machine_conf, maki::detail::iseq<0>>;
+    using stt_mold_ids = maki::detail::transition_table_traits::state_mold_ids<machine_conf, maki::detail::iseq<0>>;
 
     using expected_stt_mold_ids = maki::detail::iseq
     <
@@ -57,5 +57,5 @@ namespace transition_table_digest_ns
 TEST_CASE("detail::transition_table_digest")
 {
     using namespace transition_table_digest_ns;
-    REQUIRE(std::is_same_v<digest_t::stt_mold_ids, expected_stt_mold_ids>);
+    REQUIRE(std::is_same_v<stt_mold_ids, expected_stt_mold_ids>);
 }

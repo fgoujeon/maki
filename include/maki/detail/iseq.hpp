@@ -220,16 +220,10 @@ namespace iseq_left_fold_detail
         using type = V;
     };
 
-    template<
-        template<class, int> class F,
-        class V,
-        int I,
-        int... Is>
+    template<template<class, int> class F, class V, int I, int... Is>
     struct fold_on_pack<F, V, I, Is...>
     {
-        using type =
-            typename fold_on_pack<F, F<V, I>, Is...>::
-                type;
+        using type = typename fold_on_pack<F, F<V, I>, Is...>::type;
     };
 
 #define MAKI_DETAIL_TYPE_TPL_PARAM(index) int I##index

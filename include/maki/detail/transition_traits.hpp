@@ -4,8 +4,8 @@
 // https://www.boost.org/LICENSE_1_0.txt)
 // Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_TRANSITION_TABLE_PREDICATES_HPP
-#define MAKI_DETAIL_TRANSITION_TABLE_PREDICATES_HPP
+#ifndef MAKI_DETAIL_TRANSITION_TRAITS_HPP
+#define MAKI_DETAIL_TRANSITION_TRAITS_HPP
 
 #include "../transition_table.hpp"
 #include "friendly_impl.hpp"
@@ -13,7 +13,7 @@
 #include "tlu/get.hpp"
 #include "tuple.hpp"
 
-namespace maki::detail::transition_table_predicates
+namespace maki::detail::transition_traits
 {
 
 /*
@@ -75,6 +75,6 @@ struct has_source_state_and_null_event
     };
 };
 
-} // namespace maki::detail::transition_table_predicates
+} // namespace maki::detail::transition_traits
 
 #endif

@@ -25,7 +25,7 @@
 #include "state_impl.hpp"
 #include "state_mold_ids.hpp"
 #include "transition_table_digest.hpp"
-#include "transition_table_predicates.hpp"
+#include "transition_traits.hpp"
 #include "tuple.hpp"
 #include "type_set.hpp"
 #include <type_traits>
@@ -294,7 +294,7 @@ private:
     static bool
     process_event_2(Self& self, Machine& mach, Context& ctx, const Event& event)
     {
-        using predicate_holder_type = transition_table_predicates::
+        using predicate_holder_type = transition_traits::
             has_event<MachineConfHolder, TransitionTablePath, Event>;
 
         constexpr auto must_try_executing_transitions = iseq_contains_if_v<
@@ -686,7 +686,7 @@ private:
             impl_of_t<std::decay_t<ActiveState>>::mold;
 
         using predicate_holder_type =
-            transition_table_predicates::has_source_state_and_null_event<
+            transition_traits::has_source_state_and_null_event<
                 MachineConfHolder,
                 TransitionTablePath,
                 active_state_mold>;

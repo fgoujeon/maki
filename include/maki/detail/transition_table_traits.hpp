@@ -4,8 +4,8 @@
 // https://www.boost.org/LICENSE_1_0.txt)
 // Official repository: https://github.com/fgoujeon/maki
 
-#ifndef MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
-#define MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
+#ifndef MAKI_DETAIL_TRANSITION_TABLE_TRAITS_HPP
+#define MAKI_DETAIL_TRANSITION_TABLE_TRAITS_HPP
 
 #include "../fin.hpp"
 #include "../null.hpp"
@@ -17,7 +17,7 @@
 #include "type_bimap.hpp"
 #include <type_traits>
 
-namespace maki::detail
+namespace maki::detail::transition_table_traits
 {
 
 /*
@@ -41,7 +41,7 @@ For example, the following digest type...:
     };
 */
 
-namespace transition_table_digest_detail
+namespace digest_detail
 {
     struct initial_digest
     {
@@ -96,14 +96,14 @@ namespace transition_table_digest_detail
                             .evt)>>);
         };
     };
-} // namespace transition_table_digest_detail
+} // namespace digest_detail
 
 template<class MachineConfHolder, class TransitionTablePath>
-using transition_table_digest = iseq_left_fold_t<
-    transition_table_digest_detail::add_transition_to_digest_holder<
+using digest = iseq_left_fold_t<
+    digest_detail::add_transition_to_digest_holder<
         MachineConfHolder,
         TransitionTablePath>::template add_transition_to_digest,
-    transition_table_digest_detail::initial_digest,
+    digest_detail::initial_digest,
     linear_iseq_t<impl_of(
         machine_conf_tree::
             node_at_path_v<MachineConfHolder, TransitionTablePath>)

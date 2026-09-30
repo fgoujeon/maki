@@ -43,7 +43,7 @@ namespace transition_table_digest_ns
         ;
     };
 
-    using digest_t = maki::detail::transition_table_digest<machine_conf, maki::detail::iseq<0>>;
+    using digest_t = maki::detail::transition_table_traits::digest<machine_conf, maki::detail::iseq<0>>;
 
     using expected_state_mold_bimap = typename maki::detail::type_bimap<>
         ::template insert<maki::detail::constant_t<0>, maki::detail::constant_t<&state0>>

@@ -27,7 +27,7 @@
 #include "path_impl.hpp"
 #include "state_impl.hpp"
 #include "state_mold_ids.hpp"
-#include "transition_table_digest.hpp"
+#include "transition_table_traits.hpp"
 #include "transition_traits.hpp"
 #include "tuple.hpp"
 #include "type_bimap.hpp"
@@ -104,7 +104,7 @@ public:
         node_at_path_t<MachineConfHolder, TransitionTablePath>;
 
     using transition_table_digest_type =
-        transition_table_digest<MachineConfHolder, TransitionTablePath>;
+        transition_table_traits::digest<MachineConfHolder, TransitionTablePath>;
 
     using state_mold_bimap =
         typename transition_table_digest_type::state_mold_bimap;

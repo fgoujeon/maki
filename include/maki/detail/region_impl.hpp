@@ -254,10 +254,9 @@ public:
     template<const auto& StateMold>
     const auto& state() const
     {
-        constexpr int state_mold_id = machine_conf_tree::id_of_state_mold_v<
-            MachineConfHolder,
-            TransitionTablePath,
-            StateMold>;
+        constexpr auto state_mold_id = type_bimap_get_l_t<
+            target_state_mold_id_extended_bimap,
+            constant_t<&StateMold>>::value;
         return state_mold_id_to_state<state_mold_id>();
     }
 
@@ -433,11 +432,9 @@ private:
                 }
                 else
                 {
-                    static constexpr auto source_state_mold_id =
-                        machine_conf_tree::id_of_source_state_mold_v<
-                            MachineConfHolder,
-                            TransitionTablePath,
-                            TransitionIndex>;
+                    static constexpr auto source_state_mold_id = type_bimap_get_l_t<
+                        target_state_mold_id_extended_bimap,
+                        constant_t<&trans.source_state_mold>>::value;
 
                     return try_executing_transition_2<
                         Dry,
@@ -715,11 +712,10 @@ private:
     template<const auto& StateMold>
     [[nodiscard]] bool is_active_state_mold() const
     {
-        return active_state_mold_id_ ==
-            machine_conf_tree::id_of_state_mold_v<
-                MachineConfHolder,
-                TransitionTablePath,
-                StateMold>;
+        constexpr auto state_mold_id = type_bimap_get_l_t<
+            target_state_mold_id_extended_bimap,
+            constant_t<&StateMold>>::value;
+        return active_state_mold_id_ == state_mold_id;
     }
 
     template<auto StateSetPtr>

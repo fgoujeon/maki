@@ -8,6 +8,7 @@
 #define MAKI_DETAIL_REGION_IMPL_HPP
 
 #include "../action.hpp"
+#include "../fin.hpp"
 #include "../guard.hpp"
 #include "../null.hpp"
 #include "../path.hpp"
@@ -15,6 +16,8 @@
 #include "../state_mold.hpp"
 #include "../states.hpp"
 #include "../transition_table.hpp"
+#include "../undefined.hpp"
+#include "constant.hpp"
 #include "context_storage.hpp"
 #include "friendly_impl.hpp"
 #include "iseq.hpp"
@@ -27,6 +30,7 @@
 #include "transition_table_digest.hpp"
 #include "transition_traits.hpp"
 #include "tuple.hpp"
+#include "type_bimap.hpp"
 #include "type_set.hpp"
 #include <type_traits>
 
@@ -102,11 +106,21 @@ public:
     using transition_table_digest_type =
         transition_table_digest<MachineConfHolder, TransitionTablePath>;
 
-    using state_mold_iseq_0 =
-        typename transition_table_digest_type::stt_mold_ids;
+    using target_state_mold_id_bimap =
+        typename transition_table_digest_type::target_state_mold_id_bimap;
 
-    using state_mold_iseq =
-        iseq_push_back_t<state_mold_iseq_0, state_mold_ids::undefined>;
+    using state_mold_iseq = iseq_from_constant_list_t<
+        typename target_state_mold_id_bimap::left_type_list>;
+
+    // clang-format off
+    using target_state_mold_id_extended_bimap = typename target_state_mold_id_bimap
+        ::template insert<constant_t<state_mold_ids::undefined>, constant_t<&maki::undefined>>
+        ::template insert<constant_t<state_mold_ids::internal>,  constant_t<&maki::null>>
+        ::template insert<constant_t<state_mold_ids::fin>,       constant_t<&maki::fin>>;
+    // clang-format on
+
+    using state_mold_iseq_with_undefined =
+        iseq_push_back_t<state_mold_iseq, state_mold_ids::undefined>;
 
     template<int... StateMoldIds>
     using state_mold_iseq_to_state_mix_t = mix<maki::state<state_impl_t<
@@ -115,7 +129,7 @@ public:
         ParentCtxStorage>>...>;
 
     using state_mix_type =
-        iseq_apply_t<state_mold_iseq_0, state_mold_iseq_to_state_mix_t>;
+        iseq_apply_t<state_mold_iseq, state_mold_iseq_to_state_mix_t>;
 
     using states_event_type_set =
         state_type_list_event_type_set_t<state_mix_type>;
@@ -182,7 +196,7 @@ public:
         machine<MachineConfHolder>& mach)
     {
         iseq_for_each<
-            state_mold_iseq_0,
+            state_mold_iseq,
             state_emplace_contexts_with_parent_lifetime>(*this, ctx, mach);
     }
 
@@ -215,7 +229,7 @@ public:
     void reset_contexts_with_parent_lifetime()
     {
         iseq_for_each<
-            state_mold_iseq_0,
+            state_mold_iseq,
             state_reset_contexts_with_parent_lifetime>(*this);
     }
 
@@ -392,11 +406,9 @@ private:
                 static constexpr const auto& trans =
                     tuple_get<TransitionIndex>(impl_of(trans_table));
 
-                static constexpr auto target_state_mold_id =
-                    machine_conf_tree::id_of_target_state_mold_v<
-                        MachineConfHolder,
-                        TransitionTablePath,
-                        TransitionIndex>;
+                static constexpr auto target_state_mold_id = type_bimap_get_l_t<
+                    target_state_mold_id_extended_bimap,
+                    constant_t<&trans.target_state_mold>>::value;
 
                 if constexpr (is_state_set_v<std::decay_t<
                                   decltype(trans.source_state_mold)>>)
@@ -407,7 +419,7 @@ private:
                             MachineConfHolder,
                             TransitionTablePath,
                             TransitionIndex,
-                            state_mold_iseq>;
+                            state_mold_iseq_with_undefined>;
 
                     static_assert(iseq_size_v<matching_state_mold_iseq> != 0);
 
@@ -610,9 +622,7 @@ private:
         const Event& event)
     {
         auto processed = false;
-        iseq_for_each_or<
-            state_mold_iseq_0,
-            process_event_in_active_state_2<Dry>>(
+        iseq_for_each_or<state_mold_iseq, process_event_in_active_state_2<Dry>>(
             self,
             mach,
             ctx,
@@ -717,7 +727,9 @@ private:
     {
         auto matches = false;
         with_active_state_mold<
-            iseq_push_back_t<state_mold_iseq, state_mold_ids::fin>,
+            iseq_push_back_t<
+                state_mold_iseq_with_undefined,
+                state_mold_ids::fin>,
             is_active_state_mold_in_set_2<StateSetPtr>>(matches);
         return matches;
     }

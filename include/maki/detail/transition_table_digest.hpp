@@ -7,10 +7,14 @@
 #ifndef MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 #define MAKI_DETAIL_TRANSITION_TABLE_DIGEST_HPP
 
+#include "../fin.hpp"
 #include "../null.hpp"
+#include "../undefined.hpp"
+#include "constant.hpp"
 #include "iseq.hpp"
 #include "machine_conf_tree.hpp"
 #include "tuple.hpp"
+#include "type_bimap.hpp"
 #include <type_traits>
 
 namespace maki::detail
@@ -41,7 +45,8 @@ namespace transition_table_digest_detail
 {
     struct initial_digest
     {
-        using stt_mold_ids = iseq<>;
+        using target_state_mold_id_bimap = type_bimap<>;
+
         static constexpr auto has_completion_transitions = false;
     };
 
@@ -51,11 +56,15 @@ namespace transition_table_digest_detail
         template<class Digest, int TransitionIndex>
         struct add_transition_to_digest
         {
-            static constexpr int target_state_mold_id =
-                machine_conf_tree::id_of_target_state_mold_v<
-                    MachineConfHolder,
-                    TransitionTablePath,
-                    TransitionIndex>;
+            static constexpr const auto& trans =
+                tuple_get<TransitionIndex>(impl_of(
+                    machine_conf_tree::node_at_path_v<
+                        MachineConfHolder,
+                        TransitionTablePath>));
+
+            static constexpr bool is_known_target_state_mold = tlu::contains_v<
+                typename Digest::target_state_mold_id_bimap::right_type_list,
+                constant_t<&trans.target_state_mold>>;
 
             /*
             We must add target state to list of states unless:
@@ -65,11 +74,15 @@ namespace transition_table_digest_detail
             - it's `undefined`.
             */
             static constexpr auto must_add_target_state =
-                target_state_mold_id == TransitionIndex;
+                !is_known_target_state_mold &&
+                !ptr_equals(&trans.target_state_mold, &maki::fin) &&
+                !ptr_equals(&trans.target_state_mold, &maki::null) &&
+                !ptr_equals(&trans.target_state_mold, &maki::undefined);
 
-            using stt_mold_ids = iseq_push_back_if_t<
-                typename Digest::stt_mold_ids,
-                TransitionIndex,
+            using target_state_mold_id_bimap = type_bimap_insert_if_t<
+                typename Digest::target_state_mold_id_bimap,
+                constant_t<TransitionIndex>,
+                constant_t<&trans.target_state_mold>,
                 must_add_target_state>;
 
             static constexpr auto has_completion_transitions =

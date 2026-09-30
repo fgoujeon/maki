@@ -7,6 +7,7 @@
 #ifndef MAKI_DETAIL_ISEQ_HPP
 #define MAKI_DETAIL_ISEQ_HPP
 
+#include "constant.hpp"
 #include "pp/enum.hpp" // NOLINT misc-include-cleaner
 #include "pp/for.hpp" // NOLINT misc-include-cleaner
 #include "type_list.hpp"
@@ -40,6 +41,24 @@ struct linear_iseq_helper<N, N, Is...>
 
 template<int N>
 using linear_iseq_t = typename linear_iseq_helper<0, N>::type;
+
+
+/*
+iseq_from_constant_list
+*/
+
+template<class ConstantList>
+struct iseq_from_constant_list;
+
+template<template<class...> class TList, int... Is>
+struct iseq_from_constant_list<TList<constant_t<Is>...>>
+{
+    using type = iseq<Is...>;
+};
+
+template<class ConstantList>
+using iseq_from_constant_list_t =
+    typename iseq_from_constant_list<ConstantList>::type;
 
 
 /*
@@ -220,16 +239,10 @@ namespace iseq_left_fold_detail
         using type = V;
     };
 
-    template<
-        template<class, int> class F,
-        class V,
-        int I,
-        int... Is>
+    template<template<class, int> class F, class V, int I, int... Is>
     struct fold_on_pack<F, V, I, Is...>
     {
-        using type =
-            typename fold_on_pack<F, F<V, I>, Is...>::
-                type;
+        using type = typename fold_on_pack<F, F<V, I>, Is...>::type;
     };
 
 #define MAKI_DETAIL_TYPE_TPL_PARAM(index) int I##index

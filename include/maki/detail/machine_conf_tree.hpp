@@ -7,13 +7,10 @@
 #ifndef MAKI_DETAIL_MACHINE_CONF_TREE_HPP
 #define MAKI_DETAIL_MACHINE_CONF_TREE_HPP
 
-#include "../fin.hpp"
 #include "../machine_conf.hpp"
-#include "../null.hpp"
 #include "../state_mold.hpp"
 #include "../transition_table.hpp"
 #include "../undefined.hpp"
-#include "equals.hpp"
 #include "iseq.hpp"
 #include "state_mold_ids.hpp"
 #include "state_molds.hpp"

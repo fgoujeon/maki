@@ -106,14 +106,14 @@ public:
     using transition_table_digest_type =
         transition_table_digest<MachineConfHolder, TransitionTablePath>;
 
-    using target_state_mold_id_bimap =
-        typename transition_table_digest_type::target_state_mold_id_bimap;
+    using state_mold_bimap =
+        typename transition_table_digest_type::state_mold_bimap;
 
-    using state_mold_iseq = iseq_from_constant_list_t<
-        typename target_state_mold_id_bimap::left_type_list>;
+    using state_mold_iseq =
+        iseq_from_constant_list_t<typename state_mold_bimap::left_type_list>;
 
     // clang-format off
-    using target_state_mold_id_extended_bimap = typename target_state_mold_id_bimap
+    using state_mold_extended_bimap = typename state_mold_bimap
         ::template insert<constant_t<state_mold_ids::undefined>, constant_t<&maki::undefined>>
         ::template insert<constant_t<state_mold_ids::internal>,  constant_t<&maki::null>>
         ::template insert<constant_t<state_mold_ids::fin>,       constant_t<&maki::fin>>;
@@ -255,7 +255,7 @@ public:
     const auto& state() const
     {
         constexpr auto state_mold_id = type_bimap_get_l_t<
-            target_state_mold_id_extended_bimap,
+            state_mold_extended_bimap,
             constant_t<&StateMold>>::value;
         return state_mold_id_to_state<state_mold_id>();
     }
@@ -406,7 +406,7 @@ private:
                     tuple_get<TransitionIndex>(impl_of(trans_table));
 
                 static constexpr auto target_state_mold_id = type_bimap_get_l_t<
-                    target_state_mold_id_extended_bimap,
+                    state_mold_extended_bimap,
                     constant_t<&trans.target_state_mold>>::value;
 
                 if constexpr (is_state_set_v<std::decay_t<
@@ -432,9 +432,10 @@ private:
                 }
                 else
                 {
-                    static constexpr auto source_state_mold_id = type_bimap_get_l_t<
-                        target_state_mold_id_extended_bimap,
-                        constant_t<&trans.source_state_mold>>::value;
+                    static constexpr auto source_state_mold_id =
+                        type_bimap_get_l_t<
+                            state_mold_extended_bimap,
+                            constant_t<&trans.source_state_mold>>::value;
 
                     return try_executing_transition_2<
                         Dry,
@@ -713,7 +714,7 @@ private:
     [[nodiscard]] bool is_active_state_mold() const
     {
         constexpr auto state_mold_id = type_bimap_get_l_t<
-            target_state_mold_id_extended_bimap,
+            state_mold_extended_bimap,
             constant_t<&StateMold>>::value;
         return active_state_mold_id_ == state_mold_id;
     }

@@ -45,7 +45,7 @@ namespace transition_table_digest_ns
 
     using digest_t = maki::detail::transition_table_digest<machine_conf, maki::detail::iseq<0>>;
 
-    using expected_target_state_mold_id_bimap = typename maki::detail::type_bimap<>
+    using expected_state_mold_bimap = typename maki::detail::type_bimap<>
         ::template insert<maki::detail::constant_t<0>, maki::detail::constant_t<&state0>>
         ::template insert<maki::detail::constant_t<1>, maki::detail::constant_t<&state1>>
         ::template insert<maki::detail::constant_t<2>, maki::detail::constant_t<&state2>>
@@ -55,5 +55,5 @@ namespace transition_table_digest_ns
 TEST_CASE("detail::transition_table_digest")
 {
     using namespace transition_table_digest_ns;
-    REQUIRE(std::is_same_v<digest_t::target_state_mold_id_bimap, expected_target_state_mold_id_bimap>);
+    REQUIRE(std::is_same_v<digest_t::state_mold_bimap, expected_state_mold_bimap>);
 }

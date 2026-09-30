@@ -45,7 +45,7 @@ namespace transition_table_digest_detail
 {
     struct initial_digest
     {
-        using target_state_mold_id_bimap = type_bimap<>;
+        using state_mold_bimap = type_bimap<>;
 
         static constexpr auto has_completion_transitions = false;
     };
@@ -63,7 +63,7 @@ namespace transition_table_digest_detail
                         TransitionTablePath>));
 
             static constexpr bool is_known_target_state_mold = tlu::contains_v<
-                typename Digest::target_state_mold_id_bimap::right_type_list,
+                typename Digest::state_mold_bimap::right_type_list,
                 constant_t<&trans.target_state_mold>>;
 
             /*
@@ -79,8 +79,8 @@ namespace transition_table_digest_detail
                 !ptr_equals(&trans.target_state_mold, &maki::null) &&
                 !ptr_equals(&trans.target_state_mold, &maki::undefined);
 
-            using target_state_mold_id_bimap = type_bimap_insert_if_t<
-                typename Digest::target_state_mold_id_bimap,
+            using state_mold_bimap = type_bimap_insert_if_t<
+                typename Digest::state_mold_bimap,
                 constant_t<TransitionIndex>,
                 constant_t<&trans.target_state_mold>,
                 must_add_target_state>;

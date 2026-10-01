@@ -87,13 +87,7 @@ namespace digest_detail
 
             static constexpr auto has_completion_transitions =
                 Digest::has_completion_transitions ||
-                (TransitionIndex != 0 &&
-                    is_null_v<std::decay_t<decltype(tuple_get<TransitionIndex>(
-                        impl_of(
-                            machine_conf_tree::node_at_path_v<
-                                MachineConfHolder,
-                                TransitionTablePath>))
-                            .evt)>>);
+                (TransitionIndex != 0 && equals(trans.evt, null));
         };
     };
 } // namespace digest_detail

@@ -395,6 +395,21 @@ namespace detail
 
     template<class T>
     constexpr bool is_state_mold_v = is_state_mold<T>::value;
+
+    template<class T>
+    constexpr bool is_state_mold_holder(int)
+    {
+        return false;
+    }
+
+    template<class T>
+    constexpr auto is_state_mold_holder(char) -> decltype(T::value, bool())
+    {
+        return is_state_mold_v<std::decay_t<decltype(T::value)>>;
+    }
+
+    template<class T>
+    constexpr bool is_state_mold_holder_v = is_state_mold_holder<T>(' ');
 } // namespace detail
 
 } // namespace maki

@@ -22,28 +22,33 @@ namespace basic_exception_ns
 
     namespace states
     {
-        constexpr auto off = maki::state_mold{}
-            .entry_action_c
-            (
-                [](context& ctx)
-                {
-                    ctx.out += "off::on_entry;";
-                }
-            )
-            .exit_action_c
-            (
-                [](context& ctx)
-                {
-                    ctx.out += "off::on_exit;";
-
-                    if(!ctx.exception_thrown)
+        struct off_mold_holder
+        {
+            static constexpr auto value = maki::state_mold{}
+                .entry_action_c
+                (
+                    [](context& ctx)
                     {
-                        ctx.exception_thrown = true;
-                        throw std::runtime_error{"error"};
+                        ctx.out += "off::on_entry;";
                     }
-                }
-            )
-        ;
+                )
+                .exit_action_c
+                (
+                    [](context& ctx)
+                    {
+                        ctx.out += "off::on_exit;";
+
+                        if(!ctx.exception_thrown)
+                        {
+                            ctx.exception_thrown = true;
+                            throw std::runtime_error{"error"};
+                        }
+                    }
+                )
+            ;
+        };
+
+        constexpr off_mold_holder off;
 
         constexpr auto on = maki::state_mold{}
             .entry_action_c

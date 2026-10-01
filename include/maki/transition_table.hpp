@@ -216,7 +216,8 @@ public:
         {
             static_assert(
                 detail::is_state_mold_v<Source> ||
-                    detail::is_state_set_v<Source>,
+                    detail::is_state_set_v<Source> ||
+                    detail::is_state_mold_holder_v<Source>,
                 "Source (1st argument) must be an instance of "
                 "`maki::state_mold` or an instance of `maki::state_set`");
         }
@@ -225,7 +226,7 @@ public:
         if constexpr (detail::is_ini_v<Source>)
         {
             static_assert(
-                detail::is_state_mold_v<Target>,
+                detail::is_state_mold_v<Target> || detail::is_state_mold_holder_v<Target>,
                 "Target (2nd argument) of transition from initial pseudostate "
                 "must be an instance of `maki::state_mold`.");
         }
@@ -233,7 +234,7 @@ public:
         {
             static_assert(
                 detail::is_state_mold_v<Target> || detail::is_null_v<Target> ||
-                    detail::is_fin_v<Target>,
+                    detail::is_fin_v<Target> || detail::is_state_mold_holder_v<Target>,
                 "Target (2nd argument) must be an instance of "
                 "`maki::state_mold`, `maki::null` or `maki::fin`.");
         }

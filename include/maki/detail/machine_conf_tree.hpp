@@ -91,7 +91,16 @@ struct node_at_path_operation
         }
         else
         {
-            return tuple_get<Id>(impl_of(base)).target_state_mold;
+            const auto& target_state_mold = tuple_get<Id>(impl_of(base)).target_state_mold;
+            using target_state_mold_type = std::decay_t<decltype(target_state_mold)>;
+            if constexpr (is_state_mold_v<target_state_mold_type>)
+            {
+                return target_state_mold;
+            }
+            else
+            {
+                return target_state_mold.value;
+            }
         }
     }
 };

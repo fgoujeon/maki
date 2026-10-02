@@ -395,7 +395,24 @@ namespace detail
 
     template<class T>
     constexpr bool is_state_mold_v = is_state_mold<T>::value;
+
+    template<class T>
+    struct state_mold_holder_tag
+    {
+        using type = T;
+    };
 } // namespace detail
+
+template<class StateMoldHolder>
+class state_mold<detail::state_mold_holder_tag<StateMoldHolder>>
+{
+private:
+    MAKI_DETAIL_FRIENDLY_IMPL
+    static constexpr auto impl_ = impl_of(StateMoldHolder::value);
+};
+
+template<class StateMoldHolder>
+using state_mold_from_conf = state_mold<detail::state_mold_holder_tag<StateMoldHolder>>;
 
 } // namespace maki
 

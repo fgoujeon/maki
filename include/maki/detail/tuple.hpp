@@ -9,7 +9,6 @@
 
 #include "constant.hpp"
 #include "tlu.hpp"
-#include "type.hpp"
 #include <utility>
 
 namespace maki::detail
@@ -31,16 +30,6 @@ public:
     }
 
     constexpr const T& get(constant_t<Index> /*tag*/) const
-    {
-        return value_;
-    }
-
-    constexpr T& get(type_t<T> /*tag*/)
-    {
-        return value_;
-    }
-
-    constexpr const T& get(type_t<T> /*tag*/) const
     {
         return value_;
     }
@@ -129,53 +118,6 @@ constexpr auto make_tuple(const Args&... args)
     return tuple<Args...>{args...};
 }
 
-template<class IndexSequence>
-struct tuple_equality_impl;
-
-template<int Index, int... Indexes>
-struct tuple_equality_impl<std::integer_sequence<int, Index, Indexes...>>
-{
-    template<class... Args>
-    static constexpr bool call(
-        const tuple<Args...>& lhs,
-        const tuple<Args...>& rhs)
-    {
-        return lhs.get(constant<Index>) == rhs.get(constant<Index>) &&
-            tuple_equality_impl<std::integer_sequence<int, Indexes...>>::call(
-                lhs,
-                rhs);
-        ;
-    }
-};
-
-template<>
-struct tuple_equality_impl<std::integer_sequence<int>>
-{
-    template<class... Args>
-    static constexpr bool call(
-        const tuple<Args...>& /*lhs*/,
-        const tuple<Args...>& /*rhs*/)
-    {
-        return true;
-    }
-};
-
-template<class... Args>
-constexpr bool operator==(const tuple<Args...>& lhs, const tuple<Args...>& rhs)
-{
-    using impl_t = tuple_equality_impl<
-        std::make_integer_sequence<int, static_cast<int>(sizeof...(Args))>>;
-    return impl_t::call(lhs, rhs);
-}
-
-template<class... LhsArgs, class... RhsArgs>
-constexpr bool operator==(
-    const tuple<LhsArgs...>& /*lhs*/,
-    const tuple<RhsArgs...>& /*rhs*/)
-{
-    return false;
-}
-
 
 /*
 tuple_get
@@ -191,18 +133,6 @@ template<int Index, class... Ts>
 constexpr const auto& tuple_get(const tuple<Ts...>& tpl)
 {
     return tpl.get(constant<Index>);
-}
-
-template<class T, class... Ts>
-constexpr auto& tuple_get(tuple<Ts...>& tpl)
-{
-    return tpl.get(type<T>);
-}
-
-template<class T, class... Ts>
-constexpr const auto& tuple_get(const tuple<Ts...>& tpl)
-{
-    return tpl.get(type<T>);
 }
 
 
@@ -246,19 +176,6 @@ constexpr auto tuple_apply(Tuple& tpl, const F& fun, ExtraArgs&&... extra_args)
     using impl_t =
         tuple_apply_impl<std::make_integer_sequence<int, Tuple::size>>;
     return impl_t::call(tpl, fun, std::forward<ExtraArgs>(extra_args)...);
-}
-
-
-/*
-tuple_tail
-*/
-
-template<class Tuple>
-constexpr auto tuple_tail(Tuple& tpl)
-{
-    return tuple_apply(
-        tpl,
-        [](const auto&... elems) { return make_tuple(elems...); });
 }
 
 } // namespace maki::detail

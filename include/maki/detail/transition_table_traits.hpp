@@ -102,6 +102,6 @@ using digest = iseq_left_fold_t<
             node_at_path_v<MachineConfHolder, TransitionTablePath>)
             .size>>;
 
-} // namespace maki::detail
+} // namespace maki::detail::transition_table_traits
 
 #endif

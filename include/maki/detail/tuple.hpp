@@ -9,6 +9,7 @@
 
 #include "constant.hpp"
 #include "tlu.hpp"
+#include "iseq.hpp"
 #include <utility>
 
 namespace maki::detail
@@ -55,7 +56,7 @@ template<class IndexSequence, class... Ts>
 class tuple_base;
 
 template<int... Indexes, class... Ts>
-class tuple_base<std::integer_sequence<int, Indexes...>, Ts...>
+class tuple_base<iseq<Indexes...>, Ts...>
     : private tuple_element<Indexes, Ts>...
 {
 public:
@@ -100,11 +101,11 @@ Using this instead of std::tuple improves build time.
 */
 template<class... Ts>
 class tuple
-    : public tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>
+    : public tuple_base<linear_iseq_t<sizeof...(Ts)>, Ts...>
 {
 public:
     using base_t =
-        tuple_base<std::make_integer_sequence<int, sizeof...(Ts)>, Ts...>;
+        tuple_base<linear_iseq_t<sizeof...(Ts)>, Ts...>;
 
     using base_t::base_t;
     using base_t::get;
